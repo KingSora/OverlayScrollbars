@@ -4,6 +4,10 @@
 
 OverlayScrollbars is a javascript scrollbar plugin which hides the native scrollbars and provides custom styleable scrollbars, but keeps the native functionality and feeling.
 
+## Why?
+
+I've created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
+
 ## Goals & Features
 
  - A simple, powerful and good documented API.
