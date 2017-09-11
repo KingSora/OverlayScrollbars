@@ -387,7 +387,11 @@ html.os-html > .os-host > .os-scrollbar {
 .os-host-overflow {
     overflow: hidden !important;
 }
-.os-host-overflow-x {} .os-host-overflow-y {} @-webkit-keyframes hs-resize-observer-dummy-animation {
+.os-host-overflow-x {
+} 
+.os-host-overflow-y {
+} 
+@-webkit-keyframes hs-resize-observer-dummy-animation {
     from {
         z-index: 0;
     }
