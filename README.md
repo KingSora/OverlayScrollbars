@@ -135,7 +135,10 @@ Take the table below only as a overview of all options.
 		<td>initialize</td>
 		<td>boolean</td>
 		<td><code>true</code></td>
-		<td>Indicates whether the plugin shall be initialized even if the native scrollbars are overlaid.</td>
+		<td>
+			Indicates whether the plugin shall be initialized even if the native scrollbars are overlaid.<br>
+			If you initialize the plugin on the body element, I recommend to set this option to false.
+		</td>
 	</tr>
 	<tr>
 		<th align="left" colspan="5">}</th>
