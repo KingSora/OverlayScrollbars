@@ -33,7 +33,8 @@ It doesn't work with jQuery slim.
 
 #### HTML
 
-Include [jQuery](https://jquery.com/) and **OverlayScrollbars** to your HTML file:
+Include [jQuery](https://jquery.com/) and **OverlayScrollbars** to your HTML file.  
+Load your CSS file(s) before the JS file(s), to prevent unexpected bugs.
 
 ```html
 <!-- Plugin CSS -->
@@ -46,15 +47,13 @@ Include [jQuery](https://jquery.com/) and **OverlayScrollbars** to your HTML fil
 
 #### Javascript
 
-Initialize the plugin on the desired element.
+Initialize the plugin after your document has been fully loaded on the desired element.
 
 ```js
-(function($) {
-
-    //The passed argument has to be at least a empty object or a object with your desired options
-    $('body').overlayScrollbars({ });
-
-})(jQuery);
+$(function() {
+	//The passed argument has to be at least a empty object or a object with your desired options
+	$('body').overlayScrollbars({ });
+});
 ```
 
 ## Options
