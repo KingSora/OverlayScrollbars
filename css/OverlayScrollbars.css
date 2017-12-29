@@ -2,11 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
+ * Version: 1.2.0
+ * 
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 09.09.2017
+ * Date: 29.12.2017
  */
 
 /*
@@ -23,12 +25,10 @@ html.os-html > .os-host {
     min-width: 100% !important;
     min-height: 100% !important;
     margin: 0 !important;
-    position: absolute !important;
-    /* could be position: fixed; but it causes issues on iOS (-webkit-overflow-scrolling: touch) */
+    position: absolute !important; /* could be position: fixed; but it causes issues on iOS (-webkit-overflow-scrolling: touch) */
 }
 html.os-html > .os-host > .os-padding {
-    position: absolute;
-    /* could be position: fixed; but it causes issues on iOS (-webkit-overflow-scrolling: touch) */
+    position: absolute; /* could be position: fixed; but it causes issues on iOS (-webkit-overflow-scrolling: touch) */
 }
 body.os-dragging,
 body.os-dragging * {
@@ -269,11 +269,8 @@ CUSTOM SCROLLBARS AND CORNER CORE:
     transition: opacity 0.3s, visibility 0.3s, top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
 }
 html.os-html > .os-host > .os-scrollbar {
-    position: absolute;
-    /* could be position: fixed; but it causes issues on iOS (-webkit-overflow-scrolling: touch) */
-    
-    z-index: 999999;
-    /* highest z-index of the page */
+    position: absolute; /* could be position: fixed; but it causes issues on iOS (-webkit-overflow-scrolling: touch) */
+    z-index: 999999; /* highest z-index of the page */
 }
 .os-scrollbar,
 .os-scrollbar-corner {

@@ -13,6 +13,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - A simple, powerful and good documented API.
  - High browser compatibility (<b>IE8+</b>, <b>Safari6+</b>, <b>Firefox</b>, <b>Opera</b>, <b>Chrome</b> and <b>Edge</b>).
  - Usage of the most recent technologies to ensure maximum efficiency and performance on newer browsers.
+ - Can be used without any dependencies or with jQuery.
  - Automatic update detection - after the initialization you don't have to worry about updating.
  - Mouse and touch support.
  - Textarea support.
@@ -25,20 +26,43 @@ You can find a detailed documentation, demos and theme templates [here](https://
 
 ## Dependencies
 
-**Currently this library requires [jQuery](https://jquery.com/) to work.**  
-The plugin was tested with the jQuery versions: 1.9.1, 2.x, 3.x.  
-It doesn't work with jQuery slim.
+The default plugin version doesn't requires any dependencies!
+
+**If you are using the jQuery dependent version it obviously requires [jQuery](https://jquery.com/) to work.**  
+It was tested with the jQuery versions: 1.9.1, 2.x, 3.x, and it won't work with jQuery slim.
+
+## Download
+
+#### manually
+Download OverlayScrollbars manually from [Releases](https://github.com/KingSora/OverlayScrollbars/releases).
+
+#### npm
+OverlayScrollbars can be also downloaded from [npm](https://www.npmjs.com/package/overlayscrollbars).
+
+```
+npm install overlayscrollbars
+```
 
 ## Usage
 
 #### HTML
 
-Include [jQuery](https://jquery.com/) and **OverlayScrollbars** to your HTML file.  
 Load your CSS file(s) before the JS file(s), to prevent unexpected bugs.
+
+Include **OverlayScrollbars.css** and **OverlayScrollbars.js** to your HTML file.  
 
 ```html
 <!-- Plugin CSS -->
-<link type="text/css" href="path/to/jquery.overlayScrollbars.css" rel="stylesheet"/>
+<link type="text/css" href="path/to/OverlayScrollbars.css" rel="stylesheet"/>
+<!-- Plugin JS -->
+<script type="text/javascript" src="path/to/OverlayScrollbars.js"></script>
+```
+
+If you are using the jQuery version include [jQuery](https://jquery.com/) before the plugin and use **jquery.overlayScrollbars.js**
+
+```html
+<!-- Plugin CSS -->
+<link type="text/css" href="path/to/OverlayScrollbars.css" rel="stylesheet"/>
 <!-- jQuery JS -->
 <script type="text/javascript" src="path/to/jquery.js"></script>
 <!-- Plugin JS -->
@@ -49,6 +73,16 @@ Load your CSS file(s) before the JS file(s), to prevent unexpected bugs.
 
 Initialize the plugin after your document has been fully loaded on the desired element.
 
+Default initialization:
+```js
+$(function() {
+	//The first argument are the elements to which the plugin shall be initialized
+	//The second argument has to be at least a empty object or a object with your desired options
+	OverlayScrollbars(document.querySelectorAll('body'), { });
+});
+```
+
+jQuery initialization (will only work with the jQuery version):
 ```js
 $(function() {
 	//The passed argument has to be at least a empty object or a object with your desired options
@@ -465,7 +499,7 @@ instance.destroy();</pre>
 		</tr>
 	</thead>
 	<tr>
-		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/gmethod-defaultoptions" target="_blank">window.overlayScrollbarsDefaultOptions()</a></b></td>
+		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/gmethod-defaultoptions" target="_blank">OverlayScrollbars.defaultOptions()</a></b></td>
 		<td>Returns or Sets the default options for each new plugin initialization.</td>
 	</tr>
 	<tr>
@@ -473,16 +507,16 @@ instance.destroy();</pre>
 			example(s):<br> 
 			<pre lang="js">
 //get the current defaultOptions
-var defaultOptions = window.overlayScrollbarsDefaultOptions();
+var defaultOptions = OverlayScrollbars.defaultOptions();
 //set new default options
-window.overlayScrollbarsDefaultOptions({
+OverlayScrollbars.defaultOptions({
 	className : "my-custom-class",
 	resize    : "both"
 });</pre>
 		</td>
 	</tr>
 	<tr>
-		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/gmethod-getglobals" target="_blank">window.overlayScrollbarsGlobals()</a></b></td>
+		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/gmethod-getglobals" target="_blank">OverlayScrollbars.globals()</a></b></td>
 		<td>Returns a plain object which contains global information about the plugin and each instance of it.</td>
 	</tr>
 	<tr>
@@ -490,7 +524,7 @@ window.overlayScrollbarsDefaultOptions({
 			example(s):<br> 
 			<pre lang="js">
 //get the global information
-var globals = window.overlayScrollbarsGlobals();</pre>
+var globals = OverlayScrollbars.globals();</pre>
 		</td>
 	</tr>
 </table>
@@ -498,7 +532,6 @@ var globals = window.overlayScrollbarsGlobals();</pre>
 ## Future Plans
 
  - Minimize the code as much as possible.
- - If desired by the community I'll write and provide a jQuery independent version of the plugin.
  - Frequent updates in terms of bugsfixes and enhancements.
 
 ## License
