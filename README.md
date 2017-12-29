@@ -26,9 +26,9 @@ You can find a detailed documentation, demos and theme templates [here](https://
 
 ## Dependencies
 
-**The default plugin version doesn't requires any dependencies!**
+**The default version doesn't requires any dependencies!**
 
-**If you are using the jQuery dependent version it obviously requires [jQuery](https://jquery.com/) to work.**  
+If you are using the jQuery dependent version it obviously requires [jQuery](https://jquery.com/) to work.
 It was tested with the jQuery versions: 1.9.1, 2.x, 3.x, and it won't work with jQuery slim.
 
 ## Download
