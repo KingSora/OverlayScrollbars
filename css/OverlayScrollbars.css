@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.2.0
+ * Version: 1.2.1
  * 
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 29.12.2017
+ * Date: 10.01.2018
  */
 
 /*
@@ -42,7 +42,7 @@ body.os-dragging * {
 #hs-dummy-scrollbar-size {
     position: fixed;
     opacity: 0;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)';
     visibility: hidden;
     overflow: scroll;
     height: 500px;
@@ -145,7 +145,7 @@ body.os-dragging * {
     z-index: -1;
     pointer-events: none;
 }
-.os-content > .os-textarea[wrap="off"] {
+.os-content > .os-textarea[wrap='off'] {
     white-space: pre !important;
     margin: 0px !important;
 }
@@ -276,7 +276,7 @@ html.os-html > .os-host > .os-scrollbar {
 .os-scrollbar-corner {
     position: absolute;
     opacity: 1;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+    -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=100)';
     z-index: 1;
 }
 .os-scrollbar-corner {

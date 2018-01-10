@@ -2,22 +2,22 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.2.0
+ * Version: 1.2.1
  * 
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 29.12.2017
+ * Date: 10.01.2018
  */
 
 (function (global, factory) {
-	if (typeof define === 'function' && define.amd)
-		return define(function() { return factory(window, document, undefined); });
+    if (typeof define === 'function' && define.amd)
+		define(function() { return factory(global, global.document, undefined); });
 	else if (typeof exports === 'object')
-		return module.exports = factory(window, document, undefined);
+		module.exports = factory(global, global.document, undefined);
 	else
-		return factory(window, document, undefined);
+		factory(global, global.document, undefined, jQuery);
 }(this, (function(window, document, undefined, jQuery) {
 	'use-strict';
 	var PLUGINNAME = "OverlayScrollbars";
@@ -2384,6 +2384,7 @@
 						attributeOldValue: true,
 						subtree: !_isTextarea,
 						childList: !_isTextarea,
+                        characterData: !_isTextarea,
 						attributeFilter: _isTextarea ? ['wrap', 'cols', 'rows'] : ['id', 'class', 'style']
 					});
 
@@ -4180,7 +4181,9 @@
 				if (heightAuto) {
 					if (!cssMaxValue.ch)
 						contentElementCSS[_strMaxMinus + _strHeight] = _strEmpty;
-					contentGlueElementCSS[_strHeight] = _isTextarea && textareaDynHeight ? textareaSize.dh : _strAuto;
+                    //fix dyn height collapse bug: (doesn't works for width!)
+					//contentGlueElementCSS[_strHeight] = _isTextarea && textareaDynHeight ? textareaSize.dh : _strAuto;
+                    contentGlueElementCSS[_strHeight] = _isTextarea ? textareaDynHeight ? textareaSize.dh : _strAuto : _contentElement[0].clientHeight;
 				}
 				if (sizeAutoCapable)
 					_contentGlueElement.css(contentGlueElementCSS);
@@ -5749,6 +5752,7 @@
 		 * @param newDefaultOptions The object with which the default options shall be extended.
 		 */
 		window[PLUGINNAME].defaultOptions = function(newDefaultOptions) {
+            initOverlayScrollbarsStatics();
 			var currDefaultOptions = _pluginGlobals.defaultOptions;
 			if(newDefaultOptions === undefined)
 				return helper.extend(true, { }, currDefaultOptions);
