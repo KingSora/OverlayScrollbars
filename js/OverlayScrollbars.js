@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.2.1
+ * Version: 1.2.2
  * 
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 10.01.2018
+ * Date: 23.01.2018
  */
 
 (function (global, factory) {
@@ -17,8 +17,8 @@
     else if (typeof exports === 'object')
         module.exports = factory(global, global.document, undefined);
     else
-        factory(global, global.document, undefined, jQuery);
-}(this, (function(window, document, undefined, jQuery) {
+        factory(global, global.document, undefined);
+}(this, (function(window, document, undefined) {
     'use-strict';
     var PLUGINNAME = "OverlayScrollbars";
     var COMPATIBILITY = {
