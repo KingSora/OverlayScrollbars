@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.2.2
+ * Version: 1.2.3
  * 
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 23.01.2018
+ * Date: 02.02.2018
  */
 
 (function (global, factory) {
@@ -18,7 +18,7 @@
         module.exports = factory(global, global.document, undefined);
     else
         factory(global, global.document, undefined);
-}(this, (function(window, document, undefined) {
+}(typeof window !== "undefined" ? window : this, (function(window, document, undefined) {
     'use-strict';
     var PLUGINNAME = "OverlayScrollbars";
     var COMPATIBILITY = {
@@ -533,7 +533,7 @@
                 animObj.q.splice(0, 1);
             if(animObj.q.length > 0) {
                 nextAnim = animObj.q[0];
-                anim(animObj.el, nextAnim.props, nextAnim.duration, nextAnim.easing, nextAnim.complete, true);
+                animate(animObj.el, nextAnim.props, nextAnim.duration, nextAnim.easing, nextAnim.complete, true);
             }
             else {
                 index = FakejQuery.inArray(animObj, _animations);
@@ -1580,8 +1580,8 @@
                 }
 
                 function getWindowDPR() {
-                    var dDPI = screen.deviceXDPI || 0;
-                    var sDPI = screen.logicalXDPI || 1;
+                    var dDPI = window.screen.deviceXDPI || 0;
+                    var sDPI = window.screen.logicalXDPI || 1;
                     return window.devicePixelRatio || (dDPI / sDPI);
                 }
 
@@ -5761,4 +5761,5 @@
             _pluginGlobals.defaultOptions = helper.extend(true, { }, currDefaultOptions , newDefaultOptions);
         };
     })(COMPATIBILITY, INSTANCES, HELPER, BYPROPERTYPATH);
+    return window[PLUGINNAME];
 })));
