@@ -219,7 +219,7 @@ Take the table below only as a overview of all options.
 		<td>autoHideDelay</td>
 		<td>number</td>
 		<td><code>800</code></td>
-		<td>The possibility to hide visible scrollbars after a certain action.</td>
+		<td>The delay in milliseconds before the scrollbars gets hidden automatically.</td>
 	</tr>
 	<tr>
 		<td></td>
@@ -516,7 +516,7 @@ OverlayScrollbars.defaultOptions({
 		</td>
 	</tr>
 	<tr>
-		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/gmethod-getglobals" target="_blank">OverlayScrollbars.globals()</a></b></td>
+		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/gmethod-globals" target="_blank">OverlayScrollbars.globals()</a></b></td>
 		<td>Returns a plain object which contains global information about the plugin and each instance of it.</td>
 	</tr>
 	<tr>
