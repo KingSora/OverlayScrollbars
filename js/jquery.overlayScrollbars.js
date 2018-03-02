@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.3.0
+ * Version: 1.4.0
  * 
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 26.02.2018
+ * Date: 02.03.2018
  */
 
 (function (global, factory) {
@@ -435,7 +435,7 @@
             },
             scrollbars : {
                 visibility : 'auto',    //visible || hidden || auto || v || h || a
-                autoHide : 'never',     //never || scroll || leave || n || s || l
+                autoHide : 'never',     //never || scroll || leave || move || n || s || l || m
                 autoHideDelay : 800,    //number
                 dragScrolling : true,   //true || false
                 clickScrolling : false, //true || false
@@ -486,7 +486,7 @@
             var nativeScrollbarSize = (function() {
                 bodyElement.append(scrollbarDummyElement);
                 var strOverflow = 'overflow';
-				var strHidden = 'hidden';
+                var strHidden = 'hidden';
                 var scrollbarDummyElement0 = scrollbarDummyElement[0];
                 var dummyContainerChild = helper(scrollbarDummyElement.children('div').first());
                 var IEBUGFIX = scrollbarDummyElement0[WORDING.oH]; //IE9 causes a bug where offsetHeight is zero for no reason
@@ -497,44 +497,44 @@
                     x: scrollbarDummyElement0[WORDING.oH] - scrollbarDummyElement0[WORDING.cH],
                     y: scrollbarDummyElement0[WORDING.oW] - scrollbarDummyElement0[WORDING.cW]
                 };
-				//https://bugzilla.mozilla.org/show_bug.cgi?id=1439305
-				_base.restrictedMeasuring = (function() { 
-					scrollbarDummyElement.css(strOverflow, strHidden);
-					var scrollSize = { 
-						w : scrollbarDummyElement0[WORDING.sW],
-						h : scrollbarDummyElement0[WORDING.sH]
-					};
-					scrollbarDummyElement.css(strOverflow, 'visible');
-					var scrollSize2 = { 
-						w : scrollbarDummyElement0[WORDING.sW],
-						h : scrollbarDummyElement0[WORDING.sH]
-					};
-					return (scrollSize.w - scrollSize2.w) !== 0 || (scrollSize.h - scrollSize2.h) !== 0;
-				})();
-				_base.nativeScrollbarStyling = (function() { 
-					scrollbarDummyElement.addClass('os-viewport-native-scrollbars-invisible');
-					scrollbarDummyElement.css(strOverflow, strHidden).hide().css(strOverflow, 'scroll').show(); //fix opera bug: scrollbar styles will only appear if overflow value is scroll or auto during the activation of the style.
-					return (scrollbarDummyElement0[WORDING.oH] - scrollbarDummyElement0[WORDING.cH]) === 0 && (scrollbarDummyElement0[WORDING.oW] - scrollbarDummyElement0[WORDING.cW]) === 0;
-				})();
-				_base.rtlScrollBehavior = (function() { 
-					scrollbarDummyElement.css({ 'overflow-y' : strHidden, 'direction' : 'rtl' }).scrollLeft(0);
-					var dummyContainerOffset = scrollbarDummyElement.offset();
-					var dummyContainerChildOffset = dummyContainerChild.offset();
-					scrollbarDummyElement.scrollLeft(999);
-					var dummyContainerScrollOffsetAfterScroll = dummyContainerChild.offset();
-					return {
-						//origin direction = determines if the zero scroll position is on the left or right side
-						//'i' means 'invert' (i === true means that the axis must be inverted to be correct)
-						//true = on the left side
-						//false = on the right side
-						i : dummyContainerOffset.left === dummyContainerChildOffset.left,
-						//negative = determines if the maximum scroll is positive or negative
-						//'n' means 'negate' (n === true means that the axis must be negated to be correct)
-						//true = negative
-						//false = positive
-						n : dummyContainerChildOffset.left - dummyContainerScrollOffsetAfterScroll.left === 0
-					};
-				})();
+                //https://bugzilla.mozilla.org/show_bug.cgi?id=1439305
+                _base.restrictedMeasuring = (function() {
+                    scrollbarDummyElement.css(strOverflow, strHidden);
+                    var scrollSize = {
+                        w : scrollbarDummyElement0[WORDING.sW],
+                        h : scrollbarDummyElement0[WORDING.sH]
+                    };
+                    scrollbarDummyElement.css(strOverflow, 'visible');
+                    var scrollSize2 = {
+                        w : scrollbarDummyElement0[WORDING.sW],
+                        h : scrollbarDummyElement0[WORDING.sH]
+                    };
+                    return (scrollSize.w - scrollSize2.w) !== 0 || (scrollSize.h - scrollSize2.h) !== 0;
+                })();
+                _base.nativeScrollbarStyling = (function() {
+                    scrollbarDummyElement.addClass('os-viewport-native-scrollbars-invisible');
+                    scrollbarDummyElement.css(strOverflow, strHidden).hide().css(strOverflow, 'scroll').show(); //fix opera bug: scrollbar styles will only appear if overflow value is scroll or auto during the activation of the style.
+                    return (scrollbarDummyElement0[WORDING.oH] - scrollbarDummyElement0[WORDING.cH]) === 0 && (scrollbarDummyElement0[WORDING.oW] - scrollbarDummyElement0[WORDING.cW]) === 0;
+                })();
+                _base.rtlScrollBehavior = (function() {
+                    scrollbarDummyElement.css({ 'overflow-y' : strHidden, 'direction' : 'rtl' }).scrollLeft(0);
+                    var dummyContainerOffset = scrollbarDummyElement.offset();
+                    var dummyContainerChildOffset = dummyContainerChild.offset();
+                    scrollbarDummyElement.scrollLeft(999);
+                    var dummyContainerScrollOffsetAfterScroll = dummyContainerChild.offset();
+                    return {
+                        //origin direction = determines if the zero scroll position is on the left or right side
+                        //'i' means 'invert' (i === true means that the axis must be inverted to be correct)
+                        //true = on the left side
+                        //false = on the right side
+                        i : dummyContainerOffset.left === dummyContainerChildOffset.left,
+                        //negative = determines if the maximum scroll is positive or negative
+                        //'n' means 'negate' (n === true means that the axis must be negated to be correct)
+                        //true = negative
+                        //false = positive
+                        n : dummyContainerChildOffset.left - dummyContainerScrollOffsetAfterScroll.left === 0
+                    };
+                })();
                 scrollbarDummyElement.removeAttr(WORDING.s).remove();
                 return scrollbarSize;
             })();
@@ -828,7 +828,7 @@
             var _supportTransform;
             var _supportPassiveEvents;
             var _supportResizeObserver;
-			var _restrictedMeasuring;
+            var _restrictedMeasuring;
             var _isBorderBox;
             var _paddingX;
             var _paddingY;
@@ -875,6 +875,8 @@
             var _strMouseTouchDownEvent = 'mousedown touchstart';
             var _strMouseTouchUpEvent = 'mouseup touchend';
             var _strMouseTouchMoveEvent = 'mousemove touchmove';
+            var _strMouseTouchEnter = 'mouseenter';
+            var _strMouseTouchLeave = 'mouseleave';
             var _strKeyDownEvent = 'keydown';
             var _strKeyUpEvent = 'keyup';
             var _strSelectStartEvent = 'selectstart';
@@ -1026,12 +1028,14 @@
 
             //scrollbars:
             var _scrollbarsAutoHideTimeoutId;
+            var _scrollbarsAutoHideMoveTimeoutId;
             var _scrollbarsAutoHideDelay;
             var _scrollbarsAutoHideNever;
             var _scrollbarsAutoHideScroll;
+            var _scrollbarsAutoHideMove;
             var _scrollbarsAutoHideLeave;
             var _scrollbarsTouchSupport;
-            var _scrollbarsAutoHideScrollAndHovered;
+            var _scrollbarsAutoHideFlagScrollAndHovered;
 
             //resize
             var _resizeReconnectMutationObserver;
@@ -1406,8 +1410,8 @@
              * @param args The args with which the callback shall be called.
              */
             function callCallback(callback, args) {
-				if(_initialized)
-					callback.call(_base, args);
+                if(_initialized)
+                    callback.call(_base, args);
             }
 
             /**
@@ -1783,11 +1787,11 @@
                 else {
                     var strActive = 'active';
                     var hide = function () {
-                        if (!_scrollbarsAutoHideScrollAndHovered) {
+                        if (!_scrollbarsAutoHideFlagScrollAndHovered) {
                             var anyActive = _scrollbarHorizontalHandleElement.hasClass(strActive) || _scrollbarVerticalHandleElement.hasClass(strActive);
-                            if (!anyActive && (_scrollbarsAutoHideScroll || _scrollbarsAutoHideLeave))
+                            if (!anyActive && (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove || _scrollbarsAutoHideLeave))
                                 _scrollbarHorizontalElement.addClass(_classNameScrollbarAutoHidden);
-                            if (!anyActive && (_scrollbarsAutoHideScroll || _scrollbarsAutoHideLeave))
+                            if (!anyActive && (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove || _scrollbarsAutoHideLeave))
                                 _scrollbarVerticalElement.addClass(_classNameScrollbarAutoHidden);
                         }
                     };
@@ -1808,7 +1812,6 @@
 
                 //get and apply intended handle length
                 var handleRatio = Math.min(1, (_hostSizeCache[scrollbarVars._wh] - (_paddingAbsoluteCache ? (isHorizontal ? _paddingX : _paddingY) : 0)) / _contentScrollSizeCache[scrollbarVars._wh]);
-				handleRatio = isNaN(handleRatio) ? 0 : handleRatio;
                 handleCSS[scrollbarVars.wh] = (Math.floor(handleRatio * 100 * 100000) / 100000) + "%"; //the last * 100000 / 100000 is for flooring to the 4th digit
 
                 if (!nativeOverlayScrollbarsAreActive())
@@ -2009,7 +2012,7 @@
                         event.clientY >= rect.top && event.clientY <= rect.bottom)) {
                         hostOnMouseLeave();
                     }
-                    if (_scrollbarsAutoHideScroll)
+                    if (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove)
                         refreshScrollbarsAutoHide(false);
                 };
                 var documentKeyDown = function (event) {
@@ -2131,13 +2134,13 @@
                         compatibility.prvD(event);
                     }
                 }).hover(function () { //make sure both scrollbars will stay visible if one scrollbar is hovered if autoHide is "scroll".
-                    if (_scrollbarsAutoHideScroll) {
-                        _scrollbarsAutoHideScrollAndHovered = true;
+                    if (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove) {
+                        _scrollbarsAutoHideFlagScrollAndHovered = true;
                         refreshScrollbarsAutoHide(true);
                     }
                 }, function () {
-                    if (_scrollbarsAutoHideScroll) {
-                        _scrollbarsAutoHideScrollAndHovered = false;
+                    if (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove) {
+                        _scrollbarsAutoHideFlagScrollAndHovered = false;
                         refreshScrollbarsAutoHide(false);
                     }
                 });
@@ -2185,6 +2188,20 @@
             }
 
             /**
+             * The mouse leave event of the host element. This event is only needed for the autoHide feature.
+             */
+            function hostOnMouseMove() {
+                if (_scrollbarsAutoHideMove) {
+                    refreshScrollbarsAutoHide(true);
+                    clearTimeout(_scrollbarsAutoHideMoveTimeoutId);
+                    _scrollbarsAutoHideMoveTimeoutId = setTimeout(function () {
+                        if (_scrollbarsAutoHideMove)
+                            refreshScrollbarsAutoHide(false);
+                    }, 100);
+                }
+            }
+
+            /**
              * The scroll event of the viewport element. That is the main scroll event. It controls also the "scroll", "scrollStart" and "scrollStop" callbacks.
              * @param event The scroll event.
              */
@@ -2199,7 +2216,7 @@
                 if (_scrollStopTimeoutId !== undefined)
                     clearTimeout(_scrollStopTimeoutId);
                 else {
-                    if (_scrollbarsAutoHideScroll)
+                    if (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove)
                         refreshScrollbarsAutoHide(true);
 
                     if (!nativeOverlayScrollbarsAreActive())
@@ -2229,7 +2246,7 @@
             function onScrollStop() {
                 clearTimeout(_scrollStopTimeoutId);
                 _scrollStopTimeoutId = undefined;
-                if (_scrollbarsAutoHideScroll)
+                if (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove)
                     refreshScrollbarsAutoHide(false);
 
                 if (!nativeOverlayScrollbarsAreActive())
@@ -2564,7 +2581,7 @@
                 var classNameAllowedValues = ['*', null];
                 var overflowBehaviorAllowedValues = ['v-h:visible-hidden', 'v-s:visible-scroll', 's:scroll', 'h:hidden'];
                 var scrollbarsVisibilityAllowedValues = ['v:visible', 'h:hidden', 'a:auto'];
-                var scrollbarsAutoHideAllowedValues = ['n:never', 's:scroll', 'l:leave'];
+                var scrollbarsAutoHideAllowedValues = ['n:never', 's:scroll', 'l:leave', 'm:move'];
                 var resizeAllowedValues = ['n:none', 'b:both', 'h:horizontal', 'v:vertical'];
                 var strCallbacksDot = 'callbacks.';
                 var strScrollbarsDot = _strScrollbar + 's.';
@@ -2929,6 +2946,7 @@
                 //scrollbars visibility
                 _scrollbarsAutoHideNever = scrollbarsAutoHide === 'n';
                 _scrollbarsAutoHideScroll = scrollbarsAutoHide === 's';
+                _scrollbarsAutoHideMove = scrollbarsAutoHide === 'm';
                 _scrollbarsAutoHideLeave = scrollbarsAutoHide === 'l';
 
                 //scrollbars autoHideDelay
@@ -3080,7 +3098,7 @@
                 var isRTLLeft = _isRTL ? _strLeft : _strRight;
                 var isRTLRight = _isRTL ? _strRight : _strLeft;
                 var hostElement = _hostElement[0];
-				var paddingElement = _paddingElement[0];
+                var paddingElement = _paddingElement[0];
 
                 //detect width auto:
                 var widthAutoResizeDetection = false;
@@ -3266,7 +3284,12 @@
                     var strOverflowY = strOverflow + '-y';
                     var strHidden = 'hidden';
                     var strVisible = 'visible';
-                    var hideOverflow4CorrectMeasuring = _restrictedMeasuring ? (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y) || (_viewportSize.w < _nativeScrollbarMinSize.y || _viewportSize.h < _nativeScrollbarMinSize.x) : false;
+                    //decide whether the content overflow must get hidden for correct overflow measuring, it MUST be always hidden if the height is auto
+                    var hideOverflow4CorrectMeasuring = _restrictedMeasuring ?
+                        (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y) || //it must be hidden if native scrollbars are overlaid
+                        (_viewportSize.w < _nativeScrollbarMinSize.y || _viewportSize.h < _nativeScrollbarMinSize.x) || //it must be hidden if host-element is too small
+                        heightAuto //it must be hidden if height is auto
+                        : heightAuto; //if there is not the restricted Measuring bug, it must be hidden if the height is auto
 
                     //Reset the viewport (very important for natively overlaid scrollbars and zoom change
                     var viewportElementResetCSS = {};
@@ -3394,12 +3417,12 @@
                     };
                     hostSizeChanged = checkCacheDouble(hostSize, _hostSizeCache);
                     _hostSizeCache = hostSize;
-					
-					//viewport size is padding container because it never has padding, margin and a border.
-					_viewportSize = {
-						w: paddingElement[WORDING.oW],
-						h: paddingElement[WORDING.oH]
-					};
+
+                    //viewport size is padding container because it never has padding, margin and a border.
+                    _viewportSize = {
+                        w: paddingElement[WORDING.oW],
+                        h: paddingElement[WORDING.oH]
+                    };
 
                     var overflowBehaviorIsVS = {
                         x: overflowBehavior.x === 'v-s',
@@ -3555,14 +3578,14 @@
                             viewportElementCSS[strOverflowY] = _strEmpty;
                             resetScrollbarHidingY();
                         }
-						
+
 
                         // if the scroll container is too small and if there is any overflow with not overlay scrollbar, make viewport element greater in size (Firefox hide Scrollbars fix)
                         // because firefox starts hiding scrollbars on too small elements
                         // with this behavior the overflow calculation may be incorrect or the scrollbars would appear suddenly
                         // https://bugzilla.mozilla.org/show_bug.cgi?id=292284
-                        if ((_viewportSize.h < _nativeScrollbarMinSize.x || _viewportSize.w < _nativeScrollbarMinSize.y) 
-							&& ((hasOverflow.x && hideOverflow.x && !_nativeScrollbarIsOverlaid.x) || (hasOverflow.y && hideOverflow.y && !_nativeScrollbarIsOverlaid.y))) {
+                        if ((_viewportSize.h < _nativeScrollbarMinSize.x || _viewportSize.w < _nativeScrollbarMinSize.y)
+                            && ((hasOverflow.x && hideOverflow.x && !_nativeScrollbarIsOverlaid.x) || (hasOverflow.y && hideOverflow.y && !_nativeScrollbarIsOverlaid.y))) {
                             viewportElementCSS[_strPaddingMinus + _strTop] = _nativeScrollbarMinSize.x;
                             viewportElementCSS[_strMarginMinus + _strTop] = -_nativeScrollbarMinSize.x;
 
@@ -3726,34 +3749,42 @@
 
                     //manage the scrollbars auto hide feature (auto hide them after specific actions)
                     if (scrollbarsAutoHideChanged || ignoreOverlayScrollbarHidingChanged) {
-                        var strMouseEnter = 'mouseenter';
-                        var strMouseLeave = 'mouseleave';
-                        var addLeaveEvents = function () {
+                        var addMouseTouchEvents = function (move) {
                             if (_supportPassiveEvents) {
-                                addPassiveEventListener(_hostElement, strMouseEnter, hostOnMouseEnter);
-                                addPassiveEventListener(_hostElement, strMouseLeave, hostOnMouseLeave);
+                                if(move)
+                                    addPassiveEventListener(_hostElement, _strMouseTouchMoveEvent, hostOnMouseMove);
+                                else {
+                                    addPassiveEventListener(_hostElement, _strMouseTouchEnter, hostOnMouseEnter);
+                                    addPassiveEventListener(_hostElement, _strMouseTouchLeave, hostOnMouseLeave);
+                                }
                             }
                             else {
-                                _hostElement.on(strMouseEnter, hostOnMouseEnter);
-                                _hostElement.on(strMouseLeave, hostOnMouseLeave);
+                                if(move)
+                                    _hostElement.on(_strMouseTouchMoveEvent, hostOnMouseMove);
+                                else {
+                                    _hostElement.on(_strMouseTouchEnter, hostOnMouseEnter);
+                                    _hostElement.on(_strMouseTouchLeave, hostOnMouseLeave);
+                                }
                             }
                         };
-                        var removeLeaveEvents = function () {
+                        var removeMouseTouchEvents = function () {
                             if (_supportPassiveEvents) {
-                                removePassiveEventListener(_hostElement, strMouseEnter, hostOnMouseEnter);
-                                removePassiveEventListener(_hostElement, strMouseLeave, hostOnMouseLeave);
+                                removePassiveEventListener(_hostElement, _strMouseTouchMoveEvent, hostOnMouseMove);
+                                removePassiveEventListener(_hostElement, _strMouseTouchEnter, hostOnMouseEnter);
+                                removePassiveEventListener(_hostElement, _strMouseTouchLeave, hostOnMouseLeave);
                             }
                             else {
-                                _hostElement.off(strMouseEnter, hostOnMouseEnter);
-                                _hostElement.off(strMouseLeave, hostOnMouseLeave);
+                                _hostElement.off(_strMouseTouchMoveEvent, hostOnMouseMove);
+                                _hostElement.off(_strMouseTouchEnter, hostOnMouseEnter);
+                                _hostElement.off(_strMouseTouchLeave, hostOnMouseLeave);
                             }
                         };
-                        if (_scrollbarsAutoHideLeave) {
-                            removeLeaveEvents();
-                            addLeaveEvents();
+                        if (_scrollbarsAutoHideLeave || _scrollbarsAutoHideMove) {
+                            removeMouseTouchEvents();
+                            addMouseTouchEvents(_scrollbarsAutoHideMove);
                         }
                         else {
-                            removeLeaveEvents();
+                            removeMouseTouchEvents();
                         }
 
                         if (_scrollbarsAutoHideNever)
@@ -3969,12 +4000,14 @@
                     _sizeAutoObserverElement.remove();
 
                 if (_supportPassiveEvents) {
-                    removePassiveEventListener(_hostElement, 'mouseenter', hostOnMouseEnter);
-                    removePassiveEventListener(_hostElement, 'mouseleave', hostOnMouseLeave);
+                    removePassiveEventListener(_hostElement, _strMouseTouchMoveEvent, hostOnMouseMove);
+                    removePassiveEventListener(_hostElement, _strMouseTouchEnter, hostOnMouseEnter);
+                    removePassiveEventListener(_hostElement, _strMouseTouchLeave, hostOnMouseLeave);
                 }
                 else {
-                    _hostElement.off('mouseenter', hostOnMouseEnter);
-                    _hostElement.off('mouseleave', hostOnMouseLeave);
+                    _hostElement.off(_strMouseTouchMoveEvent, hostOnMouseMove);
+                    _hostElement.off(_strMouseTouchEnter, hostOnMouseEnter);
+                    _hostElement.off(_strMouseTouchLeave, hostOnMouseLeave);
                 }
 
                 _scrollbarHorizontalElement.remove();
@@ -4572,7 +4605,7 @@
                 _supportPassiveEvents = globals.supportPassiveEvents;
                 _supportResizeObserver = globals.supportResizeObserver;
                 _supportMutationObserver = globals.supportMutationObserver;
-				_restrictedMeasuring = globals.restrictedMeasuring;
+                _restrictedMeasuring = globals.restrictedMeasuring;
                 _documentElement = helper(targetElement.ownerDocument);
                 _windowElement = helper(_documentElement[0].defaultView || _documentElement[0].parentWindow);
                 _htmlElement = _documentElement.find('html').first();
@@ -4838,5 +4871,6 @@
             _pluginGlobals.defaultOptions = helper.extend(true, { }, currDefaultOptions , newDefaultOptions);
         };
     })(COMPATIBILITY, INSTANCES, HELPER, BYPROPERTYPATH);
+
     return window[PLUGINNAME];
 })));

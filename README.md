@@ -212,7 +212,7 @@ Take the table below only as a overview of all options.
 		<td>autoHide</td>
 		<td>string</td>
 		<td><code>"never"</code></td>
-		<td>The possibility to hide visible scrollbars after a certain action.</td>
+		<td>The possibility to hide visible scrollbars automatically after a certain action.</td>
 	</tr>
 	<tr>
 		<td></td>
