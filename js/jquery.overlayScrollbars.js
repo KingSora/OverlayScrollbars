@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.4.2
+ * Version: 1.4.3
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 14.04.2018
+ * Date: 17.04.2018
  */
 
 (function (global, factory) {
@@ -206,6 +206,7 @@
             }
         };
 
+        var JQUERY = framework;
         var FRAMEWORK = framework;
         var INSTANCES = (function(helper) {
             var _targets = [ ];
@@ -2800,6 +2801,20 @@
                         var hideScrollbarH = compatibility.bind(refreshScrollbarAppearance, 0, true, false, canScroll.x);
                         var hideScrollbarV = compatibility.bind(refreshScrollbarAppearance, 0, false, false, canScroll.y);
 
+                        //manage class name which indicates scrollable overflow
+                        if (hideOverflow.x || hideOverflow.y)
+                            addClass(_hostElement, _classNameHostOverflow);
+                        else
+                            removeClass(_hostElement, _classNameHostOverflow);
+                        if (hideOverflow.x)
+                            addClass(_hostElement, _classNameHostOverflowX);
+                        else
+                            removeClass(_hostElement, _classNameHostOverflowX);
+                        if (hideOverflow.y)
+                            addClass(_hostElement, _classNameHostOverflowY);
+                        else
+                            removeClass(_hostElement, _classNameHostOverflowY);
+
                         //add or remove rtl class name for styling purposes
                         if (cssDirectionChanged) {
                             if (_isRTL)
@@ -2933,20 +2948,6 @@
                             refreshScrollbarsInteractive(true, scrollbarsClickScrolling);
                         if (scrollbarsDragScrollingChanged)
                             refreshScrollbarsInteractive(false, scrollbarsDragScrolling);
-
-                        //manage class name which indicates scrollable overflow
-                        if (hideOverflow.x || hideOverflow.y)
-                            addClass(_hostElement, _classNameHostOverflow);
-                        else
-                            removeClass(_hostElement, _classNameHostOverflow);
-                        if (hideOverflow.x)
-                            addClass(_hostElement, _classNameHostOverflowX);
-                        else
-                            removeClass(_hostElement, _classNameHostOverflowX);
-                        if (hideOverflow.y)
-                            addClass(_hostElement, _classNameHostOverflowY);
-                        else
-                            removeClass(_hostElement, _classNameHostOverflowY);
 
                         //handle scroll
                         if (_isTextarea && contentSizeChanged) {
@@ -4091,7 +4092,7 @@
                     var elementObjSettingsBlockValues = [strBegin, strEnd, strCenter, strNearest];
                     var coordinatesIsElementObj = coordinates.hasOwnProperty('el');
                     var possibleElement = coordinatesIsElementObj ? coordinates.el : coordinates;
-                    var possibleElementIsJQuery = possibleElement instanceof helper || possibleElement instanceof window.jQuery;
+                    var possibleElementIsJQuery = possibleElement instanceof helper || JQUERY ? possibleElement instanceof JQUERY : false;
                     var possibleElementIsHTMLElement = possibleElementIsJQuery ? false : isHTMLElement(possibleElement);
                     var checkSettingsStringValue = function (currValue, allowedValues) {
                         for (i = 0; i < allowedValues.length; i++) {
@@ -4788,17 +4789,16 @@
             return window[PLUGINNAME];
         })(COMPATIBILITY, INSTANCES, FRAMEWORK);
 
-        var jQuery = window.jQuery;
-        if(jQuery && jQuery.fn) {
+        if(JQUERY && JQUERY.fn) {
             /**
              * The jQuery initialization interface.
              * @param options The initial options for the construction of the plugin. To initialize the plugin, this option has to be a object! If it isn't a object, the instance(s) are returned and the plugin wont be initialized.
              * @returns {*} After initialization it returns the jQuery element array, else it returns the instance(s) of the elements which are selected.
              */
-            jQuery.fn.overlayScrollbars = function (options) {
+            JQUERY.fn.overlayScrollbars = function (options) {
                 var _elements = this;
-                if(jQuery.isPlainObject(options)) {
-                    jQuery.each(_elements, function() { PLUGIN(this, options); });
+                if(JQUERY.isPlainObject(options)) {
+                    JQUERY.each(_elements, function() { PLUGIN(this, options); });
                     return _elements;
                 }
                 else

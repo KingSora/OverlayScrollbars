@@ -58,7 +58,7 @@ Include **OverlayScrollbars.css** and **OverlayScrollbars.js** to your HTML file
 <script type="text/javascript" src="path/to/OverlayScrollbars.js"></script>
 ```
 
-If you are using the jQuery version include [jQuery](https://jquery.com/) before the plugin and use **jquery.overlayScrollbars.js**
+If you are using the jQuery version, include [jQuery](https://jquery.com/) before the plugin and use **jquery.overlayScrollbars.js**
 
 ```html
 <!-- Plugin CSS -->
@@ -82,7 +82,7 @@ $(function() {
 });
 ```
 
-jQuery initialization (will only work with the jQuery version):
+jQuery initialization:
 ```js
 $(function() {
 	//The passed argument has to be at least a empty object or a object with your desired options
