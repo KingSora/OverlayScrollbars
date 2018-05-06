@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.4.3
+ * Version: 1.4.4
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 17.04.2018
+ * Date: 06.05.2018
  */
 
 (function (global, factory) {

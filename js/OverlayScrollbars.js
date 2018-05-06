@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.4.3
+ * Version: 1.4.4
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 17.04.2018
+ * Date: 06.05.2018
  */
 
 (function (global, factory) {
@@ -906,14 +906,16 @@
                     var el;
                     return this.each(function() {
                         el = this;
-                        if (el.addEventListener) {
-                            for (i = 0; i < eventName.length; i++)
-                                el.addEventListener(eventName[i], handler);
-                        }
-                        else if(el.detachEvent) {
-                            for (i = 0; i < eventName.length; i++)
-                                el.attachEvent('on' + eventName[i], handler);
-                        }
+                        try {
+                            if (el.addEventListener) {
+                                for (i = 0; i < eventName.length; i++)
+                                    el.addEventListener(eventName[i], handler);
+                            }
+                            else if(el.detachEvent) {
+                                for (i = 0; i < eventName.length; i++)
+                                    el.attachEvent('on' + eventName[i], handler);
+                            }
+                        } catch (e) { }
                     });
                 },
 
@@ -924,14 +926,16 @@
                     var el;
                     return this.each(function() {
                         el = this;
-                        if (el.removeEventListener) {
-                            for (i = 0; i < eventName.length; i++)
-                                el.removeEventListener(eventName[i], handler);
-                        }
-                        else if(el.detachEvent) {
-                            for (i = 0; i < eventName.length; i++)
-                                el.detachEvent('on' + eventName[i], handler);
-                        }
+                        try {
+                            if (el.removeEventListener) {
+                                for (i = 0; i < eventName.length; i++)
+                                    el.removeEventListener(eventName[i], handler);
+                            }
+                            else if(el.detachEvent) {
+                                for (i = 0; i < eventName.length; i++)
+                                    el.detachEvent('on' + eventName[i], handler);
+                            }
+                        } catch (e) { }
                     });
                 },
 
