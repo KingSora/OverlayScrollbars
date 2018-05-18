@@ -1091,7 +1091,7 @@
                 function addPassiveEventListener(element, eventNames, listener) {
                     var events = eventNames.split(_strSpace);
                     for (var i = 0; i < events.length; i++)
-                        element[0].addEventListener(events[i].trim(), listener, {passive: true});
+                        element[0].addEventListener(events[i], listener, {passive: true});
                 }
 
                 /**
@@ -1103,7 +1103,7 @@
                 function removePassiveEventListener(element, eventNames, listener) {
                     var events = eventNames.split(_strSpace);
                     for (var i = 0; i < events.length; i++)
-                        element[0].removeEventListener(events[i].trim(), listener, {passive: true});
+                        element[0].removeEventListener(events[i], listener, {passive: true});
                 }
 
 
