@@ -15,8 +15,9 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - Usage of the most recent technologies to ensure maximum efficiency and performance on newer browsers.
  - Can be used without any dependencies or with jQuery.
  - Automatic update detection - after the initialization you don't have to worry about updating.
+ - Extremely powerful scroll method with features like animations, relative coordinates, scrollIntoView and more.
  - Mouse and touch support.
- - Textarea support.
+ - Textarea and Body support.
  - Direction RTL support. (with normalization)
  - Simple and effective scrollbar-styling.
  
