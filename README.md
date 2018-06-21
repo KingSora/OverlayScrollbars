@@ -20,6 +20,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - Textarea and Body support.
  - Direction RTL support. (with normalization)
  - Simple and effective scrollbar-styling.
+ - Sophisticated extension system.
  
 ## Demo & Documentation
 
@@ -36,6 +37,9 @@ It was tested with the jQuery versions: 1.9.1, 2.x, 3.x, and it won't work with 
 
 #### manually
 Download OverlayScrollbars manually from [Releases](https://github.com/KingSora/OverlayScrollbars/releases).
+
+#### cdn
+You can also use OverlayScrollbars via a [cdn](https://cdnjs.com/libraries/overlayscrollbars).
 
 #### npm
 OverlayScrollbars can be also downloaded from [npm](https://www.npmjs.com/package/overlayscrollbars).
@@ -76,10 +80,10 @@ Initialize the plugin after your document has been fully loaded.
 
 Default initialization:
 ```js
-$(function() {
-	//The first argument are the elements to which the plugin shall be initialized
-	//The second argument has to be at least a empty object or a object with your desired options
-	OverlayScrollbars(document.querySelectorAll('body'), { });
+document.addEventListener("DOMContentLoaded", function() {
+        //The first argument are the elements to which the plugin shall be initialized
+        //The second argument has to be at least a empty object or a object with your desired options
+        OverlayScrollbars(document.querySelectorAll('body'), { });
 });
 ```
 
@@ -488,6 +492,45 @@ var pluginState = instance.getState();</pre>
 instance.destroy();</pre>
 		</td>
 	</tr>
+	<tr>
+		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/method-ext" target="_blank">.ext()</a></b></td>
+		<td>Returns the instance of a certain extension of the current plugin instance.</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			example(s):<br> 
+			<pre lang="js">
+//get the instance of the extension "myExtension"
+var extensionInstance = instance.ext("myExtension");</pre>
+		</td>
+	</tr>
+	<tr>
+		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/method-addext" target="_blank">.addExt()</a></b></td>
+		<td>Adds a extension to the current instance.</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			example(s):<br> 
+			<pre lang="js">
+//add the registered extension "myExtension" to the plugin instance
+var extensionInstance = instance.addExt("myExtension");</pre>
+		</td>
+	</tr>
+	<tr>
+		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/method-removeext" target="_blank">.removeExt()</a></b></td>
+		<td>Removes a extension from the current instance.</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			example(s):<br> 
+			<pre lang="js">
+//add the registered extension "myExtension" to the plugin instance
+instance.addExt("myExtension");
+
+//remove the added extension "myExtension" from the plugin instance
+instance.removeExt("myExtension");</pre>
+		</td>
+	</tr>
 </table>
 
 #### Global methods:
@@ -526,6 +569,24 @@ OverlayScrollbars.defaultOptions({
 			<pre lang="js">
 //get the global information
 var globals = OverlayScrollbars.globals();</pre>
+		</td>
+	</tr>
+	<tr>
+		<td><b><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/gmethod-extension" target="_blank">OverlayScrollbars.extension()</a></b></td>
+		<td>Registers, Unregisters or returns extensions.</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			example(s):<br> 
+			<pre lang="js">
+//register a dummy extension with the name "myExtension"
+OverlayScrollbars.extension("myExtension", function() { return { }; });
+//unregister the extension with the name "myExtension"
+OverlayScrollbars.extension("myExtension", null);
+//get the extension-object with the name "myExtension"
+var registeredExtension = OverlayScrollbars.extension("myExtension");
+//get all registered extension-objects
+var extensionObjects = OverlayScrollbars.extension();</pre>
 		</td>
 	</tr>
 </table>

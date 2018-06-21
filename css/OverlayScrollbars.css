@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.4.5
+ * Version: 1.5.0
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 18.05.2018
+ * Date: 21.06.2018
  */
 
 /*
@@ -38,6 +38,18 @@ body.os-dragging * {
 .os-host-textarea {
     position: relative;
     overflow: visible !important;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    align-items: flex-start;
+}
+.os-host-flexbox {
+    overflow: hidden !important;
+    display: flex;
+}
+.os-host-flexbox > .os-padding > .os-viewport > .os-content {
+    display: flex;
 }
 #hs-dummy-scrollbar-size {
     position: fixed;
@@ -116,9 +128,6 @@ body.os-dragging * {
     height: 100%;
     width: 100%;
     visibility: visible;
-}
-.os-host-textarea > .os-padding > .os-content {
-    overflow: hidden !important;
 }
 .os-content > .os-textarea {
     direction: inherit !important;
@@ -215,12 +224,14 @@ object.os-resize-observer {
     position: relative;
     float: left;
     max-height: 1px;
-    margin-top: -1px;
     overflow: hidden;
     z-index: -1;
     padding: 0;
     margin: 0;
     pointer-events: none;
+    flex-grow: inherit;
+    flex-shrink: 0;
+    flex-basis: 0;
 }
 .os-size-auto-observer > .os-resize-observer {
     width: 1000%;
@@ -362,7 +373,8 @@ html.os-html > .os-host > .os-scrollbar {
     top: 0;
     bottom: 0;
 }
-.os-host-resize-disabled.os-host-scrollbar-vertical-hidden > .os-scrollbar-horizontal {
+.os-host-resize-disabled.os-host-scrollbar-vertical-hidden > .os-scrollbar-horizontal,
+.os-host-rtl.os-host-resize-disabled.os-host-scrollbar-vertical-hidden > .os-scrollbar-horizontal {
     right: 0;
     left: 0;
 }
@@ -467,29 +479,34 @@ THEMES:
 .os-theme-light > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle {
     min-height: 30px;
 }
-.os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle,
-.os-theme-light > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
-    border-radius: 11px;
-    opacity: .4;
-}
-.os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
-    background: #000;
-}
-.os-theme-light > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
-    background: #fff;
-}
 .os-theme-dark.os-host-transition > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle,
 .os-theme-light.os-host-transition > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
-    -webkit-transition: opacity 0.3s;
-    transition: opacity 0.3s;
+    -webkit-transition: background-color 0.3s;
+    transition: background-color 0.3s;
 }
-.os-theme-dark > .os-scrollbar:hover > .os-scrollbar-track > .os-scrollbar-handle,
+.os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle,
+.os-theme-light > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle,
+.os-theme-dark > .os-scrollbar > .os-scrollbar-track,
+.os-theme-light > .os-scrollbar > .os-scrollbar-track {
+    border-radius: 10px;
+}
+.os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+    background: rgba(0, 0, 0, 0.4);
+}
+.os-theme-light > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+    background: rgba(255, 255, 255, 0.4);
+}
+.os-theme-dark > .os-scrollbar:hover > .os-scrollbar-track > .os-scrollbar-handle {
+    background: rgba(0, 0, 0, .55);
+}
 .os-theme-light > .os-scrollbar:hover > .os-scrollbar-track > .os-scrollbar-handle {
-    opacity: .55;
+    background: rgba(255, 255, 255, .55);
 }
-.os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle.active,
+.os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle.active {
+    background: rgba(0, 0, 0, .7);
+}
 .os-theme-light > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle.active {
-    opacity: .7;
+    background: rgba(255, 255, 255, .7);
 }
 .os-theme-dark > .os-scrollbar-horizontal .os-scrollbar-handle:before,
 .os-theme-dark > .os-scrollbar-vertical .os-scrollbar-handle:before,
