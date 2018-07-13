@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.5.0
+ * Version: 1.5.1
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 21.06.2018
+ * Date: 13.07.2018
  */
 
 (function (global, factory) {
@@ -1228,15 +1228,13 @@
 
                 is : function(selector) {
                     var el;
-                    var elVisible;
                     var i;
                     for(i = 0; i < this[LEXICON.l]; i++) {
                         el = this[i];
-                        elVisible = !!(el[LEXICON.oW] || el[LEXICON.oH] || el.getClientRects()[LEXICON.l]);
                         if(selector === ":visible")
-                            return elVisible;
+                            return !!(el[LEXICON.oW] || el[LEXICON.oH] || el.getClientRects()[LEXICON.l]);
                         if(selector === ":hidden")
-                            return !elVisible;
+                            return !!!(el[LEXICON.oW] || el[LEXICON.oH] || el.getClientRects()[LEXICON.l]);
                         if((el.matches && el.matches(selector)) || matches(el, selector))
                             return true;
                     }
@@ -2024,7 +2022,7 @@
                 var _lastUpdateTime;
                 var _swallowedUpdateParams = { };
                 var _swallowedUpdateTimeout;
-                var _swallowUpdateLag = 33;
+                var _swallowUpdateLag = 42;
                 var _imgs = [ ];
 
                 //DOM elements:
@@ -2826,9 +2824,9 @@
                         return false;
 
                     var float;
-                    var viewportScrollSize;
                     var textareaValueLength = _isTextarea && _widthAutoCache && !_textareaAutoWrappingCache ? _targetElement.val().length : 0;
                     var setCSS = !_mutationObserverConnected && _widthAutoCache && !_isTextarea;
+                    var viewportScrollSize = { };
                     var css = { };
 
                     //fix for https://bugzilla.mozilla.org/show_bug.cgi?id=1439305, it only works with "clipAlways : true"
@@ -3539,11 +3537,16 @@
                             h: _isTextarea && textareaSize && !textareaDynHeight ? textareaSize.oh : heightAuto ? clientSize.h : scrollSize.h
                         };
 
-                        //apply the correct viewport style
+                        //apply the correct viewport style and measure viewport size
                         viewportElementResetCSS[_strBottom] = wasHeightAuto ? _strEmpty : resetBottomTmp;
                         viewportElementResetCSS[isRTLLeft] = wasWidthAuto ? _strEmpty : resetXTmp;
                         _viewportElement.css(viewportElementResetCSS);
-
+                        //viewport size is padding container because it never has padding, margin and a border.
+                        _viewportSize = {
+                            w: paddingElement[LEXICON.oW],
+                            h: paddingElement[LEXICON.oH]
+                        };
+                        
                         //measure and correct several sizes
                         //has to be clientSize because offsetSize respect borders.
                         var hostSize = {
@@ -3639,12 +3642,6 @@
                         hostSizeChanged = checkCacheDouble(hostSize, _hostSizeCache);
                         _hostSizeCache = hostSize;
 
-                        //viewport size is padding container because it never has padding, margin and a border.
-                        _viewportSize = {
-                            w: paddingElement[LEXICON.oW],
-                            h: paddingElement[LEXICON.oH]
-                        };
-
                         var overflowBehaviorIsVS = {
                             x: overflowBehavior.x === 'v-s',
                             y: overflowBehavior.y === 'v-s'
@@ -3701,56 +3698,45 @@
 
                         //if native scrollbar is overlay at x OR y axis, prepare DOM
                         if (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y) {
+                            var borderDesign = 'px solid transparent';
+                            var contentArrangeElementCSS = { };
+                            var arrangeContent = { };
                             var arrangeChanged = force;
-                            var arrangeContent = {};
                             if (hasOverflow.x || hasOverflow.y) {
                                 arrangeContent.w = _nativeScrollbarIsOverlaid.y && hasOverflow.y ? contentScrollSize.w + _overlayScrollbarDummySize.y : _strEmpty;
                                 arrangeContent.h = _nativeScrollbarIsOverlaid.x && hasOverflow.x ? contentScrollSize.h + _overlayScrollbarDummySize.x : _strEmpty;
-
                                 arrangeChanged = checkCacheSingle(arrangeContent, _arrangeContentSizeCache, force);
                                 _arrangeContentSizeCache = arrangeContent;
                             }
 
                             if (hasOverflow.c || hideOverflow.c || contentScrollSize.c || cssDirectionChanged || widthAutoChanged || heightAutoChanged || widthAuto || heightAuto || ignoreOverlayScrollbarHidingChanged) {
-                                var borderDesign = 'px solid transparent';
-                                contentElementCSS[_strBorderMinus + isRTLRight] = _strEmpty;
-                                contentElementCSS[_strMarginMinus + isRTLRight] = _strEmpty;
+                                contentElementCSS[_strMarginMinus + isRTLRight] = contentElementCSS[_strBorderMinus + isRTLRight] = _strEmpty;
                                 if (_nativeScrollbarIsOverlaid.x && hasOverflow.x && hideOverflow.xs) {
-                                    if (heightAuto)
-                                        contentElementCSS[_strMarginMinus + _strBottom] = ignoreOverlayScrollbarHiding ? _strEmpty : _overlayScrollbarDummySize.x;
-                                    if (!heightAuto && !ignoreOverlayScrollbarHiding)
-                                        contentElementCSS[_strBorderMinus + _strBottom] = _overlayScrollbarDummySize.x + borderDesign;
-                                    else
-                                        contentElementCSS[_strBorderMinus + _strBottom] = _strEmpty;
+                                    contentElementCSS[_strMarginMinus + _strBottom] = heightAuto ? (ignoreOverlayScrollbarHiding ? _strEmpty : _overlayScrollbarDummySize.x) : _strEmpty;
+                                    contentElementCSS[_strBorderMinus + _strBottom] = (!heightAuto && !ignoreOverlayScrollbarHiding) ? (_overlayScrollbarDummySize.x + borderDesign) : _strEmpty;
                                 }
                                 else {
-                                    arrangeContent.h = _strEmpty;
-                                    arrangeChanged = true;
+                                    arrangeContent.h = 
+                                    contentElementCSS[_strMarginMinus + _strBottom] = 
                                     contentElementCSS[_strBorderMinus + _strBottom] = _strEmpty;
-                                    contentElementCSS[_strMarginMinus + _strBottom] = _strEmpty;
+                                    arrangeChanged = true;
                                 }
                                 if (_nativeScrollbarIsOverlaid.y && hasOverflow.y && hideOverflow.ys) {
-                                    if (widthAuto)
-                                        contentElementCSS[_strMarginMinus + isRTLLeft] = ignoreOverlayScrollbarHiding ? _strEmpty : _overlayScrollbarDummySize.y;
-                                    if (/* !widthAuto && */ !ignoreOverlayScrollbarHiding)
-                                        contentElementCSS[_strBorderMinus + isRTLLeft] = _overlayScrollbarDummySize.y + borderDesign;
-                                    else
-                                        contentElementCSS[_strBorderMinus + isRTLLeft] = _strEmpty;
+                                    contentElementCSS[_strMarginMinus + isRTLLeft] = widthAuto ? (ignoreOverlayScrollbarHiding ? _strEmpty : _overlayScrollbarDummySize.y) : _strEmpty;
+                                    contentElementCSS[_strBorderMinus + isRTLLeft] = (/* !widthAuto && */ !ignoreOverlayScrollbarHiding) ? (_overlayScrollbarDummySize.y + borderDesign) : _strEmpty;
                                 }
                                 else {
-                                    arrangeContent.w = _strEmpty;
-                                    arrangeChanged = true;
+                                    arrangeContent.w = 
+                                    contentElementCSS[_strMarginMinus + isRTLLeft] = 
                                     contentElementCSS[_strBorderMinus + isRTLLeft] = _strEmpty;
-                                    contentElementCSS[_strMarginMinus + isRTLLeft] = _strEmpty;
+                                    arrangeChanged = true;
                                 }
                             }
                             if (ignoreOverlayScrollbarHiding) {
-                                arrangeContent.w = _strEmpty;
-                                arrangeContent.h = _strEmpty;
+                                arrangeContent.w = arrangeContent.h = _strEmpty;
                                 arrangeChanged = true;
                             }
                             if (arrangeChanged) {
-                                var contentArrangeElementCSS = { };
                                 contentArrangeElementCSS[_strWidth] = hideOverflow.y ? arrangeContent.w : _strEmpty;
                                 contentArrangeElementCSS[_strHeight] = hideOverflow.x ? arrangeContent.h : _strEmpty;
 
@@ -3814,20 +3800,19 @@
                                 viewportElementCSS[_strMarginMinus + isRTLRight] = -_nativeScrollbarMinSize.y;
                             }
                             else {
-                                viewportElementCSS[_strPaddingMinus + _strTop] = _strEmpty;
-                                viewportElementCSS[_strMarginMinus + _strTop] = _strEmpty;
-
-                                viewportElementCSS[_strPaddingMinus + isRTLRight] = _strEmpty;
+                                viewportElementCSS[_strPaddingMinus + _strTop] = 
+                                viewportElementCSS[_strMarginMinus + _strTop] = 
+                                viewportElementCSS[_strPaddingMinus + isRTLRight] = 
                                 viewportElementCSS[_strMarginMinus + isRTLRight] = _strEmpty;
                             }
-                            viewportElementCSS[_strPaddingMinus + isRTLLeft] = _strEmpty;
+                            viewportElementCSS[_strPaddingMinus + isRTLLeft] = 
                             viewportElementCSS[_strMarginMinus + isRTLLeft] = _strEmpty;
 
                             //if there is any overflow (x OR y axis) and this overflow shall be hidden, make overflow hidden, else overflow visible
                             if ((hasOverflow.x && hideOverflow.x) || (hasOverflow.y && hideOverflow.y) || hideOverflowForceTextarea) {
                                 //only hide if is Textarea
                                 if (_isTextarea && hideOverflowForceTextarea) {
-                                    paddingElementCSS[strOverflowX] = strHidden;
+                                    paddingElementCSS[strOverflowX] = 
                                     paddingElementCSS[strOverflowY] = strHidden;
                                 }
                             }
@@ -3835,10 +3820,10 @@
                                 if (!clipAlways || (overflowBehaviorIsVH.x || overflowBehaviorIsVS.x || overflowBehaviorIsVH.y || overflowBehaviorIsVS.y)) {
                                     //only un-hide if Textarea
                                     if (_isTextarea) {
-                                        paddingElementCSS[strOverflowX] = _strEmpty;
+                                        paddingElementCSS[strOverflowX] = 
                                         paddingElementCSS[strOverflowY] = _strEmpty;
                                     }
-                                    viewportElementCSS[strOverflowX] = strVisible;
+                                    viewportElementCSS[strOverflowX] = 
                                     viewportElementCSS[strOverflowY] = strVisible;
                                 }
                             }
@@ -5403,6 +5388,7 @@
                         else
                             margin = marginDefault;
 
+                        //block = type(block) === TYPES.b ? block ? [ strNearest, strBegin ] : [ strNearest, strEnd ] : block;
                         settingsAxis = checkSettingsStringValue(axis, elementObjSettingsAxisValues) ? axis : 'xy';
                         settingsScroll = getPerAxisValue(scroll, TYPES.s, strAlways, elementObjSettingsScrollValues);
                         settingsBlock = getPerAxisValue(block, TYPES.s, strBegin, elementObjSettingsBlockValues);
@@ -5435,7 +5421,7 @@
                         }
 
                         //measuring is required
-                        if (settingsBlock.x != strBegin || settingsBlock.y != strBegin || settingsScroll.x == strIfNeeded || settingsScroll.y == strIfNeeded) {
+                        if (settingsBlock.x != strBegin || settingsBlock.y != strBegin || settingsScroll.x == strIfNeeded || settingsScroll.y == strIfNeeded || _isRTL) {
                             var measuringElm = finalElement[0];
                             var rawElementSize = {};
                             var rect;
@@ -5822,6 +5808,7 @@
                                 return;
 
                             var doUpdate = false;
+                            //var doUpdateScrollbars = false;
                             var mutation;
                             framework.each(mutations, function () {
                                 mutation = this;
@@ -5841,6 +5828,14 @@
 
                             if (doUpdate)
                                 _base.update(_strAuto);
+                            /*
+                            if(doUpdateScrollbars) {
+                                refreshScrollbarHandleLength(true);
+                                refreshScrollbarHandleOffset(true, _scrollHorizontalInfo.cs);
+                                refreshScrollbarHandleLength(false);
+                                refreshScrollbarHandleOffset(false, _scrollVerticalInfo.cs);
+                            }
+                            */
                         });
                         _mutationObserverContent = new mutationObserver(function (mutations) {
                             if (!_initialized || _isSleeping)
