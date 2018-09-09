@@ -39,10 +39,10 @@ It was tested with the jQuery versions: 1.9.1, 2.x, 3.x, and it won't work with 
 Download OverlayScrollbars manually from [Releases](https://github.com/KingSora/OverlayScrollbars/releases).
 
 #### cdn
-You can also use OverlayScrollbars via a [cdn](https://cdnjs.com/libraries/overlayscrollbars).
+You can use OverlayScrollbars via a [cdn](https://cdnjs.com/libraries/overlayscrollbars).
 
 #### npm
-OverlayScrollbars can be also downloaded from [npm](https://www.npmjs.com/package/overlayscrollbars).
+OverlayScrollbars can be downloaded from [npm](https://www.npmjs.com/package/overlayscrollbars).
 
 ```
 npm install overlayscrollbars
@@ -97,7 +97,7 @@ $(function() {
 
 ## Options
 
-Due to clarity i can't provide all informations here.  
+Due to clarity I can't provide all informations here.  
 Take the table below only as a overview of all options.  
 [Please read the much more detailed documentation](https://kingsora.github.io/OverlayScrollbars/#!documentation).  
 
@@ -594,7 +594,8 @@ var extensionObjects = OverlayScrollbars.extension();</pre>
 ## Future Plans
 
  - Minimize the code as much as possible.
- - Frequent updates in terms of bugsfixes and enhancements.
+ - Frequent updates in terms of bug-fixes and enhancements.
+ - Versions for frameworks like React, Vue and Angular.
 
 ## License
 
