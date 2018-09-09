@@ -41,7 +41,7 @@
             s : 'style',
             i : 'id',
             l : 'length',
-			p : 'prototype',
+            p : 'prototype',
             oH : 'offsetHeight',
             cH : 'clientHeight',
             sH : 'scrollHeight',
@@ -213,12 +213,12 @@
                     // internal IsCallable function
                     //throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
                 }
-				var proto 	= LEXICON.p;
+                var proto     = LEXICON.p;
                 var aArgs   = Array[proto].slice.call(arguments, 2);
                 var fNOP    = function() {};
                 var fBound  = function() { return func.apply(this instanceof fNOP ? this : thisObj, aArgs.concat(Array[proto].slice.call(arguments))); };
 
-				if (func[proto])
+                if (func[proto])
                     fNOP[proto] = func[proto]; // Function.prototype doesn't have a prototype property
                 fBound[proto] = new fNOP();
 
@@ -483,7 +483,7 @@
                     return false;
 
                 var key;
-				var proto = LEXICON.p;
+                var proto = LEXICON.p;
                 var hasOwnProperty = Object[proto].hasOwnProperty;
                 var hasOwnConstructor = hasOwnProperty.call(obj, 'constructor');
                 var hasIsPrototypeOf = obj.constructor && obj.constructor[proto] && hasOwnProperty.call(obj.constructor[proto], 'isPrototypeOf');
@@ -1674,7 +1674,7 @@
                     if(nativeScrollbarIsOverlaid.x && nativeScrollbarIsOverlaid.y)
                         return;
 
-					var abs = Math.abs;
+                    var abs = Math.abs;
                     var windowWidth = compatibility.wW();
                     var windowHeight = compatibility.wH();
                     var windowDpr = getWindowDPR();
@@ -1720,8 +1720,8 @@
                             windowDpr = newDPR;
                         }
                     };
-					
-					function differenceIsBiggerThanOne(valOne, valTwo) {
+                    
+                    function differenceIsBiggerThanOne(valOne, valTwo) {
                         var absValOne = abs(valOne);
                         var absValTwo = abs(valTwo);
                         return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
@@ -1732,7 +1732,7 @@
                         var sDPI = window.screen.logicalXDPI || 1;
                         return window.devicePixelRatio || (dDPI / sDPI);
                     }
-					
+                    
                     framework(window).on('resize', onResize);
                 })();
 
@@ -1776,7 +1776,7 @@
                 var _base = this;
                 var _strAutoUpdate = 'autoUpdate';
                 var _strAutoUpdateInterval = _strAutoUpdate + 'Interval';
-				var _strLength = LEXICON.l;
+                var _strLength = LEXICON.l;
 
                 var _loopingInstances = [ ];
                 var _loopingInstancesIntervalCache = [ ];
@@ -1885,7 +1885,7 @@
 
                 //make correct instanceof
                 var _base = new window[PLUGINNAME]();
-				var _frameworkProto = framework[LEXICON.p];
+                var _frameworkProto = framework[LEXICON.p];
 
                 //globals:
                 var _nativeScrollbarIsOverlaid;
@@ -3045,7 +3045,7 @@
                  * @param hostSizeChanged True if this method was called due to a host size change.
                  * @param contentSizeChanged True if this method was called due to a content size change.
                  * @param force True if every property shall be updated and the cache shall be ignored.
-				 * @param preventSwallowing True if this method shall be executed event if it could be swallowed.
+                 * @param preventSwallowing True if this method shall be executed event if it could be swallowed.
                  */
                 function update(hostSizeChanged, contentSizeChanged, force, preventSwallowing) {
                     var now = compatibility.now();
@@ -3054,7 +3054,7 @@
                     var displayIsHiddenChanged = checkCacheSingle(displayIsHidden, _displayIsHiddenCache, force);
                     _displayIsHiddenCache = displayIsHidden;
                     clearTimeout(_swallowedUpdateTimeout);
-					
+                    
                     if (swallow) {
                         _swallowedUpdateParams.h = hostSizeChanged;
                         _swallowedUpdateParams.c = contentSizeChanged;
@@ -3214,7 +3214,7 @@
                     _overflowBehaviorCache = extend(true, {}, overflowBehavior);
                     _textareaDynWidthCache = textareaDynWidth;
                     _textareaDynHeightCache = textareaDynHeight;
-					_hasOverflowCache = _hasOverflowCache || { x: false, y: false };
+                    _hasOverflowCache = _hasOverflowCache || { x: false, y: false };
 
                     //set correct class name to the host element
                     if (classNameChanged) {
@@ -3388,10 +3388,10 @@
                     //set info for padding
                     _paddingX = padding.l + padding.r;
                     _paddingY = padding.t + padding.b;
-					padding.ax = paddingAbsolute ? _paddingX : 0;
-					padding.ay = paddingAbsolute ? _paddingY : 0;
+                    padding.ax = paddingAbsolute ? _paddingX : 0;
+                    padding.ay = paddingAbsolute ? _paddingY : 0;
                     padding.c = checkCacheTRBL(padding, _cssPaddingCache);
-					
+                    
                     //set info for border
                     _borderX = border.l + border.r;
                     _borderY = border.t + border.b;
@@ -3460,10 +3460,10 @@
                         if (cssMaxValue.cw)
                             contentElementCSS[_strMaxMinus + _strHeight] =
                                 (cssMaxValue.ch ? (cssMaxValue.ih - padding.ay + (_isBorderBox ? -_borderY : _paddingY)) 
-								: _strEmpty);
+                                : _strEmpty);
                         contentElementCSS[_strHeight] = _strAuto;
                     } 
-					else if (heightAutoChanged || paddingAbsoluteChanged) {
+                    else if (heightAutoChanged || paddingAbsoluteChanged) {
                         contentElementCSS[_strMaxMinus + _strHeight] = _strEmpty;
                         contentElementCSS[_strHeight] = _strHundredPercent;
                     }
@@ -3472,11 +3472,11 @@
                             contentElementCSS[_strMaxMinus + _strWidth] =
                                 (cssMaxValue.cw ? (cssMaxValue.iw - padding.ax + (_isBorderBox ? -_borderX : _paddingX)) +
                                 (_nativeScrollbarIsOverlaid.y /*&& _hasOverflowCache.y && widthAuto */ ? _overlayScrollbarDummySize.y : 0) 
-								: _strEmpty);
+                                : _strEmpty);
                         contentElementCSS[_strWidth] = _strAuto;
                         contentGlueElementCSS[_strMaxMinus + _strWidth] = _strHundredPercent; //IE Fix
                     } 
-					else if (widthAutoChanged || paddingAbsoluteChanged) {
+                    else if (widthAutoChanged || paddingAbsoluteChanged) {
                         contentElementCSS[_strMaxMinus + _strWidth] = _strEmpty;
                         contentElementCSS[_strWidth] = _strHundredPercent;
                         contentElementCSS[_strFloat] = _strEmpty;
@@ -3504,7 +3504,7 @@
                     //CHECKPOINT HERE ~
                     contentElementCSS = {};
                     contentGlueElementCSS = {};
-					
+                    
                     //if [content(host) client / scroll size, or target element direction, or content(host) max-sizes] changed, or force is true
                     if (hostSizeChanged || contentSizeChanged || cssDirectionChanged || boxSizingChanged || paddingAbsoluteChanged || widthAutoChanged || widthAuto || heightAutoChanged || heightAuto || cssMaxValue.c || ignoreOverlayScrollbarHidingChanged || overflowBehaviorChanged || clipAlwaysChanged || resizeChanged || scrollbarsVisibilityChanged || textareaDynWidthChanged || textareaDynHeightChanged || textareaAutoWrappingChanged || force) {
                         var strOverflow = 'overflow';
@@ -4190,7 +4190,7 @@
                  */
                 function initScrollbarInteractivity(isHorizontal) {
                     var scrollbarVars = getScrollbarVars(isHorizontal);
-					var insideIFrame = _windowElement.top !== _windowElement;
+                    var insideIFrame = _windowElement.top !== _windowElement;
                     var mouseDownScroll;
                     var mouseDownOffset;
                     var xy = scrollbarVars.xy;
@@ -4206,7 +4206,7 @@
                     function decreaseTrackScrollAmount() {
                         scrollDurationFactor = 1;
                     };
-					function documentKeyDown(event) {
+                    function documentKeyDown(event) {
                         if (framework.inArray(event.keyCode, increaseDecreaseScrollAmountKeyCodes) > -1)
                             increaseTrackScrollAmount();
                     };
@@ -4220,11 +4220,11 @@
                         return _isSleeping || nativeOverlayScrollbarsAreActive() || !_scrollbarsDragScrollingCache || (isTouchEvent && !_scrollbarsTouchSupport) ? false : compatibility.mBtn(event) === 1 || isTouchEvent;
                     };
                     function handleDragMove(event) {
-						if(!onMouseTouchDownContinue(event)) {
-							documentMouseTouchUp(event);
-							return;
-						}
-							
+                        if(!onMouseTouchDownContinue(event)) {
+                            documentMouseTouchUp(event);
+                            return;
+                        }
+                            
                         var trackLength = scrollbarVars.i.tl;
                         var handleLength = scrollbarVars.i.hl;
                         var scrollRange = scrollbarVars.i.ms;
@@ -4261,14 +4261,14 @@
                             clearTimeout(trackTimeout);
                             trackTimeout = undefined;
                         }
-						
-						var rect = _hostElement[0].getBoundingClientRect();
-						var mouseInsideHost = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+                        
+                        var rect = _hostElement[0].getBoundingClientRect();
+                        var mouseInsideHost = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
 
-						//if mouse is outside host element
-						if (!mouseInsideHost)
-							hostOnMouseLeave();
-					
+                        //if mouse is outside host element
+                        if (!mouseInsideHost)
+                            hostOnMouseLeave();
+                    
                         if (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove)
                             refreshScrollbarsAutoHide(false);
                     };
@@ -4916,19 +4916,19 @@
                 _base.update = function (force) {
                     var attrsChanged;
                     var contentSizeC;
-					var isString = type(force) == TYPES.s;
+                    var isString = type(force) == TYPES.s;
                     var imgElementSelector = 'img';
                     var imgElementLoadEvent = 'load';
-					if(isString) {
-						if (force.indexOf(_strAuto) === 0) {
-							attrsChanged = meaningfulAttrsChanged();
-							contentSizeC = updateAutoContentSizeChanged();
-							if (attrsChanged || contentSizeC)
-								update(false, contentSizeC, false, force.slice(-1) == "+");
-						}
-						else if (force === 'zoom')
-							update(true, true);
-					}
+                    if(isString) {
+                        if (force.indexOf(_strAuto) === 0) {
+                            attrsChanged = meaningfulAttrsChanged();
+                            contentSizeC = updateAutoContentSizeChanged();
+                            if (attrsChanged || contentSizeC)
+                                update(false, contentSizeC, false, force.slice(-1) == "+");
+                        }
+                        else if (force === 'zoom')
+                            update(true, true);
+                    }
                     else {
                         force = _isSleeping || force;
                         _isSleeping = false;
@@ -5134,7 +5134,7 @@
                  * }
                  */
                 _base.scroll = function (coordinates, duration, easing, complete) {
-					if (arguments.length === 0 || coordinates === undefined) {
+                    if (arguments.length === 0 || coordinates === undefined) {
                         var infoX = _scrollHorizontalInfo;
                         var infoY = _scrollVerticalInfo;
                         var normalizeInvert = _normalizeRTLCache && _isRTL && _rtlScrollBehavior.i;
@@ -5187,7 +5187,7 @@
                     var strAlways = 'always';
                     var strNever = 'never';
                     var strIfNeeded = 'ifneeded';
-					var strLength = LEXICON.l;
+                    var strLength = LEXICON.l;
                     var settingsAxis;
                     var settingsScroll;
                     var settingsBlock;
@@ -5242,9 +5242,9 @@
                         return rawScroll;
                     };
                     var getFinalScroll = function (isX, rawScroll) {
-						var isString = type(rawScroll) == TYPES.s;
-						if(isString)
-							_base.update(_strAuto + "+");
+                        var isString = type(rawScroll) == TYPES.s;
+                        if(isString)
+                            _base.update(_strAuto + "+");
                         var operator;
                         var amount;
                         var scrollInfo = isX ? _scrollHorizontalInfo : _scrollVerticalInfo;
@@ -5361,9 +5361,9 @@
                         }
                         return result;
                     };
-	
+    
                     if (possibleElementIsJQuery || possibleElementIsHTMLElement) {
-						//get settings
+                        //get settings
                         var margin = coordinatesIsElementObj ? coordinates.margin : 0;
                         var axis = coordinatesIsElementObj ? coordinates.axis : 0;
                         var scroll = coordinatesIsElementObj ? coordinates.scroll : 0;
@@ -5375,8 +5375,8 @@
                         if (finalElement[strLength] === 0)
                             return;
 
-						_base.update(_strAuto + "+");
-						
+                        _base.update(_strAuto + "+");
+                        
                         //margin can be [ boolean, number, array of 2, array of 4, object ]
                         if (marginType == TYPES.n || marginType == TYPES.b)
                             margin = generateMargin([margin, margin, margin, margin]);
@@ -5400,16 +5400,16 @@
                         settingsBlock = getPerAxisValue(block, TYPES.s, strBegin, elementObjSettingsBlockValues);
                         settingsMargin = margin;
 
-						var viewportScroll = {
+                        var viewportScroll = {
                             l: _scrollHorizontalInfo.cs,
                             t: _scrollVerticalInfo.cs
                         };
-						// use padding element instead of viewport element because padding element has never padding, margin or position applied.
-						var viewportOffset = _paddingElement.offset(); 
+                        // use padding element instead of viewport element because padding element has never padding, margin or position applied.
+                        var viewportOffset = _paddingElement.offset(); 
                         
-						//get coordinates
+                        //get coordinates
                         var elementOffset = finalElement.offset();
-						var doNotScroll = {
+                        var doNotScroll = {
                             x : settingsScroll.x == strNever || settingsAxis == _strY,
                             y : settingsScroll.y == strNever || settingsAxis == _strX
                         };
@@ -5430,11 +5430,11 @@
 
                         //measuring is required
                         if (settingsBlock.x != strBegin || settingsBlock.y != strBegin || settingsScroll.x == strIfNeeded || settingsScroll.y == strIfNeeded || _isRTL) {
-							var measuringElm = finalElement[0];
+                            var measuringElm = finalElement[0];
                             var rawElementSize = _supportTransform ? measuringElm.getBoundingClientRect() : { 
-								width : measuringElm[LEXICON.oW],
-								height : measuringElm[LEXICON.oH]
-							};
+                                width : measuringElm[LEXICON.oW],
+                                height : measuringElm[LEXICON.oH]
+                            };
                             var elementSize = {
                                 w: rawElementSize[_strWidth] + settingsMargin[3] + settingsMargin[1],
                                 h: rawElementSize[_strHeight] + settingsMargin[0] + settingsMargin[2]
@@ -5482,14 +5482,14 @@
 
                         coordinates = elementScrollCoordinates;
                     }
-					
+                    
                     finalScroll[_strScrollLeft] = getFinalScroll(true, getRawScroll(coordinates).x);
                     finalScroll[_strScrollTop] = getFinalScroll(false, getRawScroll(coordinates).y);
                     doScrollLeft = finalScroll[_strScrollLeft] !== undefined;
                     doScrollTop = finalScroll[_strScrollTop] !== undefined;
 
                     if ((doScrollLeft || doScrollTop) && (duration > 0 || durationIsObject)) {
-						if (durationIsObject)
+                        if (durationIsObject)
                             _viewportElement.animate(finalScroll, duration);
                         else {
                             animationOptions = {
