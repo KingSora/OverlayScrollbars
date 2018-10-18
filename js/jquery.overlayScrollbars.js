@@ -3313,12 +3313,12 @@
                             compatibility.prvD(event);
                             compatibility.stpP(event);
                         }
-                    }).hover(function() { //make sure both scrollbars will stay visible if one scrollbar is hovered if autoHide is "scroll".
+                    }).on('mouseenter', function() { //make sure both scrollbars will stay visible if one scrollbar is hovered if autoHide is "scroll".
                         if (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove) {
                             _scrollbarsAutoHideFlagScrollAndHovered = true;
                             refreshScrollbarsAutoHide(true);
                         }
-                    }, function() {
+                    }).on('mouseleave', function() {
                         if (_scrollbarsAutoHideScroll || _scrollbarsAutoHideMove) {
                             _scrollbarsAutoHideFlagScrollAndHovered = false;
                             refreshScrollbarsAutoHide(false);
