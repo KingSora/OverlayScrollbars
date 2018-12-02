@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.5.3
+ * Version: 1.6.0
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 07.11.2018
+ * Date: 02.12.2018
  */
 
 /*
@@ -39,7 +39,7 @@ body.os-dragging * {
     position: relative;
     overflow: visible !important;
     flex-direction: column;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-start;
     align-content: flex-start;
     align-items: flex-start;
@@ -50,6 +50,21 @@ body.os-dragging * {
 }
 .os-host-flexbox > .os-padding > .os-viewport > .os-content {
     display: flex;
+}
+.os-host-flexbox > .os-size-auto-observer {
+    height: inherit !important;
+}
+.os-host-flexbox > .os-content-glue {
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+.os-host-flexbox > .os-size-auto-observer,
+.os-host-flexbox > .os-content-glue {
+    min-height: 0;
+    min-width: 0;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
 }
 #hs-dummy-scrollbar-size {
     position: fixed;

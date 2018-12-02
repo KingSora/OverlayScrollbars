@@ -268,6 +268,14 @@ Take the table below only as a overview of all options.
 		<td>Indiactes whether the textarea height will be dynamic (content dependent).</td>
 	</tr>
 	<tr>
+		<td></td>
+		<td>inheritedAttrs</td>
+		<td>string / array / null</td>
+		<td><code>["style", "class"]</code></td>
+		<td><b>During initialization:</b> Attributes which the generated host-element shall inherit from from the target textarea-element.<br/>
+<b>During destruction:</b> Attributes which the target textarea-element shall inherit from from the generated host-element.</td>
+	</tr>
+	<tr>
 		<th align="left" colspan="5">}</th>
 	</tr>
 	<tr>
