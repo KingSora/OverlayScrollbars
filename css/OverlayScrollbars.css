@@ -91,10 +91,10 @@ body.os-dragging * {
     height: 500px;
     width: 500px;
 }
-#os-dummy-scrollbar-size > * {
+#os-dummy-scrollbar-size > div {
     width: 200%;
-	height: 200%; 
-	margin: 10px 0;
+    height: 200%; 
+    margin: 10px 0;
 }
 #os-dummy-scrollbar-size,
 .os-viewport {
@@ -111,14 +111,14 @@ body.os-dragging * {
     background: transparent !important;
 }
 .os-content-glue {
-	box-sizing: inherit;
+    box-sizing: inherit;
     max-height: 100%;
     max-width: 100%;
     width: 100%;
     pointer-events: none;
 }
 .os-padding {
-	box-sizing: inherit;
+    box-sizing: inherit;
     direction: inherit;
     position: absolute;
     overflow: visible;
@@ -139,7 +139,7 @@ body.os-dragging * {
     direction: inherit !important;
     box-sizing: inherit !important;
     resize: none !important;
-	outline: none !important;
+    outline: none !important;
     position: absolute;
     overflow: hidden;
     top: 0;
@@ -149,21 +149,6 @@ body.os-dragging * {
     padding: 0;
     margin: 0;
     -webkit-overflow-scrolling: touch;
-}
-.os-viewport-restricted:after {
-	content: '';
-	display: block;
-	width: auto;
-	height: 1px;
-	overflow: hidden;
-	pointer-events: none;
-	-webkit-transform: scale(0.0001);
-	        transform: scale(0.0001);
-	font-size: 0 !important;
-	line-height: 0 !important;
-	margin: -1px 0 0 0 !important;
-	padding: 0 !important;
-	border: 0 !important;
 }
 .os-content-arrange {
     position: absolute;
@@ -184,7 +169,7 @@ body.os-dragging * {
     visibility: visible;
 }
 .os-content > .os-textarea {
-	box-sizing: border-box !important;
+    box-sizing: border-box !important;
     direction: inherit !important;
     float: none !important;
     margin: 0 !important;
