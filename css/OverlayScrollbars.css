@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.6.0
+ * Version: 1.6.1
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 02.12.2018
+ * Date: 16.12.2018
  */
 
 /*
@@ -38,35 +38,51 @@ body.os-dragging * {
 .os-host-textarea {
     position: relative;
     overflow: visible !important;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-content: flex-start;
-    align-items: flex-start;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+    -webkit-box-pack: start;
+        -ms-flex-pack: start;
+            justify-content: flex-start;
+    -ms-flex-line-pack: start;
+        align-content: flex-start;
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+                -ms-grid-row-align: flex-start;
+            align-items: flex-start;
 }
 .os-host-flexbox {
     overflow: hidden !important;
-    display: flex;
-}
-.os-host-flexbox > .os-padding > .os-viewport > .os-content {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
 }
 .os-host-flexbox > .os-size-auto-observer {
     height: inherit !important;
 }
 .os-host-flexbox > .os-content-glue {
-    flex-grow: 1;
-    flex-shrink: 0;
+    -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+            flex-grow: 1;
+    -ms-flex-negative: 0;
+        flex-shrink: 0;
 }
 .os-host-flexbox > .os-size-auto-observer,
 .os-host-flexbox > .os-content-glue {
     min-height: 0;
     min-width: 0;
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
+    -webkit-box-flex: 0;
+        -ms-flex-positive: 0;
+            flex-grow: 0;
+    -ms-flex-negative: 1;
+        flex-shrink: 1;
+    -ms-flex-preferred-size: auto;
+        flex-basis: auto;
 }
-#hs-dummy-scrollbar-size {
+#os-dummy-scrollbar-size {
     position: fixed;
     opacity: 0;
     -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)';
@@ -75,13 +91,18 @@ body.os-dragging * {
     height: 500px;
     width: 500px;
 }
-#hs-dummy-scrollbar-size,
+#os-dummy-scrollbar-size > * {
+    width: 200%;
+	height: 200%; 
+	margin: 10px 0;
+}
+#os-dummy-scrollbar-size,
 .os-viewport {
     -ms-overflow-style: scrollbar !important;
 }
-.os-viewport-native-scrollbars-invisible#hs-dummy-scrollbar-size::-webkit-scrollbar,
+.os-viewport-native-scrollbars-invisible#os-dummy-scrollbar-size::-webkit-scrollbar,
 .os-viewport-native-scrollbars-invisible.os-viewport::-webkit-scrollbar,
-.os-viewport-native-scrollbars-invisible#hs-dummy-scrollbar-size::-webkit-scrollbar-corner,
+.os-viewport-native-scrollbars-invisible#os-dummy-scrollbar-size::-webkit-scrollbar-corner,
 .os-viewport-native-scrollbars-invisible.os-viewport::-webkit-scrollbar-corner {
     display: none !important;
     width: 0px !important;
@@ -90,12 +111,14 @@ body.os-dragging * {
     background: transparent !important;
 }
 .os-content-glue {
+	box-sizing: inherit;
     max-height: 100%;
     max-width: 100%;
     width: 100%;
     pointer-events: none;
 }
 .os-padding {
+	box-sizing: inherit;
     direction: inherit;
     position: absolute;
     overflow: visible;
@@ -116,6 +139,7 @@ body.os-dragging * {
     direction: inherit !important;
     box-sizing: inherit !important;
     resize: none !important;
+	outline: none !important;
     position: absolute;
     overflow: hidden;
     top: 0;
@@ -125,6 +149,21 @@ body.os-dragging * {
     padding: 0;
     margin: 0;
     -webkit-overflow-scrolling: touch;
+}
+.os-viewport-restricted:after {
+	content: '';
+	display: block;
+	width: auto;
+	height: 1px;
+	overflow: hidden;
+	pointer-events: none;
+	-webkit-transform: scale(0.0001);
+	        transform: scale(0.0001);
+	font-size: 0 !important;
+	line-height: 0 !important;
+	margin: -1px 0 0 0 !important;
+	padding: 0 !important;
+	border: 0 !important;
 }
 .os-content-arrange {
     position: absolute;
@@ -145,6 +184,7 @@ body.os-dragging * {
     visibility: visible;
 }
 .os-content > .os-textarea {
+	box-sizing: border-box !important;
     direction: inherit !important;
     float: none !important;
     margin: 0 !important;
@@ -244,9 +284,13 @@ object.os-resize-observer {
     padding: 0;
     margin: 0;
     pointer-events: none;
-    flex-grow: inherit;
-    flex-shrink: 0;
-    flex-basis: 0;
+    -webkit-box-flex: inherit;
+        -ms-flex-positive: inherit;
+            flex-grow: inherit;
+    -ms-flex-negative: 0;
+        flex-shrink: 0;
+    -ms-flex-preferred-size: 0;
+        flex-basis: 0;
 }
 .os-size-auto-observer > .os-resize-observer {
     width: 1000%;
