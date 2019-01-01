@@ -1,10 +1,31 @@
-![OverlayScrollbars](https://kingsora.github.io/OverlayScrollbars/img/logo.png)
+<p align="center">
+  <a href="https://kingsora.github.io/OverlayScrollbars">
+    <img src="https://kingsora.github.io/OverlayScrollbars/design/logo.svg" width="200" height="133" alt="OverlayScrollbars" />
+  </a>
+</p>
+<h6 align="center">
+	<img src="https://img.shields.io/david/kingsora/overlayscrollbars.svg?style=flat-square" alt="Dependencies" />
+	<img src="https://img.shields.io/npm/dt/overlayscrollbars.svg?style=flat-square" alt="Downloads" />
+	<img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version" />
+	<img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License" />
+</h6>
+<h4 align="center">
+	<a href="https://kingsora.github.io/OverlayScrollbars">Website</a>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;
+	<a href="https://kingsora.github.io/OverlayScrollbars/#!documentation">Documentation</a>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;
+	<a href="https://kingsora.github.io/OverlayScrollbars/#!demos">Demos</a>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;
+	<a href="https://kingsora.github.io/OverlayScrollbars/#!extensions">Extensions</a>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;
+	<a href="https://kingsora.github.io/OverlayScrollbars/#!faq">FAQ</a>
+</h4>
 
-## OverlayScrollbars
+> OverlayScrollbars is a javascript scrollbar plugin which hides native scrollbars, provides
+custom styleable overlay scrollbars and keeps the native functionality and feeling.
 
-OverlayScrollbars is a javascript scrollbar plugin which hides the native scrollbars and provides custom styleable scrollbars, but keeps the native functionality and feeling.
 
-## Why?
+## Why
 
 I've created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
 
@@ -22,10 +43,6 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - Simple and effective scrollbar-styling.
  - Sophisticated extension system.
  
-## Demo & Documentation
-
-You can find a detailed documentation, demos and theme templates [here](https://kingsora.github.io/OverlayScrollbars).
-
 ## Dependencies
 
 **The default version doesn't requires any dependencies!**
