@@ -1,0 +1,26 @@
+{
+    "parse":{
+
+    },
+    "compress":{
+        "ie8":true,
+        "passes":2,
+        "reduce_vars":false,
+        "typeofs":false
+    },
+    "mangle":{
+        "ie8":true,
+        "properties":{
+            "regex":"/^_/"
+        }
+    },
+    "output":{
+        "ie8":true,
+        "beautify":false,
+        "comments":"/@license|@preserve|^!/",
+        "indent_level":4,
+        "indent_start":0,
+        "quote_style":0
+    },
+    "ie8":true
+}

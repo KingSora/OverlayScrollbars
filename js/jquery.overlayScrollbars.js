@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.6.1
+ * Version: 1.6.2
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 16.12.2018
+ * Date: 16.01.2019
  */
 
 (function (global, factory) {
@@ -414,6 +414,7 @@
                                     var isValid = false;
                                     var templateValue = template[prop];
                                     var templateValueType = COMPATIBILITY.type(templateValue);
+                                    var templateIsComplext = templateValueType == TYPES.o;
                                     var templateTypes = COMPATIBILITY.type(templateValue) != TYPES.a ? [ templateValue ] : templateValue;
                                     var dataValue = data[prop];
                                     var dataValueType = COMPATIBILITY.type(dataValue);
@@ -431,13 +432,13 @@
                                     var j;
 
                                     //if the template has a object as value, it means that the options are complex (verschachtelt)
-                                    if(templateValueType == TYPES.o) {
+                                    if(templateIsComplext && dataValueType == TYPES.o) {
                                         validatedOptions[prop] = { };
                                         checkObjectProps(dataValue, templateValue, validatedOptions[prop], propPrefix + prop);
                                         if(FRAMEWORK.isEmptyObject(dataValue))
                                             delete data[prop];
                                     }
-                                    else {
+                                    else if(!templateIsComplext) {
                                         for(i = 0; i < templateTypes.length; i++) {
                                             currType = templateTypes[i];
                                             templateValueType = COMPATIBILITY.type(currType);
@@ -880,6 +881,7 @@
                 var _isTextarea;
                 var _isBody;
                 var _documentMixed;
+                var _isTextareaHostGenerated;
 
                 //general:
                 var _isBorderBox;
@@ -1589,7 +1591,7 @@
                  * A callback which will be called after a img element has downloaded its src asynchronous.
                  */
                 function imgOnLoad() {
-                    update();
+                    update(false, true);
                 }
 
 
@@ -1934,9 +1936,9 @@
                     clearTimeout(_swallowedUpdateTimeout);
                     
                     if (swallow) {
-                        _swallowedUpdateParams.h = hostSizeChanged;
-                        _swallowedUpdateParams.c = contentSizeChanged;
-                        _swallowedUpdateParams.f = force;
+                        _swallowedUpdateParams.h = _swallowedUpdateParams.h || hostSizeChanged;
+                        _swallowedUpdateParams.c = _swallowedUpdateParams.c || contentSizeChanged;
+                        _swallowedUpdateParams.f = _swallowedUpdateParams.f || force;
                         _swallowedUpdateTimeout = setTimeout(update, _swallowUpdateLag);
                     }
 
@@ -3022,6 +3024,8 @@
                         _classNameHostOverflowX,
                         _classNameHostOverflowY,
                         _classNameThemeNone,
+                        _classNameTextareaElement,
+                        _classNameTextInherit,
                         _classNameCache].join(_strSpace);
                     adoptAttrs = type(adoptAttrs) == TYPES.s ? adoptAttrs.split(' ') : adoptAttrs;
                     if(type(adoptAttrs) == TYPES.a) {
@@ -3034,11 +3038,16 @@
                     if(!destroy) {
                         if (_isTextarea) {
                             var hostElementCSS = {};
+                            var parent = _targetElement.parent();
+                            _isTextareaHostGenerated = !(parent.hasClass(_classNameHostTextareaElement) && parent.children()[LEXICON.l] === 1);
+
                             if (!_currentPreparedOptions.sizeAutoCapable) {
                                 hostElementCSS[_strWidth] = _targetElement.css(_strWidth);
                                 hostElementCSS[_strHeight] = _targetElement.css(_strHeight);
                             }
-                            _targetElement.wrap(generateDiv(_classNameHostTextareaElement));
+                            if(_isTextareaHostGenerated)
+                                _targetElement.wrap(generateDiv(_classNameHostTextareaElement));
+                            
                             _hostElement = _targetElement.parent();
                             _hostElement.css(hostElementCSS)
                                 .wrapInner(generateDiv(_classNameContentElement + _strSpace + _classNameTextInherit))
@@ -3052,7 +3061,8 @@
 
                             addClass(_targetElement, _classNameTextareaElement + _strSpace + _classNameTextInherit);
                             
-                            applyAdoptedAttrs();
+                            if(_isTextareaHostGenerated)
+                                applyAdoptedAttrs();
                         } 
                         else {
                             _hostElement = _targetElement;
@@ -3079,20 +3089,27 @@
                             .unwrap()
                             .unwrap()
                             .unwrap();
-
+                            
+                        removeClass(_hostElement, hostElementClassNames);
                         if (_isTextarea) {    
                             _targetElement.removeAttr(LEXICON.s);
                             
-                            applyAdoptedAttrs();
+                            if(_isTextareaHostGenerated)
+                                applyAdoptedAttrs();
                             
-                            removeClass(_targetElement, hostElementClassNames + _strSpace + _classNameTextareaElement + _strSpace + _classNameTextInherit)
-                                .unwrap();
+                            removeClass(_targetElement, hostElementClassNames);
                             remove(_textareaCoverElement);
-                            remove(_hostElement);
+                            
+                            if(_isTextareaHostGenerated) {
+                                _targetElement.unwrap();
+                                remove(_hostElement);
+                            }
+                            else {
+                                addClass(_hostElement, _classNameHostTextareaElement);
+                            }
                         }
                         else {
                             removeClass(_targetElement, _classNameHostElement);
-                            removeClass(_hostElement, hostElementClassNames);
                         }
                         
                         if (_isBody)
@@ -4866,7 +4883,7 @@
                     _rtlScrollBehavior = extend(true, {}, globals.rtlScrollBehavior);
 
                     //parse & set options but don't update
-                    setOptions(extend(true, { }, _defaultOptions, options));
+                    setOptions(extend(true, { }, _defaultOptions, _pluginsOptions.v(options, _pluginsOptions.t, true)));
 
                     //check if the plugin hasn't to be initialized
                     if (_nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.x && !_currentPreparedOptions.nativeScrollbarsOverlaid.initialize) {
