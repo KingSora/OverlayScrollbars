@@ -22,7 +22,6 @@
     function(window, document, undefined) {
         'use strict';
         var PLUGINNAME = 'OverlayScrollbars';
-        var text = { };
         var TYPES = {
             o : 'object',
             f : 'function',
