@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.6.2
+ * Version: 1.6.3
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 16.01.2019
+ * Date: 31.01.2019
  */
 
 (function (global, factory) {
@@ -2127,9 +2127,12 @@
                     //activate or deactivate size auto capability
                     if (sizeAutoCapableChanged) {
                         if (sizeAutoCapable) {
-                            if (_contentGlueElement === undefined) {
+                            if (!_contentGlueElement) {
                                 _contentGlueElement = FRAMEWORK(generateDiv(_classNameContentGlueElement));
                                 _paddingElement.before(_contentGlueElement);
+                            }
+                            else {
+                                _contentGlueElement.show();
                             }
                             if (_sizeAutoObserverAdded) {
                                 _sizeAutoObserverElement.show();
@@ -2163,6 +2166,8 @@
                         else {
                             if (_sizeAutoObserverAdded)
                                 _sizeAutoObserverElement.hide();
+                            if (_contentGlueElement)
+                                _contentGlueElement.hide();
                         }
                     }
 
@@ -2229,7 +2234,7 @@
                     var wasWidthAuto = !widthAuto && _widthAutoCache;
 
                     //detect height auto:
-                    var heightAuto = _sizeAutoObserverAdded && !displayIsHidden ? (MATH.round(sizeAutoObserverElementBCRect.bottom - sizeAutoObserverElementBCRect.top) === 0) /* && (!paddingAbsolute && (_msieVersion > 9 || !_msieVersion) ? true : true) */ : false;
+                    var heightAuto = _sizeAutoObserverAdded && sizeAutoCapable && !displayIsHidden ? (MATH.round(sizeAutoObserverElementBCRect.bottom - sizeAutoObserverElementBCRect.top) === 0) /* && (!paddingAbsolute && (_msieVersion > 9 || !_msieVersion) ? true : true) */ : false;
                     var heightAutoChanged = checkCacheSingle(heightAuto, _heightAutoCache, force);
                     var wasHeightAuto = !heightAuto && _heightAutoCache;
 
@@ -2386,12 +2391,18 @@
                         contentElementCSS[_strWidth] = _strAuto;
                         contentElementCSS[_strFloat] = isRTLRight;
                     }
+                    else {
+                        contentGlueElementCSS[_strWidth] = _strEmpty;
+                    }
                     if (heightAuto) {
                         if (!cssMaxValue.ch)
                             contentElementCSS[_strMaxMinus + _strHeight] = _strEmpty;
                         //fix dyn height collapse bug: (doesn't works for width!)
                         //contentGlueElementCSS[_strHeight] = _isTextarea && textareaDynHeight ? textareaSize.dh : _strAuto;
                         contentGlueElementCSS[_strHeight] = _isTextarea ? textareaDynHeight ? textareaSize.dh : _strAuto : _contentElement[0][LEXICON.cH];
+                    }
+                    else {
+                        contentGlueElementCSS[_strHeight] = _strEmpty;
                     }
                     if (sizeAutoCapable)
                         _contentGlueElement.css(contentGlueElementCSS);
@@ -2402,7 +2413,7 @@
                     contentGlueElementCSS = {};
                     
                     //if [content(host) client / scroll size, or target element direction, or content(host) max-sizes] changed, or force is true
-                    if (hostSizeChanged || contentSizeChanged || cssDirectionChanged || boxSizingChanged || paddingAbsoluteChanged || widthAutoChanged || widthAuto || heightAutoChanged || heightAuto || cssMaxValue.c || ignoreOverlayScrollbarHidingChanged || overflowBehaviorChanged || clipAlwaysChanged || resizeChanged || scrollbarsVisibilityChanged || textareaDynWidthChanged || textareaDynHeightChanged || textareaAutoWrappingChanged || force) {
+                    if (hostSizeChanged || contentSizeChanged || cssDirectionChanged || boxSizingChanged || paddingAbsoluteChanged || widthAutoChanged || widthAuto || heightAutoChanged || heightAuto || cssMaxValue.c || ignoreOverlayScrollbarHidingChanged || overflowBehaviorChanged || clipAlwaysChanged || resizeChanged || scrollbarsVisibilityChanged || scrollbarsAutoHideChanged || scrollbarsDragScrollingChanged || scrollbarsClickScrollingChanged || textareaDynWidthChanged || textareaDynHeightChanged || textareaAutoWrappingChanged || force) {
                         var strOverflow = 'overflow';
                         var strOverflowX = strOverflow + '-x';
                         var strOverflowY = strOverflow + '-y';
@@ -4117,12 +4128,13 @@
                     var isString = type(force) == TYPES.s;
                     var imgElementSelector = 'img';
                     var imgElementLoadEvent = 'load';
+                    var isPlus = isString && force.slice(-1) == '+';
                     if(isString) {
                         if (force.indexOf(_strAuto) === 0) {
                             attrsChanged = meaningfulAttrsChanged();
                             contentSizeC = updateAutoContentSizeChanged();
-                            if (attrsChanged || contentSizeC)
-                                update(false, contentSizeC, false, force.slice(-1) == "+");
+                            if (attrsChanged || contentSizeC || isPlus)
+                                update(false, contentSizeC, false, isPlus);
                         }
                         else if (force === 'zoom')
                             update(true, true);
@@ -4432,7 +4444,7 @@
                     var getFinalScroll = function (isX, rawScroll) {
                         var isString = type(rawScroll) == TYPES.s;
                         if(isString)
-                            _base.update(_strAuto + "+");
+                            _base.update(_strAuto + '+');
                         var operator;
                         var amount;
                         var scrollInfo = isX ? _scrollHorizontalInfo : _scrollVerticalInfo;
@@ -4564,7 +4576,7 @@
                         if (finalElement[strLength] === 0)
                             return;
 
-                        _base.update(_strAuto + "+");
+                        _base.update(_strAuto + '+');
                         
                         //margin can be [ boolean, number, array of 2, array of 4, object ]
                         if (marginType == TYPES.n || marginType == TYPES.b)
