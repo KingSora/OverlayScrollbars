@@ -39,7 +39,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - Extremely powerful scroll method with features like animations, relative coordinates, scrollIntoView and more.
  - Mouse and touch support.
  - Textarea and Body support.
- - Direction RTL support. (with normalization)
+ - RTL Direction support. (with normalization)
  - Simple and effective scrollbar-styling.
  - Sophisticated extension system.
  
