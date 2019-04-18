@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.6.3
+ * Version: 1.7.0
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 31.01.2019
+ * Date: 18.04.2019
  */
 
 /*
@@ -167,6 +167,15 @@ body.os-dragging * {
     height: 100%;
     width: 100%;
     visibility: visible;
+}
+.os-content:before,
+.os-content:after {
+    content: '';
+    display: table;
+    width: 0;
+    height: 0;
+    line-height: 0;
+    font-size: 0;
 }
 .os-content > .os-textarea {
     box-sizing: border-box !important;

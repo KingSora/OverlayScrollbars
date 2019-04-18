@@ -41,7 +41,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - Textarea and Body support.
  - RTL Direction support. (with normalization)
  - Simple and effective scrollbar-styling.
- - Sophisticated extension system.
+ - Rich extension system.
  
 ## Dependencies
 
@@ -263,6 +263,13 @@ Take the table below only as a overview of all options.
 		<td>boolean</td>
 		<td><code>true</code></td>
 		<td>Indicates whether the scrollbar reacts to touch events.</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>snapHandle</td>
+		<td>boolean</td>
+		<td><code>false</code></td>
+		<td>Indicates whether the scrollbar handle-offset shall be snapped.</td>
 	</tr>
 	<tr>
 		<th align="left" colspan="5">}</th>
