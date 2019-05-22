@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.7.0
+ * Version: 1.7.1
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 18.04.2019
+ * Date: 22.05.2019
  */
 
 (function (global, factory) {
@@ -5688,7 +5688,7 @@
                             //check operator
                             if (rawScroll[strLength] > 2) {
                                 possibleOperator = rawScroll.substr(0, 2);
-                                if($.inArray(possibleOperator, coordinatesOperators) > -1)
+                                if(FRAMEWORK.inArray(possibleOperator, coordinatesOperators) > -1)
                                     operator = possibleOperator;
                             }
 
