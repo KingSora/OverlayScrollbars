@@ -42,7 +42,21 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - RTL Direction support. (with normalization)
  - Simple and effective scrollbar-styling.
  - Rich extension system.
- 
+
+## Sponsors
+<table>
+	<tr>
+		<td>
+			<a href="https://www.browserstack.com" target="_blank">
+			    <img align="center" src="https://kingsora.github.io/OverlayScrollbars/img/browserstack.png" width="250">
+			</a>
+		</td>
+		<td>
+			Thanks to <a href="https://www.browserstack.com" target="_blank">BrowserStack</a> for sponsoring open source projects and letting us test OverlayScrollbars for free.
+		</td>
+	</tr>
+</table>
+
 ## Dependencies
 
 **The default version doesn't requires any dependencies!**
