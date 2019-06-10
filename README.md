@@ -52,7 +52,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
 			</a>
 		</td>
 		<td>
-			Thanks to <a href="https://www.browserstack.com" target="_blank">BrowserStack</a> for sponsoring open source projects and letting us test OverlayScrollbars for free.
+			Thanks to <a href="https://www.browserstack.com" target="_blank">BrowserStack</a> for sponsoring open source projects and letting me test OverlayScrollbars for free.
 		</td>
 	</tr>
 </table>
