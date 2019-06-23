@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.7.2
+ * Version: 1.7.3
  *
  * Copyright KingSora.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 10.06.2019
+ * Date: 23.06.2019
  */
 
 (function (global, factory) {
@@ -1665,6 +1665,7 @@
                 var scrollbarDummyElement = FRAMEWORK('<div id="os-dummy-scrollbar-size"><div></div></div>');
                 var scrollbarDummyElement0 = scrollbarDummyElement[0];
                 var dummyContainerChild = FRAMEWORK(scrollbarDummyElement.children('div').eq(0));
+                var getCptStyle = window.getComputedStyle;
 
                 bodyElement.append(scrollbarDummyElement);
                 scrollbarDummyElement.hide().show(); //fix IE8 bug (incorrect measuring)
@@ -1689,7 +1690,7 @@
                         //scrollbarDummyElement.css(strOverflow, strHidden).hide().css(strOverflow, strScroll).show();
                         //return (scrollbarDummyElement0[LEXICON.oH] - scrollbarDummyElement0[LEXICON.cH]) === 0 && (scrollbarDummyElement0[LEXICON.oW] - scrollbarDummyElement0[LEXICON.cW]) === 0;
                         
-                        return scrollbarDummyElement.css('scrollbar-width') === 'none' || window.getComputedStyle(scrollbarDummyElement0, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
+                        return scrollbarDummyElement.css('scrollbar-width') === 'none' || (getCptStyle ? getCptStyle(scrollbarDummyElement0, '::-webkit-scrollbar').getPropertyValue('display') === 'none' : false);
                     })(),
                     overlayScrollbarDummySize : { x: 30, y: 30 },
                     msie : (function() {
@@ -2211,6 +2212,8 @@
                 //MutationObserver:
                 var _mutationObserverHost;
                 var _mutationObserverContent;
+                var _mutationObserverHostCallback;
+                var _mutationObserverContentCallback;
                 var _mutationObserversConnected;
 
                 //textarea:
@@ -2520,67 +2523,72 @@
                         var sizeAuto;
                         var action;
 
-                        _mutationObserverHost = new mutationObserver(function (mutations) {
-                            if (!_initialized || _isSleeping)
-                                return;
-
+                        _mutationObserverHostCallback = function(mutations) {
                             var doUpdate = false;
                             var mutation;
-                            FRAMEWORK.each(mutations, function () {
-                                mutation = this;
-                                mutationTarget = mutation.target;
-                                mutationAttrName = mutation.attributeName;
+                                
+                            if (_initialized && !_isSleeping) {
+                                FRAMEWORK.each(mutations, function () {
+                                    mutation = this;
+                                    mutationTarget = mutation.target;
+                                    mutationAttrName = mutation.attributeName;
 
-                                if (mutationAttrName === LEXICON.c)
-                                    doUpdate = hostClassNamesChanged(mutation.oldValue, mutationTarget.className);
-                                else if (mutationAttrName === LEXICON.s)
-                                    doUpdate = mutation.oldValue !== mutationTarget[LEXICON.s].cssText;
-                                else
-                                    doUpdate = true;
+                                    if (mutationAttrName === LEXICON.c)
+                                        doUpdate = hostClassNamesChanged(mutation.oldValue, mutationTarget.className);
+                                    else if (mutationAttrName === LEXICON.s)
+                                        doUpdate = mutation.oldValue !== mutationTarget[LEXICON.s].cssText;
+                                    else
+                                        doUpdate = true;
+
+                                    if (doUpdate)
+                                        return false;
+                                });
 
                                 if (doUpdate)
-                                    return false;
-                            });
-
-                            if (doUpdate)
-                                _base.update(_strAuto);
-                        });
-                        _mutationObserverContent = new mutationObserver(function (mutations) {
-                            if (!_initialized || _isSleeping)
-                                return;
-
+                                    _base.update(_strAuto);
+                            }
+                            return doUpdate;
+                        };
+                        _mutationObserverContentCallback = function (mutations) {
                             var doUpdate = false;
                             var mutation;
-                            FRAMEWORK.each(mutations, function () {
-                                mutation = this;
-                                doUpdate = isUnknownMutation(mutation);
-                                return !doUpdate;
-                            });
+                            
+                            if (_initialized && !_isSleeping) {
+                                FRAMEWORK.each(mutations, function () {
+                                    mutation = this;
+                                    doUpdate = isUnknownMutation(mutation);
+                                    return !doUpdate;
+                                });
 
-                            if (doUpdate) {
-                                now = COMPATIBILITY.now();
-                                sizeAuto = (_heightAutoCache || _widthAutoCache);
-                                action = function () {
-                                    if(!_destroyed) {
-                                        contentLastUpdate = now;
+                                if (doUpdate) {
+                                    now = COMPATIBILITY.now();
+                                    sizeAuto = (_heightAutoCache || _widthAutoCache);
+                                    action = function () {
+                                        if(!_destroyed) {
+                                            contentLastUpdate = now;
 
-                                        //if cols, rows or wrap attr was changed
-                                        if (_isTextarea)
-                                            textareaUpdate();
+                                            //if cols, rows or wrap attr was changed
+                                            if (_isTextarea)
+                                                textareaUpdate();
 
-                                        if (sizeAuto)
-                                            update();
-                                        else
-                                            _base.update(_strAuto);
-                                    }
-                                };
-                                clearTimeout(contentTimeout);
-                                if (mutationObserverContentLag <= 0 || now - contentLastUpdate > mutationObserverContentLag || !sizeAuto)
-                                    action();
-                                else
-                                    contentTimeout = setTimeout(action, mutationObserverContentLag);
+                                            if (sizeAuto)
+                                                update();
+                                            else
+                                                _base.update(_strAuto);
+                                        }
+                                    };
+                                    clearTimeout(contentTimeout);
+                                    if (mutationObserverContentLag <= 0 || now - contentLastUpdate > mutationObserverContentLag || !sizeAuto)
+                                        action();
+                                    else
+                                        contentTimeout = setTimeout(action, mutationObserverContentLag);
+                                }
                             }
-                        });
+                            return doUpdate;
+                        }
+
+                        _mutationObserverHost = new mutationObserver(_mutationObserverHostCallback);
+                        _mutationObserverContent = new mutationObserver(_mutationObserverContentCallback);
                     }
                 }
 
@@ -2601,7 +2609,7 @@
                             subtree: !_isTextarea,
                             childList: !_isTextarea,
                             characterData: !_isTextarea,
-                            attributeFilter: _isTextarea ? ['wrap', 'cols', 'rows'] : [LEXICON.i, LEXICON.c, LEXICON.s]
+                            attributeFilter: _isTextarea ? ['wrap', 'cols', 'rows'] : [LEXICON.i, LEXICON.c, LEXICON.s, 'open']
                         });
 
                         _mutationObserversConnected = true;
@@ -2620,8 +2628,21 @@
                     }
                 }
 
+                /**
+                 * Disconnects the MutationObservers if they are supported.
+                 * @returns {boolean|undefined} True if the MutationObservers needed to be synchronized, false or undefined otherwise.
+                 */
+                function synchronizeMutationObservers() {
+                    if(_mutationObserversConnected) {
+                        var mutHost = _mutationObserverHostCallback(_mutationObserverHost.takeRecords());
+                        var mutContent = _mutationObserverContentCallback(_mutationObserverContent.takeRecords());
 
-                //==== Events of elements ====//
+                        return mutHost || mutContent;
+                    }
+                }
+
+               
+               //==== Events of elements ====//
 
                 /**
                  * This method gets called every time the host element gets resized. IMPORTANT: Padding changes are detected too!!
@@ -2988,7 +3009,7 @@
                     return sizeIsAffected;
                 }
 
-
+                
                 //==== Update ====//
 
                 /**
@@ -3057,7 +3078,7 @@
                  * @param hostSizeChanged True if this method was called due to a host size change.
                  * @param contentSizeChanged True if this method was called due to a content size change.
                  * @param force True if every property shall be updated and the cache shall be ignored.
-                 * @param preventSwallowing True if this method shall be executed event if it could be swallowed.
+                 * @param preventSwallowing True if this method shall be executed even if it could be swallowed.
                  */
                 function update(hostSizeChanged, contentSizeChanged, force, preventSwallowing) {
                     var now = COMPATIBILITY.now();
@@ -4115,7 +4136,7 @@
                     dispatchCallback("onUpdated", { forced: force });
                 }
 
-
+                
                 //==== Options ====//
 
                 /**
@@ -5088,8 +5109,8 @@
                 function getHostElementInvertedScale() {
                     var rect = _paddingElementNative.getBoundingClientRect();
                     return {
-                        x :  _supportTransform ? 1 / (MATH.round(rect.width) / _paddingElementNative[LEXICON.oW]) : 1,
-                        y :  _supportTransform ? 1 / (MATH.round(rect.height) / _paddingElementNative[LEXICON.oH]) : 1
+                        x :  _supportTransform ? 1 / (MATH.round(rect.width) / _paddingElementNative[LEXICON.oW]) || 1 : 1,
+                        y :  _supportTransform ? 1 / (MATH.round(rect.height) / _paddingElementNative[LEXICON.oH]) || 1 : 1
                     };
                 }
 
@@ -5398,18 +5419,18 @@
                     var isString = type(force) == TYPES.s;
                     var imgElementSelector = 'img';
                     var imgElementLoadEvent = 'load';
-                    var isPlus = isString && force.slice(-1) == '+';
+                    
                     if(isString) {
-                        if (force.indexOf(_strAuto) === 0) {
+                        if (force === _strAuto) {
                             attrsChanged = meaningfulAttrsChanged();
                             contentSizeC = updateAutoContentSizeChanged();
-                            if (attrsChanged || contentSizeC || isPlus)
-                                update(false, contentSizeC, false, isPlus);
+                            if (attrsChanged || contentSizeC)
+                                update(false, contentSizeC, false);
                         }
                         else if (force === 'zoom')
                             update(true, true);
                     }
-                    else {
+                    else if(!synchronizeMutationObservers() || force) {
                         force = _isSleeping || force;
                         _isSleeping = false;
                         update(false, false, force, true);
@@ -5421,6 +5442,7 @@
                                 FRAMEWORK(el).off(imgElementLoadEvent, imgOnLoad).on(imgElementLoadEvent, imgOnLoad);
                         });
                     }
+                    
                 };
 
                 /**
@@ -5628,7 +5650,9 @@
                             isRTLNormalized: _normalizeRTLCache
                         };
                     }
-
+                    
+                    synchronizeMutationObservers();
+                    
                     var normalizeRTL = _normalizeRTLCache;
                     var coordinatesXAxisProps = [_strX, _strLeft, 'l'];
                     var coordinatesYAxisProps = [_strY, _strTop, 't'];
@@ -5691,8 +5715,6 @@
                     };
                     var getFinalScroll = function (isX, rawScroll) {
                         var isString = type(rawScroll) == TYPES.s;
-                        if(isString)
-                            _base.update(_strAuto + '+');
                         var operator;
                         var amount;
                         var scrollInfo = isX ? _scrollHorizontalInfo : _scrollVerticalInfo;
@@ -5821,8 +5843,6 @@
                         finalElement = possibleElementIsJQuery ? possibleElement : FRAMEWORK(possibleElement);
                         if (finalElement[strLength] === 0)
                             return;
-
-                        _base.update(_strAuto + '+');
 
                         //margin can be [ boolean, number, array of 2, array of 4, object ]
                         if (marginType == TYPES.n || marginType == TYPES.b)
