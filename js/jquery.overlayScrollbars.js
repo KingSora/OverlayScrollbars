@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.8.0
+ * Version: 1.9.0
  *
  * Copyright KingSora | Rene Haas.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 08.07.2019
+ * Date: 27.07.2019
  */
 
 (function (global, factory) {
@@ -363,6 +363,7 @@
             }
         })();
         var PLUGIN = (function() {
+            var _plugin;
             var _pluginsGlobals;
             var _pluginsAutoUpdateLoop;
             var _pluginsExtensions = [ ];
@@ -928,7 +929,7 @@
                 var each = FRAMEWORK.each;
                 
                 //make correct instanceof
-                var _base = new window[PLUGINNAME]();
+                var _base = new _plugin();
                 var _frameworkProto = FRAMEWORK[LEXICON.p];
                 
                 //if passed element is no HTML element: skip and return
@@ -1141,8 +1142,6 @@
                 var _ignoreOverlayScrollbarHidingCache;
                 var _autoUpdateCache;
                 var _sizeAutoCapableCache;
-                var _textareaAutoWrappingCache;
-                var _textareaInfoCache;
                 var _contentElementScrollSizeChangeDetectedCache;
                 var _hostElementSizeChangeDetectedCache;
                 var _scrollbarsVisibilityCache;
@@ -1153,6 +1152,9 @@
                 var _normalizeRTLCache;
                 var _classNameCache;
                 var _oldClassName;
+                var _textareaAutoWrappingCache;
+                var _textareaInfoCache;
+                var _textareaSizeCache;
                 var _textareaDynHeightCache;
                 var _textareaDynWidthCache;
                 var _bodyMinSizeCache;
@@ -2442,17 +2444,21 @@
 
                     //update Textarea
                     var textareaSize = _isTextarea ? textareaUpdate() : false;
+                    var textareaSizeChanged = _isTextarea && checkCacheAutoForce(textareaSize, _textareaSizeCache);
                     var textareaDynOrigSize = _isTextarea && textareaSize ? {
                         w : textareaDynWidth ? textareaSize._dynamicWidth : textareaSize._originalWidth,
                         h : textareaDynHeight ? textareaSize._dynamicHeight : textareaSize._originalHeight
                     } : { };
-                    
+                    _textareaSizeCache = textareaSize;
+
                     //fix height auto / width auto in cooperation with current padding & boxSizing behavior:
                     if (heightAuto && (heightAutoChanged || paddingAbsoluteChanged || boxSizingChanged || cssMaxValue.c || padding.c || border.c)) {
-                        //if (cssMaxValue.ch)
-                        contentElementCSS[_strMaxMinus + _strHeight] =
-                            (cssMaxValue.ch ? (cssMaxValue.ih - paddingAbsoluteY + (_isBorderBox ? -_borderY : _paddingY))
-                            : _strEmpty);
+                        /*
+                        if (cssMaxValue.ch)
+                            contentElementCSS[_strMaxMinus + _strHeight] =
+                                (cssMaxValue.ch ? (cssMaxValue.ih - paddingAbsoluteY + (_isBorderBox ? -_borderY : _paddingY))
+                                : _strEmpty);
+                        */
                         contentElementCSS[_strHeight] = _strAuto;
                     }
                     else if (heightAutoChanged || paddingAbsoluteChanged) {
@@ -2460,11 +2466,13 @@
                         contentElementCSS[_strHeight] = _strHundredPercent;
                     }
                     if (widthAuto && (widthAutoChanged || paddingAbsoluteChanged || boxSizingChanged || cssMaxValue.c || padding.c || border.c || cssDirectionChanged)) {
-                        //if (cssMaxValue.cw)
-                        contentElementCSS[_strMaxMinus + _strWidth] =
-                            (cssMaxValue.cw ? (cssMaxValue.iw - paddingAbsoluteX + (_isBorderBox ? -_borderX : _paddingX)) +
-                            (_nativeScrollbarIsOverlaid.y /*&& _hasOverflowCache.y && widthAuto */ ? _overlayScrollbarDummySize.y : 0)
-                            : _strEmpty);
+                        /*
+                        if (cssMaxValue.cw)
+                            contentElementCSS[_strMaxMinus + _strWidth] =
+                                (cssMaxValue.cw ? (cssMaxValue.iw - paddingAbsoluteX + (_isBorderBox ? -_borderX : _paddingX)) +
+                                (_nativeScrollbarIsOverlaid.y ? _overlayScrollbarDummySize.y : 0)
+                                : _strEmpty);
+                        */
                         contentElementCSS[_strWidth] = _strAuto;
                         contentGlueElementCSS[_strMaxMinus + _strWidth] = _strHundredPercent; //IE Fix
                     }
@@ -2504,7 +2512,7 @@
                     contentGlueElementCSS = {};
 
                     //if [content(host) client / scroll size, or target element direction, or content(host) max-sizes] changed, or force is true
-                    if (hostSizeChanged || contentSizeChanged || cssDirectionChanged || boxSizingChanged || paddingAbsoluteChanged || widthAutoChanged || widthAuto || heightAutoChanged || heightAuto || cssMaxValue.c || ignoreOverlayScrollbarHidingChanged || overflowBehaviorChanged || clipAlwaysChanged || resizeChanged || scrollbarsVisibilityChanged || scrollbarsAutoHideChanged || scrollbarsDragScrollingChanged || scrollbarsClickScrollingChanged || textareaDynWidthChanged || textareaDynHeightChanged || textareaAutoWrappingChanged) {
+                    if (hostSizeChanged || contentSizeChanged || textareaSizeChanged || cssDirectionChanged || boxSizingChanged || paddingAbsoluteChanged || widthAutoChanged || widthAuto || heightAutoChanged || heightAuto || cssMaxValue.c || ignoreOverlayScrollbarHidingChanged || overflowBehaviorChanged || clipAlwaysChanged || resizeChanged || scrollbarsVisibilityChanged || scrollbarsAutoHideChanged || scrollbarsDragScrollingChanged || scrollbarsClickScrollingChanged || textareaDynWidthChanged || textareaDynHeightChanged || textareaAutoWrappingChanged) {
                         var strOverflow = 'overflow';
                         var strOverflowX = strOverflow + '-x';
                         var strOverflowY = strOverflow + '-y';
@@ -2520,8 +2528,8 @@
                         //Reset the viewport (very important for natively overlaid scrollbars and zoom change
                         //don't change the overflow prop as it is very expensive and affects performance !A LOT!
                         var viewportElementResetCSS = { };
-                        var resetXTmp = _hasOverflowCache.y && _hideOverflowCache.ys && !ignoreOverlayScrollbarHiding ? (_nativeScrollbarIsOverlaid.y ? _viewportElement.css(isRTLLeft) : -_nativeScrollbarSize.y) : 0;
-                        var resetBottomTmp = _hasOverflowCache.x && _hideOverflowCache.xs && !ignoreOverlayScrollbarHiding ? (_nativeScrollbarIsOverlaid.x ? _viewportElement.css(_strBottom) : -_nativeScrollbarSize.x) : 0;
+                        var resetXTmp = _hasOverflowCache.y && _hideOverflowCache.ys && !ignoreOverlayScrollbarHiding && !_nativeScrollbarStyling ? (_nativeScrollbarIsOverlaid.y ? _viewportElement.css(isRTLLeft) : -_nativeScrollbarSize.y) : 0;
+                        var resetBottomTmp = _hasOverflowCache.x && _hideOverflowCache.xs && !ignoreOverlayScrollbarHiding && !_nativeScrollbarStyling ? (_nativeScrollbarIsOverlaid.x ? _viewportElement.css(_strBottom) : -_nativeScrollbarSize.x) : 0;
                         setTopRightBottomLeft(viewportElementResetCSS, _strEmpty);
                         _viewportElement.css(viewportElementResetCSS);
                         if(hideOverflow4CorrectMeasuring)
@@ -2594,7 +2602,7 @@
                                     contentGlueElementCSS[strWH] = maxSize + (_isBorderBox ? 0 : paddingSize) + 1;
 
                                 //if size is auto and host is smaller than size as min size, make content glue size -1 to make sure size changes will be detected (this is only needed if padding is 0)
-                                if (autoSize && (contentSize[wh] < _viewportSize[wh]) && (horizontal ? (_isTextarea ? !textareaAutoWrapping : false) : true)) {
+                                if (autoSize && (contentSize[wh] < _viewportSize[wh]) && (horizontal && _isTextarea ? !textareaAutoWrapping : true)) {
                                     if (_isTextarea)
                                         textareaCoverCSS[strWH] = parseToZeroOrNumber(_textareaCoverElement.css(strWH)) - 1;
                                     contentGlueElementCSS[strWH] -= 1;
@@ -2938,8 +2946,7 @@
                                 else
                                     _scrollbarCornerElement[remove ? 'off' : 'on'](_strMouseTouchDownEvent, _resizeOnMouseTouchDown);
                             };
-                            removeClass(_scrollbarCornerElement, [
-                                    _classNameHostResizeDisabled,
+                            removeClass(_scrollbarCornerElement, [ 
                                     _classNameScrollbarCornerResize,
                                     _classNameScrollbarCornerResizeB,
                                     _classNameScrollbarCornerResizeH,
@@ -2949,6 +2956,7 @@
                                 setupCornerEvents(true);
                             }
                             else {
+                                removeClass(_hostElement, _classNameHostResizeDisabled);
                                 addClass(_scrollbarCornerElement, _classNameScrollbarCornerResize);
                                 if (_resizeBoth)
                                     addClass(_scrollbarCornerElement, _classNameScrollbarCornerResizeB);
@@ -5053,7 +5061,7 @@
                  * @returns {{}} The instance of the added extension or undefined if the extension couldn't be added properly.
                  */
                 _base.addExt = function(extName, extensionOptions) {
-                    var registeredExtensionObj = window[PLUGINNAME].extension(extName);
+                    var registeredExtensionObj = _plugin.extension(extName);
                     var instance;
                     var instanceAdded;
                     var instanceContract;
@@ -5241,7 +5249,7 @@
              * @param extensions The extension(s) which shall be added right after initialization.
              * @returns {*}
              */
-            window[PLUGINNAME] = function(pluginTargetElements, options, extensions) {
+            _plugin = window[PLUGINNAME] = function(pluginTargetElements, options, extensions) {
                 if(arguments[LEXICON.l] === 0)
                     return this;
 
@@ -5275,7 +5283,7 @@
                     else {
                         FRAMEWORK.each(pluginTargetElements, function(i, v) {
                             inst = INSTANCES(v);
-                            if((options === '!' && inst instanceof window[PLUGINNAME]) || (COMPATIBILITY.type(options) == TYPES.f && options(v, inst)))
+                            if((options === '!' && _plugin.valid(inst)) || (COMPATIBILITY.type(options) == TYPES.f && options(v, inst)))
                                 arr.push(inst);
                             else if(options === undefined)
                                 arr.push(inst);
@@ -5290,7 +5298,7 @@
              * Returns a object which contains global information about the plugin and each instance of it.
              * The returned object is just a copy, that means that changes to the returned object won't have any effect to the original object.
              */
-            window[PLUGINNAME].globals = function () {
+            _plugin.globals = function () {
                 initOverlayScrollbarsStatics();
                 var globals = FRAMEWORK.extend(true, { }, _pluginsGlobals);
                 delete globals['msie'];
@@ -5301,7 +5309,7 @@
              * Gets or Sets the default options for each new plugin initialization.
              * @param newDefaultOptions The object with which the default options shall be extended.
              */
-            window[PLUGINNAME].defaultOptions = function(newDefaultOptions) {
+            _plugin.defaultOptions = function(newDefaultOptions) {
                 initOverlayScrollbarsStatics();
                 var currDefaultOptions = _pluginsGlobals.defaultOptions;
                 if(newDefaultOptions === undefined)
@@ -5309,6 +5317,15 @@
 
                 //set the new default options
                 _pluginsGlobals.defaultOptions = FRAMEWORK.extend(true, { }, currDefaultOptions , _pluginsOptions._validate(newDefaultOptions, _pluginsOptions._template, true, currDefaultOptions)._default);
+            };
+
+            /**
+             * Checks whether the passed instance is a non-destroyed OverlayScrollbars instance.
+             * @param osInstance The potential OverlayScrollbars instance which shall be checked.
+             * @returns {boolean} True if the passed value is a non-destroyed OverlayScrollbars instance, false otherwise.
+             */
+            _plugin.valid = function (osInstance) {
+                return osInstance instanceof _plugin && !osInstance.getState().destroyed;
             };
 
             /**
@@ -5321,7 +5338,7 @@
              * @param extension A function which generates the instance of the extension or anything other to remove a already registered extension.
              * @param defaultOptions The default options which shall be used for the registered extension.
              */
-            window[PLUGINNAME].extension = function(extensionName, extension, defaultOptions) {
+            _plugin.extension = function(extensionName, extension, defaultOptions) {
                 var extNameTypeString = COMPATIBILITY.type(extensionName) == TYPES.s;
                 var argLen = arguments[LEXICON.l];
                 var i = 0;
@@ -5351,7 +5368,7 @@
                 }
             };
 
-            return window[PLUGINNAME];
+            return _plugin;
         })();
 
         if(JQUERY && JQUERY.fn) {
