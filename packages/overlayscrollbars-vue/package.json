@@ -1,0 +1,49 @@
+{
+    "name": "overlayscrollbars-vue",
+    "version": "0.1.0",
+    "description": "OverlayScrollbars wrapper for Vue.",
+    "keywords": [
+        "overlayscrollbars",
+        "vue"
+    ],
+    "files": [
+        "./src",
+        "./dist",
+        "README.md"
+    ],
+    "homepage": "https://kingsora.github.io/OverlayScrollbars",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/KingSora/OverlayScrollbars"
+    },
+    "bugs": {
+        "url": "https://github.com/KingSora/OverlayScrollbars/issues"
+    },
+    "main": "./dist/overlayscrollbars-vue.js",
+    "module": "./dist/overlayscrollbars-vue.esm.js",
+    "typings": "./dist/types/index.d.ts",
+    "author": "KingSora | Rene Haas",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/overlayscrollbars": "^1.9.0",
+        "chalk": "^2.4.2",
+        "gulp": "^4.0.2",
+        "overlayscrollbars": "^1.9.0",
+        "rollup": "^1.17.0",
+        "rollup-plugin-commonjs": "^10.0.1",
+        "rollup-plugin-node-resolve": "^5.2.0",
+        "rollup-plugin-typescript2": "^0.22.0",
+        "shelljs": "0.7.7",
+        "typescript": "^3.0.3",
+        "vue": "^2.6.10"
+    },
+    "peerDependencies": {
+        "vue": "^2.6.10",
+        "overlayscrollbars": "^1.9.0"
+    },
+    "scripts": {
+        "build": "node build.js",
+        "example": "cd example && npm run serve",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    }
+}

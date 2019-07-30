@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "baseUrl": "./",
+        "outDir": "./dist",
+        "target": "es5",
+        "sourceMap": true,
+        "inlineSources": true,
+        "jsx": "react",
+        "jsxFactory": "createElement",
+        "declaration": true,
+        "declarationDir": "./dist/types",
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "module": "es2015",
+        "moduleResolution": "node",
+        "removeComments": true
+    },
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "./dist",
+        "./example",
+        "node_modules"
+    ]
+}

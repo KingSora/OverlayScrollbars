@@ -1,8 +1,8 @@
 {
-    "name":"overlayscrollbars",
-    "version":"1.9.0",
-    "description":"A javascript scrollbar plugin which hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.",
-    "keywords":[
+    "name": "overlayscrollbars",
+    "version": "1.9.0",
+    "description": "A javascript scrollbar plugin which hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.",
+    "keywords": [
         "overlayscrollbars",
         "custom",
         "scrollbar",
@@ -10,7 +10,7 @@
         "scroll",
         "frontend"
     ],
-    "files":[
+    "files": [
         "js/jquery.overlayScrollbars.js",
         "js/jquery.overlayScrollbars.min.js",
         "js/OverlayScrollbars.js",
@@ -20,18 +20,25 @@
         "README.md",
         "LICENSE"
     ],
-    "homepage":"https://kingsora.github.io/OverlayScrollbars",
-    "repository":{
-        "type":"git",
-        "url":"https://github.com/KingSora/OverlayScrollbars"
+    "homepage": "https://kingsora.github.io/OverlayScrollbars",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/KingSora/OverlayScrollbars"
     },
-    "bugs":{
-        "url":"https://github.com/KingSora/OverlayScrollbars/issues"
+    "bugs": {
+        "url": "https://github.com/KingSora/OverlayScrollbars/issues"
     },
-    "main":"js/OverlayScrollbars.js",
-    "scripts":{
-        "test":"echo \"Error: no test specified\" && exit 1"
+    "main": "js/OverlayScrollbars.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "author":"KingSora | Rene Haas",
-    "license":"MIT"
+    "author": "KingSora | Rene Haas",
+    "license": "MIT",
+    "devDependencies": {
+        "chalk": "^2.4.2",
+        "csso": "^3.5.1",
+        "gulp": "^4.0.2",
+        "shelljs": "^0.8.3",
+        "uglify-js": "^3.6.0"
+    }
 }
