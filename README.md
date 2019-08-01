@@ -42,6 +42,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - RTL Direction support. (with normalization)
  - Simple and effective scrollbar-styling.
  - Rich extension system.
+ - TypeScript support.
 
 ## Sponsors
 <table>
@@ -138,7 +139,7 @@ I recommend setting these options in your **tsconfig.json**:
 {
     "compilerOptions": {
         "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true,
+        "esModuleInterop": true
     }
 }
 ```

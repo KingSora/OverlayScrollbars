@@ -1,8 +1,8 @@
-const sh = require('shelljs');
 const fs = require('fs');
+const sh = require('shelljs');
 const chalk = require('chalk');
 const gulp = require('gulp');
-const UglifyJS = require('uglify-js');
+const uglify = require('uglify-js');
 const csso = require('csso');
 
 const uglifyFiles = [
@@ -28,7 +28,7 @@ gulp.task('uglify', function (done) {
     uglifyFiles.forEach((file) => {
         if (sh.test('-f', file.src)) {
             sh.echo(chalk.yellowBright('uglify: ') + chalk.greenBright(`${file.src} → ${file.dest}`));
-            sh.ShellString(UglifyJS.minify(fs.readFileSync(file.src, 'utf-8'), {
+            sh.ShellString(uglify.minify(fs.readFileSync(file.src, 'utf-8'), {
                 ie8: true,
                 compress: {
                     ie8: true

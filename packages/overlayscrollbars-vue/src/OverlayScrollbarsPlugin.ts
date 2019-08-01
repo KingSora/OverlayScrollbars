@@ -1,7 +1,6 @@
 import { VueConstructor, PluginObject } from 'vue';
-import { OverlayScrollbarsComponent } from './OverlayScrollbarsComponent';
 import OverlayScrollbars from 'overlayscrollbars';
-
+import OverlayScrollbarsComponent from './OverlayScrollbarsComponent.vue';
 
 export const OverlayScrollbarsPlugin: PluginObject<OverlayScrollbars.Options> = {
     install(vue: VueConstructor, options?: OverlayScrollbars.Options) {

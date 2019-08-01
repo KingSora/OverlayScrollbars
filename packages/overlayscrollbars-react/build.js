@@ -8,9 +8,7 @@ const filesInfo = {
     exampleFolder: './example',
     tsconfigJsonPath: './tsconfig.json',
     packageJsonPath: './package.json',
-    cache: [
-        '.rpt2_cache' // https://github.com/ezolenko/rollup-plugin-typescript2/blob/master/README.md#plugin-options
-    ]
+    cache: []
 }
 const packagePaths = {
     main: `${filesInfo.distFolder}/${filesInfo.fileName}.js`,
@@ -93,6 +91,8 @@ gulp.task('rollup', function (done) {
     (async function () {
         let rollupTsconfig = {
             useTsconfigDeclarationDir: true,
+            objectHashIgnoreUnknownHack: true,
+            clean: true,
             tsconfig: filesInfo.tsconfigJsonPath,
             tsconfigOverride: {
                 compilerOptions: {

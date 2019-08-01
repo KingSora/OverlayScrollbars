@@ -8,9 +8,7 @@ const filesInfo = {
     exampleFolder: './example',
     tsconfigJsonPath: './tsconfig.json',
     packageJsonPath: './package.json',
-    cache: [
-        '.rpt2_cache' // https://github.com/ezolenko/rollup-plugin-typescript2/blob/master/README.md#plugin-options
-    ]
+    cache: []
 }
 const packagePaths = {
     main: `${filesInfo.distFolder}/${filesInfo.fileName}.js`,
@@ -32,12 +30,14 @@ const rollup = require('rollup');
 const rollupCommonJs = require('rollup-plugin-commonjs');
 const rollupTypeScript = require('rollup-plugin-typescript2');
 const rollupResolve = require('rollup-plugin-node-resolve');
+const rollupVue = require('rollup-plugin-vue');
 const rollupInputConfig = {
     input: `${filesInfo.srcFolder}/index.ts`,
     external: [...Object.keys(packageJson.devDependencies), ...Object.keys(packageJson.peerDependencies)],
     plugins: [
         rollupResolve(),
-        rollupCommonJs()
+        rollupCommonJs(),
+        rollupVue({ defaultLang: 'ts' })
     ]
 };
 const rollupOutputConfig = {
@@ -93,6 +93,8 @@ gulp.task('rollup', function (done) {
     (async function () {
         let rollupTsconfig = {
             useTsconfigDeclarationDir: true,
+            objectHashIgnoreUnknownHack: true,
+            clean: true,
             tsconfig: filesInfo.tsconfigJsonPath,
             tsconfigOverride: {
                 compilerOptions: {

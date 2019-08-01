@@ -44,6 +44,7 @@
         "overlayscrollbars": "^1.9.0"
     },
     "scripts": {
+        "setup": "npm i && cd example && npm i && cd ..",
         "build": "node build.js",
         "example": "cd example && npm start",
         "test": "echo \"Error: no test specified\" && exit 1"
