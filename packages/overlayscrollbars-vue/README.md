@@ -15,7 +15,7 @@
     <a href="https://kingsora.github.io/OverlayScrollbars/#!faq">FAQ</a>
 </h3>
 <h5 align="center">
-    The official OverlayScrollbars Vue wrapper
+    The official OverlayScrollbars Vue wrapper.
 </h5>
 
 ## Installation
@@ -46,13 +46,13 @@ You have to import the `OverlayScrollbars.css` by yourself.
 The component **doesn't** do it for you as the styles are **global styles**!
 There are different ways to achieve this, in Vue the most simple way for me was to add this line in the `main` file:
 ```js
-import "overlayscrollbars/css/OverlayScrollbars.css";
+import 'overlayscrollbars/css/OverlayScrollbars.css';
 ```
 #### Import
 With the [Vue.use](https://vuejs.org/v2/api/#Vue-use) method you can register the wrapper globally:
 ```js
 import Vue from 'vue';
-import { OverlayScrollbarsPlugin } from "overlayscrollbars-vue";
+import { OverlayScrollbarsPlugin } from 'overlayscrollbars-vue';
 
 Vue.use(OverlayScrollbarsPlugin);
 ```
@@ -60,7 +60,7 @@ Vue.use(OverlayScrollbarsPlugin);
 In case you wanna register the Component manually via [global](https://vuejs.org/v2/guide/components-registration.html#Global-Registration) or [local](https://vuejs.org/v2/guide/components-registration.html#Local-Registration) registration, you can simply import it and do whatever you want with it:
 ```js
 import Vue from 'vue';
-import { OverlayScrollbarsComponent } from "overlayscrollbars-vue";
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 
 // global registration
 Vue.component('overlay-scrollbars', OverlayScrollbarsComponent);
