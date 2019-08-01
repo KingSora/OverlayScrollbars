@@ -490,6 +490,6 @@ img {
 }
 .framework-logo {
   background: transparent url("assets/vue.svg") no-repeat center center;
-  background-size: 84%;
+  background-size: 80%;
 }
 </style>
