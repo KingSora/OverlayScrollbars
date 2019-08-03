@@ -1,13 +1,13 @@
 <p align="center">
   <a href="https://kingsora.github.io/OverlayScrollbars">
-    <img src="https://kingsora.github.io/OverlayScrollbars/design/logo.svg" width="200" height="133" alt="OverlayScrollbars" />
+    <a href="https://kingsora.github.io/OverlayScrollbars"><img src="https://kingsora.github.io/OverlayScrollbars/design/logo.svg" width="200" height="133" alt="OverlayScrollbars"></a>
   </a>
 </p>
 <h6 align="center">
-    <img src="https://img.shields.io/david/kingsora/overlayscrollbars.svg?style=flat-square" alt="Dependencies" />
-    <img src="https://img.shields.io/npm/dt/overlayscrollbars.svg?style=flat-square" alt="Downloads" />
-    <img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version" />
-    <img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License" />
+    <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/package.json"><img src="https://img.shields.io/david/kingsora/overlayscrollbars.svg?style=flat-square" alt="Dependencies"></a>
+    <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/dt/overlayscrollbars.svg?style=flat-square" alt="Downloads"></a>
+    <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version"></a>
+    <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
 </h6>
 <h3 align="center">
     <a href="https://kingsora.github.io/OverlayScrollbars">Website</a>
