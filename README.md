@@ -45,7 +45,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
 
 ## Framework Wrapper
 
-OverlayScrollbars provides its own wrapper components for popular component based front-end frameworks:
+OverlayScrollbars provides its own wrapper components for popular component-based front-end frameworks:
 
 <img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/react/logo.svg" width="80" height="80" alt="React">
 
