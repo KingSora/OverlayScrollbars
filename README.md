@@ -517,17 +517,12 @@ instance.sleep();</pre>
             <pre lang="js">
 //get scroll information
 var scrollInfo = instance.scroll();
-
 //scroll 50px on both axis
 instance.scroll(50);
-
 //add 10px to the scroll offset of each axis
 instance.scroll({ x : "+=10", y : "+=10" });
-
 //scroll to 50% on both axis with a duration of 1000ms
 instance.scroll({ x : "50%", y : "50%" }, 1000);
-
-
 //scroll to the passed element with a duration of 1000ms
 instance.scroll($(selector), 1000);</pre>
         </td>
@@ -618,7 +613,6 @@ var extensionInstance = instance.addExt("myExtension");</pre>
             <pre lang="js">
 //add the registered extension "myExtension" to the plugin instance
 instance.addExt("myExtension");
-
 //remove the added extension "myExtension" from the plugin instance
 instance.removeExt("myExtension");</pre>
         </td>
@@ -691,16 +685,12 @@ var extensionObjects = OverlayScrollbars.extension();</pre>
             <pre lang="js">
 //create OverlayScrollbars instance
 var osInstance = OverlayScrollbars(document.body, { });
-
 //returns true
 OverlayScrollbars.valid(osInstance);
-
 //destroy the instance
 osInstance.destroy();
-
 //returns false
 OverlayScrollbars.valid(osInstance);
-
 //returns false
 OverlayScrollbars.valid({ });</pre>
         </td>
