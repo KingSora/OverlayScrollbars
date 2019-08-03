@@ -1,4 +1,4 @@
-import OverlayScrollbars from "overlayscrollbars";
+import OverlayScrollbars from 'overlayscrollbars';
 export interface OverlayScrollbarsComponentData {
 }
 export interface OverlayScrollbarsComponentMethods {

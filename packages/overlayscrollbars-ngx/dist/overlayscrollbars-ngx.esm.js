@@ -29,17 +29,17 @@ var OverlayScrollbarsComponent = (function () {
     };
     OverlayScrollbarsComponent.decorators = [
         { type: Component, args: [{
-                    selector: "overlay-scrollbars",
-                    template: "<ng-content></ng-content>",
-                    styles: [":host { display: block; }"]
+                    selector: 'overlay-scrollbars',
+                    template: '<ng-content></ng-content>',
+                    styles: [':host { display: block; }']
                 },] },
     ];
     OverlayScrollbarsComponent.ctorParameters = function () { return [
         { type: ElementRef }
     ]; };
     OverlayScrollbarsComponent.propDecorators = {
-        _options: [{ type: Input, args: ["options",] }],
-        _extensions: [{ type: Input, args: ["extensions",] }]
+        _options: [{ type: Input, args: ['options',] }],
+        _extensions: [{ type: Input, args: ['extensions',] }]
     };
     return OverlayScrollbarsComponent;
 }());

@@ -1,5 +1,5 @@
-import { ElementRef, SimpleChanges, OnDestroy, OnChanges, AfterViewInit } from "@angular/core";
-import OverlayScrollbars from "overlayscrollbars";
+import { ElementRef, SimpleChanges, OnDestroy, OnChanges, AfterViewInit } from '@angular/core';
+import OverlayScrollbars from 'overlayscrollbars';
 export declare class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterViewInit {
     private _options;
     private _extensions;

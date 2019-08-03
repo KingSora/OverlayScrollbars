@@ -2,7 +2,7 @@ import OverlayScrollbars from 'overlayscrollbars';
 import Vue from 'vue';
 
 class OverlayScrollbarsComponent extends Vue.extend({
-    name: "overlay-scrollbars",
+    name: 'overlay-scrollbars',
     props: {
         options: {
             type: Object

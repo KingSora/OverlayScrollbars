@@ -8,9 +8,8 @@
         "angular"
     ],
     "files": [
-        "./src",
-        "./dist",
-        "README.md"
+        "src",
+        "dist"
     ],
     "homepage": "https://kingsora.github.io/OverlayScrollbars",
     "repository": {
@@ -26,7 +25,6 @@
     "author": "KingSora | Rene Haas",
     "license": "MIT",
     "devDependencies": {
-        "@angular/common": "^7.0.0",
         "@angular/compiler": "^7.0.0",
         "@angular/compiler-cli": "^7.0.0",
         "@angular/core": "^7.0.0",
@@ -46,7 +44,6 @@
         "zone.js": "^0.8.26"
     },
     "peerDependencies": {
-        "@angular/common": "^7.0.0",
         "@angular/core": "^7.0.0",
         "overlayscrollbars": "^1.9.0"
     },
@@ -54,6 +51,7 @@
         "setup": "npm i && cd example && npm i && cd ..",
         "build": "node build.js",
         "example": "cd example && npx ng serve",
+        "build-example": "cd example && npx ng build --prod --base-href \"/OverlayScrollbars/frameworks/angular/\"  --aot=false --build-optimizer=false",
         "test": "echo \"Error: no test specified\" && exit 1"
     }
 }

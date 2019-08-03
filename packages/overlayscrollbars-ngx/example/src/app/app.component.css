@@ -1,3 +1,7 @@
+:host {
+    min-width: 600px;
+    display: block;
+}
 .header {
     background: #36befd;
     background: -moz-linear-gradient(-45deg, #36befd 1%, #6461f6 100%);

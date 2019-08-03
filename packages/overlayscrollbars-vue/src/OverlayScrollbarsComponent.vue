@@ -5,14 +5,14 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor, VNode, CreateElement, PropType } from "vue";
-import OverlayScrollbars from "overlayscrollbars";
+import Vue, { VueConstructor, VNode, CreateElement, PropType } from 'vue';
+import OverlayScrollbars from 'overlayscrollbars';
 import {
     OverlayScrollbarsComponentData,
     OverlayScrollbarsComponentMethods,
     OverlayScrollbarsComponentComputed,
     OverlayScrollbarsComponentProps
-} from "./OverlayScrollbarsComponent";
+} from './OverlayScrollbarsComponent';
 
 // https://github.com/vuejs/vue/issues/7060
 export default class OverlayScrollbarsComponent extends Vue.extend<
@@ -21,7 +21,7 @@ export default class OverlayScrollbarsComponent extends Vue.extend<
     OverlayScrollbarsComponentComputed,
     OverlayScrollbarsComponentProps
     >({
-        name: "overlay-scrollbars", // https://vuejs.org/v2/guide/components-registration.html#Component-Names
+        name: 'overlay-scrollbars', // https://vuejs.org/v2/guide/components-registration.html#Component-Names
         props: {
             options: {
                 type: Object as PropType<OverlayScrollbars.Options>

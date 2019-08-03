@@ -7,9 +7,8 @@
         "vue"
     ],
     "files": [
-        "./src",
-        "./dist",
-        "README.md"
+        "src",
+        "dist"
     ],
     "homepage": "https://kingsora.github.io/OverlayScrollbars",
     "repository": {
@@ -36,17 +35,18 @@
         "rollup-plugin-vue": "^5.0.1",
         "shelljs": "0.7.7",
         "typescript": "^3.0.3",
-        "vue": "^2.6.10",
-        "vue-template-compiler": "^2.6.10"
+        "vue": "^2.6.0",
+        "vue-template-compiler": "^2.6.0"
     },
     "peerDependencies": {
-        "vue": "^2.6.10",
+        "vue": "^2.6.0",
         "overlayscrollbars": "^1.9.0"
     },
     "scripts": {
         "setup": "npm i && cd example && npm i && cd ..",
         "build": "node build.js",
         "example": "cd example && npm run serve",
+        "build-example": "cd example && npm run build",
         "test": "echo \"Error: no test specified\" && exit 1"
     }
 }

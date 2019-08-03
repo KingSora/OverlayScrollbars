@@ -45,7 +45,7 @@
         }
         return OverlayScrollbarsComponent;
     }(Vue.extend({
-        name: "overlay-scrollbars",
+        name: 'overlay-scrollbars',
         props: {
             options: {
                 type: Object

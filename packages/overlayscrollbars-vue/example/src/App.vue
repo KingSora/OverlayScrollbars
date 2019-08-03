@@ -84,9 +84,9 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from "vue";
-import OverlayScrollbars from "overlayscrollbars";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-vue";
+import Vue, { VueConstructor } from 'vue';
+import OverlayScrollbars from 'overlayscrollbars';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 
 export interface AppData {
     framework: string;
@@ -110,20 +110,20 @@ export interface AppComputed { }
 export interface AppProps { }
 
 export default Vue.extend<AppData, AppMethods, AppComputed, AppProps>({
-    name: "app",
+    name: 'app',
     data: function () {
         return {
-            framework: "Vue",
-            componentClass: "OverlayScrollbarsComponent",
-            loremIpsumLong: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-            loremIpsumMedium: "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.",
-            loremIpsumShort: "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.",
-            componentContent: "Lorem Ipsum",
+            framework: 'Vue',
+            componentClass: 'OverlayScrollbarsComponent',
+            loremIpsumLong: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
+            loremIpsumMedium: 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.',
+            loremIpsumShort: 'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.',
+            componentContent: 'Lorem Ipsum',
             osComponentOptions: {
-                resize: "both",
+                resize: 'both',
                 paddingAbsolute: true,
                 scrollbars: {
-                    autoHide: "never"
+                    autoHide: 'never'
                 }
             }
         };
@@ -138,7 +138,7 @@ export default Vue.extend<AppData, AppMethods, AppComputed, AppProps>({
                             osInstance.scrollStop().scroll({
                                 x: Math.floor(Math.random() * osInstance.scroll().max.x + 0),
                                 y: Math.floor(Math.random() * osInstance.scroll().max.y + 0)
-                            }, 1000, "easeOutElastic");
+                            }, 1000, 'easeOutElastic');
                         }
                     }
                 }
@@ -146,9 +146,9 @@ export default Vue.extend<AppData, AppMethods, AppComputed, AppProps>({
         },
         onBtnChangeOptions() {
             this.osComponentOptions = {
-                resize: this.osComponentOptions.resize === "both" ? "none" : "both",
+                resize: this.osComponentOptions.resize === 'both' ? 'none' : 'both',
                 scrollbars: {
-                    autoHide: this.osComponentOptions.scrollbars!.autoHide === "never" ? "scroll" : "never"
+                    autoHide: this.osComponentOptions.scrollbars!.autoHide === 'never' ? 'scroll' : 'never'
                 }
             };
         },
@@ -159,19 +159,19 @@ export default Vue.extend<AppData, AppMethods, AppComputed, AppProps>({
                 this.loremIpsumShort
             ];
             let random = Math.floor(Math.random() * loremIpsums.length);
-            this.componentContent = this.componentContent + "\r\n" + loremIpsums[random];
+            this.componentContent = this.componentContent + '\r\n' + loremIpsums[random];
         },
         onBtnLog() {
             console.log(`== ${this.componentClass} (1) ==`);
-            console.log("Instance:");
+            console.log('Instance:');
             console.log((this.$refs.osComponentRef1 as OverlayScrollbarsComponent).osInstance());
-            console.log("Target:");
+            console.log('Target:');
             console.log((this.$refs.osComponentRef1 as OverlayScrollbarsComponent).osTarget());
-            console.log("");
+            console.log('');
             console.log(`== ${this.componentClass} (2) ==`);
-            console.log("Instance:");
+            console.log('Instance:');
             console.log((this.$refs.osComponentRef2 as OverlayScrollbarsComponent).osInstance());
-            console.log("Target:");
+            console.log('Target:');
             console.log((this.$refs.osComponentRef2 as OverlayScrollbarsComponent).osTarget());
         }
     },
@@ -186,6 +186,9 @@ export default Vue.extend<AppData, AppMethods, AppComputed, AppProps>({
 </script>
 
 <style>
+#app {
+  min-width: 600px;
+}
 .header {
   background: #36befd;
   background: -moz-linear-gradient(-45deg, #36befd 1%, #6461f6 100%);

@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef, Input } from '@angular/core';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-ngx';
-import OverlayScrollbarsfrom from 'overlayscrollbars';
+import OverlayScrollbars from 'overlayscrollbars';
 
 @Component({
     selector: 'app-root',
@@ -60,24 +60,24 @@ export class AppComponent {
     onBtnChangeContent(event) {
         let loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
         let random = Math.floor(Math.random() * loremIpsums.length);
-        this.componentContent = this.componentContent + "\r\n" + loremIpsums[random]
+        this.componentContent = this.componentContent + '\r\n' + loremIpsums[random]
     }
 
     onBtnLog(event) {
         console.log(`== ${this.componentClass} (1) ==`);
-        console.log("Ref:");
+        console.log('Ref:');
         console.log(this.osComponentRef1);
-        console.log("Instance:");
+        console.log('Instance:');
         console.log(this.osComponentRef1.osInstance());
-        console.log("Target:");
+        console.log('Target:');
         console.log(this.osComponentRef1.osTarget());
-        console.log("");
+        console.log('');
         console.log(`== ${this.componentClass} (2) ==`);
-        console.log("Ref:");
+        console.log('Ref:');
         console.log(this.osComponentRef2);
-        console.log("Instance:");
+        console.log('Instance:');
         console.log(this.osComponentRef2.osInstance());
-        console.log("Target:");
+        console.log('Target:');
         console.log(this.osComponentRef2.osTarget());
     }
 }

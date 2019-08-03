@@ -41,10 +41,12 @@
         </div>
         <div class="content-section-content">
 
-            <overlay-scrollbars #osComponentRef1 [options]="osComponentOptions" [ngStyle]="{ maxHeight:'350px' }" [ngClass]="['custom-class-name-test', framework]">
+            <overlay-scrollbars #osComponentRef1 [options]="osComponentOptions" [ngStyle]="{ maxHeight:'350px' }"
+                [ngClass]="['custom-class-name-test', framework]">
                 <div class="bonus-content">{{ componentContent }}</div>
                 {{ loremIpsumShort }}
-                <overlay-scrollbars #osComponentRef2 [options]="osComponentOptions" [ngStyle]="{ maxHeight:'150px' }" [ngClass]="['custom-class-name-test']">
+                <overlay-scrollbars #osComponentRef2 [options]="osComponentOptions" [ngStyle]="{ maxHeight:'150px' }"
+                    [ngClass]="['custom-class-name-test']">
                     <div class="bonus-content">{{ componentContent }}</div>
                     {{ loremIpsumLong }}
                     <br />

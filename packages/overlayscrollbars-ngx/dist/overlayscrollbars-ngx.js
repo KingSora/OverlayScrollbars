@@ -34,17 +34,17 @@
         };
         OverlayScrollbarsComponent.decorators = [
             { type: core.Component, args: [{
-                        selector: "overlay-scrollbars",
-                        template: "<ng-content></ng-content>",
-                        styles: [":host { display: block; }"]
+                        selector: 'overlay-scrollbars',
+                        template: '<ng-content></ng-content>',
+                        styles: [':host { display: block; }']
                     },] },
         ];
         OverlayScrollbarsComponent.ctorParameters = function () { return [
             { type: core.ElementRef }
         ]; };
         OverlayScrollbarsComponent.propDecorators = {
-            _options: [{ type: core.Input, args: ["options",] }],
-            _extensions: [{ type: core.Input, args: ["extensions",] }]
+            _options: [{ type: core.Input, args: ['options',] }],
+            _extensions: [{ type: core.Input, args: ['extensions',] }]
         };
         return OverlayScrollbarsComponent;
     }());

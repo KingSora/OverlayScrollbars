@@ -72,21 +72,21 @@ export default class App extends React.Component<any, AppState> {
         let loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
         let random = Math.floor(Math.random() * loremIpsums.length);
         this.setState({
-            componentContent: this.state.componentContent + "\r\n" + loremIpsums[random]
+            componentContent: this.state.componentContent + '\r\n' + loremIpsums[random]
         });
     }
 
     onBtnLog() {
         console.log(`== ${this.componentClass} (1) ==`);
-        console.log("Instance:");
+        console.log('Instance:');
         console.log(this.osComponentRef1.current!.osInstance());
-        console.log("Target:");
+        console.log('Target:');
         console.log(this.osComponentRef1.current!.osTarget());
-        console.log("");
+        console.log('');
         console.log(`== ${this.componentClass} (2) ==`);
-        console.log("Instance:");
+        console.log('Instance:');
         console.log(this.osComponentRef2.current!.osInstance());
-        console.log("Target:");
+        console.log('Target:');
         console.log(this.osComponentRef2.current!.osTarget());
     }
 

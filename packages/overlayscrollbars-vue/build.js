@@ -23,6 +23,7 @@ const rollupUmdGlobals = {
 const packageJson = require(filesInfo.packageJsonPath);
 const tsconfigJson = require(filesInfo.tsconfigJsonPath);
 
+const path = require('path');
 const sh = require('shelljs');
 const chalk = require('chalk');
 const gulp = require('gulp');
@@ -79,9 +80,8 @@ gulp.task('packageJson', function (done) {
         ...packagePaths,
         name: packageName,
         files: [
-            filesInfo.srcFolder,
-            filesInfo.distFolder,
-            'README.md'
+            path.normalize(filesInfo.srcFolder),
+            path.normalize(filesInfo.distFolder)
         ]
     };
     sh.ShellString(JSON.stringify(newPackageJson, null, 4)).to(filesInfo.packageJsonPath);
