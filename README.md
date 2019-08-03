@@ -24,7 +24,6 @@
 > OverlayScrollbars is a javascript scrollbar plugin which hides native scrollbars, provides
 custom styleable overlay scrollbars and keeps the native functionality and feeling.
 
-
 ## Why
 
 I've created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
@@ -55,7 +54,7 @@ OverlayScrollbars provides its own wrapper components for popular component base
 ```sh
 npm install overlayscrollbars-react
 ```
----
+
 <img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/vue/logo.svg" width="80" height="80" alt="Vue">
 
 [README](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue)
@@ -63,7 +62,7 @@ npm install overlayscrollbars-react
 ```sh
 npm install overlayscrollbars-vue
 ```
----
+
 <img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/angular/logo.svg" width="80" height="80" alt="Angular">
 
 [README](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx)
@@ -712,7 +711,6 @@ OverlayScrollbars.valid({ });</pre>
 
  - Minimize the code as much as possible.
  - Frequent updates in terms of bug-fixes and enhancements.
- - Versions for frameworks like React, Vue and Angular.
 
 ## License
 
