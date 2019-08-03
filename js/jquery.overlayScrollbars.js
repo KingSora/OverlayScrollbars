@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.9.0
+ * Version: 1.9.1
  *
  * Copyright KingSora | Rene Haas.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 27.07.2019
+ * Date: 03.08.2019
  */
 
 (function (global, factory) {
@@ -505,10 +505,14 @@
                                     
                                     //if the template has a object as value, it means that the options are complex (verschachtelt)
                                     if(templateIsComplex && dataValueType == TYPES.o) {
-                                        validatedOptions[prop] = validatedOptionsPrepared[prop] = { };
+                                        validatedOptions[prop] = { };
+                                        validatedOptionsPrepared[prop] = { };
                                         checkObjectProps(dataValue, templateValue, dataDiffValue, validatedOptions[prop], validatedOptionsPrepared[prop], propPrefix + prop);
-                                        if(isEmptyObj(dataValue))
-                                            delete data[prop];
+                                        FRAMEWORK.each([ data, validatedOptions, validatedOptionsPrepared ], function(index, value) {
+                                            if(isEmptyObj(value[prop])) {
+                                                delete value[prop];
+                                            }
+                                        });
                                     }
                                     else if(!templateIsComplex) {
                                         for(i = 0; i < templateTypes[LEXICON.l]; i++) {

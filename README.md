@@ -44,6 +44,34 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - Rich extension system.
  - TypeScript support.
 
+## Framework Wrapper
+
+OverlayScrollbars provides its own wrapper components for popular component based front-end frameworks:
+
+<img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/react/logo.svg" width="80" height="80" alt="React">
+
+[README](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react)
+
+```sh
+npm install overlayscrollbars-react
+```
+---
+<img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/vue/logo.svg" width="80" height="80" alt="Vue">
+
+[README](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue)
+
+```sh
+npm install overlayscrollbars-vue
+```
+---
+<img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/angular/logo.svg" width="80" height="80" alt="Angular">
+
+[README](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx)
+
+```sh
+npm install overlayscrollbars-ngx
+```
+
 ## Sponsors
 <table>
     <tr>
