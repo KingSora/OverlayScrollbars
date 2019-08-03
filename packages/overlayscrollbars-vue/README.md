@@ -4,7 +4,7 @@
 </p>
 <h6 align="center">
     <a href="https://github.com/vuejs/vue"><img src="https://img.shields.io/badge/Vue-%5E2.6.0-41B883?style=flat-square&logo=vue.js" alt="Vue"></a>
-    <a href="https://github.com/KingSora/OverlayScrollbars"><img src="https://img.shields.io/badge/OverlayScrollbars-%5E1.9.0-36befd" alt="OverlayScrollbars"></a>
+    <a href="https://github.com/KingSora/OverlayScrollbars"><img src="https://img.shields.io/badge/OverlayScrollbars-%5E1.9.0-36befd?style=flat-square" alt="OverlayScrollbars"></a>
     <a href="https://www.npmjs.com/package/overlayscrollbars-vue"><img src="https://img.shields.io/npm/dt/overlayscrollbars-vue.svg?style=flat-square" alt="Downloads"></a>
     <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/packages/overlayscrollbars-vue/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
 </h6>
