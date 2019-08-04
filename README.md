@@ -49,6 +49,9 @@ OverlayScrollbars provides its own wrapper components for popular component-base
 
 <img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/react/logo.svg" width="80" height="80" alt="React">
 
+
+<a href="https://www.npmjs.com/package/overlayscrollbars-react"><img src="https://img.shields.io/npm/v/overlayscrollbars-react.svg?style=flat-square" alt="Version"></a>
+<a href="https://www.npmjs.com/package/overlayscrollbars-react"><img src="https://img.shields.io/npm/dt/overlayscrollbars-react.svg?style=flat-square" alt="Downloads"></a>
 [README](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react)
 
 ```sh
@@ -57,6 +60,8 @@ npm install overlayscrollbars-react
 
 <img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/vue/logo.svg" width="80" height="80" alt="Vue">
 
+<a href="https://www.npmjs.com/package/overlayscrollbars-vue"><img src="https://img.shields.io/npm/v/overlayscrollbars-vue.svg?style=flat-square" alt="Version"></a>
+<a href="https://www.npmjs.com/package/overlayscrollbars-vue"><img src="https://img.shields.io/npm/dt/overlayscrollbars-vue.svg?style=flat-square" alt="Downloads"></a>
 [README](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue)
 
 ```sh
@@ -65,6 +70,8 @@ npm install overlayscrollbars-vue
 
 <img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/angular/logo.svg" width="80" height="80" alt="Angular">
 
+<a href="https://www.npmjs.com/package/overlayscrollbars-ngx"><img src="https://img.shields.io/npm/v/overlayscrollbars-ngx.svg?style=flat-square" alt="Version"></a>
+<a href="https://www.npmjs.com/package/overlayscrollbars-ngx"><img src="https://img.shields.io/npm/dt/overlayscrollbars-ngx.svg?style=flat-square" alt="Downloads"></a>
 [README](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx)
 
 ```sh
