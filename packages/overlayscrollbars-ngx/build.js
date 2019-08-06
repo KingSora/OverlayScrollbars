@@ -61,18 +61,56 @@ gulp.task('prepare', function (done) {
 
 gulp.task('ngc', function (done) {
     sh.echo('> Compile with "ngc"');
+
+    // aot compile .metadata.json: https://github.com/ng-packagr/ng-packagr/blob/master/docs/DESIGN.md#build-artefacts
+    /*
+     * make sure metadata.json origins paths are correct, to do that
+     * create a aotEntry dummy file which for that purpose
+    */
+    let aotEntryFile = `${filesInfo.typingsFolder}/index.ts`;
+    let srcEntryFile = `${filesInfo.srcFolder}/index.ts`;
+    let aotImportPath = path.relative(path.dirname(path.resolve(aotEntryFile)), path.dirname(path.resolve(srcEntryFile)));
+    sh.mkdir('-p', path.dirname(aotEntryFile));
+    sh.ShellString(`export * from '${aotImportPath.split(path.sep).join('/')}/index'`).to(aotEntryFile);
+
     let newTsconfigJson = {
         ...tsconfigJson,
+        // https://github.com/angular/angular/blob/master/packages/compiler-cli/src/transformers/api.ts#L40
+        angularCompilerOptions: {
+            ...tsconfigJson.angularCompilerOptions,
+            skipMetadataEmit: false,
+            strictMetadataEmit: true,
+            fullTemplateTypeCheck: true,
+            flatModuleOutFile: `${packageName}.js`,
+            flatModuleId: packageName
+        },
         compilerOptions: {
             ...tsconfigJson.compilerOptions,
             declarationDir: filesInfo.ngcFolder,
             outDir: filesInfo.ngcFolder,
         },
-        include: [filesInfo.srcFolder],
+        files: [aotEntryFile],
+        include: undefined,
         exclude: [filesInfo.distFolder, filesInfo.exampleFolder, 'node_modules']
     };
     sh.ShellString(JSON.stringify(newTsconfigJson, null, 4)).to(filesInfo.tsconfigJsonPath);
     sh.exec('ngc -p tsconfig.json');
+
+    // delete the aotEntry dummy file 
+    sh.rm('-f', aotEntryFile);
+
+    // rename and move metadata.json to correct folder
+    let aotMetadataJsonPath = path.normalize(`${filesInfo.ngcFolder}/${filesInfo.typingsFolder}/${packageName}.metadata.json`);
+    let aotMetadataJsonPathNew = path.normalize(`${filesInfo.typingsFolder}/index.metadata.json`);
+    if (sh.test('-f', aotMetadataJsonPath)) {
+        sh.echo(chalk.yellowBright('  [metadata.json]: ') + chalk.greenBright(`${aotMetadataJsonPath} → ${aotMetadataJsonPathNew}`));
+        sh.mv(aotMetadataJsonPath, aotMetadataJsonPathNew);
+    }
+    else {
+        sh.echo(chalk.redBright(`Couldn't find metadata.json: "${aotMetadataJsonPath}"`));
+        return;
+    }
+
     done();
 });
 
@@ -85,6 +123,7 @@ gulp.task('tsconfigJson', function (done) {
             declarationDir: filesInfo.typingsFolder,
             outDir: filesInfo.distFolder,
         },
+        files: undefined,
         include: [filesInfo.srcFolder],
         exclude: [filesInfo.distFolder, filesInfo.exampleFolder, 'node_modules']
     };

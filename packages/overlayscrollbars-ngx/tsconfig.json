@@ -2,9 +2,11 @@
     "angularCompilerOptions": {
         "annotateForClosureCompiler": true,
         "skipTemplateCodegen": true,
+        "skipMetadataEmit": false,
         "strictMetadataEmit": true,
         "fullTemplateTypeCheck": true,
-        "strictInjectionParameters": true
+        "flatModuleOutFile": "overlayscrollbars-ngx.js",
+        "flatModuleId": "overlayscrollbars-ngx"
     },
     "compilerOptions": {
         "allowJs": false,
@@ -30,12 +32,12 @@
         "moduleResolution": "node",
         "removeComments": true
     },
-    "include": [
-        "./src"
-    ],
     "exclude": [
         "./dist",
         "./example",
         "node_modules"
+    ],
+    "include": [
+        "./src"
     ]
 }
