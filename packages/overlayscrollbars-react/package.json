@@ -40,7 +40,7 @@
     },
     "peerDependencies": {
         "react": "^16.4.0",
-        "overlayscrollbars": "^1.9.0"
+        "overlayscrollbars": "^1.10.0"
     },
     "scripts": {
         "setup": "npm i && cd example && npm i && cd ..",

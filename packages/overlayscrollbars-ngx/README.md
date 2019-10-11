@@ -4,7 +4,7 @@
 </p>
 <h6 align="center">
     <a href="https://github.com/angular/angular"><img src="https://img.shields.io/badge/Angular-%5E7.0.0-DD0031?style=flat-square&logo=Angular" alt="Angular"></a>
-    <a href="https://github.com/KingSora/OverlayScrollbars"><img src="https://img.shields.io/badge/OverlayScrollbars-%5E1.9.0-36befd?style=flat-square" alt="OverlayScrollbars"></a>
+    <a href="https://github.com/KingSora/OverlayScrollbars"><img src="https://img.shields.io/badge/OverlayScrollbars-%5E1.10.0-36befd?style=flat-square" alt="OverlayScrollbars"></a>
     <a href="https://www.npmjs.com/package/overlayscrollbars-ngx"><img src="https://img.shields.io/npm/dt/overlayscrollbars-ngx.svg?style=flat-square" alt="Downloads"></a>
     <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/packages/overlayscrollbars-ngx/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
 </h6>
