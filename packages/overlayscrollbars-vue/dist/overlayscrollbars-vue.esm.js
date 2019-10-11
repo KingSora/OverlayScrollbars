@@ -140,9 +140,44 @@ var __vue_render__ = function() {
   var _vm = this;
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
-  return _c("div", [_vm._t("default")], 2)
+  return _c("div", { staticClass: "os-host" }, [
+    _c("div", { staticClass: "os-resize-observer-host" }),
+    _vm._v(" "),
+    _c("div", { staticClass: "os-padding" }, [
+      _c("div", { staticClass: "os-viewport" }, [
+        _c("div", { staticClass: "os-content" }, [_vm._t("default")], 2)
+      ])
+    ]),
+    _vm._v(" "),
+    _vm._m(0),
+    _vm._v(" "),
+    _vm._m(1),
+    _vm._v(" "),
+    _c("div", { staticClass: "os-scrollbar-corner" })
+  ])
 };
-var __vue_staticRenderFns__ = [];
+var __vue_staticRenderFns__ = [
+  function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c("div", { staticClass: "os-scrollbar os-scrollbar-horizontal " }, [
+      _c("div", { staticClass: "os-scrollbar-track" }, [
+        _c("div", { staticClass: "os-scrollbar-handle" })
+      ])
+    ])
+  },
+  function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c("div", { staticClass: "os-scrollbar os-scrollbar-vertical" }, [
+      _c("div", { staticClass: "os-scrollbar-track" }, [
+        _c("div", { staticClass: "os-scrollbar-handle" })
+      ])
+    ])
+  }
+];
 __vue_render__._withStripped = true;
 
   /* style */

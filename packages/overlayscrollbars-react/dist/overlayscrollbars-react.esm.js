@@ -55,8 +55,19 @@ class OverlayScrollbarsComponent extends Component {
         }
     }
     render() {
-        let _a = this.props, divProps = __rest(_a, ["options", "extensions", "children"]);
-        return (React.createElement("div", Object.assign({}, divProps, { ref: this._osTargetRef }), this.props.children));
+        let _a = this.props, { options, extensions, children, className } = _a, divProps = __rest(_a, ["options", "extensions", "children", "className"]);
+        return (React.createElement("div", Object.assign({ className: `${className} os-host` }, divProps, { ref: this._osTargetRef }),
+            React.createElement("div", { className: "os-resize-observer-host" }),
+            React.createElement("div", { className: "os-padding" },
+                React.createElement("div", { className: "os-viewport" },
+                    React.createElement("div", { className: "os-content" }, this.props.children))),
+            React.createElement("div", { className: "os-scrollbar os-scrollbar-horizontal " },
+                React.createElement("div", { className: "os-scrollbar-track" },
+                    React.createElement("div", { className: "os-scrollbar-handle" }))),
+            React.createElement("div", { className: "os-scrollbar os-scrollbar-vertical" },
+                React.createElement("div", { className: "os-scrollbar-track" },
+                    React.createElement("div", { className: "os-scrollbar-handle" }))),
+            React.createElement("div", { className: "os-scrollbar-corner" })));
     }
 }
 

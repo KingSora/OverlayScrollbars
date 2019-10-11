@@ -1,86 +1,92 @@
 <template>
-    <div id="app">
-        <div class="header">
-            <code>
-                <span class="code-keyword">import</span>
-                <span class="code-char">{{ ' { ' }}</span>
-                <span class="code-variable">OverlayScrollbarsComponent</span>
-                <span class="code-char">{{ ' } ' }}</span>
-                <span class="code-keyword">from</span>
-                <span class="code-string">{{ " 'overlayscrollbars-vue'" }}</span>
-                <span class="code-char">;</span>
-            </code>
-        </div>
-        <div class="content">
-            <div class="content-section skew">
-                <div class="content-section-content content-section-content-framework">
-                    <span class="framework-logo"></span>
-                    <span>+</span>
-                    <span class="os-logo"></span>
-                </div>
-            </div>
-            <div class="content-section">
-                <div class="content-section-title">
-                    <h2>Component</h2>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <span>Class:</span>
-                                </td>
-                                <td>
-                                    <span>{{ componentClass }}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span>Description:</span>
-                                </td>
-                                <td>OverlayScrollbars as a {{ framework }}-Component.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="content-section-content">
-                    <overlay-scrollbars
-                        ref="osComponentRef1"
-                        :options="osComponentOptions"
-                        style="max-height: 350px"
-                        :class="['custom-class-name-test', framework]"
-                    >
-                        <div class="bonus-content">{{ componentContent }}</div>
-                        {{ loremIpsumShort }}
-                        <overlay-scrollbars
-                            ref="osComponentRef2"
-                            :options="osComponentOptions"
-                            style="max-height: 150px"
-                            :class="'custom-class-name-test'"
-                        >
-                            <div class="bonus-content">{{ componentContent }}</div>
-                            {{ loremIpsumLong }}
-                            <br />
-                            <br />
-                            {{ loremIpsumShort }}
-                        </overlay-scrollbars>
-                        {{ loremIpsumMedium }}
-                        <br />
-                        <br />
-                        {{ loremIpsumShort }}
-                        <br />
-                        <br />
-                        {{ loremIpsumLong }}
-                    </overlay-scrollbars>
-
-                    <div class="buttons">
-                        <button @click="(event) => { this.onBtnScrollRandom.call(this, event, [this.$refs.osComponentRef1, this.$refs.osComponentRef2]) }">Scroll</button>
-                        <button @click="() => { this.onBtnChangeOptions.call(this) }">Change Options</button>
-                        <button @click="() => { this.onBtnChangeContent.call(this) }">Change Content</button>
-                        <button @click="() => { this.onBtnLog.call(this) }">Log</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div id="app">
+    <div class="header">
+      <code>
+        <span class="code-keyword">import</span>
+        <span class="code-char">{{ ' { ' }}</span>
+        <span class="code-variable">OverlayScrollbarsComponent</span>
+        <span class="code-char">{{ ' } ' }}</span>
+        <span class="code-keyword">from</span>
+        <span class="code-string">{{ " 'overlayscrollbars-vue'" }}</span>
+        <span class="code-char">;</span>
+      </code>
     </div>
+    <div class="content">
+      <div class="content-section skew">
+        <div class="content-section-content content-section-content-framework">
+          <span class="framework-logo"></span>
+          <span>+</span>
+          <span class="os-logo"></span>
+        </div>
+      </div>
+      <div class="content-section">
+        <div class="content-section-title">
+          <h2>Component</h2>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <span>Class:</span>
+                </td>
+                <td>
+                  <span>{{ componentClass }}</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span>Description:</span>
+                </td>
+                <td>OverlayScrollbars as a {{ framework }}-Component.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="content-section-content">
+          <overlay-scrollbars
+            ref="osComponentRef1"
+            :options="osComponentOptions"
+            style="max-height: 350px"
+            :class="[framework, 'custom-class-name-test']"
+          >
+            <div class="bonus-content">{{ componentContent }}</div>
+            {{ loremIpsumShort }}
+            <overlay-scrollbars
+              ref="osComponentRef2"
+              :options="osComponentOptions"
+              style="max-height: 150px"
+              :class="'custom-class-name-test'"
+            >
+              <div class="bonus-content">{{ componentContent }}</div>
+              {{ loremIpsumLong }}
+              <br />
+              <br />
+              {{ loremIpsumShort }}
+            </overlay-scrollbars>
+            {{ loremIpsumMedium }}
+            <br />
+            <br />
+            {{ loremIpsumShort }}
+            <br />
+            <br />
+            {{ loremIpsumLong }}
+            <div v-for="(item, index) in loremList" :key="index" :data-key="index">
+              <br />
+              {{ item }}
+            </div>
+          </overlay-scrollbars>
+
+          <div class="buttons">
+            <button
+              @click="(event) => { this.onBtnScrollRandom.call(this, event, [this.$refs.osComponentRef1, this.$refs.osComponentRef2]) }"
+            >Scroll</button>
+            <button @click="() => { this.onBtnChangeOptions.call(this) }">Change Options</button>
+            <button @click="() => { this.onBtnChangeContent.call(this) }">Change Content</button>
+            <button @click="() => { this.onBtnLog.call(this) }">Log</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -89,99 +95,105 @@ import OverlayScrollbars from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 
 export interface AppData {
-    framework: string;
-    componentClass: string;
-    loremIpsumLong: string;
-    loremIpsumMedium: string;
-    loremIpsumShort: string;
-    componentContent: string;
-    osComponentOptions: OverlayScrollbars.Options;
+  framework: string;
+  componentClass: string;
+  loremIpsumLong: string;
+  loremIpsumMedium: string;
+  loremIpsumShort: string;
+  loremList: Array<string>
+  componentContent: string;
+  osComponentOptions: OverlayScrollbars.Options;
 }
 export interface AppMethods {
-    onBtnScrollRandom(
-        event: MouseEvent,
-        refArray: Array<OverlayScrollbarsComponent>
-    ): void;
-    onBtnChangeOptions(): void;
-    onBtnChangeContent(): void;
-    onBtnLog(): void;
+  onBtnScrollRandom(
+    event: MouseEvent,
+    refArray: Array<OverlayScrollbarsComponent>
+  ): void;
+  onBtnChangeOptions(): void;
+  onBtnChangeContent(): void;
+  onBtnLog(): void;
+  randomIpsum(): string;
 }
 export interface AppComputed { }
 export interface AppProps { }
 
 export default Vue.extend<AppData, AppMethods, AppComputed, AppProps>({
-    name: 'app',
-    data: function () {
-        return {
-            framework: 'Vue',
-            componentClass: 'OverlayScrollbarsComponent',
-            loremIpsumLong: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
-            loremIpsumMedium: 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.',
-            loremIpsumShort: 'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.',
-            componentContent: 'Lorem Ipsum',
-            osComponentOptions: {
-                resize: 'both',
-                paddingAbsolute: true,
-                scrollbars: {
-                    autoHide: 'never'
-                }
-            }
-        };
-    },
-    methods: {
-        onBtnScrollRandom(event: MouseEvent, refArray: Array<OverlayScrollbarsComponent>) {
-            if (refArray) {
-                for (let i = 0; i < refArray.length; i++) {
-                    if (refArray[i]) {
-                        let osInstance = refArray[i].osInstance();
-                        if (osInstance) {
-                            osInstance.scrollStop().scroll({
-                                x: Math.floor(Math.random() * osInstance.scroll().max.x + 0),
-                                y: Math.floor(Math.random() * osInstance.scroll().max.y + 0)
-                            }, 1000, 'easeOutElastic');
-                        }
-                    }
-                }
-            }
-        },
-        onBtnChangeOptions() {
-            this.osComponentOptions = {
-                resize: this.osComponentOptions.resize === 'both' ? 'none' : 'both',
-                scrollbars: {
-                    autoHide: this.osComponentOptions.scrollbars!.autoHide === 'never' ? 'scroll' : 'never'
-                }
-            };
-        },
-        onBtnChangeContent() {
-            let loremIpsums = [
-                this.loremIpsumLong,
-                this.loremIpsumMedium,
-                this.loremIpsumShort
-            ];
-            let random = Math.floor(Math.random() * loremIpsums.length);
-            this.componentContent = this.componentContent + '\r\n' + loremIpsums[random];
-        },
-        onBtnLog() {
-            console.log(`== ${this.componentClass} (1) ==`);
-            console.log('Instance:');
-            console.log((this.$refs.osComponentRef1 as OverlayScrollbarsComponent).osInstance());
-            console.log('Target:');
-            console.log((this.$refs.osComponentRef1 as OverlayScrollbarsComponent).osTarget());
-            console.log('');
-            console.log(`== ${this.componentClass} (2) ==`);
-            console.log('Instance:');
-            console.log((this.$refs.osComponentRef2 as OverlayScrollbarsComponent).osInstance());
-            console.log('Target:');
-            console.log((this.$refs.osComponentRef2 as OverlayScrollbarsComponent).osTarget());
+  name: 'app',
+  data: function () {
+    return {
+      framework: 'Vue',
+      componentClass: 'OverlayScrollbarsComponent',
+      loremIpsumLong: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
+      loremIpsumMedium: 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.',
+      loremIpsumShort: 'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.',
+      loremList: [],
+      componentContent: 'Lorem Ipsum',
+      osComponentOptions: {
+        resize: 'both',
+        paddingAbsolute: true,
+        scrollbars: {
+          autoHide: 'never'
         }
+      }
+    };
+  },
+  methods: {
+    onBtnScrollRandom(event: MouseEvent, refArray: Array<OverlayScrollbarsComponent>) {
+      if (refArray) {
+        for (let i = 0; i < refArray.length; i++) {
+          if (refArray[i]) {
+            let osInstance = refArray[i].osInstance();
+            if (osInstance) {
+              osInstance.scrollStop().scroll({
+                x: Math.floor(Math.random() * osInstance.scroll().max.x + 0),
+                y: Math.floor(Math.random() * osInstance.scroll().max.y + 0)
+              }, 1000, 'easeOutElastic');
+            }
+          }
+        }
+      }
     },
-    mounted() {
-        console.log(`${this.componentClass} (1)`);
-        console.log(this.$refs.osComponentRef1);
-
-        console.log(`${this.componentClass} (2)`);
-        console.log(this.$refs.osComponentRef2);
+    onBtnChangeOptions() {
+      this.osComponentOptions = {
+        resize: this.osComponentOptions.resize === 'both' ? 'none' : 'both',
+        scrollbars: {
+          autoHide: this.osComponentOptions.scrollbars!.autoHide === 'never' ? 'scroll' : 'never'
+        }
+      };
+    },
+    onBtnChangeContent() {
+      this.componentContent = this.componentContent + '\r\n' + this.randomIpsum();
+      this.loremList.push(this.randomIpsum());
+    },
+    onBtnLog() {
+      console.log(`== ${this.componentClass} (1) ==`);
+      console.log('Instance:');
+      console.log((this.$refs.osComponentRef1 as OverlayScrollbarsComponent).osInstance());
+      console.log('Target:');
+      console.log((this.$refs.osComponentRef1 as OverlayScrollbarsComponent).osTarget());
+      console.log('');
+      console.log(`== ${this.componentClass} (2) ==`);
+      console.log('Instance:');
+      console.log((this.$refs.osComponentRef2 as OverlayScrollbarsComponent).osInstance());
+      console.log('Target:');
+      console.log((this.$refs.osComponentRef2 as OverlayScrollbarsComponent).osTarget());
+    },
+    randomIpsum() {
+      let loremIpsums = [
+        this.loremIpsumLong,
+        this.loremIpsumMedium,
+        this.loremIpsumShort
+      ];
+      return loremIpsums[Math.floor(Math.random() * loremIpsums.length)];
     }
+  },
+  mounted() {
+    console.log(`${this.componentClass} (1)`);
+    console.log(this.$refs.osComponentRef1);
+
+    console.log(`${this.componentClass} (2)`);
+    console.log(this.$refs.osComponentRef2);
+  }
 });
 </script>
 

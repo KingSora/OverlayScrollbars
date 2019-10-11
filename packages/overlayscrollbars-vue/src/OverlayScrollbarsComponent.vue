@@ -1,6 +1,24 @@
 <template>
-    <div>
-        <slot></slot>
+    <div class="os-host">
+        <div class="os-resize-observer-host"></div>
+        <div class="os-padding">
+            <div class="os-viewport">
+                <div class="os-content">
+                    <slot></slot>
+                </div>
+            </div>
+        </div>
+        <div class="os-scrollbar os-scrollbar-horizontal ">
+            <div class="os-scrollbar-track">
+                <div class="os-scrollbar-handle"></div>
+            </div>
+        </div>
+        <div class="os-scrollbar os-scrollbar-vertical">
+            <div class="os-scrollbar-track">
+                <div class="os-scrollbar-handle"></div>
+            </div>
+        </div>
+        <div class="os-scrollbar-corner"></div>
     </div>
 </template>
 
@@ -14,6 +32,7 @@ import {
     OverlayScrollbarsComponentProps
 } from './OverlayScrollbarsComponent';
 
+// https://github.com/vuejs/rfcs/blob/attr-fallthrough/active-rfcs/0000-attr-fallthrough.md
 // https://github.com/vuejs/vue/issues/7060
 export default class OverlayScrollbarsComponent extends Vue.extend<
     OverlayScrollbarsComponentData,

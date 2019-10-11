@@ -35,7 +35,8 @@
         OverlayScrollbarsComponent.decorators = [
             { type: core.Component, args: [{
                         selector: 'overlay-scrollbars',
-                        template: '<ng-content></ng-content>',
+                        host: { 'class': 'os-host' },
+                        template: "\n        <div class=\"os-resize-observer-host\"></div>\n        <div class=\"os-padding\">\n            <div class=\"os-viewport\">\n                <div class=\"os-content\">\n                    <ng-content></ng-content>\n                </div>\n            </div>\n        </div>\n        <div class=\"os-scrollbar os-scrollbar-horizontal \">\n            <div class=\"os-scrollbar-track\">\n                <div class=\"os-scrollbar-handle\"></div>\n            </div>\n        </div>\n        <div class=\"os-scrollbar os-scrollbar-vertical\">\n            <div class=\"os-scrollbar-track\">\n                <div class=\"os-scrollbar-handle\"></div>\n            </div>\n        </div>\n        <div class=\"os-scrollbar-corner\"></div>\n    ",
                         styles: [':host { display: block; }']
                     },] },
         ];

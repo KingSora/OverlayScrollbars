@@ -88,8 +88,19 @@
             }
         };
         OverlayScrollbarsComponent.prototype.render = function () {
-            var _a = this.props, options = _a.options, extensions = _a.extensions, children = _a.children, divProps = __rest(_a, ["options", "extensions", "children"]);
-            return (React__default.createElement("div", __assign({}, divProps, { ref: this._osTargetRef }), this.props.children));
+            var _a = this.props, options = _a.options, extensions = _a.extensions, children = _a.children, className = _a.className, divProps = __rest(_a, ["options", "extensions", "children", "className"]);
+            return (React__default.createElement("div", __assign({ className: className + " os-host" }, divProps, { ref: this._osTargetRef }),
+                React__default.createElement("div", { className: "os-resize-observer-host" }),
+                React__default.createElement("div", { className: "os-padding" },
+                    React__default.createElement("div", { className: "os-viewport" },
+                        React__default.createElement("div", { className: "os-content" }, this.props.children))),
+                React__default.createElement("div", { className: "os-scrollbar os-scrollbar-horizontal " },
+                    React__default.createElement("div", { className: "os-scrollbar-track" },
+                        React__default.createElement("div", { className: "os-scrollbar-handle" }))),
+                React__default.createElement("div", { className: "os-scrollbar os-scrollbar-vertical" },
+                    React__default.createElement("div", { className: "os-scrollbar-track" },
+                        React__default.createElement("div", { className: "os-scrollbar-handle" }))),
+                React__default.createElement("div", { className: "os-scrollbar-corner" })));
         };
         return OverlayScrollbarsComponent;
     }(React.Component));

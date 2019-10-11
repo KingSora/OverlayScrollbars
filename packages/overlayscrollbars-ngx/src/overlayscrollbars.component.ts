@@ -3,7 +3,28 @@ import OverlayScrollbars from 'overlayscrollbars';
 
 @Component({
     selector: 'overlay-scrollbars', //https://angular.io/guide/styleguide#component-selectors
-    template: '<ng-content></ng-content>',
+    host: { 'class': 'os-host' },
+    template: `
+        <div class="os-resize-observer-host"></div>
+        <div class="os-padding">
+            <div class="os-viewport">
+                <div class="os-content">
+                    <ng-content></ng-content>
+                </div>
+            </div>
+        </div>
+        <div class="os-scrollbar os-scrollbar-horizontal ">
+            <div class="os-scrollbar-track">
+                <div class="os-scrollbar-handle"></div>
+            </div>
+        </div>
+        <div class="os-scrollbar os-scrollbar-vertical">
+            <div class="os-scrollbar-track">
+                <div class="os-scrollbar-handle"></div>
+            </div>
+        </div>
+        <div class="os-scrollbar-corner"></div>
+    `,
     styles: [':host { display: block; }']
 })
 export class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterViewInit {

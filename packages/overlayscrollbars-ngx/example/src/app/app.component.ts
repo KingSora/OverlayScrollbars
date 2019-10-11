@@ -13,6 +13,7 @@ export class AppComponent {
     loremIpsumLong: string = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.';
     loremIpsumMedium: string = 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.';
     loremIpsumShort: string = 'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.';
+    loremList: Array<string> = [];
     componentContent: string = 'Lorem Ipsum';
     osComponentOptions: OverlayScrollbars.Options = {
         resize: 'both',
@@ -58,9 +59,8 @@ export class AppComponent {
     }
 
     onBtnChangeContent(event) {
-        let loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
-        let random = Math.floor(Math.random() * loremIpsums.length);
-        this.componentContent = this.componentContent + '\r\n' + loremIpsums[random]
+        this.componentContent = this.componentContent + '\r\n' + this.randomIpsum();
+        this.loremList.push(this.randomIpsum());
     }
 
     onBtnLog(event) {
@@ -79,5 +79,11 @@ export class AppComponent {
         console.log(this.osComponentRef2.osInstance());
         console.log('Target:');
         console.log(this.osComponentRef2.osTarget());
+    }
+
+    randomIpsum(): string {
+        let loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
+        let random = Math.floor(Math.random() * loremIpsums.length);
+        return loremIpsums[random];
     }
 }

@@ -94,8 +94,8 @@ gulp.task('ngc', function (done) {
         exclude: [filesInfo.distFolder, filesInfo.exampleFolder, 'node_modules']
     };
     sh.ShellString(JSON.stringify(newTsconfigJson, null, 4)).to(filesInfo.tsconfigJsonPath);
-    sh.exec('ngc -p tsconfig.json');
-
+    sh.exec('npx ngc -p tsconfig.json');
+    
     // delete the aotEntry dummy file 
     sh.rm('-f', aotEntryFile);
 

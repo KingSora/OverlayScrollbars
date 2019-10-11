@@ -47,12 +47,31 @@ export class OverlayScrollbarsComponent extends Component<OverlayScrollbarsCompo
             options,
             extensions,
             children,
+            className,
             ...divProps
         } = this.props;
 
         return (
-            <div {...divProps} ref={this._osTargetRef}>
-                {...this.props.children}
+            <div className={`${className} os-host`} {...divProps} ref={this._osTargetRef}>
+                <div className="os-resize-observer-host"></div>
+                <div className="os-padding">
+                    <div className="os-viewport">
+                        <div className="os-content">
+                            {...this.props.children}
+                        </div>
+                    </div>
+                </div>
+                <div className="os-scrollbar os-scrollbar-horizontal ">
+                    <div className="os-scrollbar-track">
+                        <div className="os-scrollbar-handle"></div>
+                    </div>
+                </div>
+                <div className="os-scrollbar os-scrollbar-vertical">
+                    <div className="os-scrollbar-track">
+                        <div className="os-scrollbar-handle"></div>
+                    </div>
+                </div>
+                <div className="os-scrollbar-corner"></div>
             </div>
         );
     }

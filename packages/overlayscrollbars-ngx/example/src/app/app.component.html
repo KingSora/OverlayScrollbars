@@ -57,6 +57,10 @@
                 <br /> {{ loremIpsumShort }}
                 <br />
                 <br /> {{ loremIpsumLong }}
+                <div *ngFor="let item of loremList; let i = index" [attr.data-key]="i">
+                    <br />
+                    {{item}}
+                </div>
             </overlay-scrollbars>
 
             <div class="buttons">

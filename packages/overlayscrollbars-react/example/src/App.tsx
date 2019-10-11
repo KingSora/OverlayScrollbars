@@ -4,6 +4,7 @@ import OverlayScrollbars from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
 export interface AppState {
+    loremList: Array<string>;
     componentContent: string;
     osComponentOptions: OverlayScrollbars.Options;
 }
@@ -23,6 +24,7 @@ export default class App extends React.Component<any, AppState> {
         this.osComponentRef2 = React.createRef<OverlayScrollbarsComponent>();
         this.state = {
             componentContent: 'Lorem Ipsum',
+            loremList: [],
             osComponentOptions: {
                 resize: 'both',
                 paddingAbsolute: true,
@@ -69,10 +71,9 @@ export default class App extends React.Component<any, AppState> {
     }
 
     onBtnChangeContent() {
-        let loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
-        let random = Math.floor(Math.random() * loremIpsums.length);
         this.setState({
-            componentContent: this.state.componentContent + '\r\n' + loremIpsums[random]
+            componentContent: this.state.componentContent + '\r\n' + this.randomIpsum(),
+            loremList: [...this.state.loremList, this.randomIpsum()]
         });
     }
 
@@ -88,6 +89,11 @@ export default class App extends React.Component<any, AppState> {
         console.log(this.osComponentRef2.current!.osInstance());
         console.log('Target:');
         console.log(this.osComponentRef2.current!.osTarget());
+    }
+
+    randomIpsum(): string {
+        let loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
+        return loremIpsums[Math.floor(Math.random() * loremIpsums.length)];
     }
 
     render() {
@@ -133,7 +139,7 @@ export default class App extends React.Component<any, AppState> {
                             <OverlayScrollbarsComponent ref={this.osComponentRef1}
                                 options={this.state.osComponentOptions}
                                 style={{ maxHeight: '350px' }}
-                                className={`custom-class-name-test ${this.framework}`}
+                                className={`${this.framework} custom-class-name-test`}
                             >
                                 <div className="bonus-content">
                                     {this.state.componentContent}
@@ -159,6 +165,11 @@ export default class App extends React.Component<any, AppState> {
                                 <br />
                                 <br />
                                 {this.loremIpsumLong}
+                                {
+                                    this.state.loremList.map((item, index) => {
+                                        return <div key={index} data-key={index}><br />{item}</div>;
+                                    })
+                                }
                             </OverlayScrollbarsComponent>
 
                             <div className="buttons">
