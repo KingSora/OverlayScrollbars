@@ -19,6 +19,7 @@
     "bugs": {
         "url": "https://github.com/KingSora/OverlayScrollbars/issues"
     },
+    "browser": "./dist/overlayscrollbars-ngx.js",
     "main": "./dist/overlayscrollbars-ngx.js",
     "module": "./dist/overlayscrollbars-ngx.esm.js",
     "typings": "./dist/types/index.d.ts",
