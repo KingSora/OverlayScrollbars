@@ -18,6 +18,7 @@
     "bugs": {
         "url": "https://github.com/KingSora/OverlayScrollbars/issues"
     },
+    "browser": "./dist/overlayscrollbars-react.js",
     "main": "./dist/overlayscrollbars-react.js",
     "module": "./dist/overlayscrollbars-react.esm.js",
     "typings": "./dist/types/index.d.ts",
