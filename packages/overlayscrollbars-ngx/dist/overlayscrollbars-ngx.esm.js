@@ -1,8 +1,9 @@
-import { Component, ElementRef, Input, NgModule } from '@angular/core';
+import { Component, ElementRef, NgZone, Input, NgModule } from '@angular/core';
 import OverlayScrollbars from 'overlayscrollbars';
 
 var OverlayScrollbarsComponent = (function () {
-    function OverlayScrollbarsComponent(_osTargetRef) {
+    function OverlayScrollbarsComponent(_osTargetRef, ngZone) {
+        this.ngZone = ngZone;
         this._osInstance = null;
         this._osTargetRef = _osTargetRef;
     }
@@ -13,7 +14,10 @@ var OverlayScrollbarsComponent = (function () {
         return this._osTargetRef.nativeElement || null;
     };
     OverlayScrollbarsComponent.prototype.ngAfterViewInit = function () {
-        this._osInstance = OverlayScrollbars(this.osTarget(), this._options || {}, this._extensions);
+        var _this = this;
+        this.ngZone.runOutsideAngular((function () {
+            _this._osInstance = OverlayScrollbars(_this.osTarget(), _this._options || {}, _this._extensions);
+        }));
     };
     OverlayScrollbarsComponent.prototype.ngOnDestroy = function () {
         if (OverlayScrollbars.valid(this._osInstance)) {
@@ -36,7 +40,8 @@ var OverlayScrollbarsComponent = (function () {
                 },] },
     ];
     OverlayScrollbarsComponent.ctorParameters = function () { return [
-        { type: ElementRef }
+        { type: ElementRef },
+        { type: NgZone }
     ]; };
     OverlayScrollbarsComponent.propDecorators = {
         _options: [{ type: Input, args: ['options',] }],

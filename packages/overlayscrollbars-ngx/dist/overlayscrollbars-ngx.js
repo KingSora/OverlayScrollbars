@@ -7,7 +7,8 @@
     OverlayScrollbars = OverlayScrollbars && OverlayScrollbars.hasOwnProperty('default') ? OverlayScrollbars['default'] : OverlayScrollbars;
 
     var OverlayScrollbarsComponent = (function () {
-        function OverlayScrollbarsComponent(_osTargetRef) {
+        function OverlayScrollbarsComponent(_osTargetRef, ngZone) {
+            this.ngZone = ngZone;
             this._osInstance = null;
             this._osTargetRef = _osTargetRef;
         }
@@ -18,7 +19,10 @@
             return this._osTargetRef.nativeElement || null;
         };
         OverlayScrollbarsComponent.prototype.ngAfterViewInit = function () {
-            this._osInstance = OverlayScrollbars(this.osTarget(), this._options || {}, this._extensions);
+            var _this = this;
+            this.ngZone.runOutsideAngular((function () {
+                _this._osInstance = OverlayScrollbars(_this.osTarget(), _this._options || {}, _this._extensions);
+            }));
         };
         OverlayScrollbarsComponent.prototype.ngOnDestroy = function () {
             if (OverlayScrollbars.valid(this._osInstance)) {
@@ -41,7 +45,8 @@
                     },] },
         ];
         OverlayScrollbarsComponent.ctorParameters = function () { return [
-            { type: core.ElementRef }
+            { type: core.ElementRef },
+            { type: core.NgZone }
         ]; };
         OverlayScrollbarsComponent.propDecorators = {
             _options: [{ type: core.Input, args: ['options',] }],

@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, SimpleChanges, OnDestroy, OnChanges, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, Input, SimpleChanges, OnDestroy, OnChanges, AfterViewInit, NgZone } from '@angular/core';
 import OverlayScrollbars from 'overlayscrollbars';
 
 @Component({
@@ -32,8 +32,8 @@ export class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterVi
     @Input('extensions') private _extensions: OverlayScrollbars.Extensions;
     private _osInstance: OverlayScrollbars | null = null;
     private _osTargetRef: ElementRef;
-
-    constructor(_osTargetRef: ElementRef) {
+    
+    constructor(_osTargetRef: ElementRef, private ngZone: NgZone) {
         this._osTargetRef = _osTargetRef;
     }
 
@@ -46,7 +46,9 @@ export class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterVi
     }
 
     ngAfterViewInit() {
-        this._osInstance = OverlayScrollbars(this.osTarget(), this._options || {}, this._extensions);
+        this.ngZone.runOutsideAngular(() => {
+            this._osInstance = OverlayScrollbars(this.osTarget(), this._options || {}, this._extensions);
+        });
     }
 
     ngOnDestroy() {
