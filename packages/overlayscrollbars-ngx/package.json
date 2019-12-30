@@ -33,7 +33,7 @@
         "chalk": "^2.4.2",
         "gulp": "^4.0.2",
         "gulp-json-editor": "^2.5.2",
-        "overlayscrollbars": "^1.9.0",
+        "overlayscrollbars": "^1.10.2",
         "rollup": "^1.17.0",
         "rollup-plugin-commonjs": "^10.0.1",
         "rollup-plugin-node-resolve": "^5.2.0",

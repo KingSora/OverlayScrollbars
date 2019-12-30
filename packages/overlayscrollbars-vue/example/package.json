@@ -10,7 +10,7 @@
   "dependencies": {
     "@types/overlayscrollbars": "^1.9.0",
     "core-js": "^2.6.5",
-    "overlayscrollbars": "^1.10.0",
+    "overlayscrollbars": "^1.10.2",
     "overlayscrollbars-vue": "^0.1.0",
     "vue": "^2.6.10"
   },
