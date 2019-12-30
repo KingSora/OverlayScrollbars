@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.10.0
+ * Version: 1.10.1
  *
  * Copyright KingSora | Rene Haas.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 11.10.2019
+ * Date: 30.12.2019
  */
 
 (function (global, factory) {
@@ -3772,13 +3772,14 @@
                             var xy = scrollbarVars._x_y;
                             var wh = scrollbarVars._w_h;
                             var widthHeight = scrollbarVars._width_height;
-                            var scrollMax = _strScroll + scrollbarVars._Left_Top + 'Max';
+                            var scrollMax =  _strScroll + scrollbarVars._Left_Top + 'Max';
                             var fractionalOverflowAmount = viewportRect[widthHeight] ? MATH.abs(viewportRect[widthHeight] - _viewportSize[wh]) : 0;
+                            var checkFractionalOverflowAmount = previousOverflowAmount && previousOverflowAmount[xy] > 0 && _viewportElementNative[scrollMax] === 0;
                             overflowBehaviorIsVS[xy] = overflowBehavior[xy] === 'v-s';
                             overflowBehaviorIsVH[xy] = overflowBehavior[xy] === 'v-h';
                             overflowBehaviorIsS[xy] = overflowBehavior[xy] === 's';
                             overflowAmount[xy] = MATH.max(0, MATH.round((contentScrollSize[wh] - _viewportSize[wh]) * 100) / 100);
-                            overflowAmount[xy] *= (hideOverflowForceTextarea || (_viewportElementNative[scrollMax] === 0 && fractionalOverflowAmount > 0 && fractionalOverflowAmount < 1)) ? 0 : 1;
+                            overflowAmount[xy] *= (hideOverflowForceTextarea || (checkFractionalOverflowAmount && fractionalOverflowAmount > 0 && fractionalOverflowAmount < 1)) ? 0 : 1;
                             hasOverflow[xy] = overflowAmount[xy] > 0;
 
                             //hideOverflow:
