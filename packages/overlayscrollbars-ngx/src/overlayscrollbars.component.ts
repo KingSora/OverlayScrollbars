@@ -32,7 +32,7 @@ export class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterVi
     @Input('extensions') private _extensions: OverlayScrollbars.Extensions;
     private _osInstance: OverlayScrollbars | null = null;
     private _osTargetRef: ElementRef;
-    
+
     constructor(_osTargetRef: ElementRef, private ngZone: NgZone) {
         this._osTargetRef = _osTargetRef;
     }
