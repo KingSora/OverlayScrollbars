@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.10.2
+ * Version: 1.10.3
  *
  * Copyright KingSora | Rene Haas.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 30.12.2019
+ * Date: 02.02.2020
  */
 
 (function (global, factory) {
@@ -3998,7 +3998,7 @@
                                 var cursorIsLastPosition = (cursorPos >= cursorMax && _textareaHasFocus);
                                 var textareaScrollAmount = {
                                     x: (!textareaAutoWrapping && (cursorCol === lastCol && cursorRow === widestRow)) ? _overflowAmountCache.x : -1,
-                                    y: (textareaAutoWrapping ? cursorIsLastPosition || textareaRowsChanged && (previousOverflowAmount ? (currScroll.y === previousOverflow.y) : false) : (cursorIsLastPosition || textareaRowsChanged) && cursorRow === lastRow) ? _overflowAmountCache.y : -1
+                                    y: (textareaAutoWrapping ? cursorIsLastPosition || textareaRowsChanged && (previousOverflowAmount ? (currScroll.y === previousOverflowAmount.y) : false) : (cursorIsLastPosition || textareaRowsChanged) && cursorRow === lastRow) ? _overflowAmountCache.y : -1
                                 };
                                 currScroll.x = textareaScrollAmount.x > -1 ? (_isRTL && _normalizeRTLCache && _rtlScrollBehavior.i ? 0 : textareaScrollAmount.x) : currScroll.x; //if inverted, scroll to 0 -> normalized this means to max scroll offset.
                                 currScroll.y = textareaScrollAmount.y > -1 ? textareaScrollAmount.y : currScroll.y;
@@ -5822,11 +5822,14 @@
                     var possibleElement = coordinatesIsElementObj ? coordinates.el : coordinates;
                     var possibleElementIsJQuery = possibleElement instanceof FRAMEWORK || JQUERY ? possibleElement instanceof JQUERY : false;
                     var possibleElementIsHTMLElement = possibleElementIsJQuery ? false : isHTMLElement(possibleElement);
-                    var proxyCompleteCallback = type(completeCallback) != TYPES.f ? undefined : function () {
+                    var updateScrollbarInfos = function () {
                         if (doScrollLeft)
                             refreshScrollbarHandleOffset(true);
                         if (doScrollTop)
                             refreshScrollbarHandleOffset(false);
+                    };
+                    var proxyCompleteCallback = type(completeCallback) != TYPES.f ? undefined : function () {
+                        updateScrollbarInfos();
                         completeCallback();
                     };
                     function checkSettingsStringValue(currValue, allowedValues) {
@@ -6118,6 +6121,7 @@
                             _viewportElement[_strScrollLeft](finalScroll[_strScrollLeft]);
                         if (doScrollTop)
                             _viewportElement[_strScrollTop](finalScroll[_strScrollTop]);
+                        updateScrollbarInfos();
                     }
                 };
 
