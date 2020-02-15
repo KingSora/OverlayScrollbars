@@ -703,22 +703,30 @@
                         return (scrollSize.w - scrollSize2.w) !== 0 || (scrollSize.h - scrollSize2.h) !== 0;
                     })(),
                     rtlScrollBehavior: (function () {
-                        scrollbarDummyElement.css({ 'overflow-y': strHidden, 'overflow-x': strScroll, 'direction': 'rtl' }).scrollLeft(0);
-                        var dummyContainerOffset = scrollbarDummyElement.offset();
-                        var dummyContainerChildOffset = dummyContainerChild.offset();
-                        scrollbarDummyElement.scrollLeft(999);
-                        var dummyContainerScrollOffsetAfterScroll = dummyContainerChild.offset();
+                        scrollbarDummyElement.css({ 'overflow-y': strHidden, 'overflow-x': strScroll, 'direction': 'rtl' });
+                        dummyContainerChild.css({'width': '9999px'});
+                        var childCSS = {'display': 'inline-block', 'width': '999px'};
+                        var leftChild = FRAMEWORK('<div></div>').css(childCSS);
+                        var rightChild = FRAMEWORK('<div></div>').css(childCSS);
+                        dummyContainerChild.append(rightChild);
+                        dummyContainerChild.append(leftChild);
+                        leftChild[0].scrollIntoView();
+                        var left = scrollbarDummyElement[0].scrollLeft;
+                        rightChild[0].scrollIntoView();
+                        var right = scrollbarDummyElement[0].scrollLeft;
+                        dummyContainerChild.removeAttr('style');
+                        dummyContainerChild.children().remove();
                         return {
                             //origin direction = determines if the zero scroll position is on the left or right side
                             //'i' means 'invert' (i === true means that the axis must be inverted to be correct)
                             //true = on the left side
                             //false = on the right side
-                            i: dummyContainerOffset.left === dummyContainerChildOffset.left,
+                            i: right > 0,
                             //negative = determines if the maximum scroll is positive or negative
                             //'n' means 'negate' (n === true means that the axis must be negated to be correct)
                             //true = negative
                             //false = positive
-                            n: dummyContainerChildOffset.left - dummyContainerScrollOffsetAfterScroll.left === 0
+                            n: left < 0
                         };
                     })(),
                     supportTransform: VENDORS._cssProperty('transform') !== undefined,
