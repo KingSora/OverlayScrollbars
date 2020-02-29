@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.10.3
+ * Version: 1.11.0
  *
  * Copyright KingSora | Rene Haas.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 02.02.2020
+ * Date: 29.02.2020
  */
 
 (function (global, factory) {
@@ -37,19 +37,20 @@
             //y : 'symbol'
         };
         var LEXICON = {
-            c : 'class',
-            s : 'style',
-            i : 'id',
-            l : 'length',
-            p : 'prototype',
-            oH : 'offsetHeight',
-            cH : 'clientHeight',
-            sH : 'scrollHeight',
-            oW : 'offsetWidth',
-            cW : 'clientWidth',
-            sW : 'scrollWidth',
-            hOP : 'hasOwnProperty',
-            bCR : 'getBoundingClientRect'
+            c: 'class',
+            s: 'style',
+            i: 'id',
+            l: 'length',
+            p: 'prototype',
+            ti: 'tabindex',
+            oH: 'offsetHeight',
+            cH: 'clientHeight',
+            sH: 'scrollHeight',
+            oW: 'offsetWidth',
+            cW: 'clientWidth',
+            sW: 'scrollWidth',
+            hOP: 'hasOwnProperty',
+            bCR: 'getBoundingClientRect'
         };
         var VENDORS = (function() {
             //https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix
@@ -690,6 +691,7 @@
                     })(),
                     restrictedMeasuring: (function () {
                         //https://bugzilla.mozilla.org/show_bug.cgi?id=1439305
+                        //since 1.11.0 always false -> fixed via CSS (hopefully)
                         scrollbarDummyElement.css(strOverflow, strHidden);
                         var scrollSize = {
                             w: scrollbarDummyElement0[LEXICON.sW],
@@ -706,8 +708,9 @@
                         scrollbarDummyElement.css({ 'overflow-y': strHidden, 'overflow-x': strScroll, 'direction': 'rtl' }).scrollLeft(0);
                         var dummyContainerOffset = scrollbarDummyElement.offset();
                         var dummyContainerChildOffset = dummyContainerChild.offset();
-                        scrollbarDummyElement.scrollLeft(999);
-                        var dummyContainerScrollOffsetAfterScroll = dummyContainerChild.offset();
+                        //https://github.com/KingSora/OverlayScrollbars/issues/187
+                        scrollbarDummyElement.scrollLeft(-999);
+                        var dummyContainerChildOffsetAfterScroll = dummyContainerChild.offset();
                         return {
                             //origin direction = determines if the zero scroll position is on the left or right side
                             //'i' means 'invert' (i === true means that the axis must be inverted to be correct)
@@ -718,7 +721,7 @@
                             //'n' means 'negate' (n === true means that the axis must be negated to be correct)
                             //true = negative
                             //false = positive
-                            n: dummyContainerChildOffset.left - dummyContainerScrollOffsetAfterScroll.left === 0
+                            n: dummyContainerChildOffset.left !== dummyContainerChildOffsetAfterScroll.left
                         };
                     })(),
                     supportTransform: VENDORS._cssProperty('transform') !== undefined,
@@ -1089,6 +1092,9 @@
                 //callbacks:
                 var _callbacksInitQeueue = [];
 
+                //attrs viewport shall inherit from target
+                var _viewportAttrsFromTarget = [LEXICON.ti];
+                
                 //options:
                 var _defaultOptions;
                 var _currentOptions;
@@ -1176,7 +1182,6 @@
                 var _textareaDynHeightCache;
                 var _textareaDynWidthCache;
                 var _bodyMinSizeCache;
-                var _viewportScrollSizeCache;
                 var _displayIsHiddenCache;
                 var _updateAutoCache = {};
 
@@ -1187,7 +1192,7 @@
                 var _mutationObserverContentCallback;
                 var _mutationObserversConnected;
                 var _mutationObserverAttrsTextarea = ['wrap', 'cols', 'rows'];
-                var _mutationObserverAttrsHost = [LEXICON.i, LEXICON.c, LEXICON.s, 'open'];
+                var _mutationObserverAttrsHost = [LEXICON.i, LEXICON.c, LEXICON.s, 'open'].concat(_viewportAttrsFromTarget);
 
                 //events:
                 var _destroyEvents = [];
@@ -1269,7 +1274,7 @@
                         //add resize observer:
                         if (onElementResizedCallback) {
                             if (_supportResizeObserver) {
-                                var element = targetElement.append(generateDiv(_classNameResizeObserverElement + ' observed')).contents()[0];
+                                var element = targetElement.addClass('observed').append(generateDiv(_classNameResizeObserverElement)).contents()[0];
                                 var observer = element[_strResizeObserverProperty] = new resizeObserver(callback);
                                 observer.observe(element);
                             }
@@ -1376,7 +1381,7 @@
                                     }
                                     else {
                                         var obj = _documentElementNative.createElement(TYPES.o);
-                                        obj.setAttribute('tabindex', '-1');
+                                        obj.setAttribute(LEXICON.ti, '-1');
                                         obj.setAttribute(LEXICON.c, _classNameResizeObserverElement);
                                         obj.onload = function () {
                                             var wnd = this.contentDocument.defaultView;
@@ -1505,6 +1510,7 @@
                         _mutationObserverHostCallback = function (mutations) {
                             var doUpdate = false;
                             var mutation;
+                            var mutatedAttrs = [];
 
                             if (_initialized && !_sleeping) {
                                 each(mutations, function () {
@@ -1512,17 +1518,20 @@
                                     mutationTarget = mutation.target;
                                     mutationAttrName = mutation.attributeName;
 
-                                    if (mutationAttrName === LEXICON.c)
-                                        doUpdate = hostClassNamesChanged(mutation.oldValue, mutationTarget.className);
-                                    else if (mutationAttrName === LEXICON.s)
-                                        doUpdate = mutation.oldValue !== mutationTarget[LEXICON.s].cssText;
-                                    else
-                                        doUpdate = true;
-
-                                    if (doUpdate)
-                                        return false;
+                                    if(!doUpdate) {
+                                        if (mutationAttrName === LEXICON.c)
+                                            doUpdate = hostClassNamesChanged(mutation.oldValue, mutationTarget.className);
+                                        else if (mutationAttrName === LEXICON.s)
+                                            doUpdate = mutation.oldValue !== mutationTarget[LEXICON.s].cssText;
+                                        else
+                                            doUpdate = true;
+                                    }
+                                    
+                                    mutatedAttrs.push(mutationAttrName);
                                 });
-
+                                
+                                updateViewportAttrsFromTarget(mutatedAttrs);
+                                
                                 if (doUpdate)
                                     _base.update(_strAuto);
                             }
@@ -1808,22 +1817,12 @@
                     var contentMeasureElement = getContentMeasureElement();
                     var textareaValueLength = _isTextarea && _widthAutoCache && !_textareaAutoWrappingCache ? _targetElement.val().length : 0;
                     var setCSS = !_mutationObserversConnected && _widthAutoCache && !_isTextarea;
-                    var viewportScrollSize = {};
                     var css = {};
                     var float;
                     var bodyMinSizeC;
                     var changed;
-                    var viewportScrollSizeChanged;
                     var contentElementScrollSize;
 
-                    //fix for https://bugzilla.mozilla.org/show_bug.cgi?id=1439305, it only works with "clipAlways : true"
-                    //it can work with "clipAlways : false" too, but I had to set the overflow of the viewportElement to hidden every time before measuring
-                    if (_restrictedMeasuring) {
-                        viewportScrollSize = {
-                            x: _viewportElementNative[LEXICON.sW],
-                            y: _viewportElementNative[LEXICON.sH]
-                        }
-                    }
                     if (setCSS) {
                         float = _contentElement.css(_strFloat);
                         css[_strFloat] = _isRTL ? _strRight : _strLeft;
@@ -1842,12 +1841,10 @@
 
                     bodyMinSizeC = bodyMinSizeChanged();
                     changed = checkCache(contentElementScrollSize, _contentElementScrollSizeChangeDetectedCache);
-                    viewportScrollSizeChanged = checkCache(viewportScrollSize, _viewportScrollSizeCache);
 
                     _contentElementScrollSizeChangeDetectedCache = contentElementScrollSize;
-                    _viewportScrollSizeCache = viewportScrollSize;
 
-                    return changed || bodyMinSizeC || viewportScrollSizeChanged;
+                    return changed || bodyMinSizeC;
                 }
 
                 /**
@@ -1857,37 +1854,41 @@
                 function meaningfulAttrsChanged() {
                     if (_sleeping || _mutationObserversConnected)
                         return;
-
-                    var changed;
+                    
                     var elem;
                     var curr;
                     var cache;
+                    var changedAttrs = [];
                     var checks = [
                         {
                             _elem: _hostElement,
-                            _props: _mutationObserverAttrsHost.concat(':visible')
+                            _attrs: _mutationObserverAttrsHost.concat(':visible')
                         },
                         {
                             _elem: _isTextarea ? _targetElement : undefined,
-                            _props: _mutationObserverAttrsTextarea
+                            _attrs: _mutationObserverAttrsTextarea
                         }
                     ];
 
                     each(checks, function (index, check) {
                         elem = check._elem;
                         if (elem) {
-                            each(check._props, function (index, prop) {
-                                curr = prop.charAt(0) === ':' ? elem.is(prop) : elem.attr(prop);
-                                cache = _updateAutoCache[prop];
+                            each(check._attrs, function (index, attr) {
+                                curr = attr.charAt(0) === ':' ? elem.is(attr) : elem.attr(attr);
+                                cache = _updateAutoCache[attr];
+                                
+                                if(checkCache(curr, cache)) {
+                                    changedAttrs.push(attr);
+                                }
 
-                                changed = changed || checkCache(curr, cache);
-
-                                _updateAutoCache[prop] = curr;
+                                _updateAutoCache[attr] = curr;
                             });
                         }
                     });
 
-                    return changed;
+                    updateViewportAttrsFromTarget(changedAttrs);
+                    
+                    return changedAttrs[LEXICON.l] > 0;
                 }
 
                 /**
@@ -1969,6 +1970,26 @@
 
                 //==== Update ====//
 
+                /**
+                 * Sets the attribute values of the viewport element to the values from the target element.
+                 * The value of a attribute is only set if the attribute is whitelisted.
+                 * @attrs attrs The array of attributes which shall be set or undefined if all whitelisted shall be set.
+                 */
+                function updateViewportAttrsFromTarget(attrs) {
+                    attrs = attrs || _viewportAttrsFromTarget;
+                    each(attrs, function (index, attr) {
+                        if (COMPATIBILITY.inA(attr, _viewportAttrsFromTarget) > -1) {
+                            var targetAttr = _targetElement.attr(attr);
+                            if(type(targetAttr) == TYPES.s) {
+                                _viewportElement.attr(attr, targetAttr);
+                            }
+                            else {
+                                _viewportElement.removeAttr(attr);
+                            }
+                        }
+                    });
+                }
+                
                 /**
                  * Updates the variables and size of the textarea element, and manages the scroll on new line or new character.
                  */
@@ -2544,41 +2565,36 @@
                         var strOverflowY = strOverflow + '-y';
                         var strHidden = 'hidden';
                         var strVisible = 'visible';
-                        //decide whether the content overflow must get hidden for correct overflow measuring, it !MUST! be always hidden if the height is auto
-                        var hideOverflow4CorrectMeasuring = _restrictedMeasuring ?
-                            (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y) || //it must be hidden if native scrollbars are overlaid
-                            (_viewportSize.w < _nativeScrollbarMinSize.y || _viewportSize.h < _nativeScrollbarMinSize.x) || //it must be hidden if host-element is too small
-                            heightAuto || displayIsHiddenChanged //it must be hidden if height is auto or display was changed
-                            : heightAuto; //if there is not the restricted Measuring bug, it must be hidden if the height is auto
 
                         //Reset the viewport (very important for natively overlaid scrollbars and zoom change
                         //don't change the overflow prop as it is very expensive and affects performance !A LOT!
-                        var viewportElementResetCSS = {};
-                        var resetXTmp = _hasOverflowCache.y && _hideOverflowCache.ys && !ignoreOverlayScrollbarHiding && !_nativeScrollbarStyling ? (_nativeScrollbarIsOverlaid.y ? _viewportElement.css(isRTLLeft) : -_nativeScrollbarSize.y) : 0;
-                        var resetBottomTmp = _hasOverflowCache.x && _hideOverflowCache.xs && !ignoreOverlayScrollbarHiding && !_nativeScrollbarStyling ? (_nativeScrollbarIsOverlaid.x ? _viewportElement.css(_strBottom) : -_nativeScrollbarSize.x) : 0;
-                        setTopRightBottomLeft(viewportElementResetCSS, _strEmpty);
-                        _viewportElement.css(viewportElementResetCSS);
-                        if (hideOverflow4CorrectMeasuring)
-                            _contentElement.css(strOverflow, strHidden);
+                        if(!_nativeScrollbarStyling) {
+                            var viewportElementResetCSS = {};
+                            var resetXTmp = _hasOverflowCache.y && _hideOverflowCache.ys && !ignoreOverlayScrollbarHiding ? (_nativeScrollbarIsOverlaid.y ? _viewportElement.css(isRTLLeft) : -_nativeScrollbarSize.y) : 0;
+                            var resetBottomTmp = _hasOverflowCache.x && _hideOverflowCache.xs && !ignoreOverlayScrollbarHiding ? (_nativeScrollbarIsOverlaid.x ? _viewportElement.css(_strBottom) : -_nativeScrollbarSize.x) : 0;
+                            setTopRightBottomLeft(viewportElementResetCSS, _strEmpty);
+                            _viewportElement.css(viewportElementResetCSS);
+                        }
 
                         //measure several sizes:
                         var contentMeasureElement = getContentMeasureElement();
                         //in Firefox content element has to have overflow hidden, else element margins aren't calculated properly, this element prevents this bug, but only if scrollbars aren't overlaid
-                        var contentMeasureElementGuaranty = _restrictedMeasuring && !hideOverflow4CorrectMeasuring ? _viewportElementNative : contentMeasureElement;
                         var contentSize = {
                             //use clientSize because natively overlaidScrollbars add borders
                             w: textareaDynOrigSize.w || contentMeasureElement[LEXICON.cW],
                             h: textareaDynOrigSize.h || contentMeasureElement[LEXICON.cH]
                         };
                         var scrollSize = {
-                            w: MATH.max(contentMeasureElement[LEXICON.sW], contentMeasureElementGuaranty[LEXICON.sW]),
-                            h: MATH.max(contentMeasureElement[LEXICON.sH], contentMeasureElementGuaranty[LEXICON.sH])
+                            w: contentMeasureElement[LEXICON.sW],
+                            h: contentMeasureElement[LEXICON.sH]
                         };
 
                         //apply the correct viewport style and measure viewport size
-                        viewportElementResetCSS[_strBottom] = wasHeightAuto ? _strEmpty : resetBottomTmp;
-                        viewportElementResetCSS[isRTLLeft] = wasWidthAuto ? _strEmpty : resetXTmp;
-                        _viewportElement.css(viewportElementResetCSS);
+                        if(!_nativeScrollbarStyling) {
+                            viewportElementResetCSS[_strBottom] = wasHeightAuto ? _strEmpty : resetBottomTmp;
+                            viewportElementResetCSS[isRTLLeft] = wasWidthAuto ? _strEmpty : resetXTmp;
+                            _viewportElement.css(viewportElementResetCSS);
+                        }
                         _viewportSize = getViewportSize();
 
                         //measure and correct several sizes
@@ -2656,15 +2672,11 @@
 
                         //measure again, but this time all correct sizes:
                         var contentScrollSize = {
-                            w: MATH.max(contentMeasureElement[LEXICON.sW], contentMeasureElementGuaranty[LEXICON.sW]),
-                            h: MATH.max(contentMeasureElement[LEXICON.sH], contentMeasureElementGuaranty[LEXICON.sH])
+                            w: contentMeasureElement[LEXICON.sW],
+                            h: contentMeasureElement[LEXICON.sH],
                         };
                         contentScrollSize.c = contentSizeChanged = checkCacheAutoForce(contentScrollSize, _contentScrollSizeCache);
                         _contentScrollSizeCache = contentScrollSize;
-
-                        //remove overflow hidden to restore overflow
-                        if (hideOverflow4CorrectMeasuring)
-                            _contentElement.css(strOverflow, _strEmpty);
 
                         //refresh viewport size after correct measuring
                         _viewportSize = getViewportSize();
@@ -3233,6 +3245,8 @@
                         _paddingElementNative = _paddingElement[0];
                         _viewportElementNative = _viewportElement[0];
                         _contentElementNative = _contentElement[0];
+                        
+                        updateViewportAttrsFromTarget();
                     }
                     else {
                         if (_domExists && _initialized) {
@@ -4449,7 +4463,7 @@
                     var doUpdateAuto;
                     var mutHost;
                     var mutContent;
-
+                    
                     if (isString) {
                         if (force === _strAuto) {
                             attrsChanged = meaningfulAttrsChanged();
@@ -5331,7 +5345,7 @@
                         initBodyScroll.t = MATH.max(_targetElement[_strScrollTop](), _htmlElement[_strScrollTop](), _windowElement[_strScrollTop]());
 
                         bodyMouseTouchDownListener = function () {
-                            _viewportElement.removeAttr('tabindex');
+                            _viewportElement.removeAttr(LEXICON.ti);
                             setupResponsiveEventListener(_viewportElement, _strMouseTouchDownEvent, bodyMouseTouchDownListener, true, true);
                         }
                     }
@@ -5345,8 +5359,8 @@
                     setupStructureEvents();
                     setupScrollbarEvents(true);
                     setupScrollbarEvents(false);
-                    setupScrollbarCornerEvents();
-
+                    setupScrollbarCornerEvents();   
+                    
                     //create mutation observers
                     createMutationObservers();
 
@@ -5360,7 +5374,7 @@
                         //set the focus on the viewport element so you dont have to click on the page to use keyboard keys (up / down / space) for scrolling
                         if (document.activeElement == targetElement && _viewportElementNative.focus) {
                             //set a tabindex to make the viewportElement focusable
-                            _viewportElement.attr('tabindex', '-1');
+                            _viewportElement.attr(LEXICON.ti, '-1');
                             _viewportElementNative.focus();
 
                             /* the tabindex has to be removed due to;
