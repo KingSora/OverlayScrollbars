@@ -8,7 +8,7 @@
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 30.03.2020
+ * Date: 05.04.2020
  */
 
 (function (global, factory) {
@@ -2123,8 +2123,8 @@
                 var _strMouseTouchDownEvent = 'mousedown touchstart';
                 var _strMouseTouchUpEvent = 'mouseup touchend touchcancel';
                 var _strMouseTouchMoveEvent = 'mousemove touchmove';
-                var _strMouseTouchEnter = 'mouseenter';
-                var _strMouseTouchLeave = 'mouseleave';
+                var _strMouseEnter = 'mouseenter';
+                var _strMouseLeave = 'mouseleave';
                 var _strKeyDownEvent = 'keydown';
                 var _strKeyUpEvent = 'keyup';
                 var _strSelectStartEvent = 'selectstart';
@@ -2819,11 +2819,11 @@
                         setupHostMouseTouchEvents(true);
 
                     setupResponsiveEventListener(_hostElement,
-                        _strMouseTouchMoveEvent,
+                        _strMouseTouchMoveEvent.split(_strSpace)[0],
                         hostOnMouseMove,
                         (!_scrollbarsAutoHideMove || destroy), true);
                     setupResponsiveEventListener(_hostElement,
-                        [_strMouseTouchEnter, _strMouseTouchLeave],
+                        [_strMouseEnter, _strMouseLeave],
                         [hostOnMouseEnter, hostOnMouseLeave],
                         (!_scrollbarsAutoHideLeave || destroy), true);
 
@@ -4767,7 +4767,7 @@
                         _strMouseTouchDownEvent,
                         onHandleMouseTouchDown);
                     addDestroyEventListener(scrollbarVars._track,
-                        [_strMouseTouchDownEvent, _strMouseTouchEnter, _strMouseTouchLeave],
+                        [_strMouseTouchDownEvent, _strMouseEnter, _strMouseLeave],
                         [onTrackMouseTouchDown, onTrackMouseTouchEnter, onTrackMouseTouchLeave]);
                     addDestroyEventListener(scrollbarVars._scrollbar,
                         _strMouseTouchDownEvent,
