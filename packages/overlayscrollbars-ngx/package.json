@@ -1,6 +1,6 @@
 {
     "name": "overlayscrollbars-ngx",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "description": "OverlayScrollbars wrapper for Angular.",
     "keywords": [
         "overlayscrollbars",
