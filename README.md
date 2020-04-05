@@ -712,7 +712,7 @@ OverlayScrollbars.valid({ });</pre>
 
 ## Tests
 
-It's a chellenge to fully test a library like OverlayScrollbars, because it has to adapt to countless DOM setups and browsers.
+It's a challenge to fully test a library like OverlayScrollbars, because it has to adapt to countless DOM setups and browsers.
 Nevertheless I've developed basic GUI-Tests. In these tests a element with applied OverlayScrollbars is compared to a native element.
 
 You can run the tests by visiting [this](https://kingsora.github.io/OverlayScrollbars/#!demos/capabilites) page and clicking on the `Run` button. Please be aware that the tests need some time to complete.
