@@ -244,6 +244,12 @@ Take the table below only as a overview of all options.
         <td>The interval in milliseconds in which a auto update shall be performed for this instance.</td>
     </tr>
     <tr>
+        <td colspan="2">updateOnLoad</td>
+        <td>string / array / null</td>
+        <td><code>["img"]</code></td>
+        <td>Selectors of which the elements <code>load</code> event shall be handled by the plugin. Thats means OverlayScrollbars will trigger a automatic update if a element with a matching selector emits a <code>load</code> event. Per default OverlayScrollbars will update automatically if a <code>img</code> element loads.</td>
+    </tr>
+    <tr>
         <th align="left" colspan="5">nativeScrollbarsOverlaid : {</th>
     </tr>
     <tr>
@@ -704,10 +710,21 @@ OverlayScrollbars.valid({ });</pre>
     </tr>
 </table>
 
+## Tests
+
+It's a chellenge to fully test a library like OverlayScrollbars, because it has to adapt to countless DOM setups and browsers.
+Nevertheless I've developed basic GUI-Tests. In these tests a element with applied OverlayScrollbars is compared to a native element.
+
+You can run the tests by visiting [this](https://kingsora.github.io/OverlayScrollbars/#!demos/capabilites) page and clicking on the `Run` button. Please be aware that the tests need some time to complete.
+After the process is complete, the results are displayed in the console.
+
+In case some tests are failing on your end, please open a issue with the console output of the tests (the `failed` array in particular).
+
 ## Future Plans
 
  - Minimize the code as much as possible.
  - Frequent updates in terms of bug-fixes and enhancements.
+ - Improve tests
 
 ## License
 

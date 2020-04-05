@@ -42,11 +42,11 @@
         <div class="content-section-content">
 
             <overlay-scrollbars #osComponentRef1 [options]="osComponentOptions" [ngStyle]="{ maxHeight:'350px' }"
-                [ngClass]="['custom-class-name-test', framework]">
+                [ngClass]="[framework, hasCustomClassName ? customClassName : '']">
                 <div class="bonus-content">{{ componentContent }}</div>
                 {{ loremIpsumShort }}
                 <overlay-scrollbars #osComponentRef2 [options]="osComponentOptions" [ngStyle]="{ maxHeight:'150px' }"
-                    [ngClass]="['custom-class-name-test']">
+                    [ngClass]="[hasCustomClassName ? customClassName : '']">
                     <div class="bonus-content">{{ componentContent }}</div>
                     {{ loremIpsumLong }}
                     <br />

@@ -2,10 +2,10 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('react'), require('overlayscrollbars')) :
     typeof define === 'function' && define.amd ? define(['exports', 'react', 'overlayscrollbars'], factory) :
     (global = global || self, factory(global.OverlayScrollbarsReact = {}, global.React, global.OverlayScrollbars));
-}(this, function (exports, React, OverlayScrollbars) { 'use strict';
+}(this, (function (exports, React, OverlayScrollbars) { 'use strict';
 
     var React__default = 'default' in React ? React['default'] : React;
-    OverlayScrollbars = OverlayScrollbars && OverlayScrollbars.hasOwnProperty('default') ? OverlayScrollbars['default'] : OverlayScrollbars;
+    OverlayScrollbars = OverlayScrollbars && Object.prototype.hasOwnProperty.call(OverlayScrollbars, 'default') ? OverlayScrollbars['default'] : OverlayScrollbars;
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
@@ -75,6 +75,7 @@
         };
         OverlayScrollbarsComponent.prototype.componentDidMount = function () {
             this._osInstance = OverlayScrollbars(this.osTarget(), this.props.options || {}, this.props.extensions);
+            mergeHostClassNames(this._osInstance, this.props.className);
         };
         OverlayScrollbarsComponent.prototype.componentWillUnmount = function () {
             if (OverlayScrollbars.valid(this._osInstance)) {
@@ -85,11 +86,14 @@
         OverlayScrollbarsComponent.prototype.componentDidUpdate = function (prevProps) {
             if (OverlayScrollbars.valid(this._osInstance)) {
                 this._osInstance.options(this.props.options);
+                if (prevProps.className !== this.props.className) {
+                    mergeHostClassNames(this._osInstance, this.props.className);
+                }
             }
         };
         OverlayScrollbarsComponent.prototype.render = function () {
             var _a = this.props, options = _a.options, extensions = _a.extensions, children = _a.children, className = _a.className, divProps = __rest(_a, ["options", "extensions", "children", "className"]);
-            return (React__default.createElement("div", __assign({ className: className + " os-host" }, divProps, { ref: this._osTargetRef }),
+            return (React__default.createElement("div", __assign({ className: "os-host" }, divProps, { ref: this._osTargetRef }),
                 React__default.createElement("div", { className: "os-resize-observer-host" }),
                 React__default.createElement("div", { className: "os-padding" },
                     React__default.createElement("div", { className: "os-viewport" },
@@ -104,10 +108,20 @@
         };
         return OverlayScrollbarsComponent;
     }(React.Component));
+    function mergeHostClassNames(osInstance, className) {
+        if (OverlayScrollbars.valid(osInstance)) {
+            var host = osInstance.getElements().host;
+            var regex_1 = new RegExp("(^os-host([-_].+|)$)|" + osInstance.options().className.replace(/\s/g, "$|") + "$", 'g');
+            var osClassNames = host.className.split(' ')
+                .filter(function (name) { return name.match(regex_1); })
+                .join(' ');
+            host.className = osClassNames + " " + (className || '');
+        }
+    }
 
     exports.OverlayScrollbarsComponent = OverlayScrollbarsComponent;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
 //# sourceMappingURL=overlayscrollbars-react.js.map

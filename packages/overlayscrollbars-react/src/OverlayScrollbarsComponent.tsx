@@ -27,6 +27,7 @@ export class OverlayScrollbarsComponent extends Component<OverlayScrollbarsCompo
 
     componentDidMount() {
         this._osInstance = OverlayScrollbars(this.osTarget(), this.props.options || {}, this.props.extensions);
+        mergeHostClassNames(this._osInstance, this.props.className);
     }
 
     componentWillUnmount() {
@@ -39,11 +40,15 @@ export class OverlayScrollbarsComponent extends Component<OverlayScrollbarsCompo
     componentDidUpdate(prevProps: OverlayScrollbarsComponentProps) {
         if (OverlayScrollbars.valid(this._osInstance)) {
             this._osInstance.options(this.props.options);
+
+            if (prevProps.className !== this.props.className) {
+                mergeHostClassNames(this._osInstance, this.props.className);
+            }
         }
     }
 
     render() {
-        let {
+        const {
             options,
             extensions,
             children,
@@ -52,12 +57,12 @@ export class OverlayScrollbarsComponent extends Component<OverlayScrollbarsCompo
         } = this.props;
 
         return (
-            <div className={`${className} os-host`} {...divProps} ref={this._osTargetRef}>
+            <div className="os-host" {...divProps} ref={this._osTargetRef}>
                 <div className="os-resize-observer-host"></div>
                 <div className="os-padding">
                     <div className="os-viewport">
                         <div className="os-content">
-                            {...this.props.children}
+                            {this.props.children}
                         </div>
                     </div>
                 </div>
@@ -74,5 +79,17 @@ export class OverlayScrollbarsComponent extends Component<OverlayScrollbarsCompo
                 <div className="os-scrollbar-corner"></div>
             </div>
         );
+    }
+}
+
+function mergeHostClassNames(osInstance: OverlayScrollbars, className: string) {
+    if (OverlayScrollbars.valid(osInstance)) {
+        const { host } = osInstance.getElements();
+        const regex = new RegExp(`(^os-host([-_].+|)$)|${osInstance.options().className.replace(/\s/g, "$|")}$`, 'g');
+        const osClassNames = host.className.split(' ')
+            .filter(name => name.match(regex))
+            .join(' ');
+
+        host.className = `${osClassNames} ${className || ''}`;
     }
 }

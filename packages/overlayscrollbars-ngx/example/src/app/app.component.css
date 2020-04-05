@@ -305,3 +305,6 @@ img {
     background: transparent url("../assets/angular.svg") no-repeat center center;
     background-size: 80%;
 }
+.custom-class-name-test {
+    background: rgba(0, 0, 0, 0.03);
+}

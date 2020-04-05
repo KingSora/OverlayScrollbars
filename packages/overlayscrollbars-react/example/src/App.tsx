@@ -7,10 +7,12 @@ export interface AppState {
     loremList: Array<string>;
     componentContent: string;
     osComponentOptions: OverlayScrollbars.Options;
+    hasCustomClassName: boolean;
 }
 
 export default class App extends React.Component<any, AppState> {
     framework: string = 'React';
+    customClassName: string = 'custom-class-name-test'
     componentClass: string = 'OverlayScrollbarsComponent';
     loremIpsumLong: string = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.';
     loremIpsumMedium: string = 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.';
@@ -23,6 +25,7 @@ export default class App extends React.Component<any, AppState> {
         this.osComponentRef1 = React.createRef<OverlayScrollbarsComponent>();
         this.osComponentRef2 = React.createRef<OverlayScrollbarsComponent>();
         this.state = {
+            hasCustomClassName: false,
             componentContent: 'Lorem Ipsum',
             loremList: [],
             osComponentOptions: {
@@ -47,7 +50,7 @@ export default class App extends React.Component<any, AppState> {
         if (refArray) {
             for (let i = 0; i < refArray.length; i++) {
                 if (refArray[i] && refArray[i].current) {
-                    let osInstance = refArray[i].current!.osInstance();
+                    const osInstance = refArray[i].current!.osInstance();
                     if (osInstance) {
                         osInstance.scrollStop().scroll({
                             x: Math.floor((Math.random() * osInstance.scroll().max.x) + 0),
@@ -61,6 +64,7 @@ export default class App extends React.Component<any, AppState> {
 
     onBtnChangeOptions() {
         this.setState({
+            hasCustomClassName: !this.state.hasCustomClassName,
             osComponentOptions: {
                 resize: this.state.osComponentOptions.resize === 'both' ? 'none' : 'both',
                 scrollbars: {
@@ -92,7 +96,7 @@ export default class App extends React.Component<any, AppState> {
     }
 
     randomIpsum(): string {
-        let loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
+        const loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
         return loremIpsums[Math.floor(Math.random() * loremIpsums.length)];
     }
 
@@ -139,7 +143,7 @@ export default class App extends React.Component<any, AppState> {
                             <OverlayScrollbarsComponent ref={this.osComponentRef1}
                                 options={this.state.osComponentOptions}
                                 style={{ maxHeight: '350px' }}
-                                className={`${this.framework} custom-class-name-test`}
+                                className={`${this.framework} ${this.state.hasCustomClassName ? this.customClassName : ''}`}
                             >
                                 <div className="bonus-content">
                                     {this.state.componentContent}
@@ -148,7 +152,7 @@ export default class App extends React.Component<any, AppState> {
                                 <OverlayScrollbarsComponent ref={this.osComponentRef2}
                                     options={this.state.osComponentOptions}
                                     style={{ maxHeight: '150px' }}
-                                    className="custom-class-name-test"
+                                    className={this.state.hasCustomClassName ? this.customClassName : ''}
                                 >
                                     <div className="bonus-content">
                                         {this.state.componentContent}

@@ -9,11 +9,13 @@ import OverlayScrollbars from 'overlayscrollbars';
 })
 export class AppComponent {
     framework: string = 'Angular';
+    customClassName: string = 'custom-class-name-test';
     componentClass: string = 'OverlayScrollbarsComponent';
     loremIpsumLong: string = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.';
     loremIpsumMedium: string = 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.';
     loremIpsumShort: string = 'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.';
     loremList: Array<string> = [];
+    hasCustomClassName: boolean = false;
     componentContent: string = 'Lorem Ipsum';
     osComponentOptions: OverlayScrollbars.Options = {
         resize: 'both',
@@ -39,7 +41,7 @@ export class AppComponent {
         if (refArray) {
             for (let i = 0; i < refArray.length; i++) {
                 if (refArray[i]) {
-                    let osInstance = refArray[i].osInstance();
+                    const osInstance = refArray[i].osInstance();
                     osInstance.scrollStop().scroll({
                         x: Math.floor((Math.random() * osInstance.scroll().max.x) + 0),
                         y: Math.floor((Math.random() * osInstance.scroll().max.y) + 0)
@@ -49,7 +51,8 @@ export class AppComponent {
         }
     }
 
-    onBtnChangeOptions(event) {
+    onBtnChangeOptions() {
+        this.hasCustomClassName = !this.hasCustomClassName;
         this.osComponentOptions = {
             resize: this.osComponentOptions.resize === 'both' ? 'none' : 'both',
             scrollbars: {
@@ -58,12 +61,12 @@ export class AppComponent {
         }
     }
 
-    onBtnChangeContent(event) {
+    onBtnChangeContent() {
         this.componentContent = this.componentContent + '\r\n' + this.randomIpsum();
         this.loremList.push(this.randomIpsum());
     }
 
-    onBtnLog(event) {
+    onBtnLog() {
         console.log(`== ${this.componentClass} (1) ==`);
         console.log('Ref:');
         console.log(this.osComponentRef1);
@@ -82,8 +85,8 @@ export class AppComponent {
     }
 
     randomIpsum(): string {
-        let loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
-        let random = Math.floor(Math.random() * loremIpsums.length);
+        const loremIpsums = [this.loremIpsumLong, this.loremIpsumMedium, this.loremIpsumShort];
+        const random = Math.floor(Math.random() * loremIpsums.length);
         return loremIpsums[random];
     }
 }

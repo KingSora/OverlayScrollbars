@@ -82,7 +82,7 @@ export default class OverlayScrollbarsComponent extends Vue.extend<
         },
 
         beforeDestroy() {
-            let osInstance = (this as OverlayScrollbarsComponent)._osInstace;
+            const osInstance = (this as OverlayScrollbarsComponent)._osInstace;
             if (OverlayScrollbars.valid(osInstance)) {
                 osInstance.destroy();
                 (this as OverlayScrollbarsComponent)._osInstace = null;

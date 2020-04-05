@@ -46,7 +46,7 @@
             ref="osComponentRef1"
             :options="osComponentOptions"
             style="max-height: 350px"
-            :class="[framework, 'custom-class-name-test']"
+            :class="[framework, hasCustomClassName ? customClassName : '']"
           >
             <div class="bonus-content">{{ componentContent }}</div>
             {{ loremIpsumShort }}
@@ -54,7 +54,7 @@
               ref="osComponentRef2"
               :options="osComponentOptions"
               style="max-height: 150px"
-              :class="'custom-class-name-test'"
+              :class="hasCustomClassName ? customClassName : ''"
             >
               <div class="bonus-content">{{ componentContent }}</div>
               {{ loremIpsumLong }}
@@ -96,6 +96,7 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 
 export interface AppData {
   framework: string;
+  customClassName: string;
   componentClass: string;
   loremIpsumLong: string;
   loremIpsumMedium: string;
@@ -103,6 +104,7 @@ export interface AppData {
   loremList: Array<string>
   componentContent: string;
   osComponentOptions: OverlayScrollbars.Options;
+  hasCustomClassName: boolean;
 }
 export interface AppMethods {
   onBtnScrollRandom(
@@ -122,10 +124,12 @@ export default Vue.extend<AppData, AppMethods, AppComputed, AppProps>({
   data: function () {
     return {
       framework: 'Vue',
+      customClassName: 'custom-class-name-test',
       componentClass: 'OverlayScrollbarsComponent',
       loremIpsumLong: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
       loremIpsumMedium: 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.',
       loremIpsumShort: 'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.',
+      hasCustomClassName: false,
       loremList: [],
       componentContent: 'Lorem Ipsum',
       osComponentOptions: {
@@ -142,7 +146,7 @@ export default Vue.extend<AppData, AppMethods, AppComputed, AppProps>({
       if (refArray) {
         for (let i = 0; i < refArray.length; i++) {
           if (refArray[i]) {
-            let osInstance = refArray[i].osInstance();
+            const osInstance = refArray[i].osInstance();
             if (osInstance) {
               osInstance.scrollStop().scroll({
                 x: Math.floor(Math.random() * osInstance.scroll().max.x + 0),
@@ -154,6 +158,7 @@ export default Vue.extend<AppData, AppMethods, AppComputed, AppProps>({
       }
     },
     onBtnChangeOptions() {
+      this.hasCustomClassName = !this.hasCustomClassName;
       this.osComponentOptions = {
         resize: this.osComponentOptions.resize === 'both' ? 'none' : 'both',
         scrollbars: {
@@ -506,5 +511,8 @@ img {
 .framework-logo {
   background: transparent url("assets/vue.svg") no-repeat center center;
   background-size: 80%;
+}
+.custom-class-name-test {
+  background: rgba(0, 0, 0, 0.03);
 }
 </style>

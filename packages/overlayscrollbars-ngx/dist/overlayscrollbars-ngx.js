@@ -2,9 +2,9 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('overlayscrollbars')) :
     typeof define === 'function' && define.amd ? define(['exports', '@angular/core', 'overlayscrollbars'], factory) :
     (global = global || self, factory(global.OverlayScrollbarsNgx = {}, global.ng.core, global.OverlayScrollbars));
-}(this, function (exports, core, OverlayScrollbars) { 'use strict';
+}(this, (function (exports, core, OverlayScrollbars) { 'use strict';
 
-    OverlayScrollbars = OverlayScrollbars && OverlayScrollbars.hasOwnProperty('default') ? OverlayScrollbars['default'] : OverlayScrollbars;
+    OverlayScrollbars = OverlayScrollbars && Object.prototype.hasOwnProperty.call(OverlayScrollbars, 'default') ? OverlayScrollbars['default'] : OverlayScrollbars;
 
     var OverlayScrollbarsComponent = (function () {
         function OverlayScrollbarsComponent(_osTargetRef, ngZone) {
@@ -73,5 +73,5 @@
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
 //# sourceMappingURL=overlayscrollbars-ngx.js.map

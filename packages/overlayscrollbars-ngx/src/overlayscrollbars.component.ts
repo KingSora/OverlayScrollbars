@@ -59,7 +59,7 @@ export class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterVi
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        let optionsChange = changes._options;
+        const optionsChange = changes._options;
         if (optionsChange && OverlayScrollbars.valid(this._osInstance)) {
             this._osInstance.options(optionsChange.currentValue);
         }
