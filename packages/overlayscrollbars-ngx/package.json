@@ -62,10 +62,6 @@
     "tslint": "~6.1.0",
     "typescript": "~3.8.3"
   },
-  "peerDependencies": {
-    "@angular/core": "^9.0.0",
-    "overlayscrollbars": "^1.10.0"
-  },
   "scripts": {
     "setup": "npm i",
     "build": "npx ng build",

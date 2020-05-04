@@ -1,0 +1,24 @@
+{
+  "name": "overlayscrollbars-ngx",
+  "version": "0.2.2",
+  "description": "OverlayScrollbars wrapper for Angular.",
+  "keywords": [
+    "overlayscrollbars",
+    "ngx",
+    "angular"
+  ],
+  "homepage": "https://kingsora.github.io/OverlayScrollbars",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KingSora/OverlayScrollbars"
+  },
+  "bugs": {
+    "url": "https://github.com/KingSora/OverlayScrollbars/issues"
+  },
+  "author": "KingSora | Rene Haas",
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/core": "^9.0.0",
+    "overlayscrollbars": "^1.10.0"
+  }
+}
