@@ -6,4 +6,4 @@ import { OverlayScrollbarsComponent } from './overlayscrollbars.component';
   declarations: [OverlayScrollbarsComponent],
   exports: [OverlayScrollbarsComponent],
 })
-export class OverlayscrollbarsNgxModule {}
+export class OverlayscrollbarsModule {}

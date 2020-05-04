@@ -33,35 +33,32 @@
         }
       }
     },
-    "overlayscrollbars-ngx-example": {
+    "example": {
       "projectType": "application",
       "schematics": {},
-      "root": "overlayscrollbars-ngx-example",
-      "sourceRoot": "overlayscrollbars-ngx-example/src",
+      "root": "example",
+      "sourceRoot": "example/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/overlayscrollbars-ngx-example",
-            "index": "overlayscrollbars-ngx-example/src/index.html",
-            "main": "overlayscrollbars-ngx-example/src/main.ts",
-            "polyfills": "overlayscrollbars-ngx-example/src/polyfills.ts",
-            "tsConfig": "overlayscrollbars-ngx-example/tsconfig.app.json",
+            "outputPath": "example/dist",
+            "index": "example/src/index.html",
+            "main": "example/src/main.ts",
+            "polyfills": "example/src/polyfills.ts",
+            "tsConfig": "example/tsconfig.app.json",
             "aot": true,
-            "assets": [
-              "overlayscrollbars-ngx-example/src/favicon.ico",
-              "overlayscrollbars-ngx-example/src/assets"
-            ],
-            "styles": ["overlayscrollbars-ngx-example/src/styles.css"],
+            "assets": ["example/src/favicon.ico", "example/src/assets"],
+            "styles": ["example/src/styles.css"],
             "scripts": []
           },
           "configurations": {
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "overlayscrollbars-ngx-example/src/environments/environment.ts",
-                  "with": "overlayscrollbars-ngx-example/src/environments/environment.prod.ts"
+                  "replace": "example/src/environments/environment.ts",
+                  "with": "example/src/environments/environment.prod.ts"
                 }
               ],
               "optimization": true,
@@ -90,32 +87,29 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "overlayscrollbars-ngx-example:build"
+            "browserTarget": "example:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "overlayscrollbars-ngx-example:build:production"
+              "browserTarget": "example:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "overlayscrollbars-ngx-example:build"
+            "browserTarget": "example:build"
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "overlayscrollbars-ngx-example/src/test.ts",
-            "polyfills": "overlayscrollbars-ngx-example/src/polyfills.ts",
-            "tsConfig": "overlayscrollbars-ngx-example/tsconfig.spec.json",
-            "karmaConfig": "overlayscrollbars-ngx-example/karma.conf.js",
-            "assets": [
-              "overlayscrollbars-ngx-example/src/favicon.ico",
-              "overlayscrollbars-ngx-example/src/assets"
-            ],
-            "styles": ["overlayscrollbars-ngx-example/src/styles.css"],
+            "main": "example/src/test.ts",
+            "polyfills": "example/src/polyfills.ts",
+            "tsConfig": "example/tsconfig.spec.json",
+            "karmaConfig": "example/karma.conf.js",
+            "assets": ["example/src/favicon.ico", "example/src/assets"],
+            "styles": ["example/src/styles.css"],
             "scripts": []
           }
         },
@@ -123,9 +117,9 @@
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "overlayscrollbars-ngx-example/tsconfig.app.json",
-              "overlayscrollbars-ngx-example/tsconfig.spec.json",
-              "overlayscrollbars-ngx-example/e2e/tsconfig.json"
+              "example/tsconfig.app.json",
+              "example/tsconfig.spec.json",
+              "example/e2e/tsconfig.json"
             ],
             "exclude": ["**/node_modules/**"]
           }
@@ -133,12 +127,12 @@
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
-            "protractorConfig": "overlayscrollbars-ngx-example/e2e/protractor.conf.js",
-            "devServerTarget": "overlayscrollbars-ngx-example:serve"
+            "protractorConfig": "example/e2e/protractor.conf.js",
+            "devServerTarget": "example:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "overlayscrollbars-ngx-example:serve:production"
+              "devServerTarget": "example:serve:production"
             }
           }
         }
