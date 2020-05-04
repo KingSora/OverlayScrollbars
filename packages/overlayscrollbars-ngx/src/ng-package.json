@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../dist/overlayscrollbars-ngx",
+  "dest": "../dist",
   "lib": {
-    "entryFile": "src/public-api.ts"
+    "entryFile": "./public-api.ts"
   }
 }

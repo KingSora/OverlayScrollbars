@@ -1,15 +1,29 @@
 {
   "name": "overlayscrollbars-ngx",
-  "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+  "version": "0.2.2",
+  "description": "OverlayScrollbars wrapper for Angular.",
+  "keywords": [
+    "overlayscrollbars",
+    "ngx",
+    "angular"
+  ],
+  "files": [
+    "src",
+    "dist"
+  ],
+  "homepage": "https://kingsora.github.io/OverlayScrollbars",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KingSora/OverlayScrollbars"
   },
-  "private": true,
+  "bugs": {
+    "url": "https://github.com/KingSora/OverlayScrollbars/issues"
+  },
+  "main": "./dist/overlayscrollbars-ngx.js",
+  "module": "./dist/overlayscrollbars-ngx.esm.js",
+  "typings": "./dist/types/index.d.ts",
+  "author": "KingSora | Rene Haas",
+  "license": "MIT",
   "dependencies": {
     "@angular/animations": "~9.1.3",
     "@angular/common": "~9.1.3",
@@ -19,6 +33,7 @@
     "@angular/platform-browser": "~9.1.3",
     "@angular/platform-browser-dynamic": "~9.1.3",
     "@angular/router": "~9.1.3",
+    "overlayscrollbars": "^1.11.0",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"
@@ -29,6 +44,7 @@
     "@angular/cli": "~9.1.3",
     "@angular/compiler-cli": "~9.1.3",
     "@angular/language-service": "~9.1.3",
+    "@types/overlayscrollbars": "^1.9.0",
     "@types/node": "^12.11.1",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
@@ -45,5 +61,16 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~3.8.3"
+  },
+  "peerDependencies": {
+    "@angular/core": "^9.0.0",
+    "overlayscrollbars": "^1.10.0"
+  },
+  "scripts": {
+    "setup": "npm i && cd example && npm i && cd ..",
+    "build": "node build.js",
+    "example": "cd example && npx ng serve",
+    "build-example": "cd example && npx ng build --prod --base-href \"/OverlayScrollbars/frameworks/angular/\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

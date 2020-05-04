@@ -1,14 +1,9 @@
 {
   "extends": "tslint:recommended",
-  "rulesDirectory": [
-    "codelyzer"
-  ],
+  "rulesDirectory": ["codelyzer"],
   "rules": {
     "align": {
-      "options": [
-        "parameters",
-        "statements"
-      ]
+      "options": ["parameters", "statements"]
     },
     "array-type": false,
     "arrow-return-shorthand": true,
@@ -17,21 +12,13 @@
       "severity": "warning"
     },
     "eofline": true,
-    "import-blacklist": [
-      true,
-      "rxjs/Rx"
-    ],
+    "import-blacklist": [true, "rxjs/Rx"],
     "import-spacing": true,
     "indent": {
-      "options": [
-        "spaces"
-      ]
+      "options": ["spaces"]
     },
     "max-classes-per-file": false,
-    "max-line-length": [
-      true,
-      140
-    ],
+    "max-line-length": [true, 140],
     "member-ordering": [
       true,
       {
@@ -43,35 +30,17 @@
         ]
       }
     ],
-    "no-console": [
-      true,
-      "debug",
-      "info",
-      "time",
-      "timeEnd",
-      "trace"
-    ],
+    "no-console": [true, "debug", "info", "time", "timeEnd", "trace"],
     "no-empty": false,
-    "no-inferrable-types": [
-      true,
-      "ignore-params"
-    ],
+    "no-inferrable-types": [true, "ignore-params"],
     "no-non-null-assertion": true,
     "no-redundant-jsdoc": true,
     "no-switch-case-fall-through": true,
     "no-var-requires": false,
-    "object-literal-key-quotes": [
-      true,
-      "as-needed"
-    ],
-    "quotemark": [
-      true,
-      "single"
-    ],
+    "object-literal-key-quotes": [true, "as-needed"],
+    "quotemark": [true, "single"],
     "semicolon": {
-      "options": [
-        "always"
-      ]
+      "options": ["always"]
     },
     "space-before-function-paren": {
       "options": {
@@ -101,11 +70,7 @@
       ]
     },
     "variable-name": {
-      "options": [
-        "ban-keywords",
-        "check-format",
-        "allow-pascal-case"
-      ]
+      "options": ["ban-keywords", "allow-pascal-case"]
     },
     "whitespace": {
       "options": [
@@ -118,11 +83,12 @@
       ]
     },
     "component-class-suffix": true,
+    "component-selector": false,
     "contextual-lifecycle": true,
     "directive-class-suffix": true,
     "no-conflicting-lifecycle": true,
-    "no-host-metadata-property": true,
-    "no-input-rename": true,
+    "no-host-metadata-property": false,
+    "no-input-rename": false,
     "no-inputs-metadata-property": true,
     "no-output-native": true,
     "no-output-on-prefix": true,
