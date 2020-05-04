@@ -67,10 +67,10 @@
     "overlayscrollbars": "^1.10.0"
   },
   "scripts": {
-    "setup": "npm i && cd example && npm i && cd ..",
-    "build": "node build.js",
-    "example": "cd example && npx ng serve",
-    "build-example": "cd example && npx ng build --prod --base-href \"/OverlayScrollbars/frameworks/angular/\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "setup": "npm i",
+    "build": "npx ng build",
+    "example": "npx ng serve --project=example",
+    "build-example": "npx ng build --project=example --prod --base-href \"/OverlayScrollbars/frameworks/angular/\"",
+    "test": "npx ng test && npx ng test --project=example"
   }
 }
