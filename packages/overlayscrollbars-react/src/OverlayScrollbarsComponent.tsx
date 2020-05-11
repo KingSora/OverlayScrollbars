@@ -1,95 +1,80 @@
-import React, { Component, RefObject } from 'react';
-import OverlayScrollbars from "overlayscrollbars";
+import React from 'react';
+import OverlayScrollbars from 'overlayscrollbars';
 
-export interface OverlayScrollbarsComponentProps extends React.HTMLAttributes<HTMLDivElement> {
-    children?: any;
-    options?: OverlayScrollbars.Options;
-    extensions?: OverlayScrollbars.Extensions;
+interface OverlayScrollbarsComponentProps extends React.HTMLAttributes<HTMLDivElement> {
+  children?: any;
+  options?: OverlayScrollbars.Options;
+  extensions?: OverlayScrollbars.Extensions;
 }
-export interface OverlayScrollbarsComponentState { }
 
-export class OverlayScrollbarsComponent extends Component<OverlayScrollbarsComponentProps, OverlayScrollbarsComponentState> {
-    private _osInstance: OverlayScrollbars | null = null;
-    private _osTargetRef: RefObject<HTMLDivElement>;
+export const OverlayScrollbarsComponent: React.FC<OverlayScrollbarsComponentProps> = ({
+  options = {},
+  extensions,
+  className,
+  children,
+  ...rest
+}) => {
+  const osTargetRef = React.useRef<HTMLDivElement>();
+  const osInstance = React.useRef<OverlayScrollbars>();
 
-    constructor(props: OverlayScrollbarsComponentProps) {
-        super(props);
-        this._osTargetRef = React.createRef();
+  React.useEffect(() => {
+    osInstance.current = OverlayScrollbars(osTargetRef.current, options, extensions);
+    mergeHostClassNames(osInstance.current, className);
+    return () => {
+      if (OverlayScrollbars.valid(osInstance.current)) {
+        osInstance.current.destroy();
+        osInstance.current = null;
+      }
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (OverlayScrollbars.valid(osInstance.current)) {
+      osInstance.current.options(options);
     }
+  }, [options]);
 
-    osInstance(): OverlayScrollbars | null {
-        return this._osInstance;
+  React.useEffect(() => {
+    if (OverlayScrollbars.valid(osInstance.current)) {
+      mergeHostClassNames(osInstance.current, className);
     }
+  }, [className]);
 
-    osTarget(): HTMLDivElement | null {
-        return this._osTargetRef.current || null;
-    }
-
-    componentDidMount() {
-        this._osInstance = OverlayScrollbars(this.osTarget(), this.props.options || {}, this.props.extensions);
-        mergeHostClassNames(this._osInstance, this.props.className);
-    }
-
-    componentWillUnmount() {
-        if (OverlayScrollbars.valid(this._osInstance)) {
-            this._osInstance.destroy();
-            this._osInstance = null;
-        }
-    }
-
-    componentDidUpdate(prevProps: OverlayScrollbarsComponentProps) {
-        if (OverlayScrollbars.valid(this._osInstance)) {
-            this._osInstance.options(this.props.options);
-
-            if (prevProps.className !== this.props.className) {
-                mergeHostClassNames(this._osInstance, this.props.className);
-            }
-        }
-    }
-
-    render() {
-        const {
-            options,
-            extensions,
-            children,
-            className,
-            ...divProps
-        } = this.props;
-
-        return (
-            <div className="os-host" {...divProps} ref={this._osTargetRef}>
-                <div className="os-resize-observer-host"></div>
-                <div className="os-padding">
-                    <div className="os-viewport">
-                        <div className="os-content">
-                            {this.props.children}
-                        </div>
-                    </div>
-                </div>
-                <div className="os-scrollbar os-scrollbar-horizontal ">
-                    <div className="os-scrollbar-track">
-                        <div className="os-scrollbar-handle"></div>
-                    </div>
-                </div>
-                <div className="os-scrollbar os-scrollbar-vertical">
-                    <div className="os-scrollbar-track">
-                        <div className="os-scrollbar-handle"></div>
-                    </div>
-                </div>
-                <div className="os-scrollbar-corner"></div>
-            </div>
-        );
-    }
-}
+  return (
+    <div className="os-host" {...rest} ref={osTargetRef}>
+      <div className="os-resize-observer-host" />
+      <div className="os-padding">
+        <div className="os-viewport">
+          <div className="os-content">{children}</div>
+        </div>
+      </div>
+      <div className="os-scrollbar os-scrollbar-horizontal ">
+        <div className="os-scrollbar-track">
+          <div className="os-scrollbar-handle" />
+        </div>
+      </div>
+      <div className="os-scrollbar os-scrollbar-vertical">
+        <div className="os-scrollbar-track">
+          <div className="os-scrollbar-handle" />
+        </div>
+      </div>
+      <div className="os-scrollbar-corner" />
+    </div>
+  );
+};
 
 function mergeHostClassNames(osInstance: OverlayScrollbars, className: string) {
-    if (OverlayScrollbars.valid(osInstance)) {
-        const { host } = osInstance.getElements();
-        const regex = new RegExp(`(^os-host([-_].+|)$)|${osInstance.options().className.replace(/\s/g, "$|")}$`, 'g');
-        const osClassNames = host.className.split(' ')
-            .filter(name => name.match(regex))
-            .join(' ');
+  if (OverlayScrollbars.valid(osInstance)) {
+    const { host } = osInstance.getElements();
+    const regex = new RegExp(
+      `(^os-host([-_].+|)$)|${osInstance.options().className.replace(/\s/g, '$|')}$`,
+      'g'
+    );
+    const osClassNames = host.className
+      .split(' ')
+      .filter((name) => name.match(regex))
+      .join(' ');
 
-        host.className = `${osClassNames} ${className || ''}`;
-    }
+    host.className = `${osClassNames} ${className || ''}`;
+  }
 }
