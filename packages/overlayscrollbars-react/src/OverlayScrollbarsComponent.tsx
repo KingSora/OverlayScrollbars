@@ -1,5 +1,5 @@
-import React from 'react';
-import OverlayScrollbars from 'overlayscrollbars';
+import React from "react";
+import OverlayScrollbars from "overlayscrollbars";
 
 interface OverlayScrollbarsComponentProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: any;
@@ -67,14 +67,14 @@ function mergeHostClassNames(osInstance: OverlayScrollbars, className: string) {
   if (OverlayScrollbars.valid(osInstance)) {
     const { host } = osInstance.getElements();
     const regex = new RegExp(
-      `(^os-host([-_].+|)$)|${osInstance.options().className.replace(/\s/g, '$|')}$`,
+      `(^os-host([-_].+|)$)|${osInstance.options().className.replace(/\s/g, "$|")}$`,
       'g'
     );
     const osClassNames = host.className
-      .split(' ')
+      .split(" ")
       .filter((name) => name.match(regex))
-      .join(' ');
+      .join(" ");
 
-    host.className = `${osClassNames} ${className || ''}`;
+    host.className = `${osClassNames} ${className || ""}`;
   }
 }
