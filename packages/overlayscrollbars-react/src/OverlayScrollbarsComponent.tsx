@@ -1,24 +1,39 @@
 import React from "react";
 import OverlayScrollbars from "overlayscrollbars";
 
-export interface OverlayScrollbarsComponentProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface OverlayScrollbarsComponentProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   children?: any;
   options?: OverlayScrollbars.Options;
   extensions?: OverlayScrollbars.Extensions;
 }
 
-export const OverlayScrollbarsComponent: React.FC<OverlayScrollbarsComponentProps> = ({
-  options = {},
-  extensions,
-  className,
-  children,
-  ...rest
-}) => {
-  const osTargetRef = React.useRef<HTMLDivElement>();
-  const osInstance = React.useRef<OverlayScrollbars>();
+export interface OverlayScrollbarsComponentHandle {
+  osInstance(): OverlayScrollbars | null;
+  osTarget(): HTMLDivElement | null;
+}
+
+export const OverlayScrollbarsComponent = React.forwardRef<
+  OverlayScrollbarsComponentHandle,
+  OverlayScrollbarsComponentProps
+>(function OverlayScrollbarsComponent(
+  { options = {}, extensions, className, children, ...rest },
+  ref
+) {
+  const osTargetRef = React.useRef<HTMLDivElement | null>(null);
+  const osInstance = React.useRef<OverlayScrollbars | null>(null);
+
+  React.useImperativeHandle(ref, () => ({
+    osInstance: () => osInstance.current,
+    osTarget: () => osTargetRef.current,
+  }));
 
   React.useEffect(() => {
-    osInstance.current = OverlayScrollbars(osTargetRef.current, options, extensions);
+    osInstance.current = OverlayScrollbars(
+      osTargetRef.current,
+      options,
+      extensions
+    );
     mergeHostClassNames(osInstance.current, className);
     return () => {
       if (OverlayScrollbars.valid(osInstance.current)) {
@@ -61,14 +76,16 @@ export const OverlayScrollbarsComponent: React.FC<OverlayScrollbarsComponentProp
       <div className="os-scrollbar-corner" />
     </div>
   );
-};
+});
 
 function mergeHostClassNames(osInstance: OverlayScrollbars, className: string) {
   if (OverlayScrollbars.valid(osInstance)) {
     const { host } = osInstance.getElements();
     const regex = new RegExp(
-      `(^os-host([-_].+|)$)|${osInstance.options().className.replace(/\s/g, "$|")}$`,
-      'g'
+      `(^os-host([-_].+|)$)|${osInstance
+        .options()
+        .className.replace(/\s/g, "$|")}$`,
+      "g"
     );
     const osClassNames = host.className
       .split(" ")
