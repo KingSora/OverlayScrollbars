@@ -1,7 +1,7 @@
 import React from "react";
 import OverlayScrollbars from "overlayscrollbars";
 
-interface OverlayScrollbarsComponentProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface OverlayScrollbarsComponentProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: any;
   options?: OverlayScrollbars.Options;
   extensions?: OverlayScrollbars.Extensions;
