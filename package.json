@@ -1,45 +1,24 @@
 {
-    "name": "overlayscrollbars",
-    "version": "1.12.0",
-    "description": "A javascript scrollbar plugin which hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.",
-    "keywords": [
-        "overlayscrollbars",
-        "custom",
-        "scrollbar",
-        "scrollbars",
-        "scroll",
-        "frontend"
-    ],
-    "files": [
-        "js/jquery.overlayScrollbars.js",
-        "js/jquery.overlayScrollbars.min.js",
-        "js/OverlayScrollbars.js",
-        "js/OverlayScrollbars.min.js",
-        "css/OverlayScrollbars.css",
-        "css/OverlayScrollbars.min.css",
-        "README.md",
-        "LICENSE"
-    ],
-    "homepage": "https://kingsora.github.io/OverlayScrollbars",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/KingSora/OverlayScrollbars"
-    },
-    "bugs": {
-        "url": "https://github.com/KingSora/OverlayScrollbars/issues"
-    },
-    "main": "js/OverlayScrollbars.js",
-    "scripts": {
-        "build": "node build.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "KingSora | Rene Haas",
-    "license": "MIT",
+    "name": "OverlayScrollbars",
+    "description": "OverlayScrollbars version 2",
+    "version": "0.0.1",
     "devDependencies": {
-        "chalk": "^2.4.2",
-        "csso": "^3.5.1",
-        "gulp": "^4.0.2",
-        "shelljs": "^0.8.3",
-        "uglify-js": "^3.8.1"
+        "@babel/core": "^7.9.6",
+        "@babel/plugin-transform-modules-commonjs": "^7.9.6",
+        "@babel/preset-env": "^7.9.6",
+        "@babel/preset-typescript": "^7.9.0",
+        "@rollup/plugin-node-resolve": "^8.0.0",
+        "@rollup/plugin-typescript": "^4.1.2",
+        "@types/jest": "^25.2.3",
+        "babel-jest": "^26.0.1",
+        "jest": "^26.0.1",
+        "rollup": "^1.21.4",
+        "tslib": "^2.0.0",
+        "typescript": "^3.9.3"
+    },
+    "scripts": {
+        "build": "tsc && rollup -c",
+        "prepare": "npm run build",
+        "test": "jest --coverage"
     }
 }
