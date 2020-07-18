@@ -1,9 +1,11 @@
 {
-    "name": "OverlayScrollbars",
-    "description": "OverlayScrollbars version 2",
-    "version": "0.0.1",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
     "devDependencies": {
         "@babel/core": "^7.9.6",
+        "@babel/node": "^7.10.5",
         "@babel/plugin-transform-modules-commonjs": "^7.9.6",
         "@babel/preset-env": "^7.9.6",
         "@babel/preset-typescript": "^7.9.0",
@@ -11,14 +13,18 @@
         "@rollup/plugin-typescript": "^4.1.2",
         "@types/jest": "^25.2.3",
         "babel-jest": "^26.0.1",
+        "clean-webpack-plugin": "^3.0.0",
         "jest": "^26.0.1",
-        "rollup": "^1.21.4",
+        "terser-webpack-plugin": "^3.0.7",
+        "ts-loader": "^8.0.1",
         "tslib": "^2.0.0",
-        "typescript": "^3.9.3"
+        "typescript": "^3.9.3",
+        "webpack": "next",
+        "webpack-cli": "^3.3.12",
+        "webpack-merge": "^5.0.9"
     },
     "scripts": {
-        "build": "tsc && rollup -c",
-        "prepare": "npm run build",
-        "test": "jest --coverage"
+        "test": "jest --coverage",
+        "build": "npx webpack --env.project=overlayscrollbars --env.production"
     }
 }

@@ -1,88 +1,72 @@
-export namespace OverlayScrollbars {
-    export type ResizeBehavior = "none" | "both" | "horizontal" | "vertical";
-
-    export type OverflowBehavior = "hidden" | "scroll" | "visible-hidden" | "visible-scroll";
-
-    export type VisibilityBehavior = "visible" | "hidden" | "auto";
-
-    export type AutoHideBehavior = "never" | "scroll" | "leave" | "move";
-
-    export type ScrollBehavior = "always" | "ifneeded" | "never";
-
-    export type BlockBehavior = "begin" | "end" | "center" | "nearest";
-
-    export type Easing = string | null | undefined;
-
-    export type Margin = number | boolean;
-
-    export type Position = number | string;
-
-    export type Extensions = string | ReadonlyArray<string> | { [extensionName: string]: {} };
-
-    export type BasicEventCallback = (this: OverlayScrollbars) => void;
-
-    export type ScrollEventCallback = (this: OverlayScrollbars, args?: UIEvent) => void;
-
-    export type OverflowChangedCallback = (this: OverlayScrollbars, args?: OverflowChangedArgs) => void;
-
-    export type OverflowAmountChangedCallback = (this: OverlayScrollbars, args?: OverflowAmountChangedArgs) => void;
-
-    export type DirectionChangedCallback = (this: OverlayScrollbars, args?: DirectionChangedArgs) => void;
-
-    export type SizeChangedCallback = (this: OverlayScrollbars, args?: SizeChangedArgs) => void;
-
-    export type UpdatedCallback = (this: OverlayScrollbars, args?: UpdatedArgs) => void;
-
-    export type Coordinates = { x?: Position; y?: Position }
-        | { l?: Position; t?: Position }
-        | { left?: Position; top?: Position }
-        | [Position, Position]
-        | Position
-        | HTMLElement
-        | JQuery
-        | {
-            el: HTMLElement | JQuery;
-            scroll?: ScrollBehavior | { x?: ScrollBehavior; y?: ScrollBehavior } | [ScrollBehavior, ScrollBehavior];
-            block?: BlockBehavior | { x?: BlockBehavior; y?: BlockBehavior } | [BlockBehavior, BlockBehavior];
-            margin?: Margin
-            | {
-                top?: Margin;
-                right?: Margin;
-                bottom?: Margin;
-                left?: Margin;
-            }
-            | [Margin, Margin]
-            | [Margin, Margin, Margin, Margin];
-        };
-
-    export interface OverflowChangedArgs {
+export declare namespace OverlayScrollbars {
+    type ResizeBehavior = "none" | "both" | "horizontal" | "vertical";
+    type OverflowBehavior = "hidden" | "scroll" | "visible-hidden" | "visible-scroll";
+    type VisibilityBehavior = "visible" | "hidden" | "auto";
+    type AutoHideBehavior = "never" | "scroll" | "leave" | "move";
+    type ScrollBehavior = "always" | "ifneeded" | "never";
+    type BlockBehavior = "begin" | "end" | "center" | "nearest";
+    type Easing = string | null | undefined;
+    type Margin = number | boolean;
+    type Position = number | string;
+    type Extensions = string | ReadonlyArray<string> | {
+        [extensionName: string]: {};
+    };
+    type BasicEventCallback = (this: OverlayScrollbars) => void;
+    type ScrollEventCallback = (this: OverlayScrollbars, args?: UIEvent) => void;
+    type OverflowChangedCallback = (this: OverlayScrollbars, args?: OverflowChangedArgs) => void;
+    type OverflowAmountChangedCallback = (this: OverlayScrollbars, args?: OverflowAmountChangedArgs) => void;
+    type DirectionChangedCallback = (this: OverlayScrollbars, args?: DirectionChangedArgs) => void;
+    type SizeChangedCallback = (this: OverlayScrollbars, args?: SizeChangedArgs) => void;
+    type UpdatedCallback = (this: OverlayScrollbars, args?: UpdatedArgs) => void;
+    type Coordinates = {
+        x?: Position;
+        y?: Position;
+    } | {
+        l?: Position;
+        t?: Position;
+    } | {
+        left?: Position;
+        top?: Position;
+    } | [Position, Position] | Position | HTMLElement | {
+        el: HTMLElement;
+        scroll?: ScrollBehavior | {
+            x?: ScrollBehavior;
+            y?: ScrollBehavior;
+        } | [ScrollBehavior, ScrollBehavior];
+        block?: BlockBehavior | {
+            x?: BlockBehavior;
+            y?: BlockBehavior;
+        } | [BlockBehavior, BlockBehavior];
+        margin?: Margin | {
+            top?: Margin;
+            right?: Margin;
+            bottom?: Margin;
+            left?: Margin;
+        } | [Margin, Margin] | [Margin, Margin, Margin, Margin];
+    };
+    interface OverflowChangedArgs {
         x: boolean;
         y: boolean;
         xScrollable: boolean;
         yScrollable: boolean;
         clipped: boolean;
     }
-
-    export interface OverflowAmountChangedArgs {
+    interface OverflowAmountChangedArgs {
         x: number;
         y: number;
     }
-
-    export interface DirectionChangedArgs {
+    interface DirectionChangedArgs {
         isRTL: number;
         dir: string;
     }
-
-    export interface SizeChangedArgs {
+    interface SizeChangedArgs {
         width: number;
         height: number;
     }
-
-    export interface UpdatedArgs {
+    interface UpdatedArgs {
         forced: boolean;
     }
-
-    export interface Options {
+    interface Options {
         className?: string | null;
         resize?: ResizeBehavior;
         sizeAutoCapable?: boolean;
@@ -129,8 +113,7 @@ export namespace OverlayScrollbars {
             onUpdated?: UpdatedCallback | null;
         };
     }
-
-    export interface ScrollInfo {
+    interface ScrollInfo {
         position: {
             x: number;
             y: number;
@@ -166,8 +149,7 @@ export namespace OverlayScrollbars {
         isRTL: boolean;
         isRTLNormalized: boolean;
     }
-
-    export interface Elements {
+    interface Elements {
         target: HTMLElement;
         host: HTMLElement;
         padding: HTMLElement;
@@ -185,8 +167,7 @@ export namespace OverlayScrollbars {
         };
         scrollbarCorner: HTMLElement;
     }
-
-    export interface State {
+    interface State {
         destroyed: boolean;
         sleeping: boolean;
         autoUpdate: boolean;
@@ -226,24 +207,18 @@ export namespace OverlayScrollbars {
             height: number;
         };
     }
-
-    export interface Extension {
+    interface Extension {
         contract(global: any): boolean;
-
         added(options?: {}): void;
-
         removed(): void;
-
         on(callbackName: string, callbackArgs?: UIEvent | OverflowChangedArgs | OverflowAmountChangedArgs | DirectionChangedArgs | SizeChangedArgs | UpdatedArgs): void;
     }
-
-    export interface ExtensionInfo {
+    interface ExtensionInfo {
         name: string;
         extensionFactory: (this: OverlayScrollbars, defaultOptions: {}, compatibility: Compatibility, framework: any) => Extension;
         defaultOptions?: {};
     }
-
-    export interface Globals {
+    interface Globals {
         defaultOptions: {};
         autoUpdateLoop: boolean;
         autoUpdateRecommended: boolean;
@@ -272,8 +247,7 @@ export namespace OverlayScrollbars {
             n: boolean;
         };
     }
-
-    export interface Compatibility {
+    interface Compatibility {
         wW(): number;
         wH(): number;
         mO(): any;
@@ -283,7 +257,10 @@ export namespace OverlayScrollbars {
         now(): number;
         stpP(event: Event): void;
         prvD(event: Event): void;
-        page(event: MouseEvent): { x: number, y: number };
+        page(event: MouseEvent): {
+            x: number;
+            y: number;
+        };
         mBtn(event: MouseEvent): number;
         inA<T>(item: T, array: T[]): number;
         isA(obj: any): boolean;
@@ -291,80 +268,28 @@ export namespace OverlayScrollbars {
         bind(func: (...args: any[]) => any, thisObj: any, ...args: any[]): any;
     }
 }
-
-
-
 interface OverlayScrollbars {
     options(): OverlayScrollbars.Options;
     options(options: OverlayScrollbars.Options): void;
     options(optionName: string): any;
     options(optionName: string, optionValue: {} | null): void;
-
     update(force?: boolean): void;
-
     sleep(): void;
-
     scroll(): OverlayScrollbars.ScrollInfo;
-    scroll(
-        coordinates: OverlayScrollbars.Coordinates,
-        duration?: number,
-        easing?: OverlayScrollbars.Easing | { x?: OverlayScrollbars.Easing; y?: OverlayScrollbars.Easing } | [OverlayScrollbars.Easing, OverlayScrollbars.Easing],
-        complete?: (...args: any[]) => any
-    ): void;
+    scroll(coordinates: OverlayScrollbars.Coordinates, duration?: number, easing?: OverlayScrollbars.Easing | {
+        x?: OverlayScrollbars.Easing;
+        y?: OverlayScrollbars.Easing;
+    } | [OverlayScrollbars.Easing, OverlayScrollbars.Easing], complete?: (...args: any[]) => any): void;
     scroll(coordinates: OverlayScrollbars.Coordinates, options: {}): void;
-
     scrollStop(): OverlayScrollbars;
-
     getElements(): OverlayScrollbars.Elements;
     getElements(elementName: string): any;
-
     getState(): OverlayScrollbars.State;
     getState(stateProperty: string): any;
-
     destroy(): void;
-
     ext(): {};
     ext(extensionName: string): OverlayScrollbars.Extension;
-
     addExt(extensionName: string, options: {}): OverlayScrollbars.Extension;
-
     removeExt(extensionName: string): boolean;
 }
-
-interface OverlayScrollbarsStatic {
-    (
-        element: HTMLElement | Element | JQuery,
-        options: OverlayScrollbars.Options,
-        extensions?: OverlayScrollbars.Extensions
-    ): OverlayScrollbars;
-    (
-        element: HTMLElement | Element | JQuery | null
-    ): OverlayScrollbars | undefined;
-
-    (
-        elements: NodeListOf<Element> | ReadonlyArray<Element> | JQuery,
-        options: OverlayScrollbars.Options,
-        extensions?: OverlayScrollbars.Extensions
-    ): OverlayScrollbars | OverlayScrollbars[] | undefined;
-    (
-        elements: NodeListOf<Element> | ReadonlyArray<Element> | JQuery,
-        filter?: string | ((element: Element, instance: OverlayScrollbars) => boolean)
-    ): OverlayScrollbars | OverlayScrollbars[] | undefined;
-
-    globals(): OverlayScrollbars.Globals;
-
-    defaultOptions(): OverlayScrollbars.Options;
-    defaultOptions(newDefaultOptions: OverlayScrollbars.Options): void;
-
-    extension(): { [index: number]: OverlayScrollbars.ExtensionInfo; length: number };
-    extension(extensionName: string): OverlayScrollbars.ExtensionInfo;
-    extension(
-        extensionName: string,
-        extensionFactory: (this: OverlayScrollbars, defaultOptions: {},
-            compatibility: OverlayScrollbars.Compatibility, framework: any) => OverlayScrollbars.Extension,
-        defaultOptions?: {}
-    ): void;
-    extension(extensionName: string, extensionFactory: null | undefined): void;
-
-    valid(osInstance: any): boolean;
-}
+export {};

@@ -5,10 +5,8 @@
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "baseUrl": "./src",
-        "outDir": "./dist",
-        "target": "es2015",
+        "target": "es6",
         "sourceMap": true,
-        "inlineSources": true,
         "jsx": "react",
         "lib": [
             "es6",
@@ -17,18 +15,14 @@
             "es2017"
         ],
         "declaration": true,
-        "declarationDir": "./dist/types",
         "suppressImplicitAnyIndexErrors": true,
-        "module": "es2015",
+        "module": "es6",
         "moduleResolution": "node",
         "removeComments": true
     },
-    "include": [
-        "./src",
-        "./tests"
-    ],
     "exclude": [
         "./dist",
+        "**/*.test.*",
         "node_modules"
     ]
 }

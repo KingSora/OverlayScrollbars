@@ -9,7 +9,7 @@ export * from 'instances';
 
 
 
-window['hi'] = createDOM(`\
+export default () => createDOM(`\
     <div class="os-host">\
         <div class="os-resize-observer-host"></div>\
         <div class="os-padding">\
