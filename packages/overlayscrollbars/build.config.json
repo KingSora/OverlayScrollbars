@@ -1,0 +1,10 @@
+{
+  "minVersions": true,
+  "umd": {
+    "name": "OverlayScrollbars",
+    "globals": {
+      "jquery": "jQuery"
+    }
+  },
+  "esm": {}
+}

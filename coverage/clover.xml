@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1595096677332" clover="3.2.0">
-  <project timestamp="1595096677332" name="All files">
+<coverage generated="1595257697964" clover="3.2.0">
+  <project timestamp="1595257697964" name="All files">
     <metrics statements="324" coveredstatements="307" conditionals="204" coveredconditionals="192" methods="79" coveredmethods="72" elements="607" coveredelements="571" complexity="0" loc="324" ncloc="324" packages="5" files="18" classes="18"/>
     <package name="src">
       <metrics statements="33" coveredstatements="33" conditionals="1" coveredconditionals="1" methods="6" coveredmethods="6"/>
-      <file name="instances.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\instances.ts">
+      <file name="instances.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\instances.ts">
         <metrics statements="19" coveredstatements="19" conditionals="1" coveredconditionals="1" methods="6" coveredmethods="6"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
@@ -26,7 +26,7 @@
         <line num="48" count="1" type="stmt"/>
         <line num="51" count="2" type="stmt"/>
       </file>
-      <file name="options.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\options.ts">
+      <file name="options.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\options.ts">
         <metrics statements="14" coveredstatements="14" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="5" count="1" type="stmt"/>
         <line num="6" count="1" type="stmt"/>
@@ -46,7 +46,7 @@
     </package>
     <package name="src.core.compatibility">
       <metrics statements="49" coveredstatements="49" conditionals="14" coveredconditionals="14" methods="10" coveredmethods="10"/>
-      <file name="vendors.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\compatibility\vendors.ts">
+      <file name="vendors.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\compatibility\vendors.ts">
         <metrics statements="49" coveredstatements="49" conditionals="14" coveredconditionals="14" methods="10" coveredmethods="10"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="20" type="stmt"/>
@@ -101,7 +101,7 @@
     </package>
     <package name="src.core.dom">
       <metrics statements="124" coveredstatements="107" conditionals="79" coveredconditionals="67" methods="36" coveredmethods="29"/>
-      <file name="attributes.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\attributes.ts">
+      <file name="attributes.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\attributes.ts">
         <metrics statements="18" coveredstatements="18" conditionals="8" coveredconditionals="8" methods="5" coveredmethods="5"/>
         <line num="8" count="4" type="stmt"/>
         <line num="9" count="7" type="cond" truecount="2" falsecount="0"/>
@@ -122,7 +122,7 @@
         <line num="52" count="3" type="stmt"/>
         <line num="53" count="2" type="stmt"/>
       </file>
-      <file name="classes.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\classes.ts">
+      <file name="classes.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\classes.ts">
         <metrics statements="19" coveredstatements="19" conditionals="10" coveredconditionals="10" methods="4" coveredmethods="4"/>
         <line num="3" count="4" type="stmt"/>
         <line num="10" count="4" type="stmt"/>
@@ -144,7 +144,7 @@
         <line num="54" count="2" type="stmt"/>
         <line num="57" count="2" type="stmt"/>
       </file>
-      <file name="create.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\create.ts">
+      <file name="create.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\create.ts">
         <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
         <line num="5" count="4" type="stmt"/>
         <line num="6" count="204" type="stmt"/>
@@ -153,10 +153,10 @@
         <line num="11" count="3" type="stmt"/>
         <line num="13" count="9" type="stmt"/>
       </file>
-      <file name="index.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\index.ts">
+      <file name="index.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\index.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
-      <file name="manipulation.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\manipulation.ts">
+      <file name="manipulation.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\manipulation.ts">
         <metrics statements="28" coveredstatements="28" conditionals="24" coveredconditionals="24" methods="8" coveredmethods="8"/>
         <line num="13" count="4" type="stmt"/>
         <line num="14" count="24" type="cond" truecount="2" falsecount="0"/>
@@ -187,7 +187,7 @@
         <line num="88" count="20" type="cond" truecount="2" falsecount="0"/>
         <line num="89" count="15" type="stmt"/>
       </file>
-      <file name="offset.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\offset.ts">
+      <file name="offset.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\offset.ts">
         <metrics statements="5" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="1" count="3" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -195,7 +195,7 @@
         <line num="9" count="3" type="stmt"/>
         <line num="10" count="0" type="stmt"/>
       </file>
-      <file name="style.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\style.ts">
+      <file name="style.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\style.ts">
         <metrics statements="19" coveredstatements="5" conditionals="12" coveredconditionals="0" methods="5" coveredmethods="0"/>
         <line num="5" count="3" type="stmt"/>
         <line num="21" count="3" type="stmt"/>
@@ -217,7 +217,7 @@
         <line num="59" count="3" type="stmt"/>
         <line num="60" count="0" type="stmt"/>
       </file>
-      <file name="traversal.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\traversal.ts">
+      <file name="traversal.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\dom\traversal.ts">
         <metrics statements="29" coveredstatements="29" conditionals="25" coveredconditionals="25" methods="9" coveredmethods="9"/>
         <line num="3" count="4" type="stmt"/>
         <line num="4" count="4" type="cond" truecount="3" falsecount="0"/>
@@ -252,10 +252,10 @@
     </package>
     <package name="src.core.options">
       <metrics statements="53" coveredstatements="53" conditionals="39" coveredconditionals="39" methods="10" coveredmethods="10"/>
-      <file name="index.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\options\index.ts">
+      <file name="index.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\options\index.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
-      <file name="transformation.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\options\transformation.ts">
+      <file name="transformation.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\options\transformation.ts">
         <metrics statements="6" coveredstatements="6" conditionals="3" coveredconditionals="3" methods="2" coveredmethods="2"/>
         <line num="13" count="16" type="stmt"/>
         <line num="15" count="16" type="stmt"/>
@@ -264,7 +264,7 @@
         <line num="20" count="90" type="cond" truecount="2" falsecount="0"/>
         <line num="25" count="16" type="stmt"/>
       </file>
-      <file name="validation.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\options\validation.ts">
+      <file name="validation.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\options\validation.ts">
         <metrics statements="47" coveredstatements="47" conditionals="36" coveredconditionals="36" methods="8" coveredmethods="8"/>
         <line num="5" count="3" type="stmt"/>
         <line num="10" count="3" type="stmt"/>
@@ -317,7 +317,7 @@
     </package>
     <package name="src.core.utils">
       <metrics statements="65" coveredstatements="65" conditionals="71" coveredconditionals="71" methods="17" coveredmethods="17"/>
-      <file name="arrays.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\utils\arrays.ts">
+      <file name="arrays.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\utils\arrays.ts">
         <metrics statements="12" coveredstatements="12" conditionals="8" coveredconditionals="8" methods="2" coveredmethods="2"/>
         <line num="19" count="694" type="stmt"/>
         <line num="21" count="694" type="cond" truecount="2" falsecount="0"/>
@@ -332,7 +332,7 @@
         <line num="42" count="9" type="stmt"/>
         <line num="43" count="418" type="stmt"/>
       </file>
-      <file name="extend.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\utils\extend.ts">
+      <file name="extend.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\utils\extend.ts">
         <metrics statements="21" coveredstatements="21" conditionals="26" coveredconditionals="26" methods="2" coveredmethods="2"/>
         <line num="11" count="180" type="stmt"/>
         <line num="14" count="180" type="cond" truecount="5" falsecount="0"/>
@@ -356,10 +356,10 @@
         <line num="51" count="504" type="stmt"/>
         <line num="58" count="180" type="stmt"/>
       </file>
-      <file name="index.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\utils\index.ts">
+      <file name="index.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\utils\index.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
-      <file name="types.ts" path="D:\Github\OverlayScrollbars\packages\overlayscrollbars\src\core\utils\types.ts">
+      <file name="types.ts" path="C:\Git\OverlayScrollbars\packages\overlayscrollbars\src\core\utils\types.ts">
         <metrics statements="32" coveredstatements="32" conditionals="37" coveredconditionals="37" methods="13" coveredmethods="13"/>
         <line num="3" count="11" type="stmt"/>
         <line num="4" count="576" type="cond" truecount="2" falsecount="0"/>
