@@ -9,22 +9,21 @@
         "@babel/plugin-transform-modules-commonjs": "^7.9.6",
         "@babel/preset-env": "^7.9.6",
         "@babel/preset-typescript": "^7.9.0",
-        "@rollup/plugin-node-resolve": "^8.0.0",
-        "@rollup/plugin-typescript": "^4.1.2",
+        "@rollup/plugin-babel": "^5.1.0",
+        "@rollup/plugin-commonjs": "^14.0.0",
+        "@rollup/plugin-node-resolve": "^8.4.0",
+        "@rollup/plugin-typescript": "^5.0.2",
         "@types/jest": "^25.2.3",
         "babel-jest": "^26.0.1",
-        "clean-webpack-plugin": "^3.0.0",
         "jest": "^26.0.1",
-        "terser-webpack-plugin": "^3.0.7",
-        "ts-loader": "^8.0.1",
+        "rollup": "^2.22.1",
+        "rollup-plugin-terser": "^6.1.0",
+        "rollup-plugin-typescript2": "^0.27.1",
         "tslib": "^2.0.0",
-        "typescript": "^3.9.3",
-        "webpack": "next",
-        "webpack-cli": "^3.3.12",
-        "webpack-merge": "^5.0.9"
+        "typescript": "^3.9.3"
     },
     "scripts": {
         "test": "jest --coverage",
-        "build": "npx webpack --env.project=overlayscrollbars --env.production"
+        "build": "npx webpack --env.project=overlayscrollbars"
     }
 }

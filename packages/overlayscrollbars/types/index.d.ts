@@ -1,7 +1,3 @@
-export * from 'core/compatibility';
-export * from 'core/utils';
-export * from 'core/dom';
-export * from 'core/options';
-export * from 'instances';
-declare const _default: () => readonly Node[];
+/// <reference types="jquery" />
+declare const _default: () => (number | readonly Node[] | JQuery<HTMLElement>)[];
 export default _default;

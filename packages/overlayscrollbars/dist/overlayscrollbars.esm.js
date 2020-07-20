@@ -1,62 +1,75 @@
-!function(o, r) {
-    "object" == typeof exports && "object" == typeof module ? module.exports = r() : "function" == typeof define && define.amd ? define([], r) : "object" == typeof exports ? exports.OverlayScrollbars = r() : o.OverlayScrollbars = r();
-}(window, (function() {
-    return (() => {
-        "use strict";
-        var o = {
-            95: (o, r, e) => {
-                e.d(r, {
-                    default: () => u
-                });
-                function s(o) {
-                    return "function" == typeof o;
-                }
-                function t(o) {
-                    return Array.isArray(o);
-                }
-                function n(o) {
-                    const r = !!o && o.length;
-                    return t(o) || !s(o) && function(o) {
-                        return "number" == typeof o;
-                    }(r) && r > -1 && r % 1 == 0;
-                }
-                function i(o, r) {
-                    let e = 0;
-                    if (n(o)) for (;e < o.length && !1 !== r(o[e], e, o); e++) ; else if (o) for (e in o) if (!1 === r(o[e], e, o)) break;
-                    return o;
-                }
-                const c = o => {
-                    if (n(o)) i(Array.from(o), o => c(o)); else if (o) {
-                        const r = o.parentNode;
-                        r && r.removeChild(o);
-                    }
-                }, l = o => {
-                    const r = document.createElement("div");
-                    return r.innerHTML = o.trim(), i((o => o ? Array.from(o.childNodes) : [])(r), o => c(o));
-                };
-                const a = o => o.charAt(0).toUpperCase() + o.slice(1), d = [ "WebKit", "Moz", "O", "MS", "webkit", "moz", "o", "ms" ], f = {}, v = ((o => {
-                    let r = f[o] || window[o];
-                    f.hasOwnProperty(o) || (i(d, e => (r = r || window[e + a(o)], !r)), f[o] = r);
-                })("ResizeObserver"), JSON.stringify, [ "__TPL_", "_TYPE__" ]);
-                [ "boolean", "number", "string", "array", "object", "function", "null" ].reduce((o, r) => (o[r] = v[0] + r + v[1], 
-                o), {});
-                new Set, new WeakMap;
-                const u = () => l('    <div class="os-host">        <div class="os-resize-observer-host"></div>        <div class="os-padding">            <div class="os-viewport">                <div class="os-content">                    fdfhdfgh                </div>            </div>        </div>        <div class="os-scrollbar os-scrollbar-horizontal">            <div class="os-scrollbar-track">                <div class="os-scrollbar-handle"></div>            </div>        </div>        <div class="os-scrollbar os-scrollbar-vertical">            <div class="os-scrollbar-track">                <div class="os-scrollbar-handle"></div>            </div>        </div>        <div class="os-scrollbar-corner"></div>    </div>');
-            }
-        }, r = {};
-        function e(s) {
-            if (r[s]) return r[s].exports;
-            var t = r[s] = {
-                exports: {}
-            };
-            return o[s](t, t.exports, e), t.exports;
-        }
-        return e.d = (o, r) => {
-            for (var s in r) e.o(r, s) && !e.o(o, s) && Object.defineProperty(o, s, {
-                enumerable: !0,
-                get: r[s]
-            });
-        }, e.o = (o, r) => Object.prototype.hasOwnProperty.call(o, r), e(95);
-    })().default;
-}));
+import j from 'jquery';
+
+function isNumber(obj) {
+  return typeof obj === 'number';
+}
+
+function isFunction(obj) {
+  return typeof obj === 'function';
+}
+
+function isArray(obj) {
+  return Array.isArray(obj);
+}
+
+function isArrayLike(obj) {
+  const length = !!obj && obj.length;
+  return isArray(obj) || !isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0;
+}
+
+function each(source, callback) {
+  let i = 0;
+
+  if (isArrayLike(source)) {
+    for (; i < source.length; i++) {
+      if (callback(source[i], i, source) === false) break;
+    }
+  } else if (source) {
+    for (i in source) {
+      if (callback(source[i], i, source) === false) break;
+    }
+  }
+
+  return source;
+}
+
+const contents = elm => {
+  return elm ? Array.from(elm.childNodes) : [];
+};
+
+const removeElements = nodes => {
+  if (isArrayLike(nodes)) {
+    each(Array.from(nodes), e => removeElements(e));
+  } else if (nodes) {
+    const parentNode = nodes.parentNode;
+    if (parentNode) parentNode.removeChild(nodes);
+  }
+};
+
+const createDiv = () => {
+  return document.createElement('div');
+};
+
+const createDOM = html => {
+  const elm = createDiv();
+  elm.innerHTML = html.trim();
+  return each(contents(elm), elm => removeElements(elm));
+};
+
+const abc = {
+  a: 1,
+  b: 1,
+  c: 1
+};
+
+var index = () => {
+  const {
+    a,
+    b,
+    c
+  } = abc;
+  return [createDOM("    <div class=\"os-host\">        <div class=\"os-resize-observer-host\"></div>        <div class=\"os-padding\">            <div class=\"os-viewport\">                <div class=\"os-content\">                    fdfhdfgh                </div>            </div>        </div>        <div class=\"os-scrollbar os-scrollbar-horizontal\">            <div class=\"os-scrollbar-track\">                <div class=\"os-scrollbar-handle\"></div>            </div>        </div>        <div class=\"os-scrollbar os-scrollbar-vertical\">            <div class=\"os-scrollbar-track\">                <div class=\"os-scrollbar-handle\"></div>            </div>        </div>        <div class=\"os-scrollbar-corner\"></div>    </div>"), j('div'), a, b, c];
+};
+
+export default index;
 //# sourceMappingURL=overlayscrollbars.esm.js.map
