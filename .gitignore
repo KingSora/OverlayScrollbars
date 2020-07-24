@@ -3,9 +3,6 @@
 # dependencies
 node_modules/
 
-# dist
-dist/
-
 # generated
 coverage/
 

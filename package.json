@@ -37,7 +37,7 @@
   },
   "scripts": {
     "test": "jest --coverage",
-    "build": "npx rollup -c --config-project='overlayscrollbars'",
+    "build": "npx rollup -c --config-project='overlayscrollbars' && npx rollup -c --config-project='overlayscrollbars-jquery'",
     "lint": "npx eslint --fix ."
   }
 }
