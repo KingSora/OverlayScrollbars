@@ -4,26 +4,26 @@ const testElm = document.body;
 const testInstance = { value: 'value' };
 
 describe('instances', () => {
-    afterEach(() => {
-        removeInstance(testElm);
-    });
+  afterEach(() => {
+    removeInstance(testElm);
+  });
 
-    test('add instance', () => {
-        addInstance(testElm, testInstance);
+  test('add instance', () => {
+    addInstance(testElm, testInstance);
 
-        expect(allInstances().size).toBe(1);
-    });
+    expect(allInstances().size).toBe(1);
+  });
 
-    test('remove instance', () => {
-        addInstance(testElm, testInstance);
-        removeInstance(testElm);
+  test('remove instance', () => {
+    addInstance(testElm, testInstance);
+    removeInstance(testElm);
 
-        expect(allInstances().size).toBe(0);
-    });
+    expect(allInstances().size).toBe(0);
+  });
 
-    test('get instance', () => {
-        addInstance(testElm, testInstance);
+  test('get instance', () => {
+    addInstance(testElm, testInstance);
 
-        expect(getInstance(testElm)).toBe(testInstance);
-    });
+    expect(getInstance(testElm)).toBe(testInstance);
+  });
 });

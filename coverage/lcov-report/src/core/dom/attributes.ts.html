@@ -110,7 +110,12 @@
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -120,6 +125,7 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -140,6 +146,7 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -151,6 +158,7 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -162,7 +170,9 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Gets or sets a attribute with the given attribute of the given element depending whether the value attribute is given.
  * Returns null if the element has no attribute with the given name.
@@ -171,10 +181,11 @@
  * @param value The value of the attribute which shall be set.
  */
 export const attr: (elm: Element, attrName: string, value?: string) =&gt; string | null | void = (elm, attrName, value) =&gt; {
-    if (value === undefined)
-        return elm.getAttribute(attrName);
-    elm.setAttribute(attrName, value);
-}
+  if (value === undefined) {
+    return elm.getAttribute(attrName);
+  }
+  elm.setAttribute(attrName, value);
+};
 &nbsp;
 /**
  * Removes the given attribute from the given element.
@@ -182,8 +193,8 @@ export const attr: (elm: Element, attrName: string, value?: string) =&gt; string
  * @param attrName The attribute name.
  */
 export const removeAttr: (elm: Element, attrName: string) =&gt; void = (elm, attrName) =&gt; {
-    elm.removeAttribute(attrName);
-}
+  elm.removeAttribute(attrName);
+};
 &nbsp;
 /**
  * Gets or sets the scrollLeft value of the given element depending whether the value attribute is given.
@@ -191,10 +202,11 @@ export const removeAttr: (elm: Element, attrName: string) =&gt; void = (elm, att
  * @param value The scrollLeft value which shall be set.
  */
 export const scrollLeft: (elm: HTMLElement, value?: number) =&gt; number | void = (elm, value) =&gt; {
-    if (value === undefined)
-        return elm.scrollLeft;
-    elm.scrollLeft = value;
-}
+  if (value === undefined) {
+    return elm.scrollLeft;
+  }
+  elm.scrollLeft = value;
+};
 &nbsp;
 /**
  * Gets or sets the scrollTop value of the given element depending whether the value attribute is given.
@@ -202,10 +214,11 @@ export const scrollLeft: (elm: HTMLElement, value?: number) =&gt; number | void 
  * @param value The scrollTop value which shall be set.
  */
 export const scrollTop: (elm: HTMLElement, value?: number) =&gt; number | void = (elm, value) =&gt; {
-    if (value === undefined)
-        return elm.scrollTop;
-    elm.scrollTop = value;
-}
+  if (value === undefined) {
+    return elm.scrollTop;
+  }
+  elm.scrollTop = value;
+};
 &nbsp;
 /**
  * Gets or sets the value of the given input element depending whether the value attribute is given.
@@ -213,17 +226,19 @@ export const scrollTop: (elm: HTMLElement, value?: number) =&gt; number | void =
  * @param value The value which shall be set.
  */
 export const val: (elm: HTMLInputElement, value?: string) =&gt; string | void = (elm, value) =&gt; {
-    if (value === undefined)
-        return elm.value;
-    elm.value = value;
-}</pre></td></tr></table></pre>
+  if (value === undefined) {
+    return elm.value;
+  }
+  elm.value = value;
+};
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Mon Jul 20 2020 17:08:17 GMT+0200 (GMT+02:00)
+                at Sat Jul 25 2020 00:36:56 GMT+0200 (GMT+02:00)
             </div>
         </div>
         <script src="../../../prettify.js"></script>

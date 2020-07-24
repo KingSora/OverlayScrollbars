@@ -6,10 +6,11 @@
  * @param value The value of the attribute which shall be set.
  */
 export const attr: (elm: Element, attrName: string, value?: string) => string | null | void = (elm, attrName, value) => {
-    if (value === undefined)
-        return elm.getAttribute(attrName);
-    elm.setAttribute(attrName, value);
-}
+  if (value === undefined) {
+    return elm.getAttribute(attrName);
+  }
+  elm.setAttribute(attrName, value);
+};
 
 /**
  * Removes the given attribute from the given element.
@@ -17,8 +18,8 @@ export const attr: (elm: Element, attrName: string, value?: string) => string | 
  * @param attrName The attribute name.
  */
 export const removeAttr: (elm: Element, attrName: string) => void = (elm, attrName) => {
-    elm.removeAttribute(attrName);
-}
+  elm.removeAttribute(attrName);
+};
 
 /**
  * Gets or sets the scrollLeft value of the given element depending whether the value attribute is given.
@@ -26,10 +27,11 @@ export const removeAttr: (elm: Element, attrName: string) => void = (elm, attrNa
  * @param value The scrollLeft value which shall be set.
  */
 export const scrollLeft: (elm: HTMLElement, value?: number) => number | void = (elm, value) => {
-    if (value === undefined)
-        return elm.scrollLeft;
-    elm.scrollLeft = value;
-}
+  if (value === undefined) {
+    return elm.scrollLeft;
+  }
+  elm.scrollLeft = value;
+};
 
 /**
  * Gets or sets the scrollTop value of the given element depending whether the value attribute is given.
@@ -37,10 +39,11 @@ export const scrollLeft: (elm: HTMLElement, value?: number) => number | void = (
  * @param value The scrollTop value which shall be set.
  */
 export const scrollTop: (elm: HTMLElement, value?: number) => number | void = (elm, value) => {
-    if (value === undefined)
-        return elm.scrollTop;
-    elm.scrollTop = value;
-}
+  if (value === undefined) {
+    return elm.scrollTop;
+  }
+  elm.scrollTop = value;
+};
 
 /**
  * Gets or sets the value of the given input element depending whether the value attribute is given.
@@ -48,7 +51,8 @@ export const scrollTop: (elm: HTMLElement, value?: number) => number | void = (e
  * @param value The value which shall be set.
  */
 export const val: (elm: HTMLInputElement, value?: string) => string | void = (elm, value) => {
-    if (value === undefined)
-        return elm.value;
-    elm.value = value;
-}
+  if (value === undefined) {
+    return elm.value;
+  }
+  elm.value = value;
+};

@@ -21,13 +21,13 @@ export declare type OptionsAndOptionsTemplate<T extends Required<T>> = {
     [P in keyof T]: PlainObject extends T[P] ? OptionsAndOptionsTemplate<Required<T[P]>> : T[P] extends OptionsTemplateNativeTypes ? OptionsAndOptionsTemplateValue<T[P]> : never;
 };
 declare type OptionsTemplateTypeMap = {
-    '__TPL_boolean_TYPE__': boolean;
-    '__TPL_number_TYPE__': number;
-    '__TPL_string_TYPE__': string;
-    '__TPL_array_TYPE__': Array<any>;
-    '__TPL_function_TYPE__': Func;
-    '__TPL_null_TYPE__': null;
-    '__TPL_object_TYPE__': object;
+    __TPL_boolean_TYPE__: boolean;
+    __TPL_number_TYPE__: number;
+    __TPL_string_TYPE__: string;
+    __TPL_array_TYPE__: Array<any>;
+    __TPL_function_TYPE__: Func;
+    __TPL_null_TYPE__: null;
+    __TPL_object_TYPE__: object;
 };
 declare type ExtractPropsKey<T, TProps extends T[keyof T]> = {
     [P in keyof T]: TProps extends T[P] ? P : never;

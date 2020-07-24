@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -124,7 +124,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -132,7 +131,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11x</span>
@@ -141,6 +139,7 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -166,25 +165,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { isString } from 'core/utils/types';
 &nbsp;
-const rnothtmlwhite: RegExp = (/[^\x20\t\r\n\f]+/g);
+const rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
 &nbsp;
 /**
  * Check whether the given element has the given class name.
  * @param elm The element.
  * @param className The class name.
  */
-export const hasClass: (elm: Element, className: string) =&gt; boolean = (elm, className) =&gt; {
-    return elm.classList.contains(className);
-}
+export const hasClass: (elm: Element, className: string) =&gt; boolean = (elm, className) =&gt; elm.classList.contains(className);
 &nbsp;
 /**
  * Adds the given class name(s) to the given element.
@@ -192,15 +190,16 @@ export const hasClass: (elm: Element, className: string) =&gt; boolean = (elm, c
  * @param className The class name(s) which shall be added. (separated by spaces)
  */
 export const addClass: (elm: Element, className: string) =&gt; void = (elm, className) =&gt; {
-    let clazz: string;
-    let i: number = 0;
+  let clazz: string;
+  let i = 0;
 &nbsp;
-    if (isString(className)) {
-        const classes: Array&lt;string&gt; = className.match(rnothtmlwhite) || [];
-        while ((clazz = classes[i++]))
-            elm.classList.add(clazz);
+  if (isString(className)) {
+    const classes: Array&lt;string&gt; = className.match(rnothtmlwhite) || [];
+    while ((clazz = classes[i++])) {
+      elm.classList.add(clazz);
     }
-}
+  }
+};
 &nbsp;
 /**
  * Removes the given class name(s) from the given element.
@@ -208,15 +207,16 @@ export const addClass: (elm: Element, className: string) =&gt; void = (elm, clas
  * @param className The class name(s) which shall be removed. (separated by spaces)
  */
 export const removeClass: (elm: Element, className: string) =&gt; void = (elm, className) =&gt; {
-    let clazz: string;
-    let i: number = 0;
+  let clazz: string;
+  let i = 0;
 &nbsp;
-    if (isString(className)) {
-        const classes: Array&lt;string&gt; = className.match(rnothtmlwhite) || [];
-        while ((clazz = classes[i++]))
-            elm.classList.remove(clazz);
+  if (isString(className)) {
+    const classes: Array&lt;string&gt; = className.match(rnothtmlwhite) || [];
+    while ((clazz = classes[i++])) {
+      elm.classList.remove(clazz);
     }
-}
+  }
+};
 &nbsp;
 /**
  * Adds or removes the given class name(s) from the given element depending on the given condition.
@@ -225,20 +225,20 @@ export const removeClass: (elm: Element, className: string) =&gt; void = (elm, c
  * @param className The class name(s) which shall be added or removed. (separated by spaces)
  */
 export const conditionalClass: (elm: Element, className: string, condition: boolean) =&gt; void = (elm, className, condition) =&gt; {
-    if (condition) {
-        addClass(elm, className);
-    }
-    else {
-        removeClass(elm, className);
-    }
-}</pre></td></tr></table></pre>
+  if (condition) {
+    addClass(elm, className);
+  } else {
+    removeClass(elm, className);
+  }
+};
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Mon Jul 20 2020 17:08:17 GMT+0200 (GMT+02:00)
+                at Sat Jul 25 2020 00:36:56 GMT+0200 (GMT+02:00)
             </div>
         </div>
         <script src="../../../prettify.js"></script>

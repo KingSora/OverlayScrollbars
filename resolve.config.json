@@ -1,0 +1,4 @@
+{
+  "extensions": [".json", ".js", "jsx", ".ts", ".tsx"],
+  "directories": ["node_modules", "src"]
+}

@@ -138,8 +138,7 @@
 <a name='L79'></a><a href='#L79'>79</a>
 <a name='L80'></a><a href='#L80'>80</a>
 <a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L82'></a><a href='#L82'>82</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -220,10 +219,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { OptionsTemplate, OptionsTemplateValue, OptionsAndOptionsTemplateValue, OptionsAndOptionsTemplate, Func } from "core/typings";
-import { optionsTemplateTypes as oTypes, transform } from "core/options";
-import { OverlayScrollbars } from "typings";
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { OptionsTemplate, OptionsTemplateValue, OptionsAndOptionsTemplateValue, OptionsAndOptionsTemplate, Func } from 'core/typings';
+import { optionsTemplateTypes as oTypes, transform } from 'core/options';
+import { OverlayScrollbars } from 'typings';
 &nbsp;
 const classNameAllowedValues: OptionsTemplateValue&lt;string | null&gt; = [oTypes.string, oTypes.null];
 const numberAllowedValues: OptionsTemplateValue&lt;number&gt; = oTypes.number;
@@ -240,7 +238,7 @@ const scrollbarsAutoHideAllowedValues: OptionsTemplateValue&lt;OverlayScrollbars
 /**
  * A object which serves as "default options object" and "options template object".
  * I combined these two into one object so that I don't have to define two separate big objects, instead I define one big object.
- * 
+ *
  * The property value is a tuple:
  * the first value is the default value
  * the second value is the template value
@@ -253,56 +251,55 @@ const scrollbarsAutoHideAllowedValues: OptionsTemplateValue&lt;OverlayScrollbars
  * Property "b" has a default value of 250 and it can be number
  */
 const defaultOptionsWithTemplate: OptionsAndOptionsTemplate&lt;Required&lt;OverlayScrollbars.Options&gt;&gt; = {
-    className: ['os-theme-dark', classNameAllowedValues],                   //null || string
-    resize: ['none', resizeAllowedValues],                                  //none || both  || horizontal || vertical || n || b || h || v
-    sizeAutoCapable: booleanTrueTemplate,                                   //true || false
-    clipAlways: booleanTrueTemplate,                                        //true || false
-    normalizeRTL: booleanTrueTemplate,                                      //true || false
-    paddingAbsolute: booleanFalseTemplate,                                  //true || false
-    autoUpdate: [null, booleanNullAllowedValues],                           //true || false || null
-    autoUpdateInterval: [33, numberAllowedValues],                          //number
-    updateOnLoad: [['img'], stringArrayNullAllowedValues],                  //string || array || null
-    nativeScrollbarsOverlaid: {
-        showNativeScrollbars: booleanFalseTemplate,                         //true || false
-        initialize: booleanFalseTemplate                                    //true || false
-    },
-    overflowBehavior: {
-        x: ['scroll', overflowBehaviorAllowedValues],                       //visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
-        y: ['scroll', overflowBehaviorAllowedValues]                        //visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
-    },
-    scrollbars: {
-        visibility: ['auto', scrollbarsVisibilityAllowedValues],            //visible || hidden || auto || v || h || a
-        autoHide: ['never', scrollbarsAutoHideAllowedValues],               //never || scroll || leave || move || n || s || l || m
-        autoHideDelay: [800, numberAllowedValues],                          //number
-        dragScrolling: booleanTrueTemplate,                                 //true || false
-        clickScrolling: booleanFalseTemplate,                               //true || false
-        touchSupport: booleanTrueTemplate,                                  //true || false
-        snapHandle: booleanFalseTemplate                                    //true || false
-    },
-    textarea: {
-        dynWidth: booleanFalseTemplate,                                     //true || false
-        dynHeight: booleanFalseTemplate,                                    //true || false
-        inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues], //string || array || null
-    },
-    callbacks: {
-        onInitialized: callbackTemplate,                                    //null || function
-        onInitializationWithdrawn: callbackTemplate,                        //null || function
-        onDestroyed: callbackTemplate,                                      //null || function
-        onScrollStart: callbackTemplate,                                    //null || function
-        onScroll: callbackTemplate,                                         //null || function
-        onScrollStop: callbackTemplate,                                     //null || function
-        onOverflowChanged: callbackTemplate,                                //null || function
-        onOverflowAmountChanged: callbackTemplate,                          //null || function
-        onDirectionChanged: callbackTemplate,                               //null || function
-        onContentSizeChanged: callbackTemplate,                             //null || function
-        onHostSizeChanged: callbackTemplate,                                //null || function
-        onUpdated: callbackTemplate                                         //null || function
-    }
-}
+  className: ['os-theme-dark', classNameAllowedValues], // null || string
+  resize: ['none', resizeAllowedValues], // none || both  || horizontal || vertical || n || b || h || v
+  sizeAutoCapable: booleanTrueTemplate, // true || false
+  clipAlways: booleanTrueTemplate, // true || false
+  normalizeRTL: booleanTrueTemplate, // true || false
+  paddingAbsolute: booleanFalseTemplate, // true || false
+  autoUpdate: [null, booleanNullAllowedValues], // true || false || null
+  autoUpdateInterval: [33, numberAllowedValues], // number
+  updateOnLoad: [['img'], stringArrayNullAllowedValues], // string || array || null
+  nativeScrollbarsOverlaid: {
+    showNativeScrollbars: booleanFalseTemplate, // true || false
+    initialize: booleanFalseTemplate, // true || false
+  },
+  overflowBehavior: {
+    x: ['scroll', overflowBehaviorAllowedValues], // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
+    y: ['scroll', overflowBehaviorAllowedValues], // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
+  },
+  scrollbars: {
+    visibility: ['auto', scrollbarsVisibilityAllowedValues], // visible || hidden || auto || v || h || a
+    autoHide: ['never', scrollbarsAutoHideAllowedValues], // never || scroll || leave || move || n || s || l || m
+    autoHideDelay: [800, numberAllowedValues], // number
+    dragScrolling: booleanTrueTemplate, // true || false
+    clickScrolling: booleanFalseTemplate, // true || false
+    touchSupport: booleanTrueTemplate, // true || false
+    snapHandle: booleanFalseTemplate, // true || false
+  },
+  textarea: {
+    dynWidth: booleanFalseTemplate, // true || false
+    dynHeight: booleanFalseTemplate, // true || false
+    inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues], // string || array || null
+  },
+  callbacks: {
+    onInitialized: callbackTemplate, // null || function
+    onInitializationWithdrawn: callbackTemplate, // null || function
+    onDestroyed: callbackTemplate, // null || function
+    onScrollStart: callbackTemplate, // null || function
+    onScroll: callbackTemplate, // null || function
+    onScrollStop: callbackTemplate, // null || function
+    onOverflowChanged: callbackTemplate, // null || function
+    onOverflowAmountChanged: callbackTemplate, // null || function
+    onDirectionChanged: callbackTemplate, // null || function
+    onContentSizeChanged: callbackTemplate, // null || function
+    onHostSizeChanged: callbackTemplate, // null || function
+    onUpdated: callbackTemplate, // null || function
+  },
+};
 &nbsp;
 export const optionsTemplate: OptionsTemplate&lt;Required&lt;OverlayScrollbars.Options&gt;&gt; = transform(defaultOptionsWithTemplate, true);
 export const defaultOptions: OverlayScrollbars.Options = transform(defaultOptionsWithTemplate);
-&nbsp;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -310,7 +307,7 @@ export const defaultOptions: OverlayScrollbars.Options = transform(defaultOption
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Mon Jul 20 2020 17:08:17 GMT+0200 (GMT+02:00)
+                at Sat Jul 25 2020 00:36:56 GMT+0200 (GMT+02:00)
             </div>
         </div>
         <script src="../prettify.js"></script>

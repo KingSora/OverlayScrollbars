@@ -1,5 +1,5 @@
-export * from 'core/dom/attributes';
-export * from 'core/dom/classes';
+export * from 'core/dom/attribute';
+export * from 'core/dom/class';
 export * from 'core/dom/create';
 export * from 'core/dom/style';
 export * from 'core/dom/manipulation';

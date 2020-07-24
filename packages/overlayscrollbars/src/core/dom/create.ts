@@ -1,14 +1,12 @@
-import { each } from 'core/utils/arrays';
+import { each } from 'core/utils/array';
 import { contents } from 'core/dom/traversal';
 import { removeElements } from 'core/dom/manipulation';
 
-export const createDiv: () => HTMLDivElement = () => {
-    return document.createElement('div');
-}
+export const createDiv: () => HTMLDivElement = () => document.createElement('div');
 
 export const createDOM: (html: string) => ReadonlyArray<Node> = (html) => {
-    const elm = createDiv();
-    elm.innerHTML = html.trim();
+  const createdDiv = createDiv();
+  createdDiv.innerHTML = html.trim();
 
-    return each(contents(elm), (elm) => removeElements(elm));
-}
+  return each(contents(createdDiv), (elm) => removeElements(elm));
+};

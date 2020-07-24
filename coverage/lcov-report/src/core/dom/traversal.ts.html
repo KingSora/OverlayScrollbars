@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>29/29</span>
+                <span class='fraction'>26/26</span>
             </div>
         
             
@@ -107,12 +107,9 @@
 <a name='L48'></a><a href='#L48'>48</a>
 <a name='L49'></a><a href='#L49'>49</a>
 <a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a>
-<a name='L52'></a><a href='#L52'>52</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">6x</span>
@@ -124,18 +121,19 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">31x</span>
 <span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">21x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -152,72 +150,71 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">38x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span></td><td class="text"><pre class="prettyprint lang-js">import { each } from 'core/utils/arrays';
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { each } from 'core/utils/arrays';
 &nbsp;
-const elementIsVisible: (elm: HTMLElement) =&gt; boolean = (elm) =&gt; {
-    return !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
-}
+const elementIsVisible: (elm: HTMLElement) =&gt; boolean = (elm) =&gt; !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
 &nbsp;
 export const find: (selector: string, elm?: Element | null) =&gt; ReadonlyArray&lt;Element&gt; = (selector, elm?) =&gt; {
-    const arr: Array&lt;Element&gt; = [];
+  const arr: Array&lt;Element&gt; = [];
 &nbsp;
-    each((elm || document).querySelectorAll(selector), (e: Element) =&gt; {
-        arr.push(e);
-    });
+  each((elm || document).querySelectorAll(selector), (e: Element) =&gt; {
+    arr.push(e);
+  });
 &nbsp;
-    return arr;
-}
+  return arr;
+};
 &nbsp;
-export const findFirst: (selector: string, elm?: Element | null) =&gt; Element | null = (selector, elm?) =&gt; {
-    return (elm || document).querySelector(selector);
-}
+export const findFirst: (selector: string, elm?: Element | null) =&gt; Element | null = (selector, elm?) =&gt; (elm || document).querySelector(selector);
 &nbsp;
 export const is: (elm: Element | null, selector: string) =&gt; boolean = (elm, selector) =&gt; {
-    if (elm) {
-        if (selector === ':visible')
-            return elementIsVisible(elm as HTMLElement);
-        if (selector === ':hidden')
-            return !elementIsVisible(elm as HTMLElement);
-        if (elm.matches(selector))
-            return true;
+  if (elm) {
+    if (selector === ':visible') {
+      return elementIsVisible(elm as HTMLElement);
     }
-    return false;
-}
+    if (selector === ':hidden') {
+      return !elementIsVisible(elm as HTMLElement);
+    }
+    if (elm.matches(selector)) {
+      return true;
+    }
+  }
+  return false;
+};
 &nbsp;
 export const children: (elm: Element | null, selector?: string) =&gt; ReadonlyArray&lt;Element&gt; = (elm, selector?) =&gt; {
-    const children: Array&lt;Element&gt; = [];
+  const childs: Array&lt;Element&gt; = [];
 &nbsp;
-    each(elm &amp;&amp; elm.children, (child: Element) =&gt; {
-        if (selector) {
-            if (child.matches(selector))
-                children.push(child);
-        }
-        else
-            children.push(child);
-    });
+  each(elm &amp;&amp; elm.children, (child: Element) =&gt; {
+    if (selector) {
+      if (child.matches(selector)) {
+        childs.push(child);
+      }
+    } else {
+      childs.push(child);
+    }
+  });
 &nbsp;
-    return children;
-}
+  return childs;
+};
 &nbsp;
-export const contents: (elm: Element | null) =&gt; ReadonlyArray&lt;ChildNode&gt; = (elm) =&gt; {
-    return elm ? Array.from&lt;ChildNode&gt;(elm.childNodes) : [];
-}
+export const contents: (elm: Element | null) =&gt; ReadonlyArray&lt;ChildNode&gt; = (elm) =&gt; (elm ? Array.from&lt;ChildNode&gt;(elm.childNodes) : []);
 &nbsp;
-export const parent: (elm: Node | null) =&gt; Node | null = (elm) =&gt; elm ? elm.parentElement : null;</pre></td></tr></table></pre>
+export const parent: (elm: Node | null) =&gt; Node | null = (elm) =&gt; (elm ? elm.parentElement : null);
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Mon Jul 20 2020 17:08:17 GMT+0200 (GMT+02:00)
+                at Sat Jul 25 2020 00:36:56 GMT+0200 (GMT+02:00)
             </div>
         </div>
         <script src="../../../prettify.js"></script>

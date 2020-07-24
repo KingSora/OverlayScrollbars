@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "description": "OverlayScrollbars version 2",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "jquery": "^3.5.1"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.0"
+  }
+}

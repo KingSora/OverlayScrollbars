@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "ESNext",
+    "sourceMap": true,
+    "jsx": "react",
+    "declaration": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "removeComments": true
+  },
+  "exclude": ["tests", "**/tests/*", "node_modules", "**/node_modules/*"]
+}

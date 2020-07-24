@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">26.32% </span>
+                <span class="strong">27.78% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/19</span>
+                <span class='fraction'>5/18</span>
             </div>
         
             
@@ -113,13 +113,7 @@
 <a name='L54'></a><a href='#L54'>54</a>
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
-<a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a>
-<a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a>
-<a name='L63'></a><a href='#L63'>63</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L57'></a><a href='#L57'>57</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -141,14 +135,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -163,12 +156,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -179,70 +168,63 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { isString, isNumber, isUndefined } from 'core/utils/types';
 &nbsp;
 type cssStyleObj = { [key: string]: string | number };
 &nbsp;
 const cssNumber = {
-    animationIterationCount: true,
-    columnCount: true,
-    fillOpacity: true,
-    flexGrow: true,
-    flexShrink: true,
-    fontWeight: true,
-    lineHeight: true,
-    opacity: true,
-    order: true,
-    orphans: true,
-    widows: true,
-    zIndex: true,
-    zoom: true
+  animationIterationCount: true,
+  columnCount: true,
+  fillOpacity: true,
+  flexGrow: true,
+  flexShrink: true,
+  fontWeight: true,
+  lineHeight: true,
+  opacity: true,
+  order: true,
+  orphans: true,
+  widows: true,
+  zIndex: true,
+  zoom: true,
 };
 &nbsp;
-const setCSSVal: (elm: HTMLElement, prop: string, val: string | number) =&gt; void = <span class="fstat-no" title="function not covered" >(e</span>lm, prop, val) =&gt; {
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >        if (elm.style[prop] !== undefined) {</span>
-<span class="cstat-no" title="statement not covered" >            elm.style[prop] = parseCSSVal(prop, val);</span>
-        }
-    } catch (e) { }
-}
+const parseCSSVal: (prop: string, val: string | number) =&gt; string | number = <span class="fstat-no" title="function not covered" >(p</span>rop, val) =&gt;
+<span class="cstat-no" title="statement not covered" >  !cssNumber[prop.toLowerCase()] &amp;&amp; isNumber(val) ? `${val}px` : val;</span>
 &nbsp;
-const parseCSSVal: (prop: string, val: string | number) =&gt; string | number = <span class="fstat-no" title="function not covered" >(p</span>rop, val) =&gt; {
-<span class="cstat-no" title="statement not covered" >    return !cssNumber[prop.toLowerCase()] &amp;&amp; isNumber(val) ? val + 'px' : val;</span>
-}
+const setCSSVal: (elm: HTMLElement, prop: string, val: string | number) =&gt; void = <span class="fstat-no" title="function not covered" >(e</span>lm, prop, val) =&gt; {
+<span class="cstat-no" title="statement not covered" >  try {</span>
+<span class="cstat-no" title="statement not covered" >    if (elm.style[prop] !== undefined) {</span>
+<span class="cstat-no" title="statement not covered" >      elm.style[prop] = parseCSSVal(prop, val);</span>
+    }
+  } catch (e) {}
+};
 &nbsp;
 export function style(elm: HTMLElement, styles: string | cssStyleObj): string;
 export function style(elm: HTMLElement, styles: string | cssStyleObj, val: string | number): void;
 export function <span class="fstat-no" title="function not covered" >style(</span>elm: HTMLElement, styles: string | cssStyleObj, val?: string | number): string | void {
-    const getCptStyle: Function = <span class="cstat-no" title="statement not covered" >window.getComputedStyle;</span>
+  const getCptStyle = <span class="cstat-no" title="statement not covered" >window.getComputedStyle;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (isString(styles)) {</span>
-<span class="cstat-no" title="statement not covered" >        if (isUndefined(val)) {</span>
-            const cptStyle: CSSStyleDeclaration = <span class="cstat-no" title="statement not covered" >getCptStyle(elm, null);</span>
+<span class="cstat-no" title="statement not covered" >  if (isString(styles)) {</span>
+<span class="cstat-no" title="statement not covered" >    if (isUndefined(val)) {</span>
+      const cptStyle: CSSStyleDeclaration = <span class="cstat-no" title="statement not covered" >getCptStyle(elm, null);</span>
 &nbsp;
-            //https://bugzilla.mozilla.org/show_bug.cgi?id=548397 can be null sometimes if iframe with display: none (firefox only!)
-<span class="cstat-no" title="statement not covered" >            return cptStyle != null ? cptStyle.getPropertyValue(styles) : elm.style[styles];</span>
-        }
-        else {
-<span class="cstat-no" title="statement not covered" >            setCSSVal(elm, styles, val);</span>
-        }
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=548397 can be null sometimes if iframe with display: none (firefox only!)
+<span class="cstat-no" title="statement not covered" >      return cptStyle != null ? cptStyle.getPropertyValue(styles) : elm.style[styles];</span>
     }
-    else {
-<span class="cstat-no" title="statement not covered" >        for (const key in styles)</span>
-<span class="cstat-no" title="statement not covered" >            setCSSVal(elm, key, styles[key]);</span>
-    }
+<span class="cstat-no" title="statement not covered" >    setCSSVal(elm, styles, val);</span>
+  } else {
+<span class="cstat-no" title="statement not covered" >    Object.keys(styles).forEach(<span class="fstat-no" title="function not covered" >(k</span>ey) =&gt; <span class="cstat-no" title="statement not covered" >setCSSVal(elm, key, styles[key]))</span>;</span>
+  }
 }
 &nbsp;
 export const hide: (elm: HTMLElement) =&gt; void = <span class="fstat-no" title="function not covered" >(e</span>lm) =&gt; {
-<span class="cstat-no" title="statement not covered" >    elm.style.display = 'none';</span>
-}
+<span class="cstat-no" title="statement not covered" >  elm.style.display = 'none';</span>
+};
 &nbsp;
 export const show: (elm: HTMLElement) =&gt; void = <span class="fstat-no" title="function not covered" >(e</span>lm) =&gt; {
-<span class="cstat-no" title="statement not covered" >    elm.style.display = 'block';</span>
-}
-&nbsp;
+<span class="cstat-no" title="statement not covered" >  elm.style.display = 'block';</span>
+};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -250,7 +232,7 @@ export const show: (elm: HTMLElement) =&gt; void = <span class="fstat-no" title=
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Mon Jul 20 2020 17:08:17 GMT+0200 (GMT+02:00)
+                at Sat Jul 25 2020 00:36:56 GMT+0200 (GMT+02:00)
             </div>
         </div>
         <script src="../../../prettify.js"></script>

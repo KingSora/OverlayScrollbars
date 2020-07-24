@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>49/49</span>
+                <span class='fraction'>47/47</span>
             </div>
         
             
@@ -155,19 +155,14 @@
 <a name='L96'></a><a href='#L96'>96</a>
 <a name='L97'></a><a href='#L97'>97</a>
 <a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a>
-<a name='L100'></a><a href='#L100'>100</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L99'></a><a href='#L99'>99</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -183,6 +178,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -216,6 +212,7 @@
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
@@ -246,6 +243,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">11x</span>
@@ -258,14 +256,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { each } from 'core/utils';
 import { createDiv } from 'core/dom';
 &nbsp;
-const firstLetterToUpper: (str: string) =&gt; string = (str) =&gt; {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-const getDummyStyle: () =&gt; CSSStyleDeclaration = () =&gt; {
-    return createDiv().style;
-}
+const firstLetterToUpper: (str: string) =&gt; string = (str) =&gt; str.charAt(0).toUpperCase() + str.slice(1);
+const getDummyStyle: () =&gt; CSSStyleDeclaration = () =&gt; createDiv().style;
 &nbsp;
-//https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix
+// https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix
 &nbsp;
 export const cssPrefixes: ReadonlyArray&lt;string&gt; = ['-webkit-', '-moz-', '-o-', '-ms-'];
 export const jsPrefixes: ReadonlyArray&lt;string&gt; = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
@@ -278,82 +272,85 @@ export const cssCache: { [key: string]: string } = {};
  * @param name The name of the CSS property which shall be get.
  */
 export const cssProperty: (name: string) =&gt; string | undefined = (name) =&gt; {
-    let result: string | undefined = cssCache[name];
+  let result: string | undefined = cssCache[name];
 &nbsp;
-    if (cssCache.hasOwnProperty(name))
-        return result;
-&nbsp;
-    const uppercasedName: string = firstLetterToUpper(name);
-    const elmStyle: CSSStyleDeclaration = getDummyStyle();
-&nbsp;
-    each(cssPrefixes, (prefix: string) =&gt; {
-        const prefixWithoutDashes: string = prefix.replace(/-/g, '');
-        const resultPossibilities: Array&lt;string&gt; = [
-            name, //transition
-            prefix + name, //-webkit-transition
-            prefixWithoutDashes + uppercasedName, //webkitTransition
-            firstLetterToUpper(prefixWithoutDashes) + uppercasedName //WebkitTransition
-        ];
-        result = resultPossibilities.find((resultPossibility: string) =&gt; elmStyle[resultPossibility] !== undefined);
-        return !result;
-    });
-&nbsp;
-    cssCache[name] = result;
+  if (cssCache.hasOwnProperty(name)) {
     return result;
-}
+  }
+&nbsp;
+  const uppercasedName: string = firstLetterToUpper(name);
+  const elmStyle: CSSStyleDeclaration = getDummyStyle();
+&nbsp;
+  each(cssPrefixes, (prefix: string) =&gt; {
+    const prefixWithoutDashes: string = prefix.replace(/-/g, '');
+    const resultPossibilities: Array&lt;string&gt; = [
+      name, // transition
+      prefix + name, // -webkit-transition
+      prefixWithoutDashes + uppercasedName, // webkitTransition
+      firstLetterToUpper(prefixWithoutDashes) + uppercasedName, // WebkitTransition
+    ];
+    result = resultPossibilities.find((resultPossibility: string) =&gt; elmStyle[resultPossibility] !== undefined);
+    return !result;
+  });
+&nbsp;
+  cssCache[name] = result;
+  return result;
+};
 &nbsp;
 /**
- * Get the name of the given CSS property value(s), with vendor prefix if it isn't supported wuthout, or undefined if no value is supported. 
+ * Get the name of the given CSS property value(s), with vendor prefix if it isn't supported wuthout, or undefined if no value is supported.
  * @param property The CSS property to which the CSS property value(s) belong.
  * @param values The value(s) separated by spaces which shall be get.
  * @param suffix A suffix which is added to each value in case the value is a function or something else more advanced.
  */
 export const cssPropertyValue: (property: string, values: string, suffix?: string) =&gt; string | undefined = (property, values, suffix) =&gt; {
-    const name: string = property + ' ' + values;
-    let result: string | undefined = cssCache[name];
+  const name = `${property} ${values}`;
+  let result: string | undefined = cssCache[name];
 &nbsp;
-    if (cssCache.hasOwnProperty(name))
-        return result;
-&nbsp;
-    const dummyStyle: CSSStyleDeclaration = getDummyStyle();
-    const possbleValues: Array&lt;string&gt; = values.split(' ');
-    const preparedSuffix: string = suffix || '';
-    const cssPrefixesWithFirstEmpty = [''].concat(cssPrefixes);
-&nbsp;
-    each(possbleValues, (possibleValue: string) =&gt; {
-        each(cssPrefixesWithFirstEmpty, (prefix: string) =&gt; {
-            const prop = prefix + possibleValue;
-            dummyStyle.cssText = property + ':' + prop + preparedSuffix;
-            if (dummyStyle.length) {
-                result = prop;
-                return false;
-            }
-        });
-        return !result;
-    });
-&nbsp;
-    cssCache[name] = result;
+  if (cssCache.hasOwnProperty(name)) {
     return result;
-}
+  }
+&nbsp;
+  const dummyStyle: CSSStyleDeclaration = getDummyStyle();
+  const possbleValues: Array&lt;string&gt; = values.split(' ');
+  const preparedSuffix: string = suffix || '';
+  const cssPrefixesWithFirstEmpty = [''].concat(cssPrefixes);
+&nbsp;
+  each(possbleValues, (possibleValue: string) =&gt; {
+    each(cssPrefixesWithFirstEmpty, (prefix: string) =&gt; {
+      const prop = prefix + possibleValue;
+      dummyStyle.cssText = `${property}:${prop}${preparedSuffix}`;
+      if (dummyStyle.length) {
+        result = prop;
+        return false;
+      }
+    });
+    return !result;
+  });
+&nbsp;
+  cssCache[name] = result;
+  return result;
+};
 &nbsp;
 /**
  * Get the requested JS function, object or constructor with vendor prefix if it isn't supported without or undefined if unsupported.
  * @param name The name of the JS function, object or constructor.
  */
 export const jsAPI: (name: string) =&gt; any = (name) =&gt; {
-    let result: any = jsCache[name] || window[name];
+  let result: any = jsCache[name] || window[name];
 &nbsp;
-    if (jsCache.hasOwnProperty(name))
-        return result;
-&nbsp;
-    each(jsPrefixes, (prefix: string) =&gt; {
-        result = result || window[prefix + firstLetterToUpper(name)];
-        return !result;
-    });
-&nbsp;
-    jsCache[name] = result;
+  if (jsCache.hasOwnProperty(name)) {
     return result;
-}
+  }
+&nbsp;
+  each(jsPrefixes, (prefix: string) =&gt; {
+    result = result || window[prefix + firstLetterToUpper(name)];
+    return !result;
+  });
+&nbsp;
+  jsCache[name] = result;
+  return result;
+};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -361,7 +358,7 @@ export const jsAPI: (name: string) =&gt; any = (name) =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Mon Jul 20 2020 17:08:17 GMT+0200 (GMT+02:00)
+                at Sat Jul 25 2020 00:36:56 GMT+0200 (GMT+02:00)
             </div>
         </div>
         <script src="../../../prettify.js"></script>

@@ -1,6 +1,5 @@
-
 import { createDOM } from 'core/dom';
-import j from 'jquery';
+
 /*
 export * from 'core/compatibility';
 export * from 'core/utils';
@@ -10,14 +9,16 @@ export * from 'instances';
 */
 
 const abc = {
-    a: 1,
-    b: 1,
-    c: 1,
-}
+  a: 1,
+  b: 1,
+  c: 1,
+};
 
 export default () => {
-    const { a, b, c } = abc;
-    return [createDOM(`\
+  const { a, b, c } = abc;
+  return [
+    createDOM(
+      '\
     <div class="os-host">\
         <div class="os-resize-observer-host"></div>\
         <div class="os-padding">\
@@ -38,5 +39,12 @@ export default () => {
             </div>\
         </div>\
         <div class="os-scrollbar-corner"></div>\
-    </div>`), j('div'), a, b, c];
+    </div>',
+    ),
+    a,
+    b,
+    c,
+  ];
 };
+
+export const a = 1;

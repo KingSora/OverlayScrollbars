@@ -115,7 +115,26 @@
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
 <a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -135,7 +154,6 @@
 <span class="cline-any cline-yes">180x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1080x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">217x</span>
 <span class="cline-any cline-yes">632x</span>
@@ -173,6 +191,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">180x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { isArray, isFunction, isPlainObject, isNull } from 'core/utils/types';
 import { each } from 'core/utils/arrays';
 &nbsp;
@@ -182,63 +202,73 @@ export function extend&lt;T, U, V&gt;(target: T, object1: U, object2: V): T &amp
 export function extend&lt;T, U, V, W&gt;(target: T, object1: U, object2: V, object3: W): T &amp; U &amp; V &amp; W;
 export function extend&lt;T, U, V, W, X&gt;(target: T, object1: U, object2: V, object3: W, object4: X): T &amp; U &amp; V &amp; W &amp; X;
 export function extend&lt;T, U, V, W, X, Y&gt;(target: T, object1: U, object2: V, object3: W, object4: X, object5: Y): T &amp; U &amp; V &amp; W &amp; X &amp; Y;
-export function extend&lt;T, U, V, W, X, Y, Z&gt;(target: T, object1?: U, object2?: V, object3?: W, object4?: X, object5?: Y, object6?: Z): T &amp; U &amp; V &amp; W &amp; X &amp; Y &amp; Z {
-    const sources: Array&lt;any&gt; = [object1, object2, object3, object4, object5, object6];
+export function extend&lt;T, U, V, W, X, Y, Z&gt;(
+  target: T,
+  object1?: U,
+  object2?: V,
+  object3?: W,
+  object4?: X,
+  object5?: Y,
+  object6?: Z,
+): T &amp; U &amp; V &amp; W &amp; X &amp; Y &amp; Z {
+  /* eslint-disable no-restricted-syntax, guard-for-in */
+  const sources: Array&lt;any&gt; = [object1, object2, object3, object4, object5, object6];
 &nbsp;
-    // Handle case when target is a string or something (possible in deep copy)
-    if ((typeof target !== "object" || isNull(target)) &amp;&amp; !isFunction(target)) {
-        target = {} as T;
-    }
+  // Handle case when target is a string or something (possible in deep copy)
+  if ((typeof target !== 'object' || isNull(target)) &amp;&amp; !isFunction(target)) {
+    target = {} as T;
+  }
 &nbsp;
-    each(sources, (source) =&gt; {
-        // Only deal with non-null/undefined values
-        if (source != null) {
+  each(sources, (source) =&gt; {
+    // Only deal with non-null/undefined values
+    if (source != null) {
+      // Extend the base object
+      for (const name in source) {
+        const copy: any = source[name];
 &nbsp;
-            // Extend the base object
-            for (const name in source) {
-                const copy: any = source[name];
-&nbsp;
-                // Prevent Object.prototype pollution
-                // Prevent never-ending loop
-                if (name === "__proto__" || target === copy) {
-                    continue;
-                }
-&nbsp;
-                const copyIsArray = isArray(copy);
-&nbsp;
-                // Recurse if we're merging plain objects or arrays
-                if (copy &amp;&amp; (isPlainObject(copy) || copyIsArray)) {
-                    const src = target[name];
-                    let clone: any = src;
-&nbsp;
-                    // Ensure proper type for the source value
-                    if (copyIsArray &amp;&amp; !isArray(src)) {
-                        clone = [];
-                    } else if (!copyIsArray &amp;&amp; !isPlainObject(src)) {
-                        clone = {};
-                    }
-&nbsp;
-                    // Never move original objects, clone them
-                    target[name] = extend(clone, copy) as any;
-&nbsp;
-                    // Don't bring in undefined values
-                } else if (copy !== undefined) {
-                    target[name] = copy;
-                }
-            }
+        // Prevent Object.prototype pollution
+        // Prevent never-ending loop
+        if (name === '__proto__' || target === copy) {
+          continue;
         }
-    });
 &nbsp;
-    // Return the modified object
-    return target as any;
-}</pre></td></tr></table></pre>
+        const copyIsArray = isArray(copy);
+&nbsp;
+        // Recurse if we're merging plain objects or arrays
+        if (copy &amp;&amp; (isPlainObject(copy) || copyIsArray)) {
+          const src = target[name];
+          let clone: any = src;
+&nbsp;
+          // Ensure proper type for the source value
+          if (copyIsArray &amp;&amp; !isArray(src)) {
+            clone = [];
+          } else if (!copyIsArray &amp;&amp; !isPlainObject(src)) {
+            clone = {};
+          }
+&nbsp;
+          // Never move original objects, clone them
+          target[name] = extend(clone, copy) as any;
+&nbsp;
+          // Don't bring in undefined values
+        } else if (copy !== undefined) {
+          target[name] = copy;
+        }
+      }
+    }
+  });
+&nbsp;
+  // Return the modified object
+  return target as any;
+  /* eslint-enable */
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Mon Jul 20 2020 17:08:17 GMT+0200 (GMT+02:00)
+                at Sat Jul 25 2020 00:36:56 GMT+0200 (GMT+02:00)
             </div>
         </div>
         <script src="../../../prettify.js"></script>
