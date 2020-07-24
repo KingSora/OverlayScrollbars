@@ -4,8 +4,10 @@
 node_modules/
 
 # dist
-example/dist/
-example/build/
+dist/
+
+# generated
+coverage/
 
 # local env files
 .env.local
