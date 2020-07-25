@@ -9,6 +9,6 @@ module.exports = {
   coverageDirectory: 'coverage',
   moduleDirectories: resolve.directories,
   moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),
-  testPathIgnorePatterns: ['\\\\node_modules\\\\', 'src/', 'dist/'],
+  testPathIgnorePatterns: ['\\\\node_modules\\\\'],
   verbose: true,
 };

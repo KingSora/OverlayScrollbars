@@ -15,7 +15,7 @@ function isArrayLike(obj) {
   return isArray(obj) || !isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0;
 }
 
-const keys = obj => Object.keys(obj);
+const keys = obj => obj ? Object.keys(obj) : [];
 
 function each(source, callback) {
   if (isArrayLike(source)) {

@@ -53,6 +53,7 @@ export default async (config) => {
     src = './src',
     dist = './dist',
     types = './types',
+    tests = './tests',
     cache = [],
     minVersions = true,
     modules: { sourcemap: modulesSourceMap = true } = {},
@@ -64,6 +65,7 @@ export default async (config) => {
   const srcPath = path.resolve(projectPath, src);
   const distPath = path.resolve(projectPath, dist);
   const typesPath = path.resolve(projectPath, types);
+  const testsPath = path.resolve(projectPath, tests);
   const inputPath = path.resolve(projectPath, input);
 
   const mainOutputArray = [
@@ -101,7 +103,7 @@ export default async (config) => {
               }),
             ],
           }))
-        : [],
+        : []
     ),
     external: [...Object.keys(devDependencies), ...Object.keys(peerDependencies)],
     plugins: [
@@ -141,6 +143,7 @@ export default async (config) => {
                 declaration: true,
                 declarationDir: typesPath,
               },
+              exclude: ((await import(tsconfigJSONPath)).exclude || []).concat(testsPath),
             },
           })
         : {},

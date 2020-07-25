@@ -10,4 +10,4 @@ export const hasOwnProperty: (obj: any, prop: string | number | symbol) => boole
  * Returns the names of the enumerable string properties and methods of an object.
  * @param obj The object of which the properties shall be returned.
  */
-export const keys: (obj: any) => Array<string> = (obj: any) => Object.keys(obj);
+export const keys: (obj: any) => Array<string> = (obj: any) => (obj ? Object.keys(obj) : []);

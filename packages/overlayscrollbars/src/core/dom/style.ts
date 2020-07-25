@@ -1,4 +1,4 @@
-import { keys } from 'core/utils/object';
+import { each, keys } from 'core/utils';
 import { isString, isNumber, isUndefined } from 'core/utils/types';
 
 type cssStyleObj = { [key: string]: string | number };
@@ -44,7 +44,7 @@ export function style(elm: HTMLElement, styles: string | cssStyleObj, val?: stri
     }
     setCSSVal(elm, styles, val);
   } else {
-    keys(styles).forEach((key) => setCSSVal(elm, key, styles[key]));
+    each(keys(styles), (key) => setCSSVal(elm, key, styles[key]));
   }
 }
 

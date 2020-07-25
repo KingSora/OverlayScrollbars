@@ -2,6 +2,22 @@
   "printWidth": 150,
   "tabWidth": 2,
   "singleQuote": true,
-  "trailingComma": "all",
-  "jsxBracketSameLine": true
+  "trailingComma": "es5",
+  "jsxBracketSameLine": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": "*.vue",
+      "options": { "parser": "vue" }
+    },
+    {
+      "files": "*.component.html",
+      "options": { "parser": "angular" }
+    },
+    {
+      "files": ".prettierrc",
+      "options": { "parser": "json" }
+    }
+  ]
 }

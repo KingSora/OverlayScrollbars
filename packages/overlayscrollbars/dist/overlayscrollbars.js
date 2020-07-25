@@ -19,7 +19,7 @@ var OverlayScrollbars = function (exports) {
   }
 
   var keys = function keys(obj) {
-    return Object.keys(obj);
+    return obj ? Object.keys(obj) : [];
   };
 
   function each(source, callback) {
