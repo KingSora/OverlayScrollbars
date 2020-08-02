@@ -1,6 +1,6 @@
 {
     "name": "overlayscrollbars",
-    "version": "1.12.0",
+    "version": "1.13.0",
     "description": "A javascript scrollbar plugin which hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.",
     "keywords": [
         "overlayscrollbars",
