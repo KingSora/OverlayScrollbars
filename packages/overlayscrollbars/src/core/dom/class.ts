@@ -7,14 +7,14 @@ const rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
  * @param elm The element.
  * @param className The class name.
  */
-export const hasClass: (elm: Element, className: string) => boolean = (elm, className) => elm.classList.contains(className);
+export const hasClass = (elm: Element, className: string): boolean => elm.classList.contains(className);
 
 /**
  * Adds the given class name(s) to the given element.
  * @param elm The element.
  * @param className The class name(s) which shall be added. (separated by spaces)
  */
-export const addClass: (elm: Element, className: string) => void = (elm, className) => {
+export const addClass = (elm: Element, className: string): void => {
   let clazz: string;
   let i = 0;
 
@@ -31,7 +31,7 @@ export const addClass: (elm: Element, className: string) => void = (elm, classNa
  * @param elm The element.
  * @param className The class name(s) which shall be removed. (separated by spaces)
  */
-export const removeClass: (elm: Element, className: string) => void = (elm, className) => {
+export const removeClass = (elm: Element, className: string): void => {
   let clazz: string;
   let i = 0;
 
@@ -49,7 +49,7 @@ export const removeClass: (elm: Element, className: string) => void = (elm, clas
  * @param elm The element.
  * @param className The class name(s) which shall be added or removed. (separated by spaces)
  */
-export const conditionalClass: (elm: Element, className: string, condition: boolean) => void = (elm, className, condition) => {
+export const conditionalClass = (elm: Element, className: string, condition: boolean): void => {
   if (condition) {
     addClass(elm, className);
   } else {

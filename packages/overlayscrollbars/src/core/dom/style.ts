@@ -19,10 +19,10 @@ const cssNumber = {
   zoom: true,
 };
 
-const parseCSSVal: (prop: string, val: string | number) => string | number = (prop, val) =>
+const parseCSSVal = (prop: string, val: string | number): string | number =>
   !cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val;
 
-const setCSSVal: (elm: HTMLElement, prop: string, val: string | number) => void = (elm, prop, val) => {
+const setCSSVal = (elm: HTMLElement, prop: string, val: string | number): void => {
   try {
     if (elm.style[prop] !== undefined) {
       elm.style[prop] = parseCSSVal(prop, val);
@@ -48,10 +48,10 @@ export function style(elm: HTMLElement, styles: string | cssStyleObj, val?: stri
   }
 }
 
-export const hide: (elm: HTMLElement) => void = (elm) => {
+export const hide = (elm: HTMLElement): void => {
   elm.style.display = 'none';
 };
 
-export const show: (elm: HTMLElement) => void = (elm) => {
+export const show = (elm: HTMLElement): void => {
   elm.style.display = 'block';
 };

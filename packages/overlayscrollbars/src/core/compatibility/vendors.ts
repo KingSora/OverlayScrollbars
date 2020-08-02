@@ -1,8 +1,8 @@
 import { each, hasOwnProperty } from 'core/utils';
 import { createDiv } from 'core/dom';
 
-const firstLetterToUpper: (str: string) => string = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-const getDummyStyle: () => CSSStyleDeclaration = () => createDiv().style;
+const firstLetterToUpper = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);
+const getDummyStyle = (): CSSStyleDeclaration => createDiv().style;
 
 // https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix
 
@@ -16,7 +16,7 @@ export const cssCache: { [key: string]: string } = {};
  * Gets the name of the given CSS property with vendor prefix if it isn't supported without, or undefined if unsupported.
  * @param name The name of the CSS property which shall be get.
  */
-export const cssProperty: (name: string) => string | undefined = (name) => {
+export const cssProperty = (name: string): string | undefined => {
   let result: string | undefined = cssCache[name];
 
   if (hasOwnProperty(cssCache, name)) {
@@ -48,7 +48,7 @@ export const cssProperty: (name: string) => string | undefined = (name) => {
  * @param values The value(s) separated by spaces which shall be get.
  * @param suffix A suffix which is added to each value in case the value is a function or something else more advanced.
  */
-export const cssPropertyValue: (property: string, values: string, suffix?: string) => string | undefined = (property, values, suffix) => {
+export const cssPropertyValue = (property: string, values: string, suffix?: string): string | undefined => {
   const name = `${property} ${values}`;
   let result: string | undefined = cssCache[name];
 
@@ -81,7 +81,7 @@ export const cssPropertyValue: (property: string, values: string, suffix?: strin
  * Get the requested JS function, object or constructor with vendor prefix if it isn't supported without or undefined if unsupported.
  * @param name The name of the JS function, object or constructor.
  */
-export const jsAPI: (name: string) => any = (name) => {
+export const jsAPI = (name: string): any => {
   let result: any = jsCache[name] || window[name];
 
   if (hasOwnProperty(jsCache, name)) {

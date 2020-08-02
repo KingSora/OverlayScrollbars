@@ -1,5 +1,22 @@
-var OverlayScrollbars = function (exports) {
-  'use strict';
+(function (global, factory) {
+  if (typeof define === "function" && define.amd) {
+    define("OverlayScrollbars", ["exports"], factory);
+  } else if (typeof exports !== "undefined") {
+    factory(exports);
+  } else {
+    var mod = {
+      exports: {}
+    };
+    factory(mod.exports);
+    global.OverlayScrollbars = mod.exports;
+  }
+})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (_exports) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
 
   function isNumber(obj) {
     return typeof obj === 'number';
@@ -102,9 +119,7 @@ var OverlayScrollbars = function (exports) {
     </div>'), a, b, c];
   };
 
-  var a = 1;
-  exports.a = a;
-  exports.default = index;
-  return exports;
-}({});
+  var _default = index;
+  _exports.default = _default;
+});
 //# sourceMappingURL=overlayscrollbars.js.map

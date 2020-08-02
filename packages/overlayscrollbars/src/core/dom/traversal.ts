@@ -1,8 +1,8 @@
 import { each } from 'core/utils/array';
 
-const elementIsVisible: (elm: HTMLElement) => boolean = (elm) => !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
+const elementIsVisible = (elm: HTMLElement): boolean => !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
 
-export const find: (selector: string, elm?: Element | null) => ReadonlyArray<Element> = (selector, elm?) => {
+export const find = (selector: string, elm?: Element | null): ReadonlyArray<Element> => {
   const arr: Array<Element> = [];
 
   each((elm || document).querySelectorAll(selector), (e: Element) => {
@@ -12,9 +12,9 @@ export const find: (selector: string, elm?: Element | null) => ReadonlyArray<Ele
   return arr;
 };
 
-export const findFirst: (selector: string, elm?: Element | null) => Element | null = (selector, elm?) => (elm || document).querySelector(selector);
+export const findFirst = (selector: string, elm?: Element | null): Element | null => (elm || document).querySelector(selector);
 
-export const is: (elm: Element | null, selector: string) => boolean = (elm, selector) => {
+export const is = (elm: Element | null, selector: string): boolean => {
   if (elm) {
     if (selector === ':visible') {
       return elementIsVisible(elm as HTMLElement);
@@ -29,7 +29,7 @@ export const is: (elm: Element | null, selector: string) => boolean = (elm, sele
   return false;
 };
 
-export const children: (elm: Element | null, selector?: string) => ReadonlyArray<Element> = (elm, selector?) => {
+export const children = (elm: Element | null, selector?: string): ReadonlyArray<Element> => {
   const childs: Array<Element> = [];
 
   each(elm && elm.children, (child: Element) => {
@@ -45,6 +45,6 @@ export const children: (elm: Element | null, selector?: string) => ReadonlyArray
   return childs;
 };
 
-export const contents: (elm: Element | null) => ReadonlyArray<ChildNode> = (elm) => (elm ? Array.from<ChildNode>(elm.childNodes) : []);
+export const contents = (elm: Element | null): ReadonlyArray<ChildNode> => (elm ? Array.from<ChildNode>(elm.childNodes) : []);
 
-export const parent: (elm: Node | null) => Node | null = (elm) => (elm ? elm.parentElement : null);
+export const parent = (elm: Node | null): Node | null => (elm ? elm.parentElement : null);

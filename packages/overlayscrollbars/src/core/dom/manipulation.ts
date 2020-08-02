@@ -10,11 +10,7 @@ type NodeCollection = ArrayLike<Node> | Node | undefined | null;
  * @param preferredAnchor The element before which the Nodes shall be inserted or null if the elements shall be appended at the end.
  * @param insertedElms The Nodes which shall be inserted.
  */
-const before: (parentElm: Node | null, preferredAnchor: Node | null, insertedElms: NodeCollection) => void = (
-  parentElm,
-  preferredAnchor,
-  insertedElms,
-) => {
+const before = (parentElm: Node | null, preferredAnchor: Node | null, insertedElms: NodeCollection): void => {
   if (insertedElms) {
     let anchor: Node | null = preferredAnchor;
     let fragment: DocumentFragment | Node | undefined | null;
@@ -54,7 +50,7 @@ const before: (parentElm: Node | null, preferredAnchor: Node | null, insertedElm
  * @param node The Node to which the children shall be appended.
  * @param children The Nodes which shall be appended.
  */
-export const appendChildren: (node: Node | null, children: NodeCollection) => void = (node, children) => {
+export const appendChildren = (node: Node | null, children: NodeCollection): void => {
   before(node, null, children);
 };
 
@@ -63,7 +59,7 @@ export const appendChildren: (node: Node | null, children: NodeCollection) => vo
  * @param node The Node to which the children shall be prepended.
  * @param children The Nodes which shall be prepended.
  */
-export const prependChildren: (node: Node | null, children: NodeCollection) => void = (node, children) => {
+export const prependChildren = (node: Node | null, children: NodeCollection): void => {
   before(node, node && node.firstChild, children);
 };
 
@@ -72,7 +68,7 @@ export const prependChildren: (node: Node | null, children: NodeCollection) => v
  * @param node The Node before which the given Nodes shall be inserted.
  * @param insertedNodes The Nodes which shall be inserted.
  */
-export const insertBefore: (node: Node | null, insertedNodes: NodeCollection) => void = (node, insertedNodes) => {
+export const insertBefore = (node: Node | null, insertedNodes: NodeCollection): void => {
   before(parent(node), node, insertedNodes);
 };
 
@@ -81,7 +77,7 @@ export const insertBefore: (node: Node | null, insertedNodes: NodeCollection) =>
  * @param node The Node after which the given Nodes shall be inserted.
  * @param insertedNodes The Nodes which shall be inserted.
  */
-export const insertAfter: (node: Node | null, insertedNodes: NodeCollection) => void = (node, insertedNodes) => {
+export const insertAfter = (node: Node | null, insertedNodes: NodeCollection): void => {
   before(parent(node), node && node.nextSibling, insertedNodes);
 };
 
@@ -89,7 +85,7 @@ export const insertAfter: (node: Node | null, insertedNodes: NodeCollection) => 
  * Removes the given Nodes from their parent.
  * @param nodes The Nodes which shall be removed.
  */
-export const removeElements: (nodes: NodeCollection) => void = (nodes) => {
+export const removeElements = (nodes: NodeCollection): void => {
   if (isArrayLike(nodes)) {
     each(Array.from(nodes), (e) => removeElements(e));
   } else if (nodes) {

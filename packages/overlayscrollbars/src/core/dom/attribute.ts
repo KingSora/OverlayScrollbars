@@ -5,7 +5,7 @@
  * @param attrName The attribute name which shall be get or set.
  * @param value The value of the attribute which shall be set.
  */
-export const attr: (elm: Element, attrName: string, value?: string) => string | null | void = (elm, attrName, value) => {
+export const attr = (elm: Element, attrName: string, value?: string): string | null | void => {
   if (value === undefined) {
     return elm.getAttribute(attrName);
   }
@@ -17,7 +17,7 @@ export const attr: (elm: Element, attrName: string, value?: string) => string | 
  * @param elm The element of which the attribute shall be removed.
  * @param attrName The attribute name.
  */
-export const removeAttr: (elm: Element, attrName: string) => void = (elm, attrName) => {
+export const removeAttr = (elm: Element, attrName: string): void => {
   elm.removeAttribute(attrName);
 };
 
@@ -26,7 +26,7 @@ export const removeAttr: (elm: Element, attrName: string) => void = (elm, attrNa
  * @param elm The element of which the scrollLeft value shall be get or set.
  * @param value The scrollLeft value which shall be set.
  */
-export const scrollLeft: (elm: HTMLElement, value?: number) => number | void = (elm, value) => {
+export const scrollLeft = (elm: HTMLElement, value?: number): number | void => {
   if (value === undefined) {
     return elm.scrollLeft;
   }
@@ -38,7 +38,7 @@ export const scrollLeft: (elm: HTMLElement, value?: number) => number | void = (
  * @param elm The element of which the scrollTop value shall be get or set.
  * @param value The scrollTop value which shall be set.
  */
-export const scrollTop: (elm: HTMLElement, value?: number) => number | void = (elm, value) => {
+export const scrollTop = (elm: HTMLElement, value?: number): number | void => {
   if (value === undefined) {
     return elm.scrollTop;
   }
@@ -50,7 +50,7 @@ export const scrollTop: (elm: HTMLElement, value?: number) => number | void = (e
  * @param elm The input element of which the value shall be get or set.
  * @param value The value which shall be set.
  */
-export const val: (elm: HTMLInputElement, value?: string) => string | void = (elm, value) => {
+export const val = (elm: HTMLInputElement, value?: string): string | void => {
   if (value === undefined) {
     return elm.value;
   }

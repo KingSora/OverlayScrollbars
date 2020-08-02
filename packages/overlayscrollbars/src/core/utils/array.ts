@@ -49,4 +49,4 @@ export function each<T>(
  * @param item The item.
  * @param fromIndex The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.
  */
-export const indexOf: <T = any>(arr: Array<T>, item: T, fromIndex?: number) => number = (arr, item, fromIndex) => arr.indexOf(item, fromIndex);
+export const indexOf = <T = any>(arr: Array<T>, item: T, fromIndex?: number): number => arr.indexOf(item, fromIndex);

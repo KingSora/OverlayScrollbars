@@ -70,13 +70,26 @@ export default async (config) => {
 
   const mainOutputArray = [
     {
-      format: 'iife',
+      format: 'esm',
       name,
       globals,
       exports,
       file: path.resolve(distPath, `${project}.js`),
       sourcemap: legacySourceMap,
-      plugins: [rollupBabelOutputPlugin(legacyOutputBabelConfig)],
+      plugins: [
+        rollupBabelOutputPlugin({
+          ...legacyOutputBabelConfig,
+          plugins: [
+            [
+              '@babel/plugin-transform-modules-umd',
+              {
+                moduleId: name,
+                globals,
+              },
+            ],
+          ],
+        }),
+      ],
     },
     {
       format: 'esm',

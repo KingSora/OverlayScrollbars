@@ -91,7 +91,5 @@ var index = () => {
     </div>'), a, b, c];
 };
 
-const a = 1;
 export default index;
-export { a };
 //# sourceMappingURL=overlayscrollbars.esm.js.map

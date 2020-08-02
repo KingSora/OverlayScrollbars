@@ -39,12 +39,10 @@ export default () => {
             </div>\
         </div>\
         <div class="os-scrollbar-corner"></div>\
-    </div>',
+    </div>'
     ),
     a,
     b,
     c,
   ];
 };
-
-export const a = 1;

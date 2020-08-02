@@ -47,13 +47,13 @@ const optionsTemplateTypes: OptionsTemplateTypesDictionary = ['boolean', 'number
  * @param doWriteErrors True if errors shall be logged into the console, false otherwise.
  * @param propPath The propertyPath which lead to this object. (used for error logging)
  */
-const validateRecursive = function <T extends PlainObject>(
+const validateRecursive = <T extends PlainObject>(
   options: T,
   template: OptionsTemplate<Required<T>>,
   optionsDiff: OptionsValidated<T>,
   doWriteErrors?: boolean,
   propPath?: string,
-): OptionsValidatedResult<T> {
+): OptionsValidatedResult<T> => {
   const validatedOptions: OptionsValidated<T> = {};
   const optionsCopy: T = { ...options };
   const props = keys(template).filter((prop) => hasOwnProperty(options, prop));
@@ -147,12 +147,12 @@ const validateRecursive = function <T extends PlainObject>(
  * Without the optionsDiff object the returned validated object would be: { a: 'a', b: 'b', c: 'c' }
  * @param doWriteErrors True if errors shall be logged into the console, false otherwise.
  */
-const validate = function <T extends PlainObject>(
+const validate = <T extends PlainObject>(
   options: T,
   template: OptionsTemplate<Required<T>>,
   optionsDiff?: OptionsValidated<T>,
   doWriteErrors?: boolean,
-): OptionsValidatedResult<T> {
+): OptionsValidatedResult<T> => {
   /*
     if (!isEmptyObject(foreign) && doWriteErrors)
         console.warn(`The following options are discarded due to invalidity:\r\n ${window.JSON.stringify(foreign, null, 2)}`);
