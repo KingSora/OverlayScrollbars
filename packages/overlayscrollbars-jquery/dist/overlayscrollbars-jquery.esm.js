@@ -3,7 +3,7 @@ import j from 'jquery';
 var abc = 'abc';
 const a = 1 + 1;
 var file = {
-  a
+  a,
 };
 const a$1 = 'a';
 const b = 'b';

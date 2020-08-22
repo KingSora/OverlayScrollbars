@@ -6,6 +6,7 @@
   "jsxBracketSameLine": true,
   "arrowParens": "always",
   "endOfLine": "lf",
+  "parser": "babel",
   "overrides": [
     {
       "files": "*.vue",

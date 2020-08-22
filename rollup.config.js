@@ -1,6 +1,7 @@
 import rollupCommonjs from '@rollup/plugin-commonjs';
 import rollupResolve from '@rollup/plugin-node-resolve';
 import rollupTypescript from 'rollup-plugin-typescript2';
+import rollupPrettier from 'rollup-plugin-prettier';
 import { getBabelOutputPlugin as rollupBabelOutputPlugin } from '@rollup/plugin-babel';
 import { terser as rollupTerser } from 'rollup-plugin-terser';
 import del from 'del';
@@ -16,6 +17,7 @@ const legacyOutputBabelConfig = {
     [
       '@babel/preset-env',
       {
+        loose: true,
         targets: {
           ie: '11',
         },
@@ -29,6 +31,7 @@ const esmOutputBabelConfig = {
     [
       '@babel/preset-env',
       {
+        loose: true,
         bugfixes: true,
         targets: {
           esmodules: true,
@@ -70,24 +73,16 @@ export default async (config) => {
 
   const mainOutputArray = [
     {
-      format: 'esm',
+      format: 'umd',
       name,
       globals,
       exports,
       file: path.resolve(distPath, `${project}.js`),
       sourcemap: legacySourceMap,
       plugins: [
-        rollupBabelOutputPlugin({
-          ...legacyOutputBabelConfig,
-          plugins: [
-            [
-              '@babel/plugin-transform-modules-umd',
-              {
-                moduleId: name,
-                globals,
-              },
-            ],
-          ],
+        rollupBabelOutputPlugin(legacyOutputBabelConfig),
+        rollupPrettier({
+          sourcemap: legacySourceMap && 'silent',
         }),
       ],
     },
@@ -95,7 +90,12 @@ export default async (config) => {
       format: 'esm',
       file: path.resolve(distPath, `${project}.esm.js`),
       sourcemap: modulesSourceMap,
-      plugins: [rollupBabelOutputPlugin(esmOutputBabelConfig)],
+      plugins: [
+        rollupBabelOutputPlugin(esmOutputBabelConfig),
+        rollupPrettier({
+          sourcemap: modulesSourceMap && 'silent',
+        }),
+      ],
     },
   ];
 

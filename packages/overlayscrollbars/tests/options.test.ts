@@ -1,4 +1,4 @@
-import { validate } from 'core/options';
+import { validate } from 'support/options';
 import { defaultOptions, optionsTemplate } from 'options';
 
 describe('options', () => {

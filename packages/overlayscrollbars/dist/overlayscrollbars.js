@@ -1,22 +1,11 @@
 (function (global, factory) {
-  if (typeof define === "function" && define.amd) {
-    define("OverlayScrollbars", ["exports"], factory);
-  } else if (typeof exports !== "undefined") {
-    factory(exports);
-  } else {
-    var mod = {
-      exports: {}
-    };
-    factory(mod.exports);
-    global.OverlayScrollbars = mod.exports;
-  }
-})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (_exports) {
-  "use strict";
-
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports.default = void 0;
+  typeof exports === 'object' && typeof module !== 'undefined'
+    ? (module.exports = factory())
+    : typeof define === 'function' && define.amd
+    ? define(factory)
+    : ((global = global || self), (global.OverlayScrollbars = factory()));
+})(this, function () {
+  'use strict';
 
   function isNumber(obj) {
     return typeof obj === 'number';
@@ -32,7 +21,7 @@
 
   function isArrayLike(obj) {
     var length = !!obj && obj.length;
-    return isArray(obj) || !isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0;
+    return isArray(obj) || (!isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0);
   }
 
   var keys = function keys(obj) {
@@ -88,14 +77,16 @@
   var abc = {
     a: 1,
     b: 1,
-    c: 1
+    c: 1,
   };
 
   var index = function index() {
     var a = abc.a,
-        b = abc.b,
-        c = abc.c;
-    return [createDOM('\
+      b = abc.b,
+      c = abc.c;
+    return [
+      createDOM(
+        '\
     <div class="os-host">\
         <div class="os-resize-observer-host"></div>\
         <div class="os-padding">\
@@ -116,10 +107,14 @@
             </div>\
         </div>\
         <div class="os-scrollbar-corner"></div>\
-    </div>'), a, b, c];
+    </div>'
+      ),
+      a,
+      b,
+      c,
+    ];
   };
 
-  var _default = index;
-  _exports.default = _default;
+  return index;
 });
 //# sourceMappingURL=overlayscrollbars.js.map

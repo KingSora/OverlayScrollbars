@@ -12,10 +12,10 @@ function isArray(obj) {
 
 function isArrayLike(obj) {
   const length = !!obj && obj.length;
-  return isArray(obj) || !isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0;
+  return isArray(obj) || (!isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0);
 }
 
-const keys = obj => obj ? Object.keys(obj) : [];
+const keys = (obj) => (obj ? Object.keys(obj) : []);
 
 function each(source, callback) {
   if (isArrayLike(source)) {
@@ -25,21 +25,19 @@ function each(source, callback) {
       }
     }
   } else if (source) {
-    each(keys(source), key => callback(source[key], key, source));
+    each(keys(source), (key) => callback(source[key], key, source));
   }
 
   return source;
 }
 
-const contents = elm => elm ? Array.from(elm.childNodes) : [];
+const contents = (elm) => (elm ? Array.from(elm.childNodes) : []);
 
-const removeElements = nodes => {
+const removeElements = (nodes) => {
   if (isArrayLike(nodes)) {
-    each(Array.from(nodes), e => removeElements(e));
+    each(Array.from(nodes), (e) => removeElements(e));
   } else if (nodes) {
-    const {
-      parentNode
-    } = nodes;
+    const { parentNode } = nodes;
 
     if (parentNode) {
       parentNode.removeChild(nodes);
@@ -49,25 +47,23 @@ const removeElements = nodes => {
 
 const createDiv = () => document.createElement('div');
 
-const createDOM = html => {
+const createDOM = (html) => {
   const createdDiv = createDiv();
   createdDiv.innerHTML = html.trim();
-  return each(contents(createdDiv), elm => removeElements(elm));
+  return each(contents(createdDiv), (elm) => removeElements(elm));
 };
 
 const abc = {
   a: 1,
   b: 1,
-  c: 1
+  c: 1,
 };
 
 var index = () => {
-  const {
-    a,
-    b,
-    c
-  } = abc;
-  return [createDOM('\
+  const { a, b, c } = abc;
+  return [
+    createDOM(
+      '\
     <div class="os-host">\
         <div class="os-resize-observer-host"></div>\
         <div class="os-padding">\
@@ -88,7 +84,12 @@ var index = () => {
             </div>\
         </div>\
         <div class="os-scrollbar-corner"></div>\
-    </div>'), a, b, c];
+    </div>'
+    ),
+    a,
+    b,
+    c,
+  ];
 };
 
 export default index;

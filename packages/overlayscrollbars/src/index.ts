@@ -1,12 +1,4 @@
-import { createDOM } from 'core/dom';
-
-/*
-export * from 'core/compatibility';
-export * from 'core/utils';
-export * from 'core/dom';
-export * from 'core/options';
-export * from 'instances';
-*/
+import { createDOM } from 'support/dom';
 
 const abc = {
   a: 1,
