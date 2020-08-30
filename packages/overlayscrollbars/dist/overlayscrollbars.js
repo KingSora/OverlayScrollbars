@@ -87,9 +87,20 @@
 
     return source;
   }
+  var from = function from(arr) {
+    if (Array.from) {
+      return Array.from(arr);
+    }
+
+    var result = [];
+    each(arr, function (elm) {
+      result.push(elm);
+    });
+    return result;
+  };
 
   var contents = function contents(elm) {
-    return elm ? Array.from(elm.childNodes) : [];
+    return elm ? from(elm.childNodes) : [];
   };
 
   var before = function before(parentElm, preferredAnchor, insertedElms) {
@@ -129,7 +140,7 @@
   };
   var removeElements = function removeElements(nodes) {
     if (isArrayLike(nodes)) {
-      each(Array.from(nodes), function (e) {
+      each(from(nodes), function (e) {
         return removeElements(e);
       });
     } else if (nodes) {
@@ -152,7 +163,6 @@
     });
   };
 
-  var zeroDomRect = new DOMRect();
   var zeroObj = {
     w: 0,
     h: 0,
@@ -178,6 +188,9 @@
           h: elm.clientHeight,
         }
       : zeroObj;
+  };
+  var getBoundingClientRect = function getBoundingClientRect(elm) {
+    return elm.getBoundingClientRect();
   };
 
   var cssNumber = {
@@ -242,7 +255,7 @@
     y: 0,
   };
   var offset = function offset(elm) {
-    var rect = elm ? elm.getBoundingClientRect() : 0;
+    var rect = elm ? getBoundingClientRect(elm) : 0;
     return rect
       ? {
           x: rect.left + window.pageYOffset,
@@ -526,10 +539,9 @@
     return Environment;
   })();
 
-  var env = new Environment();
   var index = function () {
     return [
-      env,
+      new Environment(),
       createDOM(
         '\
     <div class="os-host">\

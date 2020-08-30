@@ -1,5 +1,5 @@
 import { isArrayLike } from 'support/utils/types';
-import { each } from 'support/utils/array';
+import { each, from } from 'support/utils/array';
 import { parent } from 'support/dom/traversal';
 
 type NodeCollection = ArrayLike<Node> | Node | undefined | null;
@@ -87,7 +87,7 @@ export const insertAfter = (node: Node | null, insertedNodes: NodeCollection): v
  */
 export const removeElements = (nodes: NodeCollection): void => {
   if (isArrayLike(nodes)) {
-    each(Array.from(nodes), (e) => removeElements(e));
+    each(from(nodes), (e) => removeElements(e));
   } else if (nodes) {
     const { parentNode } = nodes;
     if (parentNode) {

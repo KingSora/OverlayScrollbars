@@ -1,4 +1,4 @@
-import { each } from 'support/utils/array';
+import { each, from } from 'support/utils/array';
 
 const elementIsVisible = (elm: HTMLElement): boolean => !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
 
@@ -45,6 +45,6 @@ export const children = (elm: Element | null, selector?: string): ReadonlyArray<
   return childs;
 };
 
-export const contents = (elm: Element | null): ReadonlyArray<ChildNode> => (elm ? Array.from<ChildNode>(elm.childNodes) : []);
+export const contents = (elm: Element | null): ReadonlyArray<ChildNode> => (elm ? from(elm.childNodes) : []);
 
 export const parent = (elm: Node | null): Node | null => (elm ? elm.parentElement : null);

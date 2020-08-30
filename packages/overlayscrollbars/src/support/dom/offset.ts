@@ -1,4 +1,5 @@
-import { XY, getBoundingClientRect } from 'support/dom';
+import { getBoundingClientRect } from 'support/dom/dimensions';
+import { XY } from 'support/dom';
 
 const zeroObj: XY = {
   x: 0,

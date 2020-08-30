@@ -6,3 +6,4 @@ export declare function each<T>(arrayLikeObject: ArrayLike<T> | null, callback: 
 export declare function each(obj: PlainObject, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject;
 export declare function each(obj: PlainObject | null, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject | null;
 export declare const indexOf: <T = any>(arr: T[], item: T, fromIndex?: number | undefined) => number;
+export declare const from: <T = any>(arr: ArrayLike<T>) => T[];

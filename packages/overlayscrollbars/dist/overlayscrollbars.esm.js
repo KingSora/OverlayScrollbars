@@ -70,8 +70,19 @@ function each(source, callback) {
 
   return source;
 }
+const from = (arr) => {
+  if (Array.from) {
+    return Array.from(arr);
+  }
 
-const contents = (elm) => (elm ? Array.from(elm.childNodes) : []);
+  const result = [];
+  each(arr, (elm) => {
+    result.push(elm);
+  });
+  return result;
+};
+
+const contents = (elm) => (elm ? from(elm.childNodes) : []);
 
 const before = (parentElm, preferredAnchor, insertedElms) => {
   if (insertedElms) {
@@ -110,7 +121,7 @@ const appendChildren = (node, children) => {
 };
 const removeElements = (nodes) => {
   if (isArrayLike(nodes)) {
-    each(Array.from(nodes), (e) => removeElements(e));
+    each(from(nodes), (e) => removeElements(e));
   } else if (nodes) {
     const { parentNode } = nodes;
 
@@ -127,7 +138,6 @@ const createDOM = (html) => {
   return each(contents(createdDiv), (elm) => removeElements(elm));
 };
 
-const zeroDomRect = new DOMRect();
 const zeroObj = {
   w: 0,
   h: 0,
@@ -150,6 +160,7 @@ const clientSize = (elm) =>
         h: elm.clientHeight,
       }
     : zeroObj;
+const getBoundingClientRect = (elm) => elm.getBoundingClientRect();
 
 const cssNumber = {
   animationiterationcount: 1,
@@ -207,7 +218,7 @@ const zeroObj$1 = {
   y: 0,
 };
 const offset = (elm) => {
-  const rect = elm ? elm.getBoundingClientRect() : 0;
+  const rect = elm ? getBoundingClientRect(elm) : 0;
   return rect
     ? {
         x: rect.left + window.pageYOffset,
@@ -480,10 +491,9 @@ class Environment {
   }
 }
 
-const env = new Environment();
 var index = () => {
   return [
-    env,
+    new Environment(),
     createDOM(
       '\
     <div class="os-host">\

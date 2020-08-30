@@ -11,25 +11,25 @@ import { PlainObject } from 'typings';
  */
 export function each<T>(
   array: Array<T> | ReadonlyArray<T>,
-  callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | void,
+  callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | void
 ): Array<T> | ReadonlyArray<T>;
 export function each<T>(
   array: Array<T> | ReadonlyArray<T> | null,
-  callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | void,
+  callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | void
 ): Array<T> | ReadonlyArray<T> | null;
 export function each<T>(
   arrayLikeObject: ArrayLike<T>,
-  callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | void,
+  callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | void
 ): ArrayLike<T>;
 export function each<T>(
   arrayLikeObject: ArrayLike<T> | null,
-  callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | void,
+  callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | void
 ): ArrayLike<T> | null;
 export function each(obj: PlainObject, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject;
 export function each(obj: PlainObject | null, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject | null;
 export function each<T>(
   source: ArrayLike<T> | PlainObject | null,
-  callback: (value: T | any, indexOrKey: any, source: any) => boolean | void,
+  callback: (value: T | any, indexOrKey: any, source: any) => boolean | void
 ): Array<T> | ReadonlyArray<T> | ArrayLike<T> | PlainObject | null {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
@@ -50,3 +50,14 @@ export function each<T>(
  * @param fromIndex The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.
  */
 export const indexOf = <T = any>(arr: Array<T>, item: T, fromIndex?: number): number => arr.indexOf(item, fromIndex);
+
+export const from = <T = any>(arr: ArrayLike<T>) => {
+  if (Array.from) {
+    return Array.from(arr);
+  }
+  const result: Array<T> = [];
+  each(arr, (elm) => {
+    result.push(elm);
+  });
+  return result;
+};

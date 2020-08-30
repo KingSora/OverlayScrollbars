@@ -6,10 +6,10 @@ const abc = {
   b: 1,
   c: 1,
 };
-const env = new Environment();
+
 export default () => {
   return [
-    env,
+    new Environment(),
     createDOM(
       '\
     <div class="os-host">\
