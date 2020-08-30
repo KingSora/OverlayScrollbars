@@ -32,6 +32,7 @@ module.exports = {
     'no-param-reassign': 'off',
     'no-nested-ternary': 'off',
     'no-underscore-dangle': 'off',
+    'no-multi-assign': 'off',
     'no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
     'no-console': ['error', { allow: ['warn', 'error'] }],
     'no-empty': ['error', { allowEmptyCatch: true }],
@@ -44,6 +45,13 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-this-alias': [
+      'error',
+      {
+        allowDestructuring: true, // Allow `const { props, state } = this`; false by default
+        allowedNames: ['self', '_self'], // Allow `const self = this`; `[]` by default
+      },
+    ],
   },
   overrides: [
     {

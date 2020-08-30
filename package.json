@@ -4,10 +4,10 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/node": "^7.10.5",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/preset-typescript": "^7.9.0",
+    "@babel/core": "^7.11.0",
+    "@babel/plugin-transform-runtime": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-typescript": "^7.10.4",
     "@rollup/plugin-babel": "^5.1.0",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.4.0",
@@ -19,6 +19,7 @@
     "babel-jest": "^26.0.1",
     "bufferutil": "^4.0.1",
     "canvas": "^2.6.1",
+    "cross-env": "^7.0.2",
     "del": "^5.1.0",
     "eslint": "^7.5.0",
     "eslint-config-airbnb": "^18.2.0",
@@ -45,7 +46,7 @@
   },
   "scripts": {
     "test": "jest --coverage --runInBand --detectOpenHandles",
-    "build": "npx rollup -c --config-project='overlayscrollbars' && npx rollup -c --config-project='overlayscrollbars-jquery'",
+    "build": "cross-env NODE_ENV=build rollup -c --config-project='overlayscrollbars' && cross-env NODE_ENV=build rollup -c --config-project='overlayscrollbars-jquery'",
     "lint": "npx eslint --fix ."
   }
 }
