@@ -1,2 +1,3 @@
-declare const _default: () => (number | readonly Node[])[];
+import { Environment } from 'environment';
+declare const _default: () => (Environment | readonly Node[])[];
 export default _default;

@@ -1,22 +1,24 @@
-const zeroObj = {
-  left: 0,
-  top: 0,
+import { XY } from 'support/dom';
+
+const zeroObj: XY = {
+  x: 0,
+  y: 0,
 };
 
-export const offset = (elm: HTMLElement | null) => {
+export const offset = (elm: HTMLElement | null): XY => {
   const rect = elm ? elm.getBoundingClientRect() : 0;
   return rect
     ? {
-        left: rect.left + window.pageYOffset,
-        top: rect.top + window.pageXOffset,
+        x: rect.left + window.pageYOffset,
+        y: rect.top + window.pageXOffset,
       }
     : zeroObj;
 };
 
-export const position = (elm: HTMLElement | null) =>
+export const position = (elm: HTMLElement | null): XY =>
   elm
     ? {
-        left: elm.offsetLeft,
-        top: elm.offsetTop,
+        x: elm.offsetLeft,
+        y: elm.offsetTop,
       }
     : zeroObj;

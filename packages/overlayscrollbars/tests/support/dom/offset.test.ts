@@ -6,15 +6,15 @@ describe('dom offset', () => {
     test('returns correct object with DOM element', () => {
       const result = offset(document.body);
       expect(isPlainObject(result)).toBe(true);
-      expect(isNumber(result.left)).toBe(true);
-      expect(isNumber(result.top)).toBe(true);
+      expect(isNumber(result.x)).toBe(true);
+      expect(isNumber(result.y)).toBe(true);
     });
 
     test('returns correct object with null', () => {
       const result = offset(null);
       expect(isPlainObject(result)).toBe(true);
-      expect(result.left).toBe(0);
-      expect(result.top).toBe(0);
+      expect(result.x).toBe(0);
+      expect(result.y).toBe(0);
     });
   });
 
@@ -22,15 +22,15 @@ describe('dom offset', () => {
     test('returns correct object with DOM element', () => {
       const result = position(document.body);
       expect(isPlainObject(result)).toBe(true);
-      expect(isNumber(result.left)).toBe(true);
-      expect(isNumber(result.top)).toBe(true);
+      expect(isNumber(result.x)).toBe(true);
+      expect(isNumber(result.y)).toBe(true);
     });
 
     test('returns correct object with null', () => {
       const result = position(null);
       expect(isPlainObject(result)).toBe(true);
-      expect(result.left).toBe(0);
-      expect(result.top).toBe(0);
+      expect(result.x).toBe(0);
+      expect(result.y).toBe(0);
     });
   });
 });

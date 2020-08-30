@@ -1,14 +1,15 @@
 import { createDOM } from 'support/dom';
+import { Environment } from 'environment';
 
 const abc = {
   a: 1,
   b: 1,
   c: 1,
 };
-
+const env = new Environment();
 export default () => {
-  const { a, b, c } = abc;
   return [
+    env,
     createDOM(
       '\
     <div class="os-host">\
@@ -33,8 +34,5 @@ export default () => {
         <div class="os-scrollbar-corner"></div>\
     </div>'
     ),
-    a,
-    b,
-    c,
   ];
 };
