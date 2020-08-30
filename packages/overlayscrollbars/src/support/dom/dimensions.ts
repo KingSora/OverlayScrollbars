@@ -1,6 +1,5 @@
 import { WH } from 'support/dom';
 
-const zeroDomRect = new DOMRect();
 const zeroObj: WH = {
   w: 0,
   h: 0,
@@ -27,4 +26,4 @@ export const clientSize = (elm: HTMLElement | null): WH =>
       }
     : zeroObj;
 
-export const getBoundingClientRect = (elm: HTMLElement | null): DOMRect => (elm ? elm.getBoundingClientRect() : zeroDomRect);
+export const getBoundingClientRect = (elm: HTMLElement): DOMRect => elm.getBoundingClientRect();

@@ -1,4 +1,4 @@
-import { XY } from 'support/dom';
+import { XY, getBoundingClientRect } from 'support/dom';
 
 const zeroObj: XY = {
   x: 0,
@@ -6,7 +6,7 @@ const zeroObj: XY = {
 };
 
 export const offset = (elm: HTMLElement | null): XY => {
-  const rect = elm ? elm.getBoundingClientRect() : 0;
+  const rect = elm ? getBoundingClientRect(elm) : 0;
   return rect
     ? {
         x: rect.left + window.pageYOffset,
