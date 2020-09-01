@@ -1,4 +1,4 @@
-import { each, indexOf } from 'support/utils/array';
+import { each, from, indexOf } from 'support/utils/array';
 
 describe('array utilities', () => {
   describe('each', () => {
@@ -169,6 +169,26 @@ describe('array utilities', () => {
 
         expect(testFunc).toBeCalledTimes(arrLikeObj.length - 1);
       });
+    });
+  });
+
+  describe('from', () => {
+    test('Array.from', () => {
+      document.body.innerHTML = '<div></div><div></div><div></div>';
+      const fromChildNodes = from(document.body.childNodes);
+      expect(fromChildNodes).toEqual(Array.from(document.body.childNodes));
+      document.body.innerHTML = '';
+    });
+
+    test('fallback', () => {
+      document.body.innerHTML = '<div></div><div></div><div></div>';
+      const arrFrom = Array.from;
+      // @ts-ignore
+      Array.from = undefined;
+      const fromChildNodes = from(document.body.childNodes);
+      Array.from = arrFrom;
+      expect(fromChildNodes).toEqual(Array.from(document.body.childNodes));
+      document.body.innerHTML = '';
     });
   });
 

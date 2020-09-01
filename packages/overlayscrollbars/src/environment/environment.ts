@@ -143,7 +143,7 @@ export class Environment {
     removeAttr(envElm, 'style');
     removeElements(envElm);
 
-    if (nativeScrollbarIsOverlaid.x && nativeScrollbarIsOverlaid.y) {
+    if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
       let size = windowSize();
       let dpr = windowDPR();
       const onChangedListener = this.#onChangedListener;
