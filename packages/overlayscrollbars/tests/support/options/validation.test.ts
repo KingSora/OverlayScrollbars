@@ -1,5 +1,5 @@
 import { validate, optionsTemplateTypes as oTypes, OptionsTemplate } from 'support/options';
-import { extend, isEmptyObject } from 'support/utils';
+import { assignDeep, isEmptyObject } from 'support/utils';
 
 type TestOptionsObj = { propA: 'propA'; null: null };
 type TestOptionsEnum = 'A' | 'B' | 'C';
@@ -55,7 +55,7 @@ describe('options validation', () => {
         foreignProp: 'foreign',
         foreignDeep: { a: 'A', b: 'B' },
       };
-      const modifiedOptions = extend({}, options, { nested: foreignObj }, foreignObj);
+      const modifiedOptions = assignDeep({}, options, { nested: foreignObj }, foreignObj);
       const result = validate(modifiedOptions, template);
       const { validated } = result;
 
@@ -63,14 +63,14 @@ describe('options validation', () => {
     });
 
     test('passed objects arent mutated', () => {
-      const clonedOptions = extend({}, options);
+      const clonedOptions = assignDeep({}, options);
       validate(clonedOptions, template, clonedOptions);
 
       expect(clonedOptions).toEqual(options);
     });
 
     test('passed object isnt returned object', () => {
-      const clonedOptions = extend({}, options);
+      const clonedOptions = assignDeep({}, options);
       const result = validate(clonedOptions, template);
 
       expect(result.validated).not.toBe(clonedOptions);
@@ -86,7 +86,7 @@ describe('options validation', () => {
 
     test('return signle non-object foreign property', () => {
       const foreignObj = { foreignProp: 'foreign' };
-      const modifiedOptions = extend({}, options, foreignObj);
+      const modifiedOptions = assignDeep({}, options, foreignObj);
       const result = validate(modifiedOptions, template);
       const { foreign } = result;
 
@@ -98,7 +98,7 @@ describe('options validation', () => {
         foreignProp: 'foreign',
         foreignDeep: { a: 'A', b: 'B' },
       };
-      const modifiedOptions = extend({}, options, foreignObj);
+      const modifiedOptions = assignDeep({}, options, foreignObj);
       const result = validate(modifiedOptions, template);
       const { foreign } = result;
 
@@ -110,7 +110,7 @@ describe('options validation', () => {
         foreignProp: 'foreign',
         foreignDeep: { a: 'A', b: 'B' },
       };
-      const modifiedOptions = extend({}, options, { nested: foreignObj }, foreignObj);
+      const modifiedOptions = assignDeep({}, options, { nested: foreignObj }, foreignObj);
       const result = validate(modifiedOptions, template);
       const { foreign } = result;
 
@@ -122,7 +122,7 @@ describe('options validation', () => {
 
   describe('diff property return', () => {
     test('one value changed', () => {
-      const modifiedOptions = extend({}, options, { str: 'newvaluetest' });
+      const modifiedOptions = assignDeep({}, options, { str: 'newvaluetest' });
       const result = validate(modifiedOptions, template, options);
       const { validated } = result;
 
@@ -132,7 +132,7 @@ describe('options validation', () => {
     });
 
     test('multiple values changed', () => {
-      const modifiedOptions = extend({}, options, {
+      const modifiedOptions = assignDeep({}, options, {
         str: 'newvaluetest',
         nullbool: null,
       });
@@ -147,7 +147,7 @@ describe('options validation', () => {
     });
 
     test('one nested value changed', () => {
-      const modifiedOptions = extend({}, options, { nested: { num: -1293 } });
+      const modifiedOptions = assignDeep({}, options, { nested: { num: -1293 } });
       const result = validate(modifiedOptions, template, options);
       const { validated } = result;
 
@@ -159,7 +159,7 @@ describe('options validation', () => {
     });
 
     test('multiple nested values changed', () => {
-      const modifiedOptions = extend({}, options, {
+      const modifiedOptions = assignDeep({}, options, {
         nested: { num: -1293, abc: 'C' },
       });
       const result = validate(modifiedOptions, template, options);
@@ -176,7 +176,7 @@ describe('options validation', () => {
 
     test('various values changed', () => {
       const newFunc = () => {};
-      const modifiedOptions = extend({}, options, {
+      const modifiedOptions = assignDeep({}, options, {
         str: 'newstrvalue',
         func: newFunc,
         abc: 'C',
@@ -206,7 +206,7 @@ describe('options validation', () => {
         foreignDeep: { a: 'A', b: 'B' },
       };
       const newFunc = () => {};
-      const modifiedOptions = extend(
+      const modifiedOptions = assignDeep(
         {},
         options,
         {
@@ -239,7 +239,7 @@ describe('options validation', () => {
 
   describe('value validity', () => {
     test('single value doesnt match template', () => {
-      const modifiedOptions = extend({}, options, { str: 1 });
+      const modifiedOptions = assignDeep({}, options, { str: 1 });
       const result = validate(modifiedOptions, template);
       const { validated } = result;
 
@@ -247,7 +247,7 @@ describe('options validation', () => {
     });
 
     test('single enum value doesnt match template', () => {
-      const modifiedOptions = extend({}, options, { abc: 'testval' });
+      const modifiedOptions = assignDeep({}, options, { abc: 'testval' });
       const result = validate(modifiedOptions, template);
       const { validated } = result;
 
@@ -255,7 +255,7 @@ describe('options validation', () => {
     });
 
     test('multiple values dont match template', () => {
-      const modifiedOptions = extend({}, options, {
+      const modifiedOptions = assignDeep({}, options, {
         str: 1,
         abc: 'testval',
         nullbool: 'string',
@@ -269,7 +269,7 @@ describe('options validation', () => {
     });
 
     test('single nested value dont match template', () => {
-      const modifiedOptions = extend({}, options, { nested: { num: 'hi' } });
+      const modifiedOptions = assignDeep({}, options, { nested: { num: 'hi' } });
       const result = validate(modifiedOptions, template);
       const { validated } = result;
 
@@ -277,7 +277,7 @@ describe('options validation', () => {
     });
 
     test('single nested enum value dont match template', () => {
-      const modifiedOptions = extend({}, options, {
+      const modifiedOptions = assignDeep({}, options, {
         nested: { abc: 'testabc' },
       });
       const result = validate(modifiedOptions, template);
@@ -287,7 +287,7 @@ describe('options validation', () => {
     });
 
     test('multiple nested values dont match template', () => {
-      const modifiedOptions = extend({}, options, {
+      const modifiedOptions = assignDeep({}, options, {
         nested: { num: 'hi', abc: 'testabc' },
       });
       const result = validate(modifiedOptions, template);
@@ -298,7 +298,7 @@ describe('options validation', () => {
     });
 
     test('all nested values dont match template', () => {
-      const modifiedOptions = extend({}, options, {
+      const modifiedOptions = assignDeep({}, options, {
         nested: { num: 'hi', abc: 'testabc', switch: 1 },
       });
       const result = validate(modifiedOptions, template);
@@ -308,7 +308,7 @@ describe('options validation', () => {
     });
 
     test('all nested values dont match template with foreign property', () => {
-      const modifiedOptions = extend({}, options, {
+      const modifiedOptions = assignDeep({}, options, {
         nested: {
           foreign: 'foreign',
           num: 'hi',
@@ -323,7 +323,7 @@ describe('options validation', () => {
     });
 
     test('various values dont match template', () => {
-      const modifiedOptions = extend({}, options, {
+      const modifiedOptions = assignDeep({}, options, {
         nested: { switch: null },
         obj: 1,
         abc: 'testest',
@@ -343,7 +343,7 @@ describe('options validation', () => {
         foreignProp: 'foreign',
         foreignDeep: { a: 'A', b: 'B' },
       };
-      const modifiedOptions = extend(
+      const modifiedOptions = assignDeep(
         {},
         options,
         {
@@ -369,7 +369,7 @@ describe('options validation', () => {
     });
 
     test('nested object is string', () => {
-      const modifiedOptions = extend({}, options, { nested: 'string' });
+      const modifiedOptions = assignDeep({}, options, { nested: 'string' });
       const result = validate(modifiedOptions, template);
       const { validated } = result;
 
@@ -377,7 +377,7 @@ describe('options validation', () => {
     });
 
     test('nested object is null', () => {
-      const modifiedOptions = extend({}, options, { nested: null });
+      const modifiedOptions = assignDeep({}, options, { nested: null });
       const result = validate(modifiedOptions, template);
       const { validated } = result;
 
@@ -385,7 +385,7 @@ describe('options validation', () => {
     });
 
     test('nested object is undefined', () => {
-      const modifiedOptions = extend({}, options);
+      const modifiedOptions = assignDeep({}, options);
       modifiedOptions.nested = undefined;
       const result = validate(modifiedOptions, template);
       const { validated } = result;
@@ -409,7 +409,7 @@ describe('options validation', () => {
       const { warn } = console;
       console.warn = jest.fn();
 
-      const modifiedOptions = extend({}, options, { str: 1 });
+      const modifiedOptions = assignDeep({}, options, { str: 1 });
       validate(modifiedOptions, template, {}, false);
       expect(console.warn).not.toBeCalled();
 
@@ -421,15 +421,15 @@ describe('options validation', () => {
       console.warn = jest.fn();
 
       // str must be string
-      validate(extend({}, options, { str: 1 }), template, {}, true);
+      validate(assignDeep({}, options, { str: 1 }), template, {}, true);
       expect(console.warn).toBeCalledTimes(1);
 
       // abc must be A | B | C
-      validate(extend({}, options, { abc: 'some string' }), template, {}, true);
+      validate(assignDeep({}, options, { abc: 'some string' }), template, {}, true);
       expect(console.warn).toBeCalledTimes(2);
 
       // everthing OK
-      validate(extend({}, options, { abc: 'C' }), template, {}, true);
+      validate(assignDeep({}, options, { abc: 'C' }), template, {}, true);
       expect(console.warn).toBeCalledTimes(2);
 
       console.warn = warn;

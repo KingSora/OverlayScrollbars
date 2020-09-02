@@ -51,6 +51,10 @@ export function each<T>(
  */
 export const indexOf = <T = any>(arr: Array<T>, item: T, fromIndex?: number): number => arr.indexOf(item, fromIndex);
 
+/**
+ * Creates a shallow-copied Array instance from an array-like or iterable object.
+ * @param arr The object from which the array instance shall be created.
+ */
 export const from = <T = any>(arr: ArrayLike<T>) => {
   if (Array.from) {
     return Array.from(arr);

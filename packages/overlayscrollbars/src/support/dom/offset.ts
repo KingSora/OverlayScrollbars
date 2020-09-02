@@ -6,7 +6,11 @@ const zeroObj: XY = {
   y: 0,
 };
 
-export const offset = (elm: HTMLElement | null): XY => {
+/**
+ * Returns the offset- left and top coordinates of the passed element relative to the document. If the element is null the top and left values are 0.
+ * @param elm The element of which the offset- top and left coordinates shall be returned.
+ */
+export const absoluteCoordinates = (elm: HTMLElement | null): XY => {
   const rect = elm ? getBoundingClientRect(elm) : 0;
   return rect
     ? {
@@ -16,7 +20,11 @@ export const offset = (elm: HTMLElement | null): XY => {
     : zeroObj;
 };
 
-export const position = (elm: HTMLElement | null): XY =>
+/**
+ * Returns the offset- left and top coordinates of the passed element. If the element is null the top and left values are 0.
+ * @param elm The element of which the offset- top and left coordinates shall be returned.
+ */
+export const offsetCoordinates = (elm: HTMLElement | null): XY =>
   elm
     ? {
         x: elm.offsetLeft,

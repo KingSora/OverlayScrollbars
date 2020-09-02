@@ -1,9 +1,9 @@
-import { extend, keys, hasOwnProperty } from 'support/utils/object';
+import { assignDeep, keys, hasOwnProperty } from 'support/utils/object';
 import { isPlainObject } from 'support/utils/types';
 
 describe('object utilities', () => {
   // https://github.com/jquery/jquery/blob/master/test/unit/core.js#L965
-  describe('extend', () => {
+  describe('assignDeep', () => {
     // type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T
     type Deep = {
       foo?: {
@@ -30,11 +30,11 @@ describe('object utilities', () => {
       const optionsCopy: Settings = { xnumber2: 1, xstring2: 'x', xxx: 'newstring' };
       const merged: Settings = { xnumber1: 5, xnumber2: 1, xstring1: 'peter', xstring2: 'x', xxx: 'newstring' };
 
-      extend(settings, options);
+      assignDeep(settings, options);
       expect(settings).toEqual(merged);
       expect(options).toEqual(optionsCopy);
 
-      extend(settings, null, options);
+      assignDeep(settings, null, options);
       expect(settings).toEqual(merged);
       expect(options).toEqual(optionsCopy);
 
@@ -43,7 +43,7 @@ describe('object utilities', () => {
       const deep2copy: Deep = { foo: { baz: true }, foo2: document };
       const deepmerged: Deep = { foo: { bar: true, baz: true }, foo2: document };
 
-      extend(deep1, deep2);
+      assignDeep(deep1, deep2);
       expect(deep1.foo).toEqual(deepmerged.foo);
       expect(deep2.foo).toEqual(deep2copy.foo);
       expect(deep1.foo2).toBe(document);
@@ -51,21 +51,21 @@ describe('object utilities', () => {
       const arr = [1, 2, 3];
       const nestedArray: NestedArray = { arr };
 
-      expect(extend({}, nestedArray).arr).not.toBe(arr);
-      expect(Array.isArray(extend({ arr: {} }, nestedArray).arr)).toBeTruthy();
-      expect(Array.isArray(extend({ arr: {} }, nestedArray).arr)).toBeTruthy();
-      expect(isPlainObject(extend({ arr }, { arr: {} }).arr)).toBeTruthy();
+      expect(assignDeep({}, nestedArray).arr).not.toBe(arr);
+      expect(Array.isArray(assignDeep({ arr: {} }, nestedArray).arr)).toBeTruthy();
+      expect(Array.isArray(assignDeep({ arr: {} }, nestedArray).arr)).toBeTruthy();
+      expect(isPlainObject(assignDeep({ arr }, { arr: {} }).arr)).toBeTruthy();
 
       let empty: { foo?: any } = {};
       const optionsWithLength = { foo: { length: -1 } };
 
-      extend(empty, optionsWithLength);
+      assignDeep(empty, optionsWithLength);
       expect(empty.foo).toEqual(optionsWithLength.foo);
 
       empty = {};
       const optionsWithDate = { foo: { date: new Date() } };
 
-      extend(empty, optionsWithDate);
+      assignDeep(empty, optionsWithDate);
       expect(empty.foo).toEqual(optionsWithDate.foo);
 
       /** @constructor */
@@ -75,53 +75,57 @@ describe('object utilities', () => {
       const optionsWithCustomObject = { foo: { date: customObject } };
       empty = {};
 
-      extend(empty, optionsWithCustomObject);
+      assignDeep(empty, optionsWithCustomObject);
       expect(empty.foo && empty.foo.date === customObject).toBeTruthy();
 
       // Makes the class a little more realistic
       MyKlass.prototype = { someMethod() {} };
       empty = {};
 
-      extend(empty, optionsWithCustomObject);
+      assignDeep(empty, optionsWithCustomObject);
       expect(empty.foo && empty.foo.date === customObject).toBeTruthy();
 
       const MyNumber = Number;
 
-      let ret: any = extend({ foo: 4 }, { foo: new MyNumber(5) });
+      let ret: any = assignDeep({ foo: 4 }, { foo: new MyNumber(5) });
       expect(parseInt(ret.foo?.toString() as string, 10) === 5).toBeTruthy();
 
-      let nullUndef = extend({}, options, { xnumber2: null });
+      let nullUndef = assignDeep({}, options, { xnumber2: null });
       expect(nullUndef.xnumber2).toBe(null);
 
       // @ts-ignore
-      nullUndef = extend({}, options, { xnumber2: undefined });
+      nullUndef = assignDeep({}, options, {});
       expect(nullUndef.xnumber2).toBe(options.xnumber2);
 
       // @ts-ignore
-      nullUndef = extend({}, options, { xnumber0: null });
+      nullUndef = assignDeep({}, options, { xnumber2: undefined });
+      expect(nullUndef.xnumber2).toBe(undefined);
+
+      // @ts-ignore
+      nullUndef = assignDeep({}, options, { xnumber0: null });
       expect(nullUndef.xnumber0).toBe(null);
 
       const target = {};
       const recursive = { foo: target, bar: 5 };
 
-      extend(target, recursive);
+      assignDeep(target, recursive);
       expect(target).toEqual({ bar: 5 });
 
-      ret = extend({ foo: [] }, { foo: [0] });
+      ret = assignDeep({ foo: [] }, { foo: [0] });
       expect(ret.foo?.length).toBe(1);
 
-      ret = extend({ foo: '1,2,3' }, { foo: [1, 2, 3] });
+      ret = assignDeep({ foo: '1,2,3' }, { foo: [1, 2, 3] });
       expect(typeof ret.foo !== 'string').toBeTruthy();
 
-      ret = extend({ foo: 'bar' }, { foo: null });
+      ret = assignDeep({ foo: 'bar' }, { foo: null });
       expect(typeof ret.foo !== 'undefined').toBeTruthy();
 
       const obj = { foo: null };
-      extend(obj, { foo: 'notnull' });
+      assignDeep(obj, { foo: 'notnull' });
       expect(obj.foo).toBe('notnull');
 
       const func: { (): void; key?: string } = () => {};
-      extend(func, { key: 'value' });
+      assignDeep(func, { key: 'value' });
       expect(func.key).toBe('value');
 
       const defaults = { xnumber1: 5, xnumber2: 7, xstring1: 'peter', xstring2: 'pan' };
@@ -132,15 +136,15 @@ describe('object utilities', () => {
       const options2Copy = { xstring2: 'xx', xxx: 'newstringx' };
       const merged2 = { xnumber1: 5, xnumber2: 1, xstring1: 'peter', xstring2: 'xx', xxx: 'newstringx' };
 
-      settings = extend({}, defaults, options1, options2);
+      settings = assignDeep({}, defaults, options1, options2);
       expect(settings).toEqual(merged2);
       expect(defaults).toEqual(defaultsCopy);
       expect(options1).toEqual(options1Copy);
       expect(options2).toEqual(options2Copy);
 
-      expect(extend('', { foo: 1 })).toEqual({ foo: 1 });
-      expect(extend(null, { foo: null, deep: { foo: null } })).toEqual({ foo: null, deep: { foo: null } });
-      expect(extend(12, { foo: 1, deep: { foo: null, text: '' } })).toEqual({ foo: 1, deep: { foo: null, text: '' } });
+      expect(assignDeep('', { foo: 1 })).toEqual({ foo: 1 });
+      expect(assignDeep(null, { foo: null, deep: { foo: null } })).toEqual({ foo: null, deep: { foo: null } });
+      expect(assignDeep(12, { foo: 1, deep: { foo: null, text: '' } })).toEqual({ foo: 1, deep: { foo: null, text: '' } });
     });
   });
 

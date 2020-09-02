@@ -15,12 +15,12 @@ export const hasOwnProperty = (obj: any, prop: string | number | symbol): boolea
 export const keys = (obj: any): Array<string> => (obj ? Object.keys(obj) : []);
 
 // https://github.com/jquery/jquery/blob/master/src/core.js#L116
-export function extend<T, U>(target: T, object1: U): T & U;
-export function extend<T, U, V>(target: T, object1: U, object2: V): T & U & V;
-export function extend<T, U, V, W>(target: T, object1: U, object2: V, object3: W): T & U & V & W;
-export function extend<T, U, V, W, X>(target: T, object1: U, object2: V, object3: W, object4: X): T & U & V & W & X;
-export function extend<T, U, V, W, X, Y>(target: T, object1: U, object2: V, object3: W, object4: X, object5: Y): T & U & V & W & X & Y;
-export function extend<T, U, V, W, X, Y, Z>(
+export function assignDeep<T, U>(target: T, object1: U): T & U;
+export function assignDeep<T, U, V>(target: T, object1: U, object2: V): T & U & V;
+export function assignDeep<T, U, V, W>(target: T, object1: U, object2: V, object3: W): T & U & V & W;
+export function assignDeep<T, U, V, W, X>(target: T, object1: U, object2: V, object3: W, object4: X): T & U & V & W & X;
+export function assignDeep<T, U, V, W, X, Y>(target: T, object1: U, object2: V, object3: W, object4: X, object5: Y): T & U & V & W & X & Y;
+export function assignDeep<T, U, V, W, X, Y, Z>(
   target: T,
   object1?: U,
   object2?: V,
@@ -62,10 +62,8 @@ export function extend<T, U, V, W, X, Y, Z>(
         }
 
         // Never move original objects, clone them
-        target[key] = extend(clone, copy) as any;
-
-        // Don't bring in undefined values
-      } else if (copy !== undefined) {
+        target[key] = assignDeep(clone, copy) as any;
+      } else {
         target[key] = copy;
       }
     });

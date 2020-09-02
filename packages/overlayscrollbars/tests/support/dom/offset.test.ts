@@ -1,33 +1,33 @@
 import { isNumber, isPlainObject } from 'support/utils/types';
-import { offset, position } from 'support/dom/offset';
+import { absoluteCoordinates, offsetCoordinates } from 'support/dom/offset';
 
 describe('dom offset', () => {
-  describe('offset', () => {
+  describe('absoluteCoordinates', () => {
     test('DOM element', () => {
-      const result = offset(document.body);
+      const result = absoluteCoordinates(document.body);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.x)).toBe(true);
       expect(isNumber(result.y)).toBe(true);
     });
 
     test('null', () => {
-      const result = offset(null);
+      const result = absoluteCoordinates(null);
       expect(isPlainObject(result)).toBe(true);
       expect(result.x).toBe(0);
       expect(result.y).toBe(0);
     });
   });
 
-  describe('position', () => {
+  describe('offsetCoordinates', () => {
     test('DOM element', () => {
-      const result = position(document.body);
+      const result = offsetCoordinates(document.body);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.x)).toBe(true);
       expect(isNumber(result.y)).toBe(true);
     });
 
     test('null', () => {
-      const result = position(null);
+      const result = offsetCoordinates(null);
       expect(isPlainObject(result)).toBe(true);
       expect(result.x).toBe(0);
       expect(result.y).toBe(0);

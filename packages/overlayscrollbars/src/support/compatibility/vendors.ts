@@ -81,7 +81,7 @@ export const cssPropertyValue = (property: string, values: string, suffix?: stri
  * Get the requested JS function, object or constructor with vendor prefix if it isn't supported without or undefined if unsupported.
  * @param name The name of the JS function, object or constructor.
  */
-export const jsAPI = (name: string): any => {
+export const jsAPI = <T = any>(name: string): T | undefined => {
   let result: any = jsCache[name] || window[name];
 
   if (hasOwnProperty(jsCache, name)) {

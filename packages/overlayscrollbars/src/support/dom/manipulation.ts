@@ -89,9 +89,9 @@ export const removeElements = (nodes: NodeCollection): void => {
   if (isArrayLike(nodes)) {
     each(from(nodes), (e) => removeElements(e));
   } else if (nodes) {
-    const { parentNode } = nodes;
-    if (parentNode) {
-      parentNode.removeChild(nodes);
+    const parentElm = parent(nodes);
+    if (parentElm) {
+      parentElm.removeChild(nodes);
     }
   }
 };
