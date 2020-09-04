@@ -65,13 +65,6 @@
     });
   };
 
-  var hasOwnProperty = function hasOwnProperty(obj, prop) {
-    return Object.prototype.hasOwnProperty.call(obj, prop);
-  };
-  var keys = function keys(obj) {
-    return obj ? Object.keys(obj) : [];
-  };
-
   function each(source, callback) {
     if (isArrayLike(source)) {
       for (var i = 0; i < source.length; i++) {
@@ -80,7 +73,7 @@
         }
       }
     } else if (source) {
-      each(keys(source), function (key) {
+      each(Object.keys(source), function (key) {
         return callback(source[key], key, source);
       });
     }
@@ -101,6 +94,9 @@
 
   var contents = function contents(elm) {
     return elm ? from(elm.childNodes) : [];
+  };
+  var parent = function parent(elm) {
+    return elm ? elm.parentElement : null;
   };
 
   var before = function before(parentElm, preferredAnchor, insertedElms) {
@@ -144,10 +140,10 @@
         return removeElements(e);
       });
     } else if (nodes) {
-      var parentNode = nodes.parentNode;
+      var parentElm = parent(nodes);
 
-      if (parentNode) {
-        parentNode.removeChild(nodes);
+      if (parentElm) {
+        parentElm.removeChild(nodes);
       }
     }
   };
@@ -191,6 +187,13 @@
   };
   var getBoundingClientRect = function getBoundingClientRect(elm) {
     return elm.getBoundingClientRect();
+  };
+
+  var hasOwnProperty = function hasOwnProperty(obj, prop) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
+  };
+  var keys = function keys(obj) {
+    return obj ? Object.keys(obj) : [];
   };
 
   var cssNumber = {
@@ -254,7 +257,7 @@
     x: 0,
     y: 0,
   };
-  var offset = function offset(elm) {
+  var absoluteCoordinates = function absoluteCoordinates(elm) {
     var rect = elm ? getBoundingClientRect(elm) : 0;
     return rect
       ? {
@@ -405,10 +408,10 @@
       overflowY: strHidden,
     });
     scrollLeft(parentElm, 0);
-    var parentOffset = offset(parentElm);
-    var childOffset = offset(childElm);
+    var parentOffset = absoluteCoordinates(parentElm);
+    var childOffset = absoluteCoordinates(childElm);
     scrollLeft(parentElm, -999);
-    var childOffsetAfterScroll = offset(childElm);
+    var childOffsetAfterScroll = absoluteCoordinates(childElm);
     return {
       i: parentOffset.x === childOffset.x,
       n: childOffset.x !== childOffsetAfterScroll.x,
@@ -478,7 +481,7 @@
       removeAttr(envElm, 'style');
       removeElements(envElm);
 
-      if (nativeScrollbarIsOverlaid.x && nativeScrollbarIsOverlaid.y) {
+      if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
         var size = windowSize();
         var dpr = windowDPR();
 

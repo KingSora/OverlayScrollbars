@@ -9,8 +9,19 @@ import fs from 'fs';
 import path from 'path';
 import resolve from './resolve.config.json';
 
-const projectRootPath = './packages';
 const buildConfigNames = ['build.config.js', 'build.config.json'];
+const buildConfigDefaults = {
+  input: './src/index',
+  src: './src',
+  dist: './dist',
+  types: './types',
+  tests: './__tests__',
+  cache: [],
+  minVersions: true,
+  sourcemap: true,
+  esmBuild: true,
+  exports: 'auto',
+};
 
 const legacyBabelConfig = {
   presets: [
@@ -41,51 +52,50 @@ const esmBabelConfig = {
   ],
 };
 
+const appendExtension = (file) => {
+  if (path.extname(file) === '') {
+    return file + resolve.extensions.find((ext) => fs.existsSync(path.resolve(`${file}${ext}`)));
+  }
+  return file;
+};
+
 const getBuildConfig = (projectPath) => {
   const buildConfigName = buildConfigNames.find((name) => fs.existsSync(path.resolve(projectPath, name)));
   return buildConfigName ? path.resolve(projectPath, buildConfigName) : '';
 };
 
-export default async (config, overwriteBuildConfig) => {
+const resolvePath = (projectPath, rPath, appendExt) => {
+  const result = rPath ? (path.isAbsolute(rPath) ? rPath : path.resolve(projectPath, rPath)) : null;
+  return result && appendExt ? appendExtension(result) : result;
+};
+
+export default async (config, overwriteBuildConfig, silent) => {
   const { 'config-project': project } = config;
 
-  const defaultInputName = './src/index';
-  const projectPath = path.resolve(__dirname, projectRootPath, project);
+  const projectPath = path.resolve(__dirname, resolve.projectRoot, project);
   const packageJSONPath = path.resolve(projectPath, 'package.json');
   const tsconfigJSONPath = path.resolve(projectPath, 'tsconfig.json');
   const buildConfigPath = getBuildConfig(projectPath);
   const isTypeScriptProject = fs.existsSync(tsconfigJSONPath);
-  const buildConfigDefaults = {
-    input: defaultInputName + resolve.extensions.find((ext) => fs.existsSync(path.resolve(projectPath, `${defaultInputName}${ext}`))),
-    src: './src',
-    dist: './dist',
-    types: './types',
-    tests: './tests',
-    cache: [],
-    minVersions: true,
-    sourcemap: true,
-    esmBuild: true,
-    name: project,
-    exports: 'auto',
-  };
   const buildConfig = {
     ...buildConfigDefaults,
+    ...{ name: project, file: project },
     ...(await import(buildConfigPath)),
     ...(overwriteBuildConfig || {}),
   };
 
-  const { input, src, dist, types, tests, cache, minVersions, sourcemap, esmBuild, name, exports, globals } = buildConfig;
+  const { input, src, dist, types, tests, file, cache, minVersions, sourcemap, esmBuild, name, exports, globals } = buildConfig;
   const { devDependencies = {}, peerDependencies = {} } = await import(packageJSONPath);
 
-  const srcPath = src ? path.resolve(projectPath, src) : null;
-  const distPath = dist ? path.resolve(projectPath, dist) : null;
-  const typesPath = types ? path.resolve(projectPath, types) : null;
-  const testsPath = tests ? path.resolve(projectPath, tests) : null;
-  const inputPath = input ? path.resolve(projectPath, input) : null;
+  const srcPath = resolvePath(projectPath, src);
+  const distPath = resolvePath(projectPath, dist);
+  const typesPath = resolvePath(projectPath, types);
+  const testsPath = resolvePath(projectPath, tests);
+  const inputPath = resolvePath(projectPath, input, true);
 
   const genOutputConfig = (esm) => ({
     format: esm ? 'esm' : 'umd',
-    file: path.resolve(distPath, `${project}${esm ? '.esm' : ''}.js`),
+    file: path.resolve(distPath, `${file}${esm ? '.esm' : ''}.js`),
     sourcemap,
     ...(esm
       ? {}
@@ -157,10 +167,12 @@ export default async (config, overwriteBuildConfig) => {
     };
   };
 
-  console.log('');
-  console.log('PROJECT : ', project);
-  console.log('ENV     : ', process.env.NODE_ENV);
-  console.log('CONFIG  : ', buildConfig);
+  if (!silent) {
+    console.log('');
+    console.log('PROJECT : ', project);
+    console.log('ENV     : ', process.env.NODE_ENV);
+    console.log('CONFIG  : ', buildConfig);
+  }
 
   const legacy = await genConfig({ esm: false, typeDeclaration: true });
   const esm = esmBuild ? await genConfig({ esm: true, typeDeclaration: false }) : null;
@@ -176,7 +188,7 @@ export default async (config, overwriteBuildConfig) => {
           name: 'deleteGeneratedDirs',
           options() {
             const deletedDirs = del.sync([distPath, typesPath].filter((curr) => curr !== null));
-            if (deletedDirs.length > 0) {
+            if (deletedDirs.length > 0 && !silent) {
               console.log('Deleted directories:\n', deletedDirs.join('\n'));
             }
           },
@@ -188,7 +200,7 @@ export default async (config, overwriteBuildConfig) => {
           writeBundle() {
             const cacheDirs = cache.map((dir) => path.resolve(projectPath, dir));
             const deletedDirs = del.sync(cacheDirs);
-            if (deletedDirs.length > 0) {
+            if (deletedDirs.length > 0 && !silent) {
               console.log('Deleted cache:\n', deletedDirs.join('\n'));
             }
           },

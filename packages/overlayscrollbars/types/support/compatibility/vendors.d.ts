@@ -8,4 +8,4 @@ export declare const cssCache: {
 };
 export declare const cssProperty: (name: string) => string | undefined;
 export declare const cssPropertyValue: (property: string, values: string, suffix?: string | undefined) => string | undefined;
-export declare const jsAPI: (name: string) => any;
+export declare const jsAPI: <T = any>(name: string) => T | undefined;

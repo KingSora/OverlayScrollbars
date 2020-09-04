@@ -18,26 +18,14 @@ module.exports = {
     {
       ...base,
       displayName: 'jsdom',
+      testMatch: ['**/__tests__/jsdom/**/*.test.[jt]s?(x)'],
     },
-    // {
-    //   ...base,
-    //   displayName: 'puppeteer',
-    //   globalSetup: './puppeteer.setup.js',
-    //   globalTeardown: './puppeteer.teardown.js',
-    //   testEnvironment: './puppeteer.env.js',
-    //   testMatch: ['**/tests/puppeteer/**/*.[jt]s?(x)'],
-    //   transform: {
-    //     '^.+\\.[jt]sx?$': 'babel-jest',
-    //     '^.+\\.html?$': './jest.html.loader.js',
-    //   },
-    //   globals: {
-    //     async createPage(glob, html, funcs) {
-    //       const page = await glob.__BROWSER__.newPage();
-    //       await page.exposeFunction('evalVar', funcs);
-    //       await page.setContent(fs.readFileSync('./puppeteer.html', 'utf8').replace('{{content}}', html));
-    //       return page;
-    //     },
-    //   },
-    // },
+    {
+      ...base,
+      preset: 'jest-puppeteer',
+      displayName: 'puppeteer',
+      testMatch: ['**/__tests__/puppeteer/**/*.test.[jt]s?(x)'],
+      testEnvironment: './jest-puppeteer.env.js',
+    },
   ],
 };

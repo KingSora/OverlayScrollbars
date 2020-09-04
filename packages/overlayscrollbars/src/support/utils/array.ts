@@ -1,4 +1,3 @@
-import { keys } from 'support/utils/object';
 import { isArrayLike } from 'support/utils/types';
 import { PlainObject } from 'typings';
 
@@ -38,7 +37,7 @@ export function each<T>(
       }
     }
   } else if (source) {
-    each(keys(source), (key) => callback(source[key], key, source));
+    each(Object.keys(source), (key) => callback(source[key], key, source));
   }
   return source;
 }

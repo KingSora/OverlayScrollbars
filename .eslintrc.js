@@ -58,7 +58,6 @@ module.exports = {
       files: ['*.test.*'],
       rules: {
         'no-restricted-syntax': 'off',
-        'no-param-reassign': 'off',
         '@typescript-eslint/ban-ts-comment': 'off',
         '@typescript-eslint/no-empty-function': 'off',
         '@typescript-eslint/ban-types': 'off',
@@ -70,6 +69,12 @@ module.exports = {
         'no-void': 'off',
         'no-empty-function': 'off',
         'no-new-func': 'off',
+      },
+      globals: {
+        page: true,
+        browser: true,
+        context: true,
+        jestPuppeteer: true,
       },
     },
     {

@@ -54,9 +54,6 @@ const addClass = (elm, className) => {
   classListAction(elm, className, (classList, clazz) => classList.add(clazz));
 };
 
-const hasOwnProperty = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
-const keys = (obj) => (obj ? Object.keys(obj) : []);
-
 function each(source, callback) {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
@@ -65,7 +62,7 @@ function each(source, callback) {
       }
     }
   } else if (source) {
-    each(keys(source), (key) => callback(source[key], key, source));
+    each(Object.keys(source), (key) => callback(source[key], key, source));
   }
 
   return source;
@@ -83,6 +80,7 @@ const from = (arr) => {
 };
 
 const contents = (elm) => (elm ? from(elm.childNodes) : []);
+const parent = (elm) => (elm ? elm.parentElement : null);
 
 const before = (parentElm, preferredAnchor, insertedElms) => {
   if (insertedElms) {
@@ -123,10 +121,10 @@ const removeElements = (nodes) => {
   if (isArrayLike(nodes)) {
     each(from(nodes), (e) => removeElements(e));
   } else if (nodes) {
-    const { parentNode } = nodes;
+    const parentElm = parent(nodes);
 
-    if (parentNode) {
-      parentNode.removeChild(nodes);
+    if (parentElm) {
+      parentElm.removeChild(nodes);
     }
   }
 };
@@ -161,6 +159,9 @@ const clientSize = (elm) =>
       }
     : zeroObj;
 const getBoundingClientRect = (elm) => elm.getBoundingClientRect();
+
+const hasOwnProperty = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+const keys = (obj) => (obj ? Object.keys(obj) : []);
 
 const cssNumber = {
   animationiterationcount: 1,
@@ -217,7 +218,7 @@ const zeroObj$1 = {
   x: 0,
   y: 0,
 };
-const offset = (elm) => {
+const absoluteCoordinates = (elm) => {
   const rect = elm ? getBoundingClientRect(elm) : 0;
   return rect
     ? {
@@ -364,10 +365,10 @@ const rtlScrollBehavior = (parentElm, childElm) => {
     overflowY: strHidden,
   });
   scrollLeft(parentElm, 0);
-  const parentOffset = offset(parentElm);
-  const childOffset = offset(childElm);
+  const parentOffset = absoluteCoordinates(parentElm);
+  const childOffset = absoluteCoordinates(childElm);
   scrollLeft(parentElm, -999);
-  const childOffsetAfterScroll = offset(childElm);
+  const childOffsetAfterScroll = absoluteCoordinates(childElm);
   return {
     i: parentOffset.x === childOffset.x,
     n: childOffset.x !== childOffsetAfterScroll.x,
@@ -436,7 +437,7 @@ class Environment {
     removeAttr(envElm, 'style');
     removeElements(envElm);
 
-    if (nativeScrollbarIsOverlaid.x && nativeScrollbarIsOverlaid.y) {
+    if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
       let size = windowSize();
       let dpr = windowDPR();
 

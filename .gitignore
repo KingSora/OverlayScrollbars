@@ -5,6 +5,7 @@ node_modules/
 
 # generated
 coverage/
+build/
 
 # local env files
 .env.local
