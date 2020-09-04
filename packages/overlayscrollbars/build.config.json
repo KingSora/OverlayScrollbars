@@ -1,9 +1,7 @@
 {
-  "legacy": {
-    "name": "OverlayScrollbars",
-    "exports": "auto",
-    "globals": {
-      "jquery": "jQuery"
-    }
+  "name": "OverlayScrollbars",
+  "exports": "auto",
+  "globals": {
+    "jquery": "jQuery"
   }
 }
