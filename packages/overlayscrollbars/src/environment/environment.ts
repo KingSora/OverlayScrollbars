@@ -4,7 +4,7 @@ import {
   style,
   appendChildren,
   clientSize,
-  offset,
+  absoluteCoordinates,
   offsetSize,
   scrollLeft,
   jsAPI,
@@ -45,10 +45,10 @@ const rtlScrollBehavior = (parentElm: HTMLElement, childElm: HTMLElement): { i: 
   style(parentElm, { overflowX: strHidden, overflowY: strHidden });
   scrollLeft(parentElm, 0);
 
-  const parentOffset = offset(parentElm);
-  const childOffset = offset(childElm);
+  const parentOffset = absoluteCoordinates(parentElm);
+  const childOffset = absoluteCoordinates(childElm);
   scrollLeft(parentElm, -999); // https://github.com/KingSora/OverlayScrollbars/issues/187
-  const childOffsetAfterScroll = offset(childElm);
+  const childOffsetAfterScroll = absoluteCoordinates(childElm);
   return {
     /**
      * origin direction = determines if the zero scroll position is on the left or right side
@@ -143,7 +143,7 @@ export class Environment {
     removeAttr(envElm, 'style');
     removeElements(envElm);
 
-    if (nativeScrollbarIsOverlaid.x && nativeScrollbarIsOverlaid.y) {
+    if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
       let size = windowSize();
       let dpr = windowDPR();
       const onChangedListener = this.#onChangedListener;

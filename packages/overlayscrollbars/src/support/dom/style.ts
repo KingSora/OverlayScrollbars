@@ -31,6 +31,11 @@ const setCSSVal = (elm: HTMLElement | null, prop: string, val: string | number):
   } catch (e) {}
 };
 
+/**
+ * Gets or sets the passed styles to the passed element.
+ * @param elm The element to which the styles shall be applied to / be read from.
+ * @param styles The styles which shall be set or read.
+ */
 export function style(elm: HTMLElement | null, styles: CssStyles): void;
 export function style(elm: HTMLElement | null, styles: string): string;
 export function style(elm: HTMLElement | null, styles: Array<string> | string): { [key: string]: string };
@@ -54,10 +59,18 @@ export function style(elm: HTMLElement | null, styles: CssStyles | Array<string>
   each(keys(styles), (key) => setCSSVal(elm, key, styles[key]));
 }
 
+/**
+ * Hides the passed element (display: none).
+ * @param elm The element which shall be hidden.
+ */
 export const hide = (elm: HTMLElement | null): void => {
   style(elm, { display: 'none' });
 };
 
+/**
+ * Shows the passed element (display: block).
+ * @param elm The element which shall be shown.
+ */
 export const show = (elm: HTMLElement | null): void => {
   style(elm, { display: 'block' });
 };

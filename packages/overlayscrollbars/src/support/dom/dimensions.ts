@@ -5,11 +5,18 @@ const zeroObj: WH = {
   h: 0,
 };
 
+/**
+ * Returns the window inner- width and height.
+ */
 export const windowSize = (): WH => ({
   w: window.innerWidth,
   h: window.innerHeight,
 });
 
+/**
+ * Returns the offset- width and height of the passed element. If the element is null the width and height values are 0.
+ * @param elm The element of which the offset- width and height shall be returned.
+ */
 export const offsetSize = (elm: HTMLElement | null): WH =>
   elm
     ? {
@@ -18,6 +25,10 @@ export const offsetSize = (elm: HTMLElement | null): WH =>
       }
     : zeroObj;
 
+/**
+ * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
+ * @param elm The element of which the client- width and height shall be returned.
+ */
 export const clientSize = (elm: HTMLElement | null): WH =>
   elm
     ? {
@@ -26,4 +37,8 @@ export const clientSize = (elm: HTMLElement | null): WH =>
       }
     : zeroObj;
 
+/**
+ * Returns the BoundingClientRect of the passed element.
+ * @param elm The element of which the BoundingClientRect shall be returned.
+ */
 export const getBoundingClientRect = (elm: HTMLElement): DOMRect => elm.getBoundingClientRect();
