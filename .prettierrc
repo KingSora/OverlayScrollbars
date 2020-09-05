@@ -9,6 +9,18 @@
   "parser": "babel-ts",
   "overrides": [
     {
+      "files": "*.html",
+      "options": { "parser": "html" }
+    },
+    {
+      "files": "*.css",
+      "options": { "parser": "css" }
+    },
+    {
+      "files": "*.scss",
+      "options": { "parser": "scss" }
+    },
+    {
       "files": "*.vue",
       "options": { "parser": "vue" }
     },

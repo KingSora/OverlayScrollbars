@@ -24,8 +24,13 @@ module.exports = {
       ...base,
       preset: 'jest-puppeteer',
       displayName: 'puppeteer',
+      setupFilesAfterEnv: ['expect-puppeteer'],
       testMatch: ['**/__tests__/puppeteer/**/*.test.[jt]s?(x)'],
       testEnvironment: './jest-puppeteer.env.js',
+      transform: {
+        '^.+\\.[jt]sx?$': 'babel-jest',
+        '^.+\\.html?$': 'html-loader-jest',
+      },
     },
   ],
 };

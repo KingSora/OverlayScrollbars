@@ -69,6 +69,7 @@ module.exports = {
         'no-void': 'off',
         'no-empty-function': 'off',
         'no-new-func': 'off',
+        'import/no-unresolved': ['error', { ignore: ['./build/build.html$'] }],
       },
       globals: {
         page: true,
@@ -81,6 +82,8 @@ module.exports = {
       files: ['rollup.config.*'],
       rules: {
         'no-console': 'off',
+        'global-require': 'off',
+        'import/no-dynamic-require': 'off',
       },
     },
   ],

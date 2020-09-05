@@ -1,13 +1,13 @@
-import rollupCommonjs from '@rollup/plugin-commonjs';
-import rollupResolve from '@rollup/plugin-node-resolve';
-import rollupTypescript from 'rollup-plugin-typescript2';
-import rollupPrettier from 'rollup-plugin-prettier';
-import rollupBabelPlugin from '@rollup/plugin-babel';
-import { terser as rollupTerser } from 'rollup-plugin-terser';
-import del from 'del';
-import fs from 'fs';
-import path from 'path';
-import resolve from './resolve.config.json';
+const { nodeResolve: rollupResolve } = require('@rollup/plugin-node-resolve');
+const { babel: rollupBabelPlugin } = require('@rollup/plugin-babel');
+const { terser: rollupTerser } = require('rollup-plugin-terser');
+const rollupCommonjs = require('@rollup/plugin-commonjs');
+const rollupTypescript = require('rollup-plugin-typescript2');
+const rollupPrettier = require('rollup-plugin-prettier');
+const del = require('del');
+const fs = require('fs');
+const path = require('path');
+const resolve = require('./resolve.config.json');
 
 const buildConfigNames = ['build.config.js', 'build.config.json'];
 const buildConfigDefaults = {
@@ -21,6 +21,7 @@ const buildConfigDefaults = {
   sourcemap: true,
   esmBuild: true,
   exports: 'auto',
+  pipeline: ['resolve', 'commonjs', 'typescript', 'babel'],
 };
 
 const legacyBabelConfig = {
@@ -69,23 +70,24 @@ const resolvePath = (projectPath, rPath, appendExt) => {
   return result && appendExt ? appendExtension(result) : result;
 };
 
-export default async (config, overwriteBuildConfig, silent) => {
+const rollupConfig = (config, { overwrite: overwriteBuildConfig, silent, fast, check = true } = {}) => {
   const { 'config-project': project } = config;
 
   const projectPath = path.resolve(__dirname, resolve.projectRoot, project);
   const packageJSONPath = path.resolve(projectPath, 'package.json');
   const tsconfigJSONPath = path.resolve(projectPath, 'tsconfig.json');
   const buildConfigPath = getBuildConfig(projectPath);
+
   const isTypeScriptProject = fs.existsSync(tsconfigJSONPath);
   const buildConfig = {
     ...buildConfigDefaults,
     ...{ name: project, file: project },
-    ...(await import(buildConfigPath)),
+    ...require(buildConfigPath),
     ...(overwriteBuildConfig || {}),
   };
 
-  const { input, src, dist, types, tests, file, cache, minVersions, sourcemap, esmBuild, name, exports, globals } = buildConfig;
-  const { devDependencies = {}, peerDependencies = {} } = await import(packageJSONPath);
+  const { input, src, dist, types, tests, file, cache, minVersions, sourcemap, esmBuild, name, exports, globals, pipeline } = buildConfig;
+  const { devDependencies = {}, peerDependencies = {} } = require(packageJSONPath);
 
   const srcPath = resolvePath(projectPath, src);
   const distPath = resolvePath(projectPath, dist);
@@ -97,21 +99,55 @@ export default async (config, overwriteBuildConfig, silent) => {
     format: esm ? 'esm' : 'umd',
     file: path.resolve(distPath, `${file}${esm ? '.esm' : ''}.js`),
     sourcemap,
-    ...(esm
-      ? {}
-      : {
-          name,
-          globals,
-          exports,
-        }),
+    ...(!esm && {
+      name,
+      globals,
+      exports,
+    }),
     plugins: [
-      rollupPrettier({
-        sourcemap: sourcemap && 'silent',
-      }),
+      ...(fast
+        ? []
+        : [
+            rollupPrettier({
+              sourcemap: sourcemap && 'silent',
+            }),
+          ]),
     ],
   });
 
-  const genConfig = async ({ esm, typeDeclaration }) => {
+  const genConfig = ({ esm, typeDeclaration }) => {
+    const pipelineMap = {
+      resolve: rollupResolve({
+        extensions: resolve.extensions,
+        rootDir: srcPath,
+        customResolveOptions: {
+          moduleDirectory: [...resolve.directories.map((dir) => path.resolve(projectPath, dir)), path.resolve(__dirname, 'node_modules')],
+        },
+      }),
+      commonjs: rollupCommonjs(),
+      typescript: isTypeScriptProject
+        ? rollupTypescript({
+            check,
+            useTsconfigDeclarationDir: true,
+            tsconfig: tsconfigJSONPath,
+            tsconfigOverride: {
+              compilerOptions: {
+                target: 'ESNext',
+                sourceMap: sourcemap,
+                declaration: typeDeclaration && types !== null,
+                declarationDir: typesPath,
+              },
+              exclude: (require(tsconfigJSONPath).exclude || []).concat(testsPath),
+            },
+          })
+        : {},
+      babel: rollupBabelPlugin({
+        ...(esm ? esmBabelConfig : legacyBabelConfig),
+        babelHelpers: 'runtime',
+        extensions: resolve.extensions,
+      }),
+    };
+
     const output = genOutputConfig(esm);
     return {
       input: inputPath,
@@ -133,37 +169,12 @@ export default async (config, overwriteBuildConfig, silent) => {
           : []
       ),
       external: [...Object.keys(devDependencies), ...Object.keys(peerDependencies)],
-      plugins: [
-        rollupResolve({
-          extensions: resolve.extensions,
-          rootDir: srcPath,
-          customResolveOptions: {
-            moduleDirectory: [...resolve.directories.map((dir) => path.resolve(projectPath, dir)), path.resolve(__dirname, 'node_modules')],
-          },
-        }),
-        rollupCommonjs(),
-        isTypeScriptProject
-          ? rollupTypescript({
-              check: true,
-              useTsconfigDeclarationDir: true,
-              tsconfig: tsconfigJSONPath,
-              tsconfigOverride: {
-                compilerOptions: {
-                  target: 'ESNext',
-                  sourceMap: true,
-                  declaration: typeDeclaration && types !== null,
-                  declarationDir: typesPath,
-                },
-                exclude: ((await import(tsconfigJSONPath)).exclude || []).concat(testsPath),
-              },
-            })
-          : {},
-        rollupBabelPlugin({
-          ...(esm ? esmBabelConfig : legacyBabelConfig),
-          babelHelpers: 'runtime',
-          extensions: resolve.extensions,
-        }),
-      ],
+      plugins: pipeline.map((item) => {
+        if (typeof item === 'string') {
+          return pipelineMap[item];
+        }
+        return item;
+      }),
     };
   };
 
@@ -174,8 +185,8 @@ export default async (config, overwriteBuildConfig, silent) => {
     console.log('CONFIG  : ', buildConfig);
   }
 
-  const legacy = await genConfig({ esm: false, typeDeclaration: true });
-  const esm = esmBuild ? await genConfig({ esm: true, typeDeclaration: false }) : null;
+  const legacy = genConfig({ esm: false, typeDeclaration: true });
+  const esm = esmBuild ? genConfig({ esm: true, typeDeclaration: false }) : null;
 
   const builds = [legacy, esm]
     .filter((build) => build !== null)
@@ -212,3 +223,7 @@ export default async (config, overwriteBuildConfig, silent) => {
 
   return builds;
 };
+
+rollupConfig.defaults = buildConfigDefaults;
+
+module.exports = rollupConfig;
