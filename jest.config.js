@@ -1,4 +1,5 @@
 const resolve = require('./resolve.config');
+const puppeteerRollupConfig = require('./jest-puppeteer.rollup.config.js');
 
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
@@ -27,9 +28,10 @@ module.exports = {
       setupFilesAfterEnv: ['expect-puppeteer'],
       testMatch: ['**/__tests__/puppeteer/**/*.test.[jt]s?(x)'],
       testEnvironment: './jest-puppeteer.env.js',
+      coveragePathIgnorePatterns: ['/node_modules/', `/${puppeteerRollupConfig.build}/`],
       transform: {
         '^.+\\.[jt]sx?$': 'babel-jest',
-        '^.+\\.html?$': 'html-loader-jest',
+        [`^.+${puppeteerRollupConfig.build}.+${puppeteerRollupConfig.html.output}?$`]: './jest-test-server.loader.js',
       },
     },
   ],

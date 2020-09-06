@@ -1,8 +1,8 @@
-import html from './__build__/build.html';
+import url from './__build__/build.html';
 
 describe('Environment', () => {
   beforeAll(async () => {
-    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page.goto(url);
   });
 
   it('should be titled "Environment"', async () => {
