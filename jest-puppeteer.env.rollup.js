@@ -79,7 +79,7 @@ const createCacheObj = (testDir) => {
   return obj;
 };
 
-const filesChanged = (cacheDir, testDir) => {
+const filesChanged = (testDir, cacheDir) => {
   let result = true;
   const cacheObjString = JSON.stringify(createCacheObj(testDir));
   const getCacheFile = path.resolve(cacheDir, cacheFilePrefix + crypto.createHash('md5').update(testDir, encoding).digest('hex'));
@@ -114,8 +114,9 @@ const getRollupInfos = (testPath) => {
 
 const setupRollupTest = async (testPath, cache, cacheDir) => {
   const { projectRootPath, input, dist, file, testName, testDir } = getRollupInfos(testPath);
+  const changed = !cache || filesChanged(testDir, cacheDir);
 
-  if (!cache || filesChanged(cacheDir, testDir)) {
+  if (changed || !fs.existsSync(path.resolve(testDir, rollupOutputDir))) {
     const testPathSplit = path.relative(projectRootPath, testPath).split(path.sep);
     if (testPathSplit.length > 0) {
       const [project] = testPathSplit;
