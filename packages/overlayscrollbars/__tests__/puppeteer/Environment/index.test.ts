@@ -1,4 +1,4 @@
-import html from './build/build.html';
+import html from './__build__/build.html';
 
 describe('Environment', () => {
   beforeAll(async () => {

@@ -69,7 +69,7 @@ module.exports = {
         'no-void': 'off',
         'no-empty-function': 'off',
         'no-new-func': 'off',
-        'import/no-unresolved': ['error', { ignore: ['./build/build.html$'] }],
+        'import/no-unresolved': ['error', { ignore: ['./__build__/build.html$'] }],
       },
       globals: {
         page: true,
