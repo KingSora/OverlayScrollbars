@@ -12,7 +12,7 @@ class PuppeteerRollupEnvironment extends PuppeteerEnvironment {
 
   async setup() {
     // setup
-    await setupRollupTest(this.ctx.testPath, this.cfg.cache, this.cfg.cacheDirectory);
+    await setupRollupTest(this.cfg.rootDir, this.ctx.testPath, this.cfg.cache && this.cfg.cacheDirectory);
     await super.setup();
 
     // coverage
@@ -24,7 +24,7 @@ class PuppeteerRollupEnvironment extends PuppeteerEnvironment {
     // coverage
     const { page } = this.global;
     const [jsCoverage, cssCoverage] = await Promise.all([page.coverage.stopJSCoverage(), page.coverage.stopCSSCoverage()]);
-    pti.write([...jsCoverage, ...cssCoverage], { includeHostname: true, storagePath: './.nyc_output' });
+    pti.write([...jsCoverage, ...cssCoverage], { includeHostname: true, storagePath: './.pptr' });
 
     // cleanup
     cleanupRollupTest(this.ctx.testPath, this.cfg.cache);

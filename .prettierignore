@@ -1,4 +1,6 @@
 node_modules
-coverage
 dist
 types
+.coverage
+.build
+.pptr

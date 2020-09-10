@@ -9,13 +9,12 @@ const fs = require('fs');
 const path = require('path');
 const resolve = require('./resolve.config.json');
 
-const buildConfigNames = ['build.config.js', 'build.config.json'];
-const buildConfigDefaults = {
+const rollupConfigDefaults = {
   input: './src/index',
   src: './src',
   dist: './dist',
   types: './types',
-  tests: './__tests__',
+  tests: './tests',
   cache: [],
   minVersions: true,
   sourcemap: true,
@@ -60,30 +59,31 @@ const appendExtension = (file) => {
   return file;
 };
 
-const getBuildConfig = (projectPath) => {
-  const buildConfigName = buildConfigNames.find((name) => fs.existsSync(path.resolve(projectPath, name)));
-  return buildConfigName ? path.resolve(projectPath, buildConfigName) : '';
-};
-
-const resolvePath = (projectPath, rPath, appendExt) => {
-  const result = rPath ? (path.isAbsolute(rPath) ? rPath : path.resolve(projectPath, rPath)) : null;
+const resolvePath = (basePath, pathToResolve, appendExt) => {
+  const result = pathToResolve ? (path.isAbsolute(pathToResolve) ? pathToResolve : path.resolve(basePath, pathToResolve)) : null;
   return result && appendExt ? appendExtension(result) : result;
 };
 
-const rollupConfig = (config, { overwrite: overwriteBuildConfig, silent, fast, check = true } = {}) => {
-  const { 'config-project': project } = config;
+const resolveConfig = (config) => {
+  if (typeof config === 'function') {
+    return config(rollupConfigDefaults) || {};
+  }
+  return config;
+};
 
-  const projectPath = path.resolve(__dirname, resolve.projectRoot, project);
-  const packageJSONPath = path.resolve(projectPath, 'package.json');
-  const tsconfigJSONPath = path.resolve(projectPath, 'tsconfig.json');
-  const buildConfigPath = getBuildConfig(projectPath);
+const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, silent, fast } = {}) => {
+  const projectPath = resolvePath(__dirname, project);
+  const projectName = path.basename(project);
+
+  const packageJSONPath = resolvePath(projectPath, 'package.json');
+  const tsconfigJSONPath = resolvePath(projectPath, 'tsconfig.json');
 
   const isTypeScriptProject = fs.existsSync(tsconfigJSONPath);
   const buildConfig = {
-    ...buildConfigDefaults,
-    ...{ name: project, file: project },
-    ...require(buildConfigPath),
-    ...(overwriteBuildConfig || {}),
+    ...rollupConfigDefaults,
+    ...{ name: projectName, file: projectName },
+    ...resolveConfig(config),
+    ...resolveConfig(overwrite),
   };
 
   const { input, src, dist, types, tests, file, cache, minVersions, sourcemap, esmBuild, name, exports, globals, pipeline } = buildConfig;
@@ -127,7 +127,8 @@ const rollupConfig = (config, { overwrite: overwriteBuildConfig, silent, fast, c
       commonjs: rollupCommonjs(),
       typescript: isTypeScriptProject
         ? rollupTypescript({
-            check,
+            check: !fast,
+            clean: true,
             useTsconfigDeclarationDir: true,
             tsconfig: tsconfigJSONPath,
             tsconfigOverride: {
@@ -223,7 +224,5 @@ const rollupConfig = (config, { overwrite: overwriteBuildConfig, silent, fast, c
 
   return builds;
 };
-
-rollupConfig.defaults = buildConfigDefaults;
 
 module.exports = rollupConfig;

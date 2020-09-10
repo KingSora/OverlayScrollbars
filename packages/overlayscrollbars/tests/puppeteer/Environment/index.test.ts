@@ -1,4 +1,4 @@
-import url from './__build__/build.html';
+import url from './.build/build.html';
 
 describe('Environment', () => {
   beforeAll(async () => {

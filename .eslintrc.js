@@ -1,4 +1,5 @@
 const resolve = require('./resolve.config');
+const puppeteerRollupConfig = require('./config/jest-puppeteer.rollup.config.js');
 
 module.exports = {
   extends: ['plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'airbnb', 'prettier'],
@@ -69,7 +70,7 @@ module.exports = {
         'no-void': 'off',
         'no-empty-function': 'off',
         'no-new-func': 'off',
-        'import/no-unresolved': ['error', { ignore: ['./__build__/build.html$'] }],
+        'import/no-unresolved': ['error', { ignore: [`./${puppeteerRollupConfig.build}/${puppeteerRollupConfig.html.output}$`] }],
       },
       globals: {
         page: true,

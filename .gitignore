@@ -4,11 +4,9 @@
 node_modules/
 
 # generated
-coverage/
-__build__/
-
-# coverage
-/.nyc_output
+.build/
+.coverage/
+.pptr/
 
 # local env files
 .env.local

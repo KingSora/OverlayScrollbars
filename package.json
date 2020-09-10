@@ -55,8 +55,10 @@
     "utf-8-validate": "^5.0.2"
   },
   "scripts": {
-    "test": "jest --coverage --runInBand --detectOpenHandles",
-    "build": "cross-env NODE_ENV=build rollup -c --config-project='overlayscrollbars' && cross-env NODE_ENV=build rollup -c --config-project='overlayscrollbars-jquery'",
+    "test": "cd ./packages/overlayscrollbars && yarn test",
+    "test:jsdom": "cd ./packages/overlayscrollbars && yarn test:jsdom",
+    "test:pptr": "cd ./packages/overlayscrollbars && yarn test:pptr",
+    "build": "cd ./packages/overlayscrollbars && yarn build",
     "lint": "npx eslint --fix ."
   }
 }

@@ -3,7 +3,7 @@
     ? (module.exports = factory())
     : typeof define === 'function' && define.amd
     ? define(factory)
-    : ((global = global || self), (global.OverlayScrollbars = factory()));
+    : ((global = typeof globalThis !== 'undefined' ? globalThis : global || self), (global.OverlayScrollbars = factory()));
 })(this, function () {
   'use strict';
 

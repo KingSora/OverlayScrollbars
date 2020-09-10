@@ -1,5 +1,5 @@
 module.exports = {
-  build: '__build__',
+  build: '.build',
   html: {
     input: 'index.html',
     output: 'build.html',

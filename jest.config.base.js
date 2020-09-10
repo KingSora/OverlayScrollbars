@@ -1,5 +1,9 @@
+const path = require('path');
 const resolve = require('./resolve.config');
-const puppeteerRollupConfig = require('./jest-puppeteer.rollup.config.js');
+const puppeteerRollupConfig = require('./config/jest-puppeteer.rollup.config.js');
+
+const testEnvironmentPath = path.resolve(__dirname, './config/jest-puppeteer.env.js');
+const testServerLoaderPath = path.resolve(__dirname, './config/jest-test-server.loader.js');
 
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
@@ -7,31 +11,34 @@ const puppeteerRollupConfig = require('./jest-puppeteer.rollup.config.js');
 const base = {
   clearMocks: true,
   collectCoverage: true,
-  coverageDirectory: 'coverage',
+  coverageDirectory: './.coverage',
   moduleDirectories: resolve.directories,
   moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),
   testPathIgnorePatterns: ['\\\\node_modules\\\\'],
-  verbose: true,
+  globals: {
+    baseConfig: __filename,
+  },
 };
 
 module.exports = {
+  ...base,
   projects: [
     {
       ...base,
       displayName: 'jsdom',
-      testMatch: ['**/__tests__/jsdom/**/*.test.[jt]s?(x)'],
+      testMatch: ['**/tests/jsdom/**/*.test.[jt]s?(x)'],
     },
     {
       ...base,
       preset: 'jest-puppeteer',
       displayName: 'puppeteer',
       setupFilesAfterEnv: ['expect-puppeteer'],
-      testMatch: ['**/__tests__/puppeteer/**/*.test.[jt]s?(x)'],
-      testEnvironment: './jest-puppeteer.env.js',
+      testMatch: ['**/tests/puppeteer/**/*.test.[jt]s?(x)'],
+      testEnvironment: testEnvironmentPath,
       coveragePathIgnorePatterns: ['/node_modules/', `/${puppeteerRollupConfig.build}/`],
       transform: {
         '^.+\\.[jt]sx?$': 'babel-jest',
-        [`^.+${puppeteerRollupConfig.build}.+${puppeteerRollupConfig.html.output}?$`]: './jest-test-server.loader.js',
+        [`^.+${puppeteerRollupConfig.build}.+${puppeteerRollupConfig.html.output}?$`]: testServerLoaderPath,
       },
     },
   ],

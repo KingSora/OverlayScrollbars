@@ -5,10 +5,9 @@ const del = require('del');
 const rollup = require('rollup');
 const rollupPluginHtml = require('@rollup/plugin-html');
 const rollupPluginStyles = require('rollup-plugin-styles');
-const rollupConfig = require('./rollup.config.js');
-const resolve = require('./resolve.config.json');
-const config = require('./jest-puppeteer.rollup.config.js');
+const deploymentConfig = require('./jest-puppeteer.rollup.config.js');
 
+const rollupConfigName = 'rollup.config.js';
 const rollupNodeEnv = 'build';
 const cacheFilePrefix = 'jest-puppeteer-overlayscrollbars-cache-';
 const cacheEncoding = 'utf8';
@@ -66,7 +65,7 @@ const getAllFilesFrom = (dir, except) => {
 
 const createCacheObj = (testPath) => {
   const testFileName = path.basename(testPath);
-  const testFiles = getAllFilesFrom(path.dirname(testPath), [config.build, testFileName]);
+  const testFiles = getAllFilesFrom(path.dirname(testPath), [deploymentConfig.build, testFileName]);
   const obj = {};
 
   testFiles.forEach((dir) => {
@@ -91,43 +90,32 @@ const filesChanged = (testPath, cacheDir) => {
   return result;
 };
 
-const getRollupInfos = (testPath) => {
-  const projectRootPath = path.resolve(__dirname, resolve.projectRoot);
+const setupRollupTest = async (rootDir, testPath, cacheDir) => {
   const testDir = path.dirname(testPath);
-  const input = path.resolve(testDir, config.js.input);
-  const dist = path.resolve(testDir, config.build);
   const testName = path.basename(testDir);
+  const changed = cacheDir ? filesChanged(testPath, cacheDir) : true;
+  const buildFolderExists = fs.existsSync(path.resolve(testDir, deploymentConfig.build));
 
-  return {
-    projectRootPath,
-    testDir,
-    testName,
-    input,
-    dist,
-  };
-};
+  if (changed || !buildFolderExists) {
+    const env = process.env.NODE_ENV;
+    process.env.NODE_ENV = rollupNodeEnv;
 
-const setupRollupTest = async (testPath, cache, cacheDir) => {
-  const { projectRootPath, input, dist, testName, testDir } = getRollupInfos(testPath);
-  const changed = !cache || filesChanged(testPath, cacheDir);
+    const rollupConfigPath = path.resolve(rootDir, rollupConfigName);
 
-  if (changed || !fs.existsSync(path.resolve(testDir, config.build))) {
-    const testPathSplit = path.relative(projectRootPath, testPath).split(path.sep);
-    if (testPathSplit.length > 0) {
-      const [project] = testPathSplit;
-      const env = process.env.NODE_ENV;
+    if (fs.existsSync(rollupConfigPath)) {
+      const rollupConfig = require(rollupConfigPath); // eslint-disable-line
 
-      try {
-        process.env.NODE_ENV = rollupNodeEnv;
-        const htmlFilePath = path.resolve(testDir, config.html.input);
-        const htmlFileContent = fs.existsSync(htmlFilePath) ? fs.readFileSync(htmlFilePath, 'utf8') : null;
-        let rollupConfigObj = rollupConfig(
-          { 'config-project': project },
-          {
-            overwrite: {
-              input,
-              dist,
-              file: config.js.output,
+      if (typeof rollupConfig === 'function') {
+        try {
+          const htmlFilePath = path.resolve(testDir, deploymentConfig.html.input);
+          const htmlFileContent = fs.existsSync(htmlFilePath) ? fs.readFileSync(htmlFilePath, 'utf8') : null;
+
+          let rollupConfigObj = rollupConfig(undefined, {
+            project: rootDir,
+            overwrite: (rollupConfigDefaults) => ({
+              input: path.resolve(testDir, deploymentConfig.js.input),
+              dist: path.resolve(testDir, deploymentConfig.build),
+              file: deploymentConfig.js.output,
               types: null,
               minVersions: false,
               esmBuild: false,
@@ -135,53 +123,52 @@ const setupRollupTest = async (testPath, cache, cacheDir) => {
               name: testName,
               pipeline: [
                 rollupPluginStyles(),
-                ...rollupConfig.defaults.pipeline,
+                ...rollupConfigDefaults.pipeline,
                 rollupPluginHtml({
                   title: `Jest-Puppeteer: ${testName}`,
-                  fileName: config.html.output,
+                  fileName: deploymentConfig.html.output,
                   template: genHtmlTemplateFunc(htmlFileContent),
                   meta: [{ charset: 'utf-8' }, { 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' }],
                 }),
               ],
-            },
+            }),
             silent: true,
             fast: true,
-            check: false,
-          }
-        );
+          });
 
-        if (!Array.isArray(rollupConfigObj)) {
-          rollupConfigObj = [rollupConfigObj];
-        }
-
-        for (let i = 0; i < rollupConfigObj.length; i++) {
-          const inputConfig = rollupConfigObj[i];
-          let { output } = inputConfig;
-          // eslint-disable-next-line no-await-in-loop
-          const bundle = await rollup.rollup(inputConfig);
-
-          if (!Array.isArray(output)) {
-            output = [output];
+          if (!Array.isArray(rollupConfigObj)) {
+            rollupConfigObj = [rollupConfigObj];
           }
 
-          for (let v = 0; v < output.length; v++) {
-            const outputConfig = output[i];
+          for (let i = 0; i < rollupConfigObj.length; i++) {
+            const inputConfig = rollupConfigObj[i];
+            let { output } = inputConfig;
             // eslint-disable-next-line no-await-in-loop
-            await bundle.write(outputConfig);
+            const bundle = await rollup.rollup(inputConfig);
+
+            if (!Array.isArray(output)) {
+              output = [output];
+            }
+
+            for (let v = 0; v < output.length; v++) {
+              const outputConfig = output[i];
+              // eslint-disable-next-line no-await-in-loop
+              await bundle.write(outputConfig);
+            }
           }
+        } catch (e) {
+          console.warn(e);
         }
-      } catch (e) {
-        console.warn(e);
       }
-      process.env.NODE_ENV = env;
     }
+
+    process.env.NODE_ENV = env;
   }
 };
 
 const cleanupRollupTest = (testPath, cache) => {
   if (!cache) {
-    const { dist } = getRollupInfos(testPath);
-    del(dist);
+    del(path.resolve(path.dirname(testPath), deploymentConfig.build));
   }
 };
 
