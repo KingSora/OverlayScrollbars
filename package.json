@@ -55,10 +55,10 @@
     "utf-8-validate": "^5.0.2"
   },
   "scripts": {
-    "test": "cd ./packages/overlayscrollbars && yarn test",
-    "test:jsdom": "cd ./packages/overlayscrollbars && yarn test:jsdom",
-    "test:pptr": "cd ./packages/overlayscrollbars && yarn test:pptr",
-    "build": "cd ./packages/overlayscrollbars && yarn build",
+    "test": "yarn workspaces run test",
+    "test:jsdom": "yarn workspaces run test:jsdom",
+    "test:pptr": "yarn workspaces run test:pptr",
+    "build": "yarn workspaces run build",
     "lint": "npx eslint --fix ."
   }
 }
