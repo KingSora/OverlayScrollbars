@@ -17,6 +17,7 @@ import {
 type OnEnvironmentChanged = (env: Environment) => void;
 
 const { abs, round } = Math;
+const envornmentElmId = 'os-envornment';
 
 const nativeScrollbarSize = (body: HTMLElement, measureElm: HTMLElement): XY => {
   appendChildren(body, measureElm);
@@ -42,7 +43,7 @@ const nativeScrollbarStyling = (testElm: HTMLElement): boolean => {
 
 const rtlScrollBehavior = (parentElm: HTMLElement, childElm: HTMLElement): { i: boolean; n: boolean } => {
   const strHidden = 'hidden';
-  style(parentElm, { overflowX: strHidden, overflowY: strHidden });
+  style(parentElm, { overflowX: strHidden, overflowY: strHidden, direction: 'rtl' });
   scrollLeft(parentElm, 0);
 
   const parentOffset = absoluteCoordinates(parentElm);
@@ -105,24 +106,24 @@ const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
 export class Environment {
   #onChangedListener: Set<OnEnvironmentChanged> = new Set();
 
-  autoUpdateLoop!: boolean;
+  _autoUpdateLoop!: boolean;
 
-  nativeScrollbarSize!: XY;
+  _nativeScrollbarSize!: XY;
 
-  nativeScrollbarIsOverlaid!: XY<boolean>;
+  _nativeScrollbarIsOverlaid!: XY<boolean>;
 
-  nativeScrollbarStyling!: boolean;
+  _nativeScrollbarStyling!: boolean;
 
-  rtlScrollBehavior!: { n: boolean; i: boolean };
+  _rtlScrollBehavior!: { n: boolean; i: boolean };
 
-  supportPassiveEvents!: boolean;
+  _supportPassiveEvents!: boolean;
 
-  supportResizeObserver!: boolean;
+  _supportResizeObserver!: boolean;
 
   constructor() {
     const _self = this;
     const { body } = document;
-    const envDOM = createDOM('<div id="os-dummy-scrollbar-size"><div></div></div>');
+    const envDOM = createDOM(`<div id="${envornmentElmId}"><div></div></div>`);
     const envElm = envDOM[0] as HTMLElement;
     const envChildElm = envElm.firstChild as HTMLElement;
 
@@ -132,13 +133,13 @@ export class Environment {
       y: nScrollBarSize.y === 0,
     };
 
-    _self.autoUpdateLoop = false;
-    _self.nativeScrollbarSize = nScrollBarSize;
-    _self.nativeScrollbarIsOverlaid = nativeScrollbarIsOverlaid;
-    _self.nativeScrollbarStyling = nativeScrollbarStyling(envElm);
-    _self.rtlScrollBehavior = rtlScrollBehavior(envElm, envChildElm);
-    _self.supportPassiveEvents = passiveEvents();
-    _self.supportResizeObserver = !!jsAPI('ResizeObserver');
+    _self._autoUpdateLoop = false;
+    _self._nativeScrollbarSize = nScrollBarSize;
+    _self._nativeScrollbarIsOverlaid = nativeScrollbarIsOverlaid;
+    _self._nativeScrollbarStyling = nativeScrollbarStyling(envElm);
+    _self._rtlScrollBehavior = rtlScrollBehavior(envElm, envChildElm);
+    _self._supportPassiveEvents = passiveEvents();
+    _self._supportResizeObserver = !!jsAPI('ResizeObserver');
 
     removeAttr(envElm, 'style');
     removeElements(envElm);
@@ -172,11 +173,11 @@ export class Environment {
           const dprChanged = dprNew !== dpr && dpr > 0;
           const isZoom = deltaIsBigger && difference && dprChanged;
 
-          const oldScrollbarSize = _self.nativeScrollbarSize;
+          const oldScrollbarSize = _self._nativeScrollbarSize;
           let newScrollbarSize;
 
           if (isZoom) {
-            newScrollbarSize = _self.nativeScrollbarSize = nativeScrollbarSize(body, envElm);
+            newScrollbarSize = _self._nativeScrollbarSize = nativeScrollbarSize(body, envElm);
             removeElements(envElm);
 
             if (oldScrollbarSize.x !== newScrollbarSize.x || oldScrollbarSize.y !== newScrollbarSize.y) {

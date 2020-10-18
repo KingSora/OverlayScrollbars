@@ -14,6 +14,8 @@ module.exports = function (api) {
         [
           '@babel/preset-env',
           {
+            useBuiltIns: 'usage',
+            corejs: { version: 3, proposals: true },
             targets: {
               node: 'current',
             },

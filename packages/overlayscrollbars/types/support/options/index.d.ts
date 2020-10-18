@@ -9,12 +9,9 @@ export declare type OptionsTemplateValue<T extends OptionsTemplateNativeTypes = 
 export declare type OptionsTemplate<T extends Required<T>> = {
     [P in keyof T]: PlainObject extends T[P] ? OptionsTemplate<Required<T[P]>> : T[P] extends OptionsTemplateNativeTypes ? OptionsTemplateValue<T[P]> : never;
 };
-export declare type OptionsValidated<T> = {
-    [P in keyof T]?: OptionsValidated<T[P]>;
-};
 export declare type OptionsValidatedResult<T> = {
     readonly foreign: PlainObject;
-    readonly validated: OptionsValidated<T>;
+    readonly validated: T;
 };
 export declare type OptionsAndOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];
 export declare type OptionsAndOptionsTemplate<T extends Required<T>> = {

@@ -1,0 +1,48 @@
+@import './sizeobserver.scss';
+
+#os-envornment {
+  position: fixed;
+  opacity: 0;
+  visibility: hidden;
+  overflow: scroll;
+  height: 500px;
+  width: 500px;
+}
+#os-envornment > div {
+  width: 200%;
+  height: 200%;
+  margin: 10px 0;
+}
+/* fix restricted measuring */
+#os-envornment:before,
+#os-envornment:after,
+.os-content:before,
+.os-content:after {
+  content: '';
+  display: table;
+  width: 0.01px;
+  height: 0.01px;
+  line-height: 0;
+  font-size: 0;
+  flex-grow: 0;
+  flex-shrink: 0;
+  visibility: hidden;
+}
+#os-envornment,
+.os-viewport {
+  -ms-overflow-style: scrollbar !important;
+}
+.os-viewport-native-scrollbars-invisible#os-envornment,
+.os-viewport-native-scrollbars-invisible.os-viewport {
+  scrollbar-width: none !important;
+}
+.os-viewport-native-scrollbars-invisible#os-envornment::-webkit-scrollbar,
+.os-viewport-native-scrollbars-invisible.os-viewport::-webkit-scrollbar,
+.os-viewport-native-scrollbars-invisible#os-envornment::-webkit-scrollbar-corner,
+.os-viewport-native-scrollbars-invisible.os-viewport::-webkit-scrollbar-corner {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  visibility: hidden !important;
+  background: transparent !important;
+}

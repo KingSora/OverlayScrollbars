@@ -19,12 +19,9 @@ export type OptionsTemplate<T extends Required<T>> = {
     ? OptionsTemplateValue<T[P]>
     : never;
 };
-export type OptionsValidated<T> = {
-  [P in keyof T]?: OptionsValidated<T[P]>;
-};
 export type OptionsValidatedResult<T> = {
   readonly foreign: PlainObject;
-  readonly validated: OptionsValidated<T>;
+  readonly validated: T;
 };
 // Options With Options Template Typings:
 export type OptionsAndOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];
@@ -48,5 +45,5 @@ type OptionsTemplateValueNonEnum<T extends OptionsTemplateNativeTypes> =
   | OptionsTemplateType<T>
   | [OptionsTemplateType<T>, ...Array<OptionsTemplateTypes>];
 type ExtractPropsKey<T, TProps extends T[keyof T]> = {
-    [P in keyof T]: TProps extends T[P] ? P : never;
+  [P in keyof T]: TProps extends T[P] ? P : never;
 }[keyof T];

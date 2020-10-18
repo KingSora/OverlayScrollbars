@@ -9,6 +9,9 @@ process.env.TEST_SERVER_PORT = port;
 module.exports = {
   browser: 'chromium',
   browserContext: 'incognito',
+  launch: {
+    headless: false,
+  },
   server: {
     command: `cross-env TEST_SERVER_PORT=${port} node ${testServerPath}`,
     port,

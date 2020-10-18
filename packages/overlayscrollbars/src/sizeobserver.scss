@@ -1,0 +1,70 @@
+$scrollbar-cushion: 100px;
+
+.os-size-observer,
+.os-size-observer-listener {
+  padding: inherit;
+  margin: 0;
+  pointer-events: none;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.os-size-observer,
+.os-size-observer-listener,
+.os-size-observer-listener-item,
+.os-size-observer-listener-item-final {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.os-size-observer {
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  animation-duration: 0.001s;
+  animation-name: os-size-observer-appear-animation;
+
+  &.resize-observer {
+    .os-size-observer-listener {
+      position: absolute;
+      box-sizing: border-box;
+    }
+  }
+}
+
+.os-size-observer-listener {
+  display: block;
+  height: 200%;
+  width: 200%;
+  box-sizing: content-box;
+
+  // lets assume no scrollbar is 100px wide
+  & > .os-size-observer-listener-item {
+    top: -$scrollbar-cushion;
+    right: -$scrollbar-cushion;
+    bottom: -$scrollbar-cushion;
+    left: -$scrollbar-cushion;
+  }
+}
+
+.os-size-observer-listener-item {
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  direction: ltr;
+  flex: none;
+}
+
+.os-size-observer-listener-item-final {
+  transition: none;
+}
+
+@keyframes os-size-observer-appear-animation {
+  from {
+    z-index: 0;
+  }
+  to {
+    z-index: -1;
+  }
+}

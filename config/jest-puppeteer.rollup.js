@@ -12,6 +12,45 @@ const rollupNodeEnv = 'build';
 const cacheFilePrefix = 'jest-puppeteer-overlayscrollbars-cache-';
 const cacheEncoding = 'utf8';
 const cacheHash = 'md5';
+const legacyBabelConfigAssign = {
+  exclude: [/\/core-js\//],
+  presets: [
+    [
+      '@babel/preset-env',
+      {
+        useBuiltIns: 'usage',
+        corejs: { version: 3, proposals: true },
+      },
+    ],
+  ],
+};
+
+const mergeBabelConfigs = (currentConfig, mergeConfig) => {
+  const { presets: assignPresets, exclude: assignExclude } = mergeConfig;
+  const { presets: configPresets, exclude: configExclude } = currentConfig;
+
+  assignPresets.forEach((assignPreset) => {
+    if (Array.isArray(assignPreset)) {
+      const [assignName, assignConfig] = assignPreset;
+
+      configPresets.forEach((configPreset) => {
+        if (Array.isArray(configPreset)) {
+          const [configName, configConfig] = configPreset;
+
+          if (configName === assignName && typeof configConfig === 'object' && typeof assignConfig === 'object') {
+            Object.assign(configConfig, {
+              ...assignConfig,
+            });
+          }
+        }
+      });
+    }
+  });
+
+  const finalAssignExclude = Array.isArray(assignExclude) ? assignExclude : [assignExclude];
+  const finalConfigExclude = Array.isArray(configExclude) ? configExclude : [configExclude, ...finalAssignExclude];
+  currentConfig.exclude = finalConfigExclude.filter((exc) => !!exc);
+};
 
 const makeHtmlAttributes = (attributes) => {
   if (!attributes) {
@@ -40,11 +79,68 @@ const genHtmlTemplateFunc = (content) => ({ attributes, files, meta, publicPath,
   <head>
     ${metas}
     <title>${title}</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+      }
+      body {
+        padding: 10px;
+      }
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      * {
+        box-sizing: inherit;
+      }
+      #testResult {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        padding: 5px;
+        background: white;
+      }
+      #testResult.passed {
+        display: block;
+        background: lime;
+      }
+      #testResult.passed::before {
+        content: 'success';
+      }
+      #testResult.failed {
+        display: block;
+        background: red;
+      }
+      #testResult.failed::before {
+        content: 'failed';
+      }
+    </style>
     ${links}
   </head>
   <body>
     ${content || ''}
     ${scripts}
+    <div id="testResult"></div>
+    <script>
+      var testResultElm = document.getElementById('testResult');
+      window.setTestResult = function(result) {
+        if (typeof result === 'boolean') {
+          testResultElm.setAttribute('class', result ? 'passed' : 'failed');
+        }
+        else {
+          testResultElm.removeAttribute('class');
+        }
+      };
+      window.testPassed = function() {
+        return testResultElm.getAttribute('class') === 'passed';
+      }
+    </script>
   </body>
 </html>`;
 };
@@ -112,26 +208,29 @@ const setupRollupTest = async (rootDir, testPath, cacheDir) => {
 
           let rollupConfigObj = rollupConfig(undefined, {
             project: rootDir,
-            overwrite: (rollupConfigDefaults) => ({
-              input: path.resolve(testDir, deploymentConfig.js.input),
-              dist: path.resolve(testDir, deploymentConfig.build),
-              file: deploymentConfig.js.output,
-              types: null,
-              minVersions: false,
-              esmBuild: false,
-              sourcemap: true,
-              name: testName,
-              pipeline: [
-                rollupPluginStyles(),
-                ...rollupConfigDefaults.pipeline,
-                rollupPluginHtml({
-                  title: `Jest-Puppeteer: ${testName}`,
-                  fileName: deploymentConfig.html.output,
-                  template: genHtmlTemplateFunc(htmlFileContent),
-                  meta: [{ charset: 'utf-8' }, { 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' }],
-                }),
-              ],
-            }),
+            overwrite: (rollupConfigDefaults, legacyBabelConfig) => {
+              mergeBabelConfigs(legacyBabelConfig, legacyBabelConfigAssign);
+              return {
+                input: path.resolve(testDir, deploymentConfig.js.input),
+                dist: path.resolve(testDir, deploymentConfig.build),
+                file: deploymentConfig.js.output,
+                types: null,
+                minVersions: false,
+                esmBuild: false,
+                sourcemap: true,
+                name: testName,
+                pipeline: [
+                  rollupPluginStyles(),
+                  ...rollupConfigDefaults.pipeline,
+                  rollupPluginHtml({
+                    title: `Jest-Puppeteer: ${testName}`,
+                    fileName: deploymentConfig.html.output,
+                    template: genHtmlTemplateFunc(htmlFileContent),
+                    meta: [{ charset: 'utf-8' }, { 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' }],
+                  }),
+                ],
+              };
+            },
             silent: true,
             fast: true,
           });

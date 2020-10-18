@@ -335,6 +335,7 @@ const optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 
 }, {});
 
 const { abs, round } = Math;
+const envornmentElmId = 'os-envornment';
 
 const nativeScrollbarSize = (body, measureElm) => {
   appendChildren(body, measureElm);
@@ -363,6 +364,7 @@ const rtlScrollBehavior = (parentElm, childElm) => {
   style(parentElm, {
     overflowX: strHidden,
     overflowY: strHidden,
+    direction: 'rtl',
   });
   scrollLeft(parentElm, 0);
   const parentOffset = absoluteCoordinates(parentElm);
@@ -419,7 +421,7 @@ class Environment {
     const _self = this;
 
     const { body } = document;
-    const envDOM = createDOM('<div id="os-dummy-scrollbar-size"><div></div></div>');
+    const envDOM = createDOM(`<div id="${envornmentElmId}"><div></div></div>`);
     const envElm = envDOM[0];
     const envChildElm = envElm.firstChild;
     const nScrollBarSize = nativeScrollbarSize(body, envElm);
@@ -427,13 +429,13 @@ class Environment {
       x: nScrollBarSize.x === 0,
       y: nScrollBarSize.y === 0,
     };
-    _self.autoUpdateLoop = false;
-    _self.nativeScrollbarSize = nScrollBarSize;
-    _self.nativeScrollbarIsOverlaid = nativeScrollbarIsOverlaid;
-    _self.nativeScrollbarStyling = nativeScrollbarStyling(envElm);
-    _self.rtlScrollBehavior = rtlScrollBehavior(envElm, envChildElm);
-    _self.supportPassiveEvents = passiveEvents();
-    _self.supportResizeObserver = !!jsAPI('ResizeObserver');
+    _self._autoUpdateLoop = false;
+    _self._nativeScrollbarSize = nScrollBarSize;
+    _self._nativeScrollbarIsOverlaid = nativeScrollbarIsOverlaid;
+    _self._nativeScrollbarStyling = nativeScrollbarStyling(envElm);
+    _self._rtlScrollBehavior = rtlScrollBehavior(envElm, envChildElm);
+    _self._supportPassiveEvents = passiveEvents();
+    _self._supportResizeObserver = !!jsAPI('ResizeObserver');
     removeAttr(envElm, 'style');
     removeElements(envElm);
 
@@ -464,11 +466,11 @@ class Environment {
           const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
           const dprChanged = dprNew !== dpr && dpr > 0;
           const isZoom = deltaIsBigger && difference && dprChanged;
-          const oldScrollbarSize = _self.nativeScrollbarSize;
+          const oldScrollbarSize = _self._nativeScrollbarSize;
           let newScrollbarSize;
 
           if (isZoom) {
-            newScrollbarSize = _self.nativeScrollbarSize = nativeScrollbarSize(body, envElm);
+            newScrollbarSize = _self._nativeScrollbarSize = nativeScrollbarSize(body, envElm);
             removeElements(envElm);
 
             if (oldScrollbarSize.x !== newScrollbarSize.x || oldScrollbarSize.y !== newScrollbarSize.y) {

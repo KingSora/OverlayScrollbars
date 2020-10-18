@@ -66,7 +66,7 @@ const resolvePath = (basePath, pathToResolve, appendExt) => {
 
 const resolveConfig = (config) => {
   if (typeof config === 'function') {
-    return config(rollupConfigDefaults) || {};
+    return config(rollupConfigDefaults, legacyBabelConfig, esmBabelConfig) || {};
   }
   return config;
 };
@@ -164,6 +164,12 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
                 rollupTerser({
                   ecma: 8,
                   safari10: true,
+                  mangle: {
+                    safari10: true,
+                    properties: {
+                      regex: /^_/,
+                    },
+                  },
                 }),
               ],
             }

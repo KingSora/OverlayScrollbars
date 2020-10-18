@@ -1,0 +1,37 @@
+#target {
+  border: 2px solid red;
+  overflow: scroll;
+  resize: both;
+  position: relative;
+}
+
+.padding0 {
+  padding: 0;
+}
+.padding10 {
+  padding: 10px;
+}
+.padding50 {
+  padding: 50px;
+}
+
+.heightAuto {
+  height: auto;
+}
+.height200 {
+  height: 200px;
+}
+.heightHundred {
+  height: 100%;
+}
+
+.widthAuto {
+  width: auto;
+  float: left;
+}
+.width200 {
+  width: 200px;
+}
+.widthHundred {
+  width: 100%;
+}

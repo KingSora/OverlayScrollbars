@@ -1,6 +1,6 @@
 import { each, indexOf, hasOwnProperty, keys } from 'support/utils';
 import { type, isArray, isUndefined, isEmptyObject, isPlainObject, isString } from 'support/utils/types';
-import { OptionsTemplate, OptionsTemplateTypes, OptionsTemplateType, OptionsValidated, Func, OptionsValidatedResult } from 'support/options';
+import { OptionsTemplate, OptionsTemplateTypes, OptionsTemplateType, Func, OptionsValidatedResult } from 'support/options';
 import { PlainObject } from 'typings';
 
 const { stringify } = JSON;
@@ -43,11 +43,11 @@ const optionsTemplateTypes: OptionsTemplateTypesDictionary = ['boolean', 'number
 const validateRecursive = <T extends PlainObject>(
   options: T,
   template: OptionsTemplate<Required<T>>,
-  optionsDiff: OptionsValidated<T>,
+  optionsDiff: T,
   doWriteErrors?: boolean,
   propPath?: string
 ): OptionsValidatedResult<T> => {
-  const validatedOptions: OptionsValidated<T> = {};
+  const validatedOptions: T = {} as T;
   const optionsCopy: T = { ...options };
   const props = keys(template).filter((prop) => hasOwnProperty(options, prop));
 
@@ -143,7 +143,7 @@ const validateRecursive = <T extends PlainObject>(
 const validate = <T extends PlainObject>(
   options: T,
   template: OptionsTemplate<Required<T>>,
-  optionsDiff?: OptionsValidated<T>,
+  optionsDiff?: T,
   doWriteErrors?: boolean
 ): OptionsValidatedResult<T> => {
   /*
@@ -155,7 +155,7 @@ const validate = <T extends PlainObject>(
         Object.assign(result.validated, foreign);
     }
     */
-  return validateRecursive(options, template, optionsDiff || {}, doWriteErrors || false);
+  return validateRecursive<T>(options, template, optionsDiff || ({} as T), doWriteErrors || false);
 };
 
 export { validate, optionsTemplateTypes };
