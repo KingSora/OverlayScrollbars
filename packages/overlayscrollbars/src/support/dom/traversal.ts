@@ -1,7 +1,5 @@
 import { each, from } from 'support/utils/array';
 
-const elementIsVisible = (elm: HTMLElement): boolean => !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
-
 /**
  * Find all elements with the passed selector, outgoing (and including) the passed element or the document if no element was provided.
  * @param selector The selector which has to be searched by.
@@ -29,20 +27,7 @@ export const findFirst = (selector: string, elm?: Element | null): Element | nul
  * @param elm The element which has to be compared with the passed selector.
  * @param selector The selector which has to be compared with the passed element. Additional selectors: ':visible' and ':hidden'.
  */
-export const is = (elm: Element | null, selector: string): boolean => {
-  if (elm) {
-    if (selector === ':visible') {
-      return elementIsVisible(elm as HTMLElement);
-    }
-    if (selector === ':hidden') {
-      return !elementIsVisible(elm as HTMLElement);
-    }
-    if (elm.matches(selector)) {
-      return true;
-    }
-  }
-  return false;
-};
+export const is = (elm: Element | null, selector: string): boolean => (elm ? elm.matches(selector) : false);
 
 /**
  * Returns the children (no text-nodes or comments) of the passed element which are matching the passed selector. An empty array is returned if the passed element is null.

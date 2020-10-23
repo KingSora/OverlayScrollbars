@@ -1,5 +1,6 @@
 import { WH } from 'support/dom';
 
+const elementHasDimensions = (elm: HTMLElement): boolean => !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
 const zeroObj: WH = {
   w: 0,
   h: 0,
@@ -42,3 +43,9 @@ export const clientSize = (elm: HTMLElement | null): WH =>
  * @param elm The element of which the BoundingClientRect shall be returned.
  */
 export const getBoundingClientRect = (elm: HTMLElement): DOMRect => elm.getBoundingClientRect();
+
+/**
+ * Determines whether the passed element has any dimensions.
+ * @param elm The element.
+ */
+export const hasDimensions = (elm: HTMLElement | null): boolean => (elm ? elementHasDimensions(elm as HTMLElement) : false);

@@ -7,6 +7,7 @@ $scrollbar-cushion: 100px;
   pointer-events: none;
   overflow: hidden;
   visibility: hidden;
+  box-sizing: border-box;
 }
 
 .os-size-observer,
@@ -25,10 +26,9 @@ $scrollbar-cushion: 100px;
   animation-duration: 0.001s;
   animation-name: os-size-observer-appear-animation;
 
-  &.resize-observer {
+  &.scroll-observer {
     .os-size-observer-listener {
-      position: absolute;
-      box-sizing: border-box;
+      box-sizing: content-box;
     }
   }
 }
@@ -37,7 +37,6 @@ $scrollbar-cushion: 100px;
   display: block;
   height: 200%;
   width: 200%;
-  box-sizing: content-box;
 
   // lets assume no scrollbar is 100px wide
   & > .os-size-observer-listener-item {

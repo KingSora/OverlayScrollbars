@@ -1,5 +1,6 @@
 import { isNumber, isPlainObject } from 'support/utils/types';
-import { windowSize, offsetSize, clientSize, getBoundingClientRect } from 'support/dom/dimensions';
+import { createDiv } from 'support/dom/create';
+import { windowSize, offsetSize, clientSize, getBoundingClientRect, hasDimensions } from 'support/dom/dimensions';
 
 describe('dom dimensions', () => {
   describe('offsetSize', () => {
@@ -43,5 +44,23 @@ describe('dom dimensions', () => {
 
   test('getBoundingClientRect', () => {
     expect(getBoundingClientRect(document.body)).toEqual(document.body.getBoundingClientRect());
+  });
+
+  describe('hasDimensions', () => {
+    test('DOM element', () => {
+      const result = hasDimensions(document.body);
+      expect(result).toBe(true);
+    });
+
+    test('generated element', () => {
+      const div = createDiv();
+      const result = hasDimensions(div);
+      expect(result).toBe(false);
+    });
+
+    test('null', () => {
+      const result = hasDimensions(null);
+      expect(result).toBe(false);
+    });
   });
 });

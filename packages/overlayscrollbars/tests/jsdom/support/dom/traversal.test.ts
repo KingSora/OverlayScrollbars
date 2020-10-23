@@ -119,11 +119,6 @@ describe('dom traversal', () => {
       expect(is(findFirst('.div-class'), '.other-class')).toBe(false);
     });
 
-    test('visibility', () => {
-      expect(is(findFirst('.div-class'), ':visible')).toBe(false);
-      expect(is(findFirst('.div-class'), ':hidden')).toBe(true);
-    });
-
     test('created', () => {
       const div = createDiv();
       expect(div.parentNode).toBeNull();
@@ -139,9 +134,6 @@ describe('dom traversal', () => {
 
       expect(is(div, '.div-class')).toBe(false);
       expect(is(div, '.other-class')).toBe(false);
-
-      expect(is(div, ':visible')).toBe(false);
-      expect(is(div, ':hidden')).toBe(true);
     });
 
     test('none', () => {
@@ -154,9 +146,6 @@ describe('dom traversal', () => {
 
       expect(is(null, '.div-class')).toBe(false);
       expect(is(null, '.other-class')).toBe(false);
-
-      expect(is(null, ':visible')).toBe(false);
-      expect(is(null, ':hidden')).toBe(false);
     });
   });
 
