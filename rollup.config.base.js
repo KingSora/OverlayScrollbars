@@ -1,6 +1,7 @@
 const { nodeResolve: rollupResolve } = require('@rollup/plugin-node-resolve');
 const { babel: rollupBabelPlugin } = require('@rollup/plugin-babel');
 const { terser: rollupTerser } = require('rollup-plugin-terser');
+const rollupInject = require('@rollup/plugin-inject');
 const rollupCommonjs = require('@rollup/plugin-commonjs');
 const rollupTypescript = require('rollup-plugin-typescript2');
 const rollupPrettier = require('rollup-plugin-prettier');
@@ -20,7 +21,7 @@ const rollupConfigDefaults = {
   sourcemap: true,
   esmBuild: true,
   exports: 'auto',
-  pipeline: ['resolve', 'commonjs', 'typescript', 'babel'],
+  pipeline: ['resolve', 'typescript', 'inject', 'commonjs', 'babel'],
 };
 
 const legacyBabelConfig = {
@@ -64,9 +65,16 @@ const resolvePath = (basePath, pathToResolve, appendExt) => {
   return result && appendExt ? appendExtension(result) : result;
 };
 
-const resolveConfig = (config) => {
+const resolveConfig = (config, userConfig) => {
   if (typeof config === 'function') {
-    return config(rollupConfigDefaults, legacyBabelConfig, esmBabelConfig) || {};
+    return (
+      config({
+        defaultConfig: rollupConfigDefaults,
+        legacyBabelConfig,
+        esmBabelConfig,
+        userConfig,
+      }) || {}
+    );
   }
   return config;
 };
@@ -79,14 +87,33 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
   const tsconfigJSONPath = resolvePath(projectPath, 'tsconfig.json');
 
   const isTypeScriptProject = fs.existsSync(tsconfigJSONPath);
+  const userConfig = resolveConfig(config);
+  const overwriteConfig = resolveConfig(overwrite, userConfig);
   const buildConfig = {
     ...rollupConfigDefaults,
     ...{ name: projectName, file: projectName },
-    ...resolveConfig(config),
-    ...resolveConfig(overwrite),
+    ...userConfig,
+    ...overwriteConfig,
   };
 
-  const { input, src, dist, types, tests, file, cache, minVersions, sourcemap, esmBuild, name, exports, globals, pipeline } = buildConfig;
+  const {
+    input,
+    src,
+    dist,
+    types,
+    tests,
+    file,
+    cache,
+    minVersions,
+    sourcemap,
+    esmBuild,
+    name,
+    exports,
+    globals,
+    external,
+    pipeline,
+    inject,
+  } = buildConfig;
   const { devDependencies = {}, peerDependencies = {} } = require(packageJSONPath);
 
   const srcPath = resolvePath(projectPath, src);
@@ -118,13 +145,13 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
   const genConfig = ({ esm, typeDeclaration }) => {
     const pipelineMap = {
       resolve: rollupResolve({
+        mainFields: ['browser', 'umd:main', 'module', 'main'],
         extensions: resolve.extensions,
         rootDir: srcPath,
         customResolveOptions: {
           moduleDirectory: [...resolve.directories.map((dir) => path.resolve(projectPath, dir)), path.resolve(__dirname, 'node_modules')],
         },
       }),
-      commonjs: rollupCommonjs(),
       typescript: isTypeScriptProject
         ? rollupTypescript({
             check: !fast,
@@ -142,10 +169,20 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
             },
           })
         : {},
+      inject: rollupInject({
+        ...(typeof inject === 'object' ? inject : {}),
+      }),
+      commonjs: rollupCommonjs({
+        sourceMap: sourcemap,
+        extensions: resolve.extensions,
+      }),
       babel: rollupBabelPlugin({
         ...(esm ? esmBabelConfig : legacyBabelConfig),
         babelHelpers: 'runtime',
         extensions: resolve.extensions,
+        caller: {
+          name: 'babel-rollup-build',
+        },
       }),
     };
 
@@ -175,20 +212,14 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
             }
           : []
       ),
-      external: [...Object.keys(devDependencies), ...Object.keys(peerDependencies)],
-      plugins: pipeline.map((item) => {
-        if (typeof item === 'string') {
-          return pipelineMap[item];
-        }
-        return item;
-      }),
+      external: [...Object.keys(devDependencies), ...Object.keys(peerDependencies), ...((Array.isArray(external) && external) || [])],
+      plugins: pipeline.map((item) => (typeof item === 'string' ? pipelineMap[item] : item)),
     };
   };
 
   if (!silent) {
     console.log('');
     console.log('PROJECT : ', project);
-    console.log('ENV     : ', process.env.NODE_ENV);
     console.log('CONFIG  : ', buildConfig);
   }
 

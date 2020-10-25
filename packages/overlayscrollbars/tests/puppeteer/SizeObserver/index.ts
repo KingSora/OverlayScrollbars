@@ -2,6 +2,8 @@ import 'overlayscrollbars.scss';
 import './index.scss';
 import { createSizeObserver } from 'overlayscrollbars/observers/createSizeObserver';
 import { from, removeClass, addClass, hasDimensions, isString, isNumber, offsetSize } from 'support';
+import { waitFor } from '@testing-library/dom';
+import should from 'should';
 
 const targetElm = document.querySelector('#target');
 const heightSelect: HTMLSelectElement | null = document.querySelector('#height');
@@ -67,26 +69,6 @@ const selectOption = (select: HTMLSelectElement | null, selectedOption: string |
   return true;
 };
 
-const waitFor = (func: () => any) => {
-  const start = Date.now();
-
-  return new Promise((resolve, reject) => {
-    const intervalId = setInterval(() => {
-      const now = Date.now();
-
-      if (func()) {
-        clearInterval(intervalId);
-        resolve();
-      }
-      if (now - start > 5000) {
-        clearInterval(intervalId);
-        window.setTestResult(false);
-        reject();
-      }
-    }, 30);
-  });
-};
-
 const iterateSelect = async (select: HTMLSelectElement | null, afterEach?: () => any) => {
   if (select) {
     const selectOptions = getSelectOptions(select);
@@ -102,7 +84,12 @@ const iterateSelect = async (select: HTMLSelectElement | null, afterEach?: () =>
 
         if (hasDimensions(targetElm as HTMLElement) && offsetSizeChanged) {
           // eslint-disable-next-line
-          await waitFor(() => iterations === currIterations + 1);
+          await waitFor(() => should.equal(iterations, currIterations + 1), {
+            onTimeout(error): Error {
+              window.setTestResult(false);
+              return error;
+            },
+          });
         }
 
         if (typeof afterEach === 'function') {
@@ -140,26 +127,26 @@ selectCallback({ target: boxSizingSelect });
 // @ts-ignore
 selectCallback({ target: displaySelect });
 
-const iteratePadding = (window.iteratePadding = async (afterEach?: () => any) => {
+const iteratePadding = async (afterEach?: () => any) => {
   await iterateSelect(paddingSelect, afterEach);
-});
-const iterateBorder = (window.iterateBorder = async (afterEach?: () => any) => {
+};
+const iterateBorder = async (afterEach?: () => any) => {
   await iterateSelect(borderSelect, afterEach);
-});
-const iterateHeight = (window.iterateHeight = async (afterEach?: () => any) => {
+};
+const iterateHeight = async (afterEach?: () => any) => {
   await iterateSelect(heightSelect, afterEach);
-});
-const iterateWidth = (window.iterateWidth = async (afterEach?: () => any) => {
+};
+const iterateWidth = async (afterEach?: () => any) => {
   await iterateSelect(widthSelect, afterEach);
-});
-const iterateBoxSizing = (window.iterateBoxSizing = async (afterEach?: () => any) => {
+};
+const iterateBoxSizing = async (afterEach?: () => any) => {
   await iterateSelect(boxSizingSelect, afterEach);
-});
-const iterateDisplay = (window.iterateDisplay = async (afterEach?: () => any) => {
+};
+const iterateDisplay = async (afterEach?: () => any) => {
   await iterateSelect(displaySelect, afterEach);
-});
+};
 
-const start = (window.iterate = async () => {
+const start = async () => {
   window.setTestResult(null);
   targetElm?.removeAttribute('style');
   await iterateDisplay();
@@ -173,8 +160,10 @@ const start = (window.iterate = async () => {
     });
   });
   window.setTestResult(true);
-});
+};
 
 startBtn?.addEventListener('click', start);
 
 targetElm?.appendChild(observerElm);
+
+export { start };

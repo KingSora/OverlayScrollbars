@@ -8,7 +8,6 @@ const rollupPluginStyles = require('rollup-plugin-styles');
 const deploymentConfig = require('./jest-puppeteer.rollup.config.js');
 
 const rollupConfigName = 'rollup.config.js';
-const rollupNodeEnv = 'build';
 const cacheFilePrefix = 'jest-puppeteer-overlayscrollbars-cache-';
 const cacheEncoding = 'utf8';
 const cacheHash = 'md5';
@@ -111,7 +110,7 @@ const genHtmlTemplateFunc = (content) => ({ attributes, files, meta, publicPath,
         background: lime;
       }
       #testResult.passed::before {
-        content: 'success';
+        content: 'passed';
       }
       #testResult.failed {
         display: block;
@@ -193,9 +192,6 @@ const setupRollupTest = async (rootDir, testPath, cacheDir) => {
   const buildFolderExists = fs.existsSync(path.resolve(testDir, deploymentConfig.build));
 
   if (changed || !buildFolderExists) {
-    const env = process.env.NODE_ENV;
-    process.env.NODE_ENV = rollupNodeEnv;
-
     const rollupConfigPath = path.resolve(rootDir, rollupConfigName);
 
     if (fs.existsSync(rollupConfigPath)) {
@@ -208,7 +204,7 @@ const setupRollupTest = async (rootDir, testPath, cacheDir) => {
 
           let rollupConfigObj = rollupConfig(undefined, {
             project: rootDir,
-            overwrite: (rollupConfigDefaults, legacyBabelConfig) => {
+            overwrite: ({ defaultConfig, legacyBabelConfig }) => {
               mergeBabelConfigs(legacyBabelConfig, legacyBabelConfigAssign);
               return {
                 input: path.resolve(testDir, deploymentConfig.js.input),
@@ -221,7 +217,7 @@ const setupRollupTest = async (rootDir, testPath, cacheDir) => {
                 name: testName,
                 pipeline: [
                   rollupPluginStyles(),
-                  ...rollupConfigDefaults.pipeline,
+                  ...defaultConfig.pipeline,
                   rollupPluginHtml({
                     title: `Jest-Puppeteer: ${testName}`,
                     fileName: deploymentConfig.html.output,
@@ -260,8 +256,6 @@ const setupRollupTest = async (rootDir, testPath, cacheDir) => {
         }
       }
     }
-
-    process.env.NODE_ENV = env;
   }
 };
 

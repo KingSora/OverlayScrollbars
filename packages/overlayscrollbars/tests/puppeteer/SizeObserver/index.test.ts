@@ -9,7 +9,7 @@ describe('Environment', () => {
   it('test', async () => {
     await expectPuppeteer(page).toClick('#start');
     await expectPuppeteer(page).toMatchElement('#testResult.passed', {
-      timeout: 30000,
+      timeout: 60000,
     });
-  }, 30000);
+  }, 60000);
 });

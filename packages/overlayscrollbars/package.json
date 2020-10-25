@@ -7,6 +7,6 @@
     "test": "jest --coverage --runInBand --detectOpenHandles",
     "test:jsdom": "jest --coverage --runInBand --detectOpenHandles --selectProjects jsdom",
     "test:pptr": "jest --coverage --runInBand --detectOpenHandles --selectProjects puppeteer",
-    "build": "cross-env NODE_ENV=build rollup -c"
+    "build": "rollup -c"
   }
 }
