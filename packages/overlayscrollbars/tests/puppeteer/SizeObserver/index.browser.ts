@@ -1,10 +1,11 @@
 import 'overlayscrollbars.scss';
 import './index.scss';
-import { createSizeObserver } from 'overlayscrollbars/observers/createSizeObserver';
-import { hasDimensions, offsetSize, WH } from 'support';
-import { waitFor } from '@testing-library/dom';
 import should from 'should';
+import { waitFor } from '@testing-library/dom';
 import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select';
+import { hasDimensions, offsetSize, WH } from 'support';
+
+import { createSizeObserver } from 'overlayscrollbars/observers/createSizeObserver';
 
 const targetElm = document.querySelector('#target');
 const heightSelect: HTMLSelectElement | null = document.querySelector('#height');
