@@ -10,6 +10,8 @@ const fs = require('fs');
 const path = require('path');
 const resolve = require('./resolve.config.json');
 
+const isTestEnv = process.env.NODE_ENV === 'test';
+
 const rollupConfigDefaults = {
   input: './src/index',
   src: './src',
@@ -25,10 +27,12 @@ const rollupConfigDefaults = {
 };
 
 const legacyBabelConfig = {
+  exclude: isTestEnv ? [/\/core-js\//] : [],
   presets: [
     [
       '@babel/preset-env',
       {
+        ...(isTestEnv ? { useBuiltIns: 'usage', corejs: { version: 3, proposals: true } } : {}),
         loose: true,
         targets: {
           ie: '11',
@@ -52,6 +56,8 @@ const esmBabelConfig = {
     ],
   ],
 };
+
+const normalizePath = (pathName) => (pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName);
 
 const appendExtension = (file) => {
   if (path.extname(file) === '') {
@@ -81,6 +87,7 @@ const resolveConfig = (config, userConfig) => {
 
 const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, silent, fast } = {}) => {
   const projectPath = resolvePath(__dirname, project);
+  const relativeBackPath = path.relative(projectPath, __dirname);
   const projectName = path.basename(project);
 
   const packageJSONPath = resolvePath(projectPath, 'package.json');
@@ -122,6 +129,7 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
   const testsPath = resolvePath(projectPath, tests);
   const inputPath = resolvePath(projectPath, input, true);
 
+  const prependBackPath = (value) => normalizePath(`${relativeBackPath}${path.sep}`) + value;
   const genOutputConfig = (esm) => ({
     format: esm ? 'esm' : 'umd',
     file: path.resolve(distPath, `${file}${esm ? '.esm' : ''}.js`),
@@ -167,6 +175,8 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
               },
               exclude: (require(tsconfigJSONPath).exclude || []).concat(testsPath),
             },
+            include: ['*.ts+(|x)', '**/*.ts+(|x)'].map(prependBackPath),
+            exclude: ['*.d.ts', '**/*.d.ts'].map(prependBackPath),
           })
         : {},
       inject: rollupInject({

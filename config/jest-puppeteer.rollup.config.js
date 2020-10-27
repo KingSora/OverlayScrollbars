@@ -5,7 +5,7 @@ module.exports = {
     output: 'build.html',
   },
   js: {
-    input: 'index',
+    input: 'index.browser',
     output: 'build',
   },
 };

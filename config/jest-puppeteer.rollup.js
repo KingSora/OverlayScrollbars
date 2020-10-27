@@ -11,45 +11,6 @@ const rollupConfigName = 'rollup.config.js';
 const cacheFilePrefix = 'jest-puppeteer-overlayscrollbars-cache-';
 const cacheEncoding = 'utf8';
 const cacheHash = 'md5';
-const legacyBabelConfigAssign = {
-  exclude: [/\/core-js\//],
-  presets: [
-    [
-      '@babel/preset-env',
-      {
-        useBuiltIns: 'usage',
-        corejs: { version: 3, proposals: true },
-      },
-    ],
-  ],
-};
-
-const mergeBabelConfigs = (currentConfig, mergeConfig) => {
-  const { presets: assignPresets, exclude: assignExclude } = mergeConfig;
-  const { presets: configPresets, exclude: configExclude } = currentConfig;
-
-  assignPresets.forEach((assignPreset) => {
-    if (Array.isArray(assignPreset)) {
-      const [assignName, assignConfig] = assignPreset;
-
-      configPresets.forEach((configPreset) => {
-        if (Array.isArray(configPreset)) {
-          const [configName, configConfig] = configPreset;
-
-          if (configName === assignName && typeof configConfig === 'object' && typeof assignConfig === 'object') {
-            Object.assign(configConfig, {
-              ...assignConfig,
-            });
-          }
-        }
-      });
-    }
-  });
-
-  const finalAssignExclude = Array.isArray(assignExclude) ? assignExclude : [assignExclude];
-  const finalConfigExclude = Array.isArray(configExclude) ? configExclude : [configExclude, ...finalAssignExclude];
-  currentConfig.exclude = finalConfigExclude.filter((exc) => !!exc);
-};
 
 const makeHtmlAttributes = (attributes) => {
   if (!attributes) {
@@ -204,8 +165,7 @@ const setupRollupTest = async (rootDir, testPath, cacheDir) => {
 
           let rollupConfigObj = rollupConfig(undefined, {
             project: rootDir,
-            overwrite: ({ defaultConfig, legacyBabelConfig }) => {
-              mergeBabelConfigs(legacyBabelConfig, legacyBabelConfigAssign);
+            overwrite: ({ defaultConfig }) => {
               return {
                 input: path.resolve(testDir, deploymentConfig.js.input),
                 dist: path.resolve(testDir, deploymentConfig.build),

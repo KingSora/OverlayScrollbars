@@ -53,10 +53,16 @@ module.exports = {
         allowedNames: ['self', '_self'], // Allow `const self = this`; `[]` by default
       },
     ],
+    'import/no-unresolved': [
+      'error',
+      {
+        ignore: [`^@/.*`],
+      },
+    ],
   },
   overrides: [
     {
-      files: ['*.test.*'],
+      files: ['*.test.*', `*${puppeteerRollupConfig.js.input}.*`],
       rules: {
         'no-restricted-syntax': 'off',
         '@typescript-eslint/ban-ts-comment': 'off',
@@ -70,7 +76,12 @@ module.exports = {
         'no-void': 'off',
         'no-empty-function': 'off',
         'no-new-func': 'off',
-        'import/no-unresolved': ['error', { ignore: [`./${puppeteerRollupConfig.build}/${puppeteerRollupConfig.html.output}$`] }],
+        'import/no-unresolved': [
+          'error',
+          {
+            ignore: [`\\./${puppeteerRollupConfig.build}/${puppeteerRollupConfig.html.output}$`, `^@/.*`],
+          },
+        ],
       },
       globals: {
         page: true,

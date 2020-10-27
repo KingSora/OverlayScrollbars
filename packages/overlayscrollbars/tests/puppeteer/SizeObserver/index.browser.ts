@@ -1,9 +1,10 @@
 import 'overlayscrollbars.scss';
 import './index.scss';
 import { createSizeObserver } from 'overlayscrollbars/observers/createSizeObserver';
-import { from, removeClass, addClass, hasDimensions, isString, isNumber, offsetSize } from 'support';
+import { hasDimensions, offsetSize, WH } from 'support';
 import { waitFor } from '@testing-library/dom';
 import should from 'should';
+import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select';
 
 const targetElm = document.querySelector('#target');
 const heightSelect: HTMLSelectElement | null = document.querySelector('#height');
@@ -25,80 +26,35 @@ const observerElm = createSizeObserver(() => {
   });
 });
 
-const getSelectOptions = (selectElement: HTMLSelectElement) => {
-  const arr = from(selectElement.options).map((option) => option.value);
-  return arr;
-};
+const selectCallback = generateSelectCallback(targetElm as HTMLElement);
 
-const selectCallback = (event: Event) => {
-  const target = event.target as HTMLSelectElement;
-  const selectedOption = target.value;
-  const selectOptions = getSelectOptions(target);
-
-  removeClass(targetElm, selectOptions.join(' '));
-  addClass(targetElm, selectedOption);
-};
-
-const selectOption = (select: HTMLSelectElement | null, selectedOption: string | number): boolean => {
-  if (!select) {
-    return false;
-  }
-
-  const options = getSelectOptions(select);
-  const currValue = select.value;
-
-  if (selectedOption === currValue) {
-    return false;
-  }
-
-  if (isString(selectedOption) && options.includes(selectedOption)) {
-    select.value = selectedOption;
-  } else if (isNumber(selectedOption) && options.length < selectedOption && selectedOption > -1) {
-    select.selectedIndex = selectedOption;
-  }
-
-  let event;
-  if (typeof Event === 'function') {
-    event = new Event('change');
-  } else {
-    event = document.createEvent('Event');
-    event.initEvent('change', true, true);
-  }
-  select.dispatchEvent(event);
-
-  return true;
-};
-
-const iterateSelect = async (select: HTMLSelectElement | null, afterEach?: () => any) => {
-  if (select) {
-    const selectOptions = getSelectOptions(select);
-    const selectOptionsReversed = getSelectOptions(select).reverse();
-    const iterateOptions = [...selectOptions, ...selectOptionsReversed];
-    for (let i = 0; i < iterateOptions.length; i++) {
-      const option = iterateOptions[i];
+const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) => {
+  await iterateSelect<{ currIterations: number; currOffsetSize: WH<number> }>(select, {
+    beforeEach() {
       const currIterations = iterations;
       const currOffsetSize = offsetSize(targetElm as HTMLElement);
-      if (selectOption(select, option)) {
-        const newOffsetSize = offsetSize(targetElm as HTMLElement);
-        const offsetSizeChanged = currOffsetSize.w !== newOffsetSize.w || currOffsetSize.h !== newOffsetSize.h;
 
-        if (hasDimensions(targetElm as HTMLElement) && offsetSizeChanged) {
-          // eslint-disable-next-line
-          await waitFor(() => should.equal(iterations, currIterations + 1), {
-            onTimeout(error): Error {
-              window.setTestResult(false);
-              return error;
-            },
-          });
-        }
+      return {
+        currIterations,
+        currOffsetSize,
+      };
+    },
+    async check({ currIterations, currOffsetSize }) {
+      const newOffsetSize = offsetSize(targetElm as HTMLElement);
+      const offsetSizeChanged = currOffsetSize.w !== newOffsetSize.w || currOffsetSize.h !== newOffsetSize.h;
 
-        if (typeof afterEach === 'function') {
-          // eslint-disable-next-line
-          await afterEach();
-        }
+      if (hasDimensions(targetElm as HTMLElement) && offsetSizeChanged) {
+        // eslint-disable-next-line
+        await waitFor(() => should.equal(iterations, currIterations + 1), {
+          onTimeout(error): Error {
+            window.setTestResult(false);
+            return error;
+          },
+        });
       }
-    }
-  }
+    },
+    afterEach,
+  });
 };
 
 heightSelect?.addEventListener('change', selectCallback);
@@ -128,22 +84,22 @@ selectCallback({ target: boxSizingSelect });
 selectCallback({ target: displaySelect });
 
 const iteratePadding = async (afterEach?: () => any) => {
-  await iterateSelect(paddingSelect, afterEach);
+  await iterate(paddingSelect, afterEach);
 };
 const iterateBorder = async (afterEach?: () => any) => {
-  await iterateSelect(borderSelect, afterEach);
+  await iterate(borderSelect, afterEach);
 };
 const iterateHeight = async (afterEach?: () => any) => {
-  await iterateSelect(heightSelect, afterEach);
+  await iterate(heightSelect, afterEach);
 };
 const iterateWidth = async (afterEach?: () => any) => {
-  await iterateSelect(widthSelect, afterEach);
+  await iterate(widthSelect, afterEach);
 };
 const iterateBoxSizing = async (afterEach?: () => any) => {
-  await iterateSelect(boxSizingSelect, afterEach);
+  await iterate(boxSizingSelect, afterEach);
 };
 const iterateDisplay = async (afterEach?: () => any) => {
-  await iterateSelect(displaySelect, afterEach);
+  await iterate(displaySelect, afterEach);
 };
 
 const start = async () => {
