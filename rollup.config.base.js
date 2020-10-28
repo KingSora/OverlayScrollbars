@@ -23,7 +23,7 @@ const rollupConfigDefaults = {
   sourcemap: true,
   esmBuild: true,
   exports: 'auto',
-  pipeline: ['resolve', 'typescript', 'inject', 'commonjs', 'babel'],
+  pipeline: ['typescript', 'resolve', 'inject', 'commonjs', 'babel'],
 };
 
 const legacyBabelConfig = {
@@ -152,14 +152,6 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
 
   const genConfig = ({ esm, typeDeclaration }) => {
     const pipelineMap = {
-      resolve: rollupResolve({
-        mainFields: ['browser', 'umd:main', 'module', 'main'],
-        extensions: resolve.extensions,
-        rootDir: srcPath,
-        customResolveOptions: {
-          moduleDirectory: [...resolve.directories.map((dir) => path.resolve(projectPath, dir)), path.resolve(__dirname, 'node_modules')],
-        },
-      }),
       typescript: isTypeScriptProject
         ? rollupTypescript({
             check: !fast,
@@ -179,6 +171,14 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
             exclude: ['*.d.ts', '**/*.d.ts'].map(prependBackPath),
           })
         : {},
+      resolve: rollupResolve({
+        mainFields: ['browser', 'umd:main', 'module', 'main'],
+        extensions: resolve.extensions,
+        rootDir: srcPath,
+        customResolveOptions: {
+          moduleDirectory: [...resolve.directories.map((dir) => path.resolve(projectPath, dir)), path.resolve(__dirname, 'node_modules')],
+        },
+      }),
       inject: rollupInject({
         ...(typeof inject === 'object' ? inject : {}),
       }),
