@@ -3,6 +3,7 @@ import './index.scss';
 import should from 'should';
 import { waitFor } from '@testing-library/dom';
 import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select';
+import { setTestResult } from '@/testing-browser/TestResult';
 import { hasDimensions, offsetSize, WH } from 'support';
 
 import { createSizeObserver } from 'overlayscrollbars/observers/createSizeObserver';
@@ -48,7 +49,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
         // eslint-disable-next-line
         await waitFor(() => should.equal(iterations, currIterations + 1), {
           onTimeout(error): Error {
-            window.setTestResult(false);
+            setTestResult(false);
             return error;
           },
         });
@@ -65,24 +66,12 @@ borderSelect?.addEventListener('change', selectCallback);
 boxSizingSelect?.addEventListener('change', selectCallback);
 displaySelect?.addEventListener('change', selectCallback);
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-selectCallback({ target: heightSelect });
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-selectCallback({ target: widthSelect });
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-selectCallback({ target: paddingSelect });
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-selectCallback({ target: borderSelect });
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-selectCallback({ target: boxSizingSelect });
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-selectCallback({ target: displaySelect });
+selectCallback(heightSelect);
+selectCallback(widthSelect);
+selectCallback(paddingSelect);
+selectCallback(borderSelect);
+selectCallback(boxSizingSelect);
+selectCallback(displaySelect);
 
 const iteratePadding = async (afterEach?: () => any) => {
   await iterate(paddingSelect, afterEach);
@@ -104,7 +93,8 @@ const iterateDisplay = async (afterEach?: () => any) => {
 };
 
 const start = async () => {
-  window.setTestResult(null);
+  setTestResult(null);
+
   targetElm?.removeAttribute('style');
   await iterateDisplay();
   await iterateBoxSizing(async () => {
@@ -116,7 +106,8 @@ const start = async () => {
       });
     });
   });
-  window.setTestResult(true);
+
+  setTestResult(true);
 };
 
 startBtn?.addEventListener('click', start);

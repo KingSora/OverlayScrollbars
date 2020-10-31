@@ -87,20 +87,6 @@ const genHtmlTemplateFunc = (content) => ({ attributes, files, meta, publicPath,
     ${content || ''}
     ${scripts}
     <div id="testResult"></div>
-    <script>
-      var testResultElm = document.getElementById('testResult');
-      window.setTestResult = function(result) {
-        if (typeof result === 'boolean') {
-          testResultElm.setAttribute('class', result ? 'passed' : 'failed');
-        }
-        else {
-          testResultElm.removeAttribute('class');
-        }
-      };
-      window.testPassed = function() {
-        return testResultElm.getAttribute('class') === 'passed';
-      }
-    </script>
   </body>
 </html>`;
 };

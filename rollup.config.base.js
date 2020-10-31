@@ -254,8 +254,14 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
         });
       }
       if (isLast) {
-        build.plugins.unshift({
+        build.plugins.push({
           name: 'deleteCacheDirs',
+          moduleParsed(moduleInfo) {
+            //if (filename.includes('index.browser')) {
+            console.log('moduleInfo', moduleInfo);
+            //console.log('importer', filename);
+            //}
+          },
           writeBundle() {
             const cacheDirs = cache.map((dir) => path.resolve(projectPath, dir));
             const deletedDirs = del.sync(cacheDirs);

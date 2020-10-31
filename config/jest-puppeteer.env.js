@@ -1,5 +1,5 @@
 const PuppeteerEnvironment = require('jest-environment-puppeteer');
-const pti = require('puppeteer-to-istanbul');
+// const pti = require('puppeteer-to-istanbul');
 const { setupRollupTest, cleanupRollupTest } = require('./jest-puppeteer.rollup.js');
 
 class PuppeteerRollupEnvironment extends PuppeteerEnvironment {
@@ -22,9 +22,9 @@ class PuppeteerRollupEnvironment extends PuppeteerEnvironment {
 
   async teardown() {
     // coverage
-    const { page } = this.global;
-    const [jsCoverage, cssCoverage] = await Promise.all([page.coverage.stopJSCoverage(), page.coverage.stopCSSCoverage()]);
-    pti.write([...jsCoverage, ...cssCoverage], { includeHostname: true, storagePath: './.pptr' });
+    // const { page } = this.global;
+    // const [jsCoverage, cssCoverage] = await Promise.all([page.coverage.stopJSCoverage(), page.coverage.stopCSSCoverage()]);
+    // pti.write([...jsCoverage, ...cssCoverage], { includeHostname: true, storagePath: './.pptr' });
 
     // cleanup
     cleanupRollupTest(this.ctx.testPath, this.cfg.cache);

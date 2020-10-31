@@ -1,17 +1,24 @@
+function isEvent(obj: any): obj is Event {
+  return obj instanceof Event || !!obj.target;
+}
+
 // eslint-disable-next-line
 const noop = <T>(): T => {
   return {} as T;
 };
+
 const getSelectOptions = (selectElement: HTMLSelectElement) => Array.from(selectElement.options).map((option) => option.value);
 
-export const generateSelectCallback = (targetElm: HTMLElement | null) => (event: Event) => {
-  const target = event.target as HTMLSelectElement;
-  const selectedOption = target.value;
-  const selectOptions = getSelectOptions(target);
+export const generateSelectCallback = (targetElm: HTMLElement | null) => (event: Event | HTMLSelectElement | null) => {
+  const target: HTMLSelectElement | null = isEvent(event) ? (event.target as HTMLSelectElement) : event;
+  if (target) {
+    const selectedOption = target.value;
+    const selectOptions = getSelectOptions(target);
 
-  if (targetElm) {
-    targetElm.classList.remove(...selectOptions);
-    targetElm.classList.add(selectedOption);
+    if (targetElm) {
+      targetElm.classList.remove(...selectOptions);
+      targetElm.classList.add(selectedOption);
+    }
   }
 };
 
