@@ -1,5 +1,34 @@
+body {
+  display: flex;
+  flex-direction: column;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+#canvas > div {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
 #target {
-  overflow: scroll;
+  overflow: hidden;
   resize: both;
   position: relative;
   // prevent container from reaching 0x0 dimensions for testing purposes
@@ -48,9 +77,23 @@
   width: 100%;
 }
 
+.boxSizingBorderBox {
+  box-sizing: border-box;
+}
+.boxSizingContentBox {
+  box-sizing: content-box;
+}
+
 .displayNone {
   display: none;
 }
 .displayBlock {
   display: block;
+}
+
+.directionltr {
+  direction: ltr;
+}
+.directionRTL {
+  direction: rtl;
 }

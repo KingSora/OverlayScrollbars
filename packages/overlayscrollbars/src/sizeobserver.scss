@@ -2,7 +2,9 @@ $scrollbar-cushion: 100px;
 
 .os-size-observer,
 .os-size-observer-listener {
+  direction: inherit;
   padding: inherit;
+  border: inherit;
   margin: 0;
   pointer-events: none;
   overflow: hidden;
@@ -25,18 +27,13 @@ $scrollbar-cushion: 100px;
   z-index: -1;
   animation-duration: 0.001s;
   animation-name: os-size-observer-appear-animation;
-
-  &.scroll-observer {
-    .os-size-observer-listener {
-      box-sizing: content-box;
-    }
-  }
 }
 
 .os-size-observer-listener {
   display: block;
   height: 200%;
   width: 200%;
+  box-sizing: content-box;
 
   // lets assume no scrollbar is 100px wide
   & > .os-size-observer-listener-item {

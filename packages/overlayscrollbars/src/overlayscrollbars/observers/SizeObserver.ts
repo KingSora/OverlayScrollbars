@@ -1,4 +1,5 @@
-import { createDOM, style, appendChildren, offsetSize, scrollLeft, scrollTop, jsAPI, addClass, each } from 'support';
+import { createDOM, style, appendChildren, offsetSize, scrollLeft, scrollTop, jsAPI, each, prependChildren, removeElements } from 'support';
+import { Environment } from 'environment';
 
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
@@ -10,25 +11,38 @@ const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item
 const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
 const cAF = cancelAnimationFrame;
 const rAF = requestAnimationFrame;
+const getDirection = (elm: HTMLElement) => style(elm, 'direction');
 
 // TODO:
 // 1. handling for event listeners (animationStartEventName.split(' '))
 // 2. return not just element but also destruction function
 // 3. shorthand handling for preventDefault & stopPropagation etc.
-// 4. add functionality & tests for direction change
 // 5. MAYBE add comparison function to offsetSize etc.
-// 6. Create test utils (waitFor)
 
-export const createSizeObserver = (onSizeChangedCallback: () => void) => {
+export const createSizeObserver = (
+  target: HTMLElement,
+  onSizeChangedCallback: (direction?: boolean) => any,
+  environment: Environment,
+  direction?: boolean
+) => {
+  const rtlScrollBehavior = environment._rtlScrollBehavior;
   const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
   const sizeObserver = baseElements[0] as HTMLElement;
   const listenerElement = sizeObserver.firstChild as HTMLElement;
-  let appearCallback = onSizeChangedCallback;
+  const onSizeChangedCallbackProxy = (dir?: boolean) => {
+    if (direction) {
+      const rtl = getDirection(sizeObserver) === 'rtl';
+      scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
+      scrollTop(sizeObserver, scrollAmount);
+    }
+    onSizeChangedCallback(dir === true);
+  };
+  let appearCallback: (...args: any) => any = onSizeChangedCallbackProxy;
+
   if (ResizeObserverConstructor) {
-    const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallback);
+    const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
     resizeObserverInstance.observe(listenerElement);
   } else {
-    addClass(sizeObserver, 'scroll-observer');
     const observerElementChildren = createDOM(
       `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
     );
@@ -54,7 +68,7 @@ export const createSizeObserver = (onSizeChangedCallback: () => void) => {
       if (!isDirty) return;
 
       cacheSize = currSize;
-      onSizeChangedCallback();
+      onSizeChangedCallbackProxy();
     };
     const onScroll = (scrollEvent?: Event) => {
       currSize = offsetSize(listenerElement);
@@ -91,5 +105,30 @@ export const createSizeObserver = (onSizeChangedCallback: () => void) => {
     });
   });
 
-  return sizeObserver;
+  if (direction) {
+    let dirCache: string | undefined;
+    sizeObserver.addEventListener('scroll', (event: Event) => {
+      const dir = getDirection(sizeObserver);
+      const changed = dir !== dirCache;
+      if (changed) {
+        if (dir === 'rtl') {
+          style(listenerElement, { left: 'auto', right: 0 });
+        } else {
+          style(listenerElement, { left: 0, right: 'auto' });
+        }
+        dirCache = dir;
+        onSizeChangedCallbackProxy(true);
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    });
+  }
+
+  prependChildren(target, sizeObserver);
+
+  return () => {
+    removeElements(sizeObserver);
+  };
 };

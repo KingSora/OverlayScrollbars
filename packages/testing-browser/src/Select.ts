@@ -16,7 +16,7 @@ export const generateSelectCallback = (targetElm: HTMLElement | null) => (event:
     const selectOptions = getSelectOptions(target);
 
     if (targetElm) {
-      targetElm.classList.remove(...selectOptions);
+      selectOptions.forEach((clazz) => targetElm.classList.remove(clazz));
       targetElm.classList.add(selectedOption);
     }
   }
