@@ -1,4 +1,4 @@
-import { each, from, indexOf } from 'support/utils/array';
+import { each, from, indexOf, runEach } from 'support/utils/array';
 
 describe('array utilities', () => {
   describe('each', () => {
@@ -195,5 +195,15 @@ describe('array utilities', () => {
   test('indexOf', () => {
     const idx = indexOf([1, 2, 3], 2);
     expect(idx).toBe(1);
+  });
+
+  test('runEach', () => {
+    const arr = [jest.fn(), null, jest.fn(), undefined, jest.fn()];
+    runEach(arr);
+    arr.forEach((fn) => {
+      if (fn) {
+        expect(fn).toHaveBeenCalled();
+      }
+    });
   });
 });

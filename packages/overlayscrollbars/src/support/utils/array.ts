@@ -64,3 +64,11 @@ export const from = <T = any>(arr: ArrayLike<T>) => {
   });
   return result;
 };
+
+/**
+ * Calls all functions in the passed array of functions.
+ * @param arr The array filled with function which shall be called.
+ */
+export const runEach = (arr: Array<((...args: any) => any | any[]) | null | undefined>): void => {
+  each(arr, (fn) => fn && fn());
+};

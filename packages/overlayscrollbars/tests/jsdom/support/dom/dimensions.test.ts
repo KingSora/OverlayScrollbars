@@ -49,7 +49,7 @@ describe('dom dimensions', () => {
   describe('hasDimensions', () => {
     test('DOM element', () => {
       const result = hasDimensions(document.body);
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
 
     test('generated element', () => {

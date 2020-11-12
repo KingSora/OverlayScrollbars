@@ -1,4 +1,7 @@
-import { WH } from 'support/dom';
+export interface WH<T = number> {
+  w: T;
+  h: T;
+}
 
 const elementHasDimensions = (elm: HTMLElement): boolean => !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
 const zeroObj: WH = {

@@ -1,5 +1,9 @@
 import { getBoundingClientRect } from 'support/dom/dimensions';
-import { XY } from 'support/dom';
+
+export interface XY<T = number> {
+  x: T;
+  y: T;
+}
 
 const zeroObj: XY = {
   x: 0,

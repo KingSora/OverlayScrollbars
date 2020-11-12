@@ -1,4 +1,18 @@
-import { createDOM, style, appendChildren, offsetSize, scrollLeft, scrollTop, jsAPI, each, prependChildren, removeElements } from 'support';
+import {
+  createDOM,
+  style,
+  appendChildren,
+  offsetSize,
+  scrollLeft,
+  scrollTop,
+  jsAPI,
+  runEach,
+  prependChildren,
+  removeElements,
+  on,
+  preventDefault,
+  stopPropagation,
+} from 'support';
 import { Environment } from 'environment';
 
 const animationStartEventName = 'animationstart';
@@ -14,10 +28,8 @@ const rAF = requestAnimationFrame;
 const getDirection = (elm: HTMLElement) => style(elm, 'direction');
 
 // TODO:
-// 1. handling for event listeners (animationStartEventName.split(' '))
-// 2. return not just element but also destruction function
-// 3. shorthand handling for preventDefault & stopPropagation etc.
-// 5. MAYBE add comparison function to offsetSize etc.
+// 1. MAYBE add comparison function to offsetSize etc.
+// 2. remove supportPassiveListeners & resizeobserver from environment
 
 export const createSizeObserver = (
   target: HTMLElement,
@@ -37,6 +49,7 @@ export const createSizeObserver = (
     }
     onSizeChangedCallback(dir === true);
   };
+  const offListeners: (() => void)[] = [];
   let appearCallback: (...args: any) => any = onSizeChangedCallbackProxy;
 
   if (ResizeObserverConstructor) {
@@ -81,14 +94,14 @@ export const createSizeObserver = (
 
       reset();
       if (scrollEvent) {
-        scrollEvent.preventDefault();
-        scrollEvent.stopPropagation();
+        preventDefault(scrollEvent);
+        stopPropagation(scrollEvent);
       }
       return false;
     };
 
-    expandElement.addEventListener(scrollEventName, onScroll);
-    shrinkElement.addEventListener(scrollEventName, onScroll);
+    offListeners.push(on(expandElement, scrollEventName, onScroll));
+    offListeners.push(on(shrinkElement, scrollEventName, onScroll));
 
     // lets assume that the divs will never be that large and a constant value is enough
     style(expandElementChild, {
@@ -99,36 +112,34 @@ export const createSizeObserver = (
     appearCallback = onScroll;
   }
 
-  each(animationStartEventName.split(' '), (eventName) => {
-    sizeObserver.addEventListener(eventName, () => {
-      appearCallback();
-    });
-  });
-
   if (direction) {
     let dirCache: string | undefined;
-    sizeObserver.addEventListener('scroll', (event: Event) => {
-      const dir = getDirection(sizeObserver);
-      const changed = dir !== dirCache;
-      if (changed) {
-        if (dir === 'rtl') {
-          style(listenerElement, { left: 'auto', right: 0 });
-        } else {
-          style(listenerElement, { left: 0, right: 'auto' });
+    offListeners.push(
+      on(sizeObserver, scrollEventName, (event: Event) => {
+        const dir = getDirection(sizeObserver);
+        const changed = dir !== dirCache;
+        if (changed) {
+          if (dir === 'rtl') {
+            style(listenerElement, { left: 'auto', right: 0 });
+          } else {
+            style(listenerElement, { left: 0, right: 'auto' });
+          }
+          dirCache = dir;
+          onSizeChangedCallbackProxy(true);
         }
-        dirCache = dir;
-        onSizeChangedCallbackProxy(true);
-      }
 
-      event.preventDefault();
-      event.stopPropagation();
-      return false;
-    });
+        preventDefault(event);
+        stopPropagation(event);
+        return false;
+      })
+    );
   }
 
+  offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
   prependChildren(target, sizeObserver);
 
   return () => {
+    runEach(offListeners);
     removeElements(sizeObserver);
   };
 };
