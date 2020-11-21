@@ -1,6 +1,8 @@
 import { isArrayLike } from 'support/utils/types';
 import { PlainObject } from 'typings';
 
+type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
+
 /**
  * Iterates through a array or object
  * @param arrayLikeOrObject The array or object through which shall be iterated.
@@ -28,7 +30,7 @@ export function each(obj: PlainObject, callback: (value: any, indexOrKey: string
 export function each(obj: PlainObject | null, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject | null;
 export function each<T>(
   source: ArrayLike<T> | PlainObject | null,
-  callback: (value: T | any, indexOrKey: any, source: any) => boolean | void
+  callback: (value: T, indexOrKey: any, source: any) => boolean | void
 ): Array<T> | ReadonlyArray<T> | ArrayLike<T> | PlainObject | null {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
@@ -66,9 +68,13 @@ export const from = <T = any>(arr: ArrayLike<T>) => {
 };
 
 /**
- * Calls all functions in the passed array of functions.
+ * Calls all functions in the passed array/set of functions.
  * @param arr The array filled with function which shall be called.
  */
-export const runEach = (arr: Array<((...args: any) => any | any[]) | null | undefined>): void => {
-  each(arr, (fn) => fn && fn());
+export const runEach = (arr: ArrayLike<RunEachItem> | Set<RunEachItem>): void => {
+  if (arr instanceof Set) {
+    arr.forEach((fn) => fn && fn());
+  } else {
+    each(arr, (fn) => fn && fn());
+  }
 };

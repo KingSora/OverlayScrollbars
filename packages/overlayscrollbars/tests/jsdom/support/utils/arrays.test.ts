@@ -192,18 +192,30 @@ describe('array utilities', () => {
     });
   });
 
+  describe('runEach', () => {
+    test('array', () => {
+      const arr = [jest.fn(), null, jest.fn(), undefined, jest.fn()];
+      runEach(arr);
+      arr.forEach((fn) => {
+        if (fn) {
+          expect(fn).toHaveBeenCalled();
+        }
+      });
+    });
+
+    test('set', () => {
+      const set = new Set([jest.fn(), null, jest.fn(), undefined, jest.fn()]);
+      runEach(set);
+      set.forEach((fn) => {
+        if (fn) {
+          expect(fn).toHaveBeenCalled();
+        }
+      });
+    });
+  });
+
   test('indexOf', () => {
     const idx = indexOf([1, 2, 3], 2);
     expect(idx).toBe(1);
-  });
-
-  test('runEach', () => {
-    const arr = [jest.fn(), null, jest.fn(), undefined, jest.fn()];
-    runEach(arr);
-    arr.forEach((fn) => {
-      if (fn) {
-        expect(fn).toHaveBeenCalled();
-      }
-    });
   });
 });

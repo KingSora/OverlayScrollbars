@@ -13,7 +13,7 @@ import {
   preventDefault,
   stopPropagation,
 } from 'support';
-import { Environment } from 'environment';
+import { getEnvironment } from 'environment';
 
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
@@ -29,15 +29,9 @@ const getDirection = (elm: HTMLElement) => style(elm, 'direction');
 
 // TODO:
 // 1. MAYBE add comparison function to offsetSize etc.
-// 2. remove supportPassiveListeners & resizeobserver from environment
 
-export const createSizeObserver = (
-  target: HTMLElement,
-  onSizeChangedCallback: (direction?: boolean) => any,
-  environment: Environment,
-  direction?: boolean
-) => {
-  const rtlScrollBehavior = environment._rtlScrollBehavior;
+export const createSizeObserver = (target: HTMLElement, onSizeChangedCallback: (direction?: boolean) => any, direction?: boolean) => {
+  const rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
   const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
   const sizeObserver = baseElements[0] as HTMLElement;
   const listenerElement = sizeObserver.firstChild as HTMLElement;

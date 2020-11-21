@@ -1,6 +1,6 @@
 @import './sizeobserver.scss';
 
-#os-envornment {
+#os-environment {
   position: fixed;
   opacity: 0;
   visibility: hidden;
@@ -8,14 +8,14 @@
   height: 500px;
   width: 500px;
 }
-#os-envornment > div {
+#os-environment > div {
   width: 200%;
   height: 200%;
   margin: 10px 0;
 }
 /* fix restricted measuring */
-#os-envornment:before,
-#os-envornment:after,
+#os-environment:before,
+#os-environment:after,
 .os-content:before,
 .os-content:after {
   content: '';
@@ -28,17 +28,17 @@
   flex-shrink: 0;
   visibility: hidden;
 }
-#os-envornment,
+#os-environment,
 .os-viewport {
   -ms-overflow-style: scrollbar !important;
 }
-.os-viewport-native-scrollbars-invisible#os-envornment,
+.os-viewport-native-scrollbars-invisible#os-environment,
 .os-viewport-native-scrollbars-invisible.os-viewport {
   scrollbar-width: none !important;
 }
-.os-viewport-native-scrollbars-invisible#os-envornment::-webkit-scrollbar,
+.os-viewport-native-scrollbars-invisible#os-environment::-webkit-scrollbar,
 .os-viewport-native-scrollbars-invisible.os-viewport::-webkit-scrollbar,
-.os-viewport-native-scrollbars-invisible#os-envornment::-webkit-scrollbar-corner,
+.os-viewport-native-scrollbars-invisible#os-environment::-webkit-scrollbar-corner,
 .os-viewport-native-scrollbars-invisible.os-viewport::-webkit-scrollbar-corner {
   display: none !important;
   width: 0px !important;

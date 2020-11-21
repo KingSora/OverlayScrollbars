@@ -1,7 +1,7 @@
 import 'overlayscrollbars.scss';
-import { Environment } from 'environment';
+import { getEnvironment } from 'environment';
 
-const envInstance = new Environment();
+const envInstance = getEnvironment();
 document.body.textContent = JSON.stringify(envInstance);
 
 export { envInstance };

@@ -6,7 +6,6 @@ import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select'
 import { setTestResult } from '@/testing-browser/TestResult';
 import { hasDimensions, offsetSize, WH, style } from 'support';
 
-import { Environment } from 'environment';
 import { createSizeObserver } from 'overlayscrollbars/observers/SizeObserver';
 
 let sizeIterations = 0;
@@ -171,7 +170,6 @@ createSizeObserver(
       }
     });
   },
-  new Environment(),
   true
 );
 
