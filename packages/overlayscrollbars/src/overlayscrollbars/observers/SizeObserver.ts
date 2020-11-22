@@ -52,7 +52,7 @@ export const createSizeObserver = (
     onSizeChangedCallback(dir === true);
   };
   const offListeners: (() => void)[] = [];
-  let appearCallback: (...args: any) => any = onSizeChangedCallbackProxy;
+  let appearCallback: ((...args: any) => any) | null = appear ? onSizeChangedCallbackProxy : null;
 
   if (ResizeObserverConstructor) {
     const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
@@ -81,7 +81,9 @@ export const createSizeObserver = (
     };
     const onResized = function () {
       rAFId = 0;
-      if (!isDirty) return;
+      if (!isDirty) {
+        return;
+      }
 
       cacheSize = currSize;
       onSizeChangedCallbackProxy();
@@ -114,7 +116,7 @@ export const createSizeObserver = (
       height: scrollAmount,
     });
     reset();
-    appearCallback = onScroll;
+    appearCallback = appear ? onScroll : reset;
   }
 
   if (direction) {
@@ -140,7 +142,8 @@ export const createSizeObserver = (
     );
   }
 
-  if (appear) {
+  // appearCallback is always needed on scroll-observer strategy to reset it
+  if (appearCallback) {
     addClass(sizeObserver, classNameSizeObserverAppear);
     offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
   }

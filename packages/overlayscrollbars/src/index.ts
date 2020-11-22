@@ -1,6 +1,7 @@
 import { createDOM } from 'support/dom';
 import { getEnvironment } from 'environment';
 import { createSizeObserver } from 'overlayscrollbars/observers/SizeObserver';
+import { createTrinsicObserver } from 'overlayscrollbars/observers/TrinsicObserver';
 
 const abc = {
   a: 1,
@@ -12,6 +13,7 @@ export default () => {
   return [
     getEnvironment(),
     createSizeObserver(document.body, () => {}),
+    createTrinsicObserver(document.body, () => {}),
     createDOM(
       '\
     <div class="os-host">\

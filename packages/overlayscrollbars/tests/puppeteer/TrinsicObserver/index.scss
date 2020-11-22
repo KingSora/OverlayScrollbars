@@ -1,0 +1,67 @@
+body {
+  display: flex;
+  flex-direction: column;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+#canvas > div {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#env {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+#target {
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  position: relative;
+  // prevent container from reaching 0x0 dimensions for testing purposes
+  min-width: 50px;
+  min-height: 50px;
+}
+
+#check {
+  height: 100%;
+}
+
+.envHeightAuto,
+.targetHeightAuto {
+  height: auto;
+}
+
+.envHeight200,
+.targetHeight200 {
+  height: 200px;
+}
+
+.envHeightHundred,
+.targetHeightHundred {
+  height: 100%;
+}
+
+.displayNone {
+  display: none;
+}
+.displayBlock {
+  display: block;
+}

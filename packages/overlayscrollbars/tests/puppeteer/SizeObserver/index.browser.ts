@@ -75,7 +75,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
 
       if (dimensions && (offsetSizeChanged || dirChanged)) {
         await waitFor(
-          async () => {
+          () => {
             if (offsetSizeChanged) {
               should.equal(sizeIterations, currSizeIterations + 1);
             }

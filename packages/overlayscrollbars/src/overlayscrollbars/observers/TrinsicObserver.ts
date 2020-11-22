@@ -36,6 +36,7 @@ export const createTrinsicObserver = (
       createSizeObserver(trinsicObserver, () => {
         const newSize = offsetSize(trinsicObserver);
         const newHeightIntrinsic = newSize.h === 0;
+
         if (newHeightIntrinsic !== heightIntrinsic) {
           onTrinsicChangedCallback(false, newSize.h === 0);
           heightIntrinsic = newHeightIntrinsic;
