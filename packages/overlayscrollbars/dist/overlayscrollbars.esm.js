@@ -31,6 +31,9 @@ const removeAttr = (elm, attrName) => {
 function scrollLeft(elm, value) {
   return getSetProp('scrollLeft', 0, elm, value);
 }
+function scrollTop(elm, value) {
+  return getSetProp('scrollTop', 0, elm, value);
+}
 
 const rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
 
@@ -78,6 +81,13 @@ const from = (arr) => {
   });
   return result;
 };
+const runEach = (arr) => {
+  if (arr instanceof Set) {
+    arr.forEach((fn) => fn && fn());
+  } else {
+    each(arr, (fn) => fn && fn());
+  }
+};
 
 const contents = (elm) => (elm ? from(elm.childNodes) : []);
 const parent = (elm) => (elm ? elm.parentElement : null);
@@ -116,6 +126,9 @@ const before = (parentElm, preferredAnchor, insertedElms) => {
 
 const appendChildren = (node, children) => {
   before(node, null, children);
+};
+const prependChildren = (node, children) => {
+  before(node, node && node.firstChild, children);
 };
 const removeElements = (nodes) => {
   if (isArrayLike(nodes)) {
@@ -159,6 +172,60 @@ const clientSize = (elm) =>
       }
     : zeroObj;
 const getBoundingClientRect = (elm) => elm.getBoundingClientRect();
+
+let passiveEventsSupport;
+
+const supportPassiveEvents = () => {
+  if (passiveEventsSupport === undefined) {
+    passiveEventsSupport = false;
+
+    try {
+      window.addEventListener(
+        'test',
+        null,
+        Object.defineProperty({}, 'passive', {
+          get: function () {
+            passiveEventsSupport = true;
+          },
+        })
+      );
+    } catch (e) {}
+  }
+
+  return passiveEventsSupport;
+};
+
+const off = (target, eventNames, listener, capture) => {
+  each(eventNames.split(' '), (eventName) => {
+    target.removeEventListener(eventName, listener, capture);
+  });
+};
+const on = (target, eventNames, listener, options) => {
+  const doSupportPassiveEvents = supportPassiveEvents();
+  const passive = (doSupportPassiveEvents && options && options._passive) || false;
+  const capture = (options && options._capture) || false;
+  const once = (options && options._once) || false;
+  const offListeners = [];
+  const nativeOptions = doSupportPassiveEvents
+    ? {
+        passive,
+        capture,
+      }
+    : capture;
+  each(eventNames.split(' '), (eventName) => {
+    const finalListener = once
+      ? (evt) => {
+          target.removeEventListener(eventName, finalListener, capture);
+          listener && listener(evt);
+        }
+      : listener;
+    offListeners.push(off.bind(null, target, eventName, finalListener, capture));
+    target.addEventListener(eventName, finalListener, nativeOptions);
+  });
+  return runEach.bind(0, offListeners);
+};
+const stopPropagation = (evt) => evt.stopPropagation();
+const preventDefault = (evt) => evt.preventDefault();
 
 const hasOwnProperty = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
 const keys = (obj) => (obj ? Object.keys(obj) : []);
@@ -228,44 +295,6 @@ const absoluteCoordinates = (elm) => {
     : zeroObj$1;
 };
 
-function _classPrivateFieldGet(receiver, privateMap) {
-  var descriptor = privateMap.get(receiver);
-
-  if (!descriptor) {
-    throw new TypeError('attempted to get private field on non-instance');
-  }
-
-  if (descriptor.get) {
-    return descriptor.get.call(receiver);
-  }
-
-  return descriptor.value;
-}
-
-var classPrivateFieldGet = _classPrivateFieldGet;
-
-function _classPrivateFieldSet(receiver, privateMap, value) {
-  var descriptor = privateMap.get(receiver);
-
-  if (!descriptor) {
-    throw new TypeError('attempted to set private field on non-instance');
-  }
-
-  if (descriptor.set) {
-    descriptor.set.call(receiver, value);
-  } else {
-    if (!descriptor.writable) {
-      throw new TypeError('attempted to set read only private field');
-    }
-
-    descriptor.value = value;
-  }
-
-  return value;
-}
-
-var classPrivateFieldSet = _classPrivateFieldSet;
-
 const firstLetterToUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 const jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
 const jsCache = {};
@@ -334,10 +363,11 @@ const optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 
   return result;
 }, {});
 
+let environmentInstance;
 const { abs, round } = Math;
-const envornmentElmId = 'os-envornment';
+const environmentElmId = 'os-environment';
 
-const nativeScrollbarSize = (body, measureElm) => {
+const getNativeScrollbarSize = (body, measureElm) => {
   appendChildren(body, measureElm);
   const cSize = clientSize(measureElm);
   const oSize = offsetSize(measureElm);
@@ -347,7 +377,7 @@ const nativeScrollbarSize = (body, measureElm) => {
   };
 };
 
-const nativeScrollbarStyling = (testElm) => {
+const getNativeScrollbarStyling = (testElm) => {
   let result = false;
   addClass(testElm, 'os-viewport-native-scrollbars-invisible');
 
@@ -359,7 +389,7 @@ const nativeScrollbarStyling = (testElm) => {
   return result;
 };
 
-const rtlScrollBehavior = (parentElm, childElm) => {
+const getRtlScrollBehavior = (parentElm, childElm) => {
   const strHidden = 'hidden';
   style(parentElm, {
     overflowX: strHidden,
@@ -377,25 +407,7 @@ const rtlScrollBehavior = (parentElm, childElm) => {
   };
 };
 
-const passiveEvents = () => {
-  let supportsPassive = false;
-
-  try {
-    window.addEventListener(
-      'test',
-      null,
-      Object.defineProperty({}, 'passive', {
-        get: function () {
-          supportsPassive = true;
-        },
-      })
-    );
-  } catch (e) {}
-
-  return supportsPassive;
-};
-
-const windowDPR = () => {
+const getWindowDPR = () => {
   const dDPI = window.screen.deviceXDPI || 0;
   const sDPI = window.screen.logicalXDPI || 1;
   return window.devicePixelRatio || dDPI / sDPI;
@@ -407,96 +419,225 @@ const diffBiggerThanOne = (valOne, valTwo) => {
   return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
 };
 
-var _onChangedListener = new WeakMap();
+const createEnvironment = () => {
+  const { body } = document;
+  const envDOM = createDOM(`<div id="${environmentElmId}"><div></div></div>`);
+  const envElm = envDOM[0];
+  const envChildElm = envElm.firstChild;
+  const onChangedListener = new Set();
+  const nativeScrollBarSize = getNativeScrollbarSize(body, envElm);
+  const nativeScrollbarIsOverlaid = {
+    x: nativeScrollBarSize.x === 0,
+    y: nativeScrollBarSize.y === 0,
+  };
+  const env = {
+    _autoUpdateLoop: false,
+    _nativeScrollbarSize: nativeScrollBarSize,
+    _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
+    _nativeScrollbarStyling: getNativeScrollbarStyling(envElm),
+    _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
 
-class Environment {
-  constructor() {
-    _onChangedListener.set(this, {
-      writable: true,
-      value: void 0,
-    });
+    _addListener(listener) {
+      onChangedListener.add(listener);
+    },
 
-    classPrivateFieldSet(this, _onChangedListener, new Set());
+    _removeListener(listener) {
+      onChangedListener.delete(listener);
+    },
+  };
+  removeAttr(envElm, 'style');
+  removeElements(envElm);
 
-    const _self = this;
+  if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
+    let size = windowSize();
+    let dpr = getWindowDPR();
+    let scrollbarSize = nativeScrollBarSize;
+    window.addEventListener('resize', () => {
+      if (onChangedListener.size) {
+        const sizeNew = windowSize();
+        const deltaSize = {
+          w: sizeNew.w - size.w,
+          h: sizeNew.h - size.h,
+        };
+        if (deltaSize.w === 0 && deltaSize.h === 0) return;
+        const deltaAbsSize = {
+          w: abs(deltaSize.w),
+          h: abs(deltaSize.h),
+        };
+        const deltaAbsRatio = {
+          w: abs(round(sizeNew.w / (size.w / 100.0))),
+          h: abs(round(sizeNew.h / (size.h / 100.0))),
+        };
+        const dprNew = getWindowDPR();
+        const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
+        const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
+        const dprChanged = dprNew !== dpr && dpr > 0;
+        const isZoom = deltaIsBigger && difference && dprChanged;
 
-    const { body } = document;
-    const envDOM = createDOM(`<div id="${envornmentElmId}"><div></div></div>`);
-    const envElm = envDOM[0];
-    const envChildElm = envElm.firstChild;
-    const nScrollBarSize = nativeScrollbarSize(body, envElm);
-    const nativeScrollbarIsOverlaid = {
-      x: nScrollBarSize.x === 0,
-      y: nScrollBarSize.y === 0,
-    };
-    _self._autoUpdateLoop = false;
-    _self._nativeScrollbarSize = nScrollBarSize;
-    _self._nativeScrollbarIsOverlaid = nativeScrollbarIsOverlaid;
-    _self._nativeScrollbarStyling = nativeScrollbarStyling(envElm);
-    _self._rtlScrollBehavior = rtlScrollBehavior(envElm, envChildElm);
-    _self._supportPassiveEvents = passiveEvents();
-    _self._supportResizeObserver = !!jsAPI('ResizeObserver');
-    removeAttr(envElm, 'style');
-    removeElements(envElm);
+        if (isZoom) {
+          const newScrollbarSize = (environmentInstance._nativeScrollbarSize = getNativeScrollbarSize(body, envElm));
+          removeElements(envElm);
 
-    if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
-      let size = windowSize();
-      let dpr = windowDPR();
-
-      const onChangedListener = classPrivateFieldGet(this, _onChangedListener);
-
-      window.addEventListener('resize', () => {
-        if (onChangedListener.size) {
-          const sizeNew = windowSize();
-          const deltaSize = {
-            w: sizeNew.w - size.w,
-            h: sizeNew.h - size.h,
-          };
-          if (deltaSize.w === 0 && deltaSize.h === 0) return;
-          const deltaAbsSize = {
-            w: abs(deltaSize.w),
-            h: abs(deltaSize.h),
-          };
-          const deltaAbsRatio = {
-            w: abs(round(sizeNew.w / (size.w / 100.0))),
-            h: abs(round(sizeNew.h / (size.h / 100.0))),
-          };
-          const dprNew = windowDPR();
-          const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
-          const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
-          const dprChanged = dprNew !== dpr && dpr > 0;
-          const isZoom = deltaIsBigger && difference && dprChanged;
-          const oldScrollbarSize = _self._nativeScrollbarSize;
-          let newScrollbarSize;
-
-          if (isZoom) {
-            newScrollbarSize = _self._nativeScrollbarSize = nativeScrollbarSize(body, envElm);
-            removeElements(envElm);
-
-            if (oldScrollbarSize.x !== newScrollbarSize.x || oldScrollbarSize.y !== newScrollbarSize.y) {
-              onChangedListener.forEach((listener) => listener && listener(_self));
-            }
+          if (scrollbarSize.x !== newScrollbarSize.x || scrollbarSize.y !== newScrollbarSize.y) {
+            runEach(onChangedListener);
           }
 
-          size = sizeNew;
-          dpr = dprNew;
+          scrollbarSize = newScrollbarSize;
         }
-      });
+
+        size = sizeNew;
+        dpr = dprNew;
+      }
+    });
+  }
+
+  return env;
+};
+
+const getEnvironment = () => {
+  if (!environmentInstance) {
+    environmentInstance = createEnvironment();
+  }
+
+  return environmentInstance;
+};
+
+const animationStartEventName = 'animationstart';
+const scrollEventName = 'scroll';
+const scrollAmount = 3333333;
+const ResizeObserverConstructor = jsAPI('ResizeObserver');
+const classNameSizeObserver = 'os-size-observer';
+const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
+const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
+const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
+const cAF = cancelAnimationFrame;
+const rAF = requestAnimationFrame;
+
+const getDirection = (elm) => style(elm, 'direction');
+
+const createSizeObserver = (target, onSizeChangedCallback, direction) => {
+  const rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
+
+  const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
+  const sizeObserver = baseElements[0];
+  const listenerElement = sizeObserver.firstChild;
+
+  const onSizeChangedCallbackProxy = (dir) => {
+    if (direction) {
+      const rtl = getDirection(sizeObserver) === 'rtl';
+      scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
+      scrollTop(sizeObserver, scrollAmount);
     }
+
+    onSizeChangedCallback(dir === true);
+  };
+
+  const offListeners = [];
+  let appearCallback = onSizeChangedCallbackProxy;
+
+  if (ResizeObserverConstructor) {
+    const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
+    resizeObserverInstance.observe(listenerElement);
+  } else {
+    const observerElementChildren = createDOM(
+      `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
+    );
+    appendChildren(listenerElement, observerElementChildren);
+    const observerElementChildrenRoot = observerElementChildren[0];
+    const shrinkElement = observerElementChildrenRoot.lastChild;
+    const expandElement = observerElementChildrenRoot.firstChild;
+    const expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
+    let cacheSize = offsetSize(listenerElement);
+    let currSize = cacheSize;
+    let isDirty = false;
+    let rAFId;
+
+    const reset = () => {
+      scrollLeft(expandElement, scrollAmount);
+      scrollTop(expandElement, scrollAmount);
+      scrollLeft(shrinkElement, scrollAmount);
+      scrollTop(shrinkElement, scrollAmount);
+    };
+
+    const onResized = function onResized() {
+      rAFId = 0;
+      if (!isDirty) return;
+      cacheSize = currSize;
+      onSizeChangedCallbackProxy();
+    };
+
+    const onScroll = (scrollEvent) => {
+      currSize = offsetSize(listenerElement);
+      isDirty = !scrollEvent || currSize.w !== cacheSize.w || currSize.h !== cacheSize.h;
+
+      if (scrollEvent && isDirty && !rAFId) {
+        cAF(rAFId);
+        rAFId = rAF(onResized);
+      } else if (!scrollEvent) onResized();
+
+      reset();
+
+      if (scrollEvent) {
+        preventDefault(scrollEvent);
+        stopPropagation(scrollEvent);
+      }
+
+      return false;
+    };
+
+    offListeners.push(on(expandElement, scrollEventName, onScroll));
+    offListeners.push(on(shrinkElement, scrollEventName, onScroll));
+    style(expandElementChild, {
+      width: scrollAmount,
+      height: scrollAmount,
+    });
+    reset();
+    appearCallback = onScroll;
   }
 
-  addListener(listener) {
-    classPrivateFieldGet(this, _onChangedListener).add(listener);
+  if (direction) {
+    let dirCache;
+    offListeners.push(
+      on(sizeObserver, scrollEventName, (event) => {
+        const dir = getDirection(sizeObserver);
+        const changed = dir !== dirCache;
+
+        if (changed) {
+          if (dir === 'rtl') {
+            style(listenerElement, {
+              left: 'auto',
+              right: 0,
+            });
+          } else {
+            style(listenerElement, {
+              left: 0,
+              right: 'auto',
+            });
+          }
+
+          dirCache = dir;
+          onSizeChangedCallbackProxy(true);
+        }
+
+        preventDefault(event);
+        stopPropagation(event);
+        return false;
+      })
+    );
   }
 
-  removeListener(listener) {
-    classPrivateFieldGet(this, _onChangedListener).delete(listener);
-  }
-}
+  offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+  prependChildren(target, sizeObserver);
+  return () => {
+    runEach(offListeners);
+    removeElements(sizeObserver);
+  };
+};
 
 var index = () => {
   return [
-    new Environment(),
+    getEnvironment(),
+    createSizeObserver(document.body, () => {}),
     createDOM(
       '\
     <div class="os-host">\

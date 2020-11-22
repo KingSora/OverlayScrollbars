@@ -12,6 +12,7 @@ import {
   on,
   preventDefault,
   stopPropagation,
+  addClass,
 } from 'support';
 import { getEnvironment } from 'environment';
 
@@ -20,6 +21,7 @@ const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
 const ResizeObserverConstructor = jsAPI('ResizeObserver');
 const classNameSizeObserver = 'os-size-observer';
+const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
 const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
 const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
 const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
@@ -30,7 +32,13 @@ const getDirection = (elm: HTMLElement) => style(elm, 'direction');
 // TODO:
 // 1. MAYBE add comparison function to offsetSize etc.
 
-export const createSizeObserver = (target: HTMLElement, onSizeChangedCallback: (direction?: boolean) => any, direction?: boolean) => {
+export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };
+export const createSizeObserver = (
+  target: HTMLElement,
+  onSizeChangedCallback: (direction?: boolean) => any,
+  options?: SizeObserverOptions
+): (() => void) => {
+  const { _direction: direction = false, _appear: appear = false } = options || {};
   const rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
   const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
   const sizeObserver = baseElements[0] as HTMLElement;
@@ -49,6 +57,7 @@ export const createSizeObserver = (target: HTMLElement, onSizeChangedCallback: (
   if (ResizeObserverConstructor) {
     const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
     resizeObserverInstance.observe(listenerElement);
+    offListeners.push(() => resizeObserverInstance.disconnect());
   } else {
     const observerElementChildren = createDOM(
       `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
@@ -84,7 +93,9 @@ export const createSizeObserver = (target: HTMLElement, onSizeChangedCallback: (
       if (scrollEvent && isDirty && !rAFId) {
         cAF(rAFId);
         rAFId = rAF(onResized);
-      } else if (!scrollEvent) onResized();
+      } else if (!scrollEvent) {
+        onResized();
+      }
 
       reset();
       if (scrollEvent) {
@@ -129,7 +140,11 @@ export const createSizeObserver = (target: HTMLElement, onSizeChangedCallback: (
     );
   }
 
-  offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+  if (appear) {
+    addClass(sizeObserver, classNameSizeObserverAppear);
+    offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+  }
+
   prependChildren(target, sizeObserver);
 
   return () => {

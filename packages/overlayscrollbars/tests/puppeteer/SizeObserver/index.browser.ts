@@ -170,7 +170,7 @@ createSizeObserver(
       }
     });
   },
-  true
+  { _direction: true, _appear: true }
 );
 
 export { start };

@@ -40,6 +40,9 @@
   function scrollLeft(elm, value) {
     return getSetProp('scrollLeft', 0, elm, value);
   }
+  function scrollTop(elm, value) {
+    return getSetProp('scrollTop', 0, elm, value);
+  }
 
   var rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
 
@@ -91,6 +94,17 @@
     });
     return result;
   };
+  var runEach = function runEach(arr) {
+    if (arr instanceof Set) {
+      arr.forEach(function (fn) {
+        return fn && fn();
+      });
+    } else {
+      each(arr, function (fn) {
+        return fn && fn();
+      });
+    }
+  };
 
   var contents = function contents(elm) {
     return elm ? from(elm.childNodes) : [];
@@ -133,6 +147,9 @@
 
   var appendChildren = function appendChildren(node, children) {
     before(node, null, children);
+  };
+  var prependChildren = function prependChildren(node, children) {
+    before(node, node && node.firstChild, children);
   };
   var removeElements = function removeElements(nodes) {
     if (isArrayLike(nodes)) {
@@ -187,6 +204,64 @@
   };
   var getBoundingClientRect = function getBoundingClientRect(elm) {
     return elm.getBoundingClientRect();
+  };
+
+  var passiveEventsSupport;
+
+  var supportPassiveEvents = function supportPassiveEvents() {
+    if (passiveEventsSupport === undefined) {
+      passiveEventsSupport = false;
+
+      try {
+        window.addEventListener(
+          'test',
+          null,
+          Object.defineProperty({}, 'passive', {
+            get: function get() {
+              passiveEventsSupport = true;
+            },
+          })
+        );
+      } catch (e) {}
+    }
+
+    return passiveEventsSupport;
+  };
+
+  var off = function off(target, eventNames, listener, capture) {
+    each(eventNames.split(' '), function (eventName) {
+      target.removeEventListener(eventName, listener, capture);
+    });
+  };
+  var on = function on(target, eventNames, listener, options) {
+    var doSupportPassiveEvents = supportPassiveEvents();
+    var passive = (doSupportPassiveEvents && options && options._passive) || false;
+    var capture = (options && options._capture) || false;
+    var once = (options && options._once) || false;
+    var offListeners = [];
+    var nativeOptions = doSupportPassiveEvents
+      ? {
+          passive: passive,
+          capture: capture,
+        }
+      : capture;
+    each(eventNames.split(' '), function (eventName) {
+      var finalListener = once
+        ? function (evt) {
+            target.removeEventListener(eventName, finalListener, capture);
+            listener && listener(evt);
+          }
+        : listener;
+      offListeners.push(off.bind(null, target, eventName, finalListener, capture));
+      target.addEventListener(eventName, finalListener, nativeOptions);
+    });
+    return runEach.bind(0, offListeners);
+  };
+  var stopPropagation = function stopPropagation(evt) {
+    return evt.stopPropagation();
+  };
+  var preventDefault = function preventDefault(evt) {
+    return evt.preventDefault();
   };
 
   var hasOwnProperty = function hasOwnProperty(obj, prop) {
@@ -267,44 +342,6 @@
       : zeroObj$1;
   };
 
-  function _classPrivateFieldGet(receiver, privateMap) {
-    var descriptor = privateMap.get(receiver);
-
-    if (!descriptor) {
-      throw new TypeError('attempted to get private field on non-instance');
-    }
-
-    if (descriptor.get) {
-      return descriptor.get.call(receiver);
-    }
-
-    return descriptor.value;
-  }
-
-  var classPrivateFieldGet = _classPrivateFieldGet;
-
-  function _classPrivateFieldSet(receiver, privateMap, value) {
-    var descriptor = privateMap.get(receiver);
-
-    if (!descriptor) {
-      throw new TypeError('attempted to set private field on non-instance');
-    }
-
-    if (descriptor.set) {
-      descriptor.set.call(receiver, value);
-    } else {
-      if (!descriptor.writable) {
-        throw new TypeError('attempted to set read only private field');
-      }
-
-      descriptor.value = value;
-    }
-
-    return value;
-  }
-
-  var classPrivateFieldSet = _classPrivateFieldSet;
-
   var firstLetterToUpper = function firstLetterToUpper(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
@@ -375,11 +412,12 @@
     return result;
   }, {});
 
+  var environmentInstance;
   var abs = Math.abs,
     round = Math.round;
-  var envornmentElmId = 'os-envornment';
+  var environmentElmId = 'os-environment';
 
-  var nativeScrollbarSize = function nativeScrollbarSize(body, measureElm) {
+  var getNativeScrollbarSize = function getNativeScrollbarSize(body, measureElm) {
     appendChildren(body, measureElm);
     var cSize = clientSize(measureElm);
     var oSize = offsetSize(measureElm);
@@ -389,7 +427,7 @@
     };
   };
 
-  var nativeScrollbarStyling = function nativeScrollbarStyling(testElm) {
+  var getNativeScrollbarStyling = function getNativeScrollbarStyling(testElm) {
     var result = false;
     addClass(testElm, 'os-viewport-native-scrollbars-invisible');
 
@@ -402,7 +440,7 @@
     return result;
   };
 
-  var rtlScrollBehavior = function rtlScrollBehavior(parentElm, childElm) {
+  var getRtlScrollBehavior = function getRtlScrollBehavior(parentElm, childElm) {
     var strHidden = 'hidden';
     style(parentElm, {
       overflowX: strHidden,
@@ -420,25 +458,7 @@
     };
   };
 
-  var passiveEvents = function passiveEvents() {
-    var supportsPassive = false;
-
-    try {
-      window.addEventListener(
-        'test',
-        null,
-        Object.defineProperty({}, 'passive', {
-          get: function get() {
-            supportsPassive = true;
-          },
-        })
-      );
-    } catch (e) {}
-
-    return supportsPassive;
-  };
-
-  var windowDPR = function windowDPR() {
+  var getWindowDPR = function getWindowDPR() {
     var dDPI = window.screen.deviceXDPI || 0;
     var sDPI = window.screen.logicalXDPI || 1;
     return window.devicePixelRatio || dDPI / sDPI;
@@ -450,103 +470,236 @@
     return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
   };
 
-  var _onChangedListener = new WeakMap();
+  var createEnvironment = function createEnvironment() {
+    var _document = document,
+      body = _document.body;
+    var envDOM = createDOM('<div id="' + environmentElmId + '"><div></div></div>');
+    var envElm = envDOM[0];
+    var envChildElm = envElm.firstChild;
+    var onChangedListener = new Set();
+    var nativeScrollBarSize = getNativeScrollbarSize(body, envElm);
+    var nativeScrollbarIsOverlaid = {
+      x: nativeScrollBarSize.x === 0,
+      y: nativeScrollBarSize.y === 0,
+    };
+    var env = {
+      _autoUpdateLoop: false,
+      _nativeScrollbarSize: nativeScrollBarSize,
+      _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
+      _nativeScrollbarStyling: getNativeScrollbarStyling(envElm),
+      _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
+      _addListener: function _addListener(listener) {
+        onChangedListener.add(listener);
+      },
+      _removeListener: function _removeListener(listener) {
+        onChangedListener.delete(listener);
+      },
+    };
+    removeAttr(envElm, 'style');
+    removeElements(envElm);
 
-  var Environment = /*#__PURE__*/ (function () {
-    function Environment() {
-      _onChangedListener.set(this, {
-        writable: true,
-        value: void 0,
-      });
+    if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
+      var size = windowSize();
+      var dpr = getWindowDPR();
+      var scrollbarSize = nativeScrollBarSize;
+      window.addEventListener('resize', function () {
+        if (onChangedListener.size) {
+          var sizeNew = windowSize();
+          var deltaSize = {
+            w: sizeNew.w - size.w,
+            h: sizeNew.h - size.h,
+          };
+          if (deltaSize.w === 0 && deltaSize.h === 0) return;
+          var deltaAbsSize = {
+            w: abs(deltaSize.w),
+            h: abs(deltaSize.h),
+          };
+          var deltaAbsRatio = {
+            w: abs(round(sizeNew.w / (size.w / 100.0))),
+            h: abs(round(sizeNew.h / (size.h / 100.0))),
+          };
+          var dprNew = getWindowDPR();
+          var deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
+          var difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
+          var dprChanged = dprNew !== dpr && dpr > 0;
+          var isZoom = deltaIsBigger && difference && dprChanged;
 
-      classPrivateFieldSet(this, _onChangedListener, new Set());
+          if (isZoom) {
+            var newScrollbarSize = (environmentInstance._nativeScrollbarSize = getNativeScrollbarSize(body, envElm));
+            removeElements(envElm);
 
-      var _self = this;
-
-      var _document = document,
-        body = _document.body;
-      var envDOM = createDOM('<div id="' + envornmentElmId + '"><div></div></div>');
-      var envElm = envDOM[0];
-      var envChildElm = envElm.firstChild;
-      var nScrollBarSize = nativeScrollbarSize(body, envElm);
-      var nativeScrollbarIsOverlaid = {
-        x: nScrollBarSize.x === 0,
-        y: nScrollBarSize.y === 0,
-      };
-      _self._autoUpdateLoop = false;
-      _self._nativeScrollbarSize = nScrollBarSize;
-      _self._nativeScrollbarIsOverlaid = nativeScrollbarIsOverlaid;
-      _self._nativeScrollbarStyling = nativeScrollbarStyling(envElm);
-      _self._rtlScrollBehavior = rtlScrollBehavior(envElm, envChildElm);
-      _self._supportPassiveEvents = passiveEvents();
-      _self._supportResizeObserver = !!jsAPI('ResizeObserver');
-      removeAttr(envElm, 'style');
-      removeElements(envElm);
-
-      if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
-        var size = windowSize();
-        var dpr = windowDPR();
-
-        var onChangedListener = classPrivateFieldGet(this, _onChangedListener);
-
-        window.addEventListener('resize', function () {
-          if (onChangedListener.size) {
-            var sizeNew = windowSize();
-            var deltaSize = {
-              w: sizeNew.w - size.w,
-              h: sizeNew.h - size.h,
-            };
-            if (deltaSize.w === 0 && deltaSize.h === 0) return;
-            var deltaAbsSize = {
-              w: abs(deltaSize.w),
-              h: abs(deltaSize.h),
-            };
-            var deltaAbsRatio = {
-              w: abs(round(sizeNew.w / (size.w / 100.0))),
-              h: abs(round(sizeNew.h / (size.h / 100.0))),
-            };
-            var dprNew = windowDPR();
-            var deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
-            var difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
-            var dprChanged = dprNew !== dpr && dpr > 0;
-            var isZoom = deltaIsBigger && difference && dprChanged;
-            var oldScrollbarSize = _self._nativeScrollbarSize;
-            var newScrollbarSize;
-
-            if (isZoom) {
-              newScrollbarSize = _self._nativeScrollbarSize = nativeScrollbarSize(body, envElm);
-              removeElements(envElm);
-
-              if (oldScrollbarSize.x !== newScrollbarSize.x || oldScrollbarSize.y !== newScrollbarSize.y) {
-                onChangedListener.forEach(function (listener) {
-                  return listener && listener(_self);
-                });
-              }
+            if (scrollbarSize.x !== newScrollbarSize.x || scrollbarSize.y !== newScrollbarSize.y) {
+              runEach(onChangedListener);
             }
 
-            size = sizeNew;
-            dpr = dprNew;
+            scrollbarSize = newScrollbarSize;
           }
-        });
-      }
+
+          size = sizeNew;
+          dpr = dprNew;
+        }
+      });
     }
 
-    var _proto = Environment.prototype;
+    return env;
+  };
 
-    _proto.addListener = function addListener(listener) {
-      classPrivateFieldGet(this, _onChangedListener).add(listener);
+  var getEnvironment = function getEnvironment() {
+    if (!environmentInstance) {
+      environmentInstance = createEnvironment();
+    }
+
+    return environmentInstance;
+  };
+
+  var animationStartEventName = 'animationstart';
+  var scrollEventName = 'scroll';
+  var scrollAmount = 3333333;
+  var ResizeObserverConstructor = jsAPI('ResizeObserver');
+  var classNameSizeObserver = 'os-size-observer';
+  var classNameSizeObserverListener = classNameSizeObserver + '-listener';
+  var classNameSizeObserverListenerItem = classNameSizeObserverListener + '-item';
+  var classNameSizeObserverListenerItemFinal = classNameSizeObserverListenerItem + '-final';
+  var cAF = cancelAnimationFrame;
+  var rAF = requestAnimationFrame;
+
+  var getDirection = function getDirection(elm) {
+    return style(elm, 'direction');
+  };
+
+  var createSizeObserver = function createSizeObserver(target, onSizeChangedCallback, direction) {
+    var rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
+
+    var baseElements = createDOM('<div class="' + classNameSizeObserver + '"><div class="' + classNameSizeObserverListener + '"></div></div>');
+    var sizeObserver = baseElements[0];
+    var listenerElement = sizeObserver.firstChild;
+
+    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(dir) {
+      if (direction) {
+        var rtl = getDirection(sizeObserver) === 'rtl';
+        scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
+        scrollTop(sizeObserver, scrollAmount);
+      }
+
+      onSizeChangedCallback(dir === true);
     };
 
-    _proto.removeListener = function removeListener(listener) {
-      classPrivateFieldGet(this, _onChangedListener).delete(listener);
-    };
+    var offListeners = [];
+    var appearCallback = onSizeChangedCallbackProxy;
 
-    return Environment;
-  })();
+    if (ResizeObserverConstructor) {
+      var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
+      resizeObserverInstance.observe(listenerElement);
+    } else {
+      var observerElementChildren = createDOM(
+        '<div class="' +
+          classNameSizeObserverListenerItem +
+          '" dir="ltr"><div class="' +
+          classNameSizeObserverListenerItem +
+          '"><div class="' +
+          classNameSizeObserverListenerItemFinal +
+          '"></div></div><div class="' +
+          classNameSizeObserverListenerItem +
+          '"><div class="' +
+          classNameSizeObserverListenerItemFinal +
+          '" style="width: 200%; height: 200%"></div></div></div>'
+      );
+      appendChildren(listenerElement, observerElementChildren);
+      var observerElementChildrenRoot = observerElementChildren[0];
+      var shrinkElement = observerElementChildrenRoot.lastChild;
+      var expandElement = observerElementChildrenRoot.firstChild;
+      var expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
+      var cacheSize = offsetSize(listenerElement);
+      var currSize = cacheSize;
+      var isDirty = false;
+      var rAFId;
+
+      var reset = function reset() {
+        scrollLeft(expandElement, scrollAmount);
+        scrollTop(expandElement, scrollAmount);
+        scrollLeft(shrinkElement, scrollAmount);
+        scrollTop(shrinkElement, scrollAmount);
+      };
+
+      var onResized = function onResized() {
+        rAFId = 0;
+        if (!isDirty) return;
+        cacheSize = currSize;
+        onSizeChangedCallbackProxy();
+      };
+
+      var onScroll = function onScroll(scrollEvent) {
+        currSize = offsetSize(listenerElement);
+        isDirty = !scrollEvent || currSize.w !== cacheSize.w || currSize.h !== cacheSize.h;
+
+        if (scrollEvent && isDirty && !rAFId) {
+          cAF(rAFId);
+          rAFId = rAF(onResized);
+        } else if (!scrollEvent) onResized();
+
+        reset();
+
+        if (scrollEvent) {
+          preventDefault(scrollEvent);
+          stopPropagation(scrollEvent);
+        }
+
+        return false;
+      };
+
+      offListeners.push(on(expandElement, scrollEventName, onScroll));
+      offListeners.push(on(shrinkElement, scrollEventName, onScroll));
+      style(expandElementChild, {
+        width: scrollAmount,
+        height: scrollAmount,
+      });
+      reset();
+      appearCallback = onScroll;
+    }
+
+    if (direction) {
+      var dirCache;
+      offListeners.push(
+        on(sizeObserver, scrollEventName, function (event) {
+          var dir = getDirection(sizeObserver);
+          var changed = dir !== dirCache;
+
+          if (changed) {
+            if (dir === 'rtl') {
+              style(listenerElement, {
+                left: 'auto',
+                right: 0,
+              });
+            } else {
+              style(listenerElement, {
+                left: 0,
+                right: 'auto',
+              });
+            }
+
+            dirCache = dir;
+            onSizeChangedCallbackProxy(true);
+          }
+
+          preventDefault(event);
+          stopPropagation(event);
+          return false;
+        })
+      );
+    }
+
+    offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+    prependChildren(target, sizeObserver);
+    return function () {
+      runEach(offListeners);
+      removeElements(sizeObserver);
+    };
+  };
 
   var index = function () {
     return [
-      new Environment(),
+      getEnvironment(),
+      createSizeObserver(document.body, function () {}),
       createDOM(
         '\
     <div class="os-host">\

@@ -25,6 +25,9 @@ $scrollbar-cushion: 100px;
   height: 100%;
   width: 100%;
   z-index: -1;
+}
+
+.os-size-observer-appear {
   animation-duration: 0.001s;
   animation-name: os-size-observer-appear-animation;
 }

@@ -1,5 +1,6 @@
 import { createDOM } from 'support/dom';
-import { Environment } from 'environment';
+import { getEnvironment } from 'environment';
+import { createSizeObserver } from 'overlayscrollbars/observers/SizeObserver';
 
 const abc = {
   a: 1,
@@ -9,7 +10,8 @@ const abc = {
 
 export default () => {
   return [
-    new Environment(),
+    getEnvironment(),
+    createSizeObserver(document.body, () => {}),
     createDOM(
       '\
     <div class="os-host">\
