@@ -10,13 +10,15 @@ type Cache<T> = {
   [P in keyof T]: CacheEntry<T[P]>;
 };
 
-type UpdateCacheProp<T> = <P extends keyof T>(prop: P, value: T[P], compare: (a?: T[P], b?: T[P]) => boolean) => void;
+type UpdateCacheProp<T> = <P extends keyof T>(prop: P, value: T[P], compare: CacheEqualFunction<T, P> | null) => void;
+
+type PropsToUpdate<T> = Array<keyof T> | keyof T;
 
 export type CacheUpdateFunction<T, P extends keyof T> = (current?: T[P], previous?: T[P]) => T[P];
 
 export type CacheEqualFunction<T, P extends keyof T> = (a?: T[P], b?: T[P]) => boolean;
 
-export type CacheUpdate<T> = {
+export type CacheChanged<T> = {
   [P in keyof T]: boolean;
 };
 
@@ -42,9 +44,7 @@ export type CacheUpdateInfo<T> = {
  * @returns A function which can be called with wither one ar an array of properties which shall be updated. Optionally it can be called with the force param.
  * This function returns a object which contains all cache properties as booleans which indicate whether the corresponding cache values really changed or not.
  */
-export const createCache = <T>(
-  cacheUpdateInfo: CacheUpdateInfo<T>
-): ((propsToUpdate?: Array<keyof T> | keyof T, force?: boolean) => CacheUpdate<T>) => {
+export const createCache = <T>(cacheUpdateInfo: CacheUpdateInfo<T>): ((propsToUpdate?: PropsToUpdate<T>, force?: boolean) => CacheChanged<T>) => {
   const cache: Cache<T> = {} as T;
   const allProps: Array<keyof T> = keys(cacheUpdateInfo) as Array<keyof T>;
 
@@ -60,8 +60,8 @@ export const createCache = <T>(
     cache[prop]._changed = equal ? !equal(curr, value) : curr !== value;
   };
 
-  const flush = (force?: boolean): CacheUpdate<T> => {
-    const result: CacheUpdate<T> = {} as CacheUpdate<T>;
+  const flush = (force?: boolean): CacheChanged<T> => {
+    const result: CacheChanged<T> = {} as CacheChanged<T>;
 
     each(allProps, (prop: keyof T) => {
       result[prop] = !!(cache[prop]._changed || force);
@@ -71,7 +71,7 @@ export const createCache = <T>(
     return result;
   };
 
-  return (propsToUpdate?: Array<keyof T> | keyof T, force?: boolean) => {
+  return (propsToUpdate?: PropsToUpdate<T>, force?: boolean) => {
     const finalPropsToUpdate: Array<keyof T> =
       (isString(propsToUpdate) ? ([propsToUpdate] as Array<keyof T>) : (propsToUpdate as Array<keyof T>)) || allProps;
     each(finalPropsToUpdate, (prop) => {
