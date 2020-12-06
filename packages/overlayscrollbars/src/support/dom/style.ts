@@ -2,6 +2,13 @@ import { each, keys } from 'support/utils';
 import { isString, isNumber, isArray } from 'support/utils/types';
 import { PlainObject } from 'typings';
 
+export interface TRBL {
+  t: number;
+  r: number;
+  b: number;
+  l: number;
+}
+
 type CssStyles = { [key: string]: string | number };
 const cssNumber = {
   animationiterationcount: 1,
@@ -19,6 +26,12 @@ const cssNumber = {
   zoom: 1,
 };
 
+const parseToZeroOrNumber = (value: string, toFloat?: boolean): number => {
+  /* istanbul ignore next */
+  const num = toFloat ? parseFloat(value) : parseInt(value, 10);
+  /* istanbul ignore next */
+  return Number.isNaN(num) ? 0 : num;
+};
 const adaptCSSVal = (prop: string, val: string | number): string | number => (!cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val);
 const getCSSVal = (elm: HTMLElement, computedStyle: CSSStyleDeclaration, prop: string): string =>
   /* istanbul ignore next */
@@ -73,4 +86,24 @@ export const hide = (elm: HTMLElement | null): void => {
  */
 export const show = (elm: HTMLElement | null): void => {
   style(elm, { display: 'block' });
+};
+
+/**
+ * Returns a top
+ * @param elm
+ * @param property
+ */
+export const topRightBottomLeft = (elm: HTMLElement | null, property?: string): TRBL => {
+  const finalProp = property || '';
+  const top = `${finalProp}Top`;
+  const right = `${finalProp}Right`;
+  const bottom = `${finalProp}Bottom`;
+  const left = `${finalProp}Left`;
+  const result = style(elm, [top, right, bottom, left]);
+  return {
+    t: parseToZeroOrNumber(result[top]),
+    r: parseToZeroOrNumber(result[right]),
+    b: parseToZeroOrNumber(result[bottom]),
+    l: parseToZeroOrNumber(result[left]),
+  };
 };

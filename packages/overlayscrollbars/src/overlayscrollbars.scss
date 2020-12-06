@@ -1,19 +1,57 @@
 @import './sizeobserver.scss';
 @import './trinsicobserver.scss';
+@import './structurelifecycle.scss';
 
 #os-environment {
   position: fixed;
   opacity: 0;
   visibility: hidden;
   overflow: scroll;
-  height: 500px;
-  width: 500px;
+  height: 200px;
+  width: 200px;
+
+  div {
+    width: 200%;
+    height: 200%;
+    margin: 10px 0;
+  }
+
+  &.flexbox-glue {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    height: auto;
+    width: auto;
+    min-height: 200px;
+    min-width: 200px;
+
+    div {
+      flex: auto;
+      width: auto;
+      height: auto;
+      max-height: 100%;
+      max-width: 100%;
+      margin: 0;
+    }
+  }
+
+  &.flexbox-glue-max {
+    max-height: 200px;
+
+    div {
+      overflow: visible;
+
+      &::before {
+        content: '';
+        display: block;
+        height: 999px;
+        width: 999px;
+      }
+    }
+  }
 }
-#os-environment > div {
-  width: 200%;
-  height: 200%;
-  margin: 10px 0;
-}
+
+#os-environment 
 /* fix restricted measuring */
 #os-environment:before,
 #os-environment:after,
@@ -33,14 +71,14 @@
 .os-viewport {
   -ms-overflow-style: scrollbar !important;
 }
-.os-viewport-native-scrollbars-invisible#os-environment,
-.os-viewport-native-scrollbars-invisible.os-viewport {
+.os-viewport-scrollbar-styled#os-environment,
+.os-viewport-scrollbar-styled.os-viewport {
   scrollbar-width: none !important;
 }
-.os-viewport-native-scrollbars-invisible#os-environment::-webkit-scrollbar,
-.os-viewport-native-scrollbars-invisible.os-viewport::-webkit-scrollbar,
-.os-viewport-native-scrollbars-invisible#os-environment::-webkit-scrollbar-corner,
-.os-viewport-native-scrollbars-invisible.os-viewport::-webkit-scrollbar-corner {
+.os-viewport-scrollbar-styled#os-environment::-webkit-scrollbar,
+.os-viewport-scrollbar-styled.os-viewport::-webkit-scrollbar,
+.os-viewport-scrollbar-styled#os-environment::-webkit-scrollbar-corner,
+.os-viewport-scrollbar-styled.os-viewport::-webkit-scrollbar-corner {
   display: none !important;
   width: 0px !important;
   height: 0px !important;

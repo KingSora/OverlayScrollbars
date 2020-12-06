@@ -1,5 +1,5 @@
 import { isString, isPlainObject, isEmptyObject } from 'support/utils/types';
-import { style, hide, show } from 'support/dom/style';
+import { style, hide, show, topRightBottomLeft } from 'support/dom/style';
 
 describe('dom style', () => {
   afterEach(() => {
@@ -88,6 +88,24 @@ describe('dom style', () => {
 
     test('null', () => {
       expect(show(null)).toBe(undefined);
+    });
+  });
+
+  describe('topRightBottomLeft', () => {
+    test('normal', () => {
+      const result = topRightBottomLeft(document.body);
+      expect(result.t).toBe(0);
+      expect(result.r).toBe(0);
+      expect(result.b).toBe(0);
+      expect(result.l).toBe(0);
+    });
+
+    test('null', () => {
+      const result = topRightBottomLeft(null);
+      expect(result.t).toBe(0);
+      expect(result.r).toBe(0);
+      expect(result.b).toBe(0);
+      expect(result.l).toBe(0);
     });
   });
 });

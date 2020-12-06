@@ -12,6 +12,7 @@ import {
   removeElements,
   windowSize,
   runEach,
+  equalWH,
 } from 'support';
 
 export type OnEnvironmentChanged = (env: Environment) => void;
@@ -21,6 +22,7 @@ export interface Environment {
   _nativeScrollbarIsOverlaid: XY<boolean>;
   _nativeScrollbarStyling: boolean;
   _rtlScrollBehavior: { n: boolean; i: boolean };
+  _flexboxGlue: boolean;
   _addListener(listener: OnEnvironmentChanged): void;
   _removeListener(listener: OnEnvironmentChanged): void;
 }
@@ -28,6 +30,8 @@ export interface Environment {
 let environmentInstance: Environment;
 const { abs, round } = Math;
 const environmentElmId = 'os-environment';
+const classNameFlexboxGlue = 'flexbox-glue';
+const classNameFlexboxGlueMax = `${classNameFlexboxGlue}-max`;
 
 const getNativeScrollbarSize = (body: HTMLElement, measureElm: HTMLElement): XY => {
   appendChildren(body, measureElm);
@@ -42,7 +46,7 @@ const getNativeScrollbarSize = (body: HTMLElement, measureElm: HTMLElement): XY 
 
 const getNativeScrollbarStyling = (testElm: HTMLElement): boolean => {
   let result = false;
-  addClass(testElm, 'os-viewport-native-scrollbars-invisible');
+  addClass(testElm, 'os-viewport-scrollbar-styled');
   try {
     result =
       style(testElm, 'scrollbar-width') === 'none' || window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
@@ -76,6 +80,20 @@ const getRtlScrollBehavior = (parentElm: HTMLElement, childElm: HTMLElement): { 
      */
     n: childOffset.x !== childOffsetAfterScroll.x,
   };
+};
+
+const getFlexboxGlue = (parentElm: HTMLElement, childElm: HTMLElement): boolean => {
+  addClass(parentElm, classNameFlexboxGlue);
+  const minOffsetsizeParent = offsetSize(parentElm);
+  const minOffsetsize = offsetSize(childElm);
+  const supportsMin = equalWH(minOffsetsize, minOffsetsizeParent);
+
+  addClass(parentElm, classNameFlexboxGlueMax);
+  const maxOffsetsizeParent = offsetSize(parentElm);
+  const maxOffsetsize = offsetSize(childElm);
+  const supportsMax = equalWH(maxOffsetsize, maxOffsetsizeParent);
+
+  return supportsMin && supportsMax;
 };
 
 const getWindowDPR = (): number => {
@@ -113,6 +131,7 @@ const createEnvironment = (): Environment => {
     _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
     _nativeScrollbarStyling: getNativeScrollbarStyling(envElm),
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
+    _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
     _addListener(listener: OnEnvironmentChanged): void {
       onChangedListener.add(listener);
     },
@@ -122,6 +141,7 @@ const createEnvironment = (): Environment => {
   };
 
   removeAttr(envElm, 'style');
+  removeAttr(envElm, 'class');
   removeElements(envElm);
 
   if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {

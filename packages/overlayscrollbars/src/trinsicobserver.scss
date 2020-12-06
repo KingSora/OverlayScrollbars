@@ -14,7 +14,7 @@
 
   &:not(:empty) {
     height: calc(100% + 1px);
-    top: auto;
+    top: -1px;
 
     & > .os-size-observer {
       width: 1000%;

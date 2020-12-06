@@ -1,0 +1,137 @@
+body {
+  display: flex;
+  flex-direction: column;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+#canvas > div {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#target {
+  overflow: hidden;
+  resize: both;
+  position: relative;
+  border: 2px solid red;
+  min-height: 100px;
+  min-width: 200px;
+  max-height: 300px;
+  max-width: 320px;
+}
+
+#resize {
+  overflow: hidden;
+  resize: both;
+  background: blue;
+  border: 1px solid black;
+  padding: 10px;
+}
+
+#hundred {
+  height: 100%;
+  background: purple;
+  border: 1px solid black;
+  padding: 10px;
+}
+
+#end {
+  position: relative;
+  background: green;
+  border: 1px solid black;
+  padding: 10px;
+  margin: 10px;
+}
+
+#end::before {
+  content: '';
+  position: absolute;
+  display: block;
+  top: -11px;
+  right: -11px;
+  bottom: -11px;
+  left: -11px;
+  background: green;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+.padding0 {
+  padding: 0;
+}
+.padding10 {
+  padding: 10px;
+}
+.padding50 {
+  padding: 50px;
+}
+
+.border2 {
+  border: 2px solid red;
+}
+.border10 {
+  border: 10px solid red;
+}
+.border0 {
+  border: none;
+}
+
+.heightAuto {
+  height: auto;
+}
+.height200 {
+  height: 200px;
+}
+.heightHundred {
+  height: 100%;
+}
+
+.widthAuto {
+  width: auto;
+  float: left;
+}
+.width200 {
+  width: 200px;
+}
+.widthHundred {
+  width: 100%;
+}
+
+.boxSizingBorderBox {
+  box-sizing: border-box;
+}
+.boxSizingContentBox {
+  box-sizing: content-box;
+}
+
+.displayNone {
+  display: none;
+}
+.displayBlock {
+  display: block;
+}
+
+.directionltr {
+  direction: ltr;
+}
+.directionRTL {
+  direction: rtl;
+}

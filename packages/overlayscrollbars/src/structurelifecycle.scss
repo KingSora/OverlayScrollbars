@@ -1,0 +1,23 @@
+.os-host {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.os-viewport {
+  box-sizing: border-box;
+  position: relative;
+  flex: auto;
+  height: auto;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  border: none;
+  overflow: visible;
+}
+
+.os-content {
+  position: relative;
+  z-index: 0;
+}

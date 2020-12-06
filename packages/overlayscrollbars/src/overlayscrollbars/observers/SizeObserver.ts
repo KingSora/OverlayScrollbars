@@ -13,6 +13,8 @@ import {
   preventDefault,
   stopPropagation,
   addClass,
+  isString,
+  equalWH,
 } from 'support';
 import { getEnvironment } from 'environment';
 
@@ -31,11 +33,11 @@ const getDirection = (elm: HTMLElement) => style(elm, 'direction');
 
 // TODO:
 // 1. MAYBE add comparison function to offsetSize etc.
-
+type Direction = 'ltr' | 'rtl';
 export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };
 export const createSizeObserver = (
   target: HTMLElement,
-  onSizeChangedCallback: (direction?: boolean) => any,
+  onSizeChangedCallback: (direction?: Direction) => any,
   options?: SizeObserverOptions
 ): (() => void) => {
   const { _direction: direction = false, _appear: appear = false } = options || {};
@@ -43,13 +45,13 @@ export const createSizeObserver = (
   const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
   const sizeObserver = baseElements[0] as HTMLElement;
   const listenerElement = sizeObserver.firstChild as HTMLElement;
-  const onSizeChangedCallbackProxy = (dir?: boolean) => {
+  const onSizeChangedCallbackProxy = (dir?: Direction) => {
     if (direction) {
       const rtl = getDirection(sizeObserver) === 'rtl';
       scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
       scrollTop(sizeObserver, scrollAmount);
     }
-    onSizeChangedCallback(dir === true);
+    onSizeChangedCallback(isString(dir) ? dir : undefined);
   };
   const offListeners: (() => void)[] = [];
   let appearCallback: ((...args: any) => any) | null = appear ? onSizeChangedCallbackProxy : null;
@@ -90,7 +92,7 @@ export const createSizeObserver = (
     };
     const onScroll = (scrollEvent?: Event) => {
       currSize = offsetSize(listenerElement);
-      isDirty = !scrollEvent || currSize.w !== cacheSize.w || currSize.h !== cacheSize.h;
+      isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
       if (scrollEvent && isDirty && !rAFId) {
         cAF(rAFId);
@@ -132,7 +134,7 @@ export const createSizeObserver = (
             style(listenerElement, { left: 0, right: 'auto' });
           }
           dirCache = dir;
-          onSizeChangedCallbackProxy(true);
+          onSizeChangedCallbackProxy(dir as Direction);
         }
 
         preventDefault(event);
