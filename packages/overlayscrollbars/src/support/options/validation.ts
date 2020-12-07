@@ -1,6 +1,6 @@
 import { each, indexOf, hasOwnProperty, keys } from 'support/utils';
 import { type, isArray, isUndefined, isEmptyObject, isPlainObject, isString } from 'support/utils/types';
-import { OptionsTemplate, OptionsTemplateTypes, OptionsTemplateType, Func, OptionsValidatedResult } from 'support/options';
+import { OptionsTemplate, OptionsTemplateTypes, OptionsTemplateType, Func, OptionsValidationResult, OptionsValidated } from 'support/options';
 import { PlainObject } from 'typings';
 
 const { stringify } = JSON;
@@ -46,8 +46,8 @@ const validateRecursive = <T extends PlainObject>(
   optionsDiff: T,
   doWriteErrors?: boolean,
   propPath?: string
-): OptionsValidatedResult<T> => {
-  const validatedOptions: T = {} as T;
+): OptionsValidationResult<T> => {
+  const validatedOptions: OptionsValidated<T> = {};
   const optionsCopy: T = { ...options };
   const props = keys(template).filter((prop) => hasOwnProperty(options, prop));
 
@@ -61,7 +61,7 @@ const validateRecursive = <T extends PlainObject>(
     // if the template has a object as value, it means that the options are complex (verschachtelt)
     if (templateIsComplex && isPlainObject(optionsValue)) {
       const validatedResult = validateRecursive(optionsValue, templateValue as PlainObject, optionsDiffValue, doWriteErrors, propPrefix + prop);
-      validatedOptions[prop] = validatedResult._validated;
+      validatedOptions[prop] = validatedResult._validated as any;
       optionsCopy[prop] = validatedResult._foreign as any;
 
       each([optionsCopy, validatedOptions], (value) => {
@@ -145,7 +145,7 @@ const validateOptions = <T extends PlainObject>(
   template: OptionsTemplate<Required<T>>,
   optionsDiff?: T,
   doWriteErrors?: boolean
-): OptionsValidatedResult<T> => {
+): OptionsValidationResult<T> => {
   /*
     if (!isEmptyObject(foreign) && doWriteErrors)
         console.warn(`The following options are discarded due to invalidity:\r\n ${window.JSON.stringify(foreign, null, 2)}`);

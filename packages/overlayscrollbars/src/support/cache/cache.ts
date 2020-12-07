@@ -12,11 +12,13 @@ type Cache<T> = {
 
 type UpdateCacheProp<T> = <P extends keyof T>(prop: P, value: T[P], compare: CacheEqualFunction<T, P> | null) => void;
 
-type PropsToUpdate<T> = Array<keyof T> | keyof T;
+export type CachePropsToUpdate<T> = Array<keyof T> | keyof T;
 
 export type CacheUpdateFunction<T, P extends keyof T> = (current?: T[P], previous?: T[P]) => T[P];
 
 export type CacheEqualFunction<T, P extends keyof T> = (a?: T[P], b?: T[P]) => boolean;
+
+export type CacheChange<T> = (propsToUpdate?: CachePropsToUpdate<T>, force?: boolean) => CacheChanged<T>;
 
 export type CacheChanged<T> = {
   [P in keyof T]?: T[P];
@@ -44,7 +46,7 @@ export type CacheUpdateInfo<T> = {
  * @returns A function which can be called with wither one ar an array of properties which shall be updated. Optionally it can be called with the force param.
  * This function returns a object which contains all changed cache properties, if a property isn't in this object it means that it didn't change.
  */
-export const createCache = <T>(cacheUpdateInfo: CacheUpdateInfo<T>): ((propsToUpdate?: PropsToUpdate<T>, force?: boolean) => CacheChanged<T>) => {
+export const createCache = <T>(cacheUpdateInfo: CacheUpdateInfo<T>): CacheChange<T> => {
   const cache: Cache<T> = {} as T;
   const allProps: Array<keyof T> = keys(cacheUpdateInfo) as Array<keyof T>;
 
@@ -73,7 +75,7 @@ export const createCache = <T>(cacheUpdateInfo: CacheUpdateInfo<T>): ((propsToUp
     return result;
   };
 
-  return (propsToUpdate?: PropsToUpdate<T>, force?: boolean) => {
+  return (propsToUpdate?: CachePropsToUpdate<T>, force?: boolean) => {
     const finalPropsToUpdate: Array<keyof T> =
       (isString(propsToUpdate) ? ([propsToUpdate] as Array<keyof T>) : (propsToUpdate as Array<keyof T>)) || allProps;
     each(finalPropsToUpdate, (prop) => {

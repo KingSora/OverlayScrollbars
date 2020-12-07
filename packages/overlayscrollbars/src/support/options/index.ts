@@ -19,9 +19,12 @@ export type OptionsTemplate<T extends Required<T>> = {
     ? OptionsTemplateValue<T[P]>
     : never;
 };
-export type OptionsValidatedResult<T> = {
+export type OptionsValidated<T> = {
+  [P in keyof T]?: T[P];
+};
+export type OptionsValidationResult<T> = {
   readonly _foreign: PlainObject;
-  readonly _validated: T;
+  readonly _validated: OptionsValidated<T>;
 };
 // Options With Options Template Typings:
 export type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];

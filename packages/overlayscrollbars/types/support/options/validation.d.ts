@@ -1,7 +1,7 @@
-import { OptionsTemplate, OptionsTemplateType, Func, OptionsValidatedResult } from 'support/options';
+import { OptionsTemplate, OptionsTemplateType, Func, OptionsValidationResult } from 'support/options';
 import { PlainObject } from 'typings';
 declare const optionsTemplateTypes: OptionsTemplateTypesDictionary;
-declare const validate: <T extends PlainObject<any>>(options: T, template: OptionsTemplate<Required<T>>, optionsDiff?: T | undefined, doWriteErrors?: boolean | undefined) => OptionsValidatedResult<T>;
+declare const validate: <T extends PlainObject<any>>(options: T, template: OptionsTemplate<Required<T>>, optionsDiff?: T | undefined, doWriteErrors?: boolean | undefined) => OptionsValidationResult<T>;
 export { validate, optionsTemplateTypes };
 declare type OptionsTemplateTypesDictionary = {
     readonly boolean: OptionsTemplateType<boolean>;
