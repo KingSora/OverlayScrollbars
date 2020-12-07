@@ -20,16 +20,16 @@ export type OptionsTemplate<T extends Required<T>> = {
     : never;
 };
 export type OptionsValidatedResult<T> = {
-  readonly foreign: PlainObject;
-  readonly validated: T;
+  readonly _foreign: PlainObject;
+  readonly _validated: T;
 };
 // Options With Options Template Typings:
-export type OptionsAndOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];
-export type OptionsAndOptionsTemplate<T extends Required<T>> = {
+export type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];
+export type OptionsWithOptionsTemplate<T extends Required<T>> = {
   [P in keyof T]: PlainObject extends T[P]
-    ? OptionsAndOptionsTemplate<Required<T[P]>>
+    ? OptionsWithOptionsTemplate<Required<T[P]>>
     : T[P] extends OptionsTemplateNativeTypes
-    ? OptionsAndOptionsTemplateValue<T[P]>
+    ? OptionsWithOptionsTemplateValue<T[P]>
     : never;
 };
 type OptionsTemplateTypeMap = {

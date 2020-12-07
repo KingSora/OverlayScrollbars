@@ -1,5 +1,5 @@
 import { PlainObject } from 'typings';
-import { optionsTemplateTypes as oTypes, transform, OptionsTemplate, OptionsAndOptionsTemplate } from 'support/options';
+import { optionsTemplateTypes as oTypes, transformOptions, OptionsTemplate, OptionsWithOptionsTemplate } from 'support/options';
 
 type TestOptionsObj = { propA: 'propA'; null: null };
 type TestOptionsEnum = 'A' | 'B' | 'C';
@@ -51,7 +51,7 @@ const optionsTemplate: OptionsTemplate<Required<TestOptions>> = {
   func: oTypes.function,
 };
 
-const optionsAndOptionsTemplate: OptionsAndOptionsTemplate<Required<TestOptions>> = {
+const TestOptionsWithOptionsTemplate: OptionsWithOptionsTemplate<Required<TestOptions>> = {
   str: [options.str, optionsTemplate.str],
   strArrNull: [options.strArrNull, optionsTemplate.strArrNull],
   nullbool: [options.nullbool, optionsTemplate.nullbool],
@@ -68,10 +68,10 @@ const optionsAndOptionsTemplate: OptionsAndOptionsTemplate<Required<TestOptions>
 
 describe('options and options template object transformation', () => {
   test('transforms correctly into options object', () => {
-    expect(transform(optionsAndOptionsTemplate)).toEqual(options);
+    expect(transformOptions(TestOptionsWithOptionsTemplate)._options).toEqual(options);
   });
 
   test('transforms correctly into template object', () => {
-    expect(transform(optionsAndOptionsTemplate, true)).toEqual(optionsTemplate);
+    expect(transformOptions(TestOptionsWithOptionsTemplate)._template).toEqual(optionsTemplate);
   });
 });

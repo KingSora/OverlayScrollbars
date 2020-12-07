@@ -1,9 +1,9 @@
-import { validate } from 'support/options';
+import { validateOptions } from 'support/options';
 import { defaultOptions, optionsTemplate } from 'options';
 
 describe('options', () => {
   test('default options matching the options template', () => {
-    const { validated } = validate(defaultOptions, optionsTemplate);
-    expect(validated).toEqual(defaultOptions);
+    const { _validated } = validateOptions(defaultOptions, optionsTemplate);
+    expect(_validated).toEqual(defaultOptions);
   });
 });

@@ -61,8 +61,8 @@ const validateRecursive = <T extends PlainObject>(
     // if the template has a object as value, it means that the options are complex (verschachtelt)
     if (templateIsComplex && isPlainObject(optionsValue)) {
       const validatedResult = validateRecursive(optionsValue, templateValue as PlainObject, optionsDiffValue, doWriteErrors, propPrefix + prop);
-      validatedOptions[prop] = validatedResult.validated;
-      optionsCopy[prop] = validatedResult.foreign as any;
+      validatedOptions[prop] = validatedResult._validated;
+      optionsCopy[prop] = validatedResult._foreign as any;
 
       each([optionsCopy, validatedOptions], (value) => {
         if (isEmptyObject(value[prop])) {
@@ -118,8 +118,8 @@ const validateRecursive = <T extends PlainObject>(
   });
 
   return {
-    foreign: optionsCopy,
-    validated: validatedOptions,
+    _foreign: optionsCopy,
+    _validated: validatedOptions,
   };
 };
 
@@ -140,7 +140,7 @@ const validateRecursive = <T extends PlainObject>(
  * Without the optionsDiff object the returned validated object would be: { a: 'a', b: 'b', c: 'c' }
  * @param doWriteErrors True if errors shall be logged into the console, false otherwise.
  */
-const validate = <T extends PlainObject>(
+const validateOptions = <T extends PlainObject>(
   options: T,
   template: OptionsTemplate<Required<T>>,
   optionsDiff?: T,
@@ -158,7 +158,7 @@ const validate = <T extends PlainObject>(
   return validateRecursive<T>(options, template, optionsDiff || ({} as T), doWriteErrors || false);
 };
 
-export { validate, optionsTemplateTypes };
+export { validateOptions, optionsTemplateTypes };
 
 type OptionsTemplateTypesDictionary = {
   readonly boolean: OptionsTemplateType<boolean>;

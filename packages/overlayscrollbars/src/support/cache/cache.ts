@@ -19,7 +19,7 @@ export type CacheUpdateFunction<T, P extends keyof T> = (current?: T[P], previou
 export type CacheEqualFunction<T, P extends keyof T> = (a?: T[P], b?: T[P]) => boolean;
 
 export type CacheChanged<T> = {
-  [P in keyof T]: boolean;
+  [P in keyof T]?: T[P];
 };
 
 export type CacheUpdateInfo<T> = {
@@ -42,7 +42,7 @@ export type CacheUpdateInfo<T> = {
  * If no equal function is passed a shallow comparison is carried out between the values.
  *
  * @returns A function which can be called with wither one ar an array of properties which shall be updated. Optionally it can be called with the force param.
- * This function returns a object which contains all cache properties as booleans which indicate whether the corresponding cache values really changed or not.
+ * This function returns a object which contains all changed cache properties, if a property isn't in this object it means that it didn't change.
  */
 export const createCache = <T>(cacheUpdateInfo: CacheUpdateInfo<T>): ((propsToUpdate?: PropsToUpdate<T>, force?: boolean) => CacheChanged<T>) => {
   const cache: Cache<T> = {} as T;
@@ -64,7 +64,9 @@ export const createCache = <T>(cacheUpdateInfo: CacheUpdateInfo<T>): ((propsToUp
     const result: CacheChanged<T> = {} as CacheChanged<T>;
 
     each(allProps, (prop: keyof T) => {
-      result[prop] = !!(cache[prop]._changed || force);
+      if (cache[prop]._changed || force) {
+        result[prop] = cache[prop]._current;
+      }
       cache[prop]._changed = false;
     });
 

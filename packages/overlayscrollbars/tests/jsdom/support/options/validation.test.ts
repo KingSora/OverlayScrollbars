@@ -1,4 +1,4 @@
-import { validate, optionsTemplateTypes as oTypes, OptionsTemplate } from 'support/options';
+import { validateOptions, optionsTemplateTypes as oTypes, OptionsTemplate } from 'support/options';
 import { assignDeep, isEmptyObject } from 'support/utils';
 
 type TestOptionsObj = { propA: 'propA'; null: null };
@@ -56,41 +56,41 @@ describe('options validation', () => {
         foreignDeep: { a: 'A', b: 'B' },
       };
       const modifiedOptions = assignDeep({}, options, { nested: foreignObj }, foreignObj);
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated).toEqual(options);
+      expect(_validated).toEqual(options);
     });
 
     test('passed objects arent mutated', () => {
       const clonedOptions = assignDeep({}, options);
-      validate(clonedOptions, template, clonedOptions);
+      validateOptions(clonedOptions, template, clonedOptions);
 
       expect(clonedOptions).toEqual(options);
     });
 
     test('passed object isnt returned object', () => {
       const clonedOptions = assignDeep({}, options);
-      const result = validate(clonedOptions, template);
+      const result = validateOptions(clonedOptions, template);
 
-      expect(result.validated).not.toBe(clonedOptions);
+      expect(result._validated).not.toBe(clonedOptions);
     });
   });
 
   describe('foreign property return', () => {
     test('return no foreign property', () => {
-      const result = validate(options, template);
+      const result = validateOptions(options, template);
 
-      expect(isEmptyObject(result.foreign)).toBe(true);
+      expect(isEmptyObject(result._foreign)).toBe(true);
     });
 
     test('return signle non-object foreign property', () => {
       const foreignObj = { foreignProp: 'foreign' };
       const modifiedOptions = assignDeep({}, options, foreignObj);
-      const result = validate(modifiedOptions, template);
-      const { foreign } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _foreign } = result;
 
-      expect(foreign).toEqual(foreignObj);
+      expect(_foreign).toEqual(foreignObj);
     });
 
     test('return complex foreign properties', () => {
@@ -99,10 +99,10 @@ describe('options validation', () => {
         foreignDeep: { a: 'A', b: 'B' },
       };
       const modifiedOptions = assignDeep({}, options, foreignObj);
-      const result = validate(modifiedOptions, template);
-      const { foreign } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _foreign } = result;
 
-      expect(foreign).toEqual(foreignObj);
+      expect(_foreign).toEqual(foreignObj);
     });
 
     test('return nested complex foreign properties', () => {
@@ -111,24 +111,24 @@ describe('options validation', () => {
         foreignDeep: { a: 'A', b: 'B' },
       };
       const modifiedOptions = assignDeep({}, options, { nested: foreignObj }, foreignObj);
-      const result = validate(modifiedOptions, template);
-      const { foreign } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _foreign } = result;
 
-      expect(foreign.nested).toEqual(foreignObj);
-      delete foreign.nested;
-      expect(foreign).toEqual(foreignObj);
+      expect(_foreign.nested).toEqual(foreignObj);
+      delete _foreign.nested;
+      expect(_foreign).toEqual(foreignObj);
     });
   });
 
   describe('diff property return', () => {
     test('one value changed', () => {
       const modifiedOptions = assignDeep({}, options, { str: 'newvaluetest' });
-      const result = validate(modifiedOptions, template, options);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template, options);
+      const { _validated } = result;
 
-      expect(validated.str).toBe('newvaluetest');
-      delete validated.str;
-      expect(isEmptyObject(validated)).toBe(true);
+      expect(_validated.str).toBe('newvaluetest');
+      delete _validated.str;
+      expect(isEmptyObject(_validated)).toBe(true);
     });
 
     test('multiple values changed', () => {
@@ -136,42 +136,42 @@ describe('options validation', () => {
         str: 'newvaluetest',
         nullbool: null,
       });
-      const result = validate(modifiedOptions, template, options);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template, options);
+      const { _validated } = result;
 
-      expect(validated.str).toBe('newvaluetest');
-      expect(validated.nullbool).toBe(null);
-      delete validated.str;
-      delete validated.nullbool;
-      expect(isEmptyObject(validated)).toBe(true);
+      expect(_validated.str).toBe('newvaluetest');
+      expect(_validated.nullbool).toBe(null);
+      delete _validated.str;
+      delete _validated.nullbool;
+      expect(isEmptyObject(_validated)).toBe(true);
     });
 
     test('one nested value changed', () => {
       const modifiedOptions = assignDeep({}, options, { nested: { num: -1293 } });
-      const result = validate(modifiedOptions, template, options);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template, options);
+      const { _validated } = result;
 
-      expect(validated.nested?.num).toBe(-1293);
-      delete validated.nested?.num;
-      expect(isEmptyObject(validated.nested)).toBe(true);
-      delete validated.nested;
-      expect(isEmptyObject(validated)).toBe(true);
+      expect(_validated.nested?.num).toBe(-1293);
+      delete _validated.nested?.num;
+      expect(isEmptyObject(_validated.nested)).toBe(true);
+      delete _validated.nested;
+      expect(isEmptyObject(_validated)).toBe(true);
     });
 
     test('multiple nested values changed', () => {
       const modifiedOptions = assignDeep({}, options, {
         nested: { num: -1293, abc: 'C' },
       });
-      const result = validate(modifiedOptions, template, options);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template, options);
+      const { _validated } = result;
 
-      expect(validated.nested?.num).toBe(-1293);
-      expect(validated.nested?.abc).toBe('C');
-      delete validated.nested?.num;
-      delete validated.nested?.abc;
-      expect(isEmptyObject(validated.nested)).toBe(true);
-      delete validated.nested;
-      expect(isEmptyObject(validated)).toBe(true);
+      expect(_validated.nested?.num).toBe(-1293);
+      expect(_validated.nested?.abc).toBe('C');
+      delete _validated.nested?.num;
+      delete _validated.nested?.abc;
+      expect(isEmptyObject(_validated.nested)).toBe(true);
+      delete _validated.nested;
+      expect(isEmptyObject(_validated)).toBe(true);
     });
 
     test('various values changed', () => {
@@ -182,22 +182,22 @@ describe('options validation', () => {
         abc: 'C',
         nested: { num: -1293, abc: 'C' },
       });
-      const result = validate(modifiedOptions, template, options);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template, options);
+      const { _validated } = result;
 
-      expect(validated.str).toBe('newstrvalue');
-      expect(validated.func).toBe(newFunc);
-      expect(validated.abc).toBe('C');
-      delete validated.str;
-      delete validated.func;
-      delete validated.abc;
-      expect(validated.nested?.num).toBe(-1293);
-      expect(validated.nested?.abc).toBe('C');
-      delete validated.nested?.num;
-      delete validated.nested?.abc;
-      expect(isEmptyObject(validated.nested)).toBe(true);
-      delete validated.nested;
-      expect(isEmptyObject(validated)).toBe(true);
+      expect(_validated.str).toBe('newstrvalue');
+      expect(_validated.func).toBe(newFunc);
+      expect(_validated.abc).toBe('C');
+      delete _validated.str;
+      delete _validated.func;
+      delete _validated.abc;
+      expect(_validated.nested?.num).toBe(-1293);
+      expect(_validated.nested?.abc).toBe('C');
+      delete _validated.nested?.num;
+      delete _validated.nested?.abc;
+      expect(isEmptyObject(_validated.nested)).toBe(true);
+      delete _validated.nested;
+      expect(isEmptyObject(_validated)).toBe(true);
     });
 
     test('various values changed with foreign properties', () => {
@@ -218,40 +218,40 @@ describe('options validation', () => {
         foreignObj,
         { nested: foreignObj }
       );
-      const result = validate(modifiedOptions, template, options);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template, options);
+      const { _validated } = result;
 
-      expect(validated.str).toBe('newstrvalue');
-      expect(validated.func).toBe(newFunc);
-      expect(validated.abc).toBe('C');
-      delete validated.str;
-      delete validated.func;
-      delete validated.abc;
-      expect(validated.nested?.num).toBe(-1293);
-      expect(validated.nested?.abc).toBe('C');
-      delete validated.nested?.num;
-      delete validated.nested?.abc;
-      expect(isEmptyObject(validated.nested)).toBe(true);
-      delete validated.nested;
-      expect(isEmptyObject(validated)).toBe(true);
+      expect(_validated.str).toBe('newstrvalue');
+      expect(_validated.func).toBe(newFunc);
+      expect(_validated.abc).toBe('C');
+      delete _validated.str;
+      delete _validated.func;
+      delete _validated.abc;
+      expect(_validated.nested?.num).toBe(-1293);
+      expect(_validated.nested?.abc).toBe('C');
+      delete _validated.nested?.num;
+      delete _validated.nested?.abc;
+      expect(isEmptyObject(_validated.nested)).toBe(true);
+      delete _validated.nested;
+      expect(isEmptyObject(_validated)).toBe(true);
     });
   });
 
   describe('value validity', () => {
     test('single value doesnt match template', () => {
       const modifiedOptions = assignDeep({}, options, { str: 1 });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated).not.toHaveProperty('str');
+      expect(_validated).not.toHaveProperty('str');
     });
 
     test('single enum value doesnt match template', () => {
       const modifiedOptions = assignDeep({}, options, { abc: 'testval' });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated).not.toHaveProperty('abc');
+      expect(_validated).not.toHaveProperty('abc');
     });
 
     test('multiple values dont match template', () => {
@@ -260,51 +260,51 @@ describe('options validation', () => {
         abc: 'testval',
         nullbool: 'string',
       });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated).not.toHaveProperty('str');
-      expect(validated).not.toHaveProperty('abc');
-      expect(validated).not.toHaveProperty('nullbool');
+      expect(_validated).not.toHaveProperty('str');
+      expect(_validated).not.toHaveProperty('abc');
+      expect(_validated).not.toHaveProperty('nullbool');
     });
 
     test('single nested value dont match template', () => {
       const modifiedOptions = assignDeep({}, options, { nested: { num: 'hi' } });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated.nested).not.toHaveProperty('num');
+      expect(_validated.nested).not.toHaveProperty('num');
     });
 
     test('single nested enum value dont match template', () => {
       const modifiedOptions = assignDeep({}, options, {
         nested: { abc: 'testabc' },
       });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated.nested).not.toHaveProperty('abc');
+      expect(_validated.nested).not.toHaveProperty('abc');
     });
 
     test('multiple nested values dont match template', () => {
       const modifiedOptions = assignDeep({}, options, {
         nested: { num: 'hi', abc: 'testabc' },
       });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated.nested).not.toHaveProperty('num');
-      expect(validated.nested).not.toHaveProperty('abc');
+      expect(_validated.nested).not.toHaveProperty('num');
+      expect(_validated.nested).not.toHaveProperty('abc');
     });
 
     test('all nested values dont match template', () => {
       const modifiedOptions = assignDeep({}, options, {
         nested: { num: 'hi', abc: 'testabc', switch: 1 },
       });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated).not.toHaveProperty('nested');
+      expect(_validated).not.toHaveProperty('nested');
     });
 
     test('all nested values dont match template with foreign property', () => {
@@ -316,10 +316,10 @@ describe('options validation', () => {
           switch: 1,
         },
       });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated).not.toHaveProperty('nested');
+      expect(_validated).not.toHaveProperty('nested');
     });
 
     test('various values dont match template', () => {
@@ -329,13 +329,13 @@ describe('options validation', () => {
         abc: 'testest',
         func: {},
       });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated.nested).not.toHaveProperty('switch');
-      expect(validated).not.toHaveProperty('obj');
-      expect(validated).not.toHaveProperty('abc');
-      expect(validated).not.toHaveProperty('func');
+      expect(_validated.nested).not.toHaveProperty('switch');
+      expect(_validated).not.toHaveProperty('obj');
+      expect(_validated).not.toHaveProperty('abc');
+      expect(_validated).not.toHaveProperty('func');
     });
 
     test('various values dont match template with foreign properties', () => {
@@ -355,42 +355,42 @@ describe('options validation', () => {
         foreignObj,
         { nested: foreignObj }
       );
-      const result = validate(modifiedOptions, template);
-      const { validated, foreign } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated, _foreign } = result;
 
-      expect(foreign.nested).toEqual(foreignObj);
-      delete foreign.nested;
-      expect(foreign).toEqual(foreignObj);
+      expect(_foreign.nested).toEqual(foreignObj);
+      delete _foreign.nested;
+      expect(_foreign).toEqual(foreignObj);
 
-      expect(validated.nested).not.toHaveProperty('switch');
-      expect(validated).not.toHaveProperty('obj');
-      expect(validated).not.toHaveProperty('abc');
-      expect(validated).not.toHaveProperty('func');
+      expect(_validated.nested).not.toHaveProperty('switch');
+      expect(_validated).not.toHaveProperty('obj');
+      expect(_validated).not.toHaveProperty('abc');
+      expect(_validated).not.toHaveProperty('func');
     });
 
     test('nested object is string', () => {
       const modifiedOptions = assignDeep({}, options, { nested: 'string' });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated).not.toHaveProperty('nested');
+      expect(_validated).not.toHaveProperty('nested');
     });
 
     test('nested object is null', () => {
       const modifiedOptions = assignDeep({}, options, { nested: null });
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated).not.toHaveProperty('nested');
+      expect(_validated).not.toHaveProperty('nested');
     });
 
     test('nested object is undefined', () => {
       const modifiedOptions = assignDeep({}, options);
       modifiedOptions.nested = undefined;
-      const result = validate(modifiedOptions, template);
-      const { validated } = result;
+      const result = validateOptions(modifiedOptions, template);
+      const { _validated } = result;
 
-      expect(validated).not.toHaveProperty('nested');
+      expect(_validated).not.toHaveProperty('nested');
     });
   });
 
@@ -399,7 +399,7 @@ describe('options validation', () => {
       const { warn } = console;
       console.warn = jest.fn();
 
-      validate(options, template, {}, true);
+      validateOptions(options, template, {}, true);
       expect(console.warn).not.toBeCalled();
 
       console.warn = warn;
@@ -410,7 +410,7 @@ describe('options validation', () => {
       console.warn = jest.fn();
 
       const modifiedOptions = assignDeep({}, options, { str: 1 });
-      validate(modifiedOptions, template, {}, false);
+      validateOptions(modifiedOptions, template, {}, false);
       expect(console.warn).not.toBeCalled();
 
       console.warn = warn;
@@ -421,15 +421,15 @@ describe('options validation', () => {
       console.warn = jest.fn();
 
       // str must be string
-      validate(assignDeep({}, options, { str: 1 }), template, {}, true);
+      validateOptions(assignDeep({}, options, { str: 1 }), template, {}, true);
       expect(console.warn).toBeCalledTimes(1);
 
       // abc must be A | B | C
-      validate(assignDeep({}, options, { abc: 'some string' }), template, {}, true);
+      validateOptions(assignDeep({}, options, { abc: 'some string' }), template, {}, true);
       expect(console.warn).toBeCalledTimes(2);
 
       // everthing OK
-      validate(assignDeep({}, options, { abc: 'C' }), template, {}, true);
+      validateOptions(assignDeep({}, options, { abc: 'C' }), template, {}, true);
       expect(console.warn).toBeCalledTimes(2);
 
       console.warn = warn;

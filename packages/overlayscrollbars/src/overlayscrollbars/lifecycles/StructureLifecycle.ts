@@ -10,6 +10,11 @@ import {
   TRBL,
   equalTRBL,
   createCache,
+  optionsTemplateTypes as oTypes,
+  transformOptions,
+  validateOptions,
+  OptionsTemplateValue,
+  assignDeep,
 } from 'support';
 import { Lifecycle } from 'overlayscrollbars/lifecycles';
 import { getEnvironment, Environment } from 'environment';
@@ -18,16 +23,24 @@ import { createTrinsicObserver } from 'overlayscrollbars/observers/TrinsicObserv
 
 export type OverflowBehavior = 'hidden' | 'scroll' | 'visible-hidden' | 'visible-scroll';
 export interface StructureLifecycleOptions {
-  _paddingAbsolute?: boolean;
-  _overflowBehavior?: {
-    x: OverflowBehavior;
-    y: OverflowBehavior;
+  paddingAbsolute?: boolean;
+  overflowBehavior?: {
+    x?: OverflowBehavior;
+    y?: OverflowBehavior;
   };
 }
-
 interface StructureLifecycleCache {
   padding: TRBL;
 }
+
+const overflowBehaviorAllowedValues: OptionsTemplateValue<OverflowBehavior> = 'visible-hidden visible-scroll scroll hidden';
+const { _template: optionsTemplate, _options: defaultOptions } = transformOptions<Required<StructureLifecycleOptions>>({
+  paddingAbsolute: [false, oTypes.boolean],
+  overflowBehavior: {
+    x: ['scroll', overflowBehaviorAllowedValues],
+    y: ['scroll', overflowBehaviorAllowedValues],
+  },
+});
 
 const classNameHost = 'os-host';
 const classNameViewport = 'os-viewport';
@@ -37,7 +50,13 @@ const classNameViewportScrollbarStyling = `${classNameViewport}-scrollbar-styled
 const cssMarginEnd = cssProperty('margin-inline-end');
 const cssBorderEnd = cssProperty('border-inline-end');
 
-export const createStructureLifecycle = (target: HTMLElement, options?: StructureLifecycleOptions): Lifecycle<StructureLifecycleOptions> => {
+export const createStructureLifecycle = (target: HTMLElement, initialOptions?: StructureLifecycleOptions): Lifecycle<StructureLifecycleOptions> => {
+  const options: Required<StructureLifecycleOptions> = assignDeep(
+    {},
+    defaultOptions,
+    validateOptions<StructureLifecycleOptions>(initialOptions || {}, optionsTemplate)._validated
+  );
+
   const destructFns: (() => any)[] = [];
   const env: Environment = getEnvironment();
   const scrollbarsOverlaid = env._nativeScrollbarIsOverlaid;
@@ -69,9 +88,13 @@ export const createStructureLifecycle = (target: HTMLElement, options?: Structur
   destructFns.push(createTrinsicObserver(target, onTrinsicChanged));
 
   return {
-    _options() {
+    _options(newOptions?: StructureLifecycleOptions) {
       // eslint-disable-next-line
-      console.log('_options');
+      console.log('_options', newOptions);
+    },
+    _update(force?: boolean) {
+      // eslint-disable-next-line
+      console.log('_options', force);
     },
     _destruct() {
       runEach(destructFns);

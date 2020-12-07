@@ -39,6 +39,7 @@ module.exports = {
     'no-empty': ['error', { allowEmptyCatch: true }],
     'no-cond-assign': ['error', 'except-parens'],
     camelcase: ['error', { allow: ['^__', '^UNSAFE_'] }],
+    'prefer-destructuring': 'off',
     'consistent-return': 'off',
     'import/prefer-default-export': 'off',
     'import/no-extraneous-dependencies': 'off',

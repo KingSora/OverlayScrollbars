@@ -1,4 +1,4 @@
-import { validate, assignDeep } from 'support';
+import { validateOptions, assignDeep } from 'support';
 import { Options, optionsTemplate } from 'options';
 import { TargetElement } from 'overlayscrollbars';
 import { Environment } from 'environment';
@@ -32,11 +32,11 @@ export class OverlayScrollbars {
   #instanceVars: OverlayScrollbarsInstanceVars = {
     _setOptions(newOptions: Options): Options {
       const { _currentOptions } = this;
-      const { validated } = validate(newOptions, optionsTemplate, _currentOptions, true);
+      const { _validated } = validateOptions(newOptions, optionsTemplate, _currentOptions, true);
 
-      this._currentOptions = assignDeep({}, _currentOptions, validated);
+      this._currentOptions = assignDeep({}, _currentOptions, _validated);
 
-      return validated;
+      return _validated;
     },
   };
 

@@ -13,9 +13,9 @@ export declare type OptionsValidatedResult<T> = {
     readonly foreign: PlainObject;
     readonly validated: T;
 };
-export declare type OptionsAndOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];
-export declare type OptionsAndOptionsTemplate<T extends Required<T>> = {
-    [P in keyof T]: PlainObject extends T[P] ? OptionsAndOptionsTemplate<Required<T[P]>> : T[P] extends OptionsTemplateNativeTypes ? OptionsAndOptionsTemplateValue<T[P]> : never;
+export declare type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];
+export declare type OptionsWithOptionsTemplate<T extends Required<T>> = {
+    [P in keyof T]: PlainObject extends T[P] ? OptionsWithOptionsTemplate<Required<T[P]>> : T[P] extends OptionsTemplateNativeTypes ? OptionsWithOptionsTemplateValue<T[P]> : never;
 };
 declare type OptionsTemplateTypeMap = {
     __TPL_boolean_TYPE__: boolean;

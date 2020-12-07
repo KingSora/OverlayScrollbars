@@ -1,10 +1,9 @@
 import {
   optionsTemplateTypes as oTypes,
-  transform,
-  OptionsTemplate,
+  transformOptions,
   OptionsTemplateValue,
-  OptionsAndOptionsTemplateValue,
-  OptionsAndOptionsTemplate,
+  OptionsWithOptionsTemplateValue,
+  OptionsWithOptionsTemplate,
   Func,
 } from 'support/options';
 import { ResizeBehavior, OverflowBehavior, VisibilityBehavior, AutoHideBehavior, Options } from 'options';
@@ -13,9 +12,9 @@ const classNameAllowedValues: OptionsTemplateValue<string | null> = [oTypes.stri
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
 const booleanNullAllowedValues: OptionsTemplateValue<boolean | null> = [oTypes.boolean, oTypes.null];
 const stringArrayNullAllowedValues: OptionsTemplateValue<string | Array<string> | null> = [oTypes.string, oTypes.array, oTypes.null];
-const booleanTrueTemplate: OptionsAndOptionsTemplateValue<boolean> = [true, oTypes.boolean];
-const booleanFalseTemplate: OptionsAndOptionsTemplateValue<boolean> = [false, oTypes.boolean];
-const callbackTemplate: OptionsAndOptionsTemplateValue<Func | null> = [null, [oTypes.function, oTypes.null]];
+const booleanTrueTemplate: OptionsWithOptionsTemplateValue<boolean> = [true, oTypes.boolean];
+const booleanFalseTemplate: OptionsWithOptionsTemplateValue<boolean> = [false, oTypes.boolean];
+const callbackTemplate: OptionsWithOptionsTemplateValue<Func | null> = [null, [oTypes.function, oTypes.null]];
 const resizeAllowedValues: OptionsTemplateValue<ResizeBehavior> = 'none both horizontal vertical';
 const overflowBehaviorAllowedValues: OptionsTemplateValue<OverflowBehavior> = 'visible-hidden visible-scroll scroll hidden';
 const scrollbarsVisibilityAllowedValues: OptionsTemplateValue<VisibilityBehavior> = 'visible hidden auto';
@@ -36,7 +35,7 @@ const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<AutoHideBehavior> = 
  * Property "a" has a default value of 'default' and it can be a string or null
  * Property "b" has a default value of 250 and it can be number
  */
-const defaultOptionsWithTemplate: OptionsAndOptionsTemplate<Required<Options>> = {
+const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<Options>> = {
   className: ['os-theme-dark', classNameAllowedValues], // null || string
   resize: ['none', resizeAllowedValues], // none || both  || horizontal || vertical || n || b || h || v
   sizeAutoCapable: booleanTrueTemplate, // true || false
@@ -84,5 +83,4 @@ const defaultOptionsWithTemplate: OptionsAndOptionsTemplate<Required<Options>> =
   },
 };
 
-export const optionsTemplate: OptionsTemplate<Required<Options>> = transform(defaultOptionsWithTemplate, true);
-export const defaultOptions: Options = transform(defaultOptionsWithTemplate);
+export const { _template: optionsTemplate, _options: defaultOptions } = transformOptions(defaultOptionsWithTemplate);
