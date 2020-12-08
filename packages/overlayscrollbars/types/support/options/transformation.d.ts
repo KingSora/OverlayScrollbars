@@ -1,3 +1,6 @@
 import { OptionsTemplate, OptionsWithOptionsTemplate } from 'support/options';
-export declare function transform<T extends Required<T>>(optionsWithOptionsTemplate: OptionsWithOptionsTemplate<T>): T;
-export declare function transform<T extends Required<T>>(optionsWithOptionsTemplate: OptionsWithOptionsTemplate<T>, toTemplate: true | void): OptionsTemplate<T>;
+export interface OptionsWithOptionsTemplateTransformation<T extends Required<T>> {
+    _template: OptionsTemplate<T>;
+    _options: T;
+}
+export declare function transformOptions<T extends Required<T>>(optionsWithOptionsTemplate: OptionsWithOptionsTemplate<T>): OptionsWithOptionsTemplateTransformation<T>;

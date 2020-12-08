@@ -264,6 +264,23 @@
     return evt.preventDefault();
   };
 
+  var equal = function equal(a, b, props) {
+    if (a && b) {
+      var result = true;
+      each(props, function (prop) {
+        if (a[prop] !== b[prop]) {
+          result = false;
+        }
+      });
+      return result;
+    }
+
+    return false;
+  };
+  var equalWH = function equalWH(a, b) {
+    return equal(a, b, ['w', 'h']);
+  };
+
   var hasOwnProperty = function hasOwnProperty(obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
   };
@@ -416,6 +433,8 @@
   var abs = Math.abs,
     round = Math.round;
   var environmentElmId = 'os-environment';
+  var classNameFlexboxGlue = 'flexbox-glue';
+  var classNameFlexboxGlueMax = classNameFlexboxGlue + '-max';
 
   var getNativeScrollbarSize = function getNativeScrollbarSize(body, measureElm) {
     appendChildren(body, measureElm);
@@ -429,7 +448,7 @@
 
   var getNativeScrollbarStyling = function getNativeScrollbarStyling(testElm) {
     var result = false;
-    addClass(testElm, 'os-viewport-native-scrollbars-invisible');
+    addClass(testElm, 'os-viewport-scrollbar-styled');
 
     try {
       result =
@@ -456,6 +475,18 @@
       i: parentOffset.x === childOffset.x,
       n: childOffset.x !== childOffsetAfterScroll.x,
     };
+  };
+
+  var getFlexboxGlue = function getFlexboxGlue(parentElm, childElm) {
+    addClass(parentElm, classNameFlexboxGlue);
+    var minOffsetsizeParent = offsetSize(parentElm);
+    var minOffsetsize = offsetSize(childElm);
+    var supportsMin = equalWH(minOffsetsize, minOffsetsizeParent);
+    addClass(parentElm, classNameFlexboxGlueMax);
+    var maxOffsetsizeParent = offsetSize(parentElm);
+    var maxOffsetsize = offsetSize(childElm);
+    var supportsMax = equalWH(maxOffsetsize, maxOffsetsizeParent);
+    return supportsMin && supportsMax;
   };
 
   var getWindowDPR = function getWindowDPR() {
@@ -488,6 +519,7 @@
       _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
       _nativeScrollbarStyling: getNativeScrollbarStyling(envElm),
       _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
+      _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
       _addListener: function _addListener(listener) {
         onChangedListener.add(listener);
       },
@@ -496,6 +528,7 @@
       },
     };
     removeAttr(envElm, 'style');
+    removeAttr(envElm, 'class');
     removeElements(envElm);
 
     if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
@@ -557,6 +590,7 @@
   var scrollAmount = 3333333;
   var ResizeObserverConstructor = jsAPI('ResizeObserver');
   var classNameSizeObserver = 'os-size-observer';
+  var classNameSizeObserverAppear = classNameSizeObserver + '-appear';
   var classNameSizeObserverListener = classNameSizeObserver + '-listener';
   var classNameSizeObserverListenerItem = classNameSizeObserverListener + '-item';
   var classNameSizeObserverListenerItemFinal = classNameSizeObserverListenerItem + '-final';
@@ -567,7 +601,13 @@
     return style(elm, 'direction');
   };
 
-  var createSizeObserver = function createSizeObserver(target, onSizeChangedCallback, direction) {
+  var createSizeObserver = function createSizeObserver(target, onSizeChangedCallback, options) {
+    var _ref = options || {},
+      _ref$_direction = _ref._direction,
+      direction = _ref$_direction === void 0 ? false : _ref$_direction,
+      _ref$_appear = _ref._appear,
+      appear = _ref$_appear === void 0 ? false : _ref$_appear;
+
     var rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
 
     var baseElements = createDOM('<div class="' + classNameSizeObserver + '"><div class="' + classNameSizeObserverListener + '"></div></div>');
@@ -581,15 +621,18 @@
         scrollTop(sizeObserver, scrollAmount);
       }
 
-      onSizeChangedCallback(dir === true);
+      onSizeChangedCallback(isString(dir) ? dir : undefined);
     };
 
     var offListeners = [];
-    var appearCallback = onSizeChangedCallbackProxy;
+    var appearCallback = appear ? onSizeChangedCallbackProxy : null;
 
     if (ResizeObserverConstructor) {
       var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
       resizeObserverInstance.observe(listenerElement);
+      offListeners.push(function () {
+        return resizeObserverInstance.disconnect();
+      });
     } else {
       var observerElementChildren = createDOM(
         '<div class="' +
@@ -623,19 +666,25 @@
 
       var onResized = function onResized() {
         rAFId = 0;
-        if (!isDirty) return;
+
+        if (!isDirty) {
+          return;
+        }
+
         cacheSize = currSize;
         onSizeChangedCallbackProxy();
       };
 
       var onScroll = function onScroll(scrollEvent) {
         currSize = offsetSize(listenerElement);
-        isDirty = !scrollEvent || currSize.w !== cacheSize.w || currSize.h !== cacheSize.h;
+        isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
         if (scrollEvent && isDirty && !rAFId) {
           cAF(rAFId);
           rAFId = rAF(onResized);
-        } else if (!scrollEvent) onResized();
+        } else if (!scrollEvent) {
+          onResized();
+        }
 
         reset();
 
@@ -654,7 +703,7 @@
         height: scrollAmount,
       });
       reset();
-      appearCallback = onScroll;
+      appearCallback = appear ? onScroll : reset;
     }
 
     if (direction) {
@@ -678,7 +727,7 @@
             }
 
             dirCache = dir;
-            onSizeChangedCallbackProxy(true);
+            onSizeChangedCallbackProxy(dir);
           }
 
           preventDefault(event);
@@ -688,7 +737,11 @@
       );
     }
 
-    offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+    if (appearCallback) {
+      addClass(sizeObserver, classNameSizeObserverAppear);
+      offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+    }
+
     prependChildren(target, sizeObserver);
     return function () {
       runEach(offListeners);
@@ -696,10 +749,63 @@
     };
   };
 
+  var classNameTrinsicObserver = 'os-trinsic-observer';
+  var IntersectionObserverConstructor = jsAPI('IntersectionObserver');
+  var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
+    var trinsicObserver = createDOM('<div class="' + classNameTrinsicObserver + '"></div>')[0];
+    var offListeners = [];
+    var heightIntrinsic = false;
+
+    if (IntersectionObserverConstructor) {
+      var intersectionObserverInstance = new IntersectionObserverConstructor(
+        function (entries) {
+          if (entries && entries.length > 0) {
+            var last = entries.pop();
+
+            if (last) {
+              var newHeightIntrinsic = last.isIntersecting || last.intersectionRatio > 0;
+
+              if (newHeightIntrinsic !== heightIntrinsic) {
+                onTrinsicChangedCallback(false, newHeightIntrinsic);
+                heightIntrinsic = newHeightIntrinsic;
+              }
+            }
+          }
+        },
+        {
+          root: target,
+        }
+      );
+      intersectionObserverInstance.observe(trinsicObserver);
+      offListeners.push(function () {
+        return intersectionObserverInstance.disconnect();
+      });
+    } else {
+      offListeners.push(
+        createSizeObserver(trinsicObserver, function () {
+          var newSize = offsetSize(trinsicObserver);
+          var newHeightIntrinsic = newSize.h === 0;
+
+          if (newHeightIntrinsic !== heightIntrinsic) {
+            onTrinsicChangedCallback(false, newHeightIntrinsic);
+            heightIntrinsic = newHeightIntrinsic;
+          }
+        })
+      );
+    }
+
+    prependChildren(target, trinsicObserver);
+    return function () {
+      runEach(offListeners);
+      removeElements(trinsicObserver);
+    };
+  };
+
   var index = function () {
     return [
       getEnvironment(),
       createSizeObserver(document.body, function () {}),
+      createTrinsicObserver(document.body, function () {}),
       createDOM(
         '\
     <div class="os-host">\

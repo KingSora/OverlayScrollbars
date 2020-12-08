@@ -227,6 +227,21 @@ const on = (target, eventNames, listener, options) => {
 const stopPropagation = (evt) => evt.stopPropagation();
 const preventDefault = (evt) => evt.preventDefault();
 
+const equal = (a, b, props) => {
+  if (a && b) {
+    let result = true;
+    each(props, (prop) => {
+      if (a[prop] !== b[prop]) {
+        result = false;
+      }
+    });
+    return result;
+  }
+
+  return false;
+};
+const equalWH = (a, b) => equal(a, b, ['w', 'h']);
+
 const hasOwnProperty = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
 const keys = (obj) => (obj ? Object.keys(obj) : []);
 
@@ -366,6 +381,8 @@ const optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 
 let environmentInstance;
 const { abs, round } = Math;
 const environmentElmId = 'os-environment';
+const classNameFlexboxGlue = 'flexbox-glue';
+const classNameFlexboxGlueMax = `${classNameFlexboxGlue}-max`;
 
 const getNativeScrollbarSize = (body, measureElm) => {
   appendChildren(body, measureElm);
@@ -379,7 +396,7 @@ const getNativeScrollbarSize = (body, measureElm) => {
 
 const getNativeScrollbarStyling = (testElm) => {
   let result = false;
-  addClass(testElm, 'os-viewport-native-scrollbars-invisible');
+  addClass(testElm, 'os-viewport-scrollbar-styled');
 
   try {
     result =
@@ -405,6 +422,18 @@ const getRtlScrollBehavior = (parentElm, childElm) => {
     i: parentOffset.x === childOffset.x,
     n: childOffset.x !== childOffsetAfterScroll.x,
   };
+};
+
+const getFlexboxGlue = (parentElm, childElm) => {
+  addClass(parentElm, classNameFlexboxGlue);
+  const minOffsetsizeParent = offsetSize(parentElm);
+  const minOffsetsize = offsetSize(childElm);
+  const supportsMin = equalWH(minOffsetsize, minOffsetsizeParent);
+  addClass(parentElm, classNameFlexboxGlueMax);
+  const maxOffsetsizeParent = offsetSize(parentElm);
+  const maxOffsetsize = offsetSize(childElm);
+  const supportsMax = equalWH(maxOffsetsize, maxOffsetsizeParent);
+  return supportsMin && supportsMax;
 };
 
 const getWindowDPR = () => {
@@ -436,6 +465,7 @@ const createEnvironment = () => {
     _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
     _nativeScrollbarStyling: getNativeScrollbarStyling(envElm),
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
+    _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
 
     _addListener(listener) {
       onChangedListener.add(listener);
@@ -446,6 +476,7 @@ const createEnvironment = () => {
     },
   };
   removeAttr(envElm, 'style');
+  removeAttr(envElm, 'class');
   removeElements(envElm);
 
   if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
@@ -507,6 +538,7 @@ const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
 const ResizeObserverConstructor = jsAPI('ResizeObserver');
 const classNameSizeObserver = 'os-size-observer';
+const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
 const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
 const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
 const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
@@ -515,7 +547,9 @@ const rAF = requestAnimationFrame;
 
 const getDirection = (elm) => style(elm, 'direction');
 
-const createSizeObserver = (target, onSizeChangedCallback, direction) => {
+const createSizeObserver = (target, onSizeChangedCallback, options) => {
+  const { _direction: direction = false, _appear: appear = false } = options || {};
+
   const rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
 
   const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
@@ -529,15 +563,16 @@ const createSizeObserver = (target, onSizeChangedCallback, direction) => {
       scrollTop(sizeObserver, scrollAmount);
     }
 
-    onSizeChangedCallback(dir === true);
+    onSizeChangedCallback(isString(dir) ? dir : undefined);
   };
 
   const offListeners = [];
-  let appearCallback = onSizeChangedCallbackProxy;
+  let appearCallback = appear ? onSizeChangedCallbackProxy : null;
 
   if (ResizeObserverConstructor) {
     const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
     resizeObserverInstance.observe(listenerElement);
+    offListeners.push(() => resizeObserverInstance.disconnect());
   } else {
     const observerElementChildren = createDOM(
       `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
@@ -561,19 +596,25 @@ const createSizeObserver = (target, onSizeChangedCallback, direction) => {
 
     const onResized = function onResized() {
       rAFId = 0;
-      if (!isDirty) return;
+
+      if (!isDirty) {
+        return;
+      }
+
       cacheSize = currSize;
       onSizeChangedCallbackProxy();
     };
 
     const onScroll = (scrollEvent) => {
       currSize = offsetSize(listenerElement);
-      isDirty = !scrollEvent || currSize.w !== cacheSize.w || currSize.h !== cacheSize.h;
+      isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
       if (scrollEvent && isDirty && !rAFId) {
         cAF(rAFId);
         rAFId = rAF(onResized);
-      } else if (!scrollEvent) onResized();
+      } else if (!scrollEvent) {
+        onResized();
+      }
 
       reset();
 
@@ -592,7 +633,7 @@ const createSizeObserver = (target, onSizeChangedCallback, direction) => {
       height: scrollAmount,
     });
     reset();
-    appearCallback = onScroll;
+    appearCallback = appear ? onScroll : reset;
   }
 
   if (direction) {
@@ -616,7 +657,7 @@ const createSizeObserver = (target, onSizeChangedCallback, direction) => {
           }
 
           dirCache = dir;
-          onSizeChangedCallbackProxy(true);
+          onSizeChangedCallbackProxy(dir);
         }
 
         preventDefault(event);
@@ -626,7 +667,11 @@ const createSizeObserver = (target, onSizeChangedCallback, direction) => {
     );
   }
 
-  offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+  if (appearCallback) {
+    addClass(sizeObserver, classNameSizeObserverAppear);
+    offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+  }
+
   prependChildren(target, sizeObserver);
   return () => {
     runEach(offListeners);
@@ -634,10 +679,61 @@ const createSizeObserver = (target, onSizeChangedCallback, direction) => {
   };
 };
 
+const classNameTrinsicObserver = 'os-trinsic-observer';
+const IntersectionObserverConstructor = jsAPI('IntersectionObserver');
+const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
+  const trinsicObserver = createDOM(`<div class="${classNameTrinsicObserver}"></div>`)[0];
+  const offListeners = [];
+  let heightIntrinsic = false;
+
+  if (IntersectionObserverConstructor) {
+    const intersectionObserverInstance = new IntersectionObserverConstructor(
+      (entries) => {
+        if (entries && entries.length > 0) {
+          const last = entries.pop();
+
+          if (last) {
+            const newHeightIntrinsic = last.isIntersecting || last.intersectionRatio > 0;
+
+            if (newHeightIntrinsic !== heightIntrinsic) {
+              onTrinsicChangedCallback(false, newHeightIntrinsic);
+              heightIntrinsic = newHeightIntrinsic;
+            }
+          }
+        }
+      },
+      {
+        root: target,
+      }
+    );
+    intersectionObserverInstance.observe(trinsicObserver);
+    offListeners.push(() => intersectionObserverInstance.disconnect());
+  } else {
+    offListeners.push(
+      createSizeObserver(trinsicObserver, () => {
+        const newSize = offsetSize(trinsicObserver);
+        const newHeightIntrinsic = newSize.h === 0;
+
+        if (newHeightIntrinsic !== heightIntrinsic) {
+          onTrinsicChangedCallback(false, newHeightIntrinsic);
+          heightIntrinsic = newHeightIntrinsic;
+        }
+      })
+    );
+  }
+
+  prependChildren(target, trinsicObserver);
+  return () => {
+    runEach(offListeners);
+    removeElements(trinsicObserver);
+  };
+};
+
 var index = () => {
   return [
     getEnvironment(),
     createSizeObserver(document.body, () => {}),
+    createTrinsicObserver(document.body, () => {}),
     createDOM(
       '\
     <div class="os-host">\

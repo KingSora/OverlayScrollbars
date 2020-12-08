@@ -1,4 +1,2 @@
-import { OptionsTemplate } from 'support/options';
 import { Options } from 'options';
-export declare const optionsTemplate: OptionsTemplate<Required<Options>>;
-export declare const defaultOptions: Options;
+export declare const optionsTemplate: import("../support/options").OptionsTemplate<Required<Options>>, defaultOptions: Required<Options>;

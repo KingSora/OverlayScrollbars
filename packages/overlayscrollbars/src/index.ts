@@ -1,7 +1,7 @@
 import { createDOM } from 'support/dom';
 import { getEnvironment } from 'environment';
-import { createSizeObserver } from 'overlayscrollbars/observers/SizeObserver';
-import { createTrinsicObserver } from 'overlayscrollbars/observers/TrinsicObserver';
+import { createSizeObserver } from 'observers/sizeObserver';
+import { createTrinsicObserver } from 'observers/trinsicObserver';
 
 const abc = {
   a: 1,

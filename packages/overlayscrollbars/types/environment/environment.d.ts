@@ -9,6 +9,7 @@ export interface Environment {
         n: boolean;
         i: boolean;
     };
+    _flexboxGlue: boolean;
     _addListener(listener: OnEnvironmentChanged): void;
     _removeListener(listener: OnEnvironmentChanged): void;
 }
