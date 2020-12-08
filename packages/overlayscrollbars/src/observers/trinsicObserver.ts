@@ -1,5 +1,5 @@
 import { createDOM, offsetSize, jsAPI, runEach, prependChildren, removeElements } from 'support';
-import { createSizeObserver } from 'overlayscrollbars/observers/SizeObserver';
+import { createSizeObserver } from 'observers/sizeObserver';
 
 const classNameTrinsicObserver = 'os-trinsic-observer';
 const IntersectionObserverConstructor = jsAPI('IntersectionObserver');

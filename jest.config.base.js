@@ -9,7 +9,6 @@ const testServerLoaderPath = path.resolve(__dirname, './config/jest-test-server.
 // https://jestjs.io/docs/en/configuration.html
 
 const base = {
-  cache: false,
   clearMocks: true,
   collectCoverage: true,
   coverageDirectory: './.coverage',

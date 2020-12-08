@@ -7,7 +7,7 @@ import { timeout } from '@/testing-browser/timeout';
 import { setTestResult } from '@/testing-browser/TestResult';
 import { offsetSize } from 'support';
 
-import { createTrinsicObserver } from 'overlayscrollbars/observers/TrinsicObserver';
+import { createTrinsicObserver } from 'observers/trinsicObserver';
 
 const waitForOptions = {
   onTimeout(error: Error): Error {

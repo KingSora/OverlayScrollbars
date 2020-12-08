@@ -6,7 +6,7 @@ import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select'
 import { setTestResult } from '@/testing-browser/TestResult';
 import { hasDimensions, offsetSize, WH, style } from 'support';
 
-import { createSizeObserver } from 'overlayscrollbars/observers/SizeObserver';
+import { createSizeObserver } from 'observers/sizeObserver';
 
 let sizeIterations = 0;
 let directionIterations = 0;

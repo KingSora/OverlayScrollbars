@@ -12,10 +12,10 @@ import {
   optionsTemplateTypes as oTypes,
   OptionsTemplateValue,
 } from 'support';
-import { createLifecycleBase, Lifecycle } from 'overlayscrollbars/lifecycles';
+import { createLifecycleBase, Lifecycle } from 'lifecycles/lifecycleBase';
 import { getEnvironment, Environment } from 'environment';
-import { createSizeObserver } from 'overlayscrollbars/observers/SizeObserver';
-import { createTrinsicObserver } from 'overlayscrollbars/observers/TrinsicObserver';
+import { createSizeObserver } from 'observers/sizeObserver';
+import { createTrinsicObserver } from 'observers/trinsicObserver';
 
 export type OverflowBehavior = 'hidden' | 'scroll' | 'visible-hidden' | 'visible-scroll';
 export interface StructureLifecycleOptions {

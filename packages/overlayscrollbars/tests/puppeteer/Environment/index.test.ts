@@ -8,8 +8,8 @@ describe('Environment', () => {
 
   it('should be titled "Environment"', async () => {
     // @ts-ignore
-    const a: Environment = await page.evaluate(() => window.Environment.envInstance);
+    const a: Environment = await page.evaluate(() => window.environment.envInstance);
     console.log(a);
-    await expect(page.title()).resolves.toMatch('Environment');
+    await expect(page.title()).resolves.toMatch('environment');
   });
 });
