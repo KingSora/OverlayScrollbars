@@ -20,7 +20,7 @@ type EqualCachePropFunction<T, P extends keyof T> = (a?: T[P], b?: T[P]) => bool
 
 export type CachePropsToUpdate<T> = Array<keyof T> | keyof T;
 
-export type CacheUpdate<T> = (propsToUpdate?: CachePropsToUpdate<T>, force?: boolean) => CacheUpdated<T>;
+export type CacheUpdate<T> = (propsToUpdate?: CachePropsToUpdate<T> | null, force?: boolean) => CacheUpdated<T>;
 
 export type CacheUpdated<T> = {
   [P in keyof T]?: T[P];
@@ -77,7 +77,7 @@ export const createCache = <T>(cacheUpdateInfo: CacheUpdateInfo<T>): CacheUpdate
     return result;
   };
 
-  return (propsToUpdate?: CachePropsToUpdate<T>, force?: boolean) => {
+  return (propsToUpdate, force) => {
     const finalPropsToUpdate: Array<keyof T> =
       (isString(propsToUpdate) ? ([propsToUpdate] as Array<keyof T>) : (propsToUpdate as Array<keyof T>)) || allProps;
     each(finalPropsToUpdate, (prop) => {

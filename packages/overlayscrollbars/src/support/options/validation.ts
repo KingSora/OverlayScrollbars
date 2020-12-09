@@ -1,4 +1,4 @@
-import { each, indexOf, hasOwnProperty, keys } from 'support/utils';
+import { each, hasOwnProperty, keys } from 'support/utils';
 import { type, isArray, isUndefined, isEmptyObject, isPlainObject, isString } from 'support/utils/types';
 import { OptionsTemplate, OptionsTemplateTypes, OptionsTemplateType, Func, OptionsValidationResult, OptionsValidated } from 'support/options';
 import { PlainObject } from 'typings';
@@ -80,7 +80,13 @@ const validateRecursive = <T extends PlainObject>(
 
       each(templateValueArr, (currTemplateType) => {
         // if currType value isn't inside possibleTemplateTypes we assume its a enum string value
-        const isEnumString = indexOf(Object.values(optionsTemplateTypes), currTemplateType) < 0;
+        let typeString: string | undefined;
+        each(optionsTemplateTypes, (value: string, key: string) => {
+          if (value === currTemplateType) {
+            typeString = key;
+          }
+        });
+        const isEnumString = typeString === undefined;
         if (isEnumString && isString(optionsValue)) {
           // split it into a array which contains all possible values for example: ["yes", "no", "maybe"]
           const enumStringSplit = currTemplateType.split(' ');
@@ -93,7 +99,7 @@ const validateRecursive = <T extends PlainObject>(
         }
 
         // build error message
-        errorPossibleTypes.push(isEnumString ? optionsTemplateTypes.string : currTemplateType);
+        errorPossibleTypes.push(isEnumString ? optionsTemplateTypes.string : typeString!);
 
         // continue if invalid, break if valid
         return !isValid;
@@ -143,7 +149,7 @@ const validateRecursive = <T extends PlainObject>(
 const validateOptions = <T extends PlainObject>(
   options: T,
   template: OptionsTemplate<Required<T>>,
-  optionsDiff?: T,
+  optionsDiff?: T | null,
   doWriteErrors?: boolean
 ): OptionsValidationResult<T> => {
   /*

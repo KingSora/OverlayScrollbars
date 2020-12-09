@@ -201,5 +201,22 @@ describe('cache', () => {
       expect(updateNumberFn).toHaveBeenCalledWith(2, 1);
       expect(Object.prototype.hasOwnProperty.call(updateCache('number'), 'number')).toBe(false);
     });
+
+    test('updates all entries with null or undefined as argument', () => {
+      const [updateNumberFn, updateNumber] = createUpdater<number>((i) => i);
+      const [updateNumberFn2, updateNumber2] = createUpdater<number>((i) => i);
+      const updateCache = createCache({
+        number: updateNumber,
+        number2: updateNumber2,
+      });
+
+      updateCache();
+      expect(updateNumberFn).toHaveBeenCalledWith(undefined, undefined);
+      expect(updateNumberFn2).toHaveBeenCalledWith(undefined, undefined);
+
+      updateCache(null);
+      expect(updateNumberFn).toHaveBeenCalledWith(1, undefined);
+      expect(updateNumberFn2).toHaveBeenCalledWith(1, undefined);
+    });
   });
 });

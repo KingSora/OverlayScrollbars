@@ -8,6 +8,8 @@ import {
   validateOptions,
   assignDeep,
   createCache,
+  isEmptyObject,
+  isBoolean,
 } from 'support';
 import { PlainObject } from 'typings';
 
@@ -44,16 +46,26 @@ export const createLifecycleBase = <O, C>(
   updateFunction: (changedOptions: OptionsValidated<O>, changedCache: CacheUpdated<C>) => any
 ): LifecycleBase<O, C> => {
   const { _template: optionsTemplate, _options: defaultOptions } = transformOptions<Required<O>>(defaultOptionsWithTemplate);
-  const options: Required<O> = assignDeep({}, defaultOptions, validateOptions<O>(initialOptions || ({} as O), optionsTemplate)._validated);
+  const options: Required<O> = assignDeep(
+    {},
+    defaultOptions,
+    validateOptions<O>(initialOptions || ({} as O), optionsTemplate, null, true)._validated
+  );
   const cacheChange = createCache<C>(cacheUpdateInfo);
 
   const update = (hints: LifecycleUpdateHints<O, C>) => {
+    const hasForce = isBoolean(hints._force);
     const force = hints._force === true;
-    const changedCache = cacheChange(force ? undefined : hints._changedCache, force);
-    const changedOptions = force ? ({} as O) : hints._changedOptions || ({} as O);
 
-    updateFunction(changedOptions, changedCache);
+    const changedCache = cacheChange(force ? null : hints._changedCache || (hasForce ? null : []), force);
+    const changedOptions = force ? options : hints._changedOptions || ({} as O);
+
+    if (!isEmptyObject(changedOptions) || !isEmptyObject(changedCache)) {
+      updateFunction(changedOptions, changedCache);
+    }
   };
+
+  update({ _force: true });
 
   return {
     _options(newOptions?: O) {
@@ -66,7 +78,7 @@ export const createLifecycleBase = <O, C>(
       return options;
     },
     _update: (force?: boolean) => {
-      update({ _force: force });
+      update({ _force: !!force });
     },
     _cacheChange: (cachePropsToUpdate?: CachePropsToUpdate<C>) => {
       update({ _changedCache: cachePropsToUpdate });
