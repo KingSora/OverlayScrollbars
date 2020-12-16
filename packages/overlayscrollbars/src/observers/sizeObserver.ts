@@ -118,7 +118,7 @@ export const createSizeObserver = (
       height: scrollAmount,
     });
     reset();
-    appearCallback = appear ? onScroll : reset;
+    appearCallback = appear ? () => onScroll() : reset;
   }
 
   if (direction) {

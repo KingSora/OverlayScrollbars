@@ -26,10 +26,13 @@ interface AbstractLifecycle<O extends PlainObject> {
 
 export interface Lifecycle<T extends PlainObject> extends AbstractLifecycle<T> {
   _destruct(): void;
+  _onSizeChanged?(): void;
+  _onDirectionChanged?(direction: 'ltr' | 'rtl'): void;
+  _onTrinsicChanged?(widthIntrinsic: boolean, heightIntrinsic: boolean): void;
 }
 
 export interface LifecycleBase<O extends PlainObject, C extends PlainObject> extends AbstractLifecycle<O> {
-  _cacheChange(cachePropsToUpdate?: CachePropsToUpdate<C>): void;
+  _updateCache(cachePropsToUpdate?: CachePropsToUpdate<C>): void;
 }
 
 /**
@@ -80,7 +83,7 @@ export const createLifecycleBase = <O, C>(
     _update: (force?: boolean) => {
       update({ _force: !!force });
     },
-    _cacheChange: (cachePropsToUpdate?: CachePropsToUpdate<C>) => {
+    _updateCache: (cachePropsToUpdate?: CachePropsToUpdate<C>) => {
       update({ _changedCache: cachePropsToUpdate });
     },
   };

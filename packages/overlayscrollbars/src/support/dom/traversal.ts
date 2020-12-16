@@ -1,5 +1,15 @@
 import { each, from } from 'support/utils/array';
 
+const matches = (elm: Element | null, selector: string): boolean => {
+  if (elm) {
+    // eslint-disable-next-line
+    // @ts-ignore
+    const fn = Element.prototype.matches || Element.prototype.msMatchesSelector;
+    return fn.call(elm, selector);
+  }
+  return false;
+};
+
 /**
  * Find all elements with the passed selector, outgoing (and including) the passed element or the document if no element was provided.
  * @param selector The selector which has to be searched by.
@@ -27,7 +37,7 @@ export const findFirst = (selector: string, elm?: Element | null): Element | nul
  * @param elm The element which has to be compared with the passed selector.
  * @param selector The selector which has to be compared with the passed element. Additional selectors: ':visible' and ':hidden'.
  */
-export const is = (elm: Element | null, selector: string): boolean => (elm ? elm.matches(selector) : false);
+export const is = (elm: Element | null, selector: string): boolean => matches(elm, selector);
 
 /**
  * Returns the children (no text-nodes or comments) of the passed element which are matching the passed selector. An empty array is returned if the passed element is null.
@@ -39,7 +49,7 @@ export const children = (elm: Element | null, selector?: string): ReadonlyArray<
 
   each(elm && elm.children, (child: Element) => {
     if (selector) {
-      if (child.matches(selector)) {
+      if (matches(child, selector)) {
         childs.push(child);
       }
     } else {

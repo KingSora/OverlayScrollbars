@@ -1,7 +1,6 @@
 import 'overlayscrollbars.scss';
 import './index.scss';
-import { createStructureLifecycle } from 'lifecycles/structureLifecycle';
+import { OverlayScrollbars } from 'overlayscrollbars/OverlayScrollbars';
 
 const targetElm = document.querySelector('#target') as HTMLElement;
-
-const structureLifecycle = createStructureLifecycle(targetElm);
+OverlayScrollbars(targetElm);

@@ -27,7 +27,7 @@ const rollupConfigDefaults = {
 };
 
 const legacyBabelConfig = {
-  exclude: isTestEnv ? [/\/core-js\//, /\/@testing-library\//] : [],
+  exclude: isTestEnv ? [/\/core-js\//] : [], // /\/@testing-library\//
   presets: [
     [
       '@babel/preset-env',

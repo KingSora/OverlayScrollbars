@@ -1,54 +1,70 @@
-import { validateOptions, assignDeep } from 'support';
-import { Options, optionsTemplate } from 'options';
-import { TargetElement } from 'overlayscrollbars';
-import { Environment } from 'environment';
+import { OSTarget, OSTargetObject } from 'typings';
+import { createStructureLifecycle } from 'lifecycles/structureLifecycle';
+import { appendChildren, addClass, contents, is, isHTMLElement, createDiv, each } from 'support';
+import { createSizeObserver } from 'observers/sizeObserver';
+import { createTrinsicObserver } from 'observers/trinsicObserver';
+import { Lifecycle } from 'lifecycles/lifecycleBase';
 
-let ENVIRONMENT: Environment;
+const classNameHost = 'os-host';
+const classNameViewport = 'os-viewport';
+const classNameContent = 'os-content';
 
-interface UpdateHints {
-  _changedOptions: Options;
-}
+const normalizeTarget = (target: OSTarget): OSTargetObject => {
+  if (isHTMLElement(target)) {
+    const isTextarea = is(target, 'textarea');
+    const host = (isTextarea ? createDiv() : target) as HTMLElement;
+    const viewport = createDiv(classNameViewport);
+    const content = createDiv(classNameContent);
 
-interface OverlayScrollbarsInstanceVars {
-  _documentElm: Document;
-  _windowElm: Window;
-  _htmlElm: HTMLElement;
-  _bodyElm: HTMLElement;
-  _targetElm: TargetElement;
-  _isTextarea: boolean;
-  _isBody: boolean;
-  _currentOptions: Options;
-  _setOptions(newOptions: Options): Options;
-  _update(updateHints: UpdateHints): void;
-}
-/*
-const initSingletons = () => {
-  if (!ENVIRONMENT) {
-    ENVIRONMENT = new Environment();
+    appendChildren(viewport, content);
+    appendChildren(content, contents(target));
+    appendChildren(target, viewport);
+    addClass(host, classNameHost);
+
+    return {
+      target,
+      host,
+      viewport,
+      content,
+    };
   }
+
+  const { host, viewport, content } = target;
+
+  addClass(host, classNameHost);
+  addClass(viewport, classNameViewport);
+  addClass(content, classNameContent);
+
+  return target;
 };
 
-export class OverlayScrollbars {
-  #instanceVars: OverlayScrollbarsInstanceVars = {
-    _setOptions(newOptions: Options): Options {
-      const { _currentOptions } = this;
-      const { _validated } = validateOptions(newOptions, optionsTemplate, _currentOptions, true);
+const OverlayScrollbars = (target: OSTarget, options?: any, extensions?: any): void => {
+  const osTarget: OSTargetObject = normalizeTarget(target);
+  const lifecycles: Lifecycle<any>[] = [];
+  const { host } = osTarget;
 
-      this._currentOptions = assignDeep({}, _currentOptions, _validated);
+  lifecycles.push(createStructureLifecycle(osTarget));
 
-      return _validated;
-    },
+  // eslint-disable-next-line
+  const onSizeChanged = (direction?: 'ltr' | 'rtl') => {
+    if (direction) {
+      each(lifecycles, (lifecycle) => {
+        lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(direction);
+      });
+    } else {
+      each(lifecycles, (lifecycle) => {
+        lifecycle._onSizeChanged && lifecycle._onSizeChanged();
+      });
+    }
+  };
+  const onTrinsicChanged = (widthIntrinsic: boolean, heightIntrinsic: boolean) => {
+    each(lifecycles, (lifecycle) => {
+      lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsic);
+    });
   };
 
-  constructor(target: HTMLElement, options: Options) {
-    this.#instanceVars._documentElm = document;
-    this.#instanceVars._windowElm = window;
-    this.#instanceVars._htmlElm = document.body;
-    this.#instanceVars._bodyElm = document.body;
-    this.#instanceVars._targetElm = document.body;
-    this.#instanceVars._isTextarea = false;
-    this.#instanceVars._isBody = false;
-    initSingletons();
-  }
-}
-*/
+  createSizeObserver(host, onSizeChanged, { _appear: true, _direction: true });
+  createTrinsicObserver(host, onTrinsicChanged);
+};
+
+export { OverlayScrollbars };

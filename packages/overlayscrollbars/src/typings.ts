@@ -1,5 +1,16 @@
 export type PlainObject<T = any> = { [name: string]: T };
 
+export type OSTargetElement = HTMLElement | HTMLTextAreaElement;
+
+export interface OSTargetObject {
+  target: OSTargetElement;
+  host: HTMLElement;
+  viewport: HTMLElement;
+  content: HTMLElement;
+}
+
+export type OSTarget = OSTargetElement | OSTargetObject;
+
 /*
 export namespace OverlayScrollbars {
   export type ResizeBehavior = 'none' | 'both' | 'horizontal' | 'vertical';

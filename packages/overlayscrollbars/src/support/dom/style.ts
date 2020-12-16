@@ -95,10 +95,10 @@ export const show = (elm: HTMLElement | null): void => {
  */
 export const topRightBottomLeft = (elm: HTMLElement | null, property?: string): TRBL => {
   const finalProp = property || '';
-  const top = `${finalProp}Top`;
-  const right = `${finalProp}Right`;
-  const bottom = `${finalProp}Bottom`;
-  const left = `${finalProp}Left`;
+  const top = `${finalProp}-top`;
+  const right = `${finalProp}-right`;
+  const bottom = `${finalProp}-bottom`;
+  const left = `${finalProp}-left`;
   const result = style(elm, [top, right, bottom, left]);
   return {
     t: parseToZeroOrNumber(result[top]),

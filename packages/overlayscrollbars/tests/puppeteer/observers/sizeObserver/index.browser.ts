@@ -137,6 +137,11 @@ const iterateDirection = async (afterEach?: () => any) => {
 const start = async () => {
   setTestResult(null);
 
+  console.log('init direction changes:', directionIterations);
+  console.log('init size changes:', sizeIterations);
+  should.ok(directionIterations > 0);
+  should.ok(sizeIterations > 0);
+
   targetElm?.removeAttribute('style');
   await iterateDisplay();
   await iterateDirection();

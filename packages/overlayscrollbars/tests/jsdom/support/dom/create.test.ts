@@ -30,6 +30,11 @@ describe('dom create', () => {
       const createdDiv = createDiv();
       expect(createdDiv.parentElement).toBe(null);
     });
+
+    test('with class names', () => {
+      const createdDiv = createDiv('a b c');
+      expect(createdDiv.classList.length).toBe(3);
+    });
   });
 
   describe('createDOM', () => {

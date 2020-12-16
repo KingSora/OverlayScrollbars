@@ -102,29 +102,29 @@ describe('lifecycleBase', () => {
   describe('cache', () => {
     test('single value cache change', () => {
       const updateFn = jest.fn();
-      const { _cacheChange } = createLifecycle({}, updateFn);
+      const { _updateCache } = createLifecycle({}, updateFn);
 
-      _cacheChange('number');
+      _updateCache('number');
       expect(updateFn).toBeCalledTimes(2);
       expect(updateFn).toBeCalledWith({}, { number: 2 });
 
-      _cacheChange('constant');
+      _updateCache('constant');
       expect(updateFn).toBeCalledTimes(2);
     });
 
     test('multiple value cache change', () => {
       const updateFn = jest.fn();
-      const { _cacheChange } = createLifecycle({}, updateFn);
+      const { _updateCache } = createLifecycle({}, updateFn);
 
-      _cacheChange(['number', 'object']);
+      _updateCache(['number', 'object']);
       expect(updateFn).toBeCalledTimes(2);
       expect(updateFn).toBeCalledWith({}, { number: 2, object: { string: 'hihi', boolean: false } });
 
-      _cacheChange(['number', 'constant']);
+      _updateCache(['number', 'constant']);
       expect(updateFn).toBeCalledTimes(3);
       expect(updateFn).toBeCalledWith({}, { number: 3 });
 
-      _cacheChange(['constant']);
+      _updateCache(['constant']);
       expect(updateFn).toBeCalledTimes(3);
     });
   });
@@ -173,17 +173,17 @@ describe('lifecycleBase', () => {
 
     test('updates correctly on cache change', () => {
       const updateFn = jest.fn();
-      const { _cacheChange } = createLifecycle({}, updateFn);
+      const { _updateCache } = createLifecycle({}, updateFn);
 
-      _cacheChange('number');
+      _updateCache('number');
       expect(updateFn).toBeCalledTimes(2);
       expect(updateFn).toBeCalledWith({}, { number: 2 });
 
-      _cacheChange(['number', 'object', 'constant']);
+      _updateCache(['number', 'object', 'constant']);
       expect(updateFn).toBeCalledTimes(3);
       expect(updateFn).toBeCalledWith({}, { number: 3, object: { string: 'hihi', boolean: false } });
 
-      _cacheChange('constant');
+      _updateCache('constant');
       expect(updateFn).toBeCalledTimes(3);
     });
 
