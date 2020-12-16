@@ -7,6 +7,20 @@ var OverlayScrollbarsComponent = (function () {
         this._osInstance = null;
         this._osTargetRef = _osTargetRef;
     }
+    Object.defineProperty(OverlayScrollbarsComponent.prototype, "extensions", {
+        set: function (extensions) {
+            this._extensions = extensions;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OverlayScrollbarsComponent.prototype, "options", {
+        set: function (options) {
+            this._options = options;
+        },
+        enumerable: true,
+        configurable: true
+    });
     OverlayScrollbarsComponent.prototype.osInstance = function () {
         return this._osInstance;
     };
@@ -44,8 +58,8 @@ var OverlayScrollbarsComponent = (function () {
         { type: NgZone }
     ]; };
     OverlayScrollbarsComponent.propDecorators = {
-        _options: [{ type: Input, args: ['options',] }],
-        _extensions: [{ type: Input, args: ['extensions',] }]
+        extensions: [{ type: Input, args: ['extensions',] }],
+        options: [{ type: Input, args: ['options',] }]
     };
     return OverlayScrollbarsComponent;
 }());

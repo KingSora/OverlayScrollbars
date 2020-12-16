@@ -6,6 +6,8 @@ export declare class OverlayScrollbarsComponent implements OnDestroy, OnChanges,
     private _extensions;
     private _osInstance;
     private _osTargetRef;
+    extensions: OverlayScrollbars.Extensions | undefined;
+    options: OverlayScrollbars.Options | undefined;
     constructor(_osTargetRef: ElementRef, ngZone: NgZone);
     osInstance(): OverlayScrollbars | null;
     osTarget(): HTMLDivElement | null;
