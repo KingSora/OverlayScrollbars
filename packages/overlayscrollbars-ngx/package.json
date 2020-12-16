@@ -25,9 +25,9 @@
     "author": "KingSora | Rene Haas",
     "license": "MIT",
     "devDependencies": {
-        "@angular/compiler": "^7.2.16",
-        "@angular/compiler-cli": "^7.2.16",
-        "@angular/core": "^7.2.16",
+        "@angular/compiler": ">=7.0.0",
+        "@angular/compiler-cli": ">=7.0.0",
+        "@angular/core": ">=7.0.0",
         "@types/overlayscrollbars": "^1.9.0",
         "chalk": "^2.4.2",
         "gulp": "^4.0.2",
@@ -44,7 +44,7 @@
         "zone.js": "^0.8.26"
     },
     "peerDependencies": {
-        "@angular/core": "^7.0.0",
+        "@angular/core": ">=7.0.0",
         "overlayscrollbars": "^1.10.0"
     },
     "scripts": {

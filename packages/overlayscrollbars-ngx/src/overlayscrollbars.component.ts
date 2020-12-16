@@ -28,18 +28,10 @@ import OverlayScrollbars from 'overlayscrollbars';
     styles: [':host { display: block; }']
 })
 export class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterViewInit {
-    private _options: OverlayScrollbars.Options;
-    private _extensions: OverlayScrollbars.Extensions;
+    @Input('options') _options: OverlayScrollbars.Options;
+    @Input('extensions') _extensions: OverlayScrollbars.Extensions;
     private _osInstance: OverlayScrollbars | null = null;
     private _osTargetRef: ElementRef;
-
-    @Input('extensions') set extensions(extensions: OverlayScrollbars.Extensions | undefined) {
-        this._extensions = extensions;
-    }
-
-    @Input('options') set options(options: OverlayScrollbars.Options | undefined) {
-        this._options = options;
-    }
 
     constructor(_osTargetRef: ElementRef, private ngZone: NgZone) {
         this._osTargetRef = _osTargetRef;
