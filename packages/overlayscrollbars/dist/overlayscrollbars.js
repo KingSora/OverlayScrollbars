@@ -7,11 +7,22 @@
 })(this, function () {
   'use strict';
 
+  var type = function type(obj) {
+    if (obj === undefined) return '' + obj;
+    if (obj === null) return '' + obj;
+    return Object.prototype.toString
+      .call(obj)
+      .replace(/^\[object (.+)\]$/, '$1')
+      .toLowerCase();
+  };
   function isNumber(obj) {
     return typeof obj === 'number';
   }
   function isString(obj) {
     return typeof obj === 'string';
+  }
+  function isBoolean(obj) {
+    return typeof obj === 'boolean';
   }
   function isFunction(obj) {
     return typeof obj === 'function';
@@ -19,12 +30,47 @@
   function isUndefined(obj) {
     return obj === undefined;
   }
+  function isNull(obj) {
+    return obj === null;
+  }
   function isArray(obj) {
     return Array.isArray(obj);
+  }
+  function isObject(obj) {
+    return typeof obj === 'object' && !isArray(obj) && !isNull(obj);
   }
   function isArrayLike(obj) {
     var length = !!obj && obj.length;
     return isArray(obj) || (!isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0);
+  }
+  function isPlainObject(obj) {
+    if (!obj || !isObject(obj) || type(obj) !== 'object') return false;
+    var key;
+    var proto = 'prototype';
+    var hasOwnProperty = Object[proto].hasOwnProperty;
+    var hasOwnConstructor = hasOwnProperty.call(obj, 'constructor');
+    var hasIsPrototypeOf = obj.constructor && obj.constructor[proto] && hasOwnProperty.call(obj.constructor[proto], 'isPrototypeOf');
+
+    if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+      return false;
+    }
+
+    for (key in obj) {
+    }
+
+    return isUndefined(key) || hasOwnProperty.call(obj, key);
+  }
+  function isHTMLElement(obj) {
+    var instaceOfRightHandSide = window.HTMLElement;
+    var doInstanceOf = isObject(instaceOfRightHandSide) || isFunction(instaceOfRightHandSide);
+    return !!(doInstanceOf ? obj instanceof instaceOfRightHandSide : obj && isObject(obj) && obj.nodeType === 1 && isString(obj.nodeName));
+  }
+  function isEmptyObject(obj) {
+    for (var name in obj) {
+      return false;
+    }
+
+    return true;
   }
 
   function getSetProp(topLeft, fallback, elm, value) {
@@ -33,6 +79,14 @@
     }
 
     elm && (elm[topLeft] = value);
+  }
+
+  function attr(elm, attrName, value) {
+    if (isUndefined(value)) {
+      return elm ? elm.getAttribute(attrName) : null;
+    }
+
+    elm && elm.setAttribute(attrName, value);
   }
   var removeAttr = function removeAttr(elm, attrName) {
     elm == null ? void 0 : elm.removeAttribute(attrName);
@@ -106,6 +160,17 @@
     }
   };
 
+  var matches = function matches(elm, selector) {
+    if (elm) {
+      var fn = Element.prototype.matches || Element.prototype.msMatchesSelector;
+      return fn.call(elm, selector);
+    }
+
+    return false;
+  };
+  var is = function is(elm, selector) {
+    return matches(elm, selector);
+  };
   var contents = function contents(elm) {
     return elm ? from(elm.childNodes) : [];
   };
@@ -165,8 +230,14 @@
     }
   };
 
-  var createDiv = function createDiv() {
-    return document.createElement('div');
+  var createDiv = function createDiv(classNames) {
+    var div = document.createElement('div');
+
+    if (classNames) {
+      attr(div, 'class', classNames);
+    }
+
+    return div;
   };
   var createDOM = function createDOM(html) {
     var createdDiv = createDiv();
@@ -280,6 +351,9 @@
   var equalWH = function equalWH(a, b) {
     return equal(a, b, ['w', 'h']);
   };
+  var equalTRBL = function equalTRBL(a, b) {
+    return equal(a, b, ['t', 'r', 'b', 'l']);
+  };
 
   var hasOwnProperty = function hasOwnProperty(obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
@@ -287,6 +361,41 @@
   var keys = function keys(obj) {
     return obj ? Object.keys(obj) : [];
   };
+  function assignDeep(target, object1, object2, object3, object4, object5, object6) {
+    var sources = [object1, object2, object3, object4, object5, object6];
+
+    if ((typeof target !== 'object' || isNull(target)) && !isFunction(target)) {
+      target = {};
+    }
+
+    each(sources, function (source) {
+      each(keys(source), function (key) {
+        var copy = source[key];
+
+        if (target === copy) {
+          return true;
+        }
+
+        var copyIsArray = isArray(copy);
+
+        if (copy && (isPlainObject(copy) || copyIsArray)) {
+          var src = target[key];
+          var clone = src;
+
+          if (copyIsArray && !isArray(src)) {
+            clone = [];
+          } else if (!copyIsArray && !isPlainObject(src)) {
+            clone = {};
+          }
+
+          target[key] = assignDeep(clone, copy);
+        } else {
+          target[key] = copy;
+        }
+      });
+    });
+    return target;
+  }
 
   var cssNumber = {
     animationiterationcount: 1,
@@ -302,6 +411,11 @@
     widows: 1,
     zindex: 1,
     zoom: 1,
+  };
+
+  var parseToZeroOrNumber = function parseToZeroOrNumber(value, toFloat) {
+    var num = toFloat ? parseFloat(value) : parseInt(value, 10);
+    return Number.isNaN(num) ? 0 : num;
   };
 
   var adaptCSSVal = function adaptCSSVal(prop, val) {
@@ -344,6 +458,20 @@
       return setCSSVal(elm, key, styles[key]);
     });
   }
+  var topRightBottomLeft = function topRightBottomLeft(elm, property) {
+    var finalProp = property || '';
+    var top = finalProp + '-top';
+    var right = finalProp + '-right';
+    var bottom = finalProp + '-bottom';
+    var left = finalProp + '-left';
+    var result = style(elm, [top, right, bottom, left]);
+    return {
+      t: parseToZeroOrNumber(result[top]),
+      r: parseToZeroOrNumber(result[right]),
+      b: parseToZeroOrNumber(result[bottom]),
+      l: parseToZeroOrNumber(result[left]),
+    };
+  };
 
   var zeroObj$1 = {
     x: 0,
@@ -359,11 +487,82 @@
       : zeroObj$1;
   };
 
+  function createCache(cacheUpdateInfo, isReference) {
+    var cache = {};
+    var allProps = keys(cacheUpdateInfo);
+    each(allProps, function (prop) {
+      cache[prop] = {
+        _changed: false,
+        _value: isReference ? cacheUpdateInfo[prop] : undefined,
+      };
+    });
+
+    var updateCacheProp = function updateCacheProp(prop, value, equal) {
+      var curr = cache[prop]._value;
+      cache[prop]._value = value;
+      cache[prop]._previous = curr;
+      cache[prop]._changed = equal ? !equal(curr, value) : curr !== value;
+    };
+
+    var flush = function flush(props, force) {
+      var result = assignDeep({}, cache, {
+        _anythingChanged: false,
+      });
+      each(props, function (prop) {
+        var changed = force || cache[prop]._changed;
+        result._anythingChanged = result._anythingChanged || changed;
+        result[prop]._changed = changed;
+        cache[prop]._changed = false;
+      });
+      return result;
+    };
+
+    return function (propsToUpdate, force) {
+      var finalPropsToUpdate = (isString(propsToUpdate) ? [propsToUpdate] : propsToUpdate) || allProps;
+      each(finalPropsToUpdate, function (prop) {
+        var cacheVal = cache[prop];
+        var curr = cacheUpdateInfo[prop];
+        var arr = isReference ? false : isArray(curr);
+        var value = arr ? curr[0] : curr;
+        var equal = arr ? curr[1] : null;
+        updateCacheProp(prop, isReference ? value : value(cacheVal._value, cacheVal._previous), equal);
+      });
+      return flush(finalPropsToUpdate, force);
+    };
+  }
+
   var firstLetterToUpper = function firstLetterToUpper(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
+
+  var getDummyStyle = function getDummyStyle() {
+    return createDiv().style;
+  };
+
+  var cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
   var jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
   var jsCache = {};
+  var cssCache = {};
+  var cssProperty = function cssProperty(name) {
+    var result = cssCache[name];
+
+    if (hasOwnProperty(cssCache, name)) {
+      return result;
+    }
+
+    var uppercasedName = firstLetterToUpper(name);
+    var elmStyle = getDummyStyle();
+    each(cssPrefixes, function (prefix) {
+      var prefixWithoutDashes = prefix.replace(/-/g, '');
+      var resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
+      result = resultPossibilities.find(function (resultPossibility) {
+        return elmStyle[resultPossibility] !== undefined;
+      });
+      return !result;
+    });
+    cssCache[name] = result;
+    return result;
+  };
   var jsAPI = function jsAPI(name) {
     var result = jsCache[name] || window[name];
 
@@ -423,11 +622,120 @@
     module.exports = _extends;
   });
 
+  var stringify = JSON.stringify;
   var templateTypePrefixSuffix = ['__TPL_', '_TYPE__'];
   var optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 'function', 'null'].reduce(function (result, item) {
     result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
     return result;
   }, {});
+
+  var validateRecursive = function validateRecursive(options, template, optionsDiff, doWriteErrors, propPath) {
+    var validatedOptions = {};
+
+    var optionsCopy = _extends_1({}, options);
+
+    var props = keys(template).filter(function (prop) {
+      return hasOwnProperty(options, prop);
+    });
+    each(props, function (prop) {
+      var optionsDiffValue = isUndefined(optionsDiff[prop]) ? {} : optionsDiff[prop];
+      var optionsValue = options[prop];
+      var templateValue = template[prop];
+      var templateIsComplex = isPlainObject(templateValue);
+      var propPrefix = propPath ? propPath + '.' : '';
+
+      if (templateIsComplex && isPlainObject(optionsValue)) {
+        var validatedResult = validateRecursive(optionsValue, templateValue, optionsDiffValue, doWriteErrors, propPrefix + prop);
+        validatedOptions[prop] = validatedResult._validated;
+        optionsCopy[prop] = validatedResult._foreign;
+        each([optionsCopy, validatedOptions], function (value) {
+          if (isEmptyObject(value[prop])) {
+            delete value[prop];
+          }
+        });
+      } else if (!templateIsComplex) {
+        var isValid = false;
+        var errorEnumStrings = [];
+        var errorPossibleTypes = [];
+        var optionsValueType = type(optionsValue);
+        var templateValueArr = !isArray(templateValue) ? [templateValue] : templateValue;
+        each(templateValueArr, function (currTemplateType) {
+          var typeString;
+          each(optionsTemplateTypes, function (value, key) {
+            if (value === currTemplateType) {
+              typeString = key;
+            }
+          });
+          var isEnumString = typeString === undefined;
+
+          if (isEnumString && isString(optionsValue)) {
+            var enumStringSplit = currTemplateType.split(' ');
+            isValid = !!enumStringSplit.find(function (possibility) {
+              return possibility === optionsValue;
+            });
+            errorEnumStrings.push.apply(errorEnumStrings, enumStringSplit);
+          } else {
+            isValid = optionsTemplateTypes[optionsValueType] === currTemplateType;
+          }
+
+          errorPossibleTypes.push(isEnumString ? optionsTemplateTypes.string : typeString);
+          return !isValid;
+        });
+
+        if (isValid) {
+          var doStringifyComparison = isArray(optionsValue) || isPlainObject(optionsValue);
+
+          if (doStringifyComparison ? stringify(optionsValue) !== stringify(optionsDiffValue) : optionsValue !== optionsDiffValue) {
+            validatedOptions[prop] = optionsValue;
+          }
+        } else if (doWriteErrors) {
+          console.warn(
+            '' +
+              ('The option "' +
+                propPrefix +
+                prop +
+                "\" wasn't set, because it doesn't accept the type [ " +
+                optionsValueType.toUpperCase() +
+                ' ] with the value of "' +
+                optionsValue +
+                '".\r\n' +
+                ('Accepted types are: [ ' + errorPossibleTypes.join(', ').toUpperCase() + ' ].\r\n')) +
+              (errorEnumStrings.length > 0 ? '\r\nValid strings are: [ ' + errorEnumStrings.join(', ') + ' ].' : '')
+          );
+        }
+
+        delete optionsCopy[prop];
+      }
+    });
+    return {
+      _foreign: optionsCopy,
+      _validated: validatedOptions,
+    };
+  };
+
+  var validateOptions = function validateOptions(options, template, optionsDiff, doWriteErrors) {
+    return validateRecursive(options, template, optionsDiff || {}, doWriteErrors || false);
+  };
+
+  function transformOptions(optionsWithOptionsTemplate) {
+    var result = {
+      _template: {},
+      _options: {},
+    };
+    each(keys(optionsWithOptionsTemplate), function (key) {
+      var val = optionsWithOptionsTemplate[key];
+
+      if (isArray(val)) {
+        result._template[key] = val[1];
+        result._options[key] = val[0];
+      } else {
+        var tmpResult = transformOptions(val);
+        result._template[key] = tmpResult._template;
+        result._options[key] = tmpResult._options;
+      }
+    });
+    return result;
+  }
 
   var environmentInstance;
   var abs = Math.abs,
@@ -585,6 +893,158 @@
     return environmentInstance;
   };
 
+  var createLifecycleBase = function createLifecycleBase(defaultOptionsWithTemplate, cacheUpdateInfo, initialOptions, updateFunction) {
+    var _transformOptions = transformOptions(defaultOptionsWithTemplate),
+      optionsTemplate = _transformOptions._template,
+      defaultOptions = _transformOptions._options;
+
+    var options = assignDeep({}, defaultOptions, validateOptions(initialOptions || {}, optionsTemplate, null, true)._validated);
+    var cacheChange = createCache(cacheUpdateInfo);
+    var cacheOptions = createCache(options, true);
+
+    var update = function update(hints) {
+      var hasForce = isBoolean(hints._force);
+      var force = hints._force === true;
+      var changedCache = cacheChange(force ? null : hints._changedCache || (hasForce ? null : []), force);
+      var changedOptions = cacheOptions(force ? null : hints._changedOptions, !!hints._changedOptions || force);
+
+      if (changedOptions._anythingChanged || changedCache._anythingChanged) {
+        updateFunction(changedOptions, changedCache);
+      }
+    };
+
+    update({
+      _force: true,
+    });
+    return {
+      _options: function _options(newOptions) {
+        if (newOptions) {
+          var _validateOptions = validateOptions(newOptions, optionsTemplate, options, true),
+            changedOptions = _validateOptions._validated;
+
+          assignDeep(options, changedOptions);
+          update({
+            _changedOptions: keys(changedOptions),
+          });
+        }
+
+        return options;
+      },
+      _update: function _update(force) {
+        update({
+          _force: !!force,
+        });
+      },
+      _updateCache: function _updateCache(cachePropsToUpdate) {
+        update({
+          _changedCache: cachePropsToUpdate,
+        });
+      },
+    };
+  };
+
+  var overflowBehaviorAllowedValues = 'visible-hidden visible-scroll scroll hidden';
+  var cssMarginEnd = cssProperty('margin-inline-end');
+  var cssBorderEnd = cssProperty('border-inline-end');
+  var createStructureLifecycle = function createStructureLifecycle(target, initialOptions) {
+    var host = target.host,
+      viewport = target.viewport,
+      content = target.content;
+    var destructFns = [];
+    var env = getEnvironment();
+    var scrollbarsOverlaid = env._nativeScrollbarIsOverlaid;
+    var supportsScrollbarStyling = env._nativeScrollbarStyling;
+    var supportFlexboxGlue = env._flexboxGlue;
+    var directionObserverObsolete = (cssMarginEnd && cssBorderEnd) || supportsScrollbarStyling || scrollbarsOverlaid.y;
+
+    var _createLifecycleBase = createLifecycleBase(
+        {
+          paddingAbsolute: [false, optionsTemplateTypes.boolean],
+          overflowBehavior: {
+            x: ['scroll', overflowBehaviorAllowedValues],
+            y: ['scroll', overflowBehaviorAllowedValues],
+          },
+        },
+        {
+          padding: [
+            function () {
+              return topRightBottomLeft(host, 'padding');
+            },
+            equalTRBL,
+          ],
+        },
+        initialOptions,
+        function (options, cache) {
+          var _options$paddingAbsol = options.paddingAbsolute,
+            paddingAbsolute = _options$paddingAbsol._value,
+            paddingAbsoluteChanged = _options$paddingAbsol._changed;
+          var _cache$padding = cache.padding,
+            padding = _cache$padding._value,
+            paddingChanged = _cache$padding._changed;
+
+          if (paddingAbsoluteChanged || paddingChanged) {
+            var paddingStyle = {
+              t: 0,
+              r: 0,
+              b: 0,
+              l: 0,
+            };
+
+            if (!paddingAbsolute) {
+              paddingStyle.t = -padding.t;
+              paddingStyle.r = -(padding.r + padding.l);
+              paddingStyle.b = -(padding.b + padding.t);
+              paddingStyle.l = -padding.l;
+            }
+
+            if (!supportsScrollbarStyling) {
+              paddingStyle.r -= env._nativeScrollbarSize.y;
+              paddingStyle.b -= env._nativeScrollbarSize.x;
+            }
+
+            style(viewport, {
+              top: paddingStyle.t,
+              left: paddingStyle.l,
+              'margin-right': paddingStyle.r,
+              'margin-bottom': paddingStyle.b,
+            });
+          }
+
+          console.log(options);
+          console.log(cache);
+        }
+      ),
+      _options = _createLifecycleBase._options,
+      _update = _createLifecycleBase._update,
+      _updateCache = _createLifecycleBase._updateCache;
+
+    var onSizeChanged = function onSizeChanged() {
+      _updateCache('padding');
+    };
+
+    var onTrinsicChanged = function onTrinsicChanged(widthIntrinsic, heightIntrinsic) {
+      if (heightIntrinsic) {
+        style(content, {
+          height: 'auto',
+        });
+      } else {
+        style(content, {
+          height: '100%',
+        });
+      }
+    };
+
+    return {
+      _options: _options,
+      _update: _update,
+      _onSizeChanged: onSizeChanged,
+      _onTrinsicChanged: onTrinsicChanged,
+      _destruct: function _destruct() {
+        runEach(destructFns);
+      },
+    };
+  };
+
   var animationStartEventName = 'animationstart';
   var scrollEventName = 'scroll';
   var scrollAmount = 3333333;
@@ -703,7 +1163,11 @@
         height: scrollAmount,
       });
       reset();
-      appearCallback = appear ? onScroll : reset;
+      appearCallback = appear
+        ? function () {
+            return onScroll();
+          }
+        : reset;
     }
 
     if (direction) {
@@ -801,11 +1265,76 @@
     };
   };
 
+  var classNameHost = 'os-host';
+  var classNameViewport = 'os-viewport';
+  var classNameContent = 'os-content';
+
+  var normalizeTarget = function normalizeTarget(target) {
+    if (isHTMLElement(target)) {
+      var isTextarea = is(target, 'textarea');
+
+      var _host = isTextarea ? createDiv() : target;
+
+      var _viewport = createDiv(classNameViewport);
+
+      var _content = createDiv(classNameContent);
+
+      appendChildren(_viewport, _content);
+      appendChildren(_content, contents(target));
+      appendChildren(target, _viewport);
+      addClass(_host, classNameHost);
+      return {
+        target: target,
+        host: _host,
+        viewport: _viewport,
+        content: _content,
+      };
+    }
+
+    var host = target.host,
+      viewport = target.viewport,
+      content = target.content;
+    addClass(host, classNameHost);
+    addClass(viewport, classNameViewport);
+    addClass(content, classNameContent);
+    return target;
+  };
+
+  var OverlayScrollbars = function OverlayScrollbars(target, options, extensions) {
+    var osTarget = normalizeTarget(target);
+    var lifecycles = [];
+    var host = osTarget.host;
+    lifecycles.push(createStructureLifecycle(osTarget));
+
+    var onSizeChanged = function onSizeChanged(direction) {
+      if (direction) {
+        each(lifecycles, function (lifecycle) {
+          lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(direction);
+        });
+      } else {
+        each(lifecycles, function (lifecycle) {
+          lifecycle._onSizeChanged && lifecycle._onSizeChanged();
+        });
+      }
+    };
+
+    var onTrinsicChanged = function onTrinsicChanged(widthIntrinsic, heightIntrinsic) {
+      each(lifecycles, function (lifecycle) {
+        lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsic);
+      });
+    };
+
+    createSizeObserver(host, onSizeChanged, {
+      _appear: true,
+      _direction: true,
+    });
+    createTrinsicObserver(host, onTrinsicChanged);
+  };
+
   var index = function () {
     return [
       getEnvironment(),
-      createSizeObserver(document.body, function () {}),
-      createTrinsicObserver(document.body, function () {}),
+      OverlayScrollbars(document.body),
       createDOM(
         '\
     <div class="os-host">\

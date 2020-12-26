@@ -45,7 +45,7 @@ export const createLifecycleBase = <O, C>(
   defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<O>>,
   cacheUpdateInfo: CacheUpdateInfo<C>,
   initialOptions: O | undefined,
-  updateFunction: (changedOptions: Cache<O>, changedCache: Cache<C>) => any
+  updateFunction: (options: Cache<O>, cache: Cache<C>) => any
 ): LifecycleBase<O, C> => {
   const { _template: optionsTemplate, _options: defaultOptions } = transformOptions<Required<O>>(defaultOptionsWithTemplate);
   const options: Required<O> = assignDeep(

@@ -1,2 +1,2 @@
-declare const _default: () => (import("./environment").Environment | (() => void) | readonly Node[])[];
+declare const _default: () => (void | import("./environment").Environment | readonly Node[])[];
 export default _default;

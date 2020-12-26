@@ -50,9 +50,9 @@ export const createStructureLifecycle = (
       padding: [() => topRightBottomLeft(host, 'padding'), equalTRBL],
     },
     initialOptions,
-    (changedOptions, changedCache) => {
-      const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = changedOptions.paddingAbsolute;
-      const { _value: padding, _changed: paddingChanged } = changedCache.padding;
+    (options, cache) => {
+      const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = options.paddingAbsolute;
+      const { _value: padding, _changed: paddingChanged } = cache.padding;
 
       if (paddingAbsoluteChanged || paddingChanged) {
         const paddingStyle: TRBL = {
@@ -77,8 +77,8 @@ export const createStructureLifecycle = (
         style(viewport, { top: paddingStyle.t, left: paddingStyle.l, 'margin-right': paddingStyle.r, 'margin-bottom': paddingStyle.b });
       }
 
-      console.log(changedOptions); // eslint-disable-line
-      console.log(changedCache); // eslint-disable-line
+      console.log(options); // eslint-disable-line
+      console.log(cache); // eslint-disable-line
     }
   );
 
