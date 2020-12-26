@@ -13,7 +13,7 @@ const createUpdater = <T>(updaterReturn: (i: number) => T) => {
 };
 
 describe('cache', () => {
-  describe('createCache', () => {
+  describe('cache with cacheUpdateInfo object', () => {
     test('creates and updates simple cache', () => {
       interface Test {
         number: number;
@@ -33,69 +33,81 @@ describe('cache', () => {
         object: updateObj,
       });
 
-      expect(updateCache('number').number).toBe(1);
+      expect(updateCache('number').number._value).toBe(1);
       expect(updateNumberFn).toHaveBeenCalledTimes(1);
-      expect(updateNumberFn).toHaveBeenCalledWith(undefined, undefined);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(undefined, undefined);
 
-      expect(updateCache('number').number).toBe(2);
+      expect(updateCache('number').number._value).toBe(2);
       expect(updateNumberFn).toHaveBeenCalledTimes(2);
-      expect(updateNumberFn).toHaveBeenCalledWith(1, undefined);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(1, undefined);
 
-      expect(updateCache('number').number).toBe(3);
+      expect(updateCache('number').number._value).toBe(3);
       expect(updateNumberFn).toHaveBeenCalledTimes(3);
-      expect(updateNumberFn).toHaveBeenCalledWith(2, 1);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(2, 1);
 
       let { string, boolean, object, number } = updateCache('number');
-      expect(string).toBe(undefined);
-      expect(boolean).toBe(undefined);
-      expect(object).toBe(undefined);
-      expect(number).toBe(4);
+      expect(string._value).toBe(undefined);
+      expect(string._changed).toBe(false);
+      expect(boolean._value).toBe(undefined);
+      expect(boolean._changed).toBe(false);
+      expect(object._value).toBe(undefined);
+      expect(object._changed).toBe(false);
+      expect(number._value).toBe(4);
+      expect(number._changed).toBe(true);
 
       expect(updateBooleanFn).not.toHaveBeenCalled();
       expect(updateStringFn).not.toHaveBeenCalled();
       expect(updateObjFn).not.toHaveBeenCalled();
 
       ({ string, boolean, object, number } = updateCache(['string', 'boolean', 'object']));
-      expect(string).toBe('1');
-      expect(boolean).toBe(!!(1 % 2));
-      expect(object).toEqual({ 1: 1 });
-      expect(number).toBe(undefined);
+      expect(string._value).toBe('1');
+      expect(string._changed).toBe(true);
+      expect(boolean._value).toBe(!!(1 % 2));
+      expect(boolean._changed).toBe(true);
+      expect(object._value).toEqual({ 1: 1 });
+      expect(object._changed).toEqual(true);
+      expect(number._value).toBe(4);
+      expect(number._changed).toBe(false);
 
       expect(updateBooleanFn).toHaveBeenCalledTimes(1);
-      expect(updateBooleanFn).toHaveBeenCalledWith(undefined, undefined);
+      expect(updateBooleanFn).toHaveBeenLastCalledWith(undefined, undefined);
 
       expect(updateStringFn).toHaveBeenCalledTimes(1);
-      expect(updateStringFn).toHaveBeenCalledWith(undefined, undefined);
+      expect(updateStringFn).toHaveBeenLastCalledWith(undefined, undefined);
 
       expect(updateObjFn).toHaveBeenCalledTimes(1);
-      expect(updateObjFn).toHaveBeenCalledWith(undefined, undefined);
+      expect(updateObjFn).toHaveBeenLastCalledWith(undefined, undefined);
 
       updateCache(['string', 'boolean', 'object']);
       expect(updateBooleanFn).toHaveBeenCalledTimes(2);
-      expect(updateBooleanFn).toHaveBeenCalledWith(!!(1 % 2), undefined);
+      expect(updateBooleanFn).toHaveBeenLastCalledWith(!!(1 % 2), undefined);
 
       expect(updateStringFn).toHaveBeenCalledTimes(2);
-      expect(updateStringFn).toHaveBeenCalledWith('1', undefined);
+      expect(updateStringFn).toHaveBeenLastCalledWith('1', undefined);
 
       expect(updateObjFn).toHaveBeenCalledTimes(2);
-      expect(updateObjFn).toHaveBeenCalledWith({ 1: 1 }, undefined);
+      expect(updateObjFn).toHaveBeenLastCalledWith({ 1: 1 }, undefined);
 
       updateCache(['string', 'boolean', 'object']);
       expect(updateBooleanFn).toHaveBeenCalledTimes(3);
-      expect(updateBooleanFn).toHaveBeenCalledWith(!!(2 % 2), !!(1 % 2));
+      expect(updateBooleanFn).toHaveBeenLastCalledWith(!!(2 % 2), !!(1 % 2));
 
       expect(updateStringFn).toHaveBeenCalledTimes(3);
-      expect(updateStringFn).toHaveBeenCalledWith('2', '1');
+      expect(updateStringFn).toHaveBeenLastCalledWith('2', '1');
 
       expect(updateObjFn).toHaveBeenCalledTimes(3);
-      expect(updateObjFn).toHaveBeenCalledWith({ 2: 2 }, { 1: 1 });
+      expect(updateObjFn).toHaveBeenLastCalledWith({ 2: 2 }, { 1: 1 });
 
       updateCache(['string', 'boolean', 'object']);
       ({ string, boolean, object, number } = updateCache());
-      expect(string).toBe('5');
-      expect(boolean).toBe(!!(5 % 2));
-      expect(object).toEqual({ 5: 5 });
-      expect(number).toBe(5);
+      expect(string._value).toBe('5');
+      expect(string._changed).toBe(true);
+      expect(boolean._value).toBe(!!(5 % 2));
+      expect(boolean._changed).toBe(true);
+      expect(object._value).toEqual({ 5: 5 });
+      expect(object._changed).toEqual(true);
+      expect(number._value).toBe(5);
+      expect(number._changed).toBe(true);
 
       expect(updateBooleanFn).toHaveBeenCalledTimes(5);
       expect(updateStringFn).toHaveBeenCalledTimes(5);
@@ -109,17 +121,24 @@ describe('cache', () => {
         number: updateNumber,
       });
 
-      expect(updateCache('number').number).toBe(0);
-      expect(updateNumberFn).toHaveBeenCalledWith(undefined, undefined);
+      let { _value, _changed } = updateCache('number').number;
+      expect(_value).toBe(0);
+      expect(_changed).toBe(true);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(undefined, undefined);
 
-      expect(updateCache('number').number).toBe(undefined);
-      expect(updateNumberFn).toHaveBeenCalledWith(0, undefined);
+      ({ _value, _changed } = updateCache('number').number);
+      expect(_value).toBe(0);
+      expect(_changed).toBe(false);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(0, undefined);
 
-      expect(updateCache('number').number).toBe(undefined);
-      expect(updateNumberFn).toHaveBeenCalledWith(0, 0);
+      ({ _value, _changed } = updateCache('number').number);
+      expect(_value).toBe(0);
+      expect(_changed).toBe(false);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(0, 0);
 
       const changed = updateCache('number');
       expect(Object.prototype.hasOwnProperty.call(changed, 'changed')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(changed, 'number')).toBe(true);
     });
 
     test('doesnt update if nothing changes with non primitives', () => {
@@ -136,45 +155,91 @@ describe('cache', () => {
         ],
       });
 
-      expect(updateCache('constObj').constObj).toBe(constObj);
-      expect(updateConstObjFn).toHaveBeenCalledWith(undefined, undefined);
-      expect(updateCache('constObj').constObj).toBe(undefined);
-      expect(updateConstObjFn).toHaveBeenCalledWith(constObj, undefined);
-      expect(updateCache('constObj').constObj).toBe(undefined);
-      expect(updateConstObjFn).toHaveBeenCalledWith(constObj, constObj);
-      expect(Object.prototype.hasOwnProperty.call(updateCache('constObj'), 'constObj')).toBe(false);
+      let { _value, _changed } = updateCache('constObj').constObj;
+      expect(_value).toEqual(constObj);
+      expect(_changed).toBe(true);
+      expect(updateConstObjFn).toHaveBeenLastCalledWith(undefined, undefined);
 
-      expect(updateCache('similarObj').similarObj).toEqual(constObj);
-      expect(updateSimilarObjFn).toHaveBeenCalledWith(undefined, undefined);
-      expect(updateCache('similarObj').similarObj).toEqual(constObj);
-      expect(updateSimilarObjFn).toHaveBeenCalledWith(constObj, undefined);
-      expect(updateCache('similarObj').similarObj).toEqual(constObj);
-      expect(updateSimilarObjFn).toHaveBeenCalledWith(constObj, constObj);
-      expect(Object.prototype.hasOwnProperty.call(updateCache('similarObj'), 'similarObj')).toBe(true);
+      ({ _value, _changed } = updateCache('constObj').constObj);
+      expect(_value).toEqual(constObj);
+      expect(_changed).toBe(false);
+      expect(updateConstObjFn).toHaveBeenLastCalledWith(constObj, undefined);
 
-      expect(updateCache('comparisonObj').comparisonObj).toEqual(constObj);
-      expect(updateComparisonObjFn).toHaveBeenCalledWith(undefined, undefined);
-      expect(updateCache('comparisonObj').comparisonObj).toBe(undefined);
-      expect(updateComparisonObjFn).toHaveBeenCalledWith(constObj, undefined);
-      expect(updateCache('comparisonObj').comparisonObj).toBe(undefined);
-      expect(updateComparisonObjFn).toHaveBeenCalledWith(constObj, constObj);
-      expect(Object.prototype.hasOwnProperty.call(updateCache('comparisonObj'), 'comparisonObj')).toBe(false);
+      ({ _value, _changed } = updateCache('constObj').constObj);
+      expect(_value).toEqual(constObj);
+      expect(_changed).toBe(false);
+      expect(updateConstObjFn).toHaveBeenLastCalledWith(constObj, constObj);
+
+      ({ _value, _changed } = updateCache('similarObj').similarObj);
+      expect(_value).toEqual(constObj);
+      expect(_changed).toBe(true);
+      expect(updateSimilarObjFn).toHaveBeenLastCalledWith(undefined, undefined);
+
+      ({ _value, _changed } = updateCache('similarObj').similarObj);
+      expect(_value).toEqual(constObj);
+      expect(_changed).toBe(true);
+      expect(updateSimilarObjFn).toHaveBeenLastCalledWith(constObj, undefined);
+
+      ({ _value, _changed } = updateCache('similarObj').similarObj);
+      expect(_value).toEqual(constObj);
+      expect(_changed).toBe(true);
+      expect(updateSimilarObjFn).toHaveBeenLastCalledWith(constObj, constObj);
+
+      ({ _value, _changed } = updateCache('comparisonObj').comparisonObj);
+      expect(_value).toEqual(constObj);
+      expect(_changed).toBe(true);
+      expect(updateComparisonObjFn).toHaveBeenLastCalledWith(undefined, undefined);
+
+      ({ _value, _changed } = updateCache('comparisonObj').comparisonObj);
+      expect(_value).toEqual(constObj);
+      expect(_changed).toBe(false);
+      expect(updateComparisonObjFn).toHaveBeenLastCalledWith(constObj, undefined);
+
+      ({ _value, _changed } = updateCache('comparisonObj').comparisonObj);
+      expect(_value).toEqual(constObj);
+      expect(_changed).toBe(false);
+      expect(updateComparisonObjFn).toHaveBeenLastCalledWith(constObj, constObj);
+
+      const result = updateCache();
+      expect(Object.prototype.hasOwnProperty.call(result, 'constObj')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(result, 'similarObj')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(result, 'comparisonObj')).toBe(true);
     });
 
     test('updates definitely with force', () => {
       const [updateNumberFn, updateNumber] = createUpdater<number>(() => 0);
+      const [, updateString] = createUpdater<number>(() => 0);
       const updateCache = createCache({
         number: updateNumber,
+        string: updateString,
       });
 
-      expect(updateCache('number', true).number).toBe(0);
-      expect(updateNumberFn).toHaveBeenCalledWith(undefined, undefined);
+      let { _value, _changed } = updateCache('number', true).number;
+      expect(_value).toBe(0);
+      expect(_changed).toBe(true);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(undefined, undefined);
 
-      expect(updateCache('number', true).number).toBe(0);
-      expect(updateNumberFn).toHaveBeenCalledWith(0, undefined);
+      ({ _value, _changed } = updateCache('number', true).number);
+      expect(_value).toBe(0);
+      expect(_changed).toBe(true);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(0, undefined);
 
-      expect(updateCache('number', true).number).toBe(0);
-      expect(updateNumberFn).toHaveBeenCalledWith(0, 0);
+      ({ _value, _changed } = updateCache('number', true).number);
+      expect(_value).toBe(0);
+      expect(_changed).toBe(true);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(0, 0);
+
+      let { number, string } = updateCache('number', true);
+      expect(number._changed).toBe(true);
+      expect(string._changed).toBe(false);
+
+      ({ number, string } = updateCache(['number', 'string'], true));
+      expect(number._changed).toBe(true);
+      expect(string._changed).toBe(true);
+
+      ({ number, string } = updateCache('string', true));
+      expect(number._changed).toBe(false);
+      expect(string._changed).toBe(true);
     });
 
     test('custom comparison on primitves', () => {
@@ -185,21 +250,35 @@ describe('cache', () => {
         number: [updateNumber, () => true],
       });
 
-      expect(updateCache('string').string).toBe('hi');
-      expect(updateStringFn).toHaveBeenCalledWith(undefined, undefined);
-      expect(updateCache('string').string).toBe('hi');
-      expect(updateStringFn).toHaveBeenCalledWith('hi', undefined);
-      expect(updateCache('string').string).toBe('hi');
-      expect(updateStringFn).toHaveBeenCalledWith('hi', 'hi');
-      expect(Object.prototype.hasOwnProperty.call(updateCache('string'), 'string')).toBe(true);
+      let { _value, _changed } = updateCache('string').string;
+      expect(_value).toBe('hi');
+      expect(_changed).toBe(true);
+      expect(updateStringFn).toHaveBeenLastCalledWith(undefined, undefined);
 
-      expect(updateCache('number').number).toBe(undefined);
-      expect(updateNumberFn).toHaveBeenCalledWith(undefined, undefined);
-      expect(updateCache('number').number).toBe(undefined);
-      expect(updateNumberFn).toHaveBeenCalledWith(1, undefined);
-      expect(updateCache('number').number).toBe(undefined);
-      expect(updateNumberFn).toHaveBeenCalledWith(2, 1);
-      expect(Object.prototype.hasOwnProperty.call(updateCache('number'), 'number')).toBe(false);
+      ({ _value, _changed } = updateCache('string').string);
+      expect(_value).toBe('hi');
+      expect(_changed).toBe(true);
+      expect(updateStringFn).toHaveBeenLastCalledWith('hi', undefined);
+
+      ({ _value, _changed } = updateCache('string').string);
+      expect(_value).toBe('hi');
+      expect(_changed).toBe(true);
+      expect(updateStringFn).toHaveBeenLastCalledWith('hi', 'hi');
+
+      ({ _value, _changed } = updateCache('number').number);
+      expect(_value).toBe(1);
+      expect(_changed).toBe(false);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(undefined, undefined);
+
+      ({ _value, _changed } = updateCache('number').number);
+      expect(_value).toBe(2);
+      expect(_changed).toBe(false);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(1, undefined);
+
+      ({ _value, _changed } = updateCache('number').number);
+      expect(_value).toBe(3);
+      expect(_changed).toBe(false);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(2, 1);
     });
 
     test('updates all entries with null or undefined as argument', () => {
@@ -211,12 +290,83 @@ describe('cache', () => {
       });
 
       updateCache();
-      expect(updateNumberFn).toHaveBeenCalledWith(undefined, undefined);
-      expect(updateNumberFn2).toHaveBeenCalledWith(undefined, undefined);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(undefined, undefined);
+      expect(updateNumberFn2).toHaveBeenLastCalledWith(undefined, undefined);
 
       updateCache(null);
-      expect(updateNumberFn).toHaveBeenCalledWith(1, undefined);
-      expect(updateNumberFn2).toHaveBeenCalledWith(1, undefined);
+      expect(updateNumberFn).toHaveBeenLastCalledWith(1, undefined);
+      expect(updateNumberFn2).toHaveBeenLastCalledWith(1, undefined);
+    });
+  });
+
+  describe('cache with reference object', () => {
+    test('creates and updates simple cache', () => {
+      interface Test {
+        number: number;
+        boolean: boolean;
+        string: string;
+        object: {};
+      }
+      const refObj: Test = {
+        number: 0,
+        boolean: false,
+        string: 'hi',
+        object: {},
+      };
+
+      const updateCache = createCache<Test>(refObj, true);
+
+      let { _value, _changed, _previous } = updateCache('number').number;
+      expect(_value).toBe(0);
+      expect(_changed).toBe(false);
+
+      refObj.number = 1;
+      ({ _value, _changed } = updateCache('number').number);
+      expect(_value).toBe(1);
+      expect(_changed).toBe(true);
+
+      refObj.number = 2;
+      ({ _value, _changed } = updateCache('string').number);
+      expect(_value).toBe(1);
+      expect(_changed).toBe(false);
+
+      refObj.number = 3;
+      ({ _value, _changed, _previous } = updateCache('number').number);
+      expect(_value).toBe(3);
+      expect(_previous).toBe(1);
+      expect(_changed).toBe(true);
+
+      let { number, boolean, string, object } = updateCache();
+      expect(number._value).toBe(3);
+      expect(number._changed).toBe(false);
+      expect(boolean._value).toBe(false);
+      expect(boolean._changed).toBe(false);
+      expect(string._value).toBe('hi');
+      expect(string._changed).toBe(false);
+      expect(object._value).toEqual({});
+      expect(object._changed).toBe(false);
+
+      refObj.string = 'hi2';
+      refObj.boolean = true;
+      ({ number, boolean, string, object } = updateCache());
+      expect(number._value).toBe(3);
+      expect(number._changed).toBe(false);
+      expect(boolean._value).toBe(true);
+      expect(boolean._changed).toBe(true);
+      expect(string._value).toBe('hi2');
+      expect(string._changed).toBe(true);
+      expect(object._value).toEqual({});
+      expect(object._changed).toBe(false);
+
+      ({ number, boolean, string, object } = updateCache(null, true));
+      expect(number._value).toBe(3);
+      expect(number._changed).toBe(true);
+      expect(boolean._value).toBe(true);
+      expect(boolean._changed).toBe(true);
+      expect(string._value).toBe('hi2');
+      expect(string._changed).toBe(true);
+      expect(object._value).toEqual({});
+      expect(object._changed).toBe(true);
     });
   });
 });

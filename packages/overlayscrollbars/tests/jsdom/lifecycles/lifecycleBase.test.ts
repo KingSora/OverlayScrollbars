@@ -1,4 +1,4 @@
-import { optionsTemplateTypes as oTypes } from 'support';
+import { optionsTemplateTypes as oTypes, Cache } from 'support';
 import { createLifecycleBase } from 'lifecycles/lifecycleBase';
 
 interface TestLifecycleOptions {
@@ -36,6 +36,19 @@ const createLifecycle = (initalOptions?: TestLifecycleOptions, updateFn?: () => 
     initalOptions,
     updateFn || (() => {})
   );
+
+const createOptionsUnchangedObj = (exc?: Cache<TestLifecycleOptions>) =>
+  expect.objectContaining({
+    number: exc?.number || expect.objectContaining({ _changed: false }),
+    string: exc?.string || expect.objectContaining({ _changed: false }),
+    nested: exc?.nested || expect.objectContaining({ _changed: false }),
+  });
+const createCacheUnchangedObj = (exc?: Cache<TestLifecycleCache>) =>
+  expect.objectContaining({
+    number: exc?.number || expect.objectContaining({ _changed: false }),
+    constant: exc?.constant || expect.objectContaining({ _changed: false }),
+    object: exc?.object || expect.objectContaining({ _changed: false }),
+  });
 
 describe('lifecycleBase', () => {
   describe('options', () => {
@@ -106,7 +119,19 @@ describe('lifecycleBase', () => {
 
       _updateCache('number');
       expect(updateFn).toBeCalledTimes(2);
-      expect(updateFn).toBeCalledWith({}, { number: 2 });
+      expect(updateFn).toHaveBeenLastCalledWith(
+        expect.objectContaining({}),
+        expect.objectContaining({
+          number: {
+            _value: 2,
+            _changed: true,
+            _previous: 1,
+          },
+          constant: expect.objectContaining({
+            _changed: false,
+          }),
+        })
+      );
 
       _updateCache('constant');
       expect(updateFn).toBeCalledTimes(2);
@@ -118,11 +143,37 @@ describe('lifecycleBase', () => {
 
       _updateCache(['number', 'object']);
       expect(updateFn).toBeCalledTimes(2);
-      expect(updateFn).toBeCalledWith({}, { number: 2, object: { string: 'hihi', boolean: false } });
+      expect(updateFn).toHaveBeenLastCalledWith(
+        expect.objectContaining({}),
+        expect.objectContaining({
+          number: {
+            _value: 2,
+            _previous: 1,
+            _changed: true,
+          },
+          object: {
+            _value: { string: 'hihi', boolean: false },
+            _previous: { string: 'hi', boolean: true },
+            _changed: true,
+          },
+        })
+      );
 
       _updateCache(['number', 'constant']);
       expect(updateFn).toBeCalledTimes(3);
-      expect(updateFn).toBeCalledWith({}, { number: 3 });
+      expect(updateFn).toHaveBeenLastCalledWith(
+        expect.objectContaining({}),
+        expect.objectContaining({
+          number: {
+            _value: 3,
+            _previous: 2,
+            _changed: true,
+          },
+          constant: expect.objectContaining({
+            _changed: false,
+          }),
+        })
+      );
 
       _updateCache(['constant']);
       expect(updateFn).toBeCalledTimes(3);
@@ -135,23 +186,41 @@ describe('lifecycleBase', () => {
       createLifecycle({}, updateFn);
 
       expect(updateFn).toBeCalledTimes(1);
-      expect(updateFn).toBeCalledWith(
-        {
-          number: 0,
-          string: 'hi',
-          nested: {
-            boolean: false,
-            number: 0,
-          },
-        },
-        {
-          number: 1,
-          constant: false,
-          object: {
-            string: 'hi',
-            boolean: true,
-          },
-        }
+      expect(updateFn).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          number: expect.objectContaining({
+            _value: 0,
+            _changed: true,
+          }),
+          string: expect.objectContaining({
+            _value: 'hi',
+            _changed: true,
+          }),
+          nested: expect.objectContaining({
+            _value: {
+              boolean: false,
+              number: 0,
+            },
+            _changed: true,
+          }),
+        }),
+        expect.objectContaining({
+          number: expect.objectContaining({
+            _value: 1,
+            _changed: true,
+          }),
+          constant: expect.objectContaining({
+            _value: false,
+            _changed: true,
+          }),
+          object: expect.objectContaining({
+            _value: {
+              string: 'hi',
+              boolean: true,
+            },
+            _changed: true,
+          }),
+        })
       );
     });
 
@@ -161,13 +230,36 @@ describe('lifecycleBase', () => {
 
       _options({ number: 5 });
       expect(updateFn).toBeCalledTimes(2);
-      expect(updateFn).toBeCalledWith({ number: 5 }, {});
+      expect(updateFn).toHaveBeenLastCalledWith(
+        createOptionsUnchangedObj({
+          number: {
+            _value: 5,
+            _previous: 0,
+            _changed: true,
+          },
+        }),
+        createCacheUnchangedObj()
+      );
 
       _options({ number: 5, string: 'test', nested: { number: 3 } });
       expect(updateFn).toBeCalledTimes(3);
-      expect(updateFn).toBeCalledWith({ string: 'test', nested: { number: 3 } }, {});
+      expect(updateFn).toHaveBeenLastCalledWith(
+        createOptionsUnchangedObj({
+          string: {
+            _value: 'test',
+            _previous: 'hi',
+            _changed: true,
+          },
+          nested: {
+            _value: expect.objectContaining({ number: 3 }),
+            _previous: expect.objectContaining({ number: 3 }), // because reference, number is 3 instead of expected 0
+            _changed: true,
+          },
+        }),
+        createCacheUnchangedObj()
+      );
 
-      _options({ number: 5, string: 'test', nested: { number: 3 } });
+      _options({ string: 'test', nested: { number: 3 } });
       expect(updateFn).toBeCalledTimes(3);
     });
 
@@ -177,11 +269,34 @@ describe('lifecycleBase', () => {
 
       _updateCache('number');
       expect(updateFn).toBeCalledTimes(2);
-      expect(updateFn).toBeCalledWith({}, { number: 2 });
+      expect(updateFn).toHaveBeenLastCalledWith(
+        createOptionsUnchangedObj(),
+        createCacheUnchangedObj({
+          number: {
+            _value: 2,
+            _previous: 1,
+            _changed: true,
+          },
+        })
+      );
 
       _updateCache(['number', 'object', 'constant']);
       expect(updateFn).toBeCalledTimes(3);
-      expect(updateFn).toBeCalledWith({}, { number: 3, object: { string: 'hihi', boolean: false } });
+      expect(updateFn).toHaveBeenLastCalledWith(
+        createOptionsUnchangedObj(),
+        createCacheUnchangedObj({
+          number: {
+            _value: 3,
+            _previous: 2,
+            _changed: true,
+          },
+          object: {
+            _value: { string: 'hihi', boolean: false },
+            _previous: { string: 'hi', boolean: true },
+            _changed: true,
+          },
+        })
+      );
 
       _updateCache('constant');
       expect(updateFn).toBeCalledTimes(3);
@@ -193,49 +308,198 @@ describe('lifecycleBase', () => {
 
       _update();
       expect(updateFn).toBeCalledTimes(2);
-      expect(updateFn).toBeCalledWith({}, { number: 2, object: { string: 'hihi', boolean: false } });
+      expect(updateFn).toHaveBeenLastCalledWith(
+        createOptionsUnchangedObj(),
+        createCacheUnchangedObj({
+          number: {
+            _value: 2,
+            _previous: 1,
+            _changed: true,
+          },
+          object: {
+            _value: { string: 'hihi', boolean: false },
+            _previous: { string: 'hi', boolean: true },
+            _changed: true,
+          },
+        })
+      );
 
       _update(true);
       expect(updateFn).toBeCalledTimes(3);
-      expect(updateFn).toBeCalledWith(
-        {
-          number: 0,
-          string: 'hi',
-          nested: {
-            boolean: false,
-            number: 0,
+      expect(updateFn).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          number: expect.objectContaining({
+            _value: 0,
+            _changed: true,
+          }),
+          string: expect.objectContaining({
+            _value: 'hi',
+            _changed: true,
+          }),
+          nested: expect.objectContaining({
+            _value: {
+              boolean: false,
+              number: 0,
+            },
+            _changed: true,
+          }),
+        }),
+        expect.objectContaining({
+          number: {
+            _value: 3,
+            _previous: 2,
+            _changed: true,
           },
-        },
-        {
-          number: 3,
-          constant: false,
+          constant: {
+            _value: false,
+            _previous: false,
+            _changed: true,
+          },
           object: {
-            string: 'hihihi',
-            boolean: true,
+            _value: {
+              string: 'hihihi',
+              boolean: true,
+            },
+            _previous: {
+              string: 'hihi',
+              boolean: false,
+            },
+            _changed: true,
           },
-        }
+        })
       );
 
       _options({ number: 3, nested: { boolean: true } });
       _update(true);
       expect(updateFn).toBeCalledTimes(5);
-      expect(updateFn).toBeCalledWith(
-        {
-          number: 3,
-          string: 'hi',
-          nested: {
-            boolean: true,
-            number: 0,
+      expect(updateFn).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          number: expect.objectContaining({
+            _value: 3,
+            _changed: true,
+          }),
+          string: expect.objectContaining({
+            _value: 'hi',
+            _changed: true,
+          }),
+          nested: expect.objectContaining({
+            _value: {
+              boolean: true,
+              number: 0,
+            },
+            _changed: true,
+          }),
+        }),
+        expect.objectContaining({
+          number: {
+            _value: 4,
+            _previous: 3,
+            _changed: true,
           },
-        },
-        {
-          number: 4,
-          constant: false,
+          constant: {
+            _value: false,
+            _previous: false,
+            _changed: true,
+          },
           object: {
-            string: 'hihihihi',
-            boolean: false,
+            _value: {
+              string: 'hihihihi',
+              boolean: false,
+            },
+            _previous: {
+              string: 'hihihi',
+              boolean: true,
+            },
+            _changed: true,
           },
-        }
+        })
+      );
+
+      _options({ number: 3, nested: { boolean: true } });
+      _update();
+      expect(updateFn).toBeCalledTimes(6);
+      expect(updateFn).toHaveBeenLastCalledWith(
+        createOptionsUnchangedObj({
+          number: expect.objectContaining({
+            _value: 3,
+            _changed: false,
+          }),
+          string: expect.objectContaining({
+            _value: 'hi',
+            _changed: false,
+          }),
+          nested: expect.objectContaining({
+            _value: {
+              boolean: true,
+              number: 0,
+            },
+            _changed: false,
+          }),
+        }),
+        createCacheUnchangedObj({
+          number: {
+            _value: 5,
+            _previous: 4,
+            _changed: true,
+          },
+          object: {
+            _value: { string: 'hihihihihi', boolean: true },
+            _previous: { string: 'hihihihi', boolean: false },
+            _changed: true,
+          },
+        })
+      );
+
+      _options({ number: 4, nested: { boolean: false }, string: 'hi' });
+      expect(updateFn).toBeCalledTimes(7);
+      expect(updateFn).toHaveBeenLastCalledWith(
+        createOptionsUnchangedObj({
+          number: expect.objectContaining({
+            _value: 4,
+            _changed: true,
+          }),
+          string: expect.objectContaining({
+            _value: 'hi',
+            _changed: false,
+          }),
+          nested: expect.objectContaining({
+            _value: {
+              boolean: false,
+              number: 0,
+            },
+            _changed: true,
+          }),
+        }),
+        createCacheUnchangedObj()
+      );
+      _update();
+      expect(updateFn).toBeCalledTimes(8);
+      expect(updateFn).toHaveBeenLastCalledWith(
+        createOptionsUnchangedObj({
+          number: expect.objectContaining({
+            _value: 4,
+            _changed: false,
+          }),
+          string: expect.objectContaining({
+            _value: 'hi',
+            _changed: false,
+          }),
+          nested: expect.objectContaining({
+            _value: {
+              boolean: false,
+              number: 0,
+            },
+            _changed: false,
+          }),
+        }),
+        createCacheUnchangedObj({
+          number: expect.objectContaining({
+            _changed: true,
+          }),
+          object: expect.objectContaining({
+            _changed: true,
+          }),
+        })
       );
     });
   });

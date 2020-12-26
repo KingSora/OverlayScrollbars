@@ -5,8 +5,8 @@
   "version": "0.0.1",
   "scripts": {
     "test": "jest --coverage --runInBand --detectOpenHandles",
-    "test:jsdom": "jest --coverage --runInBand --detectOpenHandles --selectProjects jsdom",
-    "test:pptr": "jest --coverage --runInBand --detectOpenHandles --selectProjects puppeteer",
+    "test:jsdom": "jest --coverage --runInBand --detectOpenHandles --selectProjects jsdom --testPathPattern",
+    "test:pptr": "jest --coverage --runInBand --detectOpenHandles --selectProjects puppeteer --testPathPattern",
     "build": "rollup -c"
   }
 }

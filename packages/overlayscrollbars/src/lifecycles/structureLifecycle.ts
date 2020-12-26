@@ -1,14 +1,4 @@
-import {
-  cssProperty,
-  runEach,
-  topRightBottomLeft,
-  TRBL,
-  equalTRBL,
-  optionsTemplateTypes as oTypes,
-  OptionsTemplateValue,
-  style,
-  hasOwnProperty,
-} from 'support';
+import { cssProperty, runEach, topRightBottomLeft, TRBL, equalTRBL, optionsTemplateTypes as oTypes, OptionsTemplateValue, style } from 'support';
 import { OSTargetObject } from 'typings';
 import { createLifecycleBase, Lifecycle } from 'lifecycles/lifecycleBase';
 import { getEnvironment, Environment } from 'environment';
@@ -61,9 +51,10 @@ export const createStructureLifecycle = (
     },
     initialOptions,
     (changedOptions, changedCache) => {
-      if (hasOwnProperty(changedOptions, 'paddingAbsolute') || hasOwnProperty(changedCache, 'padding')) {
-        const { padding } = changedCache;
-        const { paddingAbsolute } = changedOptions;
+      const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = changedOptions.paddingAbsolute;
+      const { _value: padding, _changed: paddingChanged } = changedCache.padding;
+
+      if (paddingAbsoluteChanged || paddingChanged) {
         const paddingStyle: TRBL = {
           t: 0,
           r: 0,

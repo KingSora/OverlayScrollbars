@@ -1,21 +1,20 @@
 import {
   CacheUpdateInfo,
   CachePropsToUpdate,
-  CacheUpdated,
+  Cache,
   OptionsWithOptionsTemplate,
-  OptionsValidated,
   transformOptions,
   validateOptions,
   assignDeep,
   createCache,
-  isEmptyObject,
   isBoolean,
+  keys,
 } from 'support';
 import { PlainObject } from 'typings';
 
 interface LifecycleUpdateHints<O, C> {
   _force?: boolean;
-  _changedOptions?: OptionsValidated<O>;
+  _changedOptions?: CachePropsToUpdate<O>;
   _changedCache?: CachePropsToUpdate<C>;
 }
 
@@ -46,7 +45,7 @@ export const createLifecycleBase = <O, C>(
   defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<O>>,
   cacheUpdateInfo: CacheUpdateInfo<C>,
   initialOptions: O | undefined,
-  updateFunction: (changedOptions: OptionsValidated<O>, changedCache: CacheUpdated<C>) => any
+  updateFunction: (changedOptions: Cache<O>, changedCache: Cache<C>) => any
 ): LifecycleBase<O, C> => {
   const { _template: optionsTemplate, _options: defaultOptions } = transformOptions<Required<O>>(defaultOptionsWithTemplate);
   const options: Required<O> = assignDeep(
@@ -55,15 +54,16 @@ export const createLifecycleBase = <O, C>(
     validateOptions<O>(initialOptions || ({} as O), optionsTemplate, null, true)._validated
   );
   const cacheChange = createCache<C>(cacheUpdateInfo);
+  const cacheOptions = createCache<O>(options, true);
 
   const update = (hints: LifecycleUpdateHints<O, C>) => {
     const hasForce = isBoolean(hints._force);
     const force = hints._force === true;
 
     const changedCache = cacheChange(force ? null : hints._changedCache || (hasForce ? null : []), force);
-    const changedOptions = force ? options : hints._changedOptions || ({} as O);
+    const changedOptions = cacheOptions(force ? null : hints._changedOptions, !!hints._changedOptions || force);
 
-    if (!isEmptyObject(changedOptions) || !isEmptyObject(changedCache)) {
+    if (changedOptions._anythingChanged || changedCache._anythingChanged) {
       updateFunction(changedOptions, changedCache);
     }
   };
@@ -76,7 +76,7 @@ export const createLifecycleBase = <O, C>(
         const { _validated: changedOptions } = validateOptions(newOptions, optionsTemplate, options, true);
         assignDeep(options, changedOptions);
 
-        update({ _changedOptions: changedOptions });
+        update({ _changedOptions: keys(changedOptions) as CachePropsToUpdate<O> });
       }
       return options;
     },
