@@ -6,6 +6,7 @@ import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { Lifecycle } from 'lifecycles/lifecycleBase';
 
 const classNameHost = 'os-host';
+const classNamePadding = 'os-padding';
 const classNameViewport = 'os-viewport';
 const classNameContent = 'os-content';
 
@@ -13,25 +14,29 @@ const normalizeTarget = (target: OSTarget): OSTargetObject => {
   if (isHTMLElement(target)) {
     const isTextarea = is(target, 'textarea');
     const host = (isTextarea ? createDiv() : target) as HTMLElement;
+    const padding = createDiv(classNamePadding);
     const viewport = createDiv(classNameViewport);
     const content = createDiv(classNameContent);
 
+    appendChildren(padding, viewport);
     appendChildren(viewport, content);
     appendChildren(content, contents(target));
-    appendChildren(target, viewport);
+    appendChildren(target, padding);
     addClass(host, classNameHost);
 
     return {
       target,
       host,
+      padding,
       viewport,
       content,
     };
   }
 
-  const { host, viewport, content } = target;
+  const { host, padding, viewport, content } = target;
 
   addClass(host, classNameHost);
+  addClass(padding, classNamePadding);
   addClass(viewport, classNameViewport);
   addClass(content, classNameContent);
 

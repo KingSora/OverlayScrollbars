@@ -29,7 +29,7 @@ export const createStructureLifecycle = (
   target: OSTargetObject,
   initialOptions?: StructureLifecycleOptions
 ): Lifecycle<StructureLifecycleOptions> => {
-  const { host, viewport, content } = target;
+  const { host, padding: paddingElm, viewport, content } = target;
   const destructFns: (() => any)[] = [];
   const env: Environment = getEnvironment();
   const scrollbarsOverlaid = env._nativeScrollbarIsOverlaid;
@@ -74,7 +74,7 @@ export const createStructureLifecycle = (
           paddingStyle.b -= env._nativeScrollbarSize.x;
         }
 
-        style(viewport, { top: paddingStyle.t, left: paddingStyle.l, 'margin-right': paddingStyle.r, 'margin-bottom': paddingStyle.b });
+        style(paddingElm, { top: paddingStyle.t, left: paddingStyle.l, 'margin-right': paddingStyle.r, 'margin-bottom': paddingStyle.b });
       }
 
       console.log(options); // eslint-disable-line

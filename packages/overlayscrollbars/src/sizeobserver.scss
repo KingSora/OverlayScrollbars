@@ -34,9 +34,8 @@ $scrollbar-cushion: 100px;
 
 .os-size-observer-listener {
   display: block;
-  height: 200%;
-  width: 200%;
-  box-sizing: content-box;
+  height: 500%;
+  width: 500%;
 
   // lets assume no scrollbar is 100px wide
   & > .os-size-observer-listener-item {
@@ -45,6 +44,10 @@ $scrollbar-cushion: 100px;
     bottom: -$scrollbar-cushion;
     left: -$scrollbar-cushion;
   }
+}
+
+.os-size-observer-listener-scroll {
+  box-sizing: content-box;
 }
 
 .os-size-observer-listener-item {

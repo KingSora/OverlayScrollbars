@@ -5,6 +5,7 @@ export type OSTargetElement = HTMLElement | HTMLTextAreaElement;
 export interface OSTargetObject {
   target: OSTargetElement;
   host: HTMLElement;
+  padding: HTMLElement;
   viewport: HTMLElement;
   content: HTMLElement;
 }

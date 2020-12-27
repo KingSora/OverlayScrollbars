@@ -1,10 +1,12 @@
-.os-host {
+.os-host,
+.os-padding {
   position: relative;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
 }
 
+.os-padding,
 .os-viewport {
   box-sizing: border-box;
   position: relative;
@@ -15,6 +17,8 @@
   margin: 0;
   border: none;
   overflow: visible;
+  max-width: 100%;
+  z-index: 0;
 }
 
 .os-content {

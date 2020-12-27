@@ -25,6 +25,7 @@ const ResizeObserverConstructor = jsAPI('ResizeObserver');
 const classNameSizeObserver = 'os-size-observer';
 const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
 const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
+const classNameSizeObserverListenerScroll = `${classNameSizeObserverListener}-scroll`;
 const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
 const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
 const cAF = cancelAnimationFrame;
@@ -65,6 +66,7 @@ export const createSizeObserver = (
       `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
     );
     appendChildren(listenerElement, observerElementChildren);
+    addClass(listenerElement, classNameSizeObserverListenerScroll);
     const observerElementChildrenRoot = observerElementChildren[0] as HTMLElement;
     const shrinkElement = observerElementChildrenRoot.lastChild as HTMLElement;
     const expandElement = observerElementChildrenRoot.firstChild as HTMLElement;

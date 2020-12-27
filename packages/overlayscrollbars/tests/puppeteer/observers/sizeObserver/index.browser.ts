@@ -10,16 +10,16 @@ import { createSizeObserver } from 'observers/sizeObserver';
 
 let sizeIterations = 0;
 let directionIterations = 0;
-const contentBox = (elm: HTMLElement | null) => {
+const contentBox = (elm: HTMLElement | null): WH<number> => {
   if (elm) {
     const computedStyle = window.getComputedStyle(elm);
     return {
-      width: elm.clientWidth - (parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight)),
-      height: elm.clientHeight - (parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom)),
+      w: elm.clientWidth - (parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight)),
+      h: elm.clientHeight - (parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom)),
     };
   }
 
-  return { width: 0, height: 0 };
+  return { w: 0, h: 0 };
 };
 
 const targetElm = document.querySelector('#target');
@@ -39,6 +39,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
     currSizeIterations: number;
     currDirectionIterations: number;
     currOffsetSize: WH<number>;
+    currContentSize: WH<number>;
     currDir: string;
   }
 
@@ -47,36 +48,39 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       const currSizeIterations = sizeIterations;
       const currDirectionIterations = directionIterations;
       const currOffsetSize = offsetSize(targetElm as HTMLElement);
+      const currContentSize = contentBox(targetElm as HTMLElement);
       const currDir = style(targetElm as HTMLElement, 'direction');
 
       return {
         currSizeIterations,
         currDirectionIterations,
         currOffsetSize,
+        currContentSize,
         currDir,
       };
     },
-    async check({ currSizeIterations, currDirectionIterations, currOffsetSize, currDir }) {
+    async check({ currSizeIterations, currDirectionIterations, currOffsetSize, currContentSize, currDir }) {
       const newOffsetSize = offsetSize(targetElm as HTMLElement);
+      const newContentSize = contentBox(targetElm as HTMLElement);
       const newDir = style(targetElm as HTMLElement, 'direction');
       const offsetSizeChanged = currOffsetSize.w !== newOffsetSize.w || currOffsetSize.h !== newOffsetSize.h;
+      const contentSizeChanged = currContentSize.w !== newContentSize.w || currContentSize.h !== newContentSize.h;
       const dirChanged = currDir !== newDir;
       const dimensions = hasDimensions(targetElm as HTMLElement);
-      const contentSize = contentBox(targetElm as HTMLElement);
       const observerElm = targetElm?.firstElementChild as HTMLElement;
 
       // no overflow if not needed
-      if (targetElm && contentSize.width > 0) {
+      if (targetElm && newContentSize.w > 0) {
         should.ok(observerElm.getBoundingClientRect().right <= targetElm.getBoundingClientRect().right);
       }
-      if (targetElm && contentSize.height > 0) {
+      if (targetElm && newContentSize.h > 0) {
         should.ok(observerElm.getBoundingClientRect().bottom <= targetElm.getBoundingClientRect().bottom);
       }
 
-      if (dimensions && (offsetSizeChanged || dirChanged)) {
+      if (dimensions && (offsetSizeChanged || contentSizeChanged || dirChanged)) {
         await waitFor(
           () => {
-            if (offsetSizeChanged) {
+            if (offsetSizeChanged || contentSizeChanged) {
               should.equal(sizeIterations, currSizeIterations + 1);
             }
             if (dirChanged) {

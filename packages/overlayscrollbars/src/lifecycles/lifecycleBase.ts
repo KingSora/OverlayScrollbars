@@ -57,7 +57,7 @@ export const createLifecycleBase = <O, C>(
   const cacheOptions = createCache<O>(options, true);
 
   const update = (hints: LifecycleUpdateHints<O, C>) => {
-    const hasForce = isBoolean(hints._force);
+    const hasForce = isBoolean(hints._force); // indication that it was called from outside
     const force = hints._force === true;
 
     const changedCache = cacheChange(force ? null : hints._changedCache || (hasForce ? null : []), force);
