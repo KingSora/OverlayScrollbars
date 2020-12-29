@@ -1,6 +1,6 @@
-import { OSTarget, OSTargetObject } from 'typings';
+import { OSTarget, OSTargetObject, CSSDirection } from 'typings';
 import { createStructureLifecycle } from 'lifecycles/structureLifecycle';
-import { appendChildren, addClass, contents, is, isHTMLElement, createDiv, each } from 'support';
+import { Cache, appendChildren, addClass, contents, is, isHTMLElement, createDiv, each } from 'support';
 import { createSizeObserver } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { Lifecycle } from 'lifecycles/lifecycleBase';
@@ -51,10 +51,10 @@ const OverlayScrollbars = (target: OSTarget, options?: any, extensions?: any): v
   lifecycles.push(createStructureLifecycle(osTarget));
 
   // eslint-disable-next-line
-  const onSizeChanged = (direction?: 'ltr' | 'rtl') => {
-    if (direction) {
+  const onSizeChanged = (directionCache?: Cache<CSSDirection>) => {
+    if (directionCache) {
       each(lifecycles, (lifecycle) => {
-        lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(direction);
+        lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(directionCache);
       });
     } else {
       each(lifecycles, (lifecycle) => {
@@ -62,9 +62,9 @@ const OverlayScrollbars = (target: OSTarget, options?: any, extensions?: any): v
       });
     }
   };
-  const onTrinsicChanged = (widthIntrinsic: boolean, heightIntrinsic: boolean) => {
+  const onTrinsicChanged = (widthIntrinsic: boolean, heightIntrinsicCache: Cache<boolean>) => {
     each(lifecycles, (lifecycle) => {
-      lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsic);
+      lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsicCache);
     });
   };
 

@@ -2,6 +2,7 @@ import { each, from } from 'support/utils/array';
 
 const matches = (elm: Element | null, selector: string): boolean => {
   if (elm) {
+    /* istanbul ignore next */
     // eslint-disable-next-line
     // @ts-ignore
     const fn = Element.prototype.matches || Element.prototype.msMatchesSelector;

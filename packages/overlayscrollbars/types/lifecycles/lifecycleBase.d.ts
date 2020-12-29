@@ -1,17 +1,18 @@
-import { CacheUpdateInfo, CachePropsToUpdate, Cache, OptionsWithOptionsTemplate } from 'support';
-import { PlainObject } from 'typings';
-interface AbstractLifecycle<O extends PlainObject> {
+import { Cache, OptionsWithOptionsTemplate } from 'support';
+import { CSSDirection, PlainObject } from 'typings';
+export interface LifecycleBase<O extends PlainObject> {
     _options(newOptions?: O): O;
     _update(force?: boolean): void;
 }
-export interface Lifecycle<T extends PlainObject> extends AbstractLifecycle<T> {
+export interface Lifecycle<T extends PlainObject> extends LifecycleBase<T> {
     _destruct(): void;
     _onSizeChanged?(): void;
-    _onDirectionChanged?(direction: 'ltr' | 'rtl'): void;
-    _onTrinsicChanged?(widthIntrinsic: boolean, heightIntrinsic: boolean): void;
+    _onDirectionChanged?(directionCache: Cache<CSSDirection>): void;
+    _onTrinsicChanged?(widthIntrinsic: boolean, heightIntrinsicCache: Cache<boolean>): void;
 }
-export interface LifecycleBase<O extends PlainObject, C extends PlainObject> extends AbstractLifecycle<O> {
-    _updateCache(cachePropsToUpdate?: CachePropsToUpdate<C>): void;
+export interface LifecycleOptionInfo<T> {
+    _value: T;
+    _changed: boolean;
 }
-export declare const createLifecycleBase: <O, C>(defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<O>>, cacheUpdateInfo: CacheUpdateInfo<C>, initialOptions: O | undefined, updateFunction: (options: Cache<O>, cache: Cache<C>) => any) => LifecycleBase<O, C>;
-export {};
+export declare type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
+export declare const createLifecycleBase: <O>(defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<O>>, initialOptions: O | undefined, updateFunction: (force: boolean, checkOption: LifecycleCheckOption) => any) => LifecycleBase<O>;

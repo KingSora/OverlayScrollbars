@@ -12,9 +12,6 @@ function isNumber(obj) {
 function isString(obj) {
   return typeof obj === 'string';
 }
-function isBoolean(obj) {
-  return typeof obj === 'boolean';
-}
 function isFunction(obj) {
   return typeof obj === 'function';
 }
@@ -434,49 +431,29 @@ const absoluteCoordinates = (elm) => {
     : zeroObj$1;
 };
 
-function createCache(cacheUpdateInfo, isReference) {
-  const cache = {};
-  const allProps = keys(cacheUpdateInfo);
-  each(allProps, (prop) => {
-    cache[prop] = {
-      _changed: false,
-      _value: isReference ? cacheUpdateInfo[prop] : undefined,
+const createCache = (update, options) => {
+  const { _equal, _initialValue } = options || {};
+  let _value = _initialValue;
+
+  let _previous;
+
+  return (force, context) => {
+    const prev = _value;
+    const newVal = update(context, _value, _previous);
+    const changed = force || (_equal ? !_equal(prev, newVal) : prev !== newVal);
+
+    if (changed) {
+      _value = newVal;
+      _previous = prev;
+    }
+
+    return {
+      _value,
+      _previous,
+      _changed: changed,
     };
-  });
-
-  const updateCacheProp = (prop, value, equal) => {
-    const curr = cache[prop]._value;
-    cache[prop]._value = value;
-    cache[prop]._previous = curr;
-    cache[prop]._changed = equal ? !equal(curr, value) : curr !== value;
   };
-
-  const flush = (props, force) => {
-    const result = assignDeep({}, cache, {
-      _anythingChanged: false,
-    });
-    each(props, (prop) => {
-      const changed = force || cache[prop]._changed;
-      result._anythingChanged = result._anythingChanged || changed;
-      result[prop]._changed = changed;
-      cache[prop]._changed = false;
-    });
-    return result;
-  };
-
-  return (propsToUpdate, force) => {
-    const finalPropsToUpdate = (isString(propsToUpdate) ? [propsToUpdate] : propsToUpdate) || allProps;
-    each(finalPropsToUpdate, (prop) => {
-      const cacheVal = cache[prop];
-      const curr = cacheUpdateInfo[prop];
-      const arr = isReference ? false : isArray(curr);
-      const value = arr ? curr[0] : curr;
-      const equal = arr ? curr[1] : null;
-      updateCacheProp(prop, isReference ? value : value(cacheVal._value, cacheVal._previous), equal);
-    });
-    return flush(finalPropsToUpdate, force);
-  };
-}
+};
 
 const firstLetterToUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -822,21 +799,21 @@ const getEnvironment = () => {
   return environmentInstance;
 };
 
-const createLifecycleBase = (defaultOptionsWithTemplate, cacheUpdateInfo, initialOptions, updateFunction) => {
+const getPropByPath = (obj, path) => obj && path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj);
+
+const createLifecycleBase = (defaultOptionsWithTemplate, initialOptions, updateFunction) => {
   const { _template: optionsTemplate, _options: defaultOptions } = transformOptions(defaultOptionsWithTemplate);
   const options = assignDeep({}, defaultOptions, validateOptions(initialOptions || {}, optionsTemplate, null, true)._validated);
-  const cacheChange = createCache(cacheUpdateInfo);
-  const cacheOptions = createCache(options, true);
 
   const update = (hints) => {
-    const hasForce = isBoolean(hints._force);
-    const force = hints._force === true;
-    const changedCache = cacheChange(force ? null : hints._changedCache || (hasForce ? null : []), force);
-    const changedOptions = cacheOptions(force ? null : hints._changedOptions, !!hints._changedOptions || force);
+    const { _force, _changedOptions } = hints;
 
-    if (changedOptions._anythingChanged || changedCache._anythingChanged) {
-      updateFunction(changedOptions, changedCache);
-    }
+    const checkOption = (path) => ({
+      _value: getPropByPath(options, path),
+      _changed: _force || getPropByPath(_changedOptions, path) !== undefined,
+    });
+
+    updateFunction(!!_force, checkOption);
   };
 
   update({
@@ -845,101 +822,89 @@ const createLifecycleBase = (defaultOptionsWithTemplate, cacheUpdateInfo, initia
   return {
     _options(newOptions) {
       if (newOptions) {
-        const { _validated: changedOptions } = validateOptions(newOptions, optionsTemplate, options, true);
-        assignDeep(options, changedOptions);
+        const { _validated: _changedOptions } = validateOptions(newOptions, optionsTemplate, options, true);
+        assignDeep(options, _changedOptions);
         update({
-          _changedOptions: keys(changedOptions),
+          _changedOptions,
         });
       }
 
       return options;
     },
 
-    _update: (force) => {
+    _update: (_force) => {
       update({
-        _force: !!force,
-      });
-    },
-    _updateCache: (cachePropsToUpdate) => {
-      update({
-        _changedCache: cachePropsToUpdate,
+        _force,
       });
     },
   };
 };
 
 const overflowBehaviorAllowedValues = 'visible-hidden visible-scroll scroll hidden';
+const defaultOptionsWithTemplate = {
+  paddingAbsolute: [false, optionsTemplateTypes.boolean],
+  overflowBehavior: {
+    x: ['scroll', overflowBehaviorAllowedValues],
+    y: ['scroll', overflowBehaviorAllowedValues],
+  },
+};
 const cssMarginEnd = cssProperty('margin-inline-end');
 const cssBorderEnd = cssProperty('border-inline-end');
 const createStructureLifecycle = (target, initialOptions) => {
-  const { host, viewport, content } = target;
+  const { host, padding: paddingElm, viewport, content } = target;
   const destructFns = [];
   const env = getEnvironment();
   const scrollbarsOverlaid = env._nativeScrollbarIsOverlaid;
   const supportsScrollbarStyling = env._nativeScrollbarStyling;
   const supportFlexboxGlue = env._flexboxGlue;
   const directionObserverObsolete = (cssMarginEnd && cssBorderEnd) || supportsScrollbarStyling || scrollbarsOverlaid.y;
-  const { _options, _update, _updateCache } = createLifecycleBase(
-    {
-      paddingAbsolute: [false, optionsTemplateTypes.boolean],
-      overflowBehavior: {
-        x: ['scroll', overflowBehaviorAllowedValues],
-        y: ['scroll', overflowBehaviorAllowedValues],
-      },
-    },
-    {
-      padding: [() => topRightBottomLeft(host, 'padding'), equalTRBL],
-    },
-    initialOptions,
-    (options, cache) => {
-      const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = options.paddingAbsolute;
-      const { _value: padding, _changed: paddingChanged } = cache.padding;
+  const updatePaddingCache = createCache(() => topRightBottomLeft(host, 'padding'), {
+    _equal: equalTRBL,
+  });
+  const { _options, _update } = createLifecycleBase(defaultOptionsWithTemplate, initialOptions, (force, checkOption) => {
+    const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = checkOption('paddingAbsolute');
+    const { _value: padding, _changed: paddingChanged } = updatePaddingCache(force);
 
-      if (paddingAbsoluteChanged || paddingChanged) {
-        const paddingStyle = {
-          t: 0,
-          r: 0,
-          b: 0,
-          l: 0,
-        };
+    if (paddingAbsoluteChanged || paddingChanged) {
+      const paddingStyle = {
+        t: 0,
+        r: 0,
+        b: 0,
+        l: 0,
+      };
 
-        if (!paddingAbsolute) {
-          paddingStyle.t = -padding.t;
-          paddingStyle.r = -(padding.r + padding.l);
-          paddingStyle.b = -(padding.b + padding.t);
-          paddingStyle.l = -padding.l;
-        }
-
-        if (!supportsScrollbarStyling) {
-          paddingStyle.r -= env._nativeScrollbarSize.y;
-          paddingStyle.b -= env._nativeScrollbarSize.x;
-        }
-
-        style(viewport, {
-          top: paddingStyle.t,
-          left: paddingStyle.l,
-          'margin-right': paddingStyle.r,
-          'margin-bottom': paddingStyle.b,
-        });
+      if (!paddingAbsolute) {
+        paddingStyle.t = -padding.t;
+        paddingStyle.r = -(padding.r + padding.l);
+        paddingStyle.b = -(padding.b + padding.t);
+        paddingStyle.l = -padding.l;
       }
 
-      console.log(options);
-      console.log(cache);
+      if (!supportsScrollbarStyling) {
+        paddingStyle.r -= env._nativeScrollbarSize.y;
+        paddingStyle.b -= env._nativeScrollbarSize.x;
+      }
+
+      style(paddingElm, {
+        top: paddingStyle.t,
+        left: paddingStyle.l,
+        'margin-right': paddingStyle.r,
+        'margin-bottom': paddingStyle.b,
+        'max-width': `calc(100% + ${paddingStyle.r * -1}px)`,
+      });
     }
-  );
+  });
 
   const onSizeChanged = () => {
-    _updateCache('padding');
+    _update();
   };
 
-  const onTrinsicChanged = (widthIntrinsic, heightIntrinsic) => {
-    if (heightIntrinsic) {
+  const onTrinsicChanged = (widthIntrinsic, heightIntrinsicCache) => {
+    const { _changed, _value } = heightIntrinsicCache;
+
+    if (_changed) {
       style(content, {
-        height: 'auto',
-      });
-    } else {
-      style(content, {
-        height: '100%',
+        height: _value ? 'auto' : '100%',
       });
     }
   };
@@ -963,6 +928,7 @@ const ResizeObserverConstructor = jsAPI('ResizeObserver');
 const classNameSizeObserver = 'os-size-observer';
 const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
 const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
+const classNameSizeObserverListenerScroll = `${classNameSizeObserverListener}-scroll`;
 const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
 const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
 const cAF = cancelAnimationFrame;
@@ -979,14 +945,14 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   const sizeObserver = baseElements[0];
   const listenerElement = sizeObserver.firstChild;
 
-  const onSizeChangedCallbackProxy = (dir) => {
+  const onSizeChangedCallbackProxy = (directionCache) => {
     if (direction) {
       const rtl = getDirection(sizeObserver) === 'rtl';
       scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
       scrollTop(sizeObserver, scrollAmount);
     }
 
-    onSizeChangedCallback(isString(dir) ? dir : undefined);
+    onSizeChangedCallback(isString((directionCache || {})._value) ? directionCache : undefined);
   };
 
   const offListeners = [];
@@ -1001,6 +967,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
     );
     appendChildren(listenerElement, observerElementChildren);
+    addClass(listenerElement, classNameSizeObserverListenerScroll);
     const observerElementChildrenRoot = observerElementChildren[0];
     const shrinkElement = observerElementChildrenRoot.lastChild;
     const expandElement = observerElementChildrenRoot.firstChild;
@@ -1017,15 +984,13 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       scrollTop(shrinkElement, scrollAmount);
     };
 
-    const onResized = function onResized() {
+    const onResized = () => {
       rAFId = 0;
 
-      if (!isDirty) {
-        return;
+      if (isDirty) {
+        cacheSize = currSize;
+        onSizeChangedCallbackProxy();
       }
-
-      cacheSize = currSize;
-      onSizeChangedCallbackProxy();
     };
 
     const onScroll = (scrollEvent) => {
@@ -1060,14 +1025,14 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   }
 
   if (direction) {
-    let dirCache;
+    const updateDirectionCache = createCache(() => getDirection(sizeObserver));
     offListeners.push(
       on(sizeObserver, scrollEventName, (event) => {
-        const dir = getDirection(sizeObserver);
-        const changed = dir !== dirCache;
+        const directionCache = updateDirectionCache();
+        const { _value, _changed } = directionCache;
 
-        if (changed) {
-          if (dir === 'rtl') {
+        if (_changed) {
+          if (_value === 'rtl') {
             style(listenerElement, {
               left: 'auto',
               right: 0,
@@ -1079,8 +1044,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
             });
           }
 
-          dirCache = dir;
-          onSizeChangedCallbackProxy(dir);
+          onSizeChangedCallbackProxy(directionCache);
         }
 
         preventDefault(event);
@@ -1107,7 +1071,12 @@ const IntersectionObserverConstructor = jsAPI('IntersectionObserver');
 const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
   const trinsicObserver = createDOM(`<div class="${classNameTrinsicObserver}"></div>`)[0];
   const offListeners = [];
-  let heightIntrinsic = false;
+  const updateHeightIntrinsicCache = createCache(
+    (ioEntryOrSize) => ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0,
+    {
+      _initialValue: false,
+    }
+  );
 
   if (IntersectionObserverConstructor) {
     const intersectionObserverInstance = new IntersectionObserverConstructor(
@@ -1116,11 +1085,10 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
           const last = entries.pop();
 
           if (last) {
-            const newHeightIntrinsic = last.isIntersecting || last.intersectionRatio > 0;
+            const heightIntrinsicCache = updateHeightIntrinsicCache(0, last);
 
-            if (newHeightIntrinsic !== heightIntrinsic) {
-              onTrinsicChangedCallback(false, newHeightIntrinsic);
-              heightIntrinsic = newHeightIntrinsic;
+            if (heightIntrinsicCache._changed) {
+              onTrinsicChangedCallback(false, heightIntrinsicCache);
             }
           }
         }
@@ -1135,11 +1103,10 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
     offListeners.push(
       createSizeObserver(trinsicObserver, () => {
         const newSize = offsetSize(trinsicObserver);
-        const newHeightIntrinsic = newSize.h === 0;
+        const heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
 
-        if (newHeightIntrinsic !== heightIntrinsic) {
-          onTrinsicChangedCallback(false, newHeightIntrinsic);
-          heightIntrinsic = newHeightIntrinsic;
+        if (heightIntrinsicCache._changed) {
+          onTrinsicChangedCallback(false, heightIntrinsicCache);
         }
       })
     );
@@ -1153,6 +1120,7 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
 };
 
 const classNameHost = 'os-host';
+const classNamePadding = 'os-padding';
 const classNameViewport = 'os-viewport';
 const classNameContent = 'os-content';
 
@@ -1162,24 +1130,29 @@ const normalizeTarget = (target) => {
 
     const _host = isTextarea ? createDiv() : target;
 
+    const _padding = createDiv(classNamePadding);
+
     const _viewport = createDiv(classNameViewport);
 
     const _content = createDiv(classNameContent);
 
+    appendChildren(_padding, _viewport);
     appendChildren(_viewport, _content);
     appendChildren(_content, contents(target));
-    appendChildren(target, _viewport);
+    appendChildren(target, _padding);
     addClass(_host, classNameHost);
     return {
       target,
       host: _host,
+      padding: _padding,
       viewport: _viewport,
       content: _content,
     };
   }
 
-  const { host, viewport, content } = target;
+  const { host, padding, viewport, content } = target;
   addClass(host, classNameHost);
+  addClass(padding, classNamePadding);
   addClass(viewport, classNameViewport);
   addClass(content, classNameContent);
   return target;
@@ -1191,10 +1164,10 @@ const OverlayScrollbars = (target, options, extensions) => {
   const { host } = osTarget;
   lifecycles.push(createStructureLifecycle(osTarget));
 
-  const onSizeChanged = (direction) => {
-    if (direction) {
+  const onSizeChanged = (directionCache) => {
+    if (directionCache) {
       each(lifecycles, (lifecycle) => {
-        lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(direction);
+        lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(directionCache);
       });
     } else {
       each(lifecycles, (lifecycle) => {
@@ -1203,9 +1176,9 @@ const OverlayScrollbars = (target, options, extensions) => {
     }
   };
 
-  const onTrinsicChanged = (widthIntrinsic, heightIntrinsic) => {
+  const onTrinsicChanged = (widthIntrinsic, heightIntrinsicCache) => {
     each(lifecycles, (lifecycle) => {
-      lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsic);
+      lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsicCache);
     });
   };
 

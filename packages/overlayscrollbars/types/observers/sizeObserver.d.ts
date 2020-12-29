@@ -1,7 +1,7 @@
-declare type Direction = 'ltr' | 'rtl';
+import { Cache } from 'support';
+import { CSSDirection } from 'typings';
 export declare type SizeObserverOptions = {
     _direction?: boolean;
     _appear?: boolean;
 };
-export declare const createSizeObserver: (target: HTMLElement, onSizeChangedCallback: (direction?: "ltr" | "rtl" | undefined) => any, options?: SizeObserverOptions | undefined) => (() => void);
-export {};
+export declare const createSizeObserver: (target: HTMLElement, onSizeChangedCallback: (directionCache?: Cache<CSSDirection> | undefined) => any, options?: SizeObserverOptions | undefined) => (() => void);

@@ -1,71 +1,67 @@
 import {
-  CacheUpdateInfo,
-  CachePropsToUpdate,
   Cache,
+  OptionsValidated,
   OptionsWithOptionsTemplate,
   transformOptions,
   validateOptions,
   assignDeep,
-  createCache,
-  isBoolean,
-  keys,
+  hasOwnProperty,
+  isEmptyObject,
 } from 'support';
-import { PlainObject } from 'typings';
+import { CSSDirection, PlainObject } from 'typings';
 
-interface LifecycleUpdateHints<O, C> {
+interface LifecycleBaseUpdateHints<O> {
   _force?: boolean;
-  _changedOptions?: CachePropsToUpdate<O>;
-  _changedCache?: CachePropsToUpdate<C>;
+  _changedOptions?: OptionsValidated<O>;
 }
 
-interface AbstractLifecycle<O extends PlainObject> {
+export interface LifecycleBase<O extends PlainObject> {
   _options(newOptions?: O): O;
   _update(force?: boolean): void;
 }
 
-export interface Lifecycle<T extends PlainObject> extends AbstractLifecycle<T> {
+export interface Lifecycle<T extends PlainObject> extends LifecycleBase<T> {
   _destruct(): void;
   _onSizeChanged?(): void;
-  _onDirectionChanged?(direction: 'ltr' | 'rtl'): void;
-  _onTrinsicChanged?(widthIntrinsic: boolean, heightIntrinsic: boolean): void;
+  _onDirectionChanged?(directionCache: Cache<CSSDirection>): void;
+  _onTrinsicChanged?(widthIntrinsic: boolean, heightIntrinsicCache: Cache<boolean>): void;
 }
 
-export interface LifecycleBase<O extends PlainObject, C extends PlainObject> extends AbstractLifecycle<O> {
-  _updateCache(cachePropsToUpdate?: CachePropsToUpdate<C>): void;
+export interface LifecycleOptionInfo<T> {
+  _value: T;
+  _changed: boolean;
 }
+
+export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
+
+const getPropByPath = <T>(obj: any, path: string): T =>
+  obj && path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj);
 
 /**
  * Creates a object which can be seen as the base of a lifecycle because it provides all the tools to manage a lifecycle and its options, cache and base functions.
  * @param defaultOptionsWithTemplate A object which describes the options and the default options of the lifecycle.
- * @param cacheUpdateInfo A object which describes how cache updates shall behave.
  * @param initialOptions The initialOptions for the lifecylce. (Can be undefined)
  * @param updateFunction The update function where cache and options updates are handled. Has two arguments which are the changedOptions and the changedCache objects.
  */
-export const createLifecycleBase = <O, C>(
+export const createLifecycleBase = <O>(
   defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<O>>,
-  cacheUpdateInfo: CacheUpdateInfo<C>,
   initialOptions: O | undefined,
-  updateFunction: (options: Cache<O>, cache: Cache<C>) => any
-): LifecycleBase<O, C> => {
+  updateFunction: (force: boolean, checkOption: LifecycleCheckOption) => any
+): LifecycleBase<O> => {
   const { _template: optionsTemplate, _options: defaultOptions } = transformOptions<Required<O>>(defaultOptionsWithTemplate);
   const options: Required<O> = assignDeep(
     {},
     defaultOptions,
     validateOptions<O>(initialOptions || ({} as O), optionsTemplate, null, true)._validated
   );
-  const cacheChange = createCache<C>(cacheUpdateInfo);
-  const cacheOptions = createCache<O>(options, true);
 
-  const update = (hints: LifecycleUpdateHints<O, C>) => {
-    const hasForce = isBoolean(hints._force); // indication that it was called from outside
-    const force = hints._force === true;
-
-    const changedCache = cacheChange(force ? null : hints._changedCache || (hasForce ? null : []), force);
-    const changedOptions = cacheOptions(force ? null : hints._changedOptions, !!hints._changedOptions || force);
-
-    if (changedOptions._anythingChanged || changedCache._anythingChanged) {
-      updateFunction(changedOptions, changedCache);
-    }
+  const update = (hints: LifecycleBaseUpdateHints<O>) => {
+    const { _force, _changedOptions } = hints;
+    const checkOption: LifecycleCheckOption = (path) => ({
+      _value: getPropByPath(options, path),
+      _changed: _force || getPropByPath(_changedOptions, path) !== undefined,
+    });
+    updateFunction(!!_force, checkOption);
   };
 
   update({ _force: true });
@@ -73,18 +69,17 @@ export const createLifecycleBase = <O, C>(
   return {
     _options(newOptions?: O) {
       if (newOptions) {
-        const { _validated: changedOptions } = validateOptions(newOptions, optionsTemplate, options, true);
-        assignDeep(options, changedOptions);
+        const { _validated: _changedOptions } = validateOptions(newOptions, optionsTemplate, options, true);
 
-        update({ _changedOptions: keys(changedOptions) as CachePropsToUpdate<O> });
+        if (!isEmptyObject(_changedOptions)) {
+          assignDeep(options, _changedOptions);
+          update({ _changedOptions });
+        }
       }
       return options;
     },
-    _update: (force?: boolean) => {
-      update({ _force: !!force });
-    },
-    _updateCache: (cachePropsToUpdate?: CachePropsToUpdate<C>) => {
-      update({ _changedCache: cachePropsToUpdate });
+    _update: (_force?: boolean) => {
+      update({ _force });
     },
   };
 };

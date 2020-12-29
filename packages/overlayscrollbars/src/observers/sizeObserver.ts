@@ -1,4 +1,6 @@
 import {
+  Cache,
+  createCache,
   createDOM,
   style,
   appendChildren,
@@ -16,6 +18,7 @@ import {
   isString,
   equalWH,
 } from 'support';
+import { CSSDirection } from 'typings';
 import { getEnvironment } from 'environment';
 
 const animationStartEventName = 'animationstart';
@@ -30,15 +33,12 @@ const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item
 const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
 const cAF = cancelAnimationFrame;
 const rAF = requestAnimationFrame;
-const getDirection = (elm: HTMLElement) => style(elm, 'direction');
+const getDirection = (elm: HTMLElement): CSSDirection => style(elm, 'direction') as CSSDirection;
 
-// TODO:
-// 1. MAYBE add comparison function to offsetSize etc.
-type Direction = 'ltr' | 'rtl';
 export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };
 export const createSizeObserver = (
   target: HTMLElement,
-  onSizeChangedCallback: (direction?: Direction) => any,
+  onSizeChangedCallback: (directionCache?: Cache<CSSDirection>) => any,
   options?: SizeObserverOptions
 ): (() => void) => {
   const { _direction: direction = false, _appear: appear = false } = options || {};
@@ -46,13 +46,13 @@ export const createSizeObserver = (
   const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
   const sizeObserver = baseElements[0] as HTMLElement;
   const listenerElement = sizeObserver.firstChild as HTMLElement;
-  const onSizeChangedCallbackProxy = (dir?: Direction) => {
+  const onSizeChangedCallbackProxy = (directionCache?: Cache<CSSDirection>) => {
     if (direction) {
       const rtl = getDirection(sizeObserver) === 'rtl';
       scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
       scrollTop(sizeObserver, scrollAmount);
     }
-    onSizeChangedCallback(isString(dir) ? dir : undefined);
+    onSizeChangedCallback(isString((directionCache || {})._value) ? directionCache : undefined);
   };
   const offListeners: (() => void)[] = [];
   let appearCallback: ((...args: any) => any) | null = appear ? onSizeChangedCallbackProxy : null;
@@ -83,14 +83,12 @@ export const createSizeObserver = (
       scrollLeft(shrinkElement, scrollAmount);
       scrollTop(shrinkElement, scrollAmount);
     };
-    const onResized = function () {
+    const onResized = () => {
       rAFId = 0;
-      if (!isDirty) {
-        return;
+      if (isDirty) {
+        cacheSize = currSize;
+        onSizeChangedCallbackProxy();
       }
-
-      cacheSize = currSize;
-      onSizeChangedCallbackProxy();
     };
     const onScroll = (scrollEvent?: Event) => {
       currSize = offsetSize(listenerElement);
@@ -104,6 +102,7 @@ export const createSizeObserver = (
       }
 
       reset();
+
       if (scrollEvent) {
         preventDefault(scrollEvent);
         stopPropagation(scrollEvent);
@@ -124,19 +123,18 @@ export const createSizeObserver = (
   }
 
   if (direction) {
-    let dirCache: string | undefined;
+    const updateDirectionCache = createCache(() => getDirection(sizeObserver));
     offListeners.push(
       on(sizeObserver, scrollEventName, (event: Event) => {
-        const dir = getDirection(sizeObserver);
-        const changed = dir !== dirCache;
-        if (changed) {
-          if (dir === 'rtl') {
+        const directionCache = updateDirectionCache();
+        const { _value, _changed } = directionCache;
+        if (_changed) {
+          if (_value === 'rtl') {
             style(listenerElement, { left: 'auto', right: 0 });
           } else {
             style(listenerElement, { left: 0, right: 'auto' });
           }
-          dirCache = dir;
-          onSizeChangedCallbackProxy(dir as Direction);
+          onSizeChangedCallbackProxy(directionCache);
         }
 
         preventDefault(event);

@@ -5,7 +5,9 @@ export declare type OSTargetElement = HTMLElement | HTMLTextAreaElement;
 export interface OSTargetObject {
     target: OSTargetElement;
     host: HTMLElement;
+    padding: HTMLElement;
     viewport: HTMLElement;
     content: HTMLElement;
 }
 export declare type OSTarget = OSTargetElement | OSTargetObject;
+export declare type CSSDirection = 'ltr' | 'rtl';

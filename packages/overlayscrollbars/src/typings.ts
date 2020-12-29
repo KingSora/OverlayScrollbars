@@ -12,6 +12,8 @@ export interface OSTargetObject {
 
 export type OSTarget = OSTargetElement | OSTargetObject;
 
+export type CSSDirection = 'ltr' | 'rtl';
+
 /*
 export namespace OverlayScrollbars {
   export type ResizeBehavior = 'none' | 'both' | 'horizontal' | 'vertical';

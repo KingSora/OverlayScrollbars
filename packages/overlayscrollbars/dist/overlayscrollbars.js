@@ -21,9 +21,6 @@
   function isString(obj) {
     return typeof obj === 'string';
   }
-  function isBoolean(obj) {
-    return typeof obj === 'boolean';
-  }
   function isFunction(obj) {
     return typeof obj === 'function';
   }
@@ -487,49 +484,32 @@
       : zeroObj$1;
   };
 
-  function createCache(cacheUpdateInfo, isReference) {
-    var cache = {};
-    var allProps = keys(cacheUpdateInfo);
-    each(allProps, function (prop) {
-      cache[prop] = {
-        _changed: false,
-        _value: isReference ? cacheUpdateInfo[prop] : undefined,
+  var createCache = function createCache(update, options) {
+    var _ref = options || {},
+      _equal = _ref._equal,
+      _initialValue = _ref._initialValue;
+
+    var _value = _initialValue;
+
+    var _previous;
+
+    return function (force, context) {
+      var prev = _value;
+      var newVal = update(context, _value, _previous);
+      var changed = force || (_equal ? !_equal(prev, newVal) : prev !== newVal);
+
+      if (changed) {
+        _value = newVal;
+        _previous = prev;
+      }
+
+      return {
+        _value: _value,
+        _previous: _previous,
+        _changed: changed,
       };
-    });
-
-    var updateCacheProp = function updateCacheProp(prop, value, equal) {
-      var curr = cache[prop]._value;
-      cache[prop]._value = value;
-      cache[prop]._previous = curr;
-      cache[prop]._changed = equal ? !equal(curr, value) : curr !== value;
     };
-
-    var flush = function flush(props, force) {
-      var result = assignDeep({}, cache, {
-        _anythingChanged: false,
-      });
-      each(props, function (prop) {
-        var changed = force || cache[prop]._changed;
-        result._anythingChanged = result._anythingChanged || changed;
-        result[prop]._changed = changed;
-        cache[prop]._changed = false;
-      });
-      return result;
-    };
-
-    return function (propsToUpdate, force) {
-      var finalPropsToUpdate = (isString(propsToUpdate) ? [propsToUpdate] : propsToUpdate) || allProps;
-      each(finalPropsToUpdate, function (prop) {
-        var cacheVal = cache[prop];
-        var curr = cacheUpdateInfo[prop];
-        var arr = isReference ? false : isArray(curr);
-        var value = arr ? curr[0] : curr;
-        var equal = arr ? curr[1] : null;
-        updateCacheProp(prop, isReference ? value : value(cacheVal._value, cacheVal._previous), equal);
-      });
-      return flush(finalPropsToUpdate, force);
-    };
-  }
+  };
 
   var firstLetterToUpper = function firstLetterToUpper(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -893,24 +873,34 @@
     return environmentInstance;
   };
 
-  var createLifecycleBase = function createLifecycleBase(defaultOptionsWithTemplate, cacheUpdateInfo, initialOptions, updateFunction) {
+  var getPropByPath = function getPropByPath(obj, path) {
+    return (
+      obj &&
+      path.split('.').reduce(function (o, prop) {
+        return o && hasOwnProperty(o, prop) ? o[prop] : undefined;
+      }, obj)
+    );
+  };
+
+  var createLifecycleBase = function createLifecycleBase(defaultOptionsWithTemplate, initialOptions, updateFunction) {
     var _transformOptions = transformOptions(defaultOptionsWithTemplate),
       optionsTemplate = _transformOptions._template,
       defaultOptions = _transformOptions._options;
 
     var options = assignDeep({}, defaultOptions, validateOptions(initialOptions || {}, optionsTemplate, null, true)._validated);
-    var cacheChange = createCache(cacheUpdateInfo);
-    var cacheOptions = createCache(options, true);
 
     var update = function update(hints) {
-      var hasForce = isBoolean(hints._force);
-      var force = hints._force === true;
-      var changedCache = cacheChange(force ? null : hints._changedCache || (hasForce ? null : []), force);
-      var changedOptions = cacheOptions(force ? null : hints._changedOptions, !!hints._changedOptions || force);
+      var _force = hints._force,
+        _changedOptions = hints._changedOptions;
 
-      if (changedOptions._anythingChanged || changedCache._anythingChanged) {
-        updateFunction(changedOptions, changedCache);
-      }
+      var checkOption = function checkOption(path) {
+        return {
+          _value: getPropByPath(options, path),
+          _changed: _force || getPropByPath(_changedOptions, path) !== undefined,
+        };
+      };
+
+      updateFunction(!!_force, checkOption);
     };
 
     update({
@@ -920,34 +910,37 @@
       _options: function _options(newOptions) {
         if (newOptions) {
           var _validateOptions = validateOptions(newOptions, optionsTemplate, options, true),
-            changedOptions = _validateOptions._validated;
+            _changedOptions = _validateOptions._validated;
 
-          assignDeep(options, changedOptions);
+          assignDeep(options, _changedOptions);
           update({
-            _changedOptions: keys(changedOptions),
+            _changedOptions: _changedOptions,
           });
         }
 
         return options;
       },
-      _update: function _update(force) {
+      _update: function _update(_force) {
         update({
-          _force: !!force,
-        });
-      },
-      _updateCache: function _updateCache(cachePropsToUpdate) {
-        update({
-          _changedCache: cachePropsToUpdate,
+          _force: _force,
         });
       },
     };
   };
 
   var overflowBehaviorAllowedValues = 'visible-hidden visible-scroll scroll hidden';
+  var defaultOptionsWithTemplate = {
+    paddingAbsolute: [false, optionsTemplateTypes.boolean],
+    overflowBehavior: {
+      x: ['scroll', overflowBehaviorAllowedValues],
+      y: ['scroll', overflowBehaviorAllowedValues],
+    },
+  };
   var cssMarginEnd = cssProperty('margin-inline-end');
   var cssBorderEnd = cssProperty('border-inline-end');
   var createStructureLifecycle = function createStructureLifecycle(target, initialOptions) {
     var host = target.host,
+      paddingElm = target.padding,
       viewport = target.viewport,
       content = target.content;
     var destructFns = [];
@@ -956,80 +949,67 @@
     var supportsScrollbarStyling = env._nativeScrollbarStyling;
     var supportFlexboxGlue = env._flexboxGlue;
     var directionObserverObsolete = (cssMarginEnd && cssBorderEnd) || supportsScrollbarStyling || scrollbarsOverlaid.y;
+    var updatePaddingCache = createCache(
+      function () {
+        return topRightBottomLeft(host, 'padding');
+      },
+      {
+        _equal: equalTRBL,
+      }
+    );
 
-    var _createLifecycleBase = createLifecycleBase(
-        {
-          paddingAbsolute: [false, optionsTemplateTypes.boolean],
-          overflowBehavior: {
-            x: ['scroll', overflowBehaviorAllowedValues],
-            y: ['scroll', overflowBehaviorAllowedValues],
-          },
-        },
-        {
-          padding: [
-            function () {
-              return topRightBottomLeft(host, 'padding');
-            },
-            equalTRBL,
-          ],
-        },
-        initialOptions,
-        function (options, cache) {
-          var _options$paddingAbsol = options.paddingAbsolute,
-            paddingAbsolute = _options$paddingAbsol._value,
-            paddingAbsoluteChanged = _options$paddingAbsol._changed;
-          var _cache$padding = cache.padding,
-            padding = _cache$padding._value,
-            paddingChanged = _cache$padding._changed;
+    var _createLifecycleBase = createLifecycleBase(defaultOptionsWithTemplate, initialOptions, function (force, checkOption) {
+        var _checkOption = checkOption('paddingAbsolute'),
+          paddingAbsolute = _checkOption._value,
+          paddingAbsoluteChanged = _checkOption._changed;
 
-          if (paddingAbsoluteChanged || paddingChanged) {
-            var paddingStyle = {
-              t: 0,
-              r: 0,
-              b: 0,
-              l: 0,
-            };
+        var _updatePaddingCache = updatePaddingCache(force),
+          padding = _updatePaddingCache._value,
+          paddingChanged = _updatePaddingCache._changed;
 
-            if (!paddingAbsolute) {
-              paddingStyle.t = -padding.t;
-              paddingStyle.r = -(padding.r + padding.l);
-              paddingStyle.b = -(padding.b + padding.t);
-              paddingStyle.l = -padding.l;
-            }
+        if (paddingAbsoluteChanged || paddingChanged) {
+          var paddingStyle = {
+            t: 0,
+            r: 0,
+            b: 0,
+            l: 0,
+          };
 
-            if (!supportsScrollbarStyling) {
-              paddingStyle.r -= env._nativeScrollbarSize.y;
-              paddingStyle.b -= env._nativeScrollbarSize.x;
-            }
-
-            style(viewport, {
-              top: paddingStyle.t,
-              left: paddingStyle.l,
-              'margin-right': paddingStyle.r,
-              'margin-bottom': paddingStyle.b,
-            });
+          if (!paddingAbsolute) {
+            paddingStyle.t = -padding.t;
+            paddingStyle.r = -(padding.r + padding.l);
+            paddingStyle.b = -(padding.b + padding.t);
+            paddingStyle.l = -padding.l;
           }
 
-          console.log(options);
-          console.log(cache);
+          if (!supportsScrollbarStyling) {
+            paddingStyle.r -= env._nativeScrollbarSize.y;
+            paddingStyle.b -= env._nativeScrollbarSize.x;
+          }
+
+          style(paddingElm, {
+            top: paddingStyle.t,
+            left: paddingStyle.l,
+            'margin-right': paddingStyle.r,
+            'margin-bottom': paddingStyle.b,
+            'max-width': 'calc(100% + ' + paddingStyle.r * -1 + 'px)',
+          });
         }
-      ),
+      }),
       _options = _createLifecycleBase._options,
-      _update = _createLifecycleBase._update,
-      _updateCache = _createLifecycleBase._updateCache;
+      _update = _createLifecycleBase._update;
 
     var onSizeChanged = function onSizeChanged() {
-      _updateCache('padding');
+      _update();
     };
 
-    var onTrinsicChanged = function onTrinsicChanged(widthIntrinsic, heightIntrinsic) {
-      if (heightIntrinsic) {
+    var onTrinsicChanged = function onTrinsicChanged(widthIntrinsic, heightIntrinsicCache) {
+      var _changed = heightIntrinsicCache._changed,
+        _value = heightIntrinsicCache._value;
+
+      if (_changed) {
         style(content, {
-          height: 'auto',
-        });
-      } else {
-        style(content, {
-          height: '100%',
+          height: _value ? 'auto' : '100%',
         });
       }
     };
@@ -1052,6 +1032,7 @@
   var classNameSizeObserver = 'os-size-observer';
   var classNameSizeObserverAppear = classNameSizeObserver + '-appear';
   var classNameSizeObserverListener = classNameSizeObserver + '-listener';
+  var classNameSizeObserverListenerScroll = classNameSizeObserverListener + '-scroll';
   var classNameSizeObserverListenerItem = classNameSizeObserverListener + '-item';
   var classNameSizeObserverListenerItemFinal = classNameSizeObserverListenerItem + '-final';
   var cAF = cancelAnimationFrame;
@@ -1074,14 +1055,14 @@
     var sizeObserver = baseElements[0];
     var listenerElement = sizeObserver.firstChild;
 
-    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(dir) {
+    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(directionCache) {
       if (direction) {
         var rtl = getDirection(sizeObserver) === 'rtl';
         scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
         scrollTop(sizeObserver, scrollAmount);
       }
 
-      onSizeChangedCallback(isString(dir) ? dir : undefined);
+      onSizeChangedCallback(isString((directionCache || {})._value) ? directionCache : undefined);
     };
 
     var offListeners = [];
@@ -1108,6 +1089,7 @@
           '" style="width: 200%; height: 200%"></div></div></div>'
       );
       appendChildren(listenerElement, observerElementChildren);
+      addClass(listenerElement, classNameSizeObserverListenerScroll);
       var observerElementChildrenRoot = observerElementChildren[0];
       var shrinkElement = observerElementChildrenRoot.lastChild;
       var expandElement = observerElementChildrenRoot.firstChild;
@@ -1127,12 +1109,10 @@
       var onResized = function onResized() {
         rAFId = 0;
 
-        if (!isDirty) {
-          return;
+        if (isDirty) {
+          cacheSize = currSize;
+          onSizeChangedCallbackProxy();
         }
-
-        cacheSize = currSize;
-        onSizeChangedCallbackProxy();
       };
 
       var onScroll = function onScroll(scrollEvent) {
@@ -1171,14 +1151,17 @@
     }
 
     if (direction) {
-      var dirCache;
+      var updateDirectionCache = createCache(function () {
+        return getDirection(sizeObserver);
+      });
       offListeners.push(
         on(sizeObserver, scrollEventName, function (event) {
-          var dir = getDirection(sizeObserver);
-          var changed = dir !== dirCache;
+          var directionCache = updateDirectionCache();
+          var _value = directionCache._value,
+            _changed = directionCache._changed;
 
-          if (changed) {
-            if (dir === 'rtl') {
+          if (_changed) {
+            if (_value === 'rtl') {
               style(listenerElement, {
                 left: 'auto',
                 right: 0,
@@ -1190,8 +1173,7 @@
               });
             }
 
-            dirCache = dir;
-            onSizeChangedCallbackProxy(dir);
+            onSizeChangedCallbackProxy(directionCache);
           }
 
           preventDefault(event);
@@ -1218,7 +1200,14 @@
   var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
     var trinsicObserver = createDOM('<div class="' + classNameTrinsicObserver + '"></div>')[0];
     var offListeners = [];
-    var heightIntrinsic = false;
+    var updateHeightIntrinsicCache = createCache(
+      function (ioEntryOrSize) {
+        return ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
+      },
+      {
+        _initialValue: false,
+      }
+    );
 
     if (IntersectionObserverConstructor) {
       var intersectionObserverInstance = new IntersectionObserverConstructor(
@@ -1227,11 +1216,10 @@
             var last = entries.pop();
 
             if (last) {
-              var newHeightIntrinsic = last.isIntersecting || last.intersectionRatio > 0;
+              var heightIntrinsicCache = updateHeightIntrinsicCache(0, last);
 
-              if (newHeightIntrinsic !== heightIntrinsic) {
-                onTrinsicChangedCallback(false, newHeightIntrinsic);
-                heightIntrinsic = newHeightIntrinsic;
+              if (heightIntrinsicCache._changed) {
+                onTrinsicChangedCallback(false, heightIntrinsicCache);
               }
             }
           }
@@ -1248,11 +1236,10 @@
       offListeners.push(
         createSizeObserver(trinsicObserver, function () {
           var newSize = offsetSize(trinsicObserver);
-          var newHeightIntrinsic = newSize.h === 0;
+          var heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
 
-          if (newHeightIntrinsic !== heightIntrinsic) {
-            onTrinsicChangedCallback(false, newHeightIntrinsic);
-            heightIntrinsic = newHeightIntrinsic;
+          if (heightIntrinsicCache._changed) {
+            onTrinsicChangedCallback(false, heightIntrinsicCache);
           }
         })
       );
@@ -1266,6 +1253,7 @@
   };
 
   var classNameHost = 'os-host';
+  var classNamePadding = 'os-padding';
   var classNameViewport = 'os-viewport';
   var classNameContent = 'os-content';
 
@@ -1275,26 +1263,32 @@
 
       var _host = isTextarea ? createDiv() : target;
 
+      var _padding = createDiv(classNamePadding);
+
       var _viewport = createDiv(classNameViewport);
 
       var _content = createDiv(classNameContent);
 
+      appendChildren(_padding, _viewport);
       appendChildren(_viewport, _content);
       appendChildren(_content, contents(target));
-      appendChildren(target, _viewport);
+      appendChildren(target, _padding);
       addClass(_host, classNameHost);
       return {
         target: target,
         host: _host,
+        padding: _padding,
         viewport: _viewport,
         content: _content,
       };
     }
 
     var host = target.host,
+      padding = target.padding,
       viewport = target.viewport,
       content = target.content;
     addClass(host, classNameHost);
+    addClass(padding, classNamePadding);
     addClass(viewport, classNameViewport);
     addClass(content, classNameContent);
     return target;
@@ -1306,10 +1300,10 @@
     var host = osTarget.host;
     lifecycles.push(createStructureLifecycle(osTarget));
 
-    var onSizeChanged = function onSizeChanged(direction) {
-      if (direction) {
+    var onSizeChanged = function onSizeChanged(directionCache) {
+      if (directionCache) {
         each(lifecycles, function (lifecycle) {
-          lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(direction);
+          lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(directionCache);
         });
       } else {
         each(lifecycles, function (lifecycle) {
@@ -1318,9 +1312,9 @@
       }
     };
 
-    var onTrinsicChanged = function onTrinsicChanged(widthIntrinsic, heightIntrinsic) {
+    var onTrinsicChanged = function onTrinsicChanged(widthIntrinsic, heightIntrinsicCache) {
       each(lifecycles, function (lifecycle) {
-        lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsic);
+        lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsicCache);
       });
     };
 

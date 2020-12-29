@@ -16,8 +16,8 @@ const waitForOptions = {
   },
 };
 
+let heightIntrinsic: boolean | undefined;
 let heightIterations = 0;
-let heightIntrinsicCache: boolean;
 const envElm = document.querySelector('#env');
 const targetElm = document.querySelector('#target');
 const checkElm = document.querySelector('#check');
@@ -86,7 +86,7 @@ const changeWhileHidden = async () => {
     selectOption(displaySelect as HTMLSelectElement, 'displayBlock');
 
     await waitFor(() => {
-      should.equal(heightIntrinsicCache, false);
+      should.equal(heightIntrinsic, false);
     }, waitForOptions);
   };
 
@@ -100,7 +100,7 @@ const changeWhileHidden = async () => {
     selectOption(displaySelect as HTMLSelectElement, 'displayBlock');
 
     await waitFor(() => {
-      should.equal(heightIntrinsicCache, true);
+      should.equal(heightIntrinsic, true);
     }, waitForOptions);
   };
 
@@ -126,10 +126,10 @@ const start = async () => {
 
 startBtn?.addEventListener('click', start);
 
-createTrinsicObserver(targetElm as HTMLElement, (widthIntrinsic: boolean, heightIntrinsic: boolean) => {
-  if (heightIntrinsic !== heightIntrinsicCache) {
+createTrinsicObserver(targetElm as HTMLElement, (widthIntrinsic, heightIntrinsicCache) => {
+  if (heightIntrinsicCache._changed) {
     heightIterations += 1;
-    heightIntrinsicCache = heightIntrinsic;
+    heightIntrinsic = heightIntrinsicCache._value;
   }
   requestAnimationFrame(() => {
     if (changesSlot) {

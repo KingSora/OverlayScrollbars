@@ -167,8 +167,8 @@ startBtn?.addEventListener('click', start);
 
 createSizeObserver(
   targetElm as HTMLElement,
-  (direction?: 'ltr' | 'rtl') => {
-    if (direction) {
+  (directionCache?: any) => {
+    if (directionCache) {
       directionIterations += 1;
     } else {
       sizeIterations += 1;
