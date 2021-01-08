@@ -2,9 +2,12 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 const del = require('del');
+const readline = require('readline');
 const rollup = require('rollup');
 const rollupPluginHtml = require('@rollup/plugin-html');
 const rollupPluginStyles = require('rollup-plugin-styles');
+const rollupPluginServe = require('rollup-plugin-serve');
+const rollupPluginLivereload = require('rollup-plugin-livereload');
 const deploymentConfig = require('./jest-puppeteer.rollup.config.js');
 
 const rollupConfigName = 'rollup.config.js';
@@ -132,10 +135,12 @@ const filesChanged = (testPath, cacheDir) => {
   return result;
 };
 
-const setupRollupTest = async (rootDir, testPath, cacheDir) => {
+const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
+  const rollupWatchers = [];
+  const rollupServers = [];
   const testDir = path.dirname(testPath);
   const testName = path.basename(testDir);
-  const changed = cacheDir ? filesChanged(testPath, cacheDir) : true;
+  const changed = cacheDir && !watch ? filesChanged(testPath, cacheDir) : true;
   const buildFolderExists = fs.existsSync(path.resolve(testDir, deploymentConfig.build));
 
   if (changed || !buildFolderExists) {
@@ -148,13 +153,14 @@ const setupRollupTest = async (rootDir, testPath, cacheDir) => {
         try {
           const htmlFilePath = path.resolve(testDir, deploymentConfig.html.input);
           const htmlFileContent = fs.existsSync(htmlFilePath) ? fs.readFileSync(htmlFilePath, 'utf8') : null;
+          const dist = path.resolve(testDir, deploymentConfig.build);
 
           let rollupConfigObj = rollupConfig(undefined, {
             project: rootDir,
             overwrite: ({ defaultConfig }) => {
               return {
+                dist,
                 input: path.resolve(testDir, deploymentConfig.js.input),
-                dist: path.resolve(testDir, deploymentConfig.build),
                 file: deploymentConfig.js.output,
                 types: null,
                 minVersions: false,
@@ -170,6 +176,23 @@ const setupRollupTest = async (rootDir, testPath, cacheDir) => {
                     template: genHtmlTemplateFunc(htmlFileContent),
                     meta: [{ charset: 'utf-8' }, { 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' }],
                   }),
+                  ...(watch
+                    ? [
+                        rollupPluginServe({
+                          contentBase: dist,
+                          historyApiFallback: `/${deploymentConfig.html.output}`,
+                          port: 18080,
+                          onListening(server) {
+                            rollupServers.push(server);
+                          },
+                        }),
+                        rollupPluginLivereload({
+                          watch: dist,
+                          verbose: true,
+                          port: 28080,
+                        }),
+                      ]
+                    : []),
                 ],
               };
             },
@@ -184,17 +207,82 @@ const setupRollupTest = async (rootDir, testPath, cacheDir) => {
           for (let i = 0; i < rollupConfigObj.length; i++) {
             const inputConfig = rollupConfigObj[i];
             let { output } = inputConfig;
-            // eslint-disable-next-line no-await-in-loop
-            const bundle = await rollup.rollup(inputConfig);
 
             if (!Array.isArray(output)) {
               output = [output];
             }
 
-            for (let v = 0; v < output.length; v++) {
-              const outputConfig = output[i];
+            if (watch) {
+              let firstWatch = true;
+              const rollupWatcher = rollup.watch({
+                ...inputConfig,
+                output,
+              });
+
               // eslint-disable-next-line no-await-in-loop
-              await bundle.write(outputConfig);
+              await new Promise((resolve) => {
+                rollupWatcher.on('event', ({ code, duration, error, result }) => {
+                  if (code === 'ERROR') {
+                    console.log('Error:', error); // eslint-disable-line
+                  }
+                  if (code === 'START') {
+                    console.log(firstWatch ? 'Building...' : 'Rebuilding...'); // eslint-disable-line
+                  }
+                  if (code === 'BUNDLE_END') {
+                    console.log(`Bundle finished after ${Math.round(duration / 1000)} seconds.`); // eslint-disable-line
+                    if (result && result.close) {
+                      result.close();
+                    }
+                  }
+                  if (code === 'END') {
+                    console.log('Watching for changes, press ENTER to continue.'); // eslint-disable-line
+                    console.log(''); // eslint-disable-line
+                    if (firstWatch) {
+                      firstWatch = false;
+                      resolve();
+                    }
+                  }
+                });
+              });
+
+              rollupWatchers.push(rollupWatcher);
+            } else {
+              // eslint-disable-next-line no-await-in-loop
+              const bundle = await rollup.rollup(inputConfig);
+
+              for (let v = 0; v < output.length; v++) {
+                const outputConfig = output[i];
+                // eslint-disable-next-line no-await-in-loop
+                await bundle.write(outputConfig);
+              }
+            }
+          }
+
+          if (watch) {
+            const rl = readline.createInterface({
+              input: process.stdin,
+              output: process.stdout,
+            });
+
+            await new Promise((resolve) => {
+              rl.on('line', () => {
+                resolve();
+              });
+              rl.on('close', () => {
+                resolve();
+              });
+            });
+
+            rl.close();
+            rollupWatchers.forEach((watcher) => {
+              watcher.close();
+            });
+            rollupServers.forEach((server) => {
+              server.close();
+            });
+            if (rollupPluginLivereload && global.PLUGIN_LIVERELOAD && global.PLUGIN_LIVERELOAD.server) {
+              global.PLUGIN_LIVERELOAD.server.close();
+              global.PLUGIN_LIVERELOAD.server = null;
             }
           }
         } catch (e) {

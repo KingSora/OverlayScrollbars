@@ -6,18 +6,19 @@ class PuppeteerRollupEnvironment extends PuppeteerEnvironment {
   constructor(envConfig, envContext) {
     super(envConfig, envContext);
 
+    this.watch = envConfig.displayName.name === 'puppeteer-dev';
     this.ctx = envContext;
     this.cfg = envConfig;
   }
 
   async setup() {
     // setup
-    await setupRollupTest(this.cfg.rootDir, this.ctx.testPath, this.cfg.cache && this.cfg.cacheDirectory);
+    await setupRollupTest(this.cfg.rootDir, this.ctx.testPath, this.cfg.cache && this.cfg.cacheDirectory, this.watch);
     await super.setup();
 
     // coverage
-    const { page } = this.global;
-    await Promise.all([page.coverage.startCSSCoverage(), page.coverage.startJSCoverage()]);
+    // const { page } = this.global;
+    // await Promise.all([page.coverage.startCSSCoverage(), page.coverage.startJSCoverage()]);
   }
 
   async teardown() {

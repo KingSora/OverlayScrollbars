@@ -48,8 +48,10 @@
     "prettier-eslint": "^11.0.0",
     "puppeteer": "^5.2.1",
     "puppeteer-to-istanbul": "^1.4.0",
-    "rollup": "^2.22.1",
+    "rollup": "^2.36.1",
+    "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-prettier": "^2.1.0",
+    "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-styles": "^3.10.0",
     "rollup-plugin-terser": "^6.1.0",
     "rollup-plugin-typescript2": "^0.27.1",
@@ -62,6 +64,7 @@
     "test": "yarn workspaces run test",
     "test:jsdom": "yarn workspaces run test:jsdom",
     "test:pptr": "yarn workspaces run test:pptr",
+    "test:pptr-dev": "yarn workspaces run test:pptr-dev",
     "build": "yarn workspaces run build",
     "lint": "npx eslint --fix ."
   }

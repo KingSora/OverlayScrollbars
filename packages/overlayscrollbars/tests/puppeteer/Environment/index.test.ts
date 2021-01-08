@@ -6,7 +6,7 @@ describe('Environment', () => {
     await page.goto(url);
   });
 
-  it('should be titled "Environment"', async () => {
+  test('page should be titled "Environment"', async () => {
     // @ts-ignore
     const a: Environment = await page.evaluate(() => window.environment.envInstance);
     console.log(a);

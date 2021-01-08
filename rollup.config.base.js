@@ -243,26 +243,37 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
       const isLast = index === buildsArr.length - 1;
 
       if (isFirst) {
+        const deleteGeneratedDirs = () => {
+          const deletedDirs = del.sync([distPath, typesPath].filter((curr) => curr !== null));
+          if (deletedDirs.length > 0 && !silent) {
+            console.log('Deleted directories:\n', deletedDirs.join('\n'));
+          }
+        };
         build.plugins.unshift({
           name: 'deleteGeneratedDirs',
           options() {
-            const deletedDirs = del.sync([distPath, typesPath].filter((curr) => curr !== null));
-            if (deletedDirs.length > 0 && !silent) {
-              console.log('Deleted directories:\n', deletedDirs.join('\n'));
+            if (!this.meta.watchMode) {
+              deleteGeneratedDirs();
             }
           },
         });
       }
       if (isLast) {
+        const deleteCacheDirs = () => {
+          const cacheDirs = cache.map((dir) => path.resolve(projectPath, dir));
+          const deletedDirs = del.sync(cacheDirs);
+          if (deletedDirs.length > 0 && !silent) {
+            console.log('Deleted cache:\n', deletedDirs.join('\n'));
+          }
+        };
         build.plugins.push({
           name: 'deleteCacheDirs',
           writeBundle() {
-            const cacheDirs = cache.map((dir) => path.resolve(projectPath, dir));
-            const deletedDirs = del.sync(cacheDirs);
-            if (deletedDirs.length > 0 && !silent) {
-              console.log('Deleted cache:\n', deletedDirs.join('\n'));
+            if (!this.meta.watchMode) {
+              deleteCacheDirs();
             }
           },
+          closeWatcher: deleteCacheDirs,
         });
       }
 

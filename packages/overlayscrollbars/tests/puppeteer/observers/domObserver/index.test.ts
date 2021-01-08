@@ -1,7 +1,7 @@
 import expectPuppeteer from 'expect-puppeteer';
 import url from './.build/build.html';
 
-describe('SizeObserver', () => {
+describe('DOMObserver', () => {
   beforeAll(async () => {
     await page.goto(url);
   });
