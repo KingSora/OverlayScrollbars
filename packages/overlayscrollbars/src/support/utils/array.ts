@@ -15,23 +15,26 @@ export function each<T>(
   callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | void
 ): Array<T> | ReadonlyArray<T>;
 export function each<T>(
-  array: Array<T> | ReadonlyArray<T> | null,
+  array: Array<T> | ReadonlyArray<T> | null | undefined,
   callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | void
-): Array<T> | ReadonlyArray<T> | null;
+): Array<T> | ReadonlyArray<T> | null | undefined;
 export function each<T>(
   arrayLikeObject: ArrayLike<T>,
   callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | void
 ): ArrayLike<T>;
 export function each<T>(
-  arrayLikeObject: ArrayLike<T> | null,
+  arrayLikeObject: ArrayLike<T> | null | undefined,
   callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | void
-): ArrayLike<T> | null;
+): ArrayLike<T> | null | undefined;
 export function each(obj: PlainObject, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject;
-export function each(obj: PlainObject | null, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject | null;
+export function each(
+  obj: PlainObject | null | undefined,
+  callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void
+): PlainObject | null | undefined;
 export function each<T>(
-  source: ArrayLike<T> | PlainObject | null,
+  source: ArrayLike<T> | PlainObject | null | undefined,
   callback: (value: T, indexOrKey: any, source: any) => boolean | void
-): Array<T> | ReadonlyArray<T> | ArrayLike<T> | PlainObject | null {
+): Array<T> | ReadonlyArray<T> | ArrayLike<T> | PlainObject | null | undefined {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
       if (callback(source[i], i, source) === false) {
@@ -68,13 +71,20 @@ export const from = <T = any>(arr: ArrayLike<T>) => {
 };
 
 /**
+ * Check whether the passed array is empty.
+ * @param array The array which shall be checked.
+ */
+export const isEmptyArray = (array: Array<any> | null | undefined) => array && array.length === 0;
+
+/**
  * Calls all functions in the passed array/set of functions.
  * @param arr The array filled with function which shall be called.
+ * @param p1 The first param.
  */
-export const runEach = (arr: ArrayLike<RunEachItem> | Set<RunEachItem>): void => {
+export const runEach = (arr: ArrayLike<RunEachItem> | Set<RunEachItem>, p1?: unknown): void => {
   if (arr instanceof Set) {
-    arr.forEach((fn) => fn && fn());
+    arr.forEach((fn) => fn && fn(p1));
   } else {
-    each(arr, (fn) => fn && fn());
+    each(arr, (fn) => fn && fn(p1));
   }
 };

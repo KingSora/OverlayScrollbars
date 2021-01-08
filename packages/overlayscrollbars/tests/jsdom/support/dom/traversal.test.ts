@@ -1,4 +1,4 @@
-import { find, findFirst, is, children, contents, parent, createDiv } from 'support/dom';
+import { find, findFirst, is, children, contents, parent, createDiv, liesBetween } from 'support/dom';
 
 const slotElm = document.body;
 const testHTML = '<div id="parent" class="div-class"><div id="child" class="div-class"></div></div><p>2</p><input type="text" value="3"></input>abc';
@@ -197,6 +197,94 @@ describe('dom traversal', () => {
       const p = parent(null);
 
       expect(p).toBeNull();
+    });
+  });
+
+  describe('liesBetween', () => {
+    const elmsBetween = ['.host', '.something', '.something-a', '.something-b', '.padding', '.viewport', '.content'];
+    const elmsOutside = ['.allowed-a', '.allowed-b', '.allowed-c', '.deeper-a', '.deeper-b'];
+    const elmsToTest = [...elmsBetween, ...elmsOutside];
+    const domPart = (id: string, content?: string) => `
+      <div id="${id}" class="host">
+        <div class="something">
+          <div class="something-a">
+            <div class="something-b">
+            </div>
+          </div>
+        </div>
+        <div class="padding">
+          <div class="viewport">
+            <div class="content">
+              <div class="allowed-a"><div class="allowed-b"><div class="allowed-c"></div></div></div>
+              <div class="deeper-a"><div class="deeper-b">${content || ''}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      `;
+    const createTestDOM = (nestings = 0) => {
+      let part = '';
+      for (let i = 0; i < nestings + 1; i++) {
+        part = domPart(`host-${nestings - i}`, part);
+      }
+
+      return part;
+    };
+    const genericTest = (nestings: number) => {
+      const allHostIds = Array(nestings)
+        .fill(0)
+        .map((_, index) => `#host-${index}`);
+
+      const test = (hostId: string, remainingIds: string[]) => {
+        const runExpectance = (id: string) => {
+          const isRemainingId = remainingIds.includes(id);
+          elmsToTest.forEach((elm) => {
+            const hostElm = findFirst(`${id}`);
+            const searchElm = hostElm?.classList.contains(elm.substring(1)) ? hostElm : findFirst(`${id} ${elm}`);
+
+            expect(liesBetween(searchElm, `${hostId}`, '.content')).toBe(
+              isRemainingId ? false : elmsBetween.includes(elm) ? true : elmsOutside.includes(elm) ? false : undefined
+            );
+          });
+        };
+
+        runExpectance(hostId);
+
+        remainingIds.forEach((id) => {
+          runExpectance(id);
+        });
+      };
+
+      elmsBetween.forEach((elm) => {
+        expect(liesBetween(findFirst(elm), '.host', '.content')).toBe(true);
+      });
+
+      elmsOutside.forEach((elm) => {
+        expect(liesBetween(findFirst(elm), '.host', '.content')).toBe(false);
+      });
+
+      for (let i = 0; i < nestings; i++) {
+        const currHostId = allHostIds[i];
+        const remainingIds = allHostIds.filter((id) => id !== currHostId);
+
+        test(currHostId, remainingIds);
+      }
+    };
+
+    test('with native closest', () => {
+      slotElm.innerHTML = createTestDOM(3);
+      genericTest(3);
+    });
+
+    test('with polyfill closest', () => {
+      const original = Element.prototype.closest;
+      // @ts-ignore
+      Element.prototype.closest = undefined;
+
+      slotElm.innerHTML = createTestDOM(3);
+      genericTest(3);
+
+      Element.prototype.closest = original;
     });
   });
 });

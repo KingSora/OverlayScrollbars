@@ -1,22 +1,16 @@
 import { each, from } from 'support/utils/array';
 
-const matches = (elm: Element | null, selector: string): boolean => {
-  if (elm) {
-    /* istanbul ignore next */
-    // eslint-disable-next-line
-    // @ts-ignore
-    const fn = Element.prototype.matches || Element.prototype.msMatchesSelector;
-    return fn.call(elm, selector);
-  }
-  return false;
-};
+type InputElementType = Element | null | undefined;
+type OutputElementType = Element | null;
+
+const elmPrototype = Element.prototype;
 
 /**
  * Find all elements with the passed selector, outgoing (and including) the passed element or the document if no element was provided.
  * @param selector The selector which has to be searched by.
  * @param elm The element from which the search shall be outgoing.
  */
-export const find = (selector: string, elm?: Element | null): ReadonlyArray<Element> => {
+const find = (selector: string, elm?: InputElementType): ReadonlyArray<Element> => {
   const arr: Array<Element> = [];
 
   each((elm || document).querySelectorAll(selector), (e: Element) => {
@@ -31,26 +25,35 @@ export const find = (selector: string, elm?: Element | null): ReadonlyArray<Elem
  * @param selector The selector which has to be searched by.
  * @param elm The element from which the search shall be outgoing.
  */
-export const findFirst = (selector: string, elm?: Element | null): Element | null => (elm || document).querySelector(selector);
+const findFirst = (selector: string, elm?: InputElementType): OutputElementType => (elm || document).querySelector(selector);
 
 /**
  * Determines whether the passed element is matching with the passed selector.
  * @param elm The element which has to be compared with the passed selector.
  * @param selector The selector which has to be compared with the passed element. Additional selectors: ':visible' and ':hidden'.
  */
-export const is = (elm: Element | null, selector: string): boolean => matches(elm, selector);
+const is = (elm: InputElementType, selector: string): boolean => {
+  if (elm) {
+    /* istanbul ignore next */
+    // eslint-disable-next-line
+    // @ts-ignore
+    const fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
+    return fn.call(elm, selector);
+  }
+  return false;
+};
 
 /**
  * Returns the children (no text-nodes or comments) of the passed element which are matching the passed selector. An empty array is returned if the passed element is null.
  * @param elm The element of which the children shall be returned.
  * @param selector The selector which must match with the children elements.
  */
-export const children = (elm: Element | null, selector?: string): ReadonlyArray<Element> => {
+const children = (elm: InputElementType, selector?: string): ReadonlyArray<Element> => {
   const childs: Array<Element> = [];
 
   each(elm && elm.children, (child: Element) => {
     if (selector) {
-      if (matches(child, selector)) {
+      if (is(child, selector)) {
         childs.push(child);
       }
     } else {
@@ -65,10 +68,47 @@ export const children = (elm: Element | null, selector?: string): ReadonlyArray<
  * Returns the childNodes (incl. text-nodes or comments etc.) of the passed element. An empty array is returned if the passed element is null.
  * @param elm The element of which the childNodes shall be returned.
  */
-export const contents = (elm: Element | null): ReadonlyArray<ChildNode> => (elm ? from(elm.childNodes) : []);
+const contents = (elm: InputElementType): ReadonlyArray<ChildNode> => (elm ? from(elm.childNodes) : []);
 
 /**
  * Returns the parent element of the passed element, or null if the passed element is null.
  * @param elm The element of which the parent element shall be returned.
  */
-export const parent = (elm: Node | null): Node | null => (elm ? elm.parentElement : null);
+const parent = (elm: InputElementType): OutputElementType => (elm ? elm.parentElement : null);
+
+const closest = (elm: InputElementType, selector: string): OutputElementType => {
+  if (elm) {
+    // eslint-disable-next-line
+    // @ts-ignore
+    if (elmPrototype.closest) {
+      return elm.closest(selector);
+    }
+    do {
+      if (is(elm, selector)) {
+        return elm;
+      }
+      elm = parent(elm);
+    } while (elm !== null && elm.nodeType === 1);
+  }
+
+  return null;
+};
+
+/**
+ * Determines whether the given element lies between two selectors in the DOM.
+ * @param elm The element.
+ * @param highBoundarySelector The high boundary selector.
+ * @param deepBoundarySelector The deep boundary selector.
+ */
+const liesBetween = (elm: InputElementType, highBoundarySelector: string, deepBoundarySelector: string): boolean => {
+  const closestHighBoundaryElm = closest(elm, highBoundarySelector);
+  const closestDeepBoundaryElm = findFirst(deepBoundarySelector, closestHighBoundaryElm);
+
+  return closestHighBoundaryElm && closestDeepBoundaryElm
+    ? closestHighBoundaryElm === elm ||
+        closestDeepBoundaryElm === elm ||
+        closest(closest(elm, deepBoundarySelector), highBoundarySelector) !== closestHighBoundaryElm
+    : false;
+};
+
+export { find, findFirst, is, children, contents, parent, liesBetween };

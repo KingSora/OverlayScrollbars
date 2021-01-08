@@ -1,8 +1,6 @@
-import { WH, Cache, createDOM, offsetSize, jsAPI, runEach, prependChildren, removeElements, createCache } from 'support';
+import { WH, Cache, createDOM, offsetSize, runEach, prependChildren, removeElements, createCache, IntersectionObserverConstructor } from 'support';
 import { createSizeObserver } from 'observers/sizeObserver';
-
-const classNameTrinsicObserver = 'os-trinsic-observer';
-const IntersectionObserverConstructor = jsAPI('IntersectionObserver');
+import { classNameTrinsicObserver } from 'classnames';
 
 export const createTrinsicObserver = (
   target: HTMLElement,

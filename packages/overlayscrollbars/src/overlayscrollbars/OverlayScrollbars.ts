@@ -4,11 +4,7 @@ import { Cache, appendChildren, addClass, contents, is, isHTMLElement, createDiv
 import { createSizeObserver } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { Lifecycle } from 'lifecycles/lifecycleBase';
-
-const classNameHost = 'os-host';
-const classNamePadding = 'os-padding';
-const classNameViewport = 'os-viewport';
-const classNameContent = 'os-content';
+import { classNameHost, classNamePadding, classNameViewport, classNameContent } from 'classnames';
 
 const normalizeTarget = (target: OSTarget): OSTargetObject => {
   if (isHTMLElement(target)) {

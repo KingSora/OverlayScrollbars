@@ -18,8 +18,8 @@ export const windowSize = (): WH => ({
 });
 
 /**
- * Returns the offset- width and height of the passed element. If the element is null the width and height values are 0.
- * @param elm The element of which the offset- width and height shall be returned.
+ * Returns the scroll- width and height of the passed element. If the element is null the width and height values are 0.
+ * @param elm The element of which the scroll- width and height shall be returned.
  */
 export const offsetSize = (elm: HTMLElement | null): WH =>
   elm
@@ -38,6 +38,18 @@ export const clientSize = (elm: HTMLElement | null): WH =>
     ? {
         w: elm.clientWidth,
         h: elm.clientHeight,
+      }
+    : zeroObj;
+
+/**
+ * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
+ * @param elm The element of which the client- width and height shall be returned.
+ */
+export const scrollSize = (elm: HTMLElement | null): WH =>
+  elm
+    ? {
+        w: elm.scrollWidth,
+        h: elm.scrollHeight,
       }
     : zeroObj;
 

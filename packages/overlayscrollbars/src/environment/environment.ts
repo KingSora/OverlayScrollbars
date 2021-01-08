@@ -14,6 +14,12 @@ import {
   runEach,
   equalWH,
 } from 'support';
+import {
+  classNameEnvironment,
+  classNameEnvironmentFlexboxGlue,
+  classNameEnvironmentFlexboxGlueMax,
+  classNameViewportScrollbarStyling,
+} from 'classnames';
 
 export type OnEnvironmentChanged = (env: Environment) => void;
 export interface Environment {
@@ -29,9 +35,6 @@ export interface Environment {
 
 let environmentInstance: Environment;
 const { abs, round } = Math;
-const environmentElmId = 'os-environment';
-const classNameFlexboxGlue = 'flexbox-glue';
-const classNameFlexboxGlueMax = `${classNameFlexboxGlue}-max`;
 
 const getNativeScrollbarSize = (body: HTMLElement, measureElm: HTMLElement): XY => {
   appendChildren(body, measureElm);
@@ -46,7 +49,7 @@ const getNativeScrollbarSize = (body: HTMLElement, measureElm: HTMLElement): XY 
 
 const getNativeScrollbarStyling = (testElm: HTMLElement): boolean => {
   let result = false;
-  addClass(testElm, 'os-viewport-scrollbar-styled');
+  addClass(testElm, classNameViewportScrollbarStyling);
   try {
     result =
       style(testElm, 'scrollbar-width') === 'none' || window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
@@ -83,12 +86,12 @@ const getRtlScrollBehavior = (parentElm: HTMLElement, childElm: HTMLElement): { 
 };
 
 const getFlexboxGlue = (parentElm: HTMLElement, childElm: HTMLElement): boolean => {
-  addClass(parentElm, classNameFlexboxGlue);
+  addClass(parentElm, classNameEnvironmentFlexboxGlue);
   const minOffsetsizeParent = offsetSize(parentElm);
   const minOffsetsize = offsetSize(childElm);
   const supportsMin = equalWH(minOffsetsize, minOffsetsizeParent);
 
-  addClass(parentElm, classNameFlexboxGlueMax);
+  addClass(parentElm, classNameEnvironmentFlexboxGlueMax);
   const maxOffsetsizeParent = offsetSize(parentElm);
   const maxOffsetsize = offsetSize(childElm);
   const supportsMax = equalWH(maxOffsetsize, maxOffsetsizeParent);
@@ -114,7 +117,7 @@ const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
 
 const createEnvironment = (): Environment => {
   const { body } = document;
-  const envDOM = createDOM(`<div id="${environmentElmId}"><div></div></div>`);
+  const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
 

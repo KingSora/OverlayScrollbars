@@ -2,7 +2,7 @@
 @import './trinsicobserver.scss';
 @import './structurelifecycle.scss';
 
-#os-environment {
+.os-environment {
   position: fixed;
   opacity: 0;
   visibility: hidden;
@@ -16,7 +16,7 @@
     margin: 10px 0;
   }
 
-  &.flexbox-glue {
+  &.os-environment-flexbox-glue {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -35,7 +35,7 @@
     }
   }
 
-  &.flexbox-glue-max {
+  &.os-environment-flexbox-glue-max {
     max-height: 200px;
 
     div {

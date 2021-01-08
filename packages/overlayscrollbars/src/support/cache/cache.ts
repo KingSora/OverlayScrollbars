@@ -13,20 +13,20 @@ export type CacheUpdate<T, C> = (force?: boolean | 0, context?: C) => Cache<T>;
 
 export type UpdateCachePropFunction<T, C> = (context?: C, current?: T, previous?: T) => T;
 
-export type EqualCachePropFunction<T> = (a?: T, b?: T) => boolean;
+export type EqualCachePropFunction<T> = (currentVal?: T, newVal?: T) => boolean;
 
 export const createCache = <T, C = undefined>(update: UpdateCachePropFunction<T, C>, options?: CacheOptions<T>): CacheUpdate<T, C> => {
   const { _equal, _initialValue } = options || {};
   let _value: T | undefined = _initialValue;
   let _previous: T | undefined;
   return (force, context) => {
-    const prev = _value;
+    const curr = _value;
     const newVal = update(context, _value, _previous);
-    const changed = force || (_equal ? !_equal(prev, newVal) : prev !== newVal);
+    const changed = force || (_equal ? !_equal(curr, newVal) : curr !== newVal);
 
     if (changed) {
       _value = newVal;
-      _previous = prev;
+      _previous = curr;
     }
 
     return {

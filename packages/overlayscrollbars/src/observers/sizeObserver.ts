@@ -17,22 +17,24 @@ import {
   addClass,
   isString,
   equalWH,
+  cAF,
+  rAF,
 } from 'support';
 import { CSSDirection } from 'typings';
 import { getEnvironment } from 'environment';
+import {
+  classNameSizeObserver,
+  classNameSizeObserverAppear,
+  classNameSizeObserverListener,
+  classNameSizeObserverListenerScroll,
+  classNameSizeObserverListenerItem,
+  classNameSizeObserverListenerItemFinal,
+} from 'classnames';
 
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
 const ResizeObserverConstructor = jsAPI('ResizeObserver');
-const classNameSizeObserver = 'os-size-observer';
-const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
-const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
-const classNameSizeObserverListenerScroll = `${classNameSizeObserverListener}-scroll`;
-const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
-const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
-const cAF = cancelAnimationFrame;
-const rAF = requestAnimationFrame;
 const getDirection = (elm: HTMLElement): CSSDirection => style(elm, 'direction') as CSSDirection;
 
 export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };
@@ -95,8 +97,8 @@ export const createSizeObserver = (
       isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
       if (scrollEvent && isDirty && !rAFId) {
-        cAF(rAFId);
-        rAFId = rAF(onResized);
+        cAF!(rAFId);
+        rAFId = rAF!(onResized);
       } else if (!scrollEvent) {
         onResized();
       }

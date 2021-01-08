@@ -5,11 +5,16 @@ import {
   createCache,
   topRightBottomLeft,
   TRBL,
+  WH,
+  XY,
   equalTRBL,
+  equalXY,
   optionsTemplateTypes as oTypes,
   OptionsTemplateValue,
   style,
   OptionsWithOptionsTemplate,
+  scrollSize,
+  offsetSize,
 } from 'support';
 import { OSTargetObject } from 'typings';
 import { createLifecycleBase, Lifecycle } from 'lifecycles/lifecycleBase';
@@ -33,11 +38,6 @@ const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<StructureL
   },
 };
 
-const classNameHost = 'os-host';
-const classNameViewport = 'os-viewport';
-const classNameContent = 'os-content';
-const classNameViewportScrollbarStyling = `${classNameViewport}-scrollbar-styled`;
-
 const cssMarginEnd = cssProperty('margin-inline-end');
 const cssBorderEnd = cssProperty('border-inline-end');
 
@@ -55,6 +55,13 @@ export const createStructureLifecycle = (
   const directionObserverObsolete = (cssMarginEnd && cssBorderEnd) || supportsScrollbarStyling || scrollbarsOverlaid.y;
 
   const updatePaddingCache = createCache(() => topRightBottomLeft(host, 'padding'), { _equal: equalTRBL });
+  const updateOverflowAmountCache = createCache<XY<number>, { _contentScrollSize: WH<number>; _viewportSize: WH<number> }>(
+    (ctx) => ({
+      x: Math.max(0, Math.round((ctx!._contentScrollSize.w - ctx!._viewportSize.w) * 100) / 100),
+      y: Math.max(0, Math.round((ctx!._contentScrollSize.h - ctx!._viewportSize.h) * 100) / 100),
+    }),
+    { _equal: equalXY }
+  );
 
   const { _options, _update } = createLifecycleBase<StructureLifecycleOptions>(defaultOptionsWithTemplate, initialOptions, (force, checkOption) => {
     const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = checkOption('paddingAbsolute');
@@ -75,11 +82,6 @@ export const createStructureLifecycle = (
         paddingStyle.l = -padding!.l;
       }
 
-      if (!supportsScrollbarStyling) {
-        paddingStyle.r -= env._nativeScrollbarSize.y;
-        paddingStyle.b -= env._nativeScrollbarSize.x;
-      }
-
       style(paddingElm, {
         top: paddingStyle.t,
         left: paddingStyle.l,
@@ -88,6 +90,59 @@ export const createStructureLifecycle = (
         'max-width': `calc(100% + ${paddingStyle.r * -1}px)`,
       });
     }
+
+    const viewportOffsetSize = offsetSize(paddingElm);
+    const contentClientSize = offsetSize(content);
+    const contentScrollSize = scrollSize(content);
+    const overflowAmuntCache = updateOverflowAmountCache(force, {
+      _contentScrollSize: contentScrollSize,
+      _viewportSize: {
+        w: viewportOffsetSize.w + Math.max(0, contentClientSize.w - contentScrollSize.w),
+        h: viewportOffsetSize.h + Math.max(0, contentClientSize.h - contentScrollSize.h),
+      },
+    });
+    const { _value: overflowAmount, _changed: overflowAmountChanged } = overflowAmuntCache;
+
+    console.log('overflowAmount', overflowAmount);
+    console.log('overflowAmountChanged', overflowAmountChanged);
+
+    /*
+    var setOverflowVariables = function (horizontal) {
+      var scrollbarVars = getScrollbarVars(horizontal);
+      var scrollbarVarsInverted = getScrollbarVars(!horizontal);
+      var xyI = scrollbarVarsInverted._x_y;
+      var xy = scrollbarVars._x_y;
+      var wh = scrollbarVars._w_h;
+      var widthHeight = scrollbarVars._width_height;
+      var scrollMax = _strScroll + scrollbarVars._Left_Top + 'Max';
+      var fractionalOverflowAmount = viewportRect[widthHeight] ? MATH.abs(viewportRect[widthHeight] - _viewportSize[wh]) : 0;
+      var checkFractionalOverflowAmount = previousOverflowAmount && previousOverflowAmount[xy] > 0 && _viewportElementNative[scrollMax] === 0;
+      overflowBehaviorIsVS[xy] = overflowBehavior[xy] === 'v-s';
+      overflowBehaviorIsVH[xy] = overflowBehavior[xy] === 'v-h';
+      overflowBehaviorIsS[xy] = overflowBehavior[xy] === 's';
+      overflowAmount[xy] = MATH.max(0, MATH.round((contentScrollSize[wh] - _viewportSize[wh]) * 100) / 100);
+      overflowAmount[xy] *=
+        hideOverflowForceTextarea || (checkFractionalOverflowAmount && fractionalOverflowAmount > 0 && fractionalOverflowAmount < 1) ? 0 : 1;
+      hasOverflow[xy] = overflowAmount[xy] > 0;
+
+      //hideOverflow:
+      //x || y : true === overflow is hidden by "overflow: scroll" OR "overflow: hidden"
+      //xs || ys : true === overflow is hidden by "overflow: scroll"
+      hideOverflow[xy] =
+        overflowBehaviorIsVS[xy] || overflowBehaviorIsVH[xy]
+          ? hasOverflow[xyI] && !overflowBehaviorIsVS[xyI] && !overflowBehaviorIsVH[xyI]
+          : hasOverflow[xy];
+      hideOverflow[xy + 's'] = hideOverflow[xy] ? overflowBehaviorIsS[xy] || overflowBehaviorIsVS[xy] : false;
+
+      canScroll[xy] = hasOverflow[xy] && hideOverflow[xy + 's'];
+    };
+*/
+    /*
+    if (!supportsScrollbarStyling) {
+      paddingStyle.r -= env._nativeScrollbarSize.y;
+      paddingStyle.b -= env._nativeScrollbarSize.x;
+    }
+    */
   });
 
   const onSizeChanged = () => {

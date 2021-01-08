@@ -69,7 +69,7 @@ export const prependChildren = (node: Node | null, children: NodeCollection): vo
  * @param insertedNodes The Nodes which shall be inserted.
  */
 export const insertBefore = (node: Node | null, insertedNodes: NodeCollection): void => {
-  before(parent(node), node, insertedNodes);
+  before(parent(node as Element), node, insertedNodes);
 };
 
 /**
@@ -78,7 +78,7 @@ export const insertBefore = (node: Node | null, insertedNodes: NodeCollection): 
  * @param insertedNodes The Nodes which shall be inserted.
  */
 export const insertAfter = (node: Node | null, insertedNodes: NodeCollection): void => {
-  before(parent(node), node && node.nextSibling, insertedNodes);
+  before(parent(node as Element), node && node.nextSibling, insertedNodes);
 };
 
 /**
@@ -89,7 +89,7 @@ export const removeElements = (nodes: NodeCollection): void => {
   if (isArrayLike(nodes)) {
     each(from(nodes), (e) => removeElements(e));
   } else if (nodes) {
-    const parentElm = parent(nodes);
+    const parentElm = parent(nodes as Element);
     if (parentElm) {
       parentElm.removeChild(nodes);
     }
