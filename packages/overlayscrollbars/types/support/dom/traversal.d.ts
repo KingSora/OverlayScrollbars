@@ -1,6 +1,10 @@
-export declare const find: (selector: string, elm?: Element | null | undefined) => ReadonlyArray<Element>;
-export declare const findFirst: (selector: string, elm?: Element | null | undefined) => Element | null;
-export declare const is: (elm: Element | null, selector: string) => boolean;
-export declare const children: (elm: Element | null, selector?: string | undefined) => ReadonlyArray<Element>;
-export declare const contents: (elm: Element | null) => ReadonlyArray<ChildNode>;
-export declare const parent: (elm: Node | null) => Node | null;
+declare type InputElementType = Element | null | undefined;
+declare type OutputElementType = Element | null;
+declare const find: (selector: string, elm?: InputElementType) => ReadonlyArray<Element>;
+declare const findFirst: (selector: string, elm?: InputElementType) => OutputElementType;
+declare const is: (elm: InputElementType, selector: string) => boolean;
+declare const children: (elm: InputElementType, selector?: string | undefined) => ReadonlyArray<Element>;
+declare const contents: (elm: InputElementType) => ReadonlyArray<ChildNode>;
+declare const parent: (elm: InputElementType) => OutputElementType;
+declare const liesBetween: (elm: InputElementType, highBoundarySelector: string, deepBoundarySelector: string) => boolean;
+export { find, findFirst, is, children, contents, parent, liesBetween };

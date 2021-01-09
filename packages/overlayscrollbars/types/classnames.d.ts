@@ -1,0 +1,15 @@
+export declare const classNameEnvironment = "os-environment";
+export declare const classNameEnvironmentFlexboxGlue: string;
+export declare const classNameEnvironmentFlexboxGlueMax: string;
+export declare const classNameHost = "os-host";
+export declare const classNamePadding = "os-padding";
+export declare const classNameViewport = "os-viewport";
+export declare const classNameContent = "os-content";
+export declare const classNameViewportScrollbarStyling: string;
+export declare const classNameSizeObserver = "os-size-observer";
+export declare const classNameSizeObserverAppear: string;
+export declare const classNameSizeObserverListener: string;
+export declare const classNameSizeObserverListenerScroll: string;
+export declare const classNameSizeObserverListenerItem: string;
+export declare const classNameSizeObserverListenerItemFinal: string;
+export declare const classNameTrinsicObserver = "os-trinsic-observer";

@@ -130,24 +130,27 @@ const from = (arr) => {
   });
   return result;
 };
-const runEach = (arr) => {
+const runEach = (arr, p1) => {
   if (arr instanceof Set) {
-    arr.forEach((fn) => fn && fn());
+    arr.forEach((fn) => fn && fn(p1));
   } else {
-    each(arr, (fn) => fn && fn());
+    each(arr, (fn) => fn && fn(p1));
   }
 };
 
-const matches = (elm, selector) => {
+const elmPrototype = Element.prototype;
+
+const is = (elm, selector) => {
   if (elm) {
-    const fn = Element.prototype.matches || Element.prototype.msMatchesSelector;
+    const fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
     return fn.call(elm, selector);
   }
 
   return false;
 };
-const is = (elm, selector) => matches(elm, selector);
+
 const contents = (elm) => (elm ? from(elm.childNodes) : []);
+
 const parent = (elm) => (elm ? elm.parentElement : null);
 
 const before = (parentElm, preferredAnchor, insertedElms) => {
@@ -237,6 +240,13 @@ const clientSize = (elm) =>
         h: elm.clientHeight,
       }
     : zeroObj;
+const scrollSize = (elm) =>
+  elm
+    ? {
+        w: elm.scrollWidth,
+        h: elm.scrollHeight,
+      }
+    : zeroObj;
 const getBoundingClientRect = (elm) => elm.getBoundingClientRect();
 
 let passiveEventsSupport;
@@ -307,6 +317,7 @@ const equal = (a, b, props) => {
   return false;
 };
 const equalWH = (a, b) => equal(a, b, ['w', 'h']);
+const equalXY = (a, b) => equal(a, b, ['x', 'y']);
 const equalTRBL = (a, b) => equal(a, b, ['t', 'r', 'b', 'l']);
 
 const hasOwnProperty = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
@@ -438,13 +449,13 @@ const createCache = (update, options) => {
   let _previous;
 
   return (force, context) => {
-    const prev = _value;
+    const curr = _value;
     const newVal = update(context, _value, _previous);
-    const changed = force || (_equal ? !_equal(prev, newVal) : prev !== newVal);
+    const changed = force || (_equal ? !_equal(curr, newVal) : curr !== newVal);
 
     if (changed) {
       _value = newVal;
-      _previous = prev;
+      _previous = curr;
     }
 
     return {
@@ -496,24 +507,15 @@ const jsAPI = (name) => {
   return result;
 };
 
-const resizeObserver = jsAPI('ResizeObserver');
+const MutationObserverConstructor = jsAPI('MutationObserver');
+const IntersectionObserverConstructor = jsAPI('IntersectionObserver');
+const ResizeObserverConstructor = jsAPI('ResizeObserver');
+const cAF = jsAPI('cancelAnimationFrame');
+const rAF = jsAPI('requestAnimationFrame');
 
-function createCommonjsModule(fn, basedir, module) {
-  return (
-    (module = {
-      path: basedir,
-      exports: {},
-      require: function (path, base) {
-        return commonjsRequire(path, base === undefined || base === null ? module.path : base);
-      },
-    }),
-    fn(module, module.exports),
-    module.exports
-  );
-}
-
-function commonjsRequire() {
-  throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
+function createCommonjsModule(fn) {
+  var module = { exports: {} };
+  return fn(module, module.exports), module.exports;
 }
 
 var _extends_1 = createCommonjsModule(function (module) {
@@ -644,11 +646,24 @@ function transformOptions(optionsWithOptionsTemplate) {
   return result;
 }
 
+const classNameEnvironment = 'os-environment';
+const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
+const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
+const classNameHost = 'os-host';
+const classNamePadding = 'os-padding';
+const classNameViewport = 'os-viewport';
+const classNameContent = 'os-content';
+const classNameViewportScrollbarStyling = `${classNameViewport}-scrollbar-styled`;
+const classNameSizeObserver = 'os-size-observer';
+const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
+const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
+const classNameSizeObserverListenerScroll = `${classNameSizeObserverListener}-scroll`;
+const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
+const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
+const classNameTrinsicObserver = 'os-trinsic-observer';
+
 let environmentInstance;
 const { abs, round } = Math;
-const environmentElmId = 'os-environment';
-const classNameFlexboxGlue = 'flexbox-glue';
-const classNameFlexboxGlueMax = `${classNameFlexboxGlue}-max`;
 
 const getNativeScrollbarSize = (body, measureElm) => {
   appendChildren(body, measureElm);
@@ -662,7 +677,7 @@ const getNativeScrollbarSize = (body, measureElm) => {
 
 const getNativeScrollbarStyling = (testElm) => {
   let result = false;
-  addClass(testElm, 'os-viewport-scrollbar-styled');
+  addClass(testElm, classNameViewportScrollbarStyling);
 
   try {
     result =
@@ -691,11 +706,11 @@ const getRtlScrollBehavior = (parentElm, childElm) => {
 };
 
 const getFlexboxGlue = (parentElm, childElm) => {
-  addClass(parentElm, classNameFlexboxGlue);
+  addClass(parentElm, classNameEnvironmentFlexboxGlue);
   const minOffsetsizeParent = offsetSize(parentElm);
   const minOffsetsize = offsetSize(childElm);
   const supportsMin = equalWH(minOffsetsize, minOffsetsizeParent);
-  addClass(parentElm, classNameFlexboxGlueMax);
+  addClass(parentElm, classNameEnvironmentFlexboxGlueMax);
   const maxOffsetsizeParent = offsetSize(parentElm);
   const maxOffsetsize = offsetSize(childElm);
   const supportsMax = equalWH(maxOffsetsize, maxOffsetsizeParent);
@@ -716,7 +731,7 @@ const diffBiggerThanOne = (valOne, valTwo) => {
 
 const createEnvironment = () => {
   const { body } = document;
-  const envDOM = createDOM(`<div id="${environmentElmId}"><div></div></div>`);
+  const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0];
   const envChildElm = envElm.firstChild;
   const onChangedListener = new Set();
@@ -823,10 +838,13 @@ const createLifecycleBase = (defaultOptionsWithTemplate, initialOptions, updateF
     _options(newOptions) {
       if (newOptions) {
         const { _validated: _changedOptions } = validateOptions(newOptions, optionsTemplate, options, true);
-        assignDeep(options, _changedOptions);
-        update({
-          _changedOptions,
-        });
+
+        if (!isEmptyObject(_changedOptions)) {
+          assignDeep(options, _changedOptions);
+          update({
+            _changedOptions,
+          });
+        }
       }
 
       return options;
@@ -861,6 +879,15 @@ const createStructureLifecycle = (target, initialOptions) => {
   const updatePaddingCache = createCache(() => topRightBottomLeft(host, 'padding'), {
     _equal: equalTRBL,
   });
+  const updateOverflowAmountCache = createCache(
+    (ctx) => ({
+      x: Math.max(0, Math.round((ctx._contentScrollSize.w - ctx._viewportSize.w) * 100) / 100),
+      y: Math.max(0, Math.round((ctx._contentScrollSize.h - ctx._viewportSize.h) * 100) / 100),
+    }),
+    {
+      _equal: equalXY,
+    }
+  );
   const { _options, _update } = createLifecycleBase(defaultOptionsWithTemplate, initialOptions, (force, checkOption) => {
     const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = checkOption('paddingAbsolute');
     const { _value: padding, _changed: paddingChanged } = updatePaddingCache(force);
@@ -880,11 +907,6 @@ const createStructureLifecycle = (target, initialOptions) => {
         paddingStyle.l = -padding.l;
       }
 
-      if (!supportsScrollbarStyling) {
-        paddingStyle.r -= env._nativeScrollbarSize.y;
-        paddingStyle.b -= env._nativeScrollbarSize.x;
-      }
-
       style(paddingElm, {
         top: paddingStyle.t,
         left: paddingStyle.l,
@@ -893,6 +915,20 @@ const createStructureLifecycle = (target, initialOptions) => {
         'max-width': `calc(100% + ${paddingStyle.r * -1}px)`,
       });
     }
+
+    const viewportOffsetSize = offsetSize(paddingElm);
+    const contentClientSize = offsetSize(content);
+    const contentScrollSize = scrollSize(content);
+    const overflowAmuntCache = updateOverflowAmountCache(force, {
+      _contentScrollSize: contentScrollSize,
+      _viewportSize: {
+        w: viewportOffsetSize.w + Math.max(0, contentClientSize.w - contentScrollSize.w),
+        h: viewportOffsetSize.h + Math.max(0, contentClientSize.h - contentScrollSize.h),
+      },
+    });
+    const { _value: overflowAmount, _changed: overflowAmountChanged } = overflowAmuntCache;
+    console.log('overflowAmount', overflowAmount);
+    console.log('overflowAmountChanged', overflowAmountChanged);
   });
 
   const onSizeChanged = () => {
@@ -924,15 +960,6 @@ const createStructureLifecycle = (target, initialOptions) => {
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
-const ResizeObserverConstructor = jsAPI('ResizeObserver');
-const classNameSizeObserver = 'os-size-observer';
-const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
-const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
-const classNameSizeObserverListenerScroll = `${classNameSizeObserverListener}-scroll`;
-const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
-const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
-const cAF = cancelAnimationFrame;
-const rAF = requestAnimationFrame;
 
 const getDirection = (elm) => style(elm, 'direction');
 
@@ -1066,8 +1093,6 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   };
 };
 
-const classNameTrinsicObserver = 'os-trinsic-observer';
-const IntersectionObserverConstructor = jsAPI('IntersectionObserver');
 const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
   const trinsicObserver = createDOM(`<div class="${classNameTrinsicObserver}"></div>`)[0];
   const offListeners = [];
@@ -1118,11 +1143,6 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
     removeElements(trinsicObserver);
   };
 };
-
-const classNameHost = 'os-host';
-const classNamePadding = 'os-padding';
-const classNameViewport = 'os-viewport';
-const classNameContent = 'os-content';
 
 const normalizeTarget = (target) => {
   if (isHTMLElement(target)) {

@@ -181,5 +181,5 @@ createSizeObserver(
   },
   { _direction: true, _appear: true }
 );
-console.log('h1');
+
 export { start };

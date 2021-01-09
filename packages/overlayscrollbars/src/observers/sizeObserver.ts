@@ -7,7 +7,6 @@ import {
   offsetSize,
   scrollLeft,
   scrollTop,
-  jsAPI,
   runEach,
   prependChildren,
   removeElements,
@@ -19,6 +18,7 @@ import {
   equalWH,
   cAF,
   rAF,
+  ResizeObserverConstructor,
 } from 'support';
 import { CSSDirection } from 'typings';
 import { getEnvironment } from 'environment';
@@ -34,7 +34,6 @@ import {
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
-const ResizeObserverConstructor = jsAPI('ResizeObserver');
 const getDirection = (elm: HTMLElement): CSSDirection => style(elm, 'direction') as CSSDirection;
 
 export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };

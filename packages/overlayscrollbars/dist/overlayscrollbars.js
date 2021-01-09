@@ -145,32 +145,33 @@
     });
     return result;
   };
-  var runEach = function runEach(arr) {
+  var runEach = function runEach(arr, p1) {
     if (arr instanceof Set) {
       arr.forEach(function (fn) {
-        return fn && fn();
+        return fn && fn(p1);
       });
     } else {
       each(arr, function (fn) {
-        return fn && fn();
+        return fn && fn(p1);
       });
     }
   };
 
-  var matches = function matches(elm, selector) {
+  var elmPrototype = Element.prototype;
+
+  var is = function is(elm, selector) {
     if (elm) {
-      var fn = Element.prototype.matches || Element.prototype.msMatchesSelector;
+      var fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
       return fn.call(elm, selector);
     }
 
     return false;
   };
-  var is = function is(elm, selector) {
-    return matches(elm, selector);
-  };
+
   var contents = function contents(elm) {
     return elm ? from(elm.childNodes) : [];
   };
+
   var parent = function parent(elm) {
     return elm ? elm.parentElement : null;
   };
@@ -270,6 +271,14 @@
         }
       : zeroObj;
   };
+  var scrollSize = function scrollSize(elm) {
+    return elm
+      ? {
+          w: elm.scrollWidth,
+          h: elm.scrollHeight,
+        }
+      : zeroObj;
+  };
   var getBoundingClientRect = function getBoundingClientRect(elm) {
     return elm.getBoundingClientRect();
   };
@@ -347,6 +356,9 @@
   };
   var equalWH = function equalWH(a, b) {
     return equal(a, b, ['w', 'h']);
+  };
+  var equalXY = function equalXY(a, b) {
+    return equal(a, b, ['x', 'y']);
   };
   var equalTRBL = function equalTRBL(a, b) {
     return equal(a, b, ['t', 'r', 'b', 'l']);
@@ -494,13 +506,13 @@
     var _previous;
 
     return function (force, context) {
-      var prev = _value;
+      var curr = _value;
       var newVal = update(context, _value, _previous);
-      var changed = force || (_equal ? !_equal(prev, newVal) : prev !== newVal);
+      var changed = force || (_equal ? !_equal(curr, newVal) : curr !== newVal);
 
       if (changed) {
         _value = newVal;
-        _previous = prev;
+        _previous = curr;
       }
 
       return {
@@ -558,24 +570,15 @@
     return result;
   };
 
-  var resizeObserver = jsAPI('ResizeObserver');
+  var MutationObserverConstructor = jsAPI('MutationObserver');
+  var IntersectionObserverConstructor = jsAPI('IntersectionObserver');
+  var ResizeObserverConstructor = jsAPI('ResizeObserver');
+  var cAF = jsAPI('cancelAnimationFrame');
+  var rAF = jsAPI('requestAnimationFrame');
 
-  function createCommonjsModule(fn, basedir, module) {
-    return (
-      (module = {
-        path: basedir,
-        exports: {},
-        require: function (path, base) {
-          return commonjsRequire(path, base === undefined || base === null ? module.path : base);
-        },
-      }),
-      fn(module, module.exports),
-      module.exports
-    );
-  }
-
-  function commonjsRequire() {
-    throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
+  function createCommonjsModule(fn) {
+    var module = { exports: {} };
+    return fn(module, module.exports), module.exports;
   }
 
   var _extends_1 = createCommonjsModule(function (module) {
@@ -717,12 +720,25 @@
     return result;
   }
 
+  var classNameEnvironment = 'os-environment';
+  var classNameEnvironmentFlexboxGlue = classNameEnvironment + '-flexbox-glue';
+  var classNameEnvironmentFlexboxGlueMax = classNameEnvironmentFlexboxGlue + '-max';
+  var classNameHost = 'os-host';
+  var classNamePadding = 'os-padding';
+  var classNameViewport = 'os-viewport';
+  var classNameContent = 'os-content';
+  var classNameViewportScrollbarStyling = classNameViewport + '-scrollbar-styled';
+  var classNameSizeObserver = 'os-size-observer';
+  var classNameSizeObserverAppear = classNameSizeObserver + '-appear';
+  var classNameSizeObserverListener = classNameSizeObserver + '-listener';
+  var classNameSizeObserverListenerScroll = classNameSizeObserverListener + '-scroll';
+  var classNameSizeObserverListenerItem = classNameSizeObserverListener + '-item';
+  var classNameSizeObserverListenerItemFinal = classNameSizeObserverListenerItem + '-final';
+  var classNameTrinsicObserver = 'os-trinsic-observer';
+
   var environmentInstance;
   var abs = Math.abs,
     round = Math.round;
-  var environmentElmId = 'os-environment';
-  var classNameFlexboxGlue = 'flexbox-glue';
-  var classNameFlexboxGlueMax = classNameFlexboxGlue + '-max';
 
   var getNativeScrollbarSize = function getNativeScrollbarSize(body, measureElm) {
     appendChildren(body, measureElm);
@@ -736,7 +752,7 @@
 
   var getNativeScrollbarStyling = function getNativeScrollbarStyling(testElm) {
     var result = false;
-    addClass(testElm, 'os-viewport-scrollbar-styled');
+    addClass(testElm, classNameViewportScrollbarStyling);
 
     try {
       result =
@@ -766,11 +782,11 @@
   };
 
   var getFlexboxGlue = function getFlexboxGlue(parentElm, childElm) {
-    addClass(parentElm, classNameFlexboxGlue);
+    addClass(parentElm, classNameEnvironmentFlexboxGlue);
     var minOffsetsizeParent = offsetSize(parentElm);
     var minOffsetsize = offsetSize(childElm);
     var supportsMin = equalWH(minOffsetsize, minOffsetsizeParent);
-    addClass(parentElm, classNameFlexboxGlueMax);
+    addClass(parentElm, classNameEnvironmentFlexboxGlueMax);
     var maxOffsetsizeParent = offsetSize(parentElm);
     var maxOffsetsize = offsetSize(childElm);
     var supportsMax = equalWH(maxOffsetsize, maxOffsetsizeParent);
@@ -792,7 +808,7 @@
   var createEnvironment = function createEnvironment() {
     var _document = document,
       body = _document.body;
-    var envDOM = createDOM('<div id="' + environmentElmId + '"><div></div></div>');
+    var envDOM = createDOM('<div class="' + classNameEnvironment + '"><div></div></div>');
     var envElm = envDOM[0];
     var envChildElm = envElm.firstChild;
     var onChangedListener = new Set();
@@ -912,10 +928,12 @@
           var _validateOptions = validateOptions(newOptions, optionsTemplate, options, true),
             _changedOptions = _validateOptions._validated;
 
-          assignDeep(options, _changedOptions);
-          update({
-            _changedOptions: _changedOptions,
-          });
+          if (!isEmptyObject(_changedOptions)) {
+            assignDeep(options, _changedOptions);
+            update({
+              _changedOptions: _changedOptions,
+            });
+          }
         }
 
         return options;
@@ -957,6 +975,17 @@
         _equal: equalTRBL,
       }
     );
+    var updateOverflowAmountCache = createCache(
+      function (ctx) {
+        return {
+          x: Math.max(0, Math.round((ctx._contentScrollSize.w - ctx._viewportSize.w) * 100) / 100),
+          y: Math.max(0, Math.round((ctx._contentScrollSize.h - ctx._viewportSize.h) * 100) / 100),
+        };
+      },
+      {
+        _equal: equalXY,
+      }
+    );
 
     var _createLifecycleBase = createLifecycleBase(defaultOptionsWithTemplate, initialOptions, function (force, checkOption) {
         var _checkOption = checkOption('paddingAbsolute'),
@@ -982,11 +1011,6 @@
             paddingStyle.l = -padding.l;
           }
 
-          if (!supportsScrollbarStyling) {
-            paddingStyle.r -= env._nativeScrollbarSize.y;
-            paddingStyle.b -= env._nativeScrollbarSize.x;
-          }
-
           style(paddingElm, {
             top: paddingStyle.t,
             left: paddingStyle.l,
@@ -995,6 +1019,21 @@
             'max-width': 'calc(100% + ' + paddingStyle.r * -1 + 'px)',
           });
         }
+
+        var viewportOffsetSize = offsetSize(paddingElm);
+        var contentClientSize = offsetSize(content);
+        var contentScrollSize = scrollSize(content);
+        var overflowAmuntCache = updateOverflowAmountCache(force, {
+          _contentScrollSize: contentScrollSize,
+          _viewportSize: {
+            w: viewportOffsetSize.w + Math.max(0, contentClientSize.w - contentScrollSize.w),
+            h: viewportOffsetSize.h + Math.max(0, contentClientSize.h - contentScrollSize.h),
+          },
+        });
+        var overflowAmount = overflowAmuntCache._value,
+          overflowAmountChanged = overflowAmuntCache._changed;
+        console.log('overflowAmount', overflowAmount);
+        console.log('overflowAmountChanged', overflowAmountChanged);
       }),
       _options = _createLifecycleBase._options,
       _update = _createLifecycleBase._update;
@@ -1028,15 +1067,6 @@
   var animationStartEventName = 'animationstart';
   var scrollEventName = 'scroll';
   var scrollAmount = 3333333;
-  var ResizeObserverConstructor = jsAPI('ResizeObserver');
-  var classNameSizeObserver = 'os-size-observer';
-  var classNameSizeObserverAppear = classNameSizeObserver + '-appear';
-  var classNameSizeObserverListener = classNameSizeObserver + '-listener';
-  var classNameSizeObserverListenerScroll = classNameSizeObserverListener + '-scroll';
-  var classNameSizeObserverListenerItem = classNameSizeObserverListener + '-item';
-  var classNameSizeObserverListenerItemFinal = classNameSizeObserverListenerItem + '-final';
-  var cAF = cancelAnimationFrame;
-  var rAF = requestAnimationFrame;
 
   var getDirection = function getDirection(elm) {
     return style(elm, 'direction');
@@ -1195,8 +1225,6 @@
     };
   };
 
-  var classNameTrinsicObserver = 'os-trinsic-observer';
-  var IntersectionObserverConstructor = jsAPI('IntersectionObserver');
   var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
     var trinsicObserver = createDOM('<div class="' + classNameTrinsicObserver + '"></div>')[0];
     var offListeners = [];
@@ -1251,11 +1279,6 @@
       removeElements(trinsicObserver);
     };
   };
-
-  var classNameHost = 'os-host';
-  var classNamePadding = 'os-padding';
-  var classNameViewport = 'os-viewport';
-  var classNameContent = 'os-content';
 
   var normalizeTarget = function normalizeTarget(target) {
     if (isHTMLElement(target)) {
