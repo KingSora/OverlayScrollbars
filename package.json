@@ -25,7 +25,6 @@
     "bufferutil": "^4.0.1",
     "canvas": "^2.6.1",
     "core-js": "^3.6.5",
-    "cross-env": "^7.0.2",
     "del": "^5.1.0",
     "eslint": "^7.5.0",
     "eslint-config-airbnb": "^18.2.0",

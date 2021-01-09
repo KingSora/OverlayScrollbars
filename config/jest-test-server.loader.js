@@ -1,10 +1,10 @@
 const path = require('path');
-const jestPuppeteerConfig = require('../jest-puppeteer.config.base');
+const deploymentConfig = require('./jest-puppeteer.rollup.config.js');
 
 module.exports = {
-  process: (src, filePath, config) => {
-    const deploymentPath = path.relative(path.dirname(config.globals.baseConfig), filePath);
+  process: (src, filePath) => {
+    const deploymentPath = path.relative(deploymentConfig.root, filePath);
     const split = deploymentPath.split(path.sep);
-    return `module.exports = ${JSON.stringify(`http://localhost:${jestPuppeteerConfig.server.port}/${path.posix.join(...split)}`)}`;
+    return `module.exports = ${JSON.stringify(`http://localhost:${deploymentConfig.port}/${path.posix.join(...split)}`)}`;
   },
 };

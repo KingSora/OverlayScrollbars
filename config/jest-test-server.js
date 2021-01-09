@@ -1,8 +1,7 @@
-const path = require('path');
 const express = require('express');
+const deploymentConfig = require('./jest-puppeteer.rollup.config.js');
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, '../')));
-
-app.listen(process.env.TEST_SERVER_PORT);
+app.use(express.static(deploymentConfig.root));
+app.listen(deploymentConfig.port);

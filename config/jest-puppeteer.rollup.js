@@ -181,15 +181,14 @@ const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
                         rollupPluginServe({
                           contentBase: dist,
                           historyApiFallback: `/${deploymentConfig.html.output}`,
-                          port: 18080,
+                          port: deploymentConfig.dev.servePort,
                           onListening(server) {
                             rollupServers.push(server);
                           },
                         }),
                         rollupPluginLivereload({
                           watch: dist,
-                          verbose: true,
-                          port: 28080,
+                          port: deploymentConfig.dev.livereloadPort,
                         }),
                       ]
                     : []),
