@@ -27,73 +27,51 @@ body {
   left: 0;
 }
 
-#target {
-  overflow: hidden;
-  resize: both;
-  position: relative;
-  // prevent container from reaching 0x0 dimensions for testing purposes
-  min-width: 50px;
-  min-height: 50px;
+.addedElm {
+  height: 20px;
+  width: 20px;
+  background: yellow;
 }
 
-.padding0 {
-  padding: 0;
-}
-.padding10 {
-  padding: 10px;
-}
-.padding50 {
-  padding: 50px;
-}
-
-.border2 {
-  border: 2px solid red;
-}
-.border10 {
-  border: 10px solid red;
-}
-.border0 {
-  border: none;
-}
-
-.heightAuto {
-  height: auto;
-}
-.height200 {
-  height: 200px;
-}
-.heightHundred {
-  height: 100%;
-}
-
-.widthAuto {
-  width: auto;
-  float: left;
-}
-.width200 {
-  width: 200px;
-}
-.widthHundred {
-  width: 100%;
-}
-
-.boxSizingBorderBox {
-  box-sizing: border-box;
-}
-.boxSizingContentBox {
-  box-sizing: content-box;
-}
-
-.displayNone {
-  display: none;
-}
-.displayBlock {
-  display: block;
-}
-
-.directionltr {
-  direction: ltr;
-}
-.directionRTL {
-  direction: rtl;
+.host {
+  color: black;
+  border: 1px solid red;
+  background: red;
+  & > .host-nest {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.3);
+    & > .host-nest-item {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+  & > .padding {
+    border: 1px solid green;
+    background: green;
+    & > .padding-nest {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.3);
+      & > .padding-nest-item {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+    & > .viewport {
+      border: 1px solid blue;
+      background: blue;
+      & > .viewport-nest {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.3);
+        & > .viewport-nest-item {
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 0.3);
+        }
+      }
+      & > .content {
+        border: 1px solid black;
+        background: black;
+        color: white;
+      }
+    }
+  }
 }

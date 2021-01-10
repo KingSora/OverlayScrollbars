@@ -10,7 +10,7 @@ const elmPrototype = Element.prototype;
  * @param selector The selector which has to be searched by.
  * @param elm The element from which the search shall be outgoing.
  */
-const find = (selector: string, elm?: InputElementType): ReadonlyArray<Element> => {
+const find = (selector: string, elm?: InputElementType): Element[] => {
   const arr: Array<Element> = [];
 
   each((elm || document).querySelectorAll(selector), (e: Element) => {
@@ -38,7 +38,7 @@ const is = (elm: InputElementType, selector: string): boolean => {
     // eslint-disable-next-line
     // @ts-ignore
     const fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
-    return fn.call(elm, selector);
+    return fn && fn.call(elm, selector);
   }
   return false;
 };
@@ -101,8 +101,8 @@ const closest = (elm: InputElementType, selector: string): OutputElementType => 
  * @param deepBoundarySelector The deep boundary selector.
  */
 const liesBetween = (elm: InputElementType, highBoundarySelector: string, deepBoundarySelector: string): boolean => {
-  const closestHighBoundaryElm = closest(elm, highBoundarySelector);
-  const closestDeepBoundaryElm = findFirst(deepBoundarySelector, closestHighBoundaryElm);
+  const closestHighBoundaryElm = elm && closest(elm, highBoundarySelector);
+  const closestDeepBoundaryElm = elm && findFirst(deepBoundarySelector, closestHighBoundaryElm);
 
   return closestHighBoundaryElm && closestDeepBoundaryElm
     ? closestHighBoundaryElm === elm ||

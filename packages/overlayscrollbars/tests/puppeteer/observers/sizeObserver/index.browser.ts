@@ -1,9 +1,8 @@
 import 'overlayscrollbars.scss';
 import './index.scss';
 import should from 'should';
-import { waitFor } from '@testing-library/dom';
-import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select';
-import { setTestResult } from '@/testing-browser/TestResult';
+import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
+import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { hasDimensions, offsetSize, WH, style } from 'support';
 
 import { createSizeObserver } from 'observers/sizeObserver';
@@ -33,7 +32,7 @@ const directionSelect: HTMLSelectElement | null = document.querySelector('#direc
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const resizesSlot: HTMLButtonElement | null = document.querySelector('#resizes');
 
-const selectCallback = generateSelectCallback(targetElm as HTMLElement);
+const selectCallback = generateClassChangeSelectCallback(targetElm as HTMLElement);
 const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) => {
   interface IterateSelect {
     currSizeIterations: number;
@@ -78,22 +77,14 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       }
 
       if (dimensions && (offsetSizeChanged || contentSizeChanged || dirChanged)) {
-        await waitFor(
-          () => {
-            if (offsetSizeChanged || contentSizeChanged) {
-              should.equal(sizeIterations, currSizeIterations + 1);
-            }
-            if (dirChanged) {
-              should.equal(directionIterations, currDirectionIterations + 1);
-            }
-          },
-          {
-            onTimeout(error): Error {
-              setTestResult(false);
-              return error;
-            },
+        await waitForOrFailTest(() => {
+          if (offsetSizeChanged || contentSizeChanged) {
+            should.equal(sizeIterations, currSizeIterations + 1);
           }
-        );
+          if (dirChanged) {
+            should.equal(directionIterations, currDirectionIterations + 1);
+          }
+        });
       }
     },
     afterEach,

@@ -9,18 +9,26 @@ const noop = <T>(): T => {
 
 const getSelectOptions = (selectElement: HTMLSelectElement) => Array.from(selectElement.options).map((option) => option.value);
 
-export const generateSelectCallback = (targetElm: HTMLElement | null) => (event: Event | HTMLSelectElement | null) => {
+export const generateSelectCallback = (
+  targetElm: HTMLElement | null,
+  callback: (targetAffectedElm: HTMLElement, possibleValues: string[], selectedValue: string) => any
+) => (event: Event | HTMLSelectElement | null) => {
   const target: HTMLSelectElement | null = isEvent(event) ? (event.target as HTMLSelectElement) : event;
   if (target) {
     const selectedOption = target.value;
     const selectOptions = getSelectOptions(target);
 
     if (targetElm) {
-      selectOptions.forEach((clazz) => targetElm.classList.remove(clazz));
-      targetElm.classList.add(selectedOption);
+      callback(targetElm, selectOptions, selectedOption);
     }
   }
 };
+
+export const generateClassChangeSelectCallback = (targetElm: HTMLElement | null) =>
+  generateSelectCallback(targetElm, (targetAffectedElm, possibleValues, selectedValue) => {
+    possibleValues.forEach((clazz) => targetAffectedElm.classList.remove(clazz));
+    targetAffectedElm.classList.add(selectedValue);
+  });
 
 export const selectOption = (select: HTMLSelectElement | null, selectedOption: string | number): boolean => {
   if (!select) {
@@ -56,7 +64,7 @@ export const iterateSelect = async <T>(
   select: HTMLSelectElement | null,
   options?: {
     beforeEach?: () => T | Promise<T>;
-    check?: (input: T) => void | Promise<void>;
+    check?: (input: T, selectedOptions: string) => void | Promise<void>;
     afterEach?: () => void | Promise<void>;
   }
 ) => {
@@ -71,7 +79,7 @@ export const iterateSelect = async <T>(
       const beforeEachObj: T = await beforeEach();
       if (selectOption(select, option)) {
         // eslint-disable-next-line
-        await check(beforeEachObj);
+        await check(beforeEachObj, option);
         // eslint-disable-next-line
         await afterEach();
       }

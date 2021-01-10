@@ -1,3 +1,5 @@
+import { waitFor, waitForOptions } from '@testing-library/dom';
+
 const getTestResultElm = () => document.getElementById('testResult');
 
 export const setTestResult = (result: boolean | null) => {
@@ -15,3 +17,12 @@ export const testPassed = (): boolean => {
   const elm = getTestResultElm();
   return elm ? elm.getAttribute('class') === 'passed' : false;
 };
+
+export const waitForOrFailTest = <T>(callback: () => T | Promise<T>, options?: waitForOptions) =>
+  waitFor(callback, {
+    ...options,
+    onTimeout(error: Error): Error {
+      setTestResult(false);
+      return error;
+    },
+  });

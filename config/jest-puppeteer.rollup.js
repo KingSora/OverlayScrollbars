@@ -15,6 +15,18 @@ const cacheFilePrefix = 'jest-puppeteer-overlayscrollbars-cache-';
 const cacheEncoding = 'utf8';
 const cacheHash = 'md5';
 
+const rollupAdditionalWatchFiles = (files) => ({
+  buildStart() {
+    if (files) {
+      files.forEach((file) => {
+        if (fs.existsSync(file)) {
+          this.addWatchFile(file);
+        }
+      });
+    }
+  },
+});
+
 const makeHtmlAttributes = (attributes) => {
   if (!attributes) {
     return '';
@@ -26,7 +38,7 @@ const makeHtmlAttributes = (attributes) => {
   return keys.reduce((result, key) => (result += ` ${key}="${attributes[key]}"`), '');
 };
 
-const genHtmlTemplateFunc = (content) => ({ attributes, files, meta, publicPath, title }) => {
+const genHtmlTemplateFunc = (contentOrContentFn) => ({ attributes, files, meta, publicPath, title }) => {
   const scripts = (files.js || [])
     .map(({ fileName }) => `<script src="${publicPath}${fileName}"${makeHtmlAttributes(attributes.script)}></script>`)
     .join('\n');
@@ -87,7 +99,7 @@ const genHtmlTemplateFunc = (content) => ({ attributes, files, meta, publicPath,
     ${links}
   </head>
   <body>
-    ${content || ''}
+    ${(typeof contentOrContentFn === 'function' ? contentOrContentFn() : contentOrContentFn) || ''}
     ${scripts}
     <div id="testResult"></div>
   </body>
@@ -152,8 +164,19 @@ const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
       if (typeof rollupConfig === 'function') {
         try {
           const htmlFilePath = path.resolve(testDir, deploymentConfig.html.input);
-          const htmlFileContent = fs.existsSync(htmlFilePath) ? fs.readFileSync(htmlFilePath, 'utf8') : null;
           const dist = path.resolve(testDir, deploymentConfig.build);
+          const getHtmlFileContent = () => (fs.existsSync(htmlFilePath) ? fs.readFileSync(htmlFilePath, 'utf8') : null);
+          const logBuilding = (re) => {
+            const text = re ? ' RE-BUILDING ' : ' BUILDING ';
+            console.log(`\x1b[1m\x1b[44m${text}\x1b[0m \x1b[90m${testPath}\x1b[0m`); // eslint-disable-line
+          };
+          const logBundleFinish = (duration) => {
+            if (duration) {
+              console.log(`Bundle finished after ${Math.round(duration / 1000)} seconds.`); // eslint-disable-line
+            } else {
+              console.log(`Bundle finished.`); // eslint-disable-line
+            }
+          };
 
           let rollupConfigObj = rollupConfig(undefined, {
             project: rootDir,
@@ -173,11 +196,12 @@ const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
                   rollupPluginHtml({
                     title: `Jest-Puppeteer: ${testName}`,
                     fileName: deploymentConfig.html.output,
-                    template: genHtmlTemplateFunc(htmlFileContent),
+                    template: genHtmlTemplateFunc(getHtmlFileContent),
                     meta: [{ charset: 'utf-8' }, { 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' }],
                   }),
                   ...(watch
                     ? [
+                        rollupAdditionalWatchFiles([htmlFilePath]),
                         rollupPluginServe({
                           contentBase: dist,
                           historyApiFallback: `/${deploymentConfig.html.output}`,
@@ -225,10 +249,13 @@ const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
                     console.log('Error:', error); // eslint-disable-line
                   }
                   if (code === 'START') {
-                    console.log(firstWatch ? 'Building...' : 'Rebuilding...'); // eslint-disable-line
+                    if (firstWatch) {
+                      console.log(''); // eslint-disable-line
+                    }
+                    logBuilding(!firstWatch);
                   }
                   if (code === 'BUNDLE_END') {
-                    console.log(`Bundle finished after ${Math.round(duration / 1000)} seconds.`); // eslint-disable-line
+                    logBundleFinish(duration);
                     if (result && result.close) {
                       result.close();
                     }
@@ -246,6 +273,9 @@ const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
 
               rollupWatchers.push(rollupWatcher);
             } else {
+              console.log(''); // eslint-disable-line
+              logBuilding();
+              const startTime = Date.now();
               // eslint-disable-next-line no-await-in-loop
               const bundle = await rollup.rollup(inputConfig);
 
@@ -253,7 +283,12 @@ const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
                 const outputConfig = output[i];
                 // eslint-disable-next-line no-await-in-loop
                 await bundle.write(outputConfig);
+
+                const endTime = Date.now();
+                logBundleFinish(endTime - startTime);
               }
+
+              console.log(''); // eslint-disable-line
             }
           }
 

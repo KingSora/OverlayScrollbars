@@ -1,20 +1,12 @@
 import 'overlayscrollbars.scss';
 import './index.scss';
 import should from 'should';
-import { waitFor } from '@testing-library/dom';
-import { generateSelectCallback, iterateSelect, selectOption } from '@/testing-browser/Select';
+import { generateClassChangeSelectCallback, iterateSelect, selectOption } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
-import { setTestResult } from '@/testing-browser/TestResult';
+import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { offsetSize } from 'support';
 
 import { createTrinsicObserver } from 'observers/trinsicObserver';
-
-const waitForOptions = {
-  onTimeout(error: Error): Error {
-    setTestResult(false);
-    return error;
-  },
-};
 
 let heightIntrinsic: boolean | undefined;
 let heightIterations = 0;
@@ -27,8 +19,8 @@ const displaySelect: HTMLSelectElement | null = document.querySelector('#display
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const changesSlot: HTMLButtonElement | null = document.querySelector('#changes');
 
-const envElmSelectCallback = generateSelectCallback(envElm as HTMLElement);
-const targetElmSelectCallback = generateSelectCallback(targetElm as HTMLElement);
+const envElmSelectCallback = generateClassChangeSelectCallback(envElm as HTMLElement);
+const targetElmSelectCallback = generateClassChangeSelectCallback(targetElm as HTMLElement);
 
 envHeightSelect?.addEventListener('change', envElmSelectCallback);
 targetHeightSelect?.addEventListener('change', targetElmSelectCallback);
@@ -57,11 +49,11 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       const newHeightIntrinsic = offsetSize(checkElm as HTMLElement).h === 0;
       const trinsicHeightChanged = newHeightIntrinsic !== currHeightIntrinsic;
 
-      await waitFor(() => {
+      await waitForOrFailTest(() => {
         if (trinsicHeightChanged) {
           should.equal(heightIterations, currHeightIterations + 1);
         }
-      }, waitForOptions);
+      });
     },
     afterEach,
   });
@@ -85,9 +77,9 @@ const changeWhileHidden = async () => {
     selectOption(envHeightSelect as HTMLSelectElement, 'envHeightHundred');
     selectOption(displaySelect as HTMLSelectElement, 'displayBlock');
 
-    await waitFor(() => {
+    await waitForOrFailTest(() => {
       should.equal(heightIntrinsic, false);
-    }, waitForOptions);
+    });
   };
 
   const hundredToAuto = async () => {
@@ -99,9 +91,9 @@ const changeWhileHidden = async () => {
     selectOption(envHeightSelect as HTMLSelectElement, 'envHeightAuto');
     selectOption(displaySelect as HTMLSelectElement, 'displayBlock');
 
-    await waitFor(() => {
+    await waitForOrFailTest(() => {
       should.equal(heightIntrinsic, true);
-    }, waitForOptions);
+    });
   };
 
   await autoToHundred();

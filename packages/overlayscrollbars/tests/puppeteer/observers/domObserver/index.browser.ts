@@ -1,185 +1,335 @@
 import 'overlayscrollbars.scss';
 import './index.scss';
 import should from 'should';
-import { waitFor } from '@testing-library/dom';
 import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select';
-import { setTestResult } from '@/testing-browser/TestResult';
-import { hasDimensions, offsetSize, WH, style } from 'support';
+import { timeout } from '@/testing-browser/timeout';
+import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
+import { appendChildren, createDiv, removeElements, children, isArray, isNumber, liesBetween, hasClass } from 'support';
 
-import { createSizeObserver } from 'observers/sizeObserver';
+import { createDOMObserver } from 'observers/domObserver';
 
-let sizeIterations = 0;
-let directionIterations = 0;
-const contentBox = (elm: HTMLElement | null): WH<number> => {
-  if (elm) {
-    const computedStyle = window.getComputedStyle(elm);
-    return {
-      w: elm.clientWidth - (parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight)),
-      h: elm.clientHeight - (parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom)),
-    };
-  }
+interface DOMObserverResult {
+  changedTargetAttrs: string[];
+  styleChanged: boolean;
+  contentChanged: boolean;
+}
+interface SeparateChangeThrough {
+  added?: DOMObserverResult[];
+  removed?: DOMObserverResult[];
+}
 
-  return { w: 0, h: 0 };
-};
+const targetChangesCountSlot: HTMLElement | null = document.querySelector('#targetChanges');
+const contentChangesCountSlot: HTMLElement | null = document.querySelector('#contentChanges');
+const targetElm: HTMLElement | null = document.querySelector('#target');
+const contentElmAttrChange: HTMLElement | null = document.querySelector('#target .content-nest');
+const contentBetweenElmAttrChange: HTMLElement | null = document.querySelector('#content-host .padding-nest-item');
+const contentHostElmAttrChange: HTMLElement | null = document.querySelector('#content-nest-item-host');
 
-const targetElm = document.querySelector('#target');
-const heightSelect: HTMLSelectElement | null = document.querySelector('#height');
-const widthSelect: HTMLSelectElement | null = document.querySelector('#width');
-const paddingSelect: HTMLSelectElement | null = document.querySelector('#padding');
-const borderSelect: HTMLSelectElement | null = document.querySelector('#border');
-const boxSizingSelect: HTMLSelectElement | null = document.querySelector('#boxSizing');
-const displaySelect: HTMLSelectElement | null = document.querySelector('#display');
-const directionSelect: HTMLSelectElement | null = document.querySelector('#direction');
+const targetElmsSlot = document.querySelector('#target .host-nest-item');
+const targetContentElmsSlot = document.querySelector('#target .content .content-nest');
+const targetContentBetweenElmsSlot = document.querySelector('#content-host');
+
+const addRemoveTargetElms: HTMLButtonElement | null = document.querySelector('#addRemoveTargetElms');
+const addRemoveTargetContentElms: HTMLButtonElement | null = document.querySelector('#addRemoveTargetContentElms');
+const addRemoveTargetContentBetweenElms: HTMLButtonElement | null = document.querySelector('#addRemoveTargetContentBetweenElms');
+const setTargetAttr: HTMLSelectElement | null = document.querySelector('#setTargetAttr');
+const setFilteredTargetAttr: HTMLSelectElement | null = document.querySelector('#setFilteredTargetAttr');
+const setContentAttr: HTMLSelectElement | null = document.querySelector('#setContentAttr');
+const setFilteredContentAttr: HTMLSelectElement | null = document.querySelector('#setFilteredContentAttr');
+const setContentBetweenAttr: HTMLSelectElement | null = document.querySelector('#setContentBetweenAttr');
+const setFilteredContentBetweenAttr: HTMLSelectElement | null = document.querySelector('#setFilteredContentBetweenAttr');
+const setContentHostElmAttr: HTMLSelectElement | null = document.querySelector('#setContentHostElmAttr');
+const setFilteredContentHostElmAttr: HTMLSelectElement | null = document.querySelector('#setFilteredContentHostElmAttr');
+const summaryContent: HTMLElement | null = document.querySelector('#summary-content');
+const summaryBetween: HTMLElement | null = document.querySelector('#summary-between');
+
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
-const resizesSlot: HTMLButtonElement | null = document.querySelector('#resizes');
 
-const selectCallback = generateSelectCallback(targetElm as HTMLElement);
-const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) => {
-  interface IterateSelect {
-    currSizeIterations: number;
-    currDirectionIterations: number;
-    currOffsetSize: WH<number>;
-    currContentSize: WH<number>;
-    currDir: string;
+const targetElmObservations: DOMObserverResult[] = [];
+const targetElmContentElmObservations: DOMObserverResult[] = [];
+const getTotalObservations = () => targetElmObservations.length + targetElmContentElmObservations.length;
+const getLast = <T>(arr: T[]): T => arr[arr.length - 1] || ({} as T);
+const changedThrough = (observationLists?: Array<DOMObserverResult[]> | DOMObserverResult[]) => {
+  interface Stat {
+    total: number;
+    lists: Array<[DOMObserverResult[], number]>;
+  }
+  const noObservationLists = observationLists === undefined;
+  let before: Stat;
+  let after: Stat;
+  if (noObservationLists) {
+    observationLists = [];
+  }
+  if (isArray(observationLists) && !isArray(observationLists[0])) {
+    observationLists = [observationLists] as Array<DOMObserverResult[]>;
   }
 
-  await iterateSelect<IterateSelect>(select, {
+  const getStats = (): Stat => {
+    return {
+      total: getTotalObservations(),
+      lists: (observationLists as Array<DOMObserverResult[]>).map((list) => [list, list.length]),
+    };
+  };
+
+  return {
+    before: () => {
+      before = getStats();
+    },
+    after: () => {
+      after = getStats();
+    },
+    compare: (comparisonTableOrNumber: number | Map<DOMObserverResult[], number> = 0) => {
+      let totalDiff = 0;
+      if (isNumber(comparisonTableOrNumber) || noObservationLists) {
+        before.lists.forEach((_, index) => {
+          const [, beforeCount] = before.lists[index];
+          const [, afterCount] = after.lists[index];
+
+          totalDiff += afterCount - beforeCount;
+          should(afterCount).equal(beforeCount + (noObservationLists ? 0 : (comparisonTableOrNumber as number)));
+        });
+      } else {
+        before.lists.forEach((_, index) => {
+          const [list, beforeCount] = before.lists[index];
+          const [, afterCount] = after.lists[index];
+
+          totalDiff += afterCount - beforeCount;
+          should(afterCount).equal(beforeCount + (comparisonTableOrNumber.get(list) || 0));
+        });
+      }
+      should(after.total).equal(before.total + totalDiff);
+    },
+  };
+};
+const attrChangeListener = (attrChangeTarget: HTMLElement | null) =>
+  generateSelectCallback(attrChangeTarget, (target, possibleValues, selectedValue) => {
+    const isClass = selectedValue === 'class';
+
+    target.classList.remove('something');
+    possibleValues.forEach((val) => val !== 'class' && target.removeAttribute(val));
+    isClass && target.classList.add('something');
+    !isClass && target.setAttribute(selectedValue, 'something');
+  });
+const iterateAttrChange = async (
+  select: HTMLSelectElement | null,
+  changeThrough?: DOMObserverResult[],
+  checkChange?: (observation: DOMObserverResult, selected: string) => any
+) => {
+  const { before, after, compare } = changedThrough(changeThrough);
+
+  await iterateSelect<unknown>(select, {
     beforeEach() {
-      const currSizeIterations = sizeIterations;
-      const currDirectionIterations = directionIterations;
-      const currOffsetSize = offsetSize(targetElm as HTMLElement);
-      const currContentSize = contentBox(targetElm as HTMLElement);
-      const currDir = style(targetElm as HTMLElement, 'direction');
-
-      return {
-        currSizeIterations,
-        currDirectionIterations,
-        currOffsetSize,
-        currContentSize,
-        currDir,
-      };
+      before();
     },
-    async check({ currSizeIterations, currDirectionIterations, currOffsetSize, currContentSize, currDir }) {
-      const newOffsetSize = offsetSize(targetElm as HTMLElement);
-      const newContentSize = contentBox(targetElm as HTMLElement);
-      const newDir = style(targetElm as HTMLElement, 'direction');
-      const offsetSizeChanged = currOffsetSize.w !== newOffsetSize.w || currOffsetSize.h !== newOffsetSize.h;
-      const contentSizeChanged = currContentSize.w !== newContentSize.w || currContentSize.h !== newContentSize.h;
-      const dirChanged = currDir !== newDir;
-      const dimensions = hasDimensions(targetElm as HTMLElement);
-      const observerElm = targetElm?.firstElementChild as HTMLElement;
+    async check(_, selected) {
+      await waitForOrFailTest(async () => {
+        after();
 
-      // no overflow if not needed
-      if (targetElm && newContentSize.w > 0) {
-        should.ok(observerElm.getBoundingClientRect().right <= targetElm.getBoundingClientRect().right);
-      }
-      if (targetElm && newContentSize.h > 0) {
-        should.ok(observerElm.getBoundingClientRect().bottom <= targetElm.getBoundingClientRect().bottom);
-      }
-
-      if (dimensions && (offsetSizeChanged || contentSizeChanged || dirChanged)) {
-        await waitFor(
-          () => {
-            if (offsetSizeChanged || contentSizeChanged) {
-              should.equal(sizeIterations, currSizeIterations + 1);
-            }
-            if (dirChanged) {
-              should.equal(directionIterations, currDirectionIterations + 1);
-            }
-          },
-          {
-            onTimeout(error): Error {
-              setTestResult(false);
-              return error;
-            },
-          }
-        );
-      }
+        if (changeThrough) {
+          compare(1);
+          checkChange && checkChange(getLast(changeThrough), selected);
+        } else {
+          await timeout(250);
+          compare(0);
+        }
+      });
     },
-    afterEach,
   });
 };
+const addRemoveElementsTest = async (slot: Element | null, changeThrough?: DOMObserverResult[] | SeparateChangeThrough) => {
+  if (slot) {
+    let addChangeThrough: DOMObserverResult[] | undefined = changeThrough as DOMObserverResult[] | undefined;
+    let removeChangeThrough: DOMObserverResult[] | undefined = changeThrough as DOMObserverResult[] | undefined;
+    if (changeThrough && !isArray(changeThrough)) {
+      addChangeThrough = (changeThrough as SeparateChangeThrough).added;
+      removeChangeThrough = (changeThrough as SeparateChangeThrough).removed;
+    }
 
-heightSelect?.addEventListener('change', selectCallback);
-widthSelect?.addEventListener('change', selectCallback);
-paddingSelect?.addEventListener('change', selectCallback);
-borderSelect?.addEventListener('change', selectCallback);
-boxSizingSelect?.addEventListener('change', selectCallback);
-displaySelect?.addEventListener('change', selectCallback);
-directionSelect?.addEventListener('change', selectCallback);
+    const addElm = async () => {
+      const { before, after, compare } = changedThrough(addChangeThrough);
 
-selectCallback(heightSelect);
-selectCallback(widthSelect);
-selectCallback(paddingSelect);
-selectCallback(borderSelect);
-selectCallback(boxSizingSelect);
-selectCallback(displaySelect);
-selectCallback(directionSelect);
+      before();
+      appendChildren(slot, createDiv('addedElm'));
+      await timeout(250);
+      after();
 
-const iteratePadding = async (afterEach?: () => any) => {
-  await iterate(paddingSelect, afterEach);
+      await waitForOrFailTest(() => {
+        compare(1);
+      });
+
+      if (addChangeThrough) {
+        const { contentChanged, styleChanged, changedTargetAttrs } = getLast(addChangeThrough);
+        await waitForOrFailTest(() => {
+          should(contentChanged).equal(true);
+          should(styleChanged).equal(false);
+          should(changedTargetAttrs.length).equal(0);
+        });
+      }
+    };
+
+    const removeElm = async () => {
+      const removeItem = children(slot, '.addedElm')[0];
+      const { before, after, compare } = changedThrough(removeChangeThrough);
+
+      if (removeItem) {
+        before();
+        removeElements(removeItem);
+        await timeout(250);
+
+        await waitForOrFailTest(() => {
+          after();
+          compare(1);
+
+          if (removeChangeThrough) {
+            const { changedTargetAttrs, styleChanged, contentChanged } = getLast(removeChangeThrough);
+            should(changedTargetAttrs.length).equal(0);
+            should(styleChanged).equal(false);
+            should(contentChanged).equal(true);
+          }
+        });
+      }
+    };
+
+    await addElm();
+    await addElm();
+    await addElm();
+
+    await removeElm();
+    await removeElm();
+    await removeElm();
+  }
 };
-const iterateBorder = async (afterEach?: () => any) => {
-  await iterate(borderSelect, afterEach);
+const triggerSummaryElemet = async (summaryElm: HTMLElement | null, changeThrough?: DOMObserverResult[]) => {
+  // onyl do if summary is working (IE. exception)
+  if (summaryElm && (summaryElm.nextElementSibling as HTMLElement)?.offsetHeight === 0) {
+    const click = async () => {
+      const { before, after, compare } = changedThrough(changeThrough);
+
+      before();
+      summaryElm?.click();
+      await timeout(250);
+      after();
+
+      await waitForOrFailTest(() => {
+        compare(1);
+      });
+    };
+
+    await click();
+    await click();
+  }
 };
-const iterateHeight = async (afterEach?: () => any) => {
-  await iterate(heightSelect, afterEach);
+
+const addRemoveTargetElmsFn = async () => {
+  await addRemoveElementsTest(targetElmsSlot);
 };
-const iterateWidth = async (afterEach?: () => any) => {
-  await iterate(widthSelect, afterEach);
+const addRemoveTargetContentElmsFn = async () => {
+  await addRemoveElementsTest(targetContentElmsSlot, targetElmContentElmObservations);
 };
-const iterateBoxSizing = async (afterEach?: () => any) => {
-  await iterate(boxSizingSelect, afterEach);
+const addRemoveTargetContentBetweenElmsFn = async () => {
+  await addRemoveElementsTest(targetContentBetweenElmsSlot, targetElmContentElmObservations);
 };
-const iterateDisplay = async (afterEach?: () => any) => {
-  await iterate(displaySelect, afterEach);
+const iterateTargetAttrChange = async () => {
+  await iterateAttrChange(setTargetAttr, targetElmObservations, (observation, selected) => {
+    const { changedTargetAttrs, styleChanged, contentChanged } = observation;
+    should(changedTargetAttrs.includes(selected)).equal(true);
+    should(styleChanged).equal(true);
+    should(contentChanged).equal(false);
+  });
+  await iterateAttrChange(setFilteredTargetAttr);
 };
-const iterateDirection = async (afterEach?: () => any) => {
-  await iterate(directionSelect, afterEach);
+const iterateContentAttrChange = async () => {
+  await iterateAttrChange(setContentAttr, targetElmContentElmObservations, (observation) => {
+    const { changedTargetAttrs, styleChanged, contentChanged } = observation;
+    should(changedTargetAttrs.length).equal(0);
+    should(styleChanged).equal(false);
+    should(contentChanged).equal(true);
+  });
+  await iterateAttrChange(setFilteredContentAttr);
 };
+const iterateContentBetweenAttrChange = async () => {
+  await iterateAttrChange(setContentBetweenAttr);
+  await iterateAttrChange(setFilteredContentBetweenAttr);
+};
+const iterateContentHostElmAttrChange = async () => {
+  await iterateAttrChange(setContentHostElmAttr, targetElmContentElmObservations, (observation) => {
+    const { changedTargetAttrs, styleChanged, contentChanged } = observation;
+    should(changedTargetAttrs.length).equal(0);
+    should(styleChanged).equal(false);
+    should(contentChanged).equal(true);
+  });
+  await iterateAttrChange(setFilteredContentHostElmAttr);
+};
+const triggerContentSummaryChange = async () => {
+  await triggerSummaryElemet(summaryContent, targetElmContentElmObservations);
+};
+const triggerBetweenSummaryChange = async () => {
+  await triggerSummaryElemet(summaryBetween);
+};
+
+addRemoveTargetElms?.addEventListener('click', addRemoveTargetElmsFn);
+addRemoveTargetContentElms?.addEventListener('click', addRemoveTargetContentElmsFn);
+addRemoveTargetContentBetweenElms?.addEventListener('click', addRemoveTargetContentBetweenElmsFn);
+setTargetAttr?.addEventListener('change', attrChangeListener(targetElm));
+setFilteredTargetAttr?.addEventListener('change', attrChangeListener(targetElm));
+setContentAttr?.addEventListener('change', attrChangeListener(contentElmAttrChange));
+setFilteredContentAttr?.addEventListener('change', attrChangeListener(contentElmAttrChange));
+setContentBetweenAttr?.addEventListener('change', attrChangeListener(contentBetweenElmAttrChange));
+setFilteredContentBetweenAttr?.addEventListener('change', attrChangeListener(contentBetweenElmAttrChange));
+setContentHostElmAttr?.addEventListener('change', attrChangeListener(contentHostElmAttrChange));
+setFilteredContentHostElmAttr?.addEventListener('change', attrChangeListener(contentHostElmAttrChange));
+
+createDOMObserver(
+  document.querySelector('#target') as HTMLElement,
+  (changedTargetAttrs: string[], styleChanged: boolean, contentChanged: boolean) => {
+    targetElmObservations.push({ changedTargetAttrs, styleChanged, contentChanged });
+    requestAnimationFrame(() => {
+      if (targetChangesCountSlot) {
+        targetChangesCountSlot.textContent = `${targetElmObservations.length}`;
+      }
+    });
+  },
+  {
+    _attributes: ['data-target'],
+  }
+);
+createDOMObserver(
+  document.querySelector('#target .content') as HTMLElement,
+  (changedTargetAttrs: string[], styleChanged: boolean, contentChanged: boolean) => {
+    targetElmContentElmObservations.push({ changedTargetAttrs, styleChanged, contentChanged });
+    requestAnimationFrame(() => {
+      if (contentChangesCountSlot) {
+        contentChangesCountSlot.textContent = `${targetElmContentElmObservations.length}`;
+      }
+    });
+  },
+  {
+    _observeContent: true,
+    _ignoreContentChange: (mutation) => {
+      const { target, attributeName } = mutation;
+      return attributeName ? !hasClass(target as Element, 'host') && liesBetween(target as Element, '.host', '.content') : false;
+    },
+  }
+);
 
 const start = async () => {
   setTestResult(null);
 
-  console.log('init direction changes:', directionIterations);
-  console.log('init size changes:', sizeIterations);
-  should.ok(directionIterations > 0);
-  should.ok(sizeIterations > 0);
+  await addRemoveTargetElmsFn();
+  await addRemoveTargetContentElmsFn();
+  await addRemoveTargetContentBetweenElmsFn();
 
-  targetElm?.removeAttribute('style');
-  await iterateDisplay();
-  await iterateDirection();
-  await iterateBoxSizing(async () => {
-    await iterateHeight(async () => {
-      await iterateWidth(async () => {
-        await iterateBorder(async () => {
-          await iterateDirection();
-          await iteratePadding();
-        });
-      });
-    });
-  });
+  await iterateTargetAttrChange();
+  await iterateContentAttrChange();
+  await iterateContentBetweenAttrChange();
+  await iterateContentHostElmAttrChange();
+
+  await triggerContentSummaryChange();
+  await triggerBetweenSummaryChange();
 
   setTestResult(true);
 };
 
 startBtn?.addEventListener('click', start);
-
-createSizeObserver(
-  targetElm as HTMLElement,
-  (directionCache?: any) => {
-    if (directionCache) {
-      directionIterations += 1;
-    } else {
-      sizeIterations += 1;
-    }
-    requestAnimationFrame(() => {
-      if (resizesSlot) {
-        resizesSlot.textContent = (directionIterations + sizeIterations).toString();
-      }
-    });
-  },
-  { _direction: true, _appear: true }
-);
 
 export { start };
