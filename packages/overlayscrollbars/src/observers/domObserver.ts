@@ -132,7 +132,9 @@ export const createDOMObserver = (
       isConnected = false;
     },
     _update: () => {
-      observerCallback(mutationObserver.takeRecords());
+      if (isConnected) {
+        observerCallback(mutationObserver.takeRecords());
+      }
     },
   };
 };
