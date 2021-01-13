@@ -1,4 +1,7 @@
 import { PlainObject } from 'typings';
+import { hasOwnProperty } from 'support/utils/object';
+
+const ElementNodeType = Node.ELEMENT_NODE;
 
 export const type: (obj: any) => string = (obj) => {
   if (obj === undefined) return `${obj}`;
@@ -47,7 +50,9 @@ export function isObject(obj: any): boolean {
  */
 export function isArrayLike<T extends PlainObject = any>(obj: any): obj is ArrayLike<T> {
   const length = !!obj && obj.length;
-  return isArray(obj) || (!isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0); // eslint-disable-line eqeqeq
+  const lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0; // eslint-disable-line eqeqeq
+
+  return isArray(obj) || (!isFunction(obj) && lengthCorrectFormat) ? (length > 0 && isObject(obj) ? length - 1 in obj : true) : false;
 }
 
 /**
@@ -58,12 +63,13 @@ export function isPlainObject<T = any>(obj: any): obj is PlainObject<T> {
   if (!obj || !isObject(obj) || type(obj) !== 'object') return false;
 
   let key;
-  const proto = 'prototype';
-  const { hasOwnProperty } = Object[proto];
-  const hasOwnConstructor = hasOwnProperty.call(obj, 'constructor');
-  const hasIsPrototypeOf = obj.constructor && obj.constructor[proto] && hasOwnProperty.call(obj.constructor[proto], 'isPrototypeOf');
+  const cstr = 'constructor';
+  const ctor = obj[cstr];
+  const ctorProto = ctor && ctor.prototype;
+  const hasOwnConstructor = hasOwnProperty(obj, cstr);
+  const hasIsPrototypeOf = ctorProto && hasOwnProperty(ctorProto, 'isPrototypeOf');
 
-  if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+  if (ctor && !hasOwnConstructor && !hasIsPrototypeOf) {
     return false;
   }
 
@@ -73,7 +79,7 @@ export function isPlainObject<T = any>(obj: any): obj is PlainObject<T> {
   }
   /* eslint-enable */
 
-  return isUndefined(key) || hasOwnProperty.call(obj, key);
+  return isUndefined(key) || hasOwnProperty(obj, key);
 }
 
 /**
@@ -81,18 +87,15 @@ export function isPlainObject<T = any>(obj: any): obj is PlainObject<T> {
  * @param obj The object which shall be checked.
  */
 export function isHTMLElement(obj: any): obj is HTMLElement {
-  const instaceOfRightHandSide = window.HTMLElement;
-  const doInstanceOf = isObject(instaceOfRightHandSide) || isFunction(instaceOfRightHandSide);
-  return !!(doInstanceOf ? obj instanceof instaceOfRightHandSide : obj && isObject(obj) && obj.nodeType === 1 && isString(obj.nodeName));
+  const instanceofObj = window.HTMLElement;
+  return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
 }
 
 /**
- * Returns true if the given object is empty, false otherwise.
- * @param obj The Object.
+ * Checks whether the given object is a Element.
+ * @param obj The object which shall be checked.
  */
-export function isEmptyObject(obj: any): boolean {
-  /* eslint-disable no-restricted-syntax, guard-for-in */
-  for (const name in obj) return false;
-  return true;
-  /* eslint-enable */
+export function isElement(obj: any): obj is Element {
+  const instanceofObj = window.Element;
+  return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
 }

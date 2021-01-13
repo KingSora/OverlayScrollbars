@@ -1,4 +1,4 @@
-import { assignDeep, keys, hasOwnProperty } from 'support/utils/object';
+import { assignDeep, keys, hasOwnProperty, isEmptyObject } from 'support/utils/object';
 import { isPlainObject } from 'support/utils/types';
 
 describe('object utilities', () => {
@@ -161,6 +161,20 @@ describe('object utilities', () => {
     test('empty array if object null or undefined', () => {
       expect(keys(undefined)).toEqual([]);
       expect(keys(null)).toEqual([]);
+    });
+  });
+
+  describe('isEmptyObject', () => {
+    test('empty object is empty', () => {
+      expect(isEmptyObject({})).toBe(true);
+    });
+
+    test('filled object is not empty', () => {
+      expect(isEmptyObject({ a: 1, b: 2 })).toBe(false);
+    });
+
+    test('created object is empty', () => {
+      expect(isEmptyObject(Object.create(null))).toBe(true);
     });
   });
 

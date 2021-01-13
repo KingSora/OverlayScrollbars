@@ -1,6 +1,6 @@
 import { OSTarget, OSTargetObject, CSSDirection } from 'typings';
 import { createStructureLifecycle } from 'lifecycles/structureLifecycle';
-import { Cache, appendChildren, addClass, contents, is, isHTMLElement, createDiv, each } from 'support';
+import { Cache, appendChildren, addClass, contents, is, isHTMLElement, createDiv, each, push } from 'support';
 import { createSizeObserver } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { Lifecycle } from 'lifecycles/lifecycleBase';
@@ -44,7 +44,7 @@ const OverlayScrollbars = (target: OSTarget, options?: any, extensions?: any): v
   const lifecycles: Lifecycle<any>[] = [];
   const { host } = osTarget;
 
-  lifecycles.push(createStructureLifecycle(osTarget));
+  push(lifecycles, createStructureLifecycle(osTarget));
 
   // eslint-disable-next-line
   const onSizeChanged = (directionCache?: Cache<CSSDirection>) => {

@@ -72,3 +72,14 @@ export function assignDeep<T, U, V, W, X, Y, Z>(
   // Return the modified object
   return target as any;
 }
+
+/**
+ * Returns true if the given object is empty, false otherwise.
+ * @param obj The Object.
+ */
+export function isEmptyObject(obj: any): boolean {
+  /* eslint-disable no-restricted-syntax, guard-for-in */
+  for (const name in obj) return false;
+  return true;
+  /* eslint-enable */
+}

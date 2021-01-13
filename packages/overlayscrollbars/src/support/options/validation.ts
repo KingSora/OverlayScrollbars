@@ -1,5 +1,5 @@
-import { each, hasOwnProperty, keys } from 'support/utils';
-import { type, isArray, isUndefined, isEmptyObject, isPlainObject, isString } from 'support/utils/types';
+import { each, hasOwnProperty, keys, push, isEmptyObject } from 'support/utils';
+import { type, isArray, isUndefined, isPlainObject, isString } from 'support/utils/types';
 import { OptionsTemplate, OptionsTemplateTypes, OptionsTemplateType, Func, OptionsValidationResult, OptionsValidated } from 'support/options';
 import { PlainObject } from 'typings';
 
@@ -93,13 +93,13 @@ const validateRecursive = <T extends PlainObject>(
           isValid = !!enumStringSplit.find((possibility) => possibility === optionsValue);
 
           // build error message
-          errorEnumStrings.push(...enumStringSplit);
+          push(errorEnumStrings, enumStringSplit);
         } else {
           isValid = optionsTemplateTypes[optionsValueType] === currTemplateType;
         }
 
         // build error message
-        errorPossibleTypes.push(isEnumString ? optionsTemplateTypes.string : typeString!);
+        push(errorPossibleTypes, isEnumString ? optionsTemplateTypes.string : typeString!);
 
         // continue if invalid, break if valid
         return !isValid;

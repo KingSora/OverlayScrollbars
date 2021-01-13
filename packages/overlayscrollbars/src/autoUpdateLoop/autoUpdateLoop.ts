@@ -1,4 +1,4 @@
-import { rAF, cAF, isEmptyArray, indexOf, createCache, runEach } from 'support';
+import { rAF, cAF, isEmptyArray, indexOf, createCache, runEach, push } from 'support';
 import { getEnvironment } from 'environment';
 
 export interface AutoUpdateLoop {
@@ -40,7 +40,7 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
   function interval(newInterval: number): () => void;
   function interval(newInterval?: number): number | (() => void) {
     if (newInterval) {
-      intervals.push(newInterval);
+      push(intervals, newInterval);
       updateLoopInterval();
 
       return () => {
@@ -53,7 +53,7 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
 
   return {
     _add: (fn) => {
-      loopFunctions.push(fn);
+      push(loopFunctions, fn);
 
       if (!loopIsRunning && !isEmptyArray(loopFunctions)) {
         getEnvironment()._autoUpdateLoop = loopIsRunning = true;

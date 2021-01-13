@@ -1,4 +1,4 @@
-import { find, findFirst, is, children, contents, parent, createDiv, liesBetween } from 'support/dom';
+import { find, findFirst, is, children, contents, parent, createDiv, liesBetween, createDOM } from 'support/dom';
 
 const slotElm = document.body;
 const testHTML = '<div id="parent" class="div-class"><div id="child" class="div-class"></div></div><p>2</p><input type="text" value="3"></input>abc';
@@ -55,6 +55,10 @@ describe('dom traversal', () => {
 
       expect(nonExistent.length).toBe(0);
     });
+
+    test('text node', () => {
+      expect(find('div', createDOM('<div>textnodehere</div>')[0].firstChild)).toEqual([]);
+    });
   });
 
   describe('findFirst', () => {
@@ -95,6 +99,10 @@ describe('dom traversal', () => {
       const nonExistent = findFirst('#non-existent');
 
       expect(nonExistent).toBe(null);
+    });
+
+    test('text node', () => {
+      expect(findFirst('div', createDOM('<div>textnodehere</div>')[0].firstChild)).toEqual(null);
     });
   });
 
@@ -147,6 +155,10 @@ describe('dom traversal', () => {
       expect(is(null, '.div-class')).toBe(false);
       expect(is(null, '.other-class')).toBe(false);
     });
+
+    test('text node', () => {
+      expect(is(createDOM('<div>textnodehere</div>')[0].firstChild, '.hi')).toEqual(false);
+    });
   });
 
   describe('children', () => {
@@ -169,6 +181,10 @@ describe('dom traversal', () => {
       expect(childs.length).toBe(1);
       expect(childs[0]).toBe(findFirst('input'));
     });
+
+    test('text node', () => {
+      expect(children(createDOM('<div>textnodehere</div>')[0].firstChild, '.hi')).toEqual([]);
+    });
   });
 
   describe('contents', () => {
@@ -184,6 +200,10 @@ describe('dom traversal', () => {
 
       expect(childs.length).toEqual(0);
     });
+
+    test('text node', () => {
+      expect(contents(createDOM('<div>textnodehere</div>')[0].firstChild)).toEqual([]);
+    });
   });
 
   describe('parent', () => {
@@ -197,6 +217,10 @@ describe('dom traversal', () => {
       const p = parent(null);
 
       expect(p).toBeNull();
+    });
+
+    test('text node', () => {
+      expect(parent(createDOM('<div>textnodehere</div>')[0].firstChild)?.nodeName).toEqual('DIV');
     });
   });
 
@@ -285,6 +309,10 @@ describe('dom traversal', () => {
       genericTest(3);
 
       Element.prototype.closest = original;
+    });
+
+    test('text node', () => {
+      expect(liesBetween(createDOM('<div>textnodehere</div>')[0].firstChild, '.a', '.b')).toEqual(false);
     });
   });
 });

@@ -1,4 +1,5 @@
-import { isString, isPlainObject, isEmptyObject } from 'support/utils/types';
+import { isEmptyObject } from 'support/utils/object';
+import { isString, isPlainObject } from 'support/utils/types';
 import { style, hide, show, topRightBottomLeft } from 'support/dom/style';
 
 describe('dom style', () => {

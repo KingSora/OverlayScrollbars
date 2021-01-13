@@ -1,4 +1,4 @@
-import { each, runEach } from 'support/utils/array';
+import { each, push, runEach } from 'support/utils/array';
 
 let passiveEventsSupport: boolean;
 const supportPassiveEvents = (): boolean => {
@@ -69,7 +69,7 @@ export const on = (target: EventTarget, eventNames: string, listener: EventListe
         }
       : listener;
 
-    offListeners.push(off.bind(null, target, eventName, finalListener, capture));
+    push(offListeners, off.bind(null, target, eventName, finalListener, capture));
     target.addEventListener(eventName, finalListener, nativeOptions);
   });
 
