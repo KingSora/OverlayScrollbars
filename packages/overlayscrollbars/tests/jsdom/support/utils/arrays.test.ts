@@ -1,6 +1,87 @@
-import { each, from, indexOf, runEach } from 'support/utils/array';
+import { push, each, from, indexOf, runEach } from 'support/utils/array';
 
 describe('array utilities', () => {
+  describe('push', () => {
+    describe('single value', () => {
+      test('string', () => {
+        const arr: string[] = [];
+        const item = 'hi there';
+
+        expect(push(arr, item)).toBe(arr);
+
+        expect(arr).toHaveLength(1);
+        expect(arr[0]).toBe(item);
+      });
+
+      test('array like', () => {
+        const arr: string[] = [];
+        const item = ['tuple', 'elem'];
+
+        expect(push(arr, item, true)).toBe(arr);
+
+        expect(arr).toHaveLength(1);
+        expect(arr[0]).toBe(item);
+      });
+
+      test('array like fake', () => {
+        const arr: any[] = [];
+        const item = { length: 2 };
+
+        expect(push(arr, item)).toBe(arr);
+
+        expect(arr).toHaveLength(1);
+        expect(arr[0]).toBe(item);
+      });
+    });
+
+    describe('multiple values', () => {
+      test('string', () => {
+        const arr: string[] = [];
+        const items = 'hi there'.split('');
+
+        expect(push(arr, items)).toBe(arr);
+
+        expect(arr).toHaveLength(items.length);
+        expect(arr).toEqual(items);
+      });
+
+      test('array', () => {
+        const arr: string[] = [];
+        const items = ['tuple', 'elem'];
+
+        expect(push(arr, items)).toBe(arr);
+
+        expect(arr).toHaveLength(2);
+        expect(arr[0]).toBe('tuple');
+        expect(arr[1]).toBe('elem');
+      });
+
+      test('array like', () => {
+        const arr: string[] = [];
+        const items = { 0: 'zero', 1: 'one', 2: 'two', length: 3 };
+
+        expect(push(arr, items)).toBe(arr);
+
+        expect(arr).toHaveLength(3);
+        expect(arr[0]).toBe('zero');
+        expect(arr[1]).toBe('one');
+        expect(arr[2]).toBe('two');
+      });
+
+      test('array like query selector', () => {
+        document.body.innerHTML = '<div><p>testtext<h1></h1></p><div></div></div>';
+        const arr: Node[] = [];
+        const items = document.querySelectorAll('*');
+
+        expect(push(arr, items)).toBe(arr);
+
+        expect(arr).not.toHaveLength(0);
+        arr.forEach((node) => {
+          expect(node instanceof window.Element).toBe(true);
+        });
+      });
+    });
+  });
   describe('each', () => {
     describe('each through Array', () => {
       test('returns input', () => {
@@ -168,6 +249,13 @@ describe('array utilities', () => {
         });
 
         expect(testFunc).toBeCalledTimes(arrLikeObj.length - 1);
+      });
+    });
+
+    describe('each through nothing', () => {
+      test('returns input', () => {
+        expect(each(null, () => {})).toBe(null);
+        expect(each(undefined, () => {})).toBe(undefined);
       });
     });
   });

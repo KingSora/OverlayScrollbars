@@ -1,6 +1,7 @@
-import { each, from } from 'support/utils/array';
+import { isElement } from 'support/utils/types';
+import { push, from } from 'support/utils/array';
 
-type InputElementType = Element | null | undefined;
+type InputElementType = Element | Node | null | undefined;
 type OutputElementType = Element | null;
 
 const elmPrototype = Element.prototype;
@@ -12,12 +13,9 @@ const elmPrototype = Element.prototype;
  */
 const find = (selector: string, elm?: InputElementType): Element[] => {
   const arr: Array<Element> = [];
+  const rootElm = elm ? (isElement(elm) ? elm : null) : document;
 
-  each((elm || document).querySelectorAll(selector), (e: Element) => {
-    arr.push(e);
-  });
-
-  return arr;
+  return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
 };
 
 /**
@@ -25,7 +23,11 @@ const find = (selector: string, elm?: InputElementType): Element[] => {
  * @param selector The selector which has to be searched by.
  * @param elm The element from which the search shall be outgoing.
  */
-const findFirst = (selector: string, elm?: InputElementType): OutputElementType => (elm || document).querySelector(selector);
+const findFirst = (selector: string, elm?: InputElementType): OutputElementType => {
+  const rootElm = elm ? (isElement(elm) ? elm : null) : document;
+
+  return rootElm ? rootElm.querySelector(selector) : null;
+};
 
 /**
  * Determines whether the passed element is matching with the passed selector.
@@ -33,12 +35,12 @@ const findFirst = (selector: string, elm?: InputElementType): OutputElementType 
  * @param selector The selector which has to be compared with the passed element. Additional selectors: ':visible' and ':hidden'.
  */
 const is = (elm: InputElementType, selector: string): boolean => {
-  if (elm) {
+  if (isElement(elm)) {
     /* istanbul ignore next */
     // eslint-disable-next-line
     // @ts-ignore
-    const fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
-    return fn && fn.call(elm, selector);
+    const fn: (...args: any) => boolean = elmPrototype.matches || elmPrototype.msMatchesSelector;
+    return fn.call(elm, selector);
   }
   return false;
 };
@@ -51,17 +53,12 @@ const is = (elm: InputElementType, selector: string): boolean => {
 const children = (elm: InputElementType, selector?: string): ReadonlyArray<Element> => {
   const childs: Array<Element> = [];
 
-  each(elm && elm.children, (child: Element) => {
-    if (selector) {
-      if (is(child, selector)) {
-        childs.push(child);
-      }
-    } else {
-      childs.push(child);
-    }
-  });
-
-  return childs;
+  return isElement(elm)
+    ? push(
+        childs,
+        from(elm.children).filter((child) => (selector ? is(child, selector) : child))
+      )
+    : childs;
 };
 
 /**
@@ -77,7 +74,7 @@ const contents = (elm: InputElementType): ReadonlyArray<ChildNode> => (elm ? fro
 const parent = (elm: InputElementType): OutputElementType => (elm ? elm.parentElement : null);
 
 const closest = (elm: InputElementType, selector: string): OutputElementType => {
-  if (elm) {
+  if (isElement(elm)) {
     // eslint-disable-next-line
     // @ts-ignore
     if (elmPrototype.closest) {
@@ -85,7 +82,7 @@ const closest = (elm: InputElementType, selector: string): OutputElementType => 
     }
     do {
       if (is(elm, selector)) {
-        return elm;
+        return elm as Element;
       }
       elm = parent(elm);
     } while (elm !== null && elm.nodeType === 1);

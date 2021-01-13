@@ -1,4 +1,4 @@
-import { each, indexOf, isString, MutationObserverConstructor, isEmptyArray, on, off, attr, is, find } from 'support';
+import { each, indexOf, isString, MutationObserverConstructor, isEmptyArray, on, off, attr, is, find, push } from 'support';
 
 type StringNullUndefined = string | null | undefined;
 
@@ -47,7 +47,7 @@ export const createDOMObserver = (
           const elements = eventName && selector && getElements(selector);
 
           if (elements) {
-            arr.push([eventName!, elements]);
+            push(arr, [eventName!, elements], true);
           }
         }
         return arr;
@@ -85,7 +85,7 @@ export const createDOMObserver = (
       targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
 
       if (targetAttrChanged) {
-        targetChangedAttrs.push(attributeName!);
+        push(targetChangedAttrs, attributeName!);
       }
       if (_observeContent) {
         const notOnlyAttrChanged = !isAttributesType;
@@ -93,9 +93,7 @@ export const createDOMObserver = (
         const contentFinalChanged =
           (notOnlyAttrChanged || contentAttrChanged) && (_ignoreContentChange ? !_ignoreContentChange(mutation, target, options) : _observeContent);
 
-        each(addedNodes, (node) => {
-          totalAddedNodes.push(node);
-        });
+        push(totalAddedNodes, addedNodes);
 
         contentChanged = contentChanged || contentFinalChanged;
         childListChanged = childListChanged || isChildListType;
@@ -103,7 +101,15 @@ export const createDOMObserver = (
     });
 
     if (childListChanged && !isEmptyArray(totalAddedNodes)) {
-      refreshEventContentChange((selector) => totalAddedNodes.filter((node) => is(node as Element, selector)));
+      refreshEventContentChange((selector) =>
+        totalAddedNodes.reduce<Node[]>((arr, node) => {
+          push(arr, find(selector, node));
+          if (is(node, selector)) {
+            push(arr, node);
+          }
+          return arr;
+        }, [])
+      );
     }
     if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged || contentChanged) {
       callback(targetChangedAttrs, targetStyleChanged, contentChanged);
@@ -123,7 +129,7 @@ export const createDOMObserver = (
   isConnected = true;
 
   if (_observeContent) {
-    refreshEventContentChange((selector) => find(selector, target) as Node[]);
+    refreshEventContentChange((selector) => find(selector, target));
   }
 
   return {

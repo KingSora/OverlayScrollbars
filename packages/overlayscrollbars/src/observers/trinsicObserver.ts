@@ -1,4 +1,15 @@
-import { WH, Cache, createDOM, offsetSize, runEach, prependChildren, removeElements, createCache, IntersectionObserverConstructor } from 'support';
+import {
+  WH,
+  Cache,
+  createDOM,
+  offsetSize,
+  runEach,
+  prependChildren,
+  removeElements,
+  createCache,
+  push,
+  IntersectionObserverConstructor,
+} from 'support';
 import { createSizeObserver } from 'observers/sizeObserver';
 import { classNameTrinsicObserver } from 'classnames';
 
@@ -35,9 +46,10 @@ export const createTrinsicObserver = (
       { root: target }
     );
     intersectionObserverInstance.observe(trinsicObserver);
-    offListeners.push(() => intersectionObserverInstance.disconnect());
+    push(offListeners, () => intersectionObserverInstance.disconnect());
   } else {
-    offListeners.push(
+    push(
+      offListeners,
       createSizeObserver(trinsicObserver, () => {
         const newSize = offsetSize(trinsicObserver);
         const heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);

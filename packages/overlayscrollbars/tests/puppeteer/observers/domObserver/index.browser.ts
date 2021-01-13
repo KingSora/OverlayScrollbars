@@ -28,10 +28,12 @@ const contentHostElmAttrChange: HTMLElement | null = document.querySelector('#co
 const targetElmsSlot = document.querySelector('#target .host-nest-item');
 const targetContentElmsSlot = document.querySelector('#target .content .content-nest');
 const targetContentBetweenElmsSlot = document.querySelector('#content-host');
+const imgElmsSlot = document.querySelector('#target .content-nest');
 
 const addRemoveTargetElms: HTMLButtonElement | null = document.querySelector('#addRemoveTargetElms');
 const addRemoveTargetContentElms: HTMLButtonElement | null = document.querySelector('#addRemoveTargetContentElms');
 const addRemoveTargetContentBetweenElms: HTMLButtonElement | null = document.querySelector('#addRemoveTargetContentBetweenElms');
+const addImgElms: HTMLButtonElement | null = document.querySelector('#addImgElms');
 const setTargetAttr: HTMLSelectElement | null = document.querySelector('#setTargetAttr');
 const setFilteredTargetAttr: HTMLSelectElement | null = document.querySelector('#setFilteredTargetAttr');
 const setContentAttr: HTMLSelectElement | null = document.querySelector('#setContentAttr');
@@ -48,7 +50,7 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const targetElmObservations: DOMObserverResult[] = [];
 const targetElmContentElmObservations: DOMObserverResult[] = [];
 const getTotalObservations = () => targetElmObservations.length + targetElmContentElmObservations.length;
-const getLast = <T>(arr: T[]): T => arr[arr.length - 1] || ({} as T);
+const getLast = <T>(arr: T[], indexFromLast = 0): T => arr[arr.length - 1 - indexFromLast] || ({} as T);
 const changedThrough = (observationLists?: Array<DOMObserverResult[]> | DOMObserverResult[]) => {
   interface Stat {
     total: number;
@@ -229,6 +231,37 @@ const addRemoveTargetContentElmsFn = async () => {
 const addRemoveTargetContentBetweenElmsFn = async () => {
   await addRemoveElementsTest(targetContentBetweenElmsSlot, targetElmContentElmObservations);
 };
+const addImgElmsFn = async () => {
+  const add = async () => {
+    const img = new Image(1, 1);
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+    const { before, after, compare } = changedThrough(targetElmContentElmObservations);
+    const imgHolder = createDiv('img');
+    appendChildren(imgHolder, img);
+
+    before();
+    appendChildren(imgElmsSlot, imgHolder);
+
+    await waitForOrFailTest(() => {
+      after();
+      compare(2);
+
+      const mutationObserverObservation = getLast(targetElmContentElmObservations, 1);
+      should(mutationObserverObservation.contentChanged).equal(true);
+      should(mutationObserverObservation.styleChanged).equal(false);
+      should(mutationObserverObservation.changedTargetAttrs.length).equal(0);
+
+      const eventObservation = getLast(targetElmContentElmObservations);
+      should(eventObservation.contentChanged).equal(true);
+      should(eventObservation.styleChanged).equal(false);
+      should(eventObservation.changedTargetAttrs.length).equal(0);
+    });
+  };
+
+  await add();
+  await add();
+  await add();
+};
 const iterateTargetAttrChange = async () => {
   await iterateAttrChange(setTargetAttr, targetElmObservations, (observation, selected) => {
     const { changedTargetAttrs, styleChanged, contentChanged } = observation;
@@ -270,6 +303,7 @@ const triggerBetweenSummaryChange = async () => {
 addRemoveTargetElms?.addEventListener('click', addRemoveTargetElmsFn);
 addRemoveTargetContentElms?.addEventListener('click', addRemoveTargetContentElmsFn);
 addRemoveTargetContentBetweenElms?.addEventListener('click', addRemoveTargetContentBetweenElmsFn);
+addImgElms?.addEventListener('click', addImgElmsFn);
 setTargetAttr?.addEventListener('change', attrChangeListener(targetElm));
 setFilteredTargetAttr?.addEventListener('change', attrChangeListener(targetElm));
 setContentAttr?.addEventListener('change', attrChangeListener(contentElmAttrChange));
@@ -305,6 +339,9 @@ createDOMObserver(
   },
   {
     _observeContent: true,
+    _eventContentChange: () => {
+      return [['img', 'load']];
+    },
     _ignoreContentChange: (mutation) => {
       const { target, attributeName } = mutation;
       return attributeName ? !hasClass(target as Element, 'host') && liesBetween(target as Element, '.host', '.content') : false;
@@ -314,6 +351,8 @@ createDOMObserver(
 
 const start = async () => {
   setTestResult(null);
+
+  await addImgElmsFn();
 
   await addRemoveTargetElmsFn();
   await addRemoveTargetContentElmsFn();

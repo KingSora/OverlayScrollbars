@@ -1,3 +1,4 @@
+import { createDOM } from 'support/dom/create';
 import {
   type,
   isNumber,
@@ -10,7 +11,7 @@ import {
   isNull,
   isArrayLike,
   isPlainObject,
-  isEmptyObject,
+  isElement,
   isHTMLElement,
 } from 'support/utils/types';
 
@@ -46,6 +47,7 @@ const typeNameValueMap = {
   window,
   body: document.body,
   querySelectorAll: document.querySelectorAll('*'),
+  textNode: createDOM('<div>textnodehere</div>')[0].firstChild,
 };
 
 const testTypeFn = (typeFunc: Function, expectedTypeNameValueResultMap: any) => {
@@ -130,6 +132,7 @@ describe('types', () => {
       document: true,
       window: true,
       body: true,
+      textNode: true,
       querySelectorAll: true,
       functionConstructor: true,
       arrayLikeObject: true,
@@ -177,30 +180,29 @@ describe('types', () => {
     });
   });
 
-  test('isEmptyObject', () => {
-    testTypeFn(isEmptyObject, {
-      objectEmpty: true,
-      objectCreate: true,
-      arrayEmpty: true,
+  test('isElement', () => {
+    const temp = window.Element;
 
-      newNumber: true,
-      newBoolean: true,
-      newFunction: true,
-      newArray: true,
-
-      null: true,
-      undefined: true,
-      booleanTrue: true,
-      booleanFalse: true,
-      void0: true,
-      number: true,
-      infinity: true,
-      functionConstructor: true,
-      function: true,
-      functionAsync: true,
-      functionArrow: true,
-      functionArrowAsync: true,
+    testTypeFn(isElement, {
+      body: true,
     });
+    Array.from(document.querySelectorAll('*')).forEach((elm) => {
+      expect(isElement(elm)).toBeTruthy();
+    });
+
+    // @ts-ignore
+    delete window.Element;
+    // @ts-ignore
+    window.Element = null;
+
+    testTypeFn(isElement, {
+      body: true,
+    });
+    Array.from(document.querySelectorAll('*')).forEach((elm) => {
+      expect(isElement(elm)).toBeTruthy();
+    });
+
+    window.Element = temp;
   });
 
   test('isHTMLElement', () => {
@@ -213,6 +215,7 @@ describe('types', () => {
       expect(isHTMLElement(elm)).toBeTruthy();
     });
 
+    // @ts-ignore
     delete window.HTMLElement;
     // @ts-ignore
     window.HTMLElement = null;

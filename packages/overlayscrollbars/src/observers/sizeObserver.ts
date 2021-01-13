@@ -16,6 +16,7 @@ import {
   addClass,
   isString,
   equalWH,
+  push,
   cAF,
   rAF,
   ResizeObserverConstructor,
@@ -61,7 +62,7 @@ export const createSizeObserver = (
   if (ResizeObserverConstructor) {
     const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
     resizeObserverInstance.observe(listenerElement);
-    offListeners.push(() => resizeObserverInstance.disconnect());
+    push(offListeners, () => resizeObserverInstance.disconnect());
   } else {
     const observerElementChildren = createDOM(
       `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
@@ -111,8 +112,7 @@ export const createSizeObserver = (
       return false;
     };
 
-    offListeners.push(on(expandElement, scrollEventName, onScroll));
-    offListeners.push(on(shrinkElement, scrollEventName, onScroll));
+    push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
 
     // lets assume that the divs will never be that large and a constant value is enough
     style(expandElementChild, {
@@ -125,7 +125,8 @@ export const createSizeObserver = (
 
   if (direction) {
     const updateDirectionCache = createCache(() => getDirection(sizeObserver));
-    offListeners.push(
+    push(
+      offListeners,
       on(sizeObserver, scrollEventName, (event: Event) => {
         const directionCache = updateDirectionCache();
         const { _value, _changed } = directionCache;
@@ -148,7 +149,7 @@ export const createSizeObserver = (
   // appearCallback is always needed on scroll-observer strategy to reset it
   if (appearCallback) {
     addClass(sizeObserver, classNameSizeObserverAppear);
-    offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+    push(offListeners, on(sizeObserver, animationStartEventName, appearCallback));
   }
 
   prependChildren(target, sizeObserver);
