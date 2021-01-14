@@ -21,6 +21,7 @@ const supportPassiveEvents = (): boolean => {
   }
   return passiveEventsSupport;
 };
+const splitEventNames = (eventNames: string) => eventNames.split(' ');
 
 export interface OnOptions {
   _capture?: boolean;
@@ -36,7 +37,7 @@ export interface OnOptions {
  * @param capture The options of the removed listener.
  */
 export const off = (target: EventTarget, eventNames: string, listener: EventListener, capture?: boolean): void => {
-  each(eventNames.split(' '), (eventName) => {
+  each(splitEventNames(eventNames), (eventName) => {
     target.removeEventListener(eventName, listener, capture);
   });
 };
@@ -61,7 +62,7 @@ export const on = (target: EventTarget, eventNames: string, listener: EventListe
       }
     : capture;
 
-  each(eventNames.split(' '), (eventName) => {
+  each(splitEventNames(eventNames), (eventName) => {
     const finalListener = once
       ? (evt: Event) => {
           target.removeEventListener(eventName, finalListener, capture);

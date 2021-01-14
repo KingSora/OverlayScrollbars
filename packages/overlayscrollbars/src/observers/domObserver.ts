@@ -104,10 +104,7 @@ export const createDOMObserver = (
       refreshEventContentChange((selector) =>
         totalAddedNodes.reduce<Node[]>((arr, node) => {
           push(arr, find(selector, node));
-          if (is(node, selector)) {
-            push(arr, node);
-          }
-          return arr;
+          return is(node, selector) ? push(arr, node) : arr;
         }, [])
       );
     }
@@ -138,7 +135,9 @@ export const createDOMObserver = (
       isConnected = false;
     },
     _update: () => {
-      observerCallback(mutationObserver.takeRecords());
+      if (isConnected) {
+        observerCallback(mutationObserver.takeRecords());
+      }
     },
   };
 };

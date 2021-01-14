@@ -7,13 +7,17 @@
 })(this, function () {
   'use strict';
 
+  var ElementNodeType = Node.ELEMENT_NODE;
+  var _Object$prototype = Object.prototype,
+    toString = _Object$prototype.toString,
+    hasOwnProperty = _Object$prototype.hasOwnProperty;
   var type = function type(obj) {
-    if (obj === undefined) return '' + obj;
-    if (obj === null) return '' + obj;
-    return Object.prototype.toString
-      .call(obj)
-      .replace(/^\[object (.+)\]$/, '$1')
-      .toLowerCase();
+    return obj === undefined || obj === null
+      ? '' + obj
+      : toString
+          .call(obj)
+          .replace(/^\[object (.+)\]$/, '$1')
+          .toLowerCase();
   };
   function isNumber(obj) {
     return typeof obj === 'number';
@@ -38,17 +42,19 @@
   }
   function isArrayLike(obj) {
     var length = !!obj && obj.length;
-    return isArray(obj) || (!isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0);
+    var lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0;
+    return isArray(obj) || (!isFunction(obj) && lengthCorrectFormat) ? (length > 0 && isObject(obj) ? length - 1 in obj : true) : false;
   }
   function isPlainObject(obj) {
     if (!obj || !isObject(obj) || type(obj) !== 'object') return false;
     var key;
-    var proto = 'prototype';
-    var hasOwnProperty = Object[proto].hasOwnProperty;
-    var hasOwnConstructor = hasOwnProperty.call(obj, 'constructor');
-    var hasIsPrototypeOf = obj.constructor && obj.constructor[proto] && hasOwnProperty.call(obj.constructor[proto], 'isPrototypeOf');
+    var cstr = 'constructor';
+    var ctor = obj[cstr];
+    var ctorProto = ctor && ctor.prototype;
+    var hasOwnConstructor = hasOwnProperty.call(obj, cstr);
+    var hasIsPrototypeOf = ctorProto && hasOwnProperty.call(ctorProto, 'isPrototypeOf');
 
-    if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+    if (ctor && !hasOwnConstructor && !hasIsPrototypeOf) {
       return false;
     }
 
@@ -58,16 +64,12 @@
     return isUndefined(key) || hasOwnProperty.call(obj, key);
   }
   function isHTMLElement(obj) {
-    var instaceOfRightHandSide = window.HTMLElement;
-    var doInstanceOf = isObject(instaceOfRightHandSide) || isFunction(instaceOfRightHandSide);
-    return !!(doInstanceOf ? obj instanceof instaceOfRightHandSide : obj && isObject(obj) && obj.nodeType === 1 && isString(obj.nodeName));
+    var instanceofObj = window.HTMLElement;
+    return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
   }
-  function isEmptyObject(obj) {
-    for (var name in obj) {
-      return false;
-    }
-
-    return true;
+  function isElement(obj) {
+    var instanceofObj = window.Element;
+    return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
   }
 
   function getSetProp(topLeft, fallback, elm, value) {
@@ -86,7 +88,7 @@
     elm && elm.setAttribute(attrName, value);
   }
   var removeAttr = function removeAttr(elm, attrName) {
-    elm == null ? void 0 : elm.removeAttribute(attrName);
+    elm && elm.removeAttribute(attrName);
   };
   function scrollLeft(elm, value) {
     return getSetProp('scrollLeft', 0, elm, value);
@@ -107,7 +109,7 @@
       result = classes.length > 0;
 
       while ((clazz = classes[i++])) {
-        result = action(elm.classList, clazz) && result;
+        result = !!action(elm.classList, clazz) && result;
       }
     }
 
@@ -134,6 +136,10 @@
 
     return source;
   }
+  var push = function push(array, items, arrayIsSingleItem) {
+    !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
+    return array;
+  };
   var from = function from(arr) {
     if (Array.from) {
       return Array.from(arr);
@@ -141,26 +147,26 @@
 
     var result = [];
     each(arr, function (elm) {
-      result.push(elm);
+      push(result, elm);
     });
     return result;
   };
   var runEach = function runEach(arr, p1) {
+    var runFn = function runFn(fn) {
+      return fn && fn(p1);
+    };
+
     if (arr instanceof Set) {
-      arr.forEach(function (fn) {
-        return fn && fn(p1);
-      });
+      arr.forEach(runFn);
     } else {
-      each(arr, function (fn) {
-        return fn && fn(p1);
-      });
+      each(arr, runFn);
     }
   };
 
   var elmPrototype = Element.prototype;
 
   var is = function is(elm, selector) {
-    if (elm) {
+    if (isElement(elm)) {
       var fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
       return fn.call(elm, selector);
     }
@@ -305,8 +311,12 @@
     return passiveEventsSupport;
   };
 
+  var splitEventNames = function splitEventNames(eventNames) {
+    return eventNames.split(' ');
+  };
+
   var off = function off(target, eventNames, listener, capture) {
-    each(eventNames.split(' '), function (eventName) {
+    each(splitEventNames(eventNames), function (eventName) {
       target.removeEventListener(eventName, listener, capture);
     });
   };
@@ -322,14 +332,14 @@
           capture: capture,
         }
       : capture;
-    each(eventNames.split(' '), function (eventName) {
+    each(splitEventNames(eventNames), function (eventName) {
       var finalListener = once
         ? function (evt) {
             target.removeEventListener(eventName, finalListener, capture);
             listener && listener(evt);
           }
         : listener;
-      offListeners.push(off.bind(null, target, eventName, finalListener, capture));
+      push(offListeners, off.bind(null, target, eventName, finalListener, capture));
       target.addEventListener(eventName, finalListener, nativeOptions);
     });
     return runEach.bind(0, offListeners);
@@ -364,7 +374,7 @@
     return equal(a, b, ['t', 'r', 'b', 'l']);
   };
 
-  var hasOwnProperty = function hasOwnProperty(obj, prop) {
+  var hasOwnProperty$1 = function hasOwnProperty(obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
   };
   var keys = function keys(obj) {
@@ -404,6 +414,13 @@
       });
     });
     return target;
+  }
+  function isEmptyObject(obj) {
+    for (var name in obj) {
+      return false;
+    }
+
+    return true;
   }
 
   var cssNumber = {
@@ -538,7 +555,7 @@
   var cssProperty = function cssProperty(name) {
     var result = cssCache[name];
 
-    if (hasOwnProperty(cssCache, name)) {
+    if (hasOwnProperty$1(cssCache, name)) {
       return result;
     }
 
@@ -558,7 +575,7 @@
   var jsAPI = function jsAPI(name) {
     var result = jsCache[name] || window[name];
 
-    if (hasOwnProperty(jsCache, name)) {
+    if (hasOwnProperty$1(jsCache, name)) {
       return result;
     }
 
@@ -618,7 +635,7 @@
     var optionsCopy = _extends_1({}, options);
 
     var props = keys(template).filter(function (prop) {
-      return hasOwnProperty(options, prop);
+      return hasOwnProperty$1(options, prop);
     });
     each(props, function (prop) {
       var optionsDiffValue = isUndefined(optionsDiff[prop]) ? {} : optionsDiff[prop];
@@ -656,12 +673,12 @@
             isValid = !!enumStringSplit.find(function (possibility) {
               return possibility === optionsValue;
             });
-            errorEnumStrings.push.apply(errorEnumStrings, enumStringSplit);
+            push(errorEnumStrings, enumStringSplit);
           } else {
             isValid = optionsTemplateTypes[optionsValueType] === currTemplateType;
           }
 
-          errorPossibleTypes.push(isEnumString ? optionsTemplateTypes.string : typeString);
+          push(errorPossibleTypes, isEnumString ? optionsTemplateTypes.string : typeString);
           return !isValid;
         });
 
@@ -893,7 +910,7 @@
     return (
       obj &&
       path.split('.').reduce(function (o, prop) {
-        return o && hasOwnProperty(o, prop) ? o[prop] : undefined;
+        return o && hasOwnProperty$1(o, prop) ? o[prop] : undefined;
       }, obj)
     );
   };
@@ -1101,7 +1118,7 @@
     if (ResizeObserverConstructor) {
       var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
       resizeObserverInstance.observe(listenerElement);
-      offListeners.push(function () {
+      push(offListeners, function () {
         return resizeObserverInstance.disconnect();
       });
     } else {
@@ -1166,8 +1183,7 @@
         return false;
       };
 
-      offListeners.push(on(expandElement, scrollEventName, onScroll));
-      offListeners.push(on(shrinkElement, scrollEventName, onScroll));
+      push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
       style(expandElementChild, {
         width: scrollAmount,
         height: scrollAmount,
@@ -1184,7 +1200,8 @@
       var updateDirectionCache = createCache(function () {
         return getDirection(sizeObserver);
       });
-      offListeners.push(
+      push(
+        offListeners,
         on(sizeObserver, scrollEventName, function (event) {
           var directionCache = updateDirectionCache();
           var _value = directionCache._value,
@@ -1215,7 +1232,7 @@
 
     if (appearCallback) {
       addClass(sizeObserver, classNameSizeObserverAppear);
-      offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+      push(offListeners, on(sizeObserver, animationStartEventName, appearCallback));
     }
 
     prependChildren(target, sizeObserver);
@@ -1257,11 +1274,12 @@
         }
       );
       intersectionObserverInstance.observe(trinsicObserver);
-      offListeners.push(function () {
+      push(offListeners, function () {
         return intersectionObserverInstance.disconnect();
       });
     } else {
-      offListeners.push(
+      push(
+        offListeners,
         createSizeObserver(trinsicObserver, function () {
           var newSize = offsetSize(trinsicObserver);
           var heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
@@ -1321,7 +1339,7 @@
     var osTarget = normalizeTarget(target);
     var lifecycles = [];
     var host = osTarget.host;
-    lifecycles.push(createStructureLifecycle(osTarget));
+    push(lifecycles, createStructureLifecycle(osTarget));
 
     var onSizeChanged = function onSizeChanged(directionCache) {
       if (directionCache) {

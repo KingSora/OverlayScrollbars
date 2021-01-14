@@ -36,7 +36,7 @@ export function attr(elm: HTMLElement | null, attrName: string, value?: string):
  * @param attrName The attribute name.
  */
 export const removeAttr = (elm: Element | null, attrName: string): void => {
-  elm?.removeAttribute(attrName);
+  elm && elm.removeAttribute(attrName);
 };
 
 /**

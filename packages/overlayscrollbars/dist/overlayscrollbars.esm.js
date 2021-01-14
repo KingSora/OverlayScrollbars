@@ -1,10 +1,12 @@
+const ElementNodeType = Node.ELEMENT_NODE;
+const { toString, hasOwnProperty } = Object.prototype;
 const type = (obj) => {
-  if (obj === undefined) return `${obj}`;
-  if (obj === null) return `${obj}`;
-  return Object.prototype.toString
-    .call(obj)
-    .replace(/^\[object (.+)\]$/, '$1')
-    .toLowerCase();
+  return obj === undefined || obj === null
+    ? `${obj}`
+    : toString
+        .call(obj)
+        .replace(/^\[object (.+)\]$/, '$1')
+        .toLowerCase();
 };
 function isNumber(obj) {
   return typeof obj === 'number';
@@ -29,17 +31,19 @@ function isObject(obj) {
 }
 function isArrayLike(obj) {
   const length = !!obj && obj.length;
-  return isArray(obj) || (!isFunction(obj) && isNumber(length) && length > -1 && length % 1 == 0);
+  const lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0;
+  return isArray(obj) || (!isFunction(obj) && lengthCorrectFormat) ? (length > 0 && isObject(obj) ? length - 1 in obj : true) : false;
 }
 function isPlainObject(obj) {
   if (!obj || !isObject(obj) || type(obj) !== 'object') return false;
   let key;
-  const proto = 'prototype';
-  const { hasOwnProperty } = Object[proto];
-  const hasOwnConstructor = hasOwnProperty.call(obj, 'constructor');
-  const hasIsPrototypeOf = obj.constructor && obj.constructor[proto] && hasOwnProperty.call(obj.constructor[proto], 'isPrototypeOf');
+  const cstr = 'constructor';
+  const ctor = obj[cstr];
+  const ctorProto = ctor && ctor.prototype;
+  const hasOwnConstructor = hasOwnProperty.call(obj, cstr);
+  const hasIsPrototypeOf = ctorProto && hasOwnProperty.call(ctorProto, 'isPrototypeOf');
 
-  if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+  if (ctor && !hasOwnConstructor && !hasIsPrototypeOf) {
     return false;
   }
 
@@ -49,14 +53,12 @@ function isPlainObject(obj) {
   return isUndefined(key) || hasOwnProperty.call(obj, key);
 }
 function isHTMLElement(obj) {
-  const instaceOfRightHandSide = window.HTMLElement;
-  const doInstanceOf = isObject(instaceOfRightHandSide) || isFunction(instaceOfRightHandSide);
-  return !!(doInstanceOf ? obj instanceof instaceOfRightHandSide : obj && isObject(obj) && obj.nodeType === 1 && isString(obj.nodeName));
+  const instanceofObj = window.HTMLElement;
+  return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
 }
-function isEmptyObject(obj) {
-  for (const name in obj) return false;
-
-  return true;
+function isElement(obj) {
+  const instanceofObj = window.Element;
+  return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
 }
 
 function getSetProp(topLeft, fallback, elm, value) {
@@ -75,7 +77,7 @@ function attr(elm, attrName, value) {
   elm && elm.setAttribute(attrName, value);
 }
 const removeAttr = (elm, attrName) => {
-  elm == null ? void 0 : elm.removeAttribute(attrName);
+  elm && elm.removeAttribute(attrName);
 };
 function scrollLeft(elm, value) {
   return getSetProp('scrollLeft', 0, elm, value);
@@ -96,7 +98,7 @@ const classListAction = (elm, className, action) => {
     result = classes.length > 0;
 
     while ((clazz = classes[i++])) {
-      result = action(elm.classList, clazz) && result;
+      result = !!action(elm.classList, clazz) && result;
     }
   }
 
@@ -119,6 +121,10 @@ function each(source, callback) {
 
   return source;
 }
+const push = (array, items, arrayIsSingleItem) => {
+  !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
+  return array;
+};
 const from = (arr) => {
   if (Array.from) {
     return Array.from(arr);
@@ -126,22 +132,24 @@ const from = (arr) => {
 
   const result = [];
   each(arr, (elm) => {
-    result.push(elm);
+    push(result, elm);
   });
   return result;
 };
 const runEach = (arr, p1) => {
+  const runFn = (fn) => fn && fn(p1);
+
   if (arr instanceof Set) {
-    arr.forEach((fn) => fn && fn(p1));
+    arr.forEach(runFn);
   } else {
-    each(arr, (fn) => fn && fn(p1));
+    each(arr, runFn);
   }
 };
 
 const elmPrototype = Element.prototype;
 
 const is = (elm, selector) => {
-  if (elm) {
+  if (isElement(elm)) {
     const fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
     return fn.call(elm, selector);
   }
@@ -271,8 +279,10 @@ const supportPassiveEvents = () => {
   return passiveEventsSupport;
 };
 
+const splitEventNames = (eventNames) => eventNames.split(' ');
+
 const off = (target, eventNames, listener, capture) => {
-  each(eventNames.split(' '), (eventName) => {
+  each(splitEventNames(eventNames), (eventName) => {
     target.removeEventListener(eventName, listener, capture);
   });
 };
@@ -288,14 +298,14 @@ const on = (target, eventNames, listener, options) => {
         capture,
       }
     : capture;
-  each(eventNames.split(' '), (eventName) => {
+  each(splitEventNames(eventNames), (eventName) => {
     const finalListener = once
       ? (evt) => {
           target.removeEventListener(eventName, finalListener, capture);
           listener && listener(evt);
         }
       : listener;
-    offListeners.push(off.bind(null, target, eventName, finalListener, capture));
+    push(offListeners, off.bind(null, target, eventName, finalListener, capture));
     target.addEventListener(eventName, finalListener, nativeOptions);
   });
   return runEach.bind(0, offListeners);
@@ -320,7 +330,7 @@ const equalWH = (a, b) => equal(a, b, ['w', 'h']);
 const equalXY = (a, b) => equal(a, b, ['x', 'y']);
 const equalTRBL = (a, b) => equal(a, b, ['t', 'r', 'b', 'l']);
 
-const hasOwnProperty = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+const hasOwnProperty$1 = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
 const keys = (obj) => (obj ? Object.keys(obj) : []);
 function assignDeep(target, object1, object2, object3, object4, object5, object6) {
   const sources = [object1, object2, object3, object4, object5, object6];
@@ -356,6 +366,11 @@ function assignDeep(target, object1, object2, object3, object4, object5, object6
     });
   });
   return target;
+}
+function isEmptyObject(obj) {
+  for (const name in obj) return false;
+
+  return true;
 }
 
 const cssNumber = {
@@ -477,7 +492,7 @@ const cssCache = {};
 const cssProperty = (name) => {
   let result = cssCache[name];
 
-  if (hasOwnProperty(cssCache, name)) {
+  if (hasOwnProperty$1(cssCache, name)) {
     return result;
   }
 
@@ -495,7 +510,7 @@ const cssProperty = (name) => {
 const jsAPI = (name) => {
   let result = jsCache[name] || window[name];
 
-  if (hasOwnProperty(jsCache, name)) {
+  if (hasOwnProperty$1(jsCache, name)) {
     return result;
   }
 
@@ -554,7 +569,7 @@ const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPa
 
   const optionsCopy = _extends_1({}, options);
 
-  const props = keys(template).filter((prop) => hasOwnProperty(options, prop));
+  const props = keys(template).filter((prop) => hasOwnProperty$1(options, prop));
   each(props, (prop) => {
     const optionsDiffValue = isUndefined(optionsDiff[prop]) ? {} : optionsDiff[prop];
     const optionsValue = options[prop];
@@ -589,12 +604,12 @@ const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPa
         if (isEnumString && isString(optionsValue)) {
           const enumStringSplit = currTemplateType.split(' ');
           isValid = !!enumStringSplit.find((possibility) => possibility === optionsValue);
-          errorEnumStrings.push(...enumStringSplit);
+          push(errorEnumStrings, enumStringSplit);
         } else {
           isValid = optionsTemplateTypes[optionsValueType] === currTemplateType;
         }
 
-        errorPossibleTypes.push(isEnumString ? optionsTemplateTypes.string : typeString);
+        push(errorPossibleTypes, isEnumString ? optionsTemplateTypes.string : typeString);
         return !isValid;
       });
 
@@ -814,7 +829,7 @@ const getEnvironment = () => {
   return environmentInstance;
 };
 
-const getPropByPath = (obj, path) => obj && path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj);
+const getPropByPath = (obj, path) => obj && path.split('.').reduce((o, prop) => (o && hasOwnProperty$1(o, prop) ? o[prop] : undefined), obj);
 
 const createLifecycleBase = (defaultOptionsWithTemplate, initialOptions, updateFunction) => {
   const { _template: optionsTemplate, _options: defaultOptions } = transformOptions(defaultOptionsWithTemplate);
@@ -988,7 +1003,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   if (ResizeObserverConstructor) {
     const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
     resizeObserverInstance.observe(listenerElement);
-    offListeners.push(() => resizeObserverInstance.disconnect());
+    push(offListeners, () => resizeObserverInstance.disconnect());
   } else {
     const observerElementChildren = createDOM(
       `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
@@ -1041,8 +1056,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       return false;
     };
 
-    offListeners.push(on(expandElement, scrollEventName, onScroll));
-    offListeners.push(on(shrinkElement, scrollEventName, onScroll));
+    push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
     style(expandElementChild, {
       width: scrollAmount,
       height: scrollAmount,
@@ -1053,7 +1067,8 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
 
   if (direction) {
     const updateDirectionCache = createCache(() => getDirection(sizeObserver));
-    offListeners.push(
+    push(
+      offListeners,
       on(sizeObserver, scrollEventName, (event) => {
         const directionCache = updateDirectionCache();
         const { _value, _changed } = directionCache;
@@ -1083,7 +1098,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
 
   if (appearCallback) {
     addClass(sizeObserver, classNameSizeObserverAppear);
-    offListeners.push(on(sizeObserver, animationStartEventName, appearCallback));
+    push(offListeners, on(sizeObserver, animationStartEventName, appearCallback));
   }
 
   prependChildren(target, sizeObserver);
@@ -1123,9 +1138,10 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
       }
     );
     intersectionObserverInstance.observe(trinsicObserver);
-    offListeners.push(() => intersectionObserverInstance.disconnect());
+    push(offListeners, () => intersectionObserverInstance.disconnect());
   } else {
-    offListeners.push(
+    push(
+      offListeners,
       createSizeObserver(trinsicObserver, () => {
         const newSize = offsetSize(trinsicObserver);
         const heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
@@ -1182,7 +1198,7 @@ const OverlayScrollbars = (target, options, extensions) => {
   const osTarget = normalizeTarget(target);
   const lifecycles = [];
   const { host } = osTarget;
-  lifecycles.push(createStructureLifecycle(osTarget));
+  push(lifecycles, createStructureLifecycle(osTarget));
 
   const onSizeChanged = (directionCache) => {
     if (directionCache) {

@@ -7,6 +7,7 @@ export declare function each<T>(arrayLikeObject: ArrayLike<T> | null | undefined
 export declare function each(obj: PlainObject, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject;
 export declare function each(obj: PlainObject | null | undefined, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject | null | undefined;
 export declare const indexOf: <T = any>(arr: T[], item: T, fromIndex?: number | undefined) => number;
+export declare const push: <T>(array: T[], items: T | ArrayLike<T>, arrayIsSingleItem?: boolean | undefined) => T[];
 export declare const from: <T = any>(arr: ArrayLike<T>) => T[];
 export declare const isEmptyArray: (array: Array<any> | null | undefined) => boolean | null | undefined;
 export declare const runEach: (arr: ArrayLike<RunEachItem> | Set<RunEachItem>, p1?: unknown) => void;

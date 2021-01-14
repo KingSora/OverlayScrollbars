@@ -10,7 +10,7 @@ const classListAction = (elm: Element | null, className: string, action: (elmCla
     const classes: Array<string> = className.match(rnothtmlwhite) || [];
     result = classes.length > 0;
     while ((clazz = classes[i++])) {
-      result = (action(elm.classList, clazz) as boolean) && result;
+      result = !!action(elm.classList, clazz) && result;
     }
   }
   return result;

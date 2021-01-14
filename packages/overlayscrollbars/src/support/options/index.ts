@@ -42,7 +42,7 @@ type OptionsTemplateTypeMap = {
   __TPL_array_TYPE__: Array<any>;
   __TPL_function_TYPE__: Func;
   __TPL_null_TYPE__: null;
-  __TPL_object_TYPE__: object; // eslint-disable-line @typescript-eslint/ban-types
+  __TPL_object_TYPE__: Record<string, unknown>;
 };
 type OptionsTemplateValueNonEnum<T extends OptionsTemplateNativeTypes> =
   | OptionsTemplateType<T>

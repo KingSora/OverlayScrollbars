@@ -74,9 +74,11 @@ export const from = <T = any>(arr: ArrayLike<T>) => {
     return Array.from(arr);
   }
   const result: Array<T> = [];
+
   each(arr, (elm) => {
     push(result, elm);
   });
+
   return result;
 };
 
@@ -92,9 +94,10 @@ export const isEmptyArray = (array: Array<any> | null | undefined) => array && a
  * @param p1 The first param.
  */
 export const runEach = (arr: ArrayLike<RunEachItem> | Set<RunEachItem>, p1?: unknown): void => {
+  const runFn = (fn: RunEachItem) => fn && fn(p1);
   if (arr instanceof Set) {
-    arr.forEach((fn) => fn && fn(p1));
+    arr.forEach(runFn);
   } else {
-    each(arr, (fn) => fn && fn(p1));
+    each(arr, runFn);
   }
 };

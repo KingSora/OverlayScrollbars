@@ -1,6 +1,6 @@
-declare type InputElementType = Element | null | undefined;
+declare type InputElementType = Element | Node | null | undefined;
 declare type OutputElementType = Element | null;
-declare const find: (selector: string, elm?: InputElementType) => ReadonlyArray<Element>;
+declare const find: (selector: string, elm?: InputElementType) => Element[];
 declare const findFirst: (selector: string, elm?: InputElementType) => OutputElementType;
 declare const is: (elm: InputElementType, selector: string) => boolean;
 declare const children: (elm: InputElementType, selector?: string | undefined) => ReadonlyArray<Element>;

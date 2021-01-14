@@ -1,15 +1,15 @@
 import { PlainObject } from 'typings';
-import { hasOwnProperty } from 'support/utils/object';
 
 const ElementNodeType = Node.ELEMENT_NODE;
+const { toString, hasOwnProperty } = Object.prototype;
 
 export const type: (obj: any) => string = (obj) => {
-  if (obj === undefined) return `${obj}`;
-  if (obj === null) return `${obj}`;
-  return Object.prototype.toString
-    .call(obj)
-    .replace(/^\[object (.+)\]$/, '$1')
-    .toLowerCase();
+  return obj === undefined || obj === null
+    ? `${obj}`
+    : toString
+        .call(obj)
+        .replace(/^\[object (.+)\]$/, '$1')
+        .toLowerCase();
 };
 
 export function isNumber(obj: any): obj is number {
@@ -66,8 +66,8 @@ export function isPlainObject<T = any>(obj: any): obj is PlainObject<T> {
   const cstr = 'constructor';
   const ctor = obj[cstr];
   const ctorProto = ctor && ctor.prototype;
-  const hasOwnConstructor = hasOwnProperty(obj, cstr);
-  const hasIsPrototypeOf = ctorProto && hasOwnProperty(ctorProto, 'isPrototypeOf');
+  const hasOwnConstructor = hasOwnProperty.call(obj, cstr);
+  const hasIsPrototypeOf = ctorProto && hasOwnProperty.call(ctorProto, 'isPrototypeOf');
 
   if (ctor && !hasOwnConstructor && !hasIsPrototypeOf) {
     return false;
@@ -79,7 +79,7 @@ export function isPlainObject<T = any>(obj: any): obj is PlainObject<T> {
   }
   /* eslint-enable */
 
-  return isUndefined(key) || hasOwnProperty(obj, key);
+  return isUndefined(key) || hasOwnProperty.call(obj, key);
 }
 
 /**

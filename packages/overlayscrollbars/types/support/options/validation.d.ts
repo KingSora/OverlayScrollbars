@@ -8,7 +8,7 @@ declare type OptionsTemplateTypesDictionary = {
     readonly number: OptionsTemplateType<number>;
     readonly string: OptionsTemplateType<string>;
     readonly array: OptionsTemplateType<Array<any>>;
-    readonly object: OptionsTemplateType<object>;
+    readonly object: OptionsTemplateType<Record<string, unknown>>;
     readonly function: OptionsTemplateType<Func>;
     readonly null: OptionsTemplateType<null>;
 };
