@@ -77,9 +77,11 @@ body {
 }
 
 .img {
+  display: inline-block;
   background: lime;
   width: 50px;
   height: 50px;
+  border-radius: 100%;
 
   img {
     opacity: 0;
