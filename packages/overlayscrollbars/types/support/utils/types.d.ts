@@ -11,4 +11,4 @@ export declare function isObject(obj: any): boolean;
 export declare function isArrayLike<T extends PlainObject = any>(obj: any): obj is ArrayLike<T>;
 export declare function isPlainObject<T = any>(obj: any): obj is PlainObject<T>;
 export declare function isHTMLElement(obj: any): obj is HTMLElement;
-export declare function isEmptyObject(obj: any): boolean;
+export declare function isElement(obj: any): obj is Element;

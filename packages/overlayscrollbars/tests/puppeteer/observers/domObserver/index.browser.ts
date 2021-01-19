@@ -232,9 +232,11 @@ const addRemoveTargetContentBetweenElmsFn = async () => {
   await addRemoveElementsTest(targetContentBetweenElmsSlot, targetElmContentElmObservations);
 };
 const addImgElmsFn = async () => {
+  /*
   const add = async () => {
     const img = new Image(1, 1);
     img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
     const { before, after, compare } = changedThrough(targetElmContentElmObservations);
     const imgHolder = createDiv('img');
     appendChildren(imgHolder, img);
@@ -261,6 +263,21 @@ const addImgElmsFn = async () => {
   await add();
   await add();
   await add();
+*/
+  const add = async () => {
+    const img = new Image(1, 1);
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
+    //const { before, after, compare } = changedThrough(targetElmContentElmObservations);
+    const imgHolder = createDiv('img');
+    appendChildren(imgHolder, img);
+
+    appendChildren(imgElmsSlot, imgHolder);
+  };
+
+  add();
+  add();
+  add();
 };
 const iterateTargetAttrChange = async () => {
   await iterateAttrChange(setTargetAttr, targetElmObservations, (observation, selected) => {
@@ -340,7 +357,10 @@ createDOMObserver(
   {
     _observeContent: true,
     _eventContentChange: () => {
-      return [['img', 'load']];
+      return [
+        ['img', 'load'],
+        ['iframe', 'load'],
+      ];
     },
     _ignoreContentChange: (mutation) => {
       const { target, attributeName } = mutation;

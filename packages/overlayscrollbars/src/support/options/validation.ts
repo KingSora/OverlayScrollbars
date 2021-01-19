@@ -171,7 +171,7 @@ type OptionsTemplateTypesDictionary = {
   readonly number: OptionsTemplateType<number>;
   readonly string: OptionsTemplateType<string>;
   readonly array: OptionsTemplateType<Array<any>>;
-  readonly object: OptionsTemplateType<object>; // eslint-disable-line @typescript-eslint/ban-types
+  readonly object: OptionsTemplateType<Record<string, unknown>>;
   readonly function: OptionsTemplateType<Func>;
   readonly null: OptionsTemplateType<null>;
 };

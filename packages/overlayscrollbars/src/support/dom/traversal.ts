@@ -75,17 +75,17 @@ const parent = (elm: InputElementType): OutputElementType => (elm ? elm.parentEl
 
 const closest = (elm: InputElementType, selector: string): OutputElementType => {
   if (isElement(elm)) {
-    // eslint-disable-next-line
-    // @ts-ignore
-    if (elmPrototype.closest) {
-      return elm.closest(selector);
+    const closestFn = elmPrototype.closest;
+    if (closestFn) {
+      return closestFn.call(elm, selector);
     }
+
     do {
       if (is(elm, selector)) {
         return elm as Element;
       }
       elm = parent(elm);
-    } while (elm !== null && elm.nodeType === 1);
+    } while (elm);
   }
 
   return null;

@@ -1,4 +1,4 @@
-import { each, indexOf, isString, MutationObserverConstructor, isEmptyArray, on, off, attr, is, find, push } from 'support';
+import { each, debounce, indexOf, isString, MutationObserverConstructor, isEmptyArray, on, off, attr, is, find, push } from 'support';
 
 type StringNullUndefined = string | null | undefined;
 
@@ -32,11 +32,11 @@ export const createDOMObserver = (
 ): DOMObserver => {
   let isConnected = false;
   const { _observeContent, _attributes, _ignoreContentChange, _eventContentChange } = options || {};
-  const eventContentChangeCallback = () => {
+  const eventContentChangeCallback = debounce(() => {
     if (isConnected) {
       callback([], false, true);
     }
-  };
+  });
   const refreshEventContentChange = (getElements: (selector: string) => Node[]) => {
     if (_eventContentChange) {
       const eventContentChanges = _eventContentChange();
@@ -104,10 +104,7 @@ export const createDOMObserver = (
       refreshEventContentChange((selector) =>
         totalAddedNodes.reduce<Node[]>((arr, node) => {
           push(arr, find(selector, node));
-          if (is(node, selector)) {
-            push(arr, node);
-          }
-          return arr;
+          return is(node, selector) ? push(arr, node) : arr;
         }, [])
       );
     }
