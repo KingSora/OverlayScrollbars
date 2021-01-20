@@ -88,3 +88,22 @@ body {
     visibility: hidden;
   }
 }
+
+.transition {
+  width: 0;
+  height: 50px;
+  background: gray;
+
+  &.highlight {
+    background: cyan;
+  }
+
+  &.resetTransition {
+    transition: none;
+  }
+
+  &.active {
+    transition: width 2s ease;
+    width: 100%;
+  }
+}

@@ -6,6 +6,11 @@ export const setTestResult = (result: boolean | null) => {
   const elm = getTestResultElm();
   if (elm) {
     if (typeof result === 'boolean') {
+      if (result) {
+        if (elm.getAttribute('class') === 'failed') {
+          return;
+        }
+      }
       elm.setAttribute('class', result ? 'passed' : 'failed');
     } else {
       elm.removeAttribute('class');

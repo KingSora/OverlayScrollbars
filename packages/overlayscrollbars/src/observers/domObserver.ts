@@ -1,27 +1,116 @@
-import { each, debounce, indexOf, isString, MutationObserverConstructor, isEmptyArray, on, off, attr, is, find, push } from 'support';
+import {
+  each,
+  debounce,
+  indexOf,
+  isString,
+  MutationObserverConstructor,
+  isEmptyArray,
+  on,
+  off,
+  attr,
+  is,
+  find,
+  push,
+  isUndefined,
+  isFunction,
+} from 'support';
 
 type StringNullUndefined = string | null | undefined;
-
-export type DOMOvserverEventContentChangeResult = Array<[StringNullUndefined, StringNullUndefined] | null | undefined>; // [selector, eventname]
-export type DOMOvserverEventContentChange = () => DOMOvserverEventContentChangeResult;
+export type DOMObserverEventContentChange =
+  | Array<[StringNullUndefined, ((elms: Node[]) => string) | StringNullUndefined] | null | undefined>
+  | false
+  | null
+  | undefined;
 export type DOMObserverIgnoreContentChange = (
   mutation: MutationRecord,
   domObserverTarget: HTMLElement,
   domObserverOptions: DOMObserverOptions | undefined
 ) => boolean | null | undefined;
 export interface DOMObserverOptions {
-  _observeContent?: boolean;
-  _attributes?: string[];
+  _observeContent?: boolean; // do observe children and trigger content change
+  _attributes?: string[]; // observed attributes
+  _styleChangingAttributes?: string[]; // list of attributes that trigger a content change if changed
+  _eventContentChange?: DOMObserverEventContentChange; // [selector, eventname]
   _ignoreContentChange?: DOMObserverIgnoreContentChange;
-  _eventContentChange?: DOMOvserverEventContentChange;
 }
 export interface DOMObserver {
   _disconnect: () => void;
+  _updateEventContentChange: (newEventContentChange?: DOMObserverEventContentChange) => void;
   _update: () => void;
 }
 
-const styleChangingAttributes = ['id', 'class', 'style', 'open'];
-const mutationObserverAttrsTextarea = ['wrap', 'cols', 'rows'];
+// const styleChangingAttributes = ['id', 'class', 'style', 'open'];
+// const mutationObserverAttrsTextarea = ['wrap', 'cols', 'rows'];
+
+const createEventContentChange = (
+  target: Element,
+  eventContentChange: DOMObserverEventContentChange,
+  map: Map<Node, string>,
+  callback: (...args: any) => any
+) => {
+  let eventContentChangeRef: DOMObserverEventContentChange;
+  const addEvent = (elm: Node, eventName: string) => {
+    const entry = map.get(elm);
+    const newEntry = isUndefined(entry);
+    const registerEvent = () => {
+      map.set(elm, eventName);
+      on(elm, eventName, callback);
+    };
+
+    if (!newEntry && eventName !== entry) {
+      off(elm, entry!, callback);
+      registerEvent();
+    } else if (newEntry) {
+      registerEvent();
+    }
+  };
+  const _destroy = () => {
+    map.forEach((eventName: string, elm: Node) => {
+      off(elm, eventName, callback);
+    });
+    map.clear();
+  };
+  const _updateElements = (getElements?: (selector: string) => Node[]) => {
+    if (eventContentChangeRef) {
+      const eventElmList = eventContentChangeRef.reduce<Array<[Node[], string]>>((arr, item) => {
+        if (item) {
+          const selector = item[0];
+          const eventName = item[1];
+          const elements = eventName && selector && (getElements ? getElements(selector) : find(selector, target));
+
+          if (elements) {
+            push(arr, [elements, isFunction(eventName) ? eventName(elements) : eventName!], true);
+          }
+        }
+        return arr;
+      }, []);
+
+      each(eventElmList, (item) => {
+        const elements = item[0];
+        const eventName = item[1];
+
+        each(elements, (elm) => {
+          addEvent(elm, eventName);
+        });
+      });
+    }
+  };
+  const _update = (newEventContentChange: DOMObserverEventContentChange) => {
+    eventContentChangeRef = newEventContentChange;
+    _destroy();
+    _updateElements();
+  };
+
+  if (eventContentChange) {
+    _update(eventContentChange);
+  }
+
+  return {
+    _destroy,
+    _updateElements,
+    _update,
+  };
+};
 const getAttributeChanged = (mutationTarget: Node, attributeName: string, oldValue: string | null): boolean =>
   oldValue !== attr(mutationTarget as HTMLElement, attributeName);
 
@@ -31,42 +120,26 @@ export const createDOMObserver = (
   options?: DOMObserverOptions
 ): DOMObserver => {
   let isConnected = false;
-  const { _observeContent, _attributes, _ignoreContentChange, _eventContentChange } = options || {};
-  const eventContentChangeCallback = debounce(() => {
-    if (isConnected) {
-      callback([], false, true);
-    }
-  });
-  const refreshEventContentChange = (getElements: (selector: string) => Node[]) => {
-    if (_eventContentChange) {
-      const eventContentChanges = _eventContentChange();
-      const eventElmList = eventContentChanges.reduce<Array<[string, Node[]]>>((arr, item) => {
-        if (item) {
-          const selector = item[0];
-          const eventName = item[1];
-          const elements = eventName && selector && getElements(selector);
-
-          if (elements) {
-            push(arr, [eventName!, elements], true);
-          }
-        }
-        return arr;
-      }, []);
-
-      each(eventElmList, (item) => {
-        const eventName = item[0];
-        const elements = item[1];
-
-        each(elements, (elm) => {
-          off(elm, eventName, eventContentChangeCallback);
-          on(elm, eventName, eventContentChangeCallback);
-        });
-      });
-    }
-  };
+  const { _observeContent, _attributes, _styleChangingAttributes, _eventContentChange, _ignoreContentChange } = options || {};
+  const {
+    _updateElements: updateEventContentChangeElements,
+    _destroy: destroyEventContentChange,
+    _update: updateEventContentChange,
+  } = createEventContentChange(
+    target,
+    _observeContent && _eventContentChange,
+    new Map<Node, string>(),
+    debounce(() => {
+      if (isConnected) {
+        callback([], false, true);
+      }
+    }, 80)
+  );
 
   // MutationObserver
-  const observedAttributes = (_attributes || []).concat(styleChangingAttributes); // TODO: observer textarea attrs if textarea
+  const finalAttributes = _attributes || [];
+  const finalStyleChangingAttributes = _styleChangingAttributes || [];
+  const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes); // TODO: observer textarea attrs if textarea
   const observerCallback = (mutations: MutationRecord[]) => {
     const targetChangedAttrs: string[] = [];
     const totalAddedNodes: Node[] = [];
@@ -80,7 +153,7 @@ export const createDOMObserver = (
       const targetIsMutationTarget = target === mutationTarget;
       const attributeChanged = isAttributesType && isString(attributeName) && getAttributeChanged(mutationTarget, attributeName!, oldValue);
       const targetAttrChanged = attributeChanged && targetIsMutationTarget && !_observeContent;
-      const styleChangingAttrChanged = indexOf(styleChangingAttributes, attributeName) > -1 && attributeChanged;
+      const styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
 
       targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
 
@@ -101,7 +174,7 @@ export const createDOMObserver = (
     });
 
     if (childListChanged && !isEmptyArray(totalAddedNodes)) {
-      refreshEventContentChange((selector) =>
+      updateEventContentChangeElements((selector) =>
         totalAddedNodes.reduce<Node[]>((arr, node) => {
           push(arr, find(selector, node));
           return is(node, selector) ? push(arr, node) : arr;
@@ -114,6 +187,7 @@ export const createDOMObserver = (
   };
   const mutationObserver: MutationObserver = new MutationObserverConstructor!(observerCallback);
 
+  // Connect
   mutationObserver.observe(target, {
     attributes: true,
     attributeOldValue: true,
@@ -122,17 +196,18 @@ export const createDOMObserver = (
     childList: _observeContent,
     characterData: _observeContent,
   });
-
   isConnected = true;
-
-  if (_observeContent) {
-    refreshEventContentChange((selector) => find(selector, target));
-  }
 
   return {
     _disconnect: () => {
-      mutationObserver.disconnect();
-      isConnected = false;
+      if (isConnected) {
+        destroyEventContentChange();
+        mutationObserver.disconnect();
+        isConnected = false;
+      }
+    },
+    _updateEventContentChange: (newEventContentChange?: DOMObserverEventContentChange) => {
+      updateEventContentChange(isConnected && _observeContent && newEventContentChange);
     },
     _update: () => {
       if (isConnected) {

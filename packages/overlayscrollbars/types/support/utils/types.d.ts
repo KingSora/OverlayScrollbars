@@ -1,11 +1,11 @@
 import { PlainObject } from 'typings';
+export declare function isUndefined(obj: any): obj is undefined;
+export declare function isNull(obj: any): obj is null;
 export declare const type: (obj: any) => string;
 export declare function isNumber(obj: any): obj is number;
 export declare function isString(obj: any): obj is string;
 export declare function isBoolean(obj: any): obj is boolean;
 export declare function isFunction(obj: any): obj is (...args: Array<unknown>) => unknown;
-export declare function isUndefined(obj: any): obj is undefined;
-export declare function isNull(obj: any): obj is null;
 export declare function isArray(obj: any): obj is Array<any>;
 export declare function isObject(obj: any): boolean;
 export declare function isArrayLike<T extends PlainObject = any>(obj: any): obj is ArrayLike<T>;

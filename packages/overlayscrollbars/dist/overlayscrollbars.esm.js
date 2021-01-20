@@ -1,7 +1,13 @@
 const ElementNodeType = Node.ELEMENT_NODE;
 const { toString, hasOwnProperty } = Object.prototype;
+function isUndefined(obj) {
+  return obj === undefined;
+}
+function isNull(obj) {
+  return obj === null;
+}
 const type = (obj) => {
-  return obj === undefined || obj === null
+  return isUndefined(obj) || isNull(obj)
     ? `${obj}`
     : toString
         .call(obj)
@@ -16,12 +22,6 @@ function isString(obj) {
 }
 function isFunction(obj) {
   return typeof obj === 'function';
-}
-function isUndefined(obj) {
-  return obj === undefined;
-}
-function isNull(obj) {
-  return obj === null;
 }
 function isArray(obj) {
   return Array.isArray(obj);
@@ -121,6 +121,7 @@ function each(source, callback) {
 
   return source;
 }
+const indexOf = (arr, item, fromIndex) => arr.indexOf(item, fromIndex);
 const push = (array, items, arrayIsSingleItem) => {
   !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
   return array;
@@ -136,6 +137,7 @@ const from = (arr) => {
   });
   return result;
 };
+const isEmptyArray = (array) => array && array.length === 0;
 const runEach = (arr, p1) => {
   const runFn = (fn) => fn && fn(p1);
 
@@ -147,6 +149,12 @@ const runEach = (arr, p1) => {
 };
 
 const elmPrototype = Element.prototype;
+
+const find = (selector, elm) => {
+  const arr = [];
+  const rootElm = elm ? (isElement(elm) ? elm : null) : document;
+  return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
+};
 
 const is = (elm, selector) => {
   if (isElement(elm)) {
@@ -260,7 +268,7 @@ const getBoundingClientRect = (elm) => elm.getBoundingClientRect();
 let passiveEventsSupport;
 
 const supportPassiveEvents = () => {
-  if (passiveEventsSupport === undefined) {
+  if (isUndefined(passiveEventsSupport)) {
     passiveEventsSupport = false;
 
     try {
@@ -373,6 +381,75 @@ function isEmptyObject(obj) {
   return true;
 }
 
+const firstLetterToUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+const getDummyStyle = () => createDiv().style;
+
+const cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
+const jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
+const jsCache = {};
+const cssCache = {};
+const cssProperty = (name) => {
+  let result = cssCache[name];
+
+  if (hasOwnProperty$1(cssCache, name)) {
+    return result;
+  }
+
+  const uppercasedName = firstLetterToUpper(name);
+  const elmStyle = getDummyStyle();
+  each(cssPrefixes, (prefix) => {
+    const prefixWithoutDashes = prefix.replace(/-/g, '');
+    const resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
+    result = resultPossibilities.find((resultPossibility) => elmStyle[resultPossibility] !== undefined);
+    return !result;
+  });
+  cssCache[name] = result;
+  return result;
+};
+const jsAPI = (name) => {
+  let result = jsCache[name] || window[name];
+
+  if (hasOwnProperty$1(jsCache, name)) {
+    return result;
+  }
+
+  each(jsPrefixes, (prefix) => {
+    result = result || window[prefix + firstLetterToUpper(name)];
+    return !result;
+  });
+  jsCache[name] = result;
+  return result;
+};
+
+const MutationObserverConstructor = jsAPI('MutationObserver');
+const IntersectionObserverConstructor = jsAPI('IntersectionObserver');
+const ResizeObserverConstructor = jsAPI('ResizeObserver');
+const cAF = jsAPI('cancelAnimationFrame');
+const rAF = jsAPI('requestAnimationFrame');
+
+const debounce = (functionToDebounce, timeout, maxWait) => {
+  let timeoutId;
+  let lastCallTime;
+  const hasTimeout = isNumber(timeout) && timeout > 0;
+  const hasMaxWait = isNumber(maxWait) && maxWait > 0;
+  const cancel = hasTimeout ? window.clearTimeout : cAF;
+  const set = hasTimeout ? window.setTimeout : rAF;
+
+  const setFn = function setFn(args) {
+    lastCallTime = hasMaxWait ? performance.now() : 0;
+    timeoutId && cancel(timeoutId);
+    functionToDebounce.apply(this, args);
+  };
+
+  return function () {
+    const boundSetFn = setFn.bind(this, arguments);
+    const forceCall = hasMaxWait ? performance.now() - lastCallTime >= maxWait : false;
+    timeoutId && cancel(timeoutId);
+    timeoutId = forceCall ? boundSetFn() : set(boundSetFn, timeout);
+  };
+};
+
 const cssNumber = {
   animationiterationcount: 1,
   columncount: 1,
@@ -481,53 +558,6 @@ const createCache = (update, options) => {
   };
 };
 
-const firstLetterToUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-
-const getDummyStyle = () => createDiv().style;
-
-const cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
-const jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
-const jsCache = {};
-const cssCache = {};
-const cssProperty = (name) => {
-  let result = cssCache[name];
-
-  if (hasOwnProperty$1(cssCache, name)) {
-    return result;
-  }
-
-  const uppercasedName = firstLetterToUpper(name);
-  const elmStyle = getDummyStyle();
-  each(cssPrefixes, (prefix) => {
-    const prefixWithoutDashes = prefix.replace(/-/g, '');
-    const resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
-    result = resultPossibilities.find((resultPossibility) => elmStyle[resultPossibility] !== undefined);
-    return !result;
-  });
-  cssCache[name] = result;
-  return result;
-};
-const jsAPI = (name) => {
-  let result = jsCache[name] || window[name];
-
-  if (hasOwnProperty$1(jsCache, name)) {
-    return result;
-  }
-
-  each(jsPrefixes, (prefix) => {
-    result = result || window[prefix + firstLetterToUpper(name)];
-    return !result;
-  });
-  jsCache[name] = result;
-  return result;
-};
-
-const MutationObserverConstructor = jsAPI('MutationObserver');
-const IntersectionObserverConstructor = jsAPI('IntersectionObserver');
-const ResizeObserverConstructor = jsAPI('ResizeObserver');
-const cAF = jsAPI('cancelAnimationFrame');
-const rAF = jsAPI('requestAnimationFrame');
-
 function createCommonjsModule(fn) {
   var module = { exports: {} };
   return fn(module, module.exports), module.exports;
@@ -599,7 +629,7 @@ const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPa
             typeString = key;
           }
         });
-        const isEnumString = typeString === undefined;
+        const isEnumString = isUndefined(typeString);
 
         if (isEnumString && isString(optionsValue)) {
           const enumStringSplit = currTemplateType.split(' ');
@@ -1160,6 +1190,174 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
   };
 };
 
+const createEventContentChange = (target, eventContentChange, map, callback) => {
+  let eventContentChangeRef;
+
+  const addEvent = (elm, eventName) => {
+    const entry = map.get(elm);
+    const newEntry = isUndefined(entry);
+
+    const registerEvent = () => {
+      map.set(elm, eventName);
+      on(elm, eventName, callback);
+    };
+
+    if (!newEntry && eventName !== entry) {
+      off(elm, entry, callback);
+      registerEvent();
+    } else if (newEntry) {
+      registerEvent();
+    }
+  };
+
+  const _destroy = () => {
+    map.forEach((eventName, elm) => {
+      off(elm, eventName, callback);
+    });
+    map.clear();
+  };
+
+  const _updateElements = (getElements) => {
+    if (eventContentChangeRef) {
+      const eventElmList = eventContentChangeRef.reduce((arr, item) => {
+        if (item) {
+          const selector = item[0];
+          const eventName = item[1];
+          const elements = eventName && selector && (getElements ? getElements(selector) : find(selector, target));
+
+          if (elements) {
+            push(arr, [elements, isFunction(eventName) ? eventName(elements) : eventName], true);
+          }
+        }
+
+        return arr;
+      }, []);
+      each(eventElmList, (item) => {
+        const elements = item[0];
+        const eventName = item[1];
+        each(elements, (elm) => {
+          addEvent(elm, eventName);
+        });
+      });
+    }
+  };
+
+  const _update = (newEventContentChange) => {
+    eventContentChangeRef = newEventContentChange;
+
+    _destroy();
+
+    _updateElements();
+  };
+
+  if (eventContentChange) {
+    _update(eventContentChange);
+  }
+
+  return {
+    _destroy,
+    _updateElements,
+    _update,
+  };
+};
+
+const getAttributeChanged = (mutationTarget, attributeName, oldValue) => oldValue !== attr(mutationTarget, attributeName);
+
+const createDOMObserver = (target, callback, options) => {
+  let isConnected = false;
+  const { _observeContent, _attributes, _styleChangingAttributes, _ignoreContentChange, _eventContentChange } = options || {};
+  const {
+    _updateElements: updateEventContentChangeElements,
+    _destroy: destroyEventContentChange,
+    _update: updateEventContentChange,
+  } = createEventContentChange(
+    target,
+    _observeContent && _eventContentChange,
+    new Map(),
+    debounce(() => {
+      if (isConnected) {
+        callback([], false, true);
+      }
+    }, 80)
+  );
+  const finalAttributes = _attributes || [];
+  const finalStyleChangingAttributes = _styleChangingAttributes || [];
+  const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
+
+  const observerCallback = (mutations) => {
+    const targetChangedAttrs = [];
+    const totalAddedNodes = [];
+    let targetStyleChanged = false;
+    let contentChanged = false;
+    let childListChanged = false;
+    each(mutations, (mutation) => {
+      const { attributeName, target: mutationTarget, type, oldValue, addedNodes } = mutation;
+      const isAttributesType = type === 'attributes';
+      const isChildListType = type === 'childList';
+      const targetIsMutationTarget = target === mutationTarget;
+      const attributeChanged = isAttributesType && isString(attributeName) && getAttributeChanged(mutationTarget, attributeName, oldValue);
+      const targetAttrChanged = attributeChanged && targetIsMutationTarget && !_observeContent;
+      const styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
+      targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
+
+      if (targetAttrChanged) {
+        push(targetChangedAttrs, attributeName);
+      }
+
+      if (_observeContent) {
+        const notOnlyAttrChanged = !isAttributesType;
+        const contentAttrChanged = isAttributesType && styleChangingAttrChanged && !targetIsMutationTarget;
+        const contentFinalChanged =
+          (notOnlyAttrChanged || contentAttrChanged) && (_ignoreContentChange ? !_ignoreContentChange(mutation, target, options) : _observeContent);
+        push(totalAddedNodes, addedNodes);
+        contentChanged = contentChanged || contentFinalChanged;
+        childListChanged = childListChanged || isChildListType;
+      }
+    });
+
+    if (childListChanged && !isEmptyArray(totalAddedNodes)) {
+      updateEventContentChangeElements((selector) =>
+        totalAddedNodes.reduce((arr, node) => {
+          push(arr, find(selector, node));
+          return is(node, selector) ? push(arr, node) : arr;
+        }, [])
+      );
+    }
+
+    if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged || contentChanged) {
+      callback(targetChangedAttrs, targetStyleChanged, contentChanged);
+    }
+  };
+
+  const mutationObserver = new MutationObserverConstructor(observerCallback);
+  mutationObserver.observe(target, {
+    attributes: true,
+    attributeOldValue: true,
+    attributeFilter: observedAttributes,
+    subtree: _observeContent,
+    childList: _observeContent,
+    characterData: _observeContent,
+  });
+  isConnected = true;
+  return {
+    _disconnect: () => {
+      if (isConnected) {
+        destroyEventContentChange();
+        mutationObserver.disconnect();
+        isConnected = false;
+      }
+    },
+    _updateEventContentChange: (newEventContentChange) => {
+      updateEventContentChange(isConnected && _observeContent && newEventContentChange);
+    },
+    _update: () => {
+      if (isConnected) {
+        observerCallback(mutationObserver.takeRecords());
+      }
+    },
+  };
+};
+
 const normalizeTarget = (target) => {
   if (isHTMLElement(target)) {
     const isTextarea = is(target, 'textarea');
@@ -1197,7 +1395,7 @@ const normalizeTarget = (target) => {
 const OverlayScrollbars = (target, options, extensions) => {
   const osTarget = normalizeTarget(target);
   const lifecycles = [];
-  const { host } = osTarget;
+  const { host, content } = osTarget;
   push(lifecycles, createStructureLifecycle(osTarget));
 
   const onSizeChanged = (directionCache) => {
@@ -1223,6 +1421,18 @@ const OverlayScrollbars = (target, options, extensions) => {
     _direction: true,
   });
   createTrinsicObserver(host, onTrinsicChanged);
+  createDOMObserver(host, () => {
+    return null;
+  });
+  createDOMObserver(
+    content,
+    () => {
+      return null;
+    },
+    {
+      _observeContent: true,
+    }
+  );
 };
 
 var index = () => {

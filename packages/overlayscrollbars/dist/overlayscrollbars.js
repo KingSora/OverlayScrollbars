@@ -11,8 +11,14 @@
   var _Object$prototype = Object.prototype,
     toString = _Object$prototype.toString,
     hasOwnProperty = _Object$prototype.hasOwnProperty;
+  function isUndefined(obj) {
+    return obj === undefined;
+  }
+  function isNull(obj) {
+    return obj === null;
+  }
   var type = function type(obj) {
-    return obj === undefined || obj === null
+    return isUndefined(obj) || isNull(obj)
       ? '' + obj
       : toString
           .call(obj)
@@ -27,12 +33,6 @@
   }
   function isFunction(obj) {
     return typeof obj === 'function';
-  }
-  function isUndefined(obj) {
-    return obj === undefined;
-  }
-  function isNull(obj) {
-    return obj === null;
   }
   function isArray(obj) {
     return Array.isArray(obj);
@@ -136,6 +136,9 @@
 
     return source;
   }
+  var indexOf = function indexOf(arr, item, fromIndex) {
+    return arr.indexOf(item, fromIndex);
+  };
   var push = function push(array, items, arrayIsSingleItem) {
     !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
     return array;
@@ -151,6 +154,9 @@
     });
     return result;
   };
+  var isEmptyArray = function isEmptyArray(array) {
+    return array && array.length === 0;
+  };
   var runEach = function runEach(arr, p1) {
     var runFn = function runFn(fn) {
       return fn && fn(p1);
@@ -164,6 +170,12 @@
   };
 
   var elmPrototype = Element.prototype;
+
+  var find = function find(selector, elm) {
+    var arr = [];
+    var rootElm = elm ? (isElement(elm) ? elm : null) : document;
+    return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
+  };
 
   var is = function is(elm, selector) {
     if (isElement(elm)) {
@@ -292,7 +304,7 @@
   var passiveEventsSupport;
 
   var supportPassiveEvents = function supportPassiveEvents() {
-    if (passiveEventsSupport === undefined) {
+    if (isUndefined(passiveEventsSupport)) {
       passiveEventsSupport = false;
 
       try {
@@ -423,6 +435,81 @@
     return true;
   }
 
+  var firstLetterToUpper = function firstLetterToUpper(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  var getDummyStyle = function getDummyStyle() {
+    return createDiv().style;
+  };
+
+  var cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
+  var jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
+  var jsCache = {};
+  var cssCache = {};
+  var cssProperty = function cssProperty(name) {
+    var result = cssCache[name];
+
+    if (hasOwnProperty$1(cssCache, name)) {
+      return result;
+    }
+
+    var uppercasedName = firstLetterToUpper(name);
+    var elmStyle = getDummyStyle();
+    each(cssPrefixes, function (prefix) {
+      var prefixWithoutDashes = prefix.replace(/-/g, '');
+      var resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
+      result = resultPossibilities.find(function (resultPossibility) {
+        return elmStyle[resultPossibility] !== undefined;
+      });
+      return !result;
+    });
+    cssCache[name] = result;
+    return result;
+  };
+  var jsAPI = function jsAPI(name) {
+    var result = jsCache[name] || window[name];
+
+    if (hasOwnProperty$1(jsCache, name)) {
+      return result;
+    }
+
+    each(jsPrefixes, function (prefix) {
+      result = result || window[prefix + firstLetterToUpper(name)];
+      return !result;
+    });
+    jsCache[name] = result;
+    return result;
+  };
+
+  var MutationObserverConstructor = jsAPI('MutationObserver');
+  var IntersectionObserverConstructor = jsAPI('IntersectionObserver');
+  var ResizeObserverConstructor = jsAPI('ResizeObserver');
+  var cAF = jsAPI('cancelAnimationFrame');
+  var rAF = jsAPI('requestAnimationFrame');
+
+  var debounce = function debounce(functionToDebounce, timeout, maxWait) {
+    var timeoutId;
+    var lastCallTime;
+    var hasTimeout = isNumber(timeout) && timeout > 0;
+    var hasMaxWait = isNumber(maxWait) && maxWait > 0;
+    var cancel = hasTimeout ? window.clearTimeout : cAF;
+    var set = hasTimeout ? window.setTimeout : rAF;
+
+    var setFn = function setFn(args) {
+      lastCallTime = hasMaxWait ? performance.now() : 0;
+      timeoutId && cancel(timeoutId);
+      functionToDebounce.apply(this, args);
+    };
+
+    return function () {
+      var boundSetFn = setFn.bind(this, arguments);
+      var forceCall = hasMaxWait ? performance.now() - lastCallTime >= maxWait : false;
+      timeoutId && cancel(timeoutId);
+      timeoutId = forceCall ? boundSetFn() : set(boundSetFn, timeout);
+    };
+  };
+
   var cssNumber = {
     animationiterationcount: 1,
     columncount: 1,
@@ -540,59 +627,6 @@
     };
   };
 
-  var firstLetterToUpper = function firstLetterToUpper(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
-
-  var getDummyStyle = function getDummyStyle() {
-    return createDiv().style;
-  };
-
-  var cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
-  var jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
-  var jsCache = {};
-  var cssCache = {};
-  var cssProperty = function cssProperty(name) {
-    var result = cssCache[name];
-
-    if (hasOwnProperty$1(cssCache, name)) {
-      return result;
-    }
-
-    var uppercasedName = firstLetterToUpper(name);
-    var elmStyle = getDummyStyle();
-    each(cssPrefixes, function (prefix) {
-      var prefixWithoutDashes = prefix.replace(/-/g, '');
-      var resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
-      result = resultPossibilities.find(function (resultPossibility) {
-        return elmStyle[resultPossibility] !== undefined;
-      });
-      return !result;
-    });
-    cssCache[name] = result;
-    return result;
-  };
-  var jsAPI = function jsAPI(name) {
-    var result = jsCache[name] || window[name];
-
-    if (hasOwnProperty$1(jsCache, name)) {
-      return result;
-    }
-
-    each(jsPrefixes, function (prefix) {
-      result = result || window[prefix + firstLetterToUpper(name)];
-      return !result;
-    });
-    jsCache[name] = result;
-    return result;
-  };
-
-  var MutationObserverConstructor = jsAPI('MutationObserver');
-  var IntersectionObserverConstructor = jsAPI('IntersectionObserver');
-  var ResizeObserverConstructor = jsAPI('ResizeObserver');
-  var cAF = jsAPI('cancelAnimationFrame');
-  var rAF = jsAPI('requestAnimationFrame');
-
   function createCommonjsModule(fn) {
     var module = { exports: {} };
     return fn(module, module.exports), module.exports;
@@ -666,7 +700,7 @@
               typeString = key;
             }
           });
-          var isEnumString = typeString === undefined;
+          var isEnumString = isUndefined(typeString);
 
           if (isEnumString && isString(optionsValue)) {
             var enumStringSplit = currTemplateType.split(' ');
@@ -1298,6 +1332,187 @@
     };
   };
 
+  var createEventContentChange = function createEventContentChange(target, eventContentChange, map, callback) {
+    var eventContentChangeRef;
+
+    var addEvent = function addEvent(elm, eventName) {
+      var entry = map.get(elm);
+      var newEntry = isUndefined(entry);
+
+      var registerEvent = function registerEvent() {
+        map.set(elm, eventName);
+        on(elm, eventName, callback);
+      };
+
+      if (!newEntry && eventName !== entry) {
+        off(elm, entry, callback);
+        registerEvent();
+      } else if (newEntry) {
+        registerEvent();
+      }
+    };
+
+    var _destroy = function _destroy() {
+      map.forEach(function (eventName, elm) {
+        off(elm, eventName, callback);
+      });
+      map.clear();
+    };
+
+    var _updateElements = function _updateElements(getElements) {
+      if (eventContentChangeRef) {
+        var eventElmList = eventContentChangeRef.reduce(function (arr, item) {
+          if (item) {
+            var selector = item[0];
+            var eventName = item[1];
+            var elements = eventName && selector && (getElements ? getElements(selector) : find(selector, target));
+
+            if (elements) {
+              push(arr, [elements, isFunction(eventName) ? eventName(elements) : eventName], true);
+            }
+          }
+
+          return arr;
+        }, []);
+        each(eventElmList, function (item) {
+          var elements = item[0];
+          var eventName = item[1];
+          each(elements, function (elm) {
+            addEvent(elm, eventName);
+          });
+        });
+      }
+    };
+
+    var _update = function _update(newEventContentChange) {
+      eventContentChangeRef = newEventContentChange;
+
+      _destroy();
+
+      _updateElements();
+    };
+
+    if (eventContentChange) {
+      _update(eventContentChange);
+    }
+
+    return {
+      _destroy: _destroy,
+      _updateElements: _updateElements,
+      _update: _update,
+    };
+  };
+
+  var getAttributeChanged = function getAttributeChanged(mutationTarget, attributeName, oldValue) {
+    return oldValue !== attr(mutationTarget, attributeName);
+  };
+
+  var createDOMObserver = function createDOMObserver(target, callback, options) {
+    var isConnected = false;
+
+    var _ref = options || {},
+      _observeContent = _ref._observeContent,
+      _attributes = _ref._attributes,
+      _styleChangingAttributes = _ref._styleChangingAttributes,
+      _ignoreContentChange = _ref._ignoreContentChange,
+      _eventContentChange = _ref._eventContentChange;
+
+    var _createEventContentCh = createEventContentChange(
+        target,
+        _observeContent && _eventContentChange,
+        new Map(),
+        debounce(function () {
+          if (isConnected) {
+            callback([], false, true);
+          }
+        }, 80)
+      ),
+      updateEventContentChangeElements = _createEventContentCh._updateElements,
+      destroyEventContentChange = _createEventContentCh._destroy,
+      updateEventContentChange = _createEventContentCh._update;
+
+    var finalAttributes = _attributes || [];
+    var finalStyleChangingAttributes = _styleChangingAttributes || [];
+    var observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
+
+    var observerCallback = function observerCallback(mutations) {
+      var targetChangedAttrs = [];
+      var totalAddedNodes = [];
+      var targetStyleChanged = false;
+      var contentChanged = false;
+      var childListChanged = false;
+      each(mutations, function (mutation) {
+        var attributeName = mutation.attributeName,
+          mutationTarget = mutation.target,
+          type = mutation.type,
+          oldValue = mutation.oldValue,
+          addedNodes = mutation.addedNodes;
+        var isAttributesType = type === 'attributes';
+        var isChildListType = type === 'childList';
+        var targetIsMutationTarget = target === mutationTarget;
+        var attributeChanged = isAttributesType && isString(attributeName) && getAttributeChanged(mutationTarget, attributeName, oldValue);
+        var targetAttrChanged = attributeChanged && targetIsMutationTarget && !_observeContent;
+        var styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
+        targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
+
+        if (targetAttrChanged) {
+          push(targetChangedAttrs, attributeName);
+        }
+
+        if (_observeContent) {
+          var notOnlyAttrChanged = !isAttributesType;
+          var contentAttrChanged = isAttributesType && styleChangingAttrChanged && !targetIsMutationTarget;
+          var contentFinalChanged =
+            (notOnlyAttrChanged || contentAttrChanged) && (_ignoreContentChange ? !_ignoreContentChange(mutation, target, options) : _observeContent);
+          push(totalAddedNodes, addedNodes);
+          contentChanged = contentChanged || contentFinalChanged;
+          childListChanged = childListChanged || isChildListType;
+        }
+      });
+
+      if (childListChanged && !isEmptyArray(totalAddedNodes)) {
+        updateEventContentChangeElements(function (selector) {
+          return totalAddedNodes.reduce(function (arr, node) {
+            push(arr, find(selector, node));
+            return is(node, selector) ? push(arr, node) : arr;
+          }, []);
+        });
+      }
+
+      if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged || contentChanged) {
+        callback(targetChangedAttrs, targetStyleChanged, contentChanged);
+      }
+    };
+
+    var mutationObserver = new MutationObserverConstructor(observerCallback);
+    mutationObserver.observe(target, {
+      attributes: true,
+      attributeOldValue: true,
+      attributeFilter: observedAttributes,
+      subtree: _observeContent,
+      childList: _observeContent,
+      characterData: _observeContent,
+    });
+    isConnected = true;
+    return {
+      _disconnect: function _disconnect() {
+        if (isConnected) {
+          destroyEventContentChange();
+          mutationObserver.disconnect();
+          isConnected = false;
+        }
+      },
+      _updateEventContentChange: function _updateEventContentChange(newEventContentChange) {
+        updateEventContentChange(isConnected && _observeContent && newEventContentChange);
+      },
+      _update: function _update() {
+        if (isConnected) {
+          observerCallback(mutationObserver.takeRecords());
+        }
+      },
+    };
+  };
+
   var normalizeTarget = function normalizeTarget(target) {
     if (isHTMLElement(target)) {
       var isTextarea = is(target, 'textarea');
@@ -1338,7 +1553,8 @@
   var OverlayScrollbars = function OverlayScrollbars(target, options, extensions) {
     var osTarget = normalizeTarget(target);
     var lifecycles = [];
-    var host = osTarget.host;
+    var host = osTarget.host,
+      content = osTarget.content;
     push(lifecycles, createStructureLifecycle(osTarget));
 
     var onSizeChanged = function onSizeChanged(directionCache) {
@@ -1364,6 +1580,18 @@
       _direction: true,
     });
     createTrinsicObserver(host, onTrinsicChanged);
+    createDOMObserver(host, function () {
+      return null;
+    });
+    createDOMObserver(
+      content,
+      function () {
+        return null;
+      },
+      {
+        _observeContent: true,
+      }
+    );
   };
 
   var index = function () {

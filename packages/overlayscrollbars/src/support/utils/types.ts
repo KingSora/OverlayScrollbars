@@ -3,8 +3,16 @@ import { PlainObject } from 'typings';
 const ElementNodeType = Node.ELEMENT_NODE;
 const { toString, hasOwnProperty } = Object.prototype;
 
+export function isUndefined(obj: any): obj is undefined {
+  return obj === undefined;
+}
+
+export function isNull(obj: any): obj is null {
+  return obj === null;
+}
+
 export const type: (obj: any) => string = (obj) => {
-  return obj === undefined || obj === null
+  return isUndefined(obj) || isNull(obj)
     ? `${obj}`
     : toString
         .call(obj)
@@ -26,14 +34,6 @@ export function isBoolean(obj: any): obj is boolean {
 
 export function isFunction(obj: any): obj is (...args: Array<unknown>) => unknown {
   return typeof obj === 'function';
-}
-
-export function isUndefined(obj: any): obj is undefined {
-  return obj === undefined;
-}
-
-export function isNull(obj: any): obj is null {
-  return obj === null;
 }
 
 export function isArray(obj: any): obj is Array<any> {

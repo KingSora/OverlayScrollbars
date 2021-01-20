@@ -1,8 +1,9 @@
+import { isUndefined } from 'support/utils/types';
 import { each, push, runEach } from 'support/utils/array';
 
 let passiveEventsSupport: boolean;
 const supportPassiveEvents = (): boolean => {
-  if (passiveEventsSupport === undefined) {
+  if (isUndefined(passiveEventsSupport)) {
     passiveEventsSupport = false;
     try {
       /* eslint-disable */

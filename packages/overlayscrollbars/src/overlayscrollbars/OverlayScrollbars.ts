@@ -3,6 +3,7 @@ import { createStructureLifecycle } from 'lifecycles/structureLifecycle';
 import { Cache, appendChildren, addClass, contents, is, isHTMLElement, createDiv, each, push } from 'support';
 import { createSizeObserver } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
+import { createDOMObserver } from 'observers/domObserver';
 import { Lifecycle } from 'lifecycles/lifecycleBase';
 import { classNameHost, classNamePadding, classNameViewport, classNameContent } from 'classnames';
 
@@ -42,7 +43,7 @@ const normalizeTarget = (target: OSTarget): OSTargetObject => {
 const OverlayScrollbars = (target: OSTarget, options?: any, extensions?: any): void => {
   const osTarget: OSTargetObject = normalizeTarget(target);
   const lifecycles: Lifecycle<any>[] = [];
-  const { host } = osTarget;
+  const { host, content } = osTarget;
 
   push(lifecycles, createStructureLifecycle(osTarget));
 
@@ -66,6 +67,16 @@ const OverlayScrollbars = (target: OSTarget, options?: any, extensions?: any): v
 
   createSizeObserver(host, onSizeChanged, { _appear: true, _direction: true });
   createTrinsicObserver(host, onTrinsicChanged);
+  createDOMObserver(host, () => {
+    return null;
+  });
+  createDOMObserver(
+    content,
+    () => {
+      return null;
+    },
+    { _observeContent: true }
+  );
 };
 
 export { OverlayScrollbars };

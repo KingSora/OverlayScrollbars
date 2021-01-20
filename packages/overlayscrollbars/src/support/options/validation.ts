@@ -86,7 +86,7 @@ const validateRecursive = <T extends PlainObject>(
             typeString = key;
           }
         });
-        const isEnumString = typeString === undefined;
+        const isEnumString = isUndefined(typeString);
         if (isEnumString && isString(optionsValue)) {
           // split it into a array which contains all possible values for example: ["yes", "no", "maybe"]
           const enumStringSplit = currTemplateType.split(' ');
