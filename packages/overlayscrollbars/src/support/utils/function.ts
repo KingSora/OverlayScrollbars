@@ -1,6 +1,8 @@
 import { isNumber } from 'support/utils/types';
 import { cAF, rAF } from 'support/compatibility/apis';
 
+export const noop = () => {}; // eslint-disable-line
+
 /**
  * Debounces the given function either with a timeout or a animation frame.
  * @param functionToDebounce The function which shall be debounced.

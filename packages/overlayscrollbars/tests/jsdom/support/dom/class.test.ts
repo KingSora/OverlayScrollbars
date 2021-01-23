@@ -1,4 +1,4 @@
-import { addClass, removeClass, hasClass } from 'support/dom/class';
+import { addClass, removeClass, hasClass, diffClass } from 'support/dom/class';
 
 const testElm = document.body;
 const removeAllClassNames = () => {
@@ -90,6 +90,28 @@ describe('dom class names', () => {
 
     test('null', () => {
       expect(hasClass(null, 'abc')).toBe(false);
+    });
+  });
+
+  describe('diff', () => {
+    test('none', () => {
+      expect(diffClass('', '')).toEqual([]);
+    });
+
+    test('single', () => {
+      expect(diffClass('test', '')).toEqual(['test']);
+      expect(diffClass('', 'test')).toEqual(['test']);
+    });
+
+    test('multiple', () => {
+      expect(diffClass('a b c d', 'a c')).toEqual(['b', 'd']);
+      expect(diffClass('d b', 'a b c d')).toEqual(['a', 'c']);
+    });
+
+    test('null', () => {
+      expect(diffClass(null, null)).toEqual([]);
+      expect(diffClass('a c', null)).toEqual(['a', 'c']);
+      expect(diffClass('d b', null)).toEqual(['d', 'b']);
     });
   });
 });

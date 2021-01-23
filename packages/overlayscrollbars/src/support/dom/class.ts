@@ -1,4 +1,6 @@
 import { isString } from 'support/utils/types';
+import { each } from 'support/utils/array';
+import { keys } from 'support/utils/object';
 
 const rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
 const classListAction = (elm: Element | null, className: string, action: (elmClassList: DOMTokenList, clazz: string) => boolean | void): boolean => {
@@ -40,4 +42,28 @@ export const addClass = (elm: Element | null, className: string): void => {
  */
 export const removeClass = (elm: Element | null, className: string): void => {
   classListAction(elm, className, (classList, clazz) => classList.remove(clazz));
+};
+
+/**
+ * Takes two className strings, compares them and returns the difference as array.
+ * @param classNameA ClassName A.
+ * @param classNameB ClassName B.
+ */
+export const diffClass = (classNameA: string | null | undefined, classNameB: string | null | undefined) => {
+  const classNameASplit = classNameA && classNameA.split(' ');
+  const classNameBSplit = classNameB && classNameB.split(' ');
+  const tempObj = {};
+
+  each(classNameASplit, (className) => {
+    tempObj[className] = 1;
+  });
+  each(classNameBSplit, (className) => {
+    if (tempObj[className]) {
+      delete tempObj[className];
+    } else {
+      tempObj[className] = 1;
+    }
+  });
+
+  return keys(tempObj);
 };

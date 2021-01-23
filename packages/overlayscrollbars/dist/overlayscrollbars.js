@@ -97,30 +97,6 @@
     return getSetProp('scrollTop', 0, elm, value);
   }
 
-  var rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
-
-  var classListAction = function classListAction(elm, className, action) {
-    var clazz;
-    var i = 0;
-    var result = false;
-
-    if (elm && isString(className)) {
-      var classes = className.match(rnothtmlwhite) || [];
-      result = classes.length > 0;
-
-      while ((clazz = classes[i++])) {
-        result = !!action(elm.classList, clazz) && result;
-      }
-    }
-
-    return result;
-  };
-  var addClass = function addClass(elm, className) {
-    classListAction(elm, className, function (classList, clazz) {
-      return classList.add(clazz);
-    });
-  };
-
   function each(source, callback) {
     if (isArrayLike(source)) {
       for (var i = 0; i < source.length; i++) {
@@ -167,6 +143,79 @@
     } else {
       each(arr, runFn);
     }
+  };
+
+  var hasOwnProperty$1 = function hasOwnProperty(obj, prop) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
+  };
+  var keys = function keys(obj) {
+    return obj ? Object.keys(obj) : [];
+  };
+  function assignDeep(target, object1, object2, object3, object4, object5, object6) {
+    var sources = [object1, object2, object3, object4, object5, object6];
+
+    if ((typeof target !== 'object' || isNull(target)) && !isFunction(target)) {
+      target = {};
+    }
+
+    each(sources, function (source) {
+      each(keys(source), function (key) {
+        var copy = source[key];
+
+        if (target === copy) {
+          return true;
+        }
+
+        var copyIsArray = isArray(copy);
+
+        if (copy && (isPlainObject(copy) || copyIsArray)) {
+          var src = target[key];
+          var clone = src;
+
+          if (copyIsArray && !isArray(src)) {
+            clone = [];
+          } else if (!copyIsArray && !isPlainObject(src)) {
+            clone = {};
+          }
+
+          target[key] = assignDeep(clone, copy);
+        } else {
+          target[key] = copy;
+        }
+      });
+    });
+    return target;
+  }
+  function isEmptyObject(obj) {
+    for (var name in obj) {
+      return false;
+    }
+
+    return true;
+  }
+
+  var rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
+
+  var classListAction = function classListAction(elm, className, action) {
+    var clazz;
+    var i = 0;
+    var result = false;
+
+    if (elm && isString(className)) {
+      var classes = className.match(rnothtmlwhite) || [];
+      result = classes.length > 0;
+
+      while ((clazz = classes[i++])) {
+        result = !!action(elm.classList, clazz) && result;
+      }
+    }
+
+    return result;
+  };
+  var addClass = function addClass(elm, className) {
+    classListAction(elm, className, function (classList, clazz) {
+      return classList.add(clazz);
+    });
   };
 
   var elmPrototype = Element.prototype;
@@ -386,55 +435,6 @@
     return equal(a, b, ['t', 'r', 'b', 'l']);
   };
 
-  var hasOwnProperty$1 = function hasOwnProperty(obj, prop) {
-    return Object.prototype.hasOwnProperty.call(obj, prop);
-  };
-  var keys = function keys(obj) {
-    return obj ? Object.keys(obj) : [];
-  };
-  function assignDeep(target, object1, object2, object3, object4, object5, object6) {
-    var sources = [object1, object2, object3, object4, object5, object6];
-
-    if ((typeof target !== 'object' || isNull(target)) && !isFunction(target)) {
-      target = {};
-    }
-
-    each(sources, function (source) {
-      each(keys(source), function (key) {
-        var copy = source[key];
-
-        if (target === copy) {
-          return true;
-        }
-
-        var copyIsArray = isArray(copy);
-
-        if (copy && (isPlainObject(copy) || copyIsArray)) {
-          var src = target[key];
-          var clone = src;
-
-          if (copyIsArray && !isArray(src)) {
-            clone = [];
-          } else if (!copyIsArray && !isPlainObject(src)) {
-            clone = {};
-          }
-
-          target[key] = assignDeep(clone, copy);
-        } else {
-          target[key] = copy;
-        }
-      });
-    });
-    return target;
-  }
-  function isEmptyObject(obj) {
-    for (var name in obj) {
-      return false;
-    }
-
-    return true;
-  }
-
   var firstLetterToUpper = function firstLetterToUpper(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
@@ -488,6 +488,7 @@
   var cAF = jsAPI('cancelAnimationFrame');
   var rAF = jsAPI('requestAnimationFrame');
 
+  var noop = function noop() {};
   var debounce = function debounce(functionToDebounce, timeout, maxWait) {
     var timeoutId;
     var lastCallTime;
@@ -1403,10 +1404,6 @@
     };
   };
 
-  var getAttributeChanged = function getAttributeChanged(mutationTarget, attributeName, oldValue) {
-    return oldValue !== attr(mutationTarget, attributeName);
-  };
-
   var createDOMObserver = function createDOMObserver(target, callback, options) {
     var isConnected = false;
 
@@ -1414,8 +1411,10 @@
       _observeContent = _ref._observeContent,
       _attributes = _ref._attributes,
       _styleChangingAttributes = _ref._styleChangingAttributes,
-      _ignoreContentChange = _ref._ignoreContentChange,
-      _eventContentChange = _ref._eventContentChange;
+      _eventContentChange = _ref._eventContentChange,
+      _nestedTargetSelector = _ref._nestedTargetSelector,
+      _ignoreTargetChange = _ref._ignoreTargetAttrChange,
+      _ignoreContentChange = _ref._ignoreContentChange;
 
     var _createEventContentCh = createEventContentChange(
         target,
@@ -1436,6 +1435,8 @@
     var observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
 
     var observerCallback = function observerCallback(mutations) {
+      var ignoreTargetChange = _ignoreTargetChange || noop;
+      var ignoreContentChange = _ignoreContentChange || noop;
       var targetChangedAttrs = [];
       var totalAddedNodes = [];
       var targetStyleChanged = false;
@@ -1450,10 +1451,14 @@
         var isAttributesType = type === 'attributes';
         var isChildListType = type === 'childList';
         var targetIsMutationTarget = target === mutationTarget;
-        var attributeChanged = isAttributesType && isString(attributeName) && getAttributeChanged(mutationTarget, attributeName, oldValue);
-        var targetAttrChanged = attributeChanged && targetIsMutationTarget && !_observeContent;
+        var attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
+        var attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
+        var targetAttrChanged =
+          attributeChanged &&
+          targetIsMutationTarget &&
+          !_observeContent &&
+          !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue);
         var styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
-        targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
 
         if (targetAttrChanged) {
           push(targetChangedAttrs, attributeName);
@@ -1462,12 +1467,17 @@
         if (_observeContent) {
           var notOnlyAttrChanged = !isAttributesType;
           var contentAttrChanged = isAttributesType && styleChangingAttrChanged && !targetIsMutationTarget;
-          var contentFinalChanged =
-            (notOnlyAttrChanged || contentAttrChanged) && (_ignoreContentChange ? !_ignoreContentChange(mutation, target, options) : _observeContent);
+          var isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
+          var baseAssertion = isNestedTarget
+            ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
+            : notOnlyAttrChanged || contentAttrChanged;
+          var contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, isNestedTarget, target, options);
           push(totalAddedNodes, addedNodes);
           contentChanged = contentChanged || contentFinalChanged;
           childListChanged = childListChanged || isChildListType;
         }
+
+        targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
       });
 
       if (childListChanged && !isEmptyArray(totalAddedNodes)) {

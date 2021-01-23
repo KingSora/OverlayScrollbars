@@ -1,5 +1,6 @@
 import {
   each,
+  noop,
   debounce,
   indexOf,
   isString,
@@ -15,22 +16,33 @@ import {
   isFunction,
 } from 'support';
 
+type TruthyOrFalsy = boolean | '' | 0 | null | undefined;
 type StringNullUndefined = string | null | undefined;
 export type DOMObserverEventContentChange =
   | Array<[StringNullUndefined, ((elms: Node[]) => string) | StringNullUndefined] | null | undefined>
   | false
+  | ''
   | null
   | undefined;
 export type DOMObserverIgnoreContentChange = (
   mutation: MutationRecord,
+  isNestedTarget: TruthyOrFalsy,
   domObserverTarget: HTMLElement,
   domObserverOptions: DOMObserverOptions | undefined
-) => boolean | null | undefined;
+) => TruthyOrFalsy;
+export type DOMObserverIgnoreTargetAttrChange = (
+  target: Node,
+  attributeName: string,
+  oldAttributeValue: string | null,
+  newAttributeValue: string | null
+) => TruthyOrFalsy;
 export interface DOMObserverOptions {
   _observeContent?: boolean; // do observe children and trigger content change
   _attributes?: string[]; // observed attributes
-  _styleChangingAttributes?: string[]; // list of attributes that trigger a content change if changed
+  _styleChangingAttributes?: string[]; // list of attributes that trigger a contentChange or a targetStyleChange if changed
   _eventContentChange?: DOMObserverEventContentChange; // [selector, eventname]
+  _nestedTargetSelector?: string;
+  _ignoreTargetAttrChange?: DOMObserverIgnoreTargetAttrChange;
   _ignoreContentChange?: DOMObserverIgnoreContentChange;
 }
 export interface DOMObserver {
@@ -111,8 +123,6 @@ const createEventContentChange = (
     _update,
   };
 };
-const getAttributeChanged = (mutationTarget: Node, attributeName: string, oldValue: string | null): boolean =>
-  oldValue !== attr(mutationTarget as HTMLElement, attributeName);
 
 export const createDOMObserver = (
   target: HTMLElement,
@@ -120,7 +130,15 @@ export const createDOMObserver = (
   options?: DOMObserverOptions
 ): DOMObserver => {
   let isConnected = false;
-  const { _observeContent, _attributes, _styleChangingAttributes, _eventContentChange, _ignoreContentChange } = options || {};
+  const {
+    _observeContent,
+    _attributes,
+    _styleChangingAttributes,
+    _eventContentChange,
+    _nestedTargetSelector,
+    _ignoreTargetAttrChange: _ignoreTargetChange,
+    _ignoreContentChange,
+  } = options || {};
   const {
     _updateElements: updateEventContentChangeElements,
     _destroy: destroyEventContentChange,
@@ -141,6 +159,8 @@ export const createDOMObserver = (
   const finalStyleChangingAttributes = _styleChangingAttributes || [];
   const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes); // TODO: observer textarea attrs if textarea
   const observerCallback = (mutations: MutationRecord[]) => {
+    const ignoreTargetChange = _ignoreTargetChange || noop;
+    const ignoreContentChange = _ignoreContentChange || noop;
     const targetChangedAttrs: string[] = [];
     const totalAddedNodes: Node[] = [];
     let targetStyleChanged = false;
@@ -151,11 +171,14 @@ export const createDOMObserver = (
       const isAttributesType = type === 'attributes';
       const isChildListType = type === 'childList';
       const targetIsMutationTarget = target === mutationTarget;
-      const attributeChanged = isAttributesType && isString(attributeName) && getAttributeChanged(mutationTarget, attributeName!, oldValue);
-      const targetAttrChanged = attributeChanged && targetIsMutationTarget && !_observeContent;
+      const attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget as HTMLElement, attributeName!) : 0;
+      const attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
+      const targetAttrChanged =
+        attributeChanged &&
+        targetIsMutationTarget &&
+        !_observeContent &&
+        !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue as string | null);
       const styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
-
-      targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
 
       if (targetAttrChanged) {
         push(targetChangedAttrs, attributeName!);
@@ -163,14 +186,18 @@ export const createDOMObserver = (
       if (_observeContent) {
         const notOnlyAttrChanged = !isAttributesType;
         const contentAttrChanged = isAttributesType && styleChangingAttrChanged && !targetIsMutationTarget;
-        const contentFinalChanged =
-          (notOnlyAttrChanged || contentAttrChanged) && (_ignoreContentChange ? !_ignoreContentChange(mutation, target, options) : _observeContent);
+        const isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
+        const baseAssertion = isNestedTarget
+          ? !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue as string | null)
+          : notOnlyAttrChanged || contentAttrChanged;
+        const contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, isNestedTarget, target, options);
 
         push(totalAddedNodes, addedNodes);
 
         contentChanged = contentChanged || contentFinalChanged;
         childListChanged = childListChanged || isChildListType;
       }
+      targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
     });
 
     if (childListChanged && !isEmptyArray(totalAddedNodes)) {

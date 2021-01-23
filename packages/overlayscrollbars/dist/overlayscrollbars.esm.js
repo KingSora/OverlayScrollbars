@@ -86,28 +86,6 @@ function scrollTop(elm, value) {
   return getSetProp('scrollTop', 0, elm, value);
 }
 
-const rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
-
-const classListAction = (elm, className, action) => {
-  let clazz;
-  let i = 0;
-  let result = false;
-
-  if (elm && isString(className)) {
-    const classes = className.match(rnothtmlwhite) || [];
-    result = classes.length > 0;
-
-    while ((clazz = classes[i++])) {
-      result = !!action(elm.classList, clazz) && result;
-    }
-  }
-
-  return result;
-};
-const addClass = (elm, className) => {
-  classListAction(elm, className, (classList, clazz) => classList.add(clazz));
-};
-
 function each(source, callback) {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
@@ -146,6 +124,71 @@ const runEach = (arr, p1) => {
   } else {
     each(arr, runFn);
   }
+};
+
+const hasOwnProperty$1 = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+const keys = (obj) => (obj ? Object.keys(obj) : []);
+function assignDeep(target, object1, object2, object3, object4, object5, object6) {
+  const sources = [object1, object2, object3, object4, object5, object6];
+
+  if ((typeof target !== 'object' || isNull(target)) && !isFunction(target)) {
+    target = {};
+  }
+
+  each(sources, (source) => {
+    each(keys(source), (key) => {
+      const copy = source[key];
+
+      if (target === copy) {
+        return true;
+      }
+
+      const copyIsArray = isArray(copy);
+
+      if (copy && (isPlainObject(copy) || copyIsArray)) {
+        const src = target[key];
+        let clone = src;
+
+        if (copyIsArray && !isArray(src)) {
+          clone = [];
+        } else if (!copyIsArray && !isPlainObject(src)) {
+          clone = {};
+        }
+
+        target[key] = assignDeep(clone, copy);
+      } else {
+        target[key] = copy;
+      }
+    });
+  });
+  return target;
+}
+function isEmptyObject(obj) {
+  for (const name in obj) return false;
+
+  return true;
+}
+
+const rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
+
+const classListAction = (elm, className, action) => {
+  let clazz;
+  let i = 0;
+  let result = false;
+
+  if (elm && isString(className)) {
+    const classes = className.match(rnothtmlwhite) || [];
+    result = classes.length > 0;
+
+    while ((clazz = classes[i++])) {
+      result = !!action(elm.classList, clazz) && result;
+    }
+  }
+
+  return result;
+};
+const addClass = (elm, className) => {
+  classListAction(elm, className, (classList, clazz) => classList.add(clazz));
 };
 
 const elmPrototype = Element.prototype;
@@ -338,49 +381,6 @@ const equalWH = (a, b) => equal(a, b, ['w', 'h']);
 const equalXY = (a, b) => equal(a, b, ['x', 'y']);
 const equalTRBL = (a, b) => equal(a, b, ['t', 'r', 'b', 'l']);
 
-const hasOwnProperty$1 = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
-const keys = (obj) => (obj ? Object.keys(obj) : []);
-function assignDeep(target, object1, object2, object3, object4, object5, object6) {
-  const sources = [object1, object2, object3, object4, object5, object6];
-
-  if ((typeof target !== 'object' || isNull(target)) && !isFunction(target)) {
-    target = {};
-  }
-
-  each(sources, (source) => {
-    each(keys(source), (key) => {
-      const copy = source[key];
-
-      if (target === copy) {
-        return true;
-      }
-
-      const copyIsArray = isArray(copy);
-
-      if (copy && (isPlainObject(copy) || copyIsArray)) {
-        const src = target[key];
-        let clone = src;
-
-        if (copyIsArray && !isArray(src)) {
-          clone = [];
-        } else if (!copyIsArray && !isPlainObject(src)) {
-          clone = {};
-        }
-
-        target[key] = assignDeep(clone, copy);
-      } else {
-        target[key] = copy;
-      }
-    });
-  });
-  return target;
-}
-function isEmptyObject(obj) {
-  for (const name in obj) return false;
-
-  return true;
-}
-
 const firstLetterToUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const getDummyStyle = () => createDiv().style;
@@ -428,6 +428,7 @@ const ResizeObserverConstructor = jsAPI('ResizeObserver');
 const cAF = jsAPI('cancelAnimationFrame');
 const rAF = jsAPI('requestAnimationFrame');
 
+const noop = () => {};
 const debounce = (functionToDebounce, timeout, maxWait) => {
   let timeoutId;
   let lastCallTime;
@@ -1261,11 +1262,17 @@ const createEventContentChange = (target, eventContentChange, map, callback) => 
   };
 };
 
-const getAttributeChanged = (mutationTarget, attributeName, oldValue) => oldValue !== attr(mutationTarget, attributeName);
-
 const createDOMObserver = (target, callback, options) => {
   let isConnected = false;
-  const { _observeContent, _attributes, _styleChangingAttributes, _ignoreContentChange, _eventContentChange } = options || {};
+  const {
+    _observeContent,
+    _attributes,
+    _styleChangingAttributes,
+    _eventContentChange,
+    _nestedTargetSelector,
+    _ignoreTargetAttrChange: _ignoreTargetChange,
+    _ignoreContentChange,
+  } = options || {};
   const {
     _updateElements: updateEventContentChangeElements,
     _destroy: destroyEventContentChange,
@@ -1285,6 +1292,8 @@ const createDOMObserver = (target, callback, options) => {
   const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
 
   const observerCallback = (mutations) => {
+    const ignoreTargetChange = _ignoreTargetChange || noop;
+    const ignoreContentChange = _ignoreContentChange || noop;
     const targetChangedAttrs = [];
     const totalAddedNodes = [];
     let targetStyleChanged = false;
@@ -1295,10 +1304,14 @@ const createDOMObserver = (target, callback, options) => {
       const isAttributesType = type === 'attributes';
       const isChildListType = type === 'childList';
       const targetIsMutationTarget = target === mutationTarget;
-      const attributeChanged = isAttributesType && isString(attributeName) && getAttributeChanged(mutationTarget, attributeName, oldValue);
-      const targetAttrChanged = attributeChanged && targetIsMutationTarget && !_observeContent;
+      const attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
+      const attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
+      const targetAttrChanged =
+        attributeChanged &&
+        targetIsMutationTarget &&
+        !_observeContent &&
+        !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue);
       const styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
-      targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
 
       if (targetAttrChanged) {
         push(targetChangedAttrs, attributeName);
@@ -1307,12 +1320,17 @@ const createDOMObserver = (target, callback, options) => {
       if (_observeContent) {
         const notOnlyAttrChanged = !isAttributesType;
         const contentAttrChanged = isAttributesType && styleChangingAttrChanged && !targetIsMutationTarget;
-        const contentFinalChanged =
-          (notOnlyAttrChanged || contentAttrChanged) && (_ignoreContentChange ? !_ignoreContentChange(mutation, target, options) : _observeContent);
+        const isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
+        const baseAssertion = isNestedTarget
+          ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
+          : notOnlyAttrChanged || contentAttrChanged;
+        const contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, isNestedTarget, target, options);
         push(totalAddedNodes, addedNodes);
         contentChanged = contentChanged || contentFinalChanged;
         childListChanged = childListChanged || isChildListType;
       }
+
+      targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
     });
 
     if (childListChanged && !isEmptyArray(totalAddedNodes)) {

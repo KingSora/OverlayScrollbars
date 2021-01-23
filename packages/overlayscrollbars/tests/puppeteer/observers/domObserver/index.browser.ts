@@ -4,7 +4,20 @@ import should from 'should';
 import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
-import { appendChildren, createDiv, removeElements, children, isArray, isNumber, liesBetween, hasClass, addClass, removeClass, on } from 'support';
+import {
+  appendChildren,
+  createDiv,
+  removeElements,
+  children,
+  isArray,
+  isNumber,
+  liesBetween,
+  hasClass,
+  addClass,
+  removeClass,
+  diffClass,
+  on,
+} from 'support';
 
 import { createDOMObserver } from 'observers/domObserver';
 
@@ -21,6 +34,7 @@ interface SeparateChangeThrough {
 const targetChangesCountSlot: HTMLElement | null = document.querySelector('#targetChanges');
 const contentChangesCountSlot: HTMLElement | null = document.querySelector('#contentChanges');
 const targetElm: HTMLElement | null = document.querySelector('#target');
+const targetElmContentElm: HTMLElement | null = document.querySelector('#content-host');
 const contentElmAttrChange: HTMLElement | null = document.querySelector('#target .content-nest');
 const contentBetweenElmAttrChange: HTMLElement | null = document.querySelector('#content-host .padding-nest-item');
 const contentHostElmAttrChange: HTMLElement | null = document.querySelector('#content-nest-item-host');
@@ -36,6 +50,7 @@ const addRemoveTargetContentElms: HTMLButtonElement | null = document.querySelec
 const addRemoveTargetContentBetweenElms: HTMLButtonElement | null = document.querySelector('#addRemoveTargetContentBetweenElms');
 const addRemoveImgElms: HTMLButtonElement | null = document.querySelector('#addRemoveImgElms');
 const addRemoveTransitionElms: HTMLButtonElement | null = document.querySelector('#addRemoveTransitionElms');
+const ignoreTargetChange: HTMLButtonElement | null = document.querySelector('#ignoreTargetChange');
 const setTargetAttr: HTMLSelectElement | null = document.querySelector('#setTargetAttr');
 const setFilteredTargetAttr: HTMLSelectElement | null = document.querySelector('#setFilteredTargetAttr');
 const setContentAttr: HTMLSelectElement | null = document.querySelector('#setContentAttr');
@@ -49,6 +64,8 @@ const summaryBetween: HTMLElement | null = document.querySelector('#summary-betw
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 
+const hostSelector = '.host';
+const ignorePrefix = 'ignore';
 const attrs = ['id', 'class', 'style', 'open'];
 const contentChangeArr: Array<[string, string | ((elms: Node[]) => string)]> = [['img', 'load']];
 const targetElmObservations: DOMObserverResult[] = [];
@@ -67,6 +84,14 @@ createDOMObserver(
   {
     _styleChangingAttributes: attrs,
     _attributes: attrs.concat(['data-target']),
+    _ignoreTargetAttrChange: (target, attrName, oldValue, newValue) => {
+      if (attrName === 'class' && oldValue && newValue) {
+        const diff = diffClass(oldValue, newValue);
+        const ignore = diff.length === 1 && diff[0].startsWith(ignorePrefix);
+        return ignore;
+      }
+      return false;
+    },
   }
 );
 const { _updateEventContentChange } = createDOMObserver(
@@ -84,9 +109,18 @@ const { _updateEventContentChange } = createDOMObserver(
     _styleChangingAttributes: attrs,
     _attributes: attrs,
     _eventContentChange: contentChangeArr,
-    _ignoreContentChange: (mutation) => {
+    _nestedTargetSelector: hostSelector,
+    _ignoreContentChange: (mutation, isNestedTarget) => {
       const { target, attributeName } = mutation;
-      return attributeName ? !hasClass(target as Element, 'host') && liesBetween(target as Element, '.host', '.content') : false;
+      return isNestedTarget ? false : attributeName ? liesBetween(target as Element, hostSelector, '.content') : false;
+    },
+    _ignoreTargetAttrChange: (target, attrName, oldValue, newValue) => {
+      if (attrName === 'class' && oldValue && newValue) {
+        const diff = diffClass(oldValue, newValue);
+        const ignore = diff.length === 1 && diff[0].startsWith(ignorePrefix);
+        return ignore;
+      }
+      return false;
     },
   }
 );
@@ -423,6 +457,25 @@ const addRemoveTransitionElmsFn = async () => {
 
   await add(true);
 };
+const ignoreTargetChangeFn = async () => {
+  const check = async (target: Element | null, changeThrough: DOMObserverResult[]) => {
+    const { before, after, compare } = changedThrough(changeThrough);
+    before();
+
+    target?.classList.add(`${ignorePrefix}-something`);
+    await timeout(250);
+    target?.classList.remove(`${ignorePrefix}-something`);
+    await timeout(250);
+
+    await waitForOrFailTest(() => {
+      after();
+      compare(0);
+    });
+  };
+
+  await check(targetElm, targetElmObservations);
+  await check(targetElmContentElm, targetElmContentElmObservations);
+};
 const iterateTargetAttrChange = async () => {
   await iterateAttrChange(setTargetAttr, targetElmObservations, (observation, selected) => {
     const { changedTargetAttrs, styleChanged, contentChanged } = observation;
@@ -466,6 +519,7 @@ addRemoveTargetContentElms?.addEventListener('click', addRemoveTargetContentElms
 addRemoveTargetContentBetweenElms?.addEventListener('click', addRemoveTargetContentBetweenElmsFn);
 addRemoveImgElms?.addEventListener('click', addRemoveImgElmsFn);
 addRemoveTransitionElms?.addEventListener('click', addRemoveTransitionElmsFn);
+ignoreTargetChange?.addEventListener('click', ignoreTargetChangeFn);
 setTargetAttr?.addEventListener('change', attrChangeListener(targetElm));
 setFilteredTargetAttr?.addEventListener('change', attrChangeListener(targetElm));
 setContentAttr?.addEventListener('change', attrChangeListener(contentElmAttrChange));
