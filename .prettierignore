@@ -3,4 +3,4 @@ dist
 types
 .coverage
 .build
-.pptr
+.nyc_output

@@ -1,11 +1,11 @@
 const path = require('path');
 const resolve = require('./resolve.config');
-const puppeteerRollupConfig = require('./config/jest-puppeteer.rollup.config.js');
+const browserRollupConfig = require('./config/jest-browser.rollup.config.js');
 
 const testServerLoaderPath = path.resolve(__dirname, './config/jest-test-server.loader.js');
 const jsdomSetupFile = path.resolve(__dirname, './config/jest-jsdom.setup.js');
-const puppeteerTestEnvironmentPath = path.resolve(__dirname, './config/jest-puppeteer.env.js');
-const puppeteerSetupFile = path.resolve(__dirname, './config/jest-puppeteer.setup.js');
+const browserTestEnvironmentPath = path.resolve(__dirname, './config/jest-browser.env.js');
+const browserSetupFile = path.resolve(__dirname, './config/jest-browser.setup.js');
 
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
@@ -19,16 +19,16 @@ const base = {
   testPathIgnorePatterns: ['\\\\node_modules\\\\'],
 };
 
-const pptrBase = {
+const browserBase = {
   ...base,
-  preset: 'jest-puppeteer',
-  setupFilesAfterEnv: ['expect-puppeteer', puppeteerSetupFile],
-  testMatch: ['**/tests/puppeteer/**/*.test.[jt]s?(x)'],
-  testEnvironment: puppeteerTestEnvironmentPath,
-  coveragePathIgnorePatterns: ['/node_modules/', `/${puppeteerRollupConfig.build}/`],
+  preset: 'jest-playwright-preset',
+  setupFilesAfterEnv: [browserSetupFile],
+  testMatch: ['**/tests/browser/**/*.test.[jt]s?(x)'],
+  testEnvironment: browserTestEnvironmentPath,
+  coveragePathIgnorePatterns: ['/node_modules/', `/${browserRollupConfig.build}/`],
   transform: {
     '^.+\\.[jt]sx?$': 'babel-jest',
-    [`^.+${puppeteerRollupConfig.build}.+${puppeteerRollupConfig.html.output}?$`]: testServerLoaderPath,
+    [`^.+${browserRollupConfig.build}.+${browserRollupConfig.html.output}?$`]: testServerLoaderPath,
   },
 };
 
@@ -42,12 +42,18 @@ module.exports = {
       testMatch: ['**/tests/jsdom/**/*.test.[jt]s?(x)'],
     },
     {
-      ...pptrBase,
-      displayName: 'puppeteer',
+      ...browserBase,
+      displayName: {
+        name: 'browser',
+        color: 'white',
+      },
     },
     {
-      ...pptrBase,
-      displayName: 'puppeteer-dev',
+      ...browserBase,
+      displayName: {
+        name: 'browser-dev',
+        color: 'white',
+      },
       collectCoverage: false,
     },
   ],

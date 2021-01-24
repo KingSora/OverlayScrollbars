@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest --coverage --runInBand --detectOpenHandles",
     "test:jsdom": "jest --coverage --runInBand --detectOpenHandles --selectProjects jsdom --testPathPattern",
-    "test:pptr": "jest --coverage --runInBand --detectOpenHandles --selectProjects puppeteer --testPathPattern",
-    "test:pptr-dev": "jest --coverage --runInBand --detectOpenHandles --selectProjects puppeteer-dev --testPathPattern",
+    "test:browser": "jest --coverage --runInBand --detectOpenHandles --selectProjects browser --testPathPattern",
+    "test:browser-dev": "jest --coverage --runInBand --detectOpenHandles --selectProjects browser-dev --testPathPattern",
     "build": "rollup -c"
   }
 }

@@ -28,6 +28,7 @@ const rollupConfigDefaults = {
 
 const legacyBabelConfig = {
   exclude: isTestEnv ? [/\/core-js\//] : [], // /\/@testing-library\//
+  plugins: isTestEnv ? ['babel-plugin-istanbul'] : [],
   presets: [
     [
       '@babel/preset-env',

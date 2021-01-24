@@ -1,4 +1,5 @@
-import expectPuppeteer from 'expect-puppeteer';
+import 'jest-playwright-preset';
+import 'expect-playwright';
 import url from './.build/build.html';
 
 describe('TrinsicObserver', () => {
@@ -7,7 +8,7 @@ describe('TrinsicObserver', () => {
   });
 
   test('test', async () => {
-    await expectPuppeteer(page).toClick('#start');
-    await expectPuppeteer(page).toMatchElement('#testResult.passed');
+    await page.click('#start');
+    await expect(page).toHaveSelector('#testResult.passed');
   });
 });

@@ -1,5 +1,5 @@
 const path = require('path');
-const deploymentConfig = require('./jest-puppeteer.rollup.config.js');
+const deploymentConfig = require('./jest-browser.rollup.config.js');
 
 module.exports = {
   process: (src, filePath) => {

@@ -6,7 +6,7 @@ node_modules/
 # generated
 .build/
 .coverage/
-.pptr/
+.nyc_output/
 
 # local env files
 .env.local

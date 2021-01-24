@@ -1,15 +1,16 @@
 const path = require('path');
 
-const deploymentConfig = path.resolve(__dirname, './config/jest-puppeteer.rollup.config.js');
+const deploymentConfig = path.resolve(__dirname, './config/jest-browser.rollup.config.js');
 const testServerPath = path.resolve(__dirname, './config/jest-test-server.js');
 
 module.exports = {
-  browser: 'chromium',
-  browserContext: 'incognito',
-  launch: {
+  browsers: ['chromium', 'firefox'],
+  collectCoverage: true,
+  launchType: 'LAUNCH',
+  launchOptions: {
     headless: false,
   },
-  server: {
+  serverOptions: {
     command: `node ${testServerPath}`,
     port: deploymentConfig.port,
     launchTimeout: 10000,

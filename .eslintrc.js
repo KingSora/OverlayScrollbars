@@ -1,8 +1,8 @@
 const resolve = require('./resolve.config');
-const puppeteerRollupConfig = require('./config/jest-puppeteer.rollup.config.js');
+const browserRollupConfig = require('./config/jest-puppeteer.rollup.config.js');
 
 module.exports = {
-  extends: ['plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'airbnb', 'prettier'],
+  extends: ['plugin:jest-playwright/recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'airbnb', 'prettier'],
   env: {
     browser: true,
     es2020: true,
@@ -73,7 +73,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.test.*', `*${puppeteerRollupConfig.js.input}.*`],
+      files: ['*.test.*', `*${browserRollupConfig.js.input}.*`],
       rules: {
         'no-restricted-syntax': 'off',
         '@typescript-eslint/ban-ts-comment': 'off',
@@ -90,15 +90,9 @@ module.exports = {
         'import/no-unresolved': [
           'error',
           {
-            ignore: [`\\./${puppeteerRollupConfig.build}/${puppeteerRollupConfig.html.output}$`, `^@/.*`],
+            ignore: [`\\./${browserRollupConfig.build}/${browserRollupConfig.html.output}$`, `^@/.*`],
           },
         ],
-      },
-      globals: {
-        page: true,
-        browser: true,
-        context: true,
-        jestPuppeteer: true,
       },
     },
     {

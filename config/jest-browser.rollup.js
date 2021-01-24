@@ -8,10 +8,10 @@ const rollupPluginHtml = require('@rollup/plugin-html');
 const rollupPluginStyles = require('rollup-plugin-styles');
 const rollupPluginServe = require('rollup-plugin-serve');
 const rollupPluginLivereload = require('rollup-plugin-livereload');
-const deploymentConfig = require('./jest-puppeteer.rollup.config.js');
+const deploymentConfig = require('./jest-browser.rollup.config.js');
 
 const rollupConfigName = 'rollup.config.js';
-const cacheFilePrefix = 'jest-puppeteer-overlayscrollbars-cache-';
+const cacheFilePrefix = 'jest-browser-overlayscrollbars-cache-';
 const cacheEncoding = 'utf8';
 const cacheHash = 'md5';
 
@@ -194,7 +194,7 @@ const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
                   rollupPluginStyles(),
                   ...defaultConfig.pipeline,
                   rollupPluginHtml({
-                    title: `Jest-Puppeteer: ${testName}`,
+                    title: `Jest-Browser: ${testName}`,
                     fileName: deploymentConfig.html.output,
                     template: genHtmlTemplateFunc(getHtmlFileContent),
                     meta: [{ charset: 'utf-8' }, { 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' }],
@@ -327,9 +327,9 @@ const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
   }
 };
 
-const cleanupRollupTest = (testPath, cache) => {
+const cleanupRollupTest = async (testPath, cache) => {
   if (!cache) {
-    del(path.resolve(path.dirname(testPath), deploymentConfig.build));
+    await del(path.resolve(path.dirname(testPath), deploymentConfig.build));
   }
 };
 
