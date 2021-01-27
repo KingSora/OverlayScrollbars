@@ -4,16 +4,17 @@ const browserRollupConfig = require('./config/jest-browser.rollup.config.js');
 
 const testServerLoaderPath = path.resolve(__dirname, './config/jest-test-server.loader.js');
 const jsdomSetupFile = path.resolve(__dirname, './config/jest-jsdom.setup.js');
+const browserGlobalSetupPath = path.resolve(__dirname, './config/jest-browser.globalSetup.js');
+const browserGlobalTeardownPath = path.resolve(__dirname, './config/jest-browser.globalTeardown.js');
 const browserTestEnvironmentPath = path.resolve(__dirname, './config/jest-browser.env.js');
-const browserSetupFile = path.resolve(__dirname, './config/jest-browser.setup.js');
+const browserSetupAfterEnvFile = path.resolve(__dirname, './config/jest-browser.setupAfterEnv.js');
 
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 
 const base = {
   clearMocks: true,
-  collectCoverage: true,
-  coverageDirectory: './.coverage',
+  coverageDirectory: './.coverage/jsdom',
   moduleDirectories: resolve.directories,
   moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),
   testPathIgnorePatterns: ['\\\\node_modules\\\\'],
@@ -21,10 +22,13 @@ const base = {
 
 const browserBase = {
   ...base,
+  collectCoverage: false,
   preset: 'jest-playwright-preset',
-  setupFilesAfterEnv: [browserSetupFile],
-  testMatch: ['**/tests/browser/**/*.test.[jt]s?(x)'],
+  globalSetup: browserGlobalSetupPath,
+  globalTeardown: browserGlobalTeardownPath,
   testEnvironment: browserTestEnvironmentPath,
+  setupFilesAfterEnv: [browserSetupAfterEnvFile],
+  testMatch: ['**/tests/browser/**/*.test.[jt]s?(x)'],
   coveragePathIgnorePatterns: ['/node_modules/', `/${browserRollupConfig.build}/`],
   transform: {
     '^.+\\.[jt]sx?$': 'babel-jest',
@@ -54,7 +58,6 @@ module.exports = {
         name: 'browser-dev',
         color: 'white',
       },
-      collectCoverage: false,
     },
   ],
 };

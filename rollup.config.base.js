@@ -1,5 +1,5 @@
 const { nodeResolve: rollupResolve } = require('@rollup/plugin-node-resolve');
-const { babel: rollupBabelPlugin } = require('@rollup/plugin-babel');
+const { babel: rollupBabelInputPlugin, createBabelInputPluginFactory } = require('@rollup/plugin-babel');
 const { terser: rollupTerser } = require('rollup-plugin-terser');
 const rollupInject = require('@rollup/plugin-inject');
 const rollupCommonjs = require('@rollup/plugin-commonjs');
@@ -25,10 +25,8 @@ const rollupConfigDefaults = {
   exports: 'auto',
   pipeline: ['typescript', 'resolve', 'inject', 'commonjs', 'babel'],
 };
-
 const legacyBabelConfig = {
   exclude: isTestEnv ? [/\/core-js\//] : [], // /\/@testing-library\//
-  plugins: isTestEnv ? ['babel-plugin-istanbul'] : [],
   presets: [
     [
       '@babel/preset-env',
@@ -42,7 +40,6 @@ const legacyBabelConfig = {
     ],
   ],
 };
-
 const esmBabelConfig = {
   presets: [
     [
@@ -58,14 +55,43 @@ const esmBabelConfig = {
   ],
 };
 
+// workaround for https://github.com/rollup/plugins/issues/774
+const rollupBabelIstanbulSourceMaps = {};
+const rollupBabelIstanbulGenerateKey = (filename) => (filename ? filename.replace(/[\\/]+/g, '') : '');
+const rollupBabelPlugin = isTestEnv
+  ? createBabelInputPluginFactory(() => {
+      return {
+        config(cfg) {
+          const { options } = cfg;
+          const { filename, plugins } = options;
+          const istanbulSourceMap = rollupBabelIstanbulSourceMaps[rollupBabelIstanbulGenerateKey(filename)];
+
+          if (istanbulSourceMap) {
+            return {
+              ...options,
+              plugins: [
+                ...(plugins || []),
+                [
+                  'babel-plugin-istanbul',
+                  {
+                    useInlineSourceMaps: false,
+                    inputSourceMap: istanbulSourceMap,
+                  },
+                ],
+              ],
+            };
+          } else {
+            return options;
+          }
+        },
+      };
+    })
+  : rollupBabelInputPlugin;
+
 const normalizePath = (pathName) => (pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName);
 
-const appendExtension = (file) => {
-  if (path.extname(file) === '') {
-    return file + resolve.extensions.find((ext) => fs.existsSync(path.resolve(`${file}${ext}`)));
-  }
-  return file;
-};
+const appendExtension = (file) =>
+  path.extname(file) === '' ? file + resolve.extensions.find((ext) => fs.existsSync(path.resolve(`${file}${ext}`))) : file;
 
 const resolvePath = (basePath, pathToResolve, appendExt) => {
   const result = pathToResolve ? (path.isAbsolute(pathToResolve) ? pathToResolve : path.resolve(basePath, pathToResolve)) : null;
@@ -185,14 +211,28 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
         sourceMap: sourcemap,
         extensions: resolve.extensions,
       }),
-      babel: rollupBabelPlugin({
-        ...(esm ? esmBabelConfig : legacyBabelConfig),
-        babelHelpers: 'runtime',
-        extensions: resolve.extensions,
-        caller: {
-          name: 'babel-rollup-build',
-        },
-      }),
+      babel: [
+        isTestEnv
+          ? {
+              name: 'collect-bable-plugin-istanbul-input-source-maps',
+              transform(code, filename) {
+                rollupBabelIstanbulSourceMaps[rollupBabelIstanbulGenerateKey(filename)] = { ...this.getCombinedSourcemap() };
+                return {
+                  code,
+                  map: null,
+                };
+              },
+            }
+          : {},
+        rollupBabelPlugin({
+          ...(esm ? esmBabelConfig : legacyBabelConfig),
+          babelHelpers: 'runtime',
+          extensions: resolve.extensions,
+          caller: {
+            name: 'babel-rollup-build',
+          },
+        }),
+      ],
     };
 
     const output = genOutputConfig(esm);
@@ -222,7 +262,11 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
           : []
       ),
       external: [...Object.keys(devDependencies), ...Object.keys(peerDependencies), ...((Array.isArray(external) && external) || [])],
-      plugins: pipeline.map((item) => (typeof item === 'string' ? pipelineMap[item] : item)),
+      plugins: pipeline.reduce((arr, item) => {
+        const plugin = typeof item === 'string' ? pipelineMap[item] : item;
+        arr.push(...(Array.isArray(plugin) ? plugin : [plugin]));
+        return arr;
+      }, []),
     };
   };
 
