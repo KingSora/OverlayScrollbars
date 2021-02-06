@@ -4,7 +4,7 @@ const deploymentConfig = path.resolve(__dirname, './config/jest-browser.rollup.c
 const testServerPath = path.resolve(__dirname, './config/jest-test-server.js');
 
 module.exports = {
-  browsers: ['chromium', 'firefox'],
+  browsers: ['chromium', 'firefox', 'webkit'],
   collectCoverage: true,
   launchType: 'LAUNCH',
   launchOptions: {
