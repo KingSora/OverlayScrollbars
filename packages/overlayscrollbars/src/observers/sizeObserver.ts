@@ -64,8 +64,8 @@ export const createSizeObserver = (
   const onSizeChangedCallbackProxy = (sizeChangedContext?: Cache<CSSDirection> | SizeObserverEntry[] | Event) => {
     const directionCacheValue = sizeChangedContext && (sizeChangedContext as Cache<CSSDirection>)._value;
 
-    let skip: boolean = false;
-    let doDirectionScroll = true; // always true if sizeChangedContext is Event
+    let skip = false;
+    let doDirectionScroll = true; // always true if sizeChangedContext is Event (appear callback or RO. Polyfill)
 
     // if triggered from RO.
     if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
