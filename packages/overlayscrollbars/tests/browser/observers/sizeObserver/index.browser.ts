@@ -3,7 +3,7 @@ import './index.scss';
 import should from 'should';
 import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
-import { hasDimensions, offsetSize, WH, style } from 'support';
+import { hasDimensions, offsetSize, WH, style, ResizeObserverConstructor } from 'support';
 
 import { createSizeObserver } from 'observers/sizeObserver';
 
@@ -65,7 +65,8 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       const offsetSizeChanged = currOffsetSize.w !== newOffsetSize.w || currOffsetSize.h !== newOffsetSize.h;
       const contentSizeChanged = currContentSize.w !== newContentSize.w || currContentSize.h !== newContentSize.h;
       const dirChanged = currDir !== newDir;
-      const dimensions = hasDimensions(targetElm as HTMLElement);
+      // ResizeObserver Polyfill doesn't react on display: none, so make an exception there
+      const dimensions = ResizeObserverConstructor ? true : hasDimensions(targetElm as HTMLElement);
       const observerElm = targetElm?.firstElementChild as HTMLElement;
 
       // no overflow if not needed

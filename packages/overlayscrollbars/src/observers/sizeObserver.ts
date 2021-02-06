@@ -149,7 +149,13 @@ export const createSizeObserver = (
   // appearCallback is always needed on scroll-observer strategy to reset it
   if (appearCallback) {
     addClass(sizeObserver, classNameSizeObserverAppear);
-    push(offListeners, on(sizeObserver, animationStartEventName, appearCallback));
+    push(
+      offListeners,
+      on(sizeObserver, animationStartEventName, appearCallback, {
+        // Fire only once for "CSS is ready" event
+        _once: !!ResizeObserverConstructor,
+      })
+    );
   }
 
   prependChildren(target, sizeObserver);
