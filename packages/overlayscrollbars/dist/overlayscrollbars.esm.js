@@ -536,17 +536,17 @@ const absoluteCoordinates = (elm) => {
 };
 
 const createCache = (update, options) => {
-  const { _equal, _initialValue } = options || {};
+  const { _equal, _initialValue, _alwaysUpdateValues } = options || {};
   let _value = _initialValue;
 
   let _previous;
 
-  return (force, context) => {
+  const cacheUpdate = (force, context) => {
     const curr = _value;
-    const newVal = update(context, _value, _previous);
+    const newVal = update ? update(context, _value, _previous) : context;
     const changed = force || (_equal ? !_equal(curr, newVal) : curr !== newVal);
 
-    if (changed) {
+    if (changed || _alwaysUpdateValues) {
       _value = newVal;
       _previous = curr;
     }
@@ -557,6 +557,8 @@ const createCache = (update, options) => {
       _changed: changed,
     };
   };
+
+  return cacheUpdate;
 };
 
 function createCommonjsModule(fn) {
@@ -1009,27 +1011,47 @@ const scrollAmount = 3333333;
 
 const getDirection = (elm) => style(elm, 'direction');
 
+const domRectHasDimensions = (rect) => rect && (rect.height > 0 || rect.width > 0);
+
 const createSizeObserver = (target, onSizeChangedCallback, options) => {
-  const { _direction: direction = false, _appear: appear = false } = options || {};
+  const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } = options || {};
 
   const rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
 
   const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
   const sizeObserver = baseElements[0];
   const listenerElement = sizeObserver.firstChild;
+  const updateResizeObserverContentRectCache = createCache(0, {
+    _alwaysUpdateValues: true,
+    _equal: (currVal, newVal) => !(!currVal || (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal))),
+  });
 
-  const onSizeChangedCallbackProxy = (directionCache) => {
-    if (direction) {
-      const rtl = getDirection(sizeObserver) === 'rtl';
+  const onSizeChangedCallbackProxy = (sizeChangedContext) => {
+    const directionCacheValue = sizeChangedContext && sizeChangedContext._value;
+    let skip = false;
+    let doDirectionScroll = true;
+
+    if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
+      const { _previous, _value, _changed } = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect);
+      skip = !_previous || !domRectHasDimensions(_value);
+      doDirectionScroll = !skip && _changed;
+    } else if (directionCacheValue) {
+      doDirectionScroll = sizeChangedContext._changed;
+    }
+
+    if (observeDirectionChange && doDirectionScroll) {
+      const rtl = (directionCacheValue || getDirection(sizeObserver)) === 'rtl';
       scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
       scrollTop(sizeObserver, scrollAmount);
     }
 
-    onSizeChangedCallback(isString((directionCache || {})._value) ? directionCache : undefined);
+    if (!skip) {
+      onSizeChangedCallback(directionCacheValue ? sizeChangedContext : undefined);
+    }
   };
 
   const offListeners = [];
-  let appearCallback = appear ? onSizeChangedCallbackProxy : null;
+  let appearCallback = observeAppearChange ? onSizeChangedCallbackProxy : false;
 
   if (ResizeObserverConstructor) {
     const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
@@ -1093,10 +1115,10 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       height: scrollAmount,
     });
     reset();
-    appearCallback = appear ? () => onScroll() : reset;
+    appearCallback = observeAppearChange ? () => onScroll() : reset;
   }
 
-  if (direction) {
+  if (observeDirectionChange) {
     const updateDirectionCache = createCache(() => getDirection(sizeObserver));
     push(
       offListeners,
@@ -1129,7 +1151,12 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
 
   if (appearCallback) {
     addClass(sizeObserver, classNameSizeObserverAppear);
-    push(offListeners, on(sizeObserver, animationStartEventName, appearCallback));
+    push(
+      offListeners,
+      on(sizeObserver, animationStartEventName, appearCallback, {
+        _once: !!ResizeObserverConstructor,
+      })
+    );
   }
 
   prependChildren(target, sizeObserver);
@@ -1324,7 +1351,7 @@ const createDOMObserver = (target, callback, options) => {
         const baseAssertion = isNestedTarget
           ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
           : notOnlyAttrChanged || contentAttrChanged;
-        const contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, isNestedTarget, target, options);
+        const contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
         push(totalAddedNodes, addedNodes);
         contentChanged = contentChanged || contentFinalChanged;
         childListChanged = childListChanged || isChildListType;

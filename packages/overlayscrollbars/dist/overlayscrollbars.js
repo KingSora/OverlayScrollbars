@@ -604,18 +604,19 @@
   var createCache = function createCache(update, options) {
     var _ref = options || {},
       _equal = _ref._equal,
-      _initialValue = _ref._initialValue;
+      _initialValue = _ref._initialValue,
+      _alwaysUpdateValues = _ref._alwaysUpdateValues;
 
     var _value = _initialValue;
 
     var _previous;
 
-    return function (force, context) {
+    var cacheUpdate = function cacheUpdate(force, context) {
       var curr = _value;
-      var newVal = update(context, _value, _previous);
+      var newVal = update ? update(context, _value, _previous) : context;
       var changed = force || (_equal ? !_equal(curr, newVal) : curr !== newVal);
 
-      if (changed) {
+      if (changed || _alwaysUpdateValues) {
         _value = newVal;
         _previous = curr;
       }
@@ -626,6 +627,8 @@
         _changed: changed,
       };
     };
+
+    return cacheUpdate;
   };
 
   function createCommonjsModule(fn) {
@@ -1124,31 +1127,59 @@
     return style(elm, 'direction');
   };
 
+  var domRectHasDimensions = function domRectHasDimensions(rect) {
+    return rect && (rect.height > 0 || rect.width > 0);
+  };
+
   var createSizeObserver = function createSizeObserver(target, onSizeChangedCallback, options) {
     var _ref = options || {},
       _ref$_direction = _ref._direction,
-      direction = _ref$_direction === void 0 ? false : _ref$_direction,
+      observeDirectionChange = _ref$_direction === void 0 ? false : _ref$_direction,
       _ref$_appear = _ref._appear,
-      appear = _ref$_appear === void 0 ? false : _ref$_appear;
+      observeAppearChange = _ref$_appear === void 0 ? false : _ref$_appear;
 
     var rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
 
     var baseElements = createDOM('<div class="' + classNameSizeObserver + '"><div class="' + classNameSizeObserverListener + '"></div></div>');
     var sizeObserver = baseElements[0];
     var listenerElement = sizeObserver.firstChild;
+    var updateResizeObserverContentRectCache = createCache(0, {
+      _alwaysUpdateValues: true,
+      _equal: function _equal(currVal, newVal) {
+        return !(!currVal || (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal)));
+      },
+    });
 
-    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(directionCache) {
-      if (direction) {
-        var rtl = getDirection(sizeObserver) === 'rtl';
+    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(sizeChangedContext) {
+      var directionCacheValue = sizeChangedContext && sizeChangedContext._value;
+      var skip = false;
+      var doDirectionScroll = true;
+
+      if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
+        var _updateResizeObserver = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect),
+          _previous = _updateResizeObserver._previous,
+          _value = _updateResizeObserver._value,
+          _changed = _updateResizeObserver._changed;
+
+        skip = !_previous || !domRectHasDimensions(_value);
+        doDirectionScroll = !skip && _changed;
+      } else if (directionCacheValue) {
+        doDirectionScroll = sizeChangedContext._changed;
+      }
+
+      if (observeDirectionChange && doDirectionScroll) {
+        var rtl = (directionCacheValue || getDirection(sizeObserver)) === 'rtl';
         scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
         scrollTop(sizeObserver, scrollAmount);
       }
 
-      onSizeChangedCallback(isString((directionCache || {})._value) ? directionCache : undefined);
+      if (!skip) {
+        onSizeChangedCallback(directionCacheValue ? sizeChangedContext : undefined);
+      }
     };
 
     var offListeners = [];
-    var appearCallback = appear ? onSizeChangedCallbackProxy : null;
+    var appearCallback = observeAppearChange ? onSizeChangedCallbackProxy : false;
 
     if (ResizeObserverConstructor) {
       var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
@@ -1224,14 +1255,14 @@
         height: scrollAmount,
       });
       reset();
-      appearCallback = appear
+      appearCallback = observeAppearChange
         ? function () {
             return onScroll();
           }
         : reset;
     }
 
-    if (direction) {
+    if (observeDirectionChange) {
       var updateDirectionCache = createCache(function () {
         return getDirection(sizeObserver);
       });
@@ -1267,7 +1298,12 @@
 
     if (appearCallback) {
       addClass(sizeObserver, classNameSizeObserverAppear);
-      push(offListeners, on(sizeObserver, animationStartEventName, appearCallback));
+      push(
+        offListeners,
+        on(sizeObserver, animationStartEventName, appearCallback, {
+          _once: !!ResizeObserverConstructor,
+        })
+      );
     }
 
     prependChildren(target, sizeObserver);
@@ -1471,7 +1507,7 @@
           var baseAssertion = isNestedTarget
             ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
             : notOnlyAttrChanged || contentAttrChanged;
-          var contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, isNestedTarget, target, options);
+          var contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
           push(totalAddedNodes, addedNodes);
           contentChanged = contentChanged || contentFinalChanged;
           childListChanged = childListChanged || isChildListType;

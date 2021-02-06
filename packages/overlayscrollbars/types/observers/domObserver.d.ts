@@ -1,8 +1,7 @@
-declare type TruthyOrFalsy = boolean | '' | 0 | null | undefined;
 declare type StringNullUndefined = string | null | undefined;
-export declare type DOMObserverEventContentChange = Array<[StringNullUndefined, ((elms: Node[]) => string) | StringNullUndefined] | null | undefined> | false | '' | null | undefined;
-export declare type DOMObserverIgnoreContentChange = (mutation: MutationRecord, isNestedTarget: TruthyOrFalsy, domObserverTarget: HTMLElement, domObserverOptions: DOMObserverOptions | undefined) => TruthyOrFalsy;
-export declare type DOMObserverIgnoreTargetAttrChange = (target: Node, attributeName: string, oldAttributeValue: string | null, newAttributeValue: string | null) => TruthyOrFalsy;
+export declare type DOMObserverEventContentChange = Array<[StringNullUndefined, ((elms: Node[]) => string) | StringNullUndefined] | null | undefined> | false | null | undefined;
+export declare type DOMObserverIgnoreContentChange = (mutation: MutationRecord, isNestedTarget: boolean, domObserverTarget: HTMLElement, domObserverOptions: DOMObserverOptions | undefined) => boolean;
+export declare type DOMObserverIgnoreTargetAttrChange = (target: Node, attributeName: string, oldAttributeValue: string | null, newAttributeValue: string | null) => boolean;
 export interface DOMObserverOptions {
     _observeContent?: boolean;
     _attributes?: string[];
