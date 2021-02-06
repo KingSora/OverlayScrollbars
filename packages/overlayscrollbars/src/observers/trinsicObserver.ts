@@ -20,7 +20,7 @@ export const createTrinsicObserver = (
   const trinsicObserver = createDOM(`<div class="${classNameTrinsicObserver}"></div>`)[0] as HTMLElement;
   const offListeners: (() => void)[] = [];
   const updateHeightIntrinsicCache = createCache<boolean, IntersectionObserverEntry | WH<number>>(
-    (ioEntryOrSize) =>
+    (ioEntryOrSize: IntersectionObserverEntry | WH<number>) =>
       (ioEntryOrSize! as WH<number>).h === 0 ||
       (ioEntryOrSize! as IntersectionObserverEntry).isIntersecting ||
       (ioEntryOrSize! as IntersectionObserverEntry).intersectionRatio > 0,

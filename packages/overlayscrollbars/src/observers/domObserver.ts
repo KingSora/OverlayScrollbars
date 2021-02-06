@@ -16,26 +16,24 @@ import {
   isFunction,
 } from 'support';
 
-type TruthyOrFalsy = boolean | '' | 0 | null | undefined;
 type StringNullUndefined = string | null | undefined;
 export type DOMObserverEventContentChange =
   | Array<[StringNullUndefined, ((elms: Node[]) => string) | StringNullUndefined] | null | undefined>
   | false
-  | ''
   | null
   | undefined;
 export type DOMObserverIgnoreContentChange = (
   mutation: MutationRecord,
-  isNestedTarget: TruthyOrFalsy,
+  isNestedTarget: boolean,
   domObserverTarget: HTMLElement,
   domObserverOptions: DOMObserverOptions | undefined
-) => TruthyOrFalsy;
+) => boolean;
 export type DOMObserverIgnoreTargetAttrChange = (
   target: Node,
   attributeName: string,
   oldAttributeValue: string | null,
   newAttributeValue: string | null
-) => TruthyOrFalsy;
+) => boolean;
 export interface DOMObserverOptions {
   _observeContent?: boolean; // do observe children and trigger content change
   _attributes?: string[]; // observed attributes
@@ -190,7 +188,7 @@ export const createDOMObserver = (
         const baseAssertion = isNestedTarget
           ? !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue as string | null)
           : notOnlyAttrChanged || contentAttrChanged;
-        const contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, isNestedTarget, target, options);
+        const contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
 
         push(totalAddedNodes, addedNodes);
 

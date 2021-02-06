@@ -30,50 +30,88 @@ describe('cache', () => {
     expect(_changed).toBe(true);
   });
 
-  test('creates and updates cache with context', () => {
-    interface ContextObj {
-      test: string;
-      even: number;
-    }
-    const updateFn = jest.fn();
-    const updater = (context?: ContextObj, current?: boolean, previous?: boolean) => {
-      updateFn(context, current, previous);
-      return context!.test === 'test' || context!.even % 2 === 0;
-    };
-    const update = createCache(updater);
-    const firstCtx = { test: 'test', even: 2 };
+  describe('context', () => {
+    test('creates and updates cache with context', () => {
+      interface ContextObj {
+        test: string;
+        even: number;
+      }
+      const updateFn = jest.fn();
+      const updater = (context?: ContextObj, current?: boolean, previous?: boolean) => {
+        updateFn(context, current, previous);
+        return context!.test === 'test' || context!.even % 2 === 0;
+      };
+      const update = createCache(updater);
+      const firstCtx = { test: 'test', even: 2 };
 
-    let { _value, _previous, _changed } = update(0, firstCtx);
-    expect(updateFn).toHaveBeenLastCalledWith(firstCtx, undefined, undefined);
-    expect(_value).toBe(true);
-    expect(_previous).toBe(undefined);
-    expect(_changed).toBe(true);
+      let { _value, _previous, _changed } = update(0, firstCtx);
+      expect(updateFn).toHaveBeenLastCalledWith(firstCtx, undefined, undefined);
+      expect(_value).toBe(true);
+      expect(_previous).toBe(undefined);
+      expect(_changed).toBe(true);
 
-    ({ _value, _previous, _changed } = update(0, firstCtx));
-    expect(updateFn).toHaveBeenLastCalledWith(firstCtx, true, undefined);
-    expect(_value).toBe(true);
-    expect(_previous).toBe(undefined);
-    expect(_changed).toBe(false);
+      ({ _value, _previous, _changed } = update(0, firstCtx));
+      expect(updateFn).toHaveBeenLastCalledWith(firstCtx, true, undefined);
+      expect(_value).toBe(true);
+      expect(_previous).toBe(undefined);
+      expect(_changed).toBe(false);
 
-    const scndCtx = { test: 'nah', even: 1 };
+      const scndCtx = { test: 'nah', even: 1 };
 
-    ({ _value, _previous, _changed } = update(0, scndCtx));
-    expect(updateFn).toHaveBeenLastCalledWith(scndCtx, true, undefined);
-    expect(_value).toBe(false);
-    expect(_previous).toBe(true);
-    expect(_changed).toBe(true);
+      ({ _value, _previous, _changed } = update(0, scndCtx));
+      expect(updateFn).toHaveBeenLastCalledWith(scndCtx, true, undefined);
+      expect(_value).toBe(false);
+      expect(_previous).toBe(true);
+      expect(_changed).toBe(true);
 
-    ({ _value, _previous, _changed } = update(0, scndCtx));
-    expect(updateFn).toHaveBeenLastCalledWith(scndCtx, false, true);
-    expect(_value).toBe(false);
-    expect(_previous).toBe(true);
-    expect(_changed).toBe(false);
+      ({ _value, _previous, _changed } = update(0, scndCtx));
+      expect(updateFn).toHaveBeenLastCalledWith(scndCtx, false, true);
+      expect(_value).toBe(false);
+      expect(_previous).toBe(true);
+      expect(_changed).toBe(false);
 
-    ({ _value, _previous, _changed } = update(true, scndCtx));
-    expect(updateFn).toHaveBeenLastCalledWith(scndCtx, false, true);
-    expect(_value).toBe(false);
-    expect(_previous).toBe(false);
-    expect(_changed).toBe(true);
+      ({ _value, _previous, _changed } = update(true, scndCtx));
+      expect(updateFn).toHaveBeenLastCalledWith(scndCtx, false, true);
+      expect(_value).toBe(false);
+      expect(_previous).toBe(false);
+      expect(_changed).toBe(true);
+    });
+
+    test('creates and updates cache with context shorthand', () => {
+      interface ContextObj {
+        test: string;
+        even: number;
+      }
+      const update = createCache<ContextObj, ContextObj>(0);
+      const firstCtx = { test: 'test', even: 2 };
+
+      let { _value, _previous, _changed } = update(0, firstCtx);
+      expect(_value).toBe(firstCtx);
+      expect(_previous).toBe(undefined);
+      expect(_changed).toBe(true);
+
+      ({ _value, _previous, _changed } = update(0, firstCtx));
+      expect(_value).toBe(firstCtx);
+      expect(_previous).toBe(undefined);
+      expect(_changed).toBe(false);
+
+      const scndCtx = { test: 'nah', even: 1 };
+
+      ({ _value, _previous, _changed } = update(0, scndCtx));
+      expect(_value).toBe(scndCtx);
+      expect(_previous).toBe(firstCtx);
+      expect(_changed).toBe(true);
+
+      ({ _value, _previous, _changed } = update(0, scndCtx));
+      expect(_value).toBe(scndCtx);
+      expect(_previous).toBe(firstCtx);
+      expect(_changed).toBe(false);
+
+      ({ _value, _previous, _changed } = update(true, scndCtx));
+      expect(_value).toBe(scndCtx);
+      expect(_previous).toBe(scndCtx);
+      expect(_changed).toBe(true);
+    });
   });
 
   describe('equal', () => {
@@ -131,7 +169,7 @@ describe('cache', () => {
   });
 
   describe('inital value', () => {
-    test('creates and updates cache with inital value', () => {
+    test('creates and updates cache with initialValue', () => {
       const [fn, updater] = createUpdater((i) => i);
       const update = createCache<number>(updater, { _initialValue: 0 });
 
@@ -148,7 +186,7 @@ describe('cache', () => {
       expect(_changed).toBe(true);
     });
 
-    test('creates and updates cache with inital value and equal', () => {
+    test('creates and updates cache with initialValue and equal', () => {
       const obj = { a: -1, b: -1 };
       const [fn, updater] = createUpdater((i) => ({ a: i, b: i + 1 }));
       const update = createCache<typeof obj>(updater, { _initialValue: obj, _equal: (a, b) => a?.a === b?.a && a?.b === b?.b });
@@ -163,6 +201,61 @@ describe('cache', () => {
       expect(fn).toHaveBeenLastCalledWith(undefined, { a: 1, b: 2 }, obj);
       expect(_value).toEqual({ a: 2, b: 3 });
       expect(_previous).toEqual({ a: 1, b: 2 });
+      expect(_changed).toBe(true);
+    });
+  });
+
+  describe('always update values', () => {
+    test('creates and updates cache with alwaysUpdateValues and equal always true', () => {
+      const [fn, updater] = createUpdater((i) => i);
+      const update = createCache<number>(updater, { _alwaysUpdateValues: true, _equal: () => true });
+
+      let { _value, _previous, _changed } = update();
+      expect(fn).toHaveBeenLastCalledWith(undefined, undefined, undefined);
+      expect(_value).toBe(1);
+      expect(_previous).toBe(undefined);
+      expect(_changed).toBe(false);
+
+      ({ _value, _previous, _changed } = update());
+      expect(fn).toHaveBeenLastCalledWith(undefined, 1, undefined);
+      expect(_value).toBe(2);
+      expect(_previous).toBe(1);
+      expect(_changed).toBe(false);
+    });
+
+    test('creates and updates cache with context shorthand and alwaysUpdateValues', () => {
+      interface ContextObj {
+        test: string;
+        even: number;
+      }
+      const update = createCache<ContextObj, ContextObj>(0, { _alwaysUpdateValues: true });
+      const firstCtx = { test: 'test', even: 2 };
+
+      let { _value, _previous, _changed } = update(0, firstCtx);
+      expect(_value).toBe(firstCtx);
+      expect(_previous).toBe(undefined);
+      expect(_changed).toBe(true);
+
+      ({ _value, _previous, _changed } = update(0, firstCtx));
+      expect(_value).toBe(firstCtx);
+      expect(_previous).toBe(firstCtx);
+      expect(_changed).toBe(false);
+
+      const scndCtx = { test: 'nah', even: 1 };
+
+      ({ _value, _previous, _changed } = update(0, scndCtx));
+      expect(_value).toBe(scndCtx);
+      expect(_previous).toBe(firstCtx);
+      expect(_changed).toBe(true);
+
+      ({ _value, _previous, _changed } = update(0, scndCtx));
+      expect(_value).toBe(scndCtx);
+      expect(_previous).toBe(scndCtx);
+      expect(_changed).toBe(false);
+
+      ({ _value, _previous, _changed } = update(true, scndCtx));
+      expect(_value).toBe(scndCtx);
+      expect(_previous).toBe(scndCtx);
       expect(_changed).toBe(true);
     });
   });
