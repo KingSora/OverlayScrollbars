@@ -51,7 +51,7 @@ export default class OverlayScrollbarsComponent extends Vue.extend<
         },
         methods: {
             osInstance(): OverlayScrollbars | null {
-                return (this as OverlayScrollbarsComponent)._osInstace;
+                return (this as OverlayScrollbarsComponent)._osInstance;
             },
             osTarget(): HTMLDivElement | null {
                 return (this.$el as HTMLDivElement) || null;
@@ -62,7 +62,7 @@ export default class OverlayScrollbarsComponent extends Vue.extend<
                 currOptions: OverlayScrollbars.Options,
                 oldOptions: OverlayScrollbars.Options
             ) {
-                let osInstance = (this as OverlayScrollbarsComponent)._osInstace;
+                let osInstance = (this as OverlayScrollbarsComponent)._osInstance;
                 if (OverlayScrollbars.valid(osInstance)) {
                     osInstance.options(currOptions);
                 }
@@ -74,7 +74,7 @@ export default class OverlayScrollbarsComponent extends Vue.extend<
         },
 
         mounted() {
-            (this as OverlayScrollbarsComponent)._osInstace = OverlayScrollbars(
+            (this as OverlayScrollbarsComponent)._osInstance = OverlayScrollbars(
                 this.osTarget(),
                 this.options || {},
                 this.extensions
@@ -82,13 +82,13 @@ export default class OverlayScrollbarsComponent extends Vue.extend<
         },
 
         beforeDestroy() {
-            const osInstance = (this as OverlayScrollbarsComponent)._osInstace;
+            const osInstance = (this as OverlayScrollbarsComponent)._osInstance;
             if (OverlayScrollbars.valid(osInstance)) {
                 osInstance.destroy();
-                (this as OverlayScrollbarsComponent)._osInstace = null;
+                (this as OverlayScrollbarsComponent)._osInstance = null;
             }
         }
     }) {
-    private _osInstace: OverlayScrollbars | null = null;
+    private _osInstance: OverlayScrollbars | null = null;
 }
 </script>
