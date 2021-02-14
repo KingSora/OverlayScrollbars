@@ -20,6 +20,9 @@ function isNumber(obj) {
 function isString(obj) {
   return typeof obj === 'string';
 }
+function isBoolean(obj) {
+  return typeof obj === 'boolean';
+}
 function isFunction(obj) {
   return typeof obj === 'function';
 }
@@ -190,6 +193,9 @@ const classListAction = (elm, className, action) => {
 const addClass = (elm, className) => {
   classListAction(elm, className, (classList, clazz) => classList.add(clazz));
 };
+const removeClass = (elm, className) => {
+  classListAction(elm, className, (classList, clazz) => classList.remove(clazz));
+};
 
 const elmPrototype = Element.prototype;
 
@@ -239,7 +245,7 @@ const before = (parentElm, preferredAnchor, insertedElms) => {
         }
       }
 
-      parentElm.insertBefore(fragment, anchor);
+      parentElm.insertBefore(fragment, anchor || null);
     }
   }
 };
@@ -249,6 +255,9 @@ const appendChildren = (node, children) => {
 };
 const prependChildren = (node, children) => {
   before(node, node && node.firstChild, children);
+};
+const insertAfter = (node, insertedNodes) => {
+  before(parent(node), node && node.nextSibling, insertedNodes);
 };
 const removeElements = (nodes) => {
   if (isArrayLike(nodes)) {
@@ -917,14 +926,14 @@ const defaultOptionsWithTemplate = {
 const cssMarginEnd = cssProperty('margin-inline-end');
 const cssBorderEnd = cssProperty('border-inline-end');
 const createStructureLifecycle = (target, initialOptions) => {
-  const { host, padding: paddingElm, viewport, content } = target;
+  const { _host, _padding, _viewport, _content } = target;
   const destructFns = [];
   const env = getEnvironment();
   const scrollbarsOverlaid = env._nativeScrollbarIsOverlaid;
   const supportsScrollbarStyling = env._nativeScrollbarStyling;
   const supportFlexboxGlue = env._flexboxGlue;
   const directionObserverObsolete = (cssMarginEnd && cssBorderEnd) || supportsScrollbarStyling || scrollbarsOverlaid.y;
-  const updatePaddingCache = createCache(() => topRightBottomLeft(host, 'padding'), {
+  const updatePaddingCache = createCache(() => topRightBottomLeft(_host, 'padding'), {
     _equal: equalTRBL,
   });
   const updateOverflowAmountCache = createCache(
@@ -955,7 +964,7 @@ const createStructureLifecycle = (target, initialOptions) => {
         paddingStyle.l = -padding.l;
       }
 
-      style(paddingElm, {
+      style(_padding, {
         top: paddingStyle.t,
         left: paddingStyle.l,
         'margin-right': paddingStyle.r,
@@ -964,9 +973,9 @@ const createStructureLifecycle = (target, initialOptions) => {
       });
     }
 
-    const viewportOffsetSize = offsetSize(paddingElm);
-    const contentClientSize = offsetSize(content);
-    const contentScrollSize = scrollSize(content);
+    const viewportOffsetSize = offsetSize(_padding);
+    const contentClientSize = offsetSize(_content);
+    const contentScrollSize = scrollSize(_content);
     const overflowAmuntCache = updateOverflowAmountCache(force, {
       _contentScrollSize: contentScrollSize,
       _viewportSize: {
@@ -987,7 +996,7 @@ const createStructureLifecycle = (target, initialOptions) => {
     const { _changed, _value } = heightIntrinsicCache;
 
     if (_changed) {
-      style(content, {
+      style(_content, {
         height: _value ? 'auto' : '100%',
       });
     }
@@ -1008,10 +1017,20 @@ const createStructureLifecycle = (target, initialOptions) => {
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
+const directionIsRTLMap = {
+  direction: ['rtl'],
+};
 
-const getDirection = (elm) => style(elm, 'direction');
+const directionIsRTL = (elm) => {
+  let isRTL = false;
+  const styles = style(elm, ['direction']);
+  each(styles, (value, key) => {
+    isRTL = isRTL || indexOf(directionIsRTLMap[key], value) > -1;
+  });
+  return isRTL;
+};
 
-const domRectHasDimensions = (rect) => rect && (rect.height > 0 || rect.width > 0);
+const domRectHasDimensions = (rect) => rect && (rect.height || rect.width);
 
 const createSizeObserver = (target, onSizeChangedCallback, options) => {
   const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } = options || {};
@@ -1027,26 +1046,24 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   });
 
   const onSizeChangedCallbackProxy = (sizeChangedContext) => {
-    const directionCacheValue = sizeChangedContext && sizeChangedContext._value;
+    const hasDirectionCache = sizeChangedContext && isBoolean(sizeChangedContext._value);
     let skip = false;
-    let doDirectionScroll = true;
 
     if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
       const { _previous, _value, _changed } = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect);
       skip = !_previous || !domRectHasDimensions(_value);
-      doDirectionScroll = !skip && _changed;
-    } else if (directionCacheValue) {
-      doDirectionScroll = sizeChangedContext._changed;
+    } else if (hasDirectionCache) {
+      sizeChangedContext._changed;
     }
 
-    if (observeDirectionChange && doDirectionScroll) {
-      const rtl = (directionCacheValue || getDirection(sizeObserver)) === 'rtl';
+    if (observeDirectionChange) {
+      const rtl = hasDirectionCache ? sizeChangedContext._value : directionIsRTL(sizeObserver);
       scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
       scrollTop(sizeObserver, scrollAmount);
     }
 
     if (!skip) {
-      onSizeChangedCallback(directionCacheValue ? sizeChangedContext : undefined);
+      onSizeChangedCallback(hasDirectionCache ? sizeChangedContext : undefined);
     }
   };
 
@@ -1119,15 +1136,15 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   }
 
   if (observeDirectionChange) {
-    const updateDirectionCache = createCache(() => getDirection(sizeObserver));
+    const updateDirectionIsRTLCache = createCache(() => directionIsRTL(sizeObserver));
     push(
       offListeners,
       on(sizeObserver, scrollEventName, (event) => {
-        const directionCache = updateDirectionCache();
-        const { _value, _changed } = directionCache;
+        const directionIsRTLCache = updateDirectionIsRTLCache();
+        const { _value, _changed } = directionIsRTLCache;
 
         if (_changed) {
-          if (_value === 'rtl') {
+          if (_value) {
             style(listenerElement, {
               left: 'auto',
               right: 0,
@@ -1139,7 +1156,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
             });
           }
 
-          onSizeChangedCallbackProxy(directionCache);
+          onSizeChangedCallbackProxy(directionIsRTLCache);
         }
 
         preventDefault(event);
@@ -1403,45 +1420,130 @@ const createDOMObserver = (target, callback, options) => {
   };
 };
 
-const normalizeTarget = (target) => {
-  if (isHTMLElement(target)) {
-    const isTextarea = is(target, 'textarea');
+const unwrap = (elm) => {
+  appendChildren(parent(elm), contents(elm));
+  removeElements(elm);
+};
 
-    const _host = isTextarea ? createDiv() : target;
+const createStructureSetup = (target) => {
+  const targetIsElm = isHTMLElement(target);
+  const osTargetObj = targetIsElm
+    ? {}
+    : {
+        _host: target.host,
+        _target: target.target,
+        _padding: target.padding,
+        _viewport: target.viewport,
+        _content: target.content,
+      };
 
-    const _padding = createDiv(classNamePadding);
-
-    const _viewport = createDiv(classNameViewport);
-
-    const _content = createDiv(classNameContent);
-
-    appendChildren(_padding, _viewport);
-    appendChildren(_viewport, _content);
-    appendChildren(_content, contents(target));
-    appendChildren(target, _padding);
-    addClass(_host, classNameHost);
-    return {
-      target,
-      host: _host,
-      padding: _padding,
-      viewport: _viewport,
-      content: _content,
-    };
+  if (targetIsElm) {
+    const padding = createDiv(classNamePadding);
+    const viewport = createDiv(classNameViewport);
+    const content = createDiv(classNameContent);
+    appendChildren(padding, viewport);
+    appendChildren(viewport, content);
+    osTargetObj._target = target;
+    osTargetObj._padding = padding;
+    osTargetObj._viewport = viewport;
+    osTargetObj._content = content;
   }
 
-  const { host, padding, viewport, content } = target;
-  addClass(host, classNameHost);
-  addClass(padding, classNamePadding);
-  addClass(viewport, classNameViewport);
-  addClass(content, classNameContent);
-  return target;
+  let { _target, _padding, _viewport, _content } = osTargetObj;
+  let destroyFns = [];
+  const isTextarea = is(_target, 'textarea');
+  const isBody = !isTextarea && is(_target, 'body');
+
+  const _host = isTextarea ? osTargetObj._host || createDiv() : _target;
+
+  const getTargetContents = (contentSlot) => (isTextarea ? _target : contents(contentSlot));
+
+  const ownerDocument = _target.ownerDocument;
+  const bodyElm = ownerDocument.body;
+  const wnd = ownerDocument.defaultView;
+  const isTextareaHostGenerated = isTextarea && _host !== osTargetObj._host;
+
+  if (isTextareaHostGenerated) {
+    insertAfter(_target, _host);
+    push(destroyFns, () => {
+      insertAfter(_host, _target);
+      removeElements(_host);
+    });
+  }
+
+  if (targetIsElm) {
+    appendChildren(_content, getTargetContents(_target));
+    appendChildren(_host, _padding);
+    push(destroyFns, () => {
+      appendChildren(_host, contents(_content));
+      removeElements(_padding);
+      removeClass(_host, classNameHost);
+    });
+  } else {
+    const contentContainingElm = _content || _viewport || _padding || _host;
+    const createPadding = isUndefined(_padding);
+    const createViewport = isUndefined(_viewport);
+    const createContent = isUndefined(_content);
+    const targetContents = getTargetContents(contentContainingElm);
+    _padding = osTargetObj._padding = createPadding ? createDiv() : _padding;
+    _viewport = osTargetObj._viewport = createViewport ? createDiv() : _viewport;
+    _content = osTargetObj._content = createContent ? createDiv() : _content;
+    appendChildren(_host, _padding);
+    appendChildren(_padding || _host, _viewport);
+    appendChildren(_viewport, _content);
+    const contentSlot = _content || _viewport;
+    appendChildren(contentSlot, targetContents);
+    push(destroyFns, () => {
+      if (createContent) {
+        unwrap(_content);
+      }
+
+      if (createViewport) {
+        unwrap(_viewport);
+      }
+
+      if (createPadding) {
+        unwrap(_padding);
+      }
+
+      removeClass(_host, classNameHost);
+      removeClass(_padding, classNamePadding);
+      removeClass(_viewport, classNameViewport);
+      removeClass(_content, classNameContent);
+    });
+  }
+
+  addClass(_host, classNameHost);
+  addClass(_padding, classNamePadding);
+  addClass(_viewport, classNameViewport);
+  addClass(_content, classNameContent);
+  const ctx = {
+    _windowElm: wnd,
+    _documentElm: ownerDocument,
+    _htmlElm: parent(bodyElm),
+    _bodyElm: bodyElm,
+    _isTextarea: isTextarea,
+    _isBody: isBody,
+  };
+
+  const obj = _extends_1({}, osTargetObj, {
+    _host,
+  });
+
+  return {
+    _targetObj: obj,
+    _targetCtx: ctx,
+    _destroy: () => {
+      runEach(destroyFns);
+    },
+  };
 };
 
 const OverlayScrollbars = (target, options, extensions) => {
-  const osTarget = normalizeTarget(target);
+  const structureSetup = createStructureSetup(target);
   const lifecycles = [];
-  const { host, content } = osTarget;
-  push(lifecycles, createStructureLifecycle(osTarget));
+  const { _host, _viewport, _content } = structureSetup._targetObj;
+  push(lifecycles, createStructureLifecycle(structureSetup._targetObj));
 
   const onSizeChanged = (directionCache) => {
     if (directionCache) {
@@ -1461,16 +1563,16 @@ const OverlayScrollbars = (target, options, extensions) => {
     });
   };
 
-  createSizeObserver(host, onSizeChanged, {
+  createSizeObserver(_host, onSizeChanged, {
     _appear: true,
     _direction: true,
   });
-  createTrinsicObserver(host, onTrinsicChanged);
-  createDOMObserver(host, () => {
+  createTrinsicObserver(_host, onTrinsicChanged);
+  createDOMObserver(_host, () => {
     return null;
   });
   createDOMObserver(
-    content,
+    _content || _viewport,
     () => {
       return null;
     },

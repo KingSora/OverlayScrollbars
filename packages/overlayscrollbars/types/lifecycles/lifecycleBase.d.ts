@@ -1,5 +1,5 @@
 import { Cache, OptionsWithOptionsTemplate } from 'support';
-import { CSSDirection, PlainObject } from 'typings';
+import { PlainObject } from 'typings';
 export interface LifecycleBase<O extends PlainObject> {
     _options(newOptions?: O): O;
     _update(force?: boolean): void;
@@ -7,7 +7,7 @@ export interface LifecycleBase<O extends PlainObject> {
 export interface Lifecycle<T extends PlainObject> extends LifecycleBase<T> {
     _destruct(): void;
     _onSizeChanged?(): void;
-    _onDirectionChanged?(directionCache: Cache<CSSDirection>): void;
+    _onDirectionChanged?(directionCache: Cache<boolean>): void;
     _onTrinsicChanged?(widthIntrinsic: boolean, heightIntrinsicCache: Cache<boolean>): void;
 }
 export interface LifecycleOptionInfo<T> {

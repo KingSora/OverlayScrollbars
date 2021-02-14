@@ -1,5 +1,9 @@
 export type PlainObject<T = any> = { [name: string]: T };
 
+export type InternalVersionOf<T> = {
+  [K in keyof T as `_${Uncapitalize<string & K>}`]: T[K];
+};
+
 export type OSTargetElement = HTMLElement | HTMLTextAreaElement;
 
 export interface OSTargetObject {
@@ -9,10 +13,6 @@ export interface OSTargetObject {
   viewport?: HTMLElement;
   content?: HTMLElement | null;
 }
-
-export type InternalVersionOf<T> = {
-  [K in keyof T as `_${Uncapitalize<string & K>}`]: T[K];
-};
 
 export type OSTarget = OSTargetElement | OSTargetObject;
 
