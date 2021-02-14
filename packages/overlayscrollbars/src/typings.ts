@@ -4,15 +4,17 @@ export type OSTargetElement = HTMLElement | HTMLTextAreaElement;
 
 export interface OSTargetObject {
   target: OSTargetElement;
-  host: HTMLElement;
-  padding: HTMLElement;
-  viewport: HTMLElement;
-  content: HTMLElement;
+  host?: HTMLElement;
+  padding?: HTMLElement | null;
+  viewport?: HTMLElement;
+  content?: HTMLElement | null;
 }
 
-export type OSTarget = OSTargetElement | OSTargetObject;
+export type InternalVersionOf<T> = {
+  [K in keyof T as `_${Uncapitalize<string & K>}`]: T[K];
+};
 
-export type CSSDirection = 'ltr' | 'rtl';
+export type OSTarget = OSTargetElement | OSTargetObject;
 
 /*
 export namespace OverlayScrollbars {

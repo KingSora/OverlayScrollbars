@@ -16,7 +16,7 @@ import {
   scrollSize,
   offsetSize,
 } from 'support';
-import { OSTargetObject } from 'typings';
+import { PreparedOSTargetObject } from 'setups/structureSetup';
 import { createLifecycleBase, Lifecycle } from 'lifecycles/lifecycleBase';
 import { getEnvironment, Environment } from 'environment';
 
@@ -42,10 +42,10 @@ const cssMarginEnd = cssProperty('margin-inline-end');
 const cssBorderEnd = cssProperty('border-inline-end');
 
 export const createStructureLifecycle = (
-  target: OSTargetObject,
+  target: PreparedOSTargetObject,
   initialOptions?: StructureLifecycleOptions
 ): Lifecycle<StructureLifecycleOptions> => {
-  const { host, padding: paddingElm, viewport, content } = target;
+  const { _host, _padding, _viewport, _content } = target;
   const destructFns: (() => any)[] = [];
   const env: Environment = getEnvironment();
   const scrollbarsOverlaid = env._nativeScrollbarIsOverlaid;
@@ -54,7 +54,7 @@ export const createStructureLifecycle = (
   // direction change is only needed to update scrollbar hiding, therefore its not needed if css can do it, scrollbars are invisible or overlaid on y axis
   const directionObserverObsolete = (cssMarginEnd && cssBorderEnd) || supportsScrollbarStyling || scrollbarsOverlaid.y;
 
-  const updatePaddingCache = createCache(() => topRightBottomLeft(host, 'padding'), { _equal: equalTRBL });
+  const updatePaddingCache = createCache(() => topRightBottomLeft(_host, 'padding'), { _equal: equalTRBL });
   const updateOverflowAmountCache = createCache<XY<number>, { _contentScrollSize: WH<number>; _viewportSize: WH<number> }>(
     (ctx) => ({
       x: Math.max(0, Math.round((ctx!._contentScrollSize.w - ctx!._viewportSize.w) * 100) / 100),
@@ -82,7 +82,7 @@ export const createStructureLifecycle = (
         paddingStyle.l = -padding!.l;
       }
 
-      style(paddingElm, {
+      style(_padding, {
         top: paddingStyle.t,
         left: paddingStyle.l,
         'margin-right': paddingStyle.r,
@@ -91,9 +91,9 @@ export const createStructureLifecycle = (
       });
     }
 
-    const viewportOffsetSize = offsetSize(paddingElm);
-    const contentClientSize = offsetSize(content);
-    const contentScrollSize = scrollSize(content);
+    const viewportOffsetSize = offsetSize(_padding);
+    const contentClientSize = offsetSize(_content);
+    const contentScrollSize = scrollSize(_content);
     const overflowAmuntCache = updateOverflowAmountCache(force, {
       _contentScrollSize: contentScrollSize,
       _viewportSize: {
@@ -151,7 +151,7 @@ export const createStructureLifecycle = (
   const onTrinsicChanged = (widthIntrinsic: boolean, heightIntrinsicCache: Cache<boolean>) => {
     const { _changed, _value } = heightIntrinsicCache;
     if (_changed) {
-      style(content, { height: _value ? 'auto' : '100%' });
+      style(_content, { height: _value ? 'auto' : '100%' });
     }
   };
 

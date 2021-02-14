@@ -1,54 +1,21 @@
-import { OSTarget, OSTargetObject, CSSDirection } from 'typings';
+import { OSTarget, OSTargetObject } from 'typings';
 import { createStructureLifecycle } from 'lifecycles/structureLifecycle';
-import { Cache, appendChildren, addClass, contents, is, isHTMLElement, createDiv, each, push } from 'support';
+import { Cache, each, push } from 'support';
 import { createSizeObserver } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver } from 'observers/domObserver';
+import { createStructureSetup, StructureSetup } from 'setups/structureSetup';
 import { Lifecycle } from 'lifecycles/lifecycleBase';
-import { classNameHost, classNamePadding, classNameViewport, classNameContent } from 'classnames';
 
-const normalizeTarget = (target: OSTarget): OSTargetObject => {
-  if (isHTMLElement(target)) {
-    const isTextarea = is(target, 'textarea');
-    const host = (isTextarea ? createDiv() : target) as HTMLElement;
-    const padding = createDiv(classNamePadding);
-    const viewport = createDiv(classNameViewport);
-    const content = createDiv(classNameContent);
-
-    appendChildren(padding, viewport);
-    appendChildren(viewport, content);
-    appendChildren(content, contents(target));
-    appendChildren(target, padding);
-    addClass(host, classNameHost);
-
-    return {
-      target,
-      host,
-      padding,
-      viewport,
-      content,
-    };
-  }
-
-  const { host, padding, viewport, content } = target;
-
-  addClass(host, classNameHost);
-  addClass(padding, classNamePadding);
-  addClass(viewport, classNameViewport);
-  addClass(content, classNameContent);
-
-  return target;
-};
-
-const OverlayScrollbars = (target: OSTarget, options?: any, extensions?: any): void => {
-  const osTarget: OSTargetObject = normalizeTarget(target);
+const OverlayScrollbars = (target: OSTarget | OSTargetObject, options?: any, extensions?: any): void => {
+  const structureSetup: StructureSetup = createStructureSetup(target);
   const lifecycles: Lifecycle<any>[] = [];
-  const { host, content } = osTarget;
+  const { _host, _viewport, _content } = structureSetup._targetObj;
 
-  push(lifecycles, createStructureLifecycle(osTarget));
+  push(lifecycles, createStructureLifecycle(structureSetup._targetObj));
 
   // eslint-disable-next-line
-  const onSizeChanged = (directionCache?: Cache<CSSDirection>) => {
+  const onSizeChanged = (directionCache?: Cache<boolean>) => {
     if (directionCache) {
       each(lifecycles, (lifecycle) => {
         lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(directionCache);
@@ -65,13 +32,13 @@ const OverlayScrollbars = (target: OSTarget, options?: any, extensions?: any): v
     });
   };
 
-  createSizeObserver(host, onSizeChanged, { _appear: true, _direction: true });
-  createTrinsicObserver(host, onTrinsicChanged);
-  createDOMObserver(host, () => {
+  createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: true });
+  createTrinsicObserver(_host, onTrinsicChanged);
+  createDOMObserver(_host, () => {
     return null;
   });
   createDOMObserver(
-    content,
+    _content || _viewport,
     () => {
       return null;
     },

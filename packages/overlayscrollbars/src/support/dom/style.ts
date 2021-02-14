@@ -36,7 +36,7 @@ const adaptCSSVal = (prop: string, val: string | number): string | number => (!c
 const getCSSVal = (elm: HTMLElement, computedStyle: CSSStyleDeclaration, prop: string): string =>
   /* istanbul ignore next */
   computedStyle != null ? computedStyle.getPropertyValue(prop) : elm.style[prop];
-const setCSSVal = (elm: HTMLElement | null, prop: string, val: string | number): void => {
+const setCSSVal = (elm: HTMLElement | null | undefined, prop: string, val: string | number): void => {
   try {
     if (elm && elm.style[prop] !== undefined) {
       elm.style[prop] = adaptCSSVal(prop, val);
@@ -49,10 +49,10 @@ const setCSSVal = (elm: HTMLElement | null, prop: string, val: string | number):
  * @param elm The element to which the styles shall be applied to / be read from.
  * @param styles The styles which shall be set or read.
  */
-export function style(elm: HTMLElement | null, styles: CssStyles): void;
-export function style(elm: HTMLElement | null, styles: string): string;
-export function style(elm: HTMLElement | null, styles: Array<string> | string): { [key: string]: string };
-export function style(elm: HTMLElement | null, styles: CssStyles | Array<string> | string): { [key: string]: string } | string | void {
+export function style(elm: HTMLElement | null | undefined, styles: CssStyles): void;
+export function style(elm: HTMLElement | null | undefined, styles: string): string;
+export function style(elm: HTMLElement | null | undefined, styles: Array<string> | string): { [key: string]: string };
+export function style(elm: HTMLElement | null | undefined, styles: CssStyles | Array<string> | string): { [key: string]: string } | string | void {
   const getSingleStyle = isString(styles);
   const getStyles = isArray(styles) || getSingleStyle;
 
@@ -84,7 +84,7 @@ export const hide = (elm: HTMLElement | null): void => {
  * Shows the passed element (display: block).
  * @param elm The element which shall be shown.
  */
-export const show = (elm: HTMLElement | null): void => {
+export const show = (elm: HTMLElement | null | undefined): void => {
   style(elm, { display: 'block' });
 };
 
@@ -93,7 +93,7 @@ export const show = (elm: HTMLElement | null): void => {
  * @param elm
  * @param property
  */
-export const topRightBottomLeft = (elm: HTMLElement | null, property?: string): TRBL => {
+export const topRightBottomLeft = (elm: HTMLElement | null | undefined, property?: string): TRBL => {
   const finalProp = property || '';
   const top = `${finalProp}-top`;
   const right = `${finalProp}-right`;

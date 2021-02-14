@@ -3,7 +3,11 @@ import { each } from 'support/utils/array';
 import { keys } from 'support/utils/object';
 
 const rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
-const classListAction = (elm: Element | null, className: string, action: (elmClassList: DOMTokenList, clazz: string) => boolean | void): boolean => {
+const classListAction = (
+  elm: Element | null | undefined,
+  className: string,
+  action: (elmClassList: DOMTokenList, clazz: string) => boolean | void
+): boolean => {
   let clazz: string;
   let i = 0;
   let result = false;
@@ -23,7 +27,7 @@ const classListAction = (elm: Element | null, className: string, action: (elmCla
  * @param elm The element.
  * @param className The class name(s).
  */
-export const hasClass = (elm: Element | null, className: string): boolean =>
+export const hasClass = (elm: Element | null | undefined, className: string): boolean =>
   classListAction(elm, className, (classList, clazz) => classList.contains(clazz));
 
 /**
@@ -31,7 +35,7 @@ export const hasClass = (elm: Element | null, className: string): boolean =>
  * @param elm The element.
  * @param className The class name(s) which shall be added. (separated by spaces)
  */
-export const addClass = (elm: Element | null, className: string): void => {
+export const addClass = (elm: Element | null | undefined, className: string): void => {
   classListAction(elm, className, (classList, clazz) => classList.add(clazz));
 };
 
@@ -40,7 +44,7 @@ export const addClass = (elm: Element | null, className: string): void => {
  * @param elm The element.
  * @param className The class name(s) which shall be removed. (separated by spaces)
  */
-export const removeClass = (elm: Element | null, className: string): void => {
+export const removeClass = (elm: Element | null | undefined, className: string): void => {
   classListAction(elm, className, (classList, clazz) => classList.remove(clazz));
 };
 

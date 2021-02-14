@@ -8,7 +8,7 @@ import {
   hasOwnProperty,
   isEmptyObject,
 } from 'support';
-import { CSSDirection, PlainObject } from 'typings';
+import { PlainObject } from 'typings';
 
 interface LifecycleBaseUpdateHints<O> {
   _force?: boolean;
@@ -23,7 +23,7 @@ export interface LifecycleBase<O extends PlainObject> {
 export interface Lifecycle<T extends PlainObject> extends LifecycleBase<T> {
   _destruct(): void;
   _onSizeChanged?(): void;
-  _onDirectionChanged?(directionCache: Cache<CSSDirection>): void;
+  _onDirectionChanged?(directionCache: Cache<boolean>): void;
   _onTrinsicChanged?(widthIntrinsic: boolean, heightIntrinsicCache: Cache<boolean>): void;
 }
 

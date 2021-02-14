@@ -21,7 +21,7 @@ export const windowSize = (): WH => ({
  * Returns the scroll- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the scroll- width and height shall be returned.
  */
-export const offsetSize = (elm: HTMLElement | null): WH =>
+export const offsetSize = (elm: HTMLElement | null | undefined): WH =>
   elm
     ? {
         w: elm.offsetWidth,
@@ -33,7 +33,7 @@ export const offsetSize = (elm: HTMLElement | null): WH =>
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const clientSize = (elm: HTMLElement | null): WH =>
+export const clientSize = (elm: HTMLElement | null | undefined): WH =>
   elm
     ? {
         w: elm.clientWidth,
@@ -45,7 +45,7 @@ export const clientSize = (elm: HTMLElement | null): WH =>
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const scrollSize = (elm: HTMLElement | null): WH =>
+export const scrollSize = (elm: HTMLElement | null | undefined): WH =>
   elm
     ? {
         w: elm.scrollWidth,
@@ -63,4 +63,4 @@ export const getBoundingClientRect = (elm: HTMLElement): DOMRect => elm.getBound
  * Determines whether the passed element has any dimensions.
  * @param elm The element.
  */
-export const hasDimensions = (elm: HTMLElement | null): boolean => (elm ? elementHasDimensions(elm as HTMLElement) : false);
+export const hasDimensions = (elm: HTMLElement | null | undefined): boolean => (elm ? elementHasDimensions(elm as HTMLElement) : false);
