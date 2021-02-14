@@ -1450,7 +1450,7 @@ const createStructureSetup = (target) => {
   }
 
   let { _target, _padding, _viewport, _content } = osTargetObj;
-  let destroyFns = [];
+  const destroyFns = [];
   const isTextarea = is(_target, 'textarea');
   const isBody = !isTextarea && is(_target, 'body');
 
@@ -1458,9 +1458,6 @@ const createStructureSetup = (target) => {
 
   const getTargetContents = (contentSlot) => (isTextarea ? _target : contents(contentSlot));
 
-  const ownerDocument = _target.ownerDocument;
-  const bodyElm = ownerDocument.body;
-  const wnd = ownerDocument.defaultView;
   const isTextareaHostGenerated = isTextarea && _host !== osTargetObj._host;
 
   if (isTextareaHostGenerated) {
@@ -1517,6 +1514,9 @@ const createStructureSetup = (target) => {
   addClass(_padding, classNamePadding);
   addClass(_viewport, classNameViewport);
   addClass(_content, classNameContent);
+  const ownerDocument = _target.ownerDocument;
+  const bodyElm = ownerDocument.body;
+  const wnd = ownerDocument.defaultView;
   const ctx = {
     _windowElm: wnd,
     _documentElm: ownerDocument,

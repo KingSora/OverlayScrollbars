@@ -11,7 +11,7 @@
     "suppressImplicitAnyIndexErrors": true,
     "module": "ESNext",
     "moduleResolution": "node",
-    "removeComments": true
+    "removeComments": false
   },
   "exclude": ["node_modules", "**/node_modules/*"]
 }

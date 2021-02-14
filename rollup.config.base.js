@@ -228,6 +228,7 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
           ...(esm ? esmBabelConfig : legacyBabelConfig),
           babelHelpers: 'runtime',
           extensions: resolve.extensions,
+          shouldPrintComment: () => false,
           caller: {
             name: 'babel-rollup-build',
           },
@@ -259,7 +260,7 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
                 }),
               ],
             }
-          : []
+          : {}
       ),
       external: [...Object.keys(devDependencies), ...Object.keys(peerDependencies), ...((Array.isArray(external) && external) || [])],
       plugins: pipeline.reduce((arr, item) => {

@@ -1619,9 +1619,6 @@
       return isTextarea ? _target : contents(contentSlot);
     };
 
-    var ownerDocument = _target.ownerDocument;
-    var bodyElm = ownerDocument.body;
-    var wnd = ownerDocument.defaultView;
     var isTextareaHostGenerated = isTextarea && _host !== osTargetObj._host;
 
     if (isTextareaHostGenerated) {
@@ -1678,6 +1675,9 @@
     addClass(_padding, classNamePadding);
     addClass(_viewport, classNameViewport);
     addClass(_content, classNameContent);
+    var ownerDocument = _target.ownerDocument;
+    var bodyElm = ownerDocument.body;
+    var wnd = ownerDocument.defaultView;
     var ctx = {
       _windowElm: wnd,
       _documentElm: ownerDocument,

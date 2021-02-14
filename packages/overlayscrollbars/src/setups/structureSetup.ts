@@ -67,15 +67,11 @@ export const createStructureSetup = (target: OSTarget | OSTargetObject): Structu
   }
 
   let { _target, _padding, _viewport, _content } = osTargetObj;
-  let destroyFns: (() => any)[] = [];
+  const destroyFns: (() => any)[] = [];
   const isTextarea = is(_target, 'textarea');
   const isBody = !isTextarea && is(_target, 'body');
   const _host = (isTextarea ? osTargetObj._host || createDiv() : _target) as HTMLElement;
   const getTargetContents = (contentSlot: HTMLElement) => (isTextarea ? (_target as HTMLTextAreaElement) : contents(contentSlot as HTMLElement));
-
-  const ownerDocument: HTMLDocument = _target.ownerDocument;
-  const bodyElm = ownerDocument.body as HTMLBodyElement;
-  const wnd = ownerDocument.defaultView as Window;
   const isTextareaHostGenerated = isTextarea && _host !== osTargetObj._host;
 
   // only insert host for textarea after target if it was generated
@@ -137,6 +133,9 @@ export const createStructureSetup = (target: OSTarget | OSTargetObject): Structu
   addClass(_viewport, classNameViewport);
   addClass(_content, classNameContent);
 
+  const ownerDocument: HTMLDocument = _target.ownerDocument;
+  const bodyElm = ownerDocument.body as HTMLBodyElement;
+  const wnd = ownerDocument.defaultView as Window;
   const ctx: OSTargetContext = {
     _windowElm: wnd,
     _documentElm: ownerDocument,
