@@ -20,8 +20,10 @@ import {
   rAF,
   ResizeObserverConstructor,
   isArray,
+  indexOf,
+  each,
+  isBoolean,
 } from 'support';
-import { CSSDirection } from 'typings';
 import { getEnvironment } from 'environment';
 import {
   classNameSizeObserver,
@@ -35,8 +37,19 @@ import {
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
-const getDirection = (elm: HTMLElement): CSSDirection => style(elm, 'direction') as CSSDirection;
-const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height > 0 || rect.width > 0);
+const directionIsRTLMap = {
+  direction: ['rtl'],
+  // 'writing-mode': ['sideways-rl', 'tb', 'tb-rl', 'vertical-rl'],
+};
+const directionIsRTL = (elm: HTMLElement): boolean => {
+  let isRTL = false;
+  const styles = style(elm, ['direction' /* , 'writing-mode' */]);
+  each(styles, (value, key) => {
+    isRTL = isRTL || indexOf(directionIsRTLMap[key], value) > -1;
+  });
+  return isRTL;
+};
+const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height || rect.width);
 
 interface SizeObserverEntry {
   contentRect: DOMRectReadOnly;
@@ -44,7 +57,7 @@ interface SizeObserverEntry {
 export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };
 export const createSizeObserver = (
   target: HTMLElement,
-  onSizeChangedCallback: (directionCache?: Cache<CSSDirection>) => any,
+  onSizeChangedCallback: (directionIsRTLCache?: Cache<boolean>) => any,
   options?: SizeObserverOptions
 ): (() => void) => {
   const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } = options || {};
@@ -61,8 +74,8 @@ export const createSizeObserver = (
         (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
       ),
   });
-  const onSizeChangedCallbackProxy = (sizeChangedContext?: Cache<CSSDirection> | SizeObserverEntry[] | Event) => {
-    const directionCacheValue = sizeChangedContext && (sizeChangedContext as Cache<CSSDirection>)._value;
+  const onSizeChangedCallbackProxy = (sizeChangedContext?: Cache<boolean> | SizeObserverEntry[] | Event) => {
+    const hasDirectionCache = sizeChangedContext && isBoolean((sizeChangedContext as Cache<boolean>)._value);
 
     let skip = false;
     let doDirectionScroll = true; // always true if sizeChangedContext is Event (appear callback or RO. Polyfill)
@@ -74,18 +87,18 @@ export const createSizeObserver = (
       doDirectionScroll = !skip && _changed; // direction scroll when not skipping and changing from display: none to block, false otherwise
     }
     // else if its triggered with DirectionCache
-    else if (directionCacheValue) {
-      doDirectionScroll = (sizeChangedContext as Cache<CSSDirection>)._changed; // direction scroll when DirectionCache changed, false toherwise
+    else if (hasDirectionCache) {
+      doDirectionScroll = (sizeChangedContext as Cache<boolean>)._changed; // direction scroll when DirectionCache changed, false toherwise
     }
 
-    if (observeDirectionChange && doDirectionScroll) {
-      const rtl = (directionCacheValue || getDirection(sizeObserver)) === 'rtl';
+    if (observeDirectionChange) {
+      const rtl = hasDirectionCache ? (sizeChangedContext as Cache<boolean>)._value : directionIsRTL(sizeObserver);
       scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
       scrollTop(sizeObserver, scrollAmount);
     }
 
     if (!skip) {
-      onSizeChangedCallback(directionCacheValue ? (sizeChangedContext as Cache<CSSDirection>) : undefined);
+      onSizeChangedCallback(hasDirectionCache ? (sizeChangedContext as Cache<boolean>) : undefined);
     }
   };
   const offListeners: (() => void)[] = [];
@@ -156,19 +169,19 @@ export const createSizeObserver = (
   }
 
   if (observeDirectionChange) {
-    const updateDirectionCache = createCache(() => getDirection(sizeObserver));
+    const updateDirectionIsRTLCache = createCache(() => directionIsRTL(sizeObserver));
     push(
       offListeners,
       on(sizeObserver, scrollEventName, (event: Event) => {
-        const directionCache = updateDirectionCache();
-        const { _value, _changed } = directionCache;
+        const directionIsRTLCache = updateDirectionIsRTLCache();
+        const { _value, _changed } = directionIsRTLCache;
         if (_changed) {
-          if (_value === 'rtl') {
+          if (_value) {
             style(listenerElement, { left: 'auto', right: 0 });
           } else {
             style(listenerElement, { left: 0, right: 'auto' });
           }
-          onSizeChangedCallbackProxy(directionCache);
+          onSizeChangedCallbackProxy(directionIsRTLCache);
         }
 
         preventDefault(event);

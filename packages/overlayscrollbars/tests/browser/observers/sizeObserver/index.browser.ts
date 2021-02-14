@@ -1,6 +1,7 @@
 import 'overlayscrollbars.scss';
 import './index.scss';
 import should from 'should';
+// import { generateClassChangeSelectCallback, iterateSelect, setTestResult, waitForOrFailTest, timeout } from '@/testing-browser';
 import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { timeout } from '@/testing-browser/timeout';
@@ -162,8 +163,8 @@ startBtn?.addEventListener('click', start);
 
 createSizeObserver(
   targetElm as HTMLElement,
-  (directionCache?: any) => {
-    if (directionCache) {
+  (directionIsRTLCache?: any) => {
+    if (directionIsRTLCache) {
       directionIterations += 1;
     } else {
       sizeIterations += 1;

@@ -16,6 +16,7 @@ $scrollbar-cushion: 100px;
 .os-size-observer-listener,
 .os-size-observer-listener-item,
 .os-size-observer-listener-item-final {
+  writing-mode: horizontal-tb;
   position: absolute;
   left: 0;
   top: 0;

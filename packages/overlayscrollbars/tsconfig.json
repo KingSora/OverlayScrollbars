@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./src/",
     "paths": {
-      "@/testing-browser*": ["../../testing-browser/src/*"]
+      "@/testing-browser*": ["../../testing-browser/src*"]
     }
   }
 }

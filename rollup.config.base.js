@@ -202,7 +202,7 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
         mainFields: ['browser', 'umd:main', 'module', 'main'],
         extensions: resolve.extensions,
         rootDir: srcPath,
-        moduleDirectories: [...resolve.directories.map((dir) => path.resolve(projectPath, dir)), path.resolve(__dirname, 'node_modules')],
+        moduleDirectories: resolve.directories,
       }),
       inject: rollupInject({
         ...(typeof inject === 'object' ? inject : {}),
