@@ -1,6 +1,7 @@
 const { nodeResolve: rollupResolve } = require('@rollup/plugin-node-resolve');
 const { babel: rollupBabelInputPlugin, createBabelInputPluginFactory } = require('@rollup/plugin-babel');
 const { terser: rollupTerser } = require('rollup-plugin-terser');
+const { sizeSnapshot: rollupSizeSnapshot } = require('rollup-plugin-size-snapshot');
 const rollupInject = require('@rollup/plugin-inject');
 const rollupCommonjs = require('@rollup/plugin-commonjs');
 const rollupTypescript = require('rollup-plugin-typescript2');
@@ -8,9 +9,11 @@ const rollupPrettier = require('rollup-plugin-prettier');
 const del = require('del');
 const fs = require('fs');
 const path = require('path');
+const chalk = require('chalk');
 const resolve = require('./resolve.config.json');
 
 const isTestEnv = process.env.NODE_ENV === 'test';
+const sizeSnapshotFilename = 'rollup.sizeSnapshot.json';
 
 const rollupConfigDefaults = {
   input: './src/index',
@@ -267,7 +270,7 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
         const plugin = typeof item === 'string' ? pipelineMap[item] : item;
         arr.push(...(Array.isArray(plugin) ? plugin : [plugin]));
         return arr;
-      }, []),
+      }, [].concat(isTestEnv ? [] : [rollupSizeSnapshot({ printInfo: false, snapshotPath: sizeSnapshotFilename })])),
     };
   };
 
@@ -280,11 +283,22 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
   const legacy = genConfig({ esm: false, typeDeclaration: true });
   const esm = esmBuild ? genConfig({ esm: true, typeDeclaration: false }) : null;
 
+  let outputs = 0;
   const builds = [legacy, esm]
     .filter((build) => build !== null)
     .map((build, index, buildsArr) => {
+      if (index === 0) {
+        buildsArr.forEach((build) => {
+          const { output } = build;
+          outputs += Array.isArray(output) ? output.length : 1;
+        });
+      }
+      return build;
+    })
+    .map((build, index, buildsArr) => {
       const isFirst = index === 0;
       const isLast = index === buildsArr.length - 1;
+      const isLastFile = () => outputs === 0;
 
       if (isFirst) {
         const deleteGeneratedDirs = () => {
@@ -302,6 +316,7 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
           },
         });
       }
+
       if (isLast) {
         const deleteCacheDirs = () => {
           const cacheDirs = cache.map((dir) => path.resolve(projectPath, dir));
@@ -313,13 +328,66 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
         build.plugins.push({
           name: 'deleteCacheDirs',
           writeBundle() {
-            if (!this.meta.watchMode) {
+            if (!this.meta.watchMode && isLastFile()) {
               deleteCacheDirs();
             }
           },
           closeWatcher: deleteCacheDirs,
         });
+
+        if (!isTestEnv && !silent) {
+          const snapshotPath = resolvePath(projectPath, sizeSnapshotFilename);
+          if (fs.existsSync(snapshotPath)) {
+            const sizeSnapshotBefore = require(snapshotPath);
+
+            build.plugins.push({
+              name: 'compareSizeSnapshots',
+              writeBundle() {
+                if (isLastFile()) {
+                  delete require.cache[snapshotPath];
+                  const sizeSnapshotAfter = require(snapshotPath);
+                  const { yellow, white, green, red, blackBright } = chalk;
+
+                  const printColoredPercent = (value) => {
+                    const fixed = `${value.toFixed(2)}%`;
+                    if (value === 0) {
+                      return white(fixed);
+                    }
+                    if (value > 0) {
+                      return red(`+${fixed}`);
+                    }
+                    if (value < 0) {
+                      return green(fixed);
+                    }
+                  };
+
+                  Object.keys(sizeSnapshotAfter).forEach((key) => {
+                    const { bundled, gzipped } = sizeSnapshotAfter[key];
+                    const { bundled: bundledBefore = bundled / 2, gzipped: gzippedBefore = gzipped / 2 } = sizeSnapshotBefore[key] || {};
+
+                    const bundledPercent = printColoredPercent(((bundled - bundledBefore) / bundledBefore) * 100);
+                    const gzippedPercent = printColoredPercent(((gzipped - gzippedBefore) / gzippedBefore) * 100);
+
+                    setTimeout(() => {
+                      console.log('');
+                      console.log(yellow(key));
+                      console.log(`bundled: ${bundledPercent}`, blackBright(`(previous: ${bundledBefore} | new: ${bundled})`));
+                      console.log(`gzipped: ${gzippedPercent}`, blackBright(`(previous: ${gzippedBefore} | new: ${gzipped})`));
+                    }, 1);
+                  });
+                }
+              },
+            });
+          }
+        }
       }
+
+      build.plugins.unshift({
+        name: 'decreaseOutputs',
+        writeBundle() {
+          outputs -= 1;
+        },
+      });
 
       return build;
     });

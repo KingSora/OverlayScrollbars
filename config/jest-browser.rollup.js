@@ -2,6 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 const del = require('del');
+const chalk = require('chalk');
 const readline = require('readline');
 const rollup = require('rollup');
 const rollupPluginHtml = require('@rollup/plugin-html');
@@ -168,7 +169,7 @@ const setupRollupTest = async (rootDir, testPath, cacheDir, watch) => {
           const getHtmlFileContent = () => (fs.existsSync(htmlFilePath) ? fs.readFileSync(htmlFilePath, 'utf8') : null);
           const logBuilding = (re) => {
             const text = re ? ' RE-BUILDING ' : ' BUILDING ';
-            console.log(`\x1b[1m\x1b[44m${text}\x1b[0m \x1b[90m${testPath}\x1b[0m`); // eslint-disable-line
+            console.log(`${chalk.bgBlue.bold.whiteBright(text)} ${chalk.blackBright(testPath)}`); // eslint-disable-line
           };
           const logBundleFinish = (duration) => {
             if (duration) {
