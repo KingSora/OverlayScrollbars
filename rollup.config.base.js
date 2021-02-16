@@ -1,7 +1,6 @@
 const { nodeResolve: rollupResolve } = require('@rollup/plugin-node-resolve');
 const { babel: rollupBabelInputPlugin, createBabelInputPluginFactory } = require('@rollup/plugin-babel');
 const { terser: rollupTerser } = require('rollup-plugin-terser');
-const { sizeSnapshot: rollupSizeSnapshot } = require('rollup-plugin-size-snapshot');
 const rollupInject = require('@rollup/plugin-inject');
 const rollupCommonjs = require('@rollup/plugin-commonjs');
 const rollupTypescript = require('rollup-plugin-typescript2');
@@ -90,6 +89,22 @@ const rollupBabelPlugin = isTestEnv
       };
     })
   : rollupBabelInputPlugin;
+
+const readFilesStats = (dir, extensions = ['.js', '.css']) => {
+  const result = {};
+  if (fs.existsSync(dir)) {
+    const distFiles = fs.readdirSync(dir);
+    distFiles.forEach((file) => {
+      if (extensions.includes(path.extname(file))) {
+        const stats = fs.lstatSync(path.resolve(dir, file));
+        if (stats.isFile()) {
+          result[path.basename(file)] = stats.size;
+        }
+      }
+    });
+  }
+  return result;
+};
 
 const normalizePath = (pathName) => (pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName);
 
@@ -270,7 +285,7 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
         const plugin = typeof item === 'string' ? pipelineMap[item] : item;
         arr.push(...(Array.isArray(plugin) ? plugin : [plugin]));
         return arr;
-      }, [].concat(isTestEnv ? [] : [rollupSizeSnapshot({ printInfo: false, snapshotPath: sizeSnapshotFilename })])),
+      }, []),
     };
   };
 
@@ -284,10 +299,12 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
   const esm = esmBuild ? genConfig({ esm: true, typeDeclaration: false }) : null;
 
   let outputs = 0;
+  let existingDistFilesStats;
   const builds = [legacy, esm]
     .filter((build) => build !== null)
     .map((build, index, buildsArr) => {
       if (index === 0) {
+        existingDistFilesStats = { ...readFilesStats(distPath) };
         buildsArr.forEach((build) => {
           const { output } = build;
           outputs += Array.isArray(output) ? output.length : 1;
@@ -336,18 +353,13 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
         });
 
         if (!isTestEnv && !silent) {
-          const snapshotPath = resolvePath(projectPath, sizeSnapshotFilename);
-          if (fs.existsSync(snapshotPath)) {
-            const sizeSnapshotBefore = require(snapshotPath);
-
+          if (existingDistFilesStats) {
             build.plugins.push({
-              name: 'compareSizeSnapshots',
+              name: 'compareDistSizes',
               writeBundle() {
                 if (isLastFile()) {
-                  delete require.cache[snapshotPath];
-                  const sizeSnapshotAfter = require(snapshotPath);
+                  const newDistFilesStats = readFilesStats(distPath);
                   const { yellow, white, green, red, blackBright } = chalk;
-
                   const printColoredPercent = (value) => {
                     const fixed = `${value.toFixed(2)}%`;
                     if (value === 0) {
@@ -361,18 +373,15 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
                     }
                   };
 
-                  Object.keys(sizeSnapshotAfter).forEach((key) => {
-                    const { bundled, gzipped } = sizeSnapshotAfter[key];
-                    const { bundled: bundledBefore = bundled / 2, gzipped: gzippedBefore = gzipped / 2 } = sizeSnapshotBefore[key] || {};
-
-                    const bundledPercent = printColoredPercent(((bundled - bundledBefore) / bundledBefore) * 100);
-                    const gzippedPercent = printColoredPercent(((gzipped - gzippedBefore) / gzippedBefore) * 100);
+                  Object.keys(existingDistFilesStats).forEach((key) => {
+                    const newSize = newDistFilesStats[key];
+                    const oldSize = existingDistFilesStats[key] || 0;
+                    const percent = printColoredPercent(oldSize === 0 ? 100 : ((newSize - oldSize) / oldSize) * 100);
 
                     setTimeout(() => {
                       console.log('');
                       console.log(yellow(key));
-                      console.log(`bundled: ${bundledPercent}`, blackBright(`(previous: ${bundledBefore} | new: ${bundled})`));
-                      console.log(`gzipped: ${gzippedPercent}`, blackBright(`(previous: ${gzippedBefore} | new: ${gzipped})`));
+                      console.log(`size change: ${percent}`, blackBright(`(previous: ${oldSize} | new: ${newSize})`));
                     }, 1);
                   });
                 }
