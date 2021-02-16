@@ -12,7 +12,6 @@ const chalk = require('chalk');
 const resolve = require('./resolve.config.json');
 
 const isTestEnv = process.env.NODE_ENV === 'test';
-const sizeSnapshotFilename = 'rollup.sizeSnapshot.json';
 
 const rollupConfigDefaults = {
   input: './src/index',
@@ -57,34 +56,28 @@ const esmBabelConfig = {
   ],
 };
 
-// workaround for https://github.com/rollup/plugins/issues/774
-const rollupBabelIstanbulSourceMaps = {};
-const rollupBabelIstanbulGenerateKey = (filename) => (filename ? filename.replace(/[\\/]+/g, '') : '');
 const rollupBabelPlugin = isTestEnv
   ? createBabelInputPluginFactory(() => {
       return {
         config(cfg) {
           const { options } = cfg;
-          const { filename, plugins } = options;
-          const istanbulSourceMap = rollupBabelIstanbulSourceMaps[rollupBabelIstanbulGenerateKey(filename)];
+          const { plugins } = options;
 
-          if (istanbulSourceMap) {
-            return {
-              ...options,
-              plugins: [
-                ...(plugins || []),
-                [
-                  'babel-plugin-istanbul',
-                  {
-                    useInlineSourceMaps: false,
-                    inputSourceMap: istanbulSourceMap,
-                  },
+          return this.meta.watchMode
+            ? options
+            : {
+                ...options,
+                plugins: [
+                  ...(plugins || []),
+                  [
+                    'babel-plugin-istanbul',
+                    {
+                      useInlineSourceMaps: false,
+                      inputSourceMap: { ...this.getCombinedSourcemap() },
+                    },
+                  ],
                 ],
-              ],
-            };
-          } else {
-            return options;
-          }
+              };
         },
       };
     })
@@ -229,29 +222,15 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
         sourceMap: sourcemap,
         extensions: resolve.extensions,
       }),
-      babel: [
-        isTestEnv
-          ? {
-              name: 'collect-bable-plugin-istanbul-input-source-maps',
-              transform(code, filename) {
-                rollupBabelIstanbulSourceMaps[rollupBabelIstanbulGenerateKey(filename)] = { ...this.getCombinedSourcemap() };
-                return {
-                  code,
-                  map: null,
-                };
-              },
-            }
-          : {},
-        rollupBabelPlugin({
-          ...(esm ? esmBabelConfig : legacyBabelConfig),
-          babelHelpers: 'runtime',
-          extensions: resolve.extensions,
-          shouldPrintComment: () => false,
-          caller: {
-            name: 'babel-rollup-build',
-          },
-        }),
-      ],
+      babel: rollupBabelPlugin({
+        ...(esm ? esmBabelConfig : legacyBabelConfig),
+        babelHelpers: 'runtime',
+        extensions: resolve.extensions,
+        shouldPrintComment: () => false,
+        caller: {
+          name: 'babel-rollup-build',
+        },
+      }),
     };
 
     const output = genOutputConfig(esm);
@@ -259,26 +238,28 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
       input: inputPath,
       output: [output].concat(
         minVersions
-          ? {
-              ...output,
-              compact: true,
-              file: output.file.replace('.js', '.min.js'),
-              sourcemap: false,
-              plugins: [
-                ...(output.plugins || []),
-                rollupTerser({
-                  ecma: 8,
-                  safari10: true,
-                  mangle: {
+          ? [
+              {
+                ...output,
+                compact: true,
+                file: output.file.replace('.js', '.min.js'),
+                sourcemap: false,
+                plugins: [
+                  ...(output.plugins || []),
+                  rollupTerser({
+                    ecma: 8,
                     safari10: true,
-                    properties: {
-                      regex: /^_/,
+                    mangle: {
+                      safari10: true,
+                      properties: {
+                        regex: /^_/,
+                      },
                     },
-                  },
-                }),
-              ],
-            }
-          : {}
+                  }),
+                ],
+              },
+            ]
+          : []
       ),
       external: [...Object.keys(devDependencies), ...Object.keys(peerDependencies), ...((Array.isArray(external) && external) || [])],
       plugins: pipeline.reduce((arr, item) => {
@@ -304,7 +285,7 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
     .filter((build) => build !== null)
     .map((build, index, buildsArr) => {
       if (index === 0) {
-        existingDistFilesStats = { ...readFilesStats(distPath) };
+        existingDistFilesStats = readFilesStats(distPath);
         buildsArr.forEach((build) => {
           const { output } = build;
           outputs += Array.isArray(output) ? output.length : 1;
