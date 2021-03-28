@@ -149,7 +149,7 @@ export const createDOMObserver = (
       if (isConnected) {
         callback([], false, true);
       }
-    }, 80)
+    }, 84)
   );
 
   // MutationObserver

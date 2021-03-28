@@ -6,6 +6,7 @@ export const classNameHost = 'os-host';
 export const classNamePadding = 'os-padding';
 export const classNameViewport = 'os-viewport';
 export const classNameContent = 'os-content';
+export const classNameContentArrange = `${classNameContent}-arrange`;
 export const classNameViewportScrollbarStyling = `${classNameViewport}-scrollbar-styled`;
 
 export const classNameSizeObserver = 'os-size-observer';

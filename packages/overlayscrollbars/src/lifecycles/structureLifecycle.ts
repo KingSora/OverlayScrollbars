@@ -1,5 +1,5 @@
 import {
-  Cache,
+  CacheValues,
   cssProperty,
   runEach,
   createCache,
@@ -9,43 +9,19 @@ import {
   XY,
   equalTRBL,
   equalXY,
-  optionsTemplateTypes as oTypes,
-  OptionsTemplateValue,
   style,
-  OptionsWithOptionsTemplate,
   scrollSize,
   offsetSize,
 } from 'support';
-import { PreparedOSTargetObject } from 'setups/structureSetup';
-import { createLifecycleBase, Lifecycle } from 'lifecycles/lifecycleBase';
+import { createLifecycleUpdateFunction, Lifecycle } from 'lifecycles/lifecycleUpdateFunction';
+import { LifecycleHub } from 'lifecycles/lifecycleHub';
 import { getEnvironment, Environment } from 'environment';
-
-export type OverflowBehavior = 'hidden' | 'scroll' | 'visible-hidden' | 'visible-scroll';
-export interface StructureLifecycleOptions {
-  paddingAbsolute: boolean;
-  overflowBehavior?: {
-    x?: OverflowBehavior;
-    y?: OverflowBehavior;
-  };
-}
-
-const overflowBehaviorAllowedValues: OptionsTemplateValue<OverflowBehavior> = 'visible-hidden visible-scroll scroll hidden';
-const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<StructureLifecycleOptions>> = {
-  paddingAbsolute: [false, oTypes.boolean],
-  overflowBehavior: {
-    x: ['scroll', overflowBehaviorAllowedValues],
-    y: ['scroll', overflowBehaviorAllowedValues],
-  },
-};
 
 const cssMarginEnd = cssProperty('margin-inline-end');
 const cssBorderEnd = cssProperty('border-inline-end');
 
-export const createStructureLifecycle = (
-  target: PreparedOSTargetObject,
-  initialOptions?: StructureLifecycleOptions
-): Lifecycle<StructureLifecycleOptions> => {
-  const { _host, _padding, _viewport, _content } = target;
+export const createStructureLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
+  const { _host, _padding, _viewport, _content } = lifecycleHub._structureSetup._targetObj;
   const destructFns: (() => any)[] = [];
   const env: Environment = getEnvironment();
   const scrollbarsOverlaid = env._nativeScrollbarIsOverlaid;
@@ -54,8 +30,8 @@ export const createStructureLifecycle = (
   // direction change is only needed to update scrollbar hiding, therefore its not needed if css can do it, scrollbars are invisible or overlaid on y axis
   const directionObserverObsolete = (cssMarginEnd && cssBorderEnd) || supportsScrollbarStyling || scrollbarsOverlaid.y;
 
-  const updatePaddingCache = createCache(() => topRightBottomLeft(_host, 'padding'), { _equal: equalTRBL });
-  const updateOverflowAmountCache = createCache<XY<number>, { _contentScrollSize: WH<number>; _viewportSize: WH<number> }>(
+  const { _update: updatePaddingCache } = createCache(() => topRightBottomLeft(_host, 'padding'), { _equal: equalTRBL });
+  const { _update: updateOverflowAmountCache } = createCache<XY<number>, { _contentScrollSize: WH<number>; _viewportSize: WH<number> }>(
     (ctx) => ({
       x: Math.max(0, Math.round((ctx!._contentScrollSize.w - ctx!._viewportSize.w) * 100) / 100),
       y: Math.max(0, Math.round((ctx!._contentScrollSize.h - ctx!._viewportSize.h) * 100) / 100),
@@ -63,7 +39,7 @@ export const createStructureLifecycle = (
     { _equal: equalXY }
   );
 
-  const { _options, _update } = createLifecycleBase<StructureLifecycleOptions>(defaultOptionsWithTemplate, initialOptions, (force, checkOption) => {
+  const _update = createLifecycleUpdateFunction(lifecycleHub, (force, checkOption) => {
     const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = checkOption('paddingAbsolute');
     const { _value: padding, _changed: paddingChanged } = updatePaddingCache(force);
 
@@ -148,15 +124,14 @@ export const createStructureLifecycle = (
   const onSizeChanged = () => {
     _update();
   };
-  const onTrinsicChanged = (widthIntrinsic: boolean, heightIntrinsicCache: Cache<boolean>) => {
-    const { _changed, _value } = heightIntrinsicCache;
+  const onTrinsicChanged = (heightIntrinsic: CacheValues<boolean>) => {
+    const { _changed, _value } = heightIntrinsic;
     if (_changed) {
       style(_content, { height: _value ? 'auto' : '100%' });
     }
   };
 
   return {
-    _options,
     _update,
     _onSizeChanged: onSizeChanged,
     _onTrinsicChanged: onTrinsicChanged,

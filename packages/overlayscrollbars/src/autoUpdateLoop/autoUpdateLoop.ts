@@ -19,7 +19,7 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
   const updateLoopInterval = () => {
     loopInterval = isEmptyArray(intervals) ? defaultLoopInterval : Math.min.apply(null, intervals);
   };
-  const updateTimeCache = createCache<number, number>((ctx) => ctx || performance.now(), {
+  const { _update: updateTimeCache } = createCache<number, number | undefined>((ctx) => ctx || performance.now(), {
     _initialValue: performance.now(),
     _equal: (currTime, newTime) => {
       const delta = newTime! - currTime!;

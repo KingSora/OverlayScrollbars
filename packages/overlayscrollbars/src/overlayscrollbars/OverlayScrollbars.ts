@@ -1,49 +1,38 @@
 import { OSTarget, OSTargetObject } from 'typings';
-import { createStructureLifecycle } from 'lifecycles/structureLifecycle';
-import { Cache, each, push } from 'support';
-import { createSizeObserver } from 'observers/sizeObserver';
-import { createTrinsicObserver } from 'observers/trinsicObserver';
-import { createDOMObserver } from 'observers/domObserver';
+
+import { validateOptions, assignDeep, isEmptyObject } from 'support';
 import { createStructureSetup, StructureSetup } from 'setups/structureSetup';
-import { Lifecycle } from 'lifecycles/lifecycleBase';
+import { createLifecycleHub } from 'lifecycles/lifecycleHub';
+import { Options, defaultOptions, optionsTemplate } from 'options';
 
-const OverlayScrollbars = (target: OSTarget | OSTargetObject, options?: any, extensions?: any): void => {
-  const structureSetup: StructureSetup = createStructureSetup(target);
-  const lifecycles: Lifecycle<any>[] = [];
-  const { _host, _viewport, _content } = structureSetup._targetObj;
-
-  push(lifecycles, createStructureLifecycle(structureSetup._targetObj));
-
-  // eslint-disable-next-line
-  const onSizeChanged = (directionCache?: Cache<boolean>) => {
-    if (directionCache) {
-      each(lifecycles, (lifecycle) => {
-        lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(directionCache);
-      });
-    } else {
-      each(lifecycles, (lifecycle) => {
-        lifecycle._onSizeChanged && lifecycle._onSizeChanged();
-      });
-    }
-  };
-  const onTrinsicChanged = (widthIntrinsic: boolean, heightIntrinsicCache: Cache<boolean>) => {
-    each(lifecycles, (lifecycle) => {
-      lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsicCache);
-    });
-  };
-
-  createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: true });
-  createTrinsicObserver(_host, onTrinsicChanged);
-  createDOMObserver(_host, () => {
-    return null;
-  });
-  createDOMObserver(
-    _content || _viewport,
-    () => {
-      return null;
-    },
-    { _observeContent: true }
+const OverlayScrollbars = (target: OSTarget | OSTargetObject, options?: Options, extensions?: any): any => {
+  const currentOptions: Required<Options> = assignDeep(
+    {},
+    defaultOptions,
+    validateOptions<Options>(options || ({} as Options), optionsTemplate, null, true)._validated
   );
+  const structureSetup: StructureSetup = createStructureSetup(target);
+  const lifecycleHub = createLifecycleHub(currentOptions, structureSetup);
+  const instance = {
+    options(newOptions?: Options) {
+      if (newOptions) {
+        const { _validated: _changedOptions } = validateOptions(newOptions, optionsTemplate, currentOptions, true);
+
+        if (!isEmptyObject(_changedOptions)) {
+          assignDeep(currentOptions, _changedOptions);
+          lifecycleHub._update(_changedOptions);
+        }
+      }
+      return currentOptions;
+    },
+    update(force?: boolean) {
+      lifecycleHub._update(null, force);
+    },
+  };
+
+  instance.update(true);
+
+  return instance;
 };
 
 export { OverlayScrollbars };

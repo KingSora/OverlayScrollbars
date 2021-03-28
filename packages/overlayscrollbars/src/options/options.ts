@@ -8,15 +8,13 @@ import {
 } from 'support/options';
 import { ResizeBehavior, OverflowBehavior, VisibilityBehavior, AutoHideBehavior, Options } from 'options';
 
-const classNameAllowedValues: OptionsTemplateValue<string | null> = [oTypes.string, oTypes.null];
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
-const booleanNullAllowedValues: OptionsTemplateValue<boolean | null> = [oTypes.boolean, oTypes.null];
-const stringArrayNullAllowedValues: OptionsTemplateValue<string | Array<string> | null> = [oTypes.string, oTypes.array, oTypes.null];
+const stringArrayNullAllowedValues: OptionsTemplateValue<string | ReadonlyArray<string> | null> = [oTypes.string, oTypes.array, oTypes.null];
 const booleanTrueTemplate: OptionsWithOptionsTemplateValue<boolean> = [true, oTypes.boolean];
 const booleanFalseTemplate: OptionsWithOptionsTemplateValue<boolean> = [false, oTypes.boolean];
-const callbackTemplate: OptionsWithOptionsTemplateValue<Func | null> = [null, [oTypes.function, oTypes.null]];
+// const callbackTemplate: OptionsWithOptionsTemplateValue<Func | null> = [null, [oTypes.function, oTypes.null]];
 const resizeAllowedValues: OptionsTemplateValue<ResizeBehavior> = 'none both horizontal vertical';
-const overflowBehaviorAllowedValues: OptionsTemplateValue<OverflowBehavior> = 'visible-hidden visible-scroll scroll hidden';
+const overflowAllowedValues: OptionsTemplateValue<OverflowBehavior> = 'visible-hidden visible-scroll scroll hidden';
 const scrollbarsVisibilityAllowedValues: OptionsTemplateValue<VisibilityBehavior> = 'visible hidden auto';
 const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<AutoHideBehavior> = 'never scroll leavemove';
 
@@ -36,37 +34,36 @@ const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<AutoHideBehavior> = 
  * Property "b" has a default value of 250 and it can be number
  */
 const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<Options>> = {
-  className: ['os-theme-dark', classNameAllowedValues], // null || string
   resize: ['none', resizeAllowedValues], // none || both  || horizontal || vertical || n || b || h || v
-  sizeAutoCapable: booleanTrueTemplate, // true || false
-  clipAlways: booleanTrueTemplate, // true || false
-  normalizeRTL: booleanTrueTemplate, // true || false
   paddingAbsolute: booleanFalseTemplate, // true || false
-  autoUpdate: [null, booleanNullAllowedValues], // true || false || null
-  autoUpdateInterval: [33, numberAllowedValues], // number
-  updateOnLoad: [['img'], stringArrayNullAllowedValues], // string || array || null
-  nativeScrollbarsOverlaid: {
-    showNativeScrollbars: booleanFalseTemplate, // true || false
-    initialize: booleanFalseTemplate, // true || false
+  updating: {
+    elementEvents: [[['img', 'load']], [oTypes.array, oTypes.null]], // array of tuples || null
+    contentMutationDebounce: [80, numberAllowedValues], // number
+    hostMutationDebounce: [0, numberAllowedValues], // number
+    resizeDebounce: [0, numberAllowedValues], // number
   },
-  overflowBehavior: {
-    x: ['scroll', overflowBehaviorAllowedValues], // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
-    y: ['scroll', overflowBehaviorAllowedValues], // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
+  overflow: {
+    x: ['scroll', overflowAllowedValues], // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
+    y: ['scroll', overflowAllowedValues], // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
   },
   scrollbars: {
     visibility: ['auto', scrollbarsVisibilityAllowedValues], // visible || hidden || auto || v || h || a
     autoHide: ['never', scrollbarsAutoHideAllowedValues], // never || scroll || leave || move || n || s || l || m
     autoHideDelay: [800, numberAllowedValues], // number
-    dragScrolling: booleanTrueTemplate, // true || false
-    clickScrolling: booleanFalseTemplate, // true || false
-    touchSupport: booleanTrueTemplate, // true || false
-    snapHandle: booleanFalseTemplate, // true || false
+    dragScroll: booleanTrueTemplate, // true || false
+    clickScroll: booleanFalseTemplate, // true || false
+    touch: booleanTrueTemplate, // true || false
   },
   textarea: {
     dynWidth: booleanFalseTemplate, // true || false
     dynHeight: booleanFalseTemplate, // true || false
     inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues], // string || array || null
   },
+  nativeScrollbarsOverlaid: {
+    show: booleanFalseTemplate, // true || false
+    initialize: booleanFalseTemplate, // true || false
+  },
+  /*
   callbacks: {
     onInitialized: callbackTemplate, // null || function
     onInitializationWithdrawn: callbackTemplate, // null || function
@@ -81,6 +78,7 @@ const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<Options>> 
     onHostSizeChanged: callbackTemplate, // null || function
     onUpdated: callbackTemplate, // null || function
   },
+  */
 };
 
 export const { _template: optionsTemplate, _options: defaultOptions } = transformOptions(defaultOptionsWithTemplate);

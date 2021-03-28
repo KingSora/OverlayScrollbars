@@ -122,17 +122,18 @@ const createEnvironment = (): Environment => {
   const envChildElm = envElm.firstChild as HTMLElement;
 
   const onChangedListener: Set<OnEnvironmentChanged> = new Set();
-  const nativeScrollBarSize = getNativeScrollbarSize(body, envElm);
+  const nativeScrollbarSize = getNativeScrollbarSize(body, envElm);
+  const nativeScrollbarStyling = false; //getNativeScrollbarStyling(envElm); TODO: Re-enable
   const nativeScrollbarIsOverlaid = {
-    x: nativeScrollBarSize.x === 0,
-    y: nativeScrollBarSize.y === 0,
+    x: nativeScrollbarSize.x === 0,
+    y: nativeScrollbarSize.y === 0,
   };
 
   const env: Environment = {
     _autoUpdateLoop: false,
-    _nativeScrollbarSize: nativeScrollBarSize,
+    _nativeScrollbarSize: nativeScrollbarSize,
     _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
-    _nativeScrollbarStyling: getNativeScrollbarStyling(envElm),
+    _nativeScrollbarStyling: nativeScrollbarStyling,
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
     _addListener(listener: OnEnvironmentChanged): void {
@@ -144,13 +145,12 @@ const createEnvironment = (): Environment => {
   };
 
   removeAttr(envElm, 'style');
-  removeAttr(envElm, 'class');
   removeElements(envElm);
 
-  if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
+  if (!nativeScrollbarStyling && (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y)) {
     let size = windowSize();
     let dpr = getWindowDPR();
-    let scrollbarSize = nativeScrollBarSize;
+    let scrollbarSize = nativeScrollbarSize;
 
     window.addEventListener('resize', () => {
       if (onChangedListener.size) {

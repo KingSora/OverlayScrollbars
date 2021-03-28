@@ -29,7 +29,6 @@ body {
 
 #target {
   overflow: hidden;
-  resize: both;
   position: relative;
   border: 2px solid red;
   min-height: 100px;
@@ -40,7 +39,6 @@ body {
 
 #resize {
   overflow: hidden;
-  resize: both;
   background: blue;
   border: 1px solid black;
   padding: 10px;
@@ -134,4 +132,19 @@ body {
 }
 .directionRTL {
   direction: rtl;
+}
+
+.resizer {
+  position: relative;
+  overflow: hidden;
+}
+
+.resizeBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 20px;
+  width: 20px;
+  background: red;
+  opacity: 0.3;
 }

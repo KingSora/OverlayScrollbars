@@ -37,9 +37,9 @@ export interface OnOptions {
  * @param listener The listener which shall be removed.
  * @param capture The options of the removed listener.
  */
-export const off = (target: EventTarget, eventNames: string, listener: EventListener, capture?: boolean): void => {
+export const off = <T extends Event = Event>(target: EventTarget, eventNames: string, listener: (event: T) => any, capture?: boolean): void => {
   each(splitEventNames(eventNames), (eventName) => {
-    target.removeEventListener(eventName, listener, capture);
+    target.removeEventListener(eventName, listener as EventListener, capture);
   });
 };
 
@@ -50,7 +50,12 @@ export const off = (target: EventTarget, eventNames: string, listener: EventList
  * @param listener The listener which is called on the eventnames.
  * @param options The options of the added listener.
  */
-export const on = (target: EventTarget, eventNames: string, listener: EventListener, options?: OnOptions): (() => void) => {
+export const on = <T extends Event = Event>(
+  target: EventTarget,
+  eventNames: string,
+  listener: (event: T) => any,
+  options?: OnOptions
+): (() => void) => {
   const doSupportPassiveEvents = supportPassiveEvents();
   const passive = (doSupportPassiveEvents && options && options._passive) || false;
   const capture = (options && options._capture) || false;
@@ -64,12 +69,12 @@ export const on = (target: EventTarget, eventNames: string, listener: EventListe
     : capture;
 
   each(splitEventNames(eventNames), (eventName) => {
-    const finalListener = once
-      ? (evt: Event) => {
+    const finalListener = (once
+      ? (evt: T) => {
           target.removeEventListener(eventName, finalListener, capture);
           listener && listener(evt);
         }
-      : listener;
+      : listener) as EventListener;
 
     push(offListeners, off.bind(null, target, eventName, finalListener, capture));
     target.addEventListener(eventName, finalListener, nativeOptions);

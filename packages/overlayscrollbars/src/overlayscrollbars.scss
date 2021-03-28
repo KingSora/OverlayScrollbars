@@ -51,10 +51,9 @@
   }
 }
 
-#os-environment 
 /* fix restricted measuring */
-#os-environment:before,
-#os-environment:after,
+.os-environment:before,
+.os-environment:after,
 .os-content:before,
 .os-content:after {
   content: '';
@@ -67,21 +66,27 @@
   flex-shrink: 0;
   visibility: hidden;
 }
-#os-environment,
+.os-environment,
 .os-viewport {
   -ms-overflow-style: scrollbar !important;
 }
-.os-viewport-scrollbar-styled#os-environment,
+.os-viewport-scrollbar-styled.os-environment,
 .os-viewport-scrollbar-styled.os-viewport {
   scrollbar-width: none !important;
 }
-.os-viewport-scrollbar-styled#os-environment::-webkit-scrollbar,
+.os-viewport-scrollbar-styled.os-environment::-webkit-scrollbar,
 .os-viewport-scrollbar-styled.os-viewport::-webkit-scrollbar,
-.os-viewport-scrollbar-styled#os-environment::-webkit-scrollbar-corner,
+.os-viewport-scrollbar-styled.os-environment::-webkit-scrollbar-corner,
 .os-viewport-scrollbar-styled.os-viewport::-webkit-scrollbar-corner {
   display: none !important;
   width: 0px !important;
   height: 0px !important;
   visibility: hidden !important;
   background: transparent !important;
+}
+
+.os-content-arrange {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
 }

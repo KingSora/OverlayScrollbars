@@ -1,6 +1,6 @@
 import {
   WH,
-  Cache,
+  CacheValues,
   createDOM,
   offsetSize,
   runEach,
@@ -13,13 +13,25 @@ import {
 import { createSizeObserver } from 'observers/sizeObserver';
 import { classNameTrinsicObserver } from 'classnames';
 
+export interface TrinsicObserver {
+  _destroy(): void;
+  _getCurrentCacheValues(
+    force?: boolean
+  ): {
+    _heightIntrinsic: CacheValues<boolean>;
+  };
+}
+
 export const createTrinsicObserver = (
   target: HTMLElement,
-  onTrinsicChangedCallback: (widthIntrinsic: boolean, heightIntrinsicCache: Cache<boolean>) => any
-): (() => void) => {
+  onTrinsicChangedCallback: (heightIntrinsic: CacheValues<boolean>) => any
+): TrinsicObserver => {
   const trinsicObserver = createDOM(`<div class="${classNameTrinsicObserver}"></div>`)[0] as HTMLElement;
   const offListeners: (() => void)[] = [];
-  const updateHeightIntrinsicCache = createCache<boolean, IntersectionObserverEntry | WH<number>>(
+  const { _update: updateHeightIntrinsicCache, _current: getCurrentHeightIntrinsicCache } = createCache<
+    boolean,
+    IntersectionObserverEntry | WH<number>
+  >(
     (ioEntryOrSize: IntersectionObserverEntry | WH<number>) =>
       (ioEntryOrSize! as WH<number>).h === 0 ||
       (ioEntryOrSize! as IntersectionObserverEntry).isIntersecting ||
@@ -35,10 +47,10 @@ export const createTrinsicObserver = (
         if (entries && entries.length > 0) {
           const last = entries.pop();
           if (last) {
-            const heightIntrinsicCache = updateHeightIntrinsicCache(0, last);
+            const heightIntrinsic = updateHeightIntrinsicCache(0, last);
 
-            if (heightIntrinsicCache._changed) {
-              onTrinsicChangedCallback(false, heightIntrinsicCache);
+            if (heightIntrinsic._changed) {
+              onTrinsicChangedCallback(heightIntrinsic);
             }
           }
         }
@@ -55,16 +67,23 @@ export const createTrinsicObserver = (
         const heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
 
         if (heightIntrinsicCache._changed) {
-          onTrinsicChangedCallback(false, heightIntrinsicCache);
+          onTrinsicChangedCallback(heightIntrinsicCache);
         }
-      })
+      })._destroy
     );
   }
 
   prependChildren(target, trinsicObserver);
 
-  return () => {
-    runEach(offListeners);
-    removeElements(trinsicObserver);
+  return {
+    _destroy() {
+      runEach(offListeners);
+      removeElements(trinsicObserver);
+    },
+    _getCurrentCacheValues(force?: boolean) {
+      return {
+        _heightIntrinsic: getCurrentHeightIntrinsicCache(force),
+      };
+    },
   };
 };

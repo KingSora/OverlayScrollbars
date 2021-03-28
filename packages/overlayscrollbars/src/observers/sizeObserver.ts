@@ -1,5 +1,6 @@
 import {
   Cache,
+  CacheValues,
   createCache,
   createDOM,
   style,
@@ -34,6 +35,21 @@ import {
   classNameSizeObserverListenerItemFinal,
 } from 'classnames';
 
+interface SizeObserverEntry {
+  contentRect: DOMRectReadOnly;
+}
+
+export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };
+
+export interface SizeObserver {
+  _destroy(): void;
+  _getCurrentCacheValues(
+    force?: boolean
+  ): {
+    _directionIsRTL: CacheValues<boolean>;
+  };
+}
+
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
@@ -51,21 +67,17 @@ const directionIsRTL = (elm: HTMLElement): boolean => {
 };
 const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height || rect.width);
 
-interface SizeObserverEntry {
-  contentRect: DOMRectReadOnly;
-}
-export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };
 export const createSizeObserver = (
   target: HTMLElement,
-  onSizeChangedCallback: (directionIsRTLCache?: Cache<boolean>) => any,
+  onSizeChangedCallback: (directionIsRTLCache?: CacheValues<boolean>) => any,
   options?: SizeObserverOptions
-): (() => void) => {
+): SizeObserver => {
   const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } = options || {};
-  const rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
+  const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
   const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
   const sizeObserver = baseElements[0] as HTMLElement;
   const listenerElement = sizeObserver.firstChild as HTMLElement;
-  const updateResizeObserverContentRectCache = createCache<DOMRectReadOnly, DOMRectReadOnly>(0, {
+  const { _update: updateResizeObserverContentRectCache } = createCache<DOMRectReadOnly, DOMRectReadOnly>(0, {
     _alwaysUpdateValues: true,
     _equal: (currVal, newVal) =>
       !(
@@ -74,8 +86,8 @@ export const createSizeObserver = (
         (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
       ),
   });
-  const onSizeChangedCallbackProxy = (sizeChangedContext?: Cache<boolean> | SizeObserverEntry[] | Event) => {
-    const hasDirectionCache = sizeChangedContext && isBoolean((sizeChangedContext as Cache<boolean>)._value);
+  const onSizeChangedCallbackProxy = (sizeChangedContext?: CacheValues<boolean> | SizeObserverEntry[] | Event) => {
+    const hasDirectionCache = sizeChangedContext && isBoolean((sizeChangedContext as CacheValues<boolean>)._value);
 
     let skip = false;
     let doDirectionScroll = true; // always true if sizeChangedContext is Event (appear callback or RO. Polyfill)
@@ -88,21 +100,22 @@ export const createSizeObserver = (
     }
     // else if its triggered with DirectionCache
     else if (hasDirectionCache) {
-      doDirectionScroll = (sizeChangedContext as Cache<boolean>)._changed; // direction scroll when DirectionCache changed, false toherwise
+      doDirectionScroll = (sizeChangedContext as CacheValues<boolean>)._changed; // direction scroll when DirectionCache changed, false toherwise
     }
 
     if (observeDirectionChange) {
-      const rtl = hasDirectionCache ? (sizeChangedContext as Cache<boolean>)._value : directionIsRTL(sizeObserver);
+      const rtl = hasDirectionCache ? (sizeChangedContext as CacheValues<boolean>)._value : directionIsRTL(sizeObserver);
       scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
       scrollTop(sizeObserver, scrollAmount);
     }
 
     if (!skip) {
-      onSizeChangedCallback(hasDirectionCache ? (sizeChangedContext as Cache<boolean>) : undefined);
+      onSizeChangedCallback(hasDirectionCache ? (sizeChangedContext as CacheValues<boolean>) : undefined);
     }
   };
   const offListeners: (() => void)[] = [];
   let appearCallback: ((...args: any) => any) | false = observeAppearChange ? onSizeChangedCallbackProxy : false;
+  let directionIsRTLCache: Cache<boolean> | undefined;
 
   if (ResizeObserverConstructor) {
     const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
@@ -169,19 +182,20 @@ export const createSizeObserver = (
   }
 
   if (observeDirectionChange) {
-    const updateDirectionIsRTLCache = createCache(() => directionIsRTL(sizeObserver));
+    directionIsRTLCache = createCache(() => directionIsRTL(sizeObserver));
+    const { _update: updateDirectionIsRTLCache } = directionIsRTLCache;
     push(
       offListeners,
       on(sizeObserver, scrollEventName, (event: Event) => {
-        const directionIsRTLCache = updateDirectionIsRTLCache();
-        const { _value, _changed } = directionIsRTLCache;
+        const directionIsRTLCacheValues = updateDirectionIsRTLCache();
+        const { _value, _changed } = directionIsRTLCacheValues;
         if (_changed) {
           if (_value) {
             style(listenerElement, { left: 'auto', right: 0 });
           } else {
             style(listenerElement, { left: 0, right: 'auto' });
           }
-          onSizeChangedCallbackProxy(directionIsRTLCache);
+          onSizeChangedCallbackProxy(directionIsRTLCacheValues);
         }
 
         preventDefault(event);
@@ -205,8 +219,21 @@ export const createSizeObserver = (
 
   prependChildren(target, sizeObserver);
 
-  return () => {
-    runEach(offListeners);
-    removeElements(sizeObserver);
+  return {
+    _destroy() {
+      runEach(offListeners);
+      removeElements(sizeObserver);
+    },
+    _getCurrentCacheValues(force?: boolean) {
+      return {
+        _directionIsRTL: directionIsRTLCache
+          ? directionIsRTLCache._current(force)
+          : {
+              _value: false,
+              _previous: false,
+              _changed: false,
+            },
+      };
+    },
   };
 };

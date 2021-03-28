@@ -25,20 +25,15 @@ export type SizeChangedCallback = (this: any, args?: SizeChangedArgs) => void;
 export type UpdatedCallback = (this: any, args?: UpdatedArgs) => void;
 
 export interface Options {
-  className?: string | null;
   resize?: ResizeBehavior;
-  sizeAutoCapable?: boolean;
-  clipAlways?: boolean;
-  normalizeRTL?: boolean;
   paddingAbsolute?: boolean;
-  autoUpdate?: boolean | null;
-  autoUpdateInterval?: number;
-  updateOnLoad?: string | ReadonlyArray<string> | null;
-  nativeScrollbarsOverlaid?: {
-    showNativeScrollbars?: boolean;
-    initialize?: boolean;
+  updating?: {
+    elementEvents?: ReadonlyArray<[string, string]> | null;
+    contentMutationDebounce?: number;
+    hostMutationDebounce?: number;
+    resizeDebounce?: number;
   };
-  overflowBehavior?: {
+  overflow?: {
     x?: OverflowBehavior;
     y?: OverflowBehavior;
   };
@@ -46,16 +41,20 @@ export interface Options {
     visibility?: VisibilityBehavior;
     autoHide?: AutoHideBehavior;
     autoHideDelay?: number;
-    dragScrolling?: boolean;
-    clickScrolling?: boolean;
-    touchSupport?: boolean;
-    snapHandle?: boolean;
+    dragScroll?: boolean;
+    clickScroll?: boolean;
+    touch?: boolean;
   };
   textarea?: {
     dynWidth?: boolean;
     dynHeight?: boolean;
     inheritedAttrs?: string | ReadonlyArray<string> | null;
   };
+  nativeScrollbarsOverlaid?: {
+    show?: boolean;
+    initialize?: boolean;
+  };
+  /*
   callbacks?: {
     onInitialized?: BasicEventCallback | null;
     onInitializationWithdrawn?: BasicEventCallback | null;
@@ -70,6 +69,7 @@ export interface Options {
     onHostSizeChanged?: SizeChangedCallback | null;
     onUpdated?: UpdatedCallback | null;
   };
+  */
 }
 
 export interface OverflowChangedArgs {

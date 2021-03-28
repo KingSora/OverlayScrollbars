@@ -12,8 +12,17 @@ import {
   removeClass,
   push,
   runEach,
+  prependChildren,
 } from 'support';
-import { classNameHost, classNamePadding, classNameViewport, classNameContent } from 'classnames';
+import {
+  classNameHost,
+  classNamePadding,
+  classNameViewport,
+  classNameContent,
+  classNameContentArrange,
+  classNameViewportScrollbarStyling,
+} from 'classnames';
+import { getEnvironment } from 'environment';
 import { OSTarget, OSTargetObject, InternalVersionOf, OSTargetElement } from 'typings';
 
 export interface OSTargetContext {
@@ -27,6 +36,7 @@ export interface OSTargetContext {
 
 export interface PreparedOSTargetObject extends Required<InternalVersionOf<OSTargetObject>> {
   _host: HTMLElement;
+  _contentArrange: HTMLElement | null;
 }
 
 export interface StructureSetup {
@@ -149,6 +159,25 @@ export const createStructureSetup = (target: OSTarget | OSTargetObject): Structu
     ...osTargetObj,
     _host,
   };
+
+  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid } = getEnvironment();
+  if (_nativeScrollbarStyling) {
+    addClass(_viewport, classNameViewportScrollbarStyling);
+    push(destroyFns, () => {
+      removeClass(_viewport, classNameViewportScrollbarStyling);
+    });
+  } else if (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y) {
+    if (obj._content) {
+      const contentArrangeElm = createDiv(classNameContentArrange);
+
+      prependChildren(_viewport, contentArrangeElm);
+      push(destroyFns, () => {
+        removeElements(contentArrangeElm);
+      });
+
+      obj._contentArrange = contentArrangeElm;
+    }
+  }
 
   return {
     _targetObj: obj,
