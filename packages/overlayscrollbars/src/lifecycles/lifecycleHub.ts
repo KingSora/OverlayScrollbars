@@ -33,7 +33,12 @@ const heightIntrinsicCacheValuesFallback: CacheValues<boolean> = {
 
 export const createLifecycleHub = (options: Options, structureSetup: StructureSetup): LifecycleHubInstance => {
   const { _host, _viewport, _content } = structureSetup._targetObj;
-  const environment: Environment = getEnvironment();
+  const {
+    _nativeScrollbarStyling,
+    _flexboxGlue,
+    _addListener: addEnvironmentListener,
+    _removeListener: removeEnvironmentListener,
+  } = getEnvironment();
   const lifecycles: LifecycleUpdateFunction[] = [];
   const instance: LifecycleHub = {
     _options: options,
@@ -99,7 +104,7 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
     });
   };
 
-  const sizeObserver = createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: true });
+  const sizeObserver = createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: !_nativeScrollbarStyling });
   const trinsicObserver = createTrinsicObserver(_host, onTrinsicChanged);
   const hostMutationObserver = createDOMObserver(_host, onHostMutation, {
     _styleChangingAttributes: attrs,
@@ -131,14 +136,14 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
     runLifecycles(null, changedOptions, force);
   };
   const envUpdateListener = updateAll.bind(null, null, true);
-  environment._addListener(envUpdateListener);
+  addEnvironmentListener(envUpdateListener);
 
-  console.log('flexboxglue', environment._flexboxGlue);
+  console.log('flexboxGlue', _flexboxGlue);
 
   return {
     _update: updateAll,
     _destroy() {
-      environment._removeListener(envUpdateListener);
+      removeEnvironmentListener(envUpdateListener);
     },
   };
 };

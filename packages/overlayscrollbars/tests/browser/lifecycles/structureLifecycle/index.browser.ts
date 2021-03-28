@@ -7,6 +7,10 @@ const targetElm = document.querySelector('#target') as HTMLElement;
 window.os = OverlayScrollbars(targetElm);
 
 export const resize = (element: HTMLElement) => {
+  const strMouseTouchDownEvent = 'mousedown touchstart';
+  const strMouseTouchUpEvent = 'mouseup touchend';
+  const strMouseTouchMoveEvent = 'mousemove touchmove';
+  const strSelectStartEvent = 'selectstart';
   const dragStartSize: WH<number> = { w: 0, h: 0 };
   const dragStartPosition: XY<number> = { x: 0, y: 0 };
   const resizeBtn = createDiv('resizeBtn');
@@ -21,30 +25,37 @@ export const resize = (element: HTMLElement) => {
     return false;
   };
 
-  const resizerResize = (event: MouseEvent) => {
+  const resizerResize = (event: MouseEvent | TouchEvent) => {
+    const isTouchEvent = (event as TouchEvent).touches !== undefined;
+    const mouseOffsetHolder = isTouchEvent ? (event as TouchEvent).touches[0] : (event as MouseEvent);
+
     const sizeStyle = {
-      width: dragStartSize.w + event.pageX - dragStartPosition.x,
-      height: dragStartSize.h + event.pageY - dragStartPosition.y,
+      width: dragStartSize.w + mouseOffsetHolder.pageX - dragStartPosition.x,
+      height: dragStartSize.h + mouseOffsetHolder.pageY - dragStartPosition.y,
     };
 
     style(dragResizer, sizeStyle);
     event.stopPropagation();
   };
 
-  const resizerResized = (event: MouseEvent) => {
-    off(document, 'selectstart', onSelectStart);
-    off(document, 'mousemove', resizerResize);
-    off(document, 'mouseup', resizerResized);
+  const resizerResized = () => {
+    off(document, strSelectStartEvent, onSelectStart);
+    off(document, strMouseTouchMoveEvent, resizerResize);
+    off(document, strMouseTouchUpEvent, resizerResized);
 
     dragResizer = undefined;
     dragResizeBtn = undefined;
   };
 
-  on(resizeBtn, 'mousedown', (event: MouseEvent) => {
+  on(resizeBtn, strMouseTouchDownEvent, (event: MouseEvent | TouchEvent) => {
     const { currentTarget } = event;
-    if (event.buttons === 1 || event.which === 1) {
-      dragStartPosition.x = event.pageX;
-      dragStartPosition.y = event.pageY;
+    const correctButton = (event as MouseEvent).buttons === 1 || event.which === 1;
+    const isTouchEvent = (event as TouchEvent).touches !== undefined;
+    const mouseOffsetHolder = isTouchEvent ? (event as TouchEvent).touches[0] : (event as MouseEvent);
+
+    if (correctButton || isTouchEvent) {
+      dragStartPosition.x = mouseOffsetHolder.pageX;
+      dragStartPosition.y = mouseOffsetHolder.pageY;
 
       dragResizeBtn = currentTarget as HTMLElement;
       dragResizer = parent(currentTarget as HTMLElement) as HTMLElement;
@@ -53,9 +64,9 @@ export const resize = (element: HTMLElement) => {
       dragStartSize.w = cSize.w;
       dragStartSize.h = cSize.h;
 
-      on(document, 'selectstart', onSelectStart);
-      on(document, 'mousemove', resizerResize);
-      on(document, 'mouseup', resizerResized);
+      on(document, strSelectStartEvent, onSelectStart);
+      on(document, strMouseTouchMoveEvent, resizerResize);
+      on(document, strMouseTouchUpEvent, resizerResized);
 
       event.preventDefault();
       event.stopPropagation();

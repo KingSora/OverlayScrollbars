@@ -74,7 +74,6 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): LifecycleUp
     const scrollY = viewportStyleObj.overflowY === 'scroll';
     const horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
     const horizontalBorderKey = directionIsRTL ? 'borderLeft' : 'borderRight';
-    const scrollXY = scrollY && scrollX;
     const overlaidHideOffset = _content && !showNativeOverlaidScrollbars ? overlaidScrollbarsHideOffset : 0;
     const scrollbarsHideOffset = {
       x: overlaidX ? overlaidHideOffset : _nativeScrollbarSize.x,
@@ -95,10 +94,9 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): LifecycleUp
       }
 
       if (_contentArrange) {
-        const condition = scrollXY && !showNativeOverlaidScrollbars;
         style(_contentArrange, {
-          width: condition ? `${overlaidHideOffset + contentScrollSize.w}px` : '',
-          height: condition ? `${overlaidHideOffset + contentScrollSize.h}px` : '',
+          width: scrollY && !showNativeOverlaidScrollbars ? `${overlaidHideOffset + contentScrollSize.w}px` : '',
+          height: scrollX && !showNativeOverlaidScrollbars ? `${overlaidHideOffset + contentScrollSize.h}px` : '',
         });
       }
     }
@@ -226,6 +224,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): LifecycleUp
       // TODO: enlargen viewport if div too small for firefox scrollbar hiding behavior
       // TODO: Test without content
       // TODO: Test without padding
+      // TODO: hide host || padding overflow if scroll x or y
 
       style(_viewport, viewportStyle);
       style(_content, contentStyle);
