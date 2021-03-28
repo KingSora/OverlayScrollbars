@@ -13,7 +13,7 @@ import {
   scrollSize,
   offsetSize,
 } from 'support';
-import { createLifecycleUpdateFunction, Lifecycle } from 'lifecycles/lifecycleUpdateFunction';
+import { createLifecycleUpdateFunction } from 'lifecycles/lifecycleUpdateFunction';
 import { LifecycleHub } from 'lifecycles/lifecycleHub';
 import { getEnvironment, Environment } from 'environment';
 

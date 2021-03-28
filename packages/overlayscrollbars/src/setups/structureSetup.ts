@@ -162,18 +162,13 @@ export const createStructureSetup = (target: OSTarget | OSTargetObject): Structu
 
   const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid } = getEnvironment();
   if (_nativeScrollbarStyling) {
-    addClass(_viewport, classNameViewportScrollbarStyling);
-    push(destroyFns, () => {
-      removeClass(_viewport, classNameViewportScrollbarStyling);
-    });
+    push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
   } else if (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y) {
     if (obj._content) {
       const contentArrangeElm = createDiv(classNameContentArrange);
 
       prependChildren(_viewport, contentArrangeElm);
-      push(destroyFns, () => {
-        removeElements(contentArrangeElm);
-      });
+      push(destroyFns, removeElements.bind(0, contentArrangeElm));
 
       obj._contentArrange = contentArrangeElm;
     }

@@ -1,9 +1,24 @@
-import { createCache, WH, XY, equalXY, style, scrollSize, offsetSize, CacheValues, equalWH, scrollLeft, scrollTop } from 'support';
+import {
+  createCache,
+  WH,
+  XY,
+  equalXY,
+  style,
+  scrollSize,
+  offsetSize,
+  CacheValues,
+  equalWH,
+  scrollLeft,
+  scrollTop,
+  addClass,
+  removeClass,
+} from 'support';
 import { createLifecycleUpdateFunction, LifecycleUpdateFunction } from 'lifecycles/lifecycleUpdateFunction';
 import { LifecycleHub } from 'lifecycles/lifecycleHub';
 import { getEnvironment } from 'environment';
 import { OverflowBehavior } from 'options';
 import { PlainObject } from 'typings';
+import { classNameViewportScrollbarStyling } from 'classnames';
 
 const overlaidScrollbarsHideOffset = 42;
 const overlaidScrollbarsHideBorderStyle = `${overlaidScrollbarsHideOffset}px solid transparent`;
@@ -48,74 +63,91 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): LifecycleUp
 
   const hideNativeScrollbars = (
     contentScrollSize: WH<number>,
-    adjustFlexboxGlue: boolean,
+    showNativeOverlaidScrollbars: boolean,
     directionIsRTL: boolean,
-    heightIntrinsic: boolean,
     viewportStyleObj: PlainObject,
     contentStyleObj: PlainObject
   ) => {
     const { _nativeScrollbarSize, _nativeScrollbarIsOverlaid, _nativeScrollbarStyling } = getEnvironment();
+    const { x: overlaidX, y: overlaidY } = _nativeScrollbarIsOverlaid;
     const scrollX = viewportStyleObj.overflowX === 'scroll';
     const scrollY = viewportStyleObj.overflowY === 'scroll';
     const horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
     const horizontalBorderKey = directionIsRTL ? 'borderLeft' : 'borderRight';
     const scrollXY = scrollY && scrollX;
-    const hideOffset = _content ? overlaidScrollbarsHideOffset : 0;
-    const offset = {
-      x: _nativeScrollbarIsOverlaid.x ? hideOffset : _nativeScrollbarSize.x,
-      y: _nativeScrollbarIsOverlaid.y ? hideOffset : _nativeScrollbarSize.y,
+    const overlaidHideOffset = _content && !showNativeOverlaidScrollbars ? overlaidScrollbarsHideOffset : 0;
+    const scrollbarsHideOffset = {
+      x: overlaidX ? overlaidHideOffset : _nativeScrollbarSize.x,
+      y: overlaidY ? overlaidHideOffset : _nativeScrollbarSize.y,
     };
 
     if (!_nativeScrollbarStyling) {
       if (scrollX) {
-        viewportStyleObj.marginBottom = `-${offset.x}px`;
+        viewportStyleObj.marginBottom = `-${scrollbarsHideOffset.x}px`;
 
-        if (_nativeScrollbarIsOverlaid.x && hideOffset) {
-          contentStyleObj.borderBottom = overlaidScrollbarsHideBorderStyle;
-        }
+        contentStyleObj.borderBottom = overlaidX && overlaidHideOffset ? overlaidScrollbarsHideBorderStyle : '';
       }
       if (scrollY) {
-        viewportStyleObj.maxWidth = `calc(100% + ${offset.y}px)`;
-        viewportStyleObj[horizontalMarginKey] = `-${offset.y}px`;
+        viewportStyleObj.maxWidth = `calc(100% + ${scrollbarsHideOffset.y}px)`;
+        viewportStyleObj[horizontalMarginKey] = `-${scrollbarsHideOffset.y}px`;
 
-        if (_nativeScrollbarIsOverlaid.y && hideOffset) {
-          contentStyleObj[horizontalBorderKey] = overlaidScrollbarsHideBorderStyle;
-        }
+        contentStyleObj[horizontalBorderKey] = overlaidY && overlaidHideOffset ? overlaidScrollbarsHideBorderStyle : '';
       }
 
-      if (hideOffset && (offset.x || offset.y)) {
+      if (_contentArrange) {
+        const condition = scrollXY && !showNativeOverlaidScrollbars;
         style(_contentArrange, {
-          width: scrollXY ? `${hideOffset + contentScrollSize.w}px` : '',
-          height: scrollXY ? `${hideOffset + contentScrollSize.h}px` : '',
+          width: condition ? `${overlaidHideOffset + contentScrollSize.w}px` : '',
+          height: condition ? `${overlaidHideOffset + contentScrollSize.h}px` : '',
         });
       }
     }
 
-    if (adjustFlexboxGlue) {
-      const offsetLeft = scrollLeft(_viewport);
-      const offsetTop = scrollTop(_viewport);
+    return {
+      _scrollbarsHideOffset: scrollbarsHideOffset,
+      _scroll: {
+        x: scrollX,
+        y: scrollY,
+      },
+    };
+  };
 
+  const setFlexboxGlueStyle = (heightIntrinsic: boolean, scrollX: boolean, scrollbarsHideOffsetX: number) => {
+    const offsetLeft = scrollLeft(_viewport);
+    const offsetTop = scrollTop(_viewport);
+
+    style(_viewport, {
+      maxHeight: '',
+    });
+
+    if (heightIntrinsic) {
       style(_viewport, {
-        maxHeight: '',
+        maxHeight: `${_host.clientHeight + (scrollX ? scrollbarsHideOffsetX : 0)}px`,
       });
-
-      if (heightIntrinsic) {
-        style(_viewport, {
-          maxHeight: `${_host.clientHeight + (scrollX ? offset.x : 0)}px`,
-        });
-      }
-
-      scrollLeft(_viewport, offsetLeft);
-      scrollTop(_viewport, offsetTop);
     }
+
+    scrollLeft(_viewport, offsetLeft);
+    scrollTop(_viewport, offsetTop);
   };
 
   return createLifecycleUpdateFunction(lifecycleHub, (force, updateHints, checkOption) => {
     const { _directionIsRTL, _heightIntrinsic, _sizeChanged, _hostMutation, _contentMutation } = updateHints;
-    const { _flexboxGlue, _nativeScrollbarStyling } = getEnvironment();
-    const adjustFlexboxGlue = !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation);
+    const { _flexboxGlue, _nativeScrollbarStyling, _nativeScrollbarIsOverlaid } = getEnvironment();
+    const { _value: showNativeOverlaidScrollbarsOption, _changed: showNativeOverlaidScrollbarsChanged } = checkOption<boolean>(
+      'nativeScrollbarsOverlaid.show'
+    );
+    const adjustFlexboxGlue = !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged);
+    const showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
     let overflowAmuntCache: CacheValues<XY<number>> = getCurrentOverflowAmountCache();
     let contentScrollSizeCache: CacheValues<WH<number>> = getCurrentContentScrollSizeCache();
+
+    if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
+      if (showNativeOverlaidScrollbars) {
+        removeClass(_viewport, classNameViewportScrollbarStyling);
+      } else {
+        addClass(_viewport, classNameViewportScrollbarStyling);
+      }
+    }
 
     if (_sizeChanged || _contentMutation) {
       const viewportOffsetSize = offsetSize(_padding);
@@ -145,7 +177,14 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): LifecycleUp
     }>('overflow');
     const adjustDirection = directionChanged && !_nativeScrollbarStyling;
 
-    if (contentScrollSizeChanged || overflowAmountChanged || overflowChanged || adjustDirection || adjustFlexboxGlue) {
+    if (
+      contentScrollSizeChanged ||
+      overflowAmountChanged ||
+      overflowChanged ||
+      showNativeOverlaidScrollbarsChanged ||
+      adjustDirection ||
+      adjustFlexboxGlue
+    ) {
       const viewportStyle: PlainObject = {
         overflowY: '',
         overflowX: '',
@@ -172,7 +211,17 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): LifecycleUp
         viewportStyle.overflowY = yVisibleBehavior;
       }
 
-      hideNativeScrollbars(contentScrollSize!, adjustFlexboxGlue, directionIsRTL!, !!_heightIntrinsic._value, viewportStyle, contentStyle);
+      const { _scrollbarsHideOffset, _scroll } = hideNativeScrollbars(
+        contentScrollSize!,
+        showNativeOverlaidScrollbars,
+        directionIsRTL!,
+        viewportStyle,
+        contentStyle
+      );
+
+      if (adjustFlexboxGlue) {
+        setFlexboxGlueStyle(!!_heightIntrinsic._value, _scroll.x, _scrollbarsHideOffset.x);
+      }
 
       // TODO: enlargen viewport if div too small for firefox scrollbar hiding behavior
       // TODO: Test without content
