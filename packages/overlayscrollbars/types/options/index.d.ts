@@ -12,20 +12,15 @@ export declare type DirectionChangedCallback = (this: any, args?: DirectionChang
 export declare type SizeChangedCallback = (this: any, args?: SizeChangedArgs) => void;
 export declare type UpdatedCallback = (this: any, args?: UpdatedArgs) => void;
 export interface Options {
-    className?: string | null;
     resize?: ResizeBehavior;
-    sizeAutoCapable?: boolean;
-    clipAlways?: boolean;
-    normalizeRTL?: boolean;
     paddingAbsolute?: boolean;
-    autoUpdate?: boolean | null;
-    autoUpdateInterval?: number;
-    updateOnLoad?: string | ReadonlyArray<string> | null;
-    nativeScrollbarsOverlaid?: {
-        showNativeScrollbars?: boolean;
-        initialize?: boolean;
+    updating?: {
+        elementEvents?: ReadonlyArray<[string, string]> | null;
+        contentMutationDebounce?: number;
+        hostMutationDebounce?: number;
+        resizeDebounce?: number;
     };
-    overflowBehavior?: {
+    overflow?: {
         x?: OverflowBehavior;
         y?: OverflowBehavior;
     };
@@ -33,29 +28,18 @@ export interface Options {
         visibility?: VisibilityBehavior;
         autoHide?: AutoHideBehavior;
         autoHideDelay?: number;
-        dragScrolling?: boolean;
-        clickScrolling?: boolean;
-        touchSupport?: boolean;
-        snapHandle?: boolean;
+        dragScroll?: boolean;
+        clickScroll?: boolean;
+        touch?: boolean;
     };
     textarea?: {
         dynWidth?: boolean;
         dynHeight?: boolean;
         inheritedAttrs?: string | ReadonlyArray<string> | null;
     };
-    callbacks?: {
-        onInitialized?: BasicEventCallback | null;
-        onInitializationWithdrawn?: BasicEventCallback | null;
-        onDestroyed?: BasicEventCallback | null;
-        onScrollStart?: ScrollEventCallback | null;
-        onScroll?: ScrollEventCallback | null;
-        onScrollStop?: ScrollEventCallback | null;
-        onOverflowChanged?: OverflowChangedCallback | null;
-        onOverflowAmountChanged?: OverflowAmountChangedCallback | null;
-        onDirectionChanged?: DirectionChangedCallback | null;
-        onContentSizeChanged?: SizeChangedCallback | null;
-        onHostSizeChanged?: SizeChangedCallback | null;
-        onUpdated?: UpdatedCallback | null;
+    nativeScrollbarsOverlaid?: {
+        show?: boolean;
+        initialize?: boolean;
     };
 }
 export interface OverflowChangedArgs {

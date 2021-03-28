@@ -1,3 +1,4 @@
 import { OSTarget, OSTargetObject } from 'typings';
-declare const OverlayScrollbars: (target: OSTarget | OSTargetObject, options?: any, extensions?: any) => void;
+import { Options } from 'options';
+declare const OverlayScrollbars: (target: OSTarget | OSTargetObject, options?: Options | undefined, extensions?: any) => any;
 export { OverlayScrollbars };

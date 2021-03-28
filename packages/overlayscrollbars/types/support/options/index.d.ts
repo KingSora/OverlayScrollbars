@@ -24,7 +24,7 @@ declare type OptionsTemplateTypeMap = {
     __TPL_boolean_TYPE__: boolean;
     __TPL_number_TYPE__: number;
     __TPL_string_TYPE__: string;
-    __TPL_array_TYPE__: Array<any>;
+    __TPL_array_TYPE__: Array<any> | ReadonlyArray<any>;
     __TPL_function_TYPE__: Func;
     __TPL_null_TYPE__: null;
     __TPL_object_TYPE__: Record<string, unknown>;

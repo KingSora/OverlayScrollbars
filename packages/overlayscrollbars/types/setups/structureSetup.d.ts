@@ -9,6 +9,7 @@ export interface OSTargetContext {
 }
 export interface PreparedOSTargetObject extends Required<InternalVersionOf<OSTargetObject>> {
     _host: HTMLElement;
+    _contentArrange: HTMLElement | null;
 }
 export interface StructureSetup {
     _targetObj: PreparedOSTargetObject;

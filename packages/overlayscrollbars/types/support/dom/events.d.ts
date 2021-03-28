@@ -10,7 +10,7 @@ export interface OnOptions {
  * @param listener The listener which shall be removed.
  * @param capture The options of the removed listener.
  */
-export declare const off: (target: EventTarget, eventNames: string, listener: EventListener, capture?: boolean | undefined) => void;
+export declare const off: <T extends Event = Event>(target: EventTarget, eventNames: string, listener: (event: T) => any, capture?: boolean | undefined) => void;
 /**
  * Adds the passed event listener for the passed eventnames with the passed options.
  * @param target The element to which the listener shall be added.
@@ -18,7 +18,7 @@ export declare const off: (target: EventTarget, eventNames: string, listener: Ev
  * @param listener The listener which is called on the eventnames.
  * @param options The options of the added listener.
  */
-export declare const on: (target: EventTarget, eventNames: string, listener: EventListener, options?: OnOptions | undefined) => (() => void);
+export declare const on: <T extends Event = Event>(target: EventTarget, eventNames: string, listener: (event: T) => any, options?: OnOptions | undefined) => (() => void);
 /**
  * Shorthand for the stopPropagation event Method.
  * @param evt The event of which the stopPropagation method shall be called.

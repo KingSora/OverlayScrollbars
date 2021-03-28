@@ -442,42 +442,12 @@
   var equalXY = function equalXY(a, b) {
     return equal(a, b, ['x', 'y']);
   };
-  var equalTRBL = function equalTRBL(a, b) {
-    return equal(a, b, ['t', 'r', 'b', 'l']);
-  };
 
   var firstLetterToUpper = function firstLetterToUpper(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
-
-  var getDummyStyle = function getDummyStyle() {
-    return createDiv().style;
-  };
-
-  var cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
   var jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
   var jsCache = {};
-  var cssCache = {};
-  var cssProperty = function cssProperty(name) {
-    var result = cssCache[name];
-
-    if (hasOwnProperty$1(cssCache, name)) {
-      return result;
-    }
-
-    var uppercasedName = firstLetterToUpper(name);
-    var elmStyle = getDummyStyle();
-    each(cssPrefixes, function (prefix) {
-      var prefixWithoutDashes = prefix.replace(/-/g, '');
-      var resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
-      result = resultPossibilities.find(function (resultPossibility) {
-        return elmStyle[resultPossibility] !== undefined;
-      });
-      return !result;
-    });
-    cssCache[name] = result;
-    return result;
-  };
   var jsAPI = function jsAPI(name) {
     var result = jsCache[name] || window[name];
 
@@ -538,11 +508,6 @@
     zoom: 1,
   };
 
-  var parseToZeroOrNumber = function parseToZeroOrNumber(value, toFloat) {
-    var num = toFloat ? parseFloat(value) : parseInt(value, 10);
-    return Number.isNaN(num) ? 0 : num;
-  };
-
   var adaptCSSVal = function adaptCSSVal(prop, val) {
     return !cssNumber[prop.toLowerCase()] && isNumber(val) ? val + 'px' : val;
   };
@@ -583,20 +548,6 @@
       return setCSSVal(elm, key, styles[key]);
     });
   }
-  var topRightBottomLeft = function topRightBottomLeft(elm, property) {
-    var finalProp = property || '';
-    var top = finalProp + '-top';
-    var right = finalProp + '-right';
-    var bottom = finalProp + '-bottom';
-    var left = finalProp + '-left';
-    var result = style(elm, [top, right, bottom, left]);
-    return {
-      t: parseToZeroOrNumber(result[top]),
-      r: parseToZeroOrNumber(result[right]),
-      b: parseToZeroOrNumber(result[bottom]),
-      l: parseToZeroOrNumber(result[left]),
-    };
-  };
 
   var zeroObj$1 = {
     x: 0,
@@ -639,7 +590,16 @@
       };
     };
 
-    return cacheUpdate;
+    return {
+      _update: cacheUpdate,
+      _current: function _current(force) {
+        return {
+          _value: _value,
+          _previous: _previous,
+          _changed: !!force,
+        };
+      },
+    };
   };
 
   function createCommonjsModule(fn) {
@@ -793,6 +753,7 @@
   var classNamePadding = 'os-padding';
   var classNameViewport = 'os-viewport';
   var classNameContent = 'os-content';
+  var classNameContentArrange = classNameContent + '-arrange';
   var classNameViewportScrollbarStyling = classNameViewport + '-scrollbar-styled';
   var classNameSizeObserver = 'os-size-observer';
   var classNameSizeObserverAppear = classNameSizeObserver + '-appear';
@@ -814,19 +775,6 @@
       x: oSize.h - cSize.h,
       y: oSize.w - cSize.w,
     };
-  };
-
-  var getNativeScrollbarStyling = function getNativeScrollbarStyling(testElm) {
-    var result = false;
-    addClass(testElm, classNameViewportScrollbarStyling);
-
-    try {
-      result =
-        style(testElm, 'scrollbar-width') === 'none' ||
-        window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
-    } catch (ex) {}
-
-    return result;
   };
 
   var getRtlScrollBehavior = function getRtlScrollBehavior(parentElm, childElm) {
@@ -878,16 +826,17 @@
     var envElm = envDOM[0];
     var envChildElm = envElm.firstChild;
     var onChangedListener = new Set();
-    var nativeScrollBarSize = getNativeScrollbarSize(body, envElm);
+    var nativeScrollbarSize = getNativeScrollbarSize(body, envElm);
+    var nativeScrollbarStyling = false;
     var nativeScrollbarIsOverlaid = {
-      x: nativeScrollBarSize.x === 0,
-      y: nativeScrollBarSize.y === 0,
+      x: nativeScrollbarSize.x === 0,
+      y: nativeScrollbarSize.y === 0,
     };
     var env = {
       _autoUpdateLoop: false,
-      _nativeScrollbarSize: nativeScrollBarSize,
+      _nativeScrollbarSize: nativeScrollbarSize,
       _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
-      _nativeScrollbarStyling: getNativeScrollbarStyling(envElm),
+      _nativeScrollbarStyling: nativeScrollbarStyling,
       _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
       _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
       _addListener: function _addListener(listener) {
@@ -898,13 +847,12 @@
       },
     };
     removeAttr(envElm, 'style');
-    removeAttr(envElm, 'class');
     removeElements(envElm);
 
     if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
       var size = windowSize();
       var dpr = getWindowDPR();
-      var scrollbarSize = nativeScrollBarSize;
+      var scrollbarSize = nativeScrollbarSize;
       window.addEventListener('resize', function () {
         if (onChangedListener.size) {
           var sizeNew = windowSize();
@@ -953,627 +901,6 @@
     }
 
     return environmentInstance;
-  };
-
-  var getPropByPath = function getPropByPath(obj, path) {
-    return (
-      obj &&
-      path.split('.').reduce(function (o, prop) {
-        return o && hasOwnProperty$1(o, prop) ? o[prop] : undefined;
-      }, obj)
-    );
-  };
-
-  var createLifecycleBase = function createLifecycleBase(defaultOptionsWithTemplate, initialOptions, updateFunction) {
-    var _transformOptions = transformOptions(defaultOptionsWithTemplate),
-      optionsTemplate = _transformOptions._template,
-      defaultOptions = _transformOptions._options;
-
-    var options = assignDeep({}, defaultOptions, validateOptions(initialOptions || {}, optionsTemplate, null, true)._validated);
-
-    var update = function update(hints) {
-      var _force = hints._force,
-        _changedOptions = hints._changedOptions;
-
-      var checkOption = function checkOption(path) {
-        return {
-          _value: getPropByPath(options, path),
-          _changed: _force || getPropByPath(_changedOptions, path) !== undefined,
-        };
-      };
-
-      updateFunction(!!_force, checkOption);
-    };
-
-    update({
-      _force: true,
-    });
-    return {
-      _options: function _options(newOptions) {
-        if (newOptions) {
-          var _validateOptions = validateOptions(newOptions, optionsTemplate, options, true),
-            _changedOptions = _validateOptions._validated;
-
-          if (!isEmptyObject(_changedOptions)) {
-            assignDeep(options, _changedOptions);
-            update({
-              _changedOptions: _changedOptions,
-            });
-          }
-        }
-
-        return options;
-      },
-      _update: function _update(_force) {
-        update({
-          _force: _force,
-        });
-      },
-    };
-  };
-
-  var overflowBehaviorAllowedValues = 'visible-hidden visible-scroll scroll hidden';
-  var defaultOptionsWithTemplate = {
-    paddingAbsolute: [false, optionsTemplateTypes.boolean],
-    overflowBehavior: {
-      x: ['scroll', overflowBehaviorAllowedValues],
-      y: ['scroll', overflowBehaviorAllowedValues],
-    },
-  };
-  var cssMarginEnd = cssProperty('margin-inline-end');
-  var cssBorderEnd = cssProperty('border-inline-end');
-  var createStructureLifecycle = function createStructureLifecycle(target, initialOptions) {
-    var _host = target._host,
-      _padding = target._padding,
-      _viewport = target._viewport,
-      _content = target._content;
-    var destructFns = [];
-    var env = getEnvironment();
-    var scrollbarsOverlaid = env._nativeScrollbarIsOverlaid;
-    var supportsScrollbarStyling = env._nativeScrollbarStyling;
-    var supportFlexboxGlue = env._flexboxGlue;
-    var directionObserverObsolete = (cssMarginEnd && cssBorderEnd) || supportsScrollbarStyling || scrollbarsOverlaid.y;
-    var updatePaddingCache = createCache(
-      function () {
-        return topRightBottomLeft(_host, 'padding');
-      },
-      {
-        _equal: equalTRBL,
-      }
-    );
-    var updateOverflowAmountCache = createCache(
-      function (ctx) {
-        return {
-          x: Math.max(0, Math.round((ctx._contentScrollSize.w - ctx._viewportSize.w) * 100) / 100),
-          y: Math.max(0, Math.round((ctx._contentScrollSize.h - ctx._viewportSize.h) * 100) / 100),
-        };
-      },
-      {
-        _equal: equalXY,
-      }
-    );
-
-    var _createLifecycleBase = createLifecycleBase(defaultOptionsWithTemplate, initialOptions, function (force, checkOption) {
-        var _checkOption = checkOption('paddingAbsolute'),
-          paddingAbsolute = _checkOption._value,
-          paddingAbsoluteChanged = _checkOption._changed;
-
-        var _updatePaddingCache = updatePaddingCache(force),
-          padding = _updatePaddingCache._value,
-          paddingChanged = _updatePaddingCache._changed;
-
-        if (paddingAbsoluteChanged || paddingChanged) {
-          var paddingStyle = {
-            t: 0,
-            r: 0,
-            b: 0,
-            l: 0,
-          };
-
-          if (!paddingAbsolute) {
-            paddingStyle.t = -padding.t;
-            paddingStyle.r = -(padding.r + padding.l);
-            paddingStyle.b = -(padding.b + padding.t);
-            paddingStyle.l = -padding.l;
-          }
-
-          style(_padding, {
-            top: paddingStyle.t,
-            left: paddingStyle.l,
-            'margin-right': paddingStyle.r,
-            'margin-bottom': paddingStyle.b,
-            'max-width': 'calc(100% + ' + paddingStyle.r * -1 + 'px)',
-          });
-        }
-
-        var viewportOffsetSize = offsetSize(_padding);
-        var contentClientSize = offsetSize(_content);
-        var contentScrollSize = scrollSize(_content);
-        var overflowAmuntCache = updateOverflowAmountCache(force, {
-          _contentScrollSize: contentScrollSize,
-          _viewportSize: {
-            w: viewportOffsetSize.w + Math.max(0, contentClientSize.w - contentScrollSize.w),
-            h: viewportOffsetSize.h + Math.max(0, contentClientSize.h - contentScrollSize.h),
-          },
-        });
-        var overflowAmount = overflowAmuntCache._value,
-          overflowAmountChanged = overflowAmuntCache._changed;
-        console.log('overflowAmount', overflowAmount);
-        console.log('overflowAmountChanged', overflowAmountChanged);
-      }),
-      _options = _createLifecycleBase._options,
-      _update = _createLifecycleBase._update;
-
-    var onSizeChanged = function onSizeChanged() {
-      _update();
-    };
-
-    var onTrinsicChanged = function onTrinsicChanged(widthIntrinsic, heightIntrinsicCache) {
-      var _changed = heightIntrinsicCache._changed,
-        _value = heightIntrinsicCache._value;
-
-      if (_changed) {
-        style(_content, {
-          height: _value ? 'auto' : '100%',
-        });
-      }
-    };
-
-    return {
-      _options: _options,
-      _update: _update,
-      _onSizeChanged: onSizeChanged,
-      _onTrinsicChanged: onTrinsicChanged,
-      _destruct: function _destruct() {
-        runEach(destructFns);
-      },
-    };
-  };
-
-  var animationStartEventName = 'animationstart';
-  var scrollEventName = 'scroll';
-  var scrollAmount = 3333333;
-  var directionIsRTLMap = {
-    direction: ['rtl'],
-  };
-
-  var directionIsRTL = function directionIsRTL(elm) {
-    var isRTL = false;
-    var styles = style(elm, ['direction']);
-    each(styles, function (value, key) {
-      isRTL = isRTL || indexOf(directionIsRTLMap[key], value) > -1;
-    });
-    return isRTL;
-  };
-
-  var domRectHasDimensions = function domRectHasDimensions(rect) {
-    return rect && (rect.height || rect.width);
-  };
-
-  var createSizeObserver = function createSizeObserver(target, onSizeChangedCallback, options) {
-    var _ref = options || {},
-      _ref$_direction = _ref._direction,
-      observeDirectionChange = _ref$_direction === void 0 ? false : _ref$_direction,
-      _ref$_appear = _ref._appear,
-      observeAppearChange = _ref$_appear === void 0 ? false : _ref$_appear;
-
-    var rtlScrollBehavior = getEnvironment()._rtlScrollBehavior;
-
-    var baseElements = createDOM('<div class="' + classNameSizeObserver + '"><div class="' + classNameSizeObserverListener + '"></div></div>');
-    var sizeObserver = baseElements[0];
-    var listenerElement = sizeObserver.firstChild;
-    var updateResizeObserverContentRectCache = createCache(0, {
-      _alwaysUpdateValues: true,
-      _equal: function _equal(currVal, newVal) {
-        return !(!currVal || (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal)));
-      },
-    });
-
-    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(sizeChangedContext) {
-      var hasDirectionCache = sizeChangedContext && isBoolean(sizeChangedContext._value);
-      var skip = false;
-
-      if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
-        var _updateResizeObserver = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect),
-          _previous = _updateResizeObserver._previous,
-          _value = _updateResizeObserver._value,
-          _changed = _updateResizeObserver._changed;
-
-        skip = !_previous || !domRectHasDimensions(_value);
-      } else if (hasDirectionCache) {
-        sizeChangedContext._changed;
-      }
-
-      if (observeDirectionChange) {
-        var rtl = hasDirectionCache ? sizeChangedContext._value : directionIsRTL(sizeObserver);
-        scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
-        scrollTop(sizeObserver, scrollAmount);
-      }
-
-      if (!skip) {
-        onSizeChangedCallback(hasDirectionCache ? sizeChangedContext : undefined);
-      }
-    };
-
-    var offListeners = [];
-    var appearCallback = observeAppearChange ? onSizeChangedCallbackProxy : false;
-
-    if (ResizeObserverConstructor) {
-      var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
-      resizeObserverInstance.observe(listenerElement);
-      push(offListeners, function () {
-        return resizeObserverInstance.disconnect();
-      });
-    } else {
-      var observerElementChildren = createDOM(
-        '<div class="' +
-          classNameSizeObserverListenerItem +
-          '" dir="ltr"><div class="' +
-          classNameSizeObserverListenerItem +
-          '"><div class="' +
-          classNameSizeObserverListenerItemFinal +
-          '"></div></div><div class="' +
-          classNameSizeObserverListenerItem +
-          '"><div class="' +
-          classNameSizeObserverListenerItemFinal +
-          '" style="width: 200%; height: 200%"></div></div></div>'
-      );
-      appendChildren(listenerElement, observerElementChildren);
-      addClass(listenerElement, classNameSizeObserverListenerScroll);
-      var observerElementChildrenRoot = observerElementChildren[0];
-      var shrinkElement = observerElementChildrenRoot.lastChild;
-      var expandElement = observerElementChildrenRoot.firstChild;
-      var expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
-      var cacheSize = offsetSize(listenerElement);
-      var currSize = cacheSize;
-      var isDirty = false;
-      var rAFId;
-
-      var reset = function reset() {
-        scrollLeft(expandElement, scrollAmount);
-        scrollTop(expandElement, scrollAmount);
-        scrollLeft(shrinkElement, scrollAmount);
-        scrollTop(shrinkElement, scrollAmount);
-      };
-
-      var onResized = function onResized() {
-        rAFId = 0;
-
-        if (isDirty) {
-          cacheSize = currSize;
-          onSizeChangedCallbackProxy();
-        }
-      };
-
-      var onScroll = function onScroll(scrollEvent) {
-        currSize = offsetSize(listenerElement);
-        isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
-
-        if (scrollEvent && isDirty && !rAFId) {
-          cAF(rAFId);
-          rAFId = rAF(onResized);
-        } else if (!scrollEvent) {
-          onResized();
-        }
-
-        reset();
-
-        if (scrollEvent) {
-          preventDefault(scrollEvent);
-          stopPropagation(scrollEvent);
-        }
-
-        return false;
-      };
-
-      push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
-      style(expandElementChild, {
-        width: scrollAmount,
-        height: scrollAmount,
-      });
-      reset();
-      appearCallback = observeAppearChange
-        ? function () {
-            return onScroll();
-          }
-        : reset;
-    }
-
-    if (observeDirectionChange) {
-      var updateDirectionIsRTLCache = createCache(function () {
-        return directionIsRTL(sizeObserver);
-      });
-      push(
-        offListeners,
-        on(sizeObserver, scrollEventName, function (event) {
-          var directionIsRTLCache = updateDirectionIsRTLCache();
-          var _value = directionIsRTLCache._value,
-            _changed = directionIsRTLCache._changed;
-
-          if (_changed) {
-            if (_value) {
-              style(listenerElement, {
-                left: 'auto',
-                right: 0,
-              });
-            } else {
-              style(listenerElement, {
-                left: 0,
-                right: 'auto',
-              });
-            }
-
-            onSizeChangedCallbackProxy(directionIsRTLCache);
-          }
-
-          preventDefault(event);
-          stopPropagation(event);
-          return false;
-        })
-      );
-    }
-
-    if (appearCallback) {
-      addClass(sizeObserver, classNameSizeObserverAppear);
-      push(
-        offListeners,
-        on(sizeObserver, animationStartEventName, appearCallback, {
-          _once: !!ResizeObserverConstructor,
-        })
-      );
-    }
-
-    prependChildren(target, sizeObserver);
-    return function () {
-      runEach(offListeners);
-      removeElements(sizeObserver);
-    };
-  };
-
-  var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
-    var trinsicObserver = createDOM('<div class="' + classNameTrinsicObserver + '"></div>')[0];
-    var offListeners = [];
-    var updateHeightIntrinsicCache = createCache(
-      function (ioEntryOrSize) {
-        return ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
-      },
-      {
-        _initialValue: false,
-      }
-    );
-
-    if (IntersectionObserverConstructor) {
-      var intersectionObserverInstance = new IntersectionObserverConstructor(
-        function (entries) {
-          if (entries && entries.length > 0) {
-            var last = entries.pop();
-
-            if (last) {
-              var heightIntrinsicCache = updateHeightIntrinsicCache(0, last);
-
-              if (heightIntrinsicCache._changed) {
-                onTrinsicChangedCallback(false, heightIntrinsicCache);
-              }
-            }
-          }
-        },
-        {
-          root: target,
-        }
-      );
-      intersectionObserverInstance.observe(trinsicObserver);
-      push(offListeners, function () {
-        return intersectionObserverInstance.disconnect();
-      });
-    } else {
-      push(
-        offListeners,
-        createSizeObserver(trinsicObserver, function () {
-          var newSize = offsetSize(trinsicObserver);
-          var heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
-
-          if (heightIntrinsicCache._changed) {
-            onTrinsicChangedCallback(false, heightIntrinsicCache);
-          }
-        })
-      );
-    }
-
-    prependChildren(target, trinsicObserver);
-    return function () {
-      runEach(offListeners);
-      removeElements(trinsicObserver);
-    };
-  };
-
-  var createEventContentChange = function createEventContentChange(target, eventContentChange, map, callback) {
-    var eventContentChangeRef;
-
-    var addEvent = function addEvent(elm, eventName) {
-      var entry = map.get(elm);
-      var newEntry = isUndefined(entry);
-
-      var registerEvent = function registerEvent() {
-        map.set(elm, eventName);
-        on(elm, eventName, callback);
-      };
-
-      if (!newEntry && eventName !== entry) {
-        off(elm, entry, callback);
-        registerEvent();
-      } else if (newEntry) {
-        registerEvent();
-      }
-    };
-
-    var _destroy = function _destroy() {
-      map.forEach(function (eventName, elm) {
-        off(elm, eventName, callback);
-      });
-      map.clear();
-    };
-
-    var _updateElements = function _updateElements(getElements) {
-      if (eventContentChangeRef) {
-        var eventElmList = eventContentChangeRef.reduce(function (arr, item) {
-          if (item) {
-            var selector = item[0];
-            var eventName = item[1];
-            var elements = eventName && selector && (getElements ? getElements(selector) : find(selector, target));
-
-            if (elements) {
-              push(arr, [elements, isFunction(eventName) ? eventName(elements) : eventName], true);
-            }
-          }
-
-          return arr;
-        }, []);
-        each(eventElmList, function (item) {
-          var elements = item[0];
-          var eventName = item[1];
-          each(elements, function (elm) {
-            addEvent(elm, eventName);
-          });
-        });
-      }
-    };
-
-    var _update = function _update(newEventContentChange) {
-      eventContentChangeRef = newEventContentChange;
-
-      _destroy();
-
-      _updateElements();
-    };
-
-    if (eventContentChange) {
-      _update(eventContentChange);
-    }
-
-    return {
-      _destroy: _destroy,
-      _updateElements: _updateElements,
-      _update: _update,
-    };
-  };
-
-  var createDOMObserver = function createDOMObserver(target, callback, options) {
-    var isConnected = false;
-
-    var _ref = options || {},
-      _observeContent = _ref._observeContent,
-      _attributes = _ref._attributes,
-      _styleChangingAttributes = _ref._styleChangingAttributes,
-      _eventContentChange = _ref._eventContentChange,
-      _nestedTargetSelector = _ref._nestedTargetSelector,
-      _ignoreTargetChange = _ref._ignoreTargetAttrChange,
-      _ignoreContentChange = _ref._ignoreContentChange;
-
-    var _createEventContentCh = createEventContentChange(
-        target,
-        _observeContent && _eventContentChange,
-        new Map(),
-        debounce(function () {
-          if (isConnected) {
-            callback([], false, true);
-          }
-        }, 80)
-      ),
-      updateEventContentChangeElements = _createEventContentCh._updateElements,
-      destroyEventContentChange = _createEventContentCh._destroy,
-      updateEventContentChange = _createEventContentCh._update;
-
-    var finalAttributes = _attributes || [];
-    var finalStyleChangingAttributes = _styleChangingAttributes || [];
-    var observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
-
-    var observerCallback = function observerCallback(mutations) {
-      var ignoreTargetChange = _ignoreTargetChange || noop;
-      var ignoreContentChange = _ignoreContentChange || noop;
-      var targetChangedAttrs = [];
-      var totalAddedNodes = [];
-      var targetStyleChanged = false;
-      var contentChanged = false;
-      var childListChanged = false;
-      each(mutations, function (mutation) {
-        var attributeName = mutation.attributeName,
-          mutationTarget = mutation.target,
-          type = mutation.type,
-          oldValue = mutation.oldValue,
-          addedNodes = mutation.addedNodes;
-        var isAttributesType = type === 'attributes';
-        var isChildListType = type === 'childList';
-        var targetIsMutationTarget = target === mutationTarget;
-        var attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
-        var attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
-        var targetAttrChanged =
-          attributeChanged &&
-          targetIsMutationTarget &&
-          !_observeContent &&
-          !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue);
-        var styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
-
-        if (targetAttrChanged) {
-          push(targetChangedAttrs, attributeName);
-        }
-
-        if (_observeContent) {
-          var notOnlyAttrChanged = !isAttributesType;
-          var contentAttrChanged = isAttributesType && styleChangingAttrChanged && !targetIsMutationTarget;
-          var isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
-          var baseAssertion = isNestedTarget
-            ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
-            : notOnlyAttrChanged || contentAttrChanged;
-          var contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
-          push(totalAddedNodes, addedNodes);
-          contentChanged = contentChanged || contentFinalChanged;
-          childListChanged = childListChanged || isChildListType;
-        }
-
-        targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
-      });
-
-      if (childListChanged && !isEmptyArray(totalAddedNodes)) {
-        updateEventContentChangeElements(function (selector) {
-          return totalAddedNodes.reduce(function (arr, node) {
-            push(arr, find(selector, node));
-            return is(node, selector) ? push(arr, node) : arr;
-          }, []);
-        });
-      }
-
-      if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged || contentChanged) {
-        callback(targetChangedAttrs, targetStyleChanged, contentChanged);
-      }
-    };
-
-    var mutationObserver = new MutationObserverConstructor(observerCallback);
-    mutationObserver.observe(target, {
-      attributes: true,
-      attributeOldValue: true,
-      attributeFilter: observedAttributes,
-      subtree: _observeContent,
-      childList: _observeContent,
-      characterData: _observeContent,
-    });
-    isConnected = true;
-    return {
-      _disconnect: function _disconnect() {
-        if (isConnected) {
-          destroyEventContentChange();
-          mutationObserver.disconnect();
-          isConnected = false;
-        }
-      },
-      _updateEventContentChange: function _updateEventContentChange(newEventContentChange) {
-        updateEventContentChange(isConnected && _observeContent && newEventContentChange);
-      },
-      _update: function _update() {
-        if (isConnected) {
-          observerCallback(mutationObserver.takeRecords());
-        }
-      },
-    };
   };
 
   var unwrap = function unwrap(elm) {
@@ -1691,6 +1018,21 @@
       _host: _host,
     });
 
+    var _getEnvironment = getEnvironment(),
+      _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
+      _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid;
+
+    if (_nativeScrollbarStyling) {
+      push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
+    } else if (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y) {
+      if (obj._content) {
+        var contentArrangeElm = createDiv(classNameContentArrange);
+        prependChildren(_viewport, contentArrangeElm);
+        push(destroyFns, removeElements.bind(0, contentArrangeElm));
+        obj._contentArrange = contentArrangeElm;
+      }
+    }
+
     return {
       _targetObj: obj,
       _targetCtx: ctx,
@@ -1700,50 +1042,945 @@
     };
   };
 
-  var OverlayScrollbars = function OverlayScrollbars(target, options, extensions) {
-    var structureSetup = createStructureSetup(target);
-    var lifecycles = [];
+  var getPropByPath = function getPropByPath(obj, path) {
+    return (
+      obj &&
+      path.split('.').reduce(function (o, prop) {
+        return o && hasOwnProperty$1(o, prop) ? o[prop] : undefined;
+      }, obj)
+    );
+  };
+
+  var createLifecycleUpdateFunction = function createLifecycleUpdateFunction(lifecycleHub, updateFunction) {
+    return function (updateHints, changedOptions, force) {
+      var checkOption = function checkOption(path) {
+        return {
+          _value: getPropByPath(lifecycleHub._options, path),
+          _changed: force || getPropByPath(changedOptions, path) !== undefined,
+        };
+      };
+
+      return updateFunction(!!force, updateHints, checkOption) || {};
+    };
+  };
+
+  var overlaidScrollbarsHideOffset = 42;
+  var overlaidScrollbarsHideBorderStyle = overlaidScrollbarsHideOffset + 'px solid transparent';
+  var createOverflowLifecycle = function createOverflowLifecycle(lifecycleHub) {
+    var _lifecycleHub$_struct = lifecycleHub._structureSetup._targetObj,
+      _host = _lifecycleHub$_struct._host,
+      _padding = _lifecycleHub$_struct._padding,
+      _viewport = _lifecycleHub$_struct._viewport,
+      _content = _lifecycleHub$_struct._content,
+      _contentArrange = _lifecycleHub$_struct._contentArrange;
+
+    var _createCache = createCache(
+        function () {
+          return scrollSize(_content || _viewport);
+        },
+        {
+          _equal: equalWH,
+        }
+      ),
+      updateContentScrollSizeCache = _createCache._update,
+      getCurrentContentScrollSizeCache = _createCache._current;
+
+    var _createCache2 = createCache(
+        function (ctx) {
+          return {
+            x: Math.max(0, Math.round((ctx._contentScrollSize.w - ctx._viewportSize.w) * 100) / 100),
+            y: Math.max(0, Math.round((ctx._contentScrollSize.h - ctx._viewportSize.h) * 100) / 100),
+          };
+        },
+        {
+          _equal: equalXY,
+        }
+      ),
+      updateOverflowAmountCache = _createCache2._update,
+      getCurrentOverflowAmountCache = _createCache2._current;
+
+    var setViewportOverflowStyle = function setViewportOverflowStyle(horizontal, amount, behavior, styleObj) {
+      var overflowKey = horizontal ? 'overflowX' : 'overflowY';
+      var behaviorIsScroll = behavior === 'scroll';
+      var behaviorIsVisibleScroll = behavior === 'visible-scroll';
+      var hideOverflow = behaviorIsScroll || behavior === 'hidden';
+      var applyStyle = amount > 0 && hideOverflow;
+
+      if (applyStyle) {
+        styleObj[overflowKey] = behavior;
+      }
+
+      return {
+        _visible: !applyStyle,
+        _behavior: behaviorIsVisibleScroll ? 'scroll' : 'hidden',
+      };
+    };
+
+    var hideNativeScrollbars = function hideNativeScrollbars(
+      contentScrollSize,
+      showNativeOverlaidScrollbars,
+      directionIsRTL,
+      viewportStyleObj,
+      contentStyleObj
+    ) {
+      var _getEnvironment = getEnvironment(),
+        _nativeScrollbarSize = _getEnvironment._nativeScrollbarSize,
+        _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid,
+        _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling;
+
+      var overlaidX = _nativeScrollbarIsOverlaid.x,
+        overlaidY = _nativeScrollbarIsOverlaid.y;
+      var scrollX = viewportStyleObj.overflowX === 'scroll';
+      var scrollY = viewportStyleObj.overflowY === 'scroll';
+      var horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
+      var horizontalBorderKey = directionIsRTL ? 'borderLeft' : 'borderRight';
+      var overlaidHideOffset = _content && !showNativeOverlaidScrollbars ? overlaidScrollbarsHideOffset : 0;
+      var scrollbarsHideOffset = {
+        x: overlaidX ? overlaidHideOffset : _nativeScrollbarSize.x,
+        y: overlaidY ? overlaidHideOffset : _nativeScrollbarSize.y,
+      };
+
+      if (!_nativeScrollbarStyling) {
+        if (scrollX) {
+          viewportStyleObj.marginBottom = -scrollbarsHideOffset.x;
+          contentStyleObj.borderBottom = overlaidX && overlaidHideOffset ? overlaidScrollbarsHideBorderStyle : '';
+        }
+
+        if (scrollY) {
+          viewportStyleObj.maxWidth = 'calc(100% + ' + scrollbarsHideOffset.y + 'px)';
+          viewportStyleObj[horizontalMarginKey] = -scrollbarsHideOffset.y;
+          contentStyleObj[horizontalBorderKey] = overlaidY && overlaidHideOffset ? overlaidScrollbarsHideBorderStyle : '';
+        }
+
+        if (_contentArrange) {
+          style(_contentArrange, {
+            width: scrollY && !showNativeOverlaidScrollbars ? overlaidHideOffset + contentScrollSize.w : '',
+            height: scrollX && !showNativeOverlaidScrollbars ? overlaidHideOffset + contentScrollSize.h : '',
+          });
+        }
+      }
+
+      return {
+        _scrollbarsHideOffset: scrollbarsHideOffset,
+        _scroll: {
+          x: scrollX,
+          y: scrollY,
+        },
+      };
+    };
+
+    var setFlexboxGlueStyle = function setFlexboxGlueStyle(heightIntrinsic, scrollX, scrollbarsHideOffsetX) {
+      var offsetLeft = scrollLeft(_viewport);
+      var offsetTop = scrollTop(_viewport);
+      style(_viewport, {
+        maxHeight: '',
+      });
+
+      if (heightIntrinsic) {
+        style(_viewport, {
+          maxHeight: _host.clientHeight + (scrollX ? scrollbarsHideOffsetX : 0),
+        });
+      }
+
+      scrollLeft(_viewport, offsetLeft);
+      scrollTop(_viewport, offsetTop);
+    };
+
+    return createLifecycleUpdateFunction(lifecycleHub, function (force, updateHints, checkOption) {
+      var _directionIsRTL = updateHints._directionIsRTL,
+        _heightIntrinsic = updateHints._heightIntrinsic,
+        _sizeChanged = updateHints._sizeChanged,
+        _hostMutation = updateHints._hostMutation,
+        _contentMutation = updateHints._contentMutation;
+
+      var _getEnvironment2 = getEnvironment(),
+        _flexboxGlue = _getEnvironment2._flexboxGlue,
+        _nativeScrollbarStyling = _getEnvironment2._nativeScrollbarStyling,
+        _nativeScrollbarIsOverlaid = _getEnvironment2._nativeScrollbarIsOverlaid;
+
+      var _checkOption = checkOption('nativeScrollbarsOverlaid.show'),
+        showNativeOverlaidScrollbarsOption = _checkOption._value,
+        showNativeOverlaidScrollbarsChanged = _checkOption._changed;
+
+      var adjustFlexboxGlue = !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged);
+      var showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
+      var overflowAmuntCache = getCurrentOverflowAmountCache();
+      var contentScrollSizeCache = getCurrentContentScrollSizeCache();
+
+      if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
+        if (showNativeOverlaidScrollbars) {
+          removeClass(_viewport, classNameViewportScrollbarStyling);
+        } else {
+          addClass(_viewport, classNameViewportScrollbarStyling);
+        }
+      }
+
+      if (_sizeChanged || _contentMutation) {
+        var viewportOffsetSize = offsetSize(_padding);
+        var contentClientSize = offsetSize(_content || _viewport);
+        var contentArrangeOffsetSize = offsetSize(_contentArrange);
+        contentScrollSizeCache = updateContentScrollSizeCache(force);
+        var _contentScrollSizeCac = contentScrollSizeCache,
+          _contentScrollSize = _contentScrollSizeCac._value;
+        overflowAmuntCache = updateOverflowAmountCache(force, {
+          _contentScrollSize: {
+            w: Math.max(_contentScrollSize.w, contentArrangeOffsetSize.w),
+            h: Math.max(_contentScrollSize.h, contentArrangeOffsetSize.h),
+          },
+          _viewportSize: {
+            w: viewportOffsetSize.w + Math.max(0, contentClientSize.w - _contentScrollSize.w),
+            h: viewportOffsetSize.h + Math.max(0, contentClientSize.h - _contentScrollSize.h),
+          },
+        });
+      }
+
+      var directionIsRTL = _directionIsRTL._value,
+        directionChanged = _directionIsRTL._changed;
+      var _contentScrollSizeCac2 = contentScrollSizeCache,
+        contentScrollSize = _contentScrollSizeCac2._value,
+        contentScrollSizeChanged = _contentScrollSizeCac2._changed;
+      var _overflowAmuntCache = overflowAmuntCache,
+        overflowAmount = _overflowAmuntCache._value,
+        overflowAmountChanged = _overflowAmuntCache._changed;
+
+      var _checkOption2 = checkOption('overflow'),
+        overflow = _checkOption2._value,
+        overflowChanged = _checkOption2._changed;
+
+      var adjustDirection = directionChanged && !_nativeScrollbarStyling;
+
+      if (
+        contentScrollSizeChanged ||
+        overflowAmountChanged ||
+        overflowChanged ||
+        showNativeOverlaidScrollbarsChanged ||
+        adjustDirection ||
+        adjustFlexboxGlue
+      ) {
+        var viewportStyle = {
+          overflowY: '',
+          overflowX: '',
+          marginTop: '',
+          marginRight: '',
+          marginBottom: '',
+          marginLeft: '',
+          maxWidth: '',
+        };
+        var contentStyle = {
+          borderTop: '',
+          borderRight: '',
+          borderBottom: '',
+          borderLeft: '',
+        };
+
+        var _setViewportOverflowS = setViewportOverflowStyle(true, overflowAmount.x, overflow.x, viewportStyle),
+          xVisible = _setViewportOverflowS._visible,
+          xVisibleBehavior = _setViewportOverflowS._behavior;
+
+        var _setViewportOverflowS2 = setViewportOverflowStyle(false, overflowAmount.y, overflow.y, viewportStyle),
+          yVisible = _setViewportOverflowS2._visible,
+          yVisibleBehavior = _setViewportOverflowS2._behavior;
+
+        if (xVisible && !yVisible) {
+          viewportStyle.overflowX = xVisibleBehavior;
+        }
+
+        if (yVisible && !xVisible) {
+          viewportStyle.overflowY = yVisibleBehavior;
+        }
+
+        var _hideNativeScrollbars = hideNativeScrollbars(
+            contentScrollSize,
+            showNativeOverlaidScrollbars,
+            directionIsRTL,
+            viewportStyle,
+            contentStyle
+          ),
+          _scrollbarsHideOffset = _hideNativeScrollbars._scrollbarsHideOffset,
+          _scroll = _hideNativeScrollbars._scroll;
+
+        if (adjustFlexboxGlue) {
+          setFlexboxGlueStyle(!!_heightIntrinsic._value, _scroll.x, _scrollbarsHideOffset.x);
+        }
+
+        style(_viewport, viewportStyle);
+        style(_content, contentStyle);
+      }
+    });
+  };
+
+  var animationStartEventName = 'animationstart';
+  var scrollEventName = 'scroll';
+  var scrollAmount = 3333333;
+  var directionIsRTLMap = {
+    direction: ['rtl'],
+  };
+
+  var directionIsRTL = function directionIsRTL(elm) {
+    var isRTL = false;
+    var styles = style(elm, ['direction']);
+    each(styles, function (value, key) {
+      isRTL = isRTL || indexOf(directionIsRTLMap[key], value) > -1;
+    });
+    return isRTL;
+  };
+
+  var domRectHasDimensions = function domRectHasDimensions(rect) {
+    return rect && (rect.height || rect.width);
+  };
+
+  var createSizeObserver = function createSizeObserver(target, onSizeChangedCallback, options) {
+    var _ref = options || {},
+      _ref$_direction = _ref._direction,
+      observeDirectionChange = _ref$_direction === void 0 ? false : _ref$_direction,
+      _ref$_appear = _ref._appear,
+      observeAppearChange = _ref$_appear === void 0 ? false : _ref$_appear;
+
+    var _getEnvironment = getEnvironment(),
+      rtlScrollBehavior = _getEnvironment._rtlScrollBehavior;
+
+    var baseElements = createDOM('<div class="' + classNameSizeObserver + '"><div class="' + classNameSizeObserverListener + '"></div></div>');
+    var sizeObserver = baseElements[0];
+    var listenerElement = sizeObserver.firstChild;
+
+    var _createCache = createCache(0, {
+        _alwaysUpdateValues: true,
+        _equal: function _equal(currVal, newVal) {
+          return !(!currVal || (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal)));
+        },
+      }),
+      updateResizeObserverContentRectCache = _createCache._update;
+
+    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(sizeChangedContext) {
+      var hasDirectionCache = sizeChangedContext && isBoolean(sizeChangedContext._value);
+      var skip = false;
+
+      if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
+        var _updateResizeObserver = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect),
+          _previous = _updateResizeObserver._previous,
+          _value = _updateResizeObserver._value,
+          _changed = _updateResizeObserver._changed;
+
+        skip = !_previous || !domRectHasDimensions(_value);
+      } else if (hasDirectionCache) {
+        sizeChangedContext._changed;
+      }
+
+      if (observeDirectionChange) {
+        var rtl = hasDirectionCache ? sizeChangedContext._value : directionIsRTL(sizeObserver);
+        scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
+        scrollTop(sizeObserver, scrollAmount);
+      }
+
+      if (!skip) {
+        onSizeChangedCallback(hasDirectionCache ? sizeChangedContext : undefined);
+      }
+    };
+
+    var offListeners = [];
+    var appearCallback = observeAppearChange ? onSizeChangedCallbackProxy : false;
+    var directionIsRTLCache;
+
+    if (ResizeObserverConstructor) {
+      var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
+      resizeObserverInstance.observe(listenerElement);
+      push(offListeners, function () {
+        return resizeObserverInstance.disconnect();
+      });
+    } else {
+      var observerElementChildren = createDOM(
+        '<div class="' +
+          classNameSizeObserverListenerItem +
+          '" dir="ltr"><div class="' +
+          classNameSizeObserverListenerItem +
+          '"><div class="' +
+          classNameSizeObserverListenerItemFinal +
+          '"></div></div><div class="' +
+          classNameSizeObserverListenerItem +
+          '"><div class="' +
+          classNameSizeObserverListenerItemFinal +
+          '" style="width: 200%; height: 200%"></div></div></div>'
+      );
+      appendChildren(listenerElement, observerElementChildren);
+      addClass(listenerElement, classNameSizeObserverListenerScroll);
+      var observerElementChildrenRoot = observerElementChildren[0];
+      var shrinkElement = observerElementChildrenRoot.lastChild;
+      var expandElement = observerElementChildrenRoot.firstChild;
+      var expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
+      var cacheSize = offsetSize(listenerElement);
+      var currSize = cacheSize;
+      var isDirty = false;
+      var rAFId;
+
+      var reset = function reset() {
+        scrollLeft(expandElement, scrollAmount);
+        scrollTop(expandElement, scrollAmount);
+        scrollLeft(shrinkElement, scrollAmount);
+        scrollTop(shrinkElement, scrollAmount);
+      };
+
+      var onResized = function onResized() {
+        rAFId = 0;
+
+        if (isDirty) {
+          cacheSize = currSize;
+          onSizeChangedCallbackProxy();
+        }
+      };
+
+      var onScroll = function onScroll(scrollEvent) {
+        currSize = offsetSize(listenerElement);
+        isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
+
+        if (scrollEvent && isDirty && !rAFId) {
+          cAF(rAFId);
+          rAFId = rAF(onResized);
+        } else if (!scrollEvent) {
+          onResized();
+        }
+
+        reset();
+
+        if (scrollEvent) {
+          preventDefault(scrollEvent);
+          stopPropagation(scrollEvent);
+        }
+
+        return false;
+      };
+
+      push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
+      style(expandElementChild, {
+        width: scrollAmount,
+        height: scrollAmount,
+      });
+      reset();
+      appearCallback = observeAppearChange
+        ? function () {
+            return onScroll();
+          }
+        : reset;
+    }
+
+    if (observeDirectionChange) {
+      directionIsRTLCache = createCache(function () {
+        return directionIsRTL(sizeObserver);
+      });
+      var _directionIsRTLCache = directionIsRTLCache,
+        updateDirectionIsRTLCache = _directionIsRTLCache._update;
+      push(
+        offListeners,
+        on(sizeObserver, scrollEventName, function (event) {
+          var directionIsRTLCacheValues = updateDirectionIsRTLCache();
+          var _value = directionIsRTLCacheValues._value,
+            _changed = directionIsRTLCacheValues._changed;
+
+          if (_changed) {
+            if (_value) {
+              style(listenerElement, {
+                left: 'auto',
+                right: 0,
+              });
+            } else {
+              style(listenerElement, {
+                left: 0,
+                right: 'auto',
+              });
+            }
+
+            onSizeChangedCallbackProxy(directionIsRTLCacheValues);
+          }
+
+          preventDefault(event);
+          stopPropagation(event);
+          return false;
+        })
+      );
+    }
+
+    if (appearCallback) {
+      addClass(sizeObserver, classNameSizeObserverAppear);
+      push(
+        offListeners,
+        on(sizeObserver, animationStartEventName, appearCallback, {
+          _once: !!ResizeObserverConstructor,
+        })
+      );
+    }
+
+    prependChildren(target, sizeObserver);
+    return {
+      _destroy: function _destroy() {
+        runEach(offListeners);
+        removeElements(sizeObserver);
+      },
+      _getCurrentCacheValues: function _getCurrentCacheValues(force) {
+        return {
+          _directionIsRTL: directionIsRTLCache
+            ? directionIsRTLCache._current(force)
+            : {
+                _value: false,
+                _previous: false,
+                _changed: false,
+              },
+        };
+      },
+    };
+  };
+
+  var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
+    var trinsicObserver = createDOM('<div class="' + classNameTrinsicObserver + '"></div>')[0];
+    var offListeners = [];
+
+    var _createCache = createCache(
+        function (ioEntryOrSize) {
+          return ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
+        },
+        {
+          _initialValue: false,
+        }
+      ),
+      updateHeightIntrinsicCache = _createCache._update,
+      getCurrentHeightIntrinsicCache = _createCache._current;
+
+    if (IntersectionObserverConstructor) {
+      var intersectionObserverInstance = new IntersectionObserverConstructor(
+        function (entries) {
+          if (entries && entries.length > 0) {
+            var last = entries.pop();
+
+            if (last) {
+              var heightIntrinsic = updateHeightIntrinsicCache(0, last);
+
+              if (heightIntrinsic._changed) {
+                onTrinsicChangedCallback(heightIntrinsic);
+              }
+            }
+          }
+        },
+        {
+          root: target,
+        }
+      );
+      intersectionObserverInstance.observe(trinsicObserver);
+      push(offListeners, function () {
+        return intersectionObserverInstance.disconnect();
+      });
+    } else {
+      push(
+        offListeners,
+        createSizeObserver(trinsicObserver, function () {
+          var newSize = offsetSize(trinsicObserver);
+          var heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
+
+          if (heightIntrinsicCache._changed) {
+            onTrinsicChangedCallback(heightIntrinsicCache);
+          }
+        })._destroy
+      );
+    }
+
+    prependChildren(target, trinsicObserver);
+    return {
+      _destroy: function _destroy() {
+        runEach(offListeners);
+        removeElements(trinsicObserver);
+      },
+      _getCurrentCacheValues: function _getCurrentCacheValues(force) {
+        return {
+          _heightIntrinsic: getCurrentHeightIntrinsicCache(force),
+        };
+      },
+    };
+  };
+
+  var createEventContentChange = function createEventContentChange(target, eventContentChange, map, callback) {
+    var eventContentChangeRef;
+
+    var addEvent = function addEvent(elm, eventName) {
+      var entry = map.get(elm);
+      var newEntry = isUndefined(entry);
+
+      var registerEvent = function registerEvent() {
+        map.set(elm, eventName);
+        on(elm, eventName, callback);
+      };
+
+      if (!newEntry && eventName !== entry) {
+        off(elm, entry, callback);
+        registerEvent();
+      } else if (newEntry) {
+        registerEvent();
+      }
+    };
+
+    var _destroy = function _destroy() {
+      map.forEach(function (eventName, elm) {
+        off(elm, eventName, callback);
+      });
+      map.clear();
+    };
+
+    var _updateElements = function _updateElements(getElements) {
+      if (eventContentChangeRef) {
+        var eventElmList = eventContentChangeRef.reduce(function (arr, item) {
+          if (item) {
+            var selector = item[0];
+            var eventName = item[1];
+            var elements = eventName && selector && (getElements ? getElements(selector) : find(selector, target));
+
+            if (elements) {
+              push(arr, [elements, isFunction(eventName) ? eventName(elements) : eventName], true);
+            }
+          }
+
+          return arr;
+        }, []);
+        each(eventElmList, function (item) {
+          var elements = item[0];
+          var eventName = item[1];
+          each(elements, function (elm) {
+            addEvent(elm, eventName);
+          });
+        });
+      }
+    };
+
+    var _update = function _update(newEventContentChange) {
+      eventContentChangeRef = newEventContentChange;
+
+      _destroy();
+
+      _updateElements();
+    };
+
+    if (eventContentChange) {
+      _update(eventContentChange);
+    }
+
+    return {
+      _destroy: _destroy,
+      _updateElements: _updateElements,
+      _update: _update,
+    };
+  };
+
+  var createDOMObserver = function createDOMObserver(target, callback, options) {
+    var isConnected = false;
+
+    var _ref = options || {},
+      _observeContent = _ref._observeContent,
+      _attributes = _ref._attributes,
+      _styleChangingAttributes = _ref._styleChangingAttributes,
+      _eventContentChange = _ref._eventContentChange,
+      _nestedTargetSelector = _ref._nestedTargetSelector,
+      _ignoreTargetChange = _ref._ignoreTargetAttrChange,
+      _ignoreContentChange = _ref._ignoreContentChange;
+
+    var _createEventContentCh = createEventContentChange(
+        target,
+        _observeContent && _eventContentChange,
+        new Map(),
+        debounce(function () {
+          if (isConnected) {
+            callback([], false, true);
+          }
+        }, 84)
+      ),
+      updateEventContentChangeElements = _createEventContentCh._updateElements,
+      destroyEventContentChange = _createEventContentCh._destroy,
+      updateEventContentChange = _createEventContentCh._update;
+
+    var finalAttributes = _attributes || [];
+    var finalStyleChangingAttributes = _styleChangingAttributes || [];
+    var observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
+
+    var observerCallback = function observerCallback(mutations) {
+      var ignoreTargetChange = _ignoreTargetChange || noop;
+      var ignoreContentChange = _ignoreContentChange || noop;
+      var targetChangedAttrs = [];
+      var totalAddedNodes = [];
+      var targetStyleChanged = false;
+      var contentChanged = false;
+      var childListChanged = false;
+      each(mutations, function (mutation) {
+        var attributeName = mutation.attributeName,
+          mutationTarget = mutation.target,
+          type = mutation.type,
+          oldValue = mutation.oldValue,
+          addedNodes = mutation.addedNodes;
+        var isAttributesType = type === 'attributes';
+        var isChildListType = type === 'childList';
+        var targetIsMutationTarget = target === mutationTarget;
+        var attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
+        var attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
+        var targetAttrChanged =
+          attributeChanged &&
+          targetIsMutationTarget &&
+          !_observeContent &&
+          !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue);
+        var styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
+
+        if (targetAttrChanged) {
+          push(targetChangedAttrs, attributeName);
+        }
+
+        if (_observeContent) {
+          var notOnlyAttrChanged = !isAttributesType;
+          var contentAttrChanged = isAttributesType && styleChangingAttrChanged && !targetIsMutationTarget;
+          var isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
+          var baseAssertion = isNestedTarget
+            ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
+            : notOnlyAttrChanged || contentAttrChanged;
+          var contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
+          push(totalAddedNodes, addedNodes);
+          contentChanged = contentChanged || contentFinalChanged;
+          childListChanged = childListChanged || isChildListType;
+        }
+
+        targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
+      });
+
+      if (childListChanged && !isEmptyArray(totalAddedNodes)) {
+        updateEventContentChangeElements(function (selector) {
+          return totalAddedNodes.reduce(function (arr, node) {
+            push(arr, find(selector, node));
+            return is(node, selector) ? push(arr, node) : arr;
+          }, []);
+        });
+      }
+
+      if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged || contentChanged) {
+        callback(targetChangedAttrs, targetStyleChanged, contentChanged);
+      }
+    };
+
+    var mutationObserver = new MutationObserverConstructor(observerCallback);
+    mutationObserver.observe(target, {
+      attributes: true,
+      attributeOldValue: true,
+      attributeFilter: observedAttributes,
+      subtree: _observeContent,
+      childList: _observeContent,
+      characterData: _observeContent,
+    });
+    isConnected = true;
+    return {
+      _disconnect: function _disconnect() {
+        if (isConnected) {
+          destroyEventContentChange();
+          mutationObserver.disconnect();
+          isConnected = false;
+        }
+      },
+      _updateEventContentChange: function _updateEventContentChange(newEventContentChange) {
+        updateEventContentChange(isConnected && _observeContent && newEventContentChange);
+      },
+      _update: function _update() {
+        if (isConnected) {
+          observerCallback(mutationObserver.takeRecords());
+        }
+      },
+    };
+  };
+
+  var attrs = ['id', 'class', 'style', 'open'];
+  var directionIsRTLCacheValuesFallback = {
+    _value: false,
+    _previous: false,
+    _changed: false,
+  };
+  var heightIntrinsicCacheValuesFallback = {
+    _value: false,
+    _previous: false,
+    _changed: false,
+  };
+  var createLifecycleHub = function createLifecycleHub(options, structureSetup) {
     var _structureSetup$_targ = structureSetup._targetObj,
       _host = _structureSetup$_targ._host,
       _viewport = _structureSetup$_targ._viewport,
       _content = _structureSetup$_targ._content;
-    push(lifecycles, createStructureLifecycle(structureSetup._targetObj));
 
-    var onSizeChanged = function onSizeChanged(directionCache) {
-      if (directionCache) {
-        each(lifecycles, function (lifecycle) {
-          lifecycle._onDirectionChanged && lifecycle._onDirectionChanged(directionCache);
-        });
-      } else {
-        each(lifecycles, function (lifecycle) {
-          lifecycle._onSizeChanged && lifecycle._onSizeChanged();
-        });
-      }
+    var _getEnvironment = getEnvironment(),
+      _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
+      _flexboxGlue = _getEnvironment._flexboxGlue,
+      addEnvironmentListener = _getEnvironment._addListener,
+      removeEnvironmentListener = _getEnvironment._removeListener;
+
+    var lifecycles = [];
+    var instance = {
+      _options: options,
+      _structureSetup: structureSetup,
     };
+    push(lifecycles, createOverflowLifecycle(instance));
 
-    var onTrinsicChanged = function onTrinsicChanged(widthIntrinsic, heightIntrinsicCache) {
+    var runLifecycles = function runLifecycles(updateHints, changedOptions, force) {
+      var _ref = updateHints || {},
+        _directionIsRTL = _ref._directionIsRTL,
+        _heightIntrinsic = _ref._heightIntrinsic,
+        _ref$_sizeChanged = _ref._sizeChanged,
+        _sizeChanged = _ref$_sizeChanged === void 0 ? force || false : _ref$_sizeChanged,
+        _ref$_hostMutation = _ref._hostMutation,
+        _hostMutation = _ref$_hostMutation === void 0 ? force || false : _ref$_hostMutation,
+        _ref$_contentMutation = _ref._contentMutation,
+        _contentMutation = _ref$_contentMutation === void 0 ? force || false : _ref$_contentMutation;
+
+      var finalDirectionIsRTL =
+        _directionIsRTL || (sizeObserver ? sizeObserver._getCurrentCacheValues(force)._directionIsRTL : directionIsRTLCacheValuesFallback);
+      var finalHeightIntrinsic =
+        _heightIntrinsic || (trinsicObserver ? trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : heightIntrinsicCacheValuesFallback);
       each(lifecycles, function (lifecycle) {
-        lifecycle._onTrinsicChanged && lifecycle._onTrinsicChanged(widthIntrinsic, heightIntrinsicCache);
+        var _lifecycle = lifecycle(
+            {
+              _directionIsRTL: finalDirectionIsRTL,
+              _heightIntrinsic: finalHeightIntrinsic,
+              _sizeChanged: _sizeChanged,
+              _hostMutation: _hostMutation,
+              _contentMutation: _contentMutation,
+            },
+            changedOptions,
+            force
+          ),
+          adaptiveSizeChanged = _lifecycle._sizeChanged,
+          adaptiveHostMutation = _lifecycle._hostMutation,
+          adaptiveContentMutation = _lifecycle._contentMutation;
+
+        _sizeChanged = adaptiveSizeChanged || _sizeChanged;
+        _hostMutation = adaptiveHostMutation || _hostMutation;
+        _contentMutation = adaptiveContentMutation || _contentMutation;
       });
     };
 
-    createSizeObserver(_host, onSizeChanged, {
+    var onSizeChanged = function onSizeChanged(directionIsRTL) {
+      var sizeChanged = !directionIsRTL;
+      runLifecycles({
+        _directionIsRTL: directionIsRTL,
+        _sizeChanged: sizeChanged,
+      });
+    };
+
+    var onTrinsicChanged = function onTrinsicChanged(heightIntrinsic) {
+      runLifecycles({
+        _heightIntrinsic: heightIntrinsic,
+      });
+    };
+
+    var onHostMutation = function onHostMutation() {
+      requestAnimationFrame(function () {
+        runLifecycles({
+          _hostMutation: true,
+        });
+      });
+    };
+
+    var onContentMutation = function onContentMutation() {
+      requestAnimationFrame(function () {
+        runLifecycles({
+          _contentMutation: true,
+        });
+      });
+    };
+
+    var sizeObserver = createSizeObserver(_host, onSizeChanged, {
       _appear: true,
-      _direction: true,
+      _direction: !_nativeScrollbarStyling,
     });
-    createTrinsicObserver(_host, onTrinsicChanged);
-    createDOMObserver(_host, function () {
-      return null;
+    var trinsicObserver = createTrinsicObserver(_host, onTrinsicChanged);
+    var hostMutationObserver = createDOMObserver(_host, onHostMutation, {
+      _styleChangingAttributes: attrs,
+      _attributes: attrs,
     });
-    createDOMObserver(
-      _content || _viewport,
-      function () {
-        return null;
+    var contentMutationObserver = createDOMObserver(_content || _viewport, onContentMutation, {
+      _observeContent: true,
+      _styleChangingAttributes: attrs,
+      _attributes: attrs,
+      _eventContentChange: options.updating.elementEvents,
+    });
+
+    var updateAll = function updateAll(changedOptions, force) {
+      runLifecycles(null, changedOptions, force);
+    };
+
+    var envUpdateListener = updateAll.bind(null, null, true);
+    addEnvironmentListener(envUpdateListener);
+    console.log('flexboxGlue', _flexboxGlue);
+    return {
+      _update: updateAll,
+      _destroy: function _destroy() {
+        removeEnvironmentListener(envUpdateListener);
       },
-      {
-        _observeContent: true,
-      }
-    );
+    };
+  };
+
+  var numberAllowedValues = optionsTemplateTypes.number;
+  var stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
+  var booleanTrueTemplate = [true, optionsTemplateTypes.boolean];
+  var booleanFalseTemplate = [false, optionsTemplateTypes.boolean];
+  var resizeAllowedValues = 'none both horizontal vertical';
+  var overflowAllowedValues = 'visible-hidden visible-scroll scroll hidden';
+  var scrollbarsVisibilityAllowedValues = 'visible hidden auto';
+  var scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
+  var defaultOptionsWithTemplate = {
+    resize: ['none', resizeAllowedValues],
+    paddingAbsolute: booleanFalseTemplate,
+    updating: {
+      elementEvents: [[['img', 'load']], [optionsTemplateTypes.array, optionsTemplateTypes.null]],
+      contentMutationDebounce: [80, numberAllowedValues],
+      hostMutationDebounce: [0, numberAllowedValues],
+      resizeDebounce: [0, numberAllowedValues],
+    },
+    overflow: {
+      x: ['scroll', overflowAllowedValues],
+      y: ['scroll', overflowAllowedValues],
+    },
+    scrollbars: {
+      visibility: ['auto', scrollbarsVisibilityAllowedValues],
+      autoHide: ['never', scrollbarsAutoHideAllowedValues],
+      autoHideDelay: [800, numberAllowedValues],
+      dragScroll: booleanTrueTemplate,
+      clickScroll: booleanFalseTemplate,
+      touch: booleanTrueTemplate,
+    },
+    textarea: {
+      dynWidth: booleanFalseTemplate,
+      dynHeight: booleanFalseTemplate,
+      inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues],
+    },
+    nativeScrollbarsOverlaid: {
+      show: booleanFalseTemplate,
+      initialize: booleanFalseTemplate,
+    },
+  };
+
+  var _transformOptions = transformOptions(defaultOptionsWithTemplate),
+    optionsTemplate = _transformOptions._template,
+    defaultOptions = _transformOptions._options;
+
+  var OverlayScrollbars = function OverlayScrollbars(target, options, extensions) {
+    var currentOptions = assignDeep({}, defaultOptions, validateOptions(options || {}, optionsTemplate, null, true)._validated);
+    var structureSetup = createStructureSetup(target);
+    var lifecycleHub = createLifecycleHub(currentOptions, structureSetup);
+    var instance = {
+      options: function options(newOptions) {
+        if (newOptions) {
+          var _validateOptions = validateOptions(newOptions, optionsTemplate, currentOptions, true),
+            _changedOptions = _validateOptions._validated;
+
+          if (!isEmptyObject(_changedOptions)) {
+            assignDeep(currentOptions, _changedOptions);
+
+            lifecycleHub._update(_changedOptions);
+          }
+        }
+
+        return currentOptions;
+      },
+      update: function update(force) {
+        lifecycleHub._update(null, force);
+      },
+    };
+    instance.update(true);
+    return instance;
   };
 
   var index = function () {

@@ -5,6 +5,7 @@ export declare const classNameHost = "os-host";
 export declare const classNamePadding = "os-padding";
 export declare const classNameViewport = "os-viewport";
 export declare const classNameContent = "os-content";
+export declare const classNameContentArrange: string;
 export declare const classNameViewportScrollbarStyling: string;
 export declare const classNameSizeObserver = "os-size-observer";
 export declare const classNameSizeObserverAppear: string;

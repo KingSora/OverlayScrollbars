@@ -82,21 +82,21 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): LifecycleUp
 
     if (!_nativeScrollbarStyling) {
       if (scrollX) {
-        viewportStyleObj.marginBottom = `-${scrollbarsHideOffset.x}px`;
+        viewportStyleObj.marginBottom = -scrollbarsHideOffset.x;
 
         contentStyleObj.borderBottom = overlaidX && overlaidHideOffset ? overlaidScrollbarsHideBorderStyle : '';
       }
       if (scrollY) {
         viewportStyleObj.maxWidth = `calc(100% + ${scrollbarsHideOffset.y}px)`;
-        viewportStyleObj[horizontalMarginKey] = `-${scrollbarsHideOffset.y}px`;
+        viewportStyleObj[horizontalMarginKey] = -scrollbarsHideOffset.y;
 
         contentStyleObj[horizontalBorderKey] = overlaidY && overlaidHideOffset ? overlaidScrollbarsHideBorderStyle : '';
       }
 
       if (_contentArrange) {
         style(_contentArrange, {
-          width: scrollY && !showNativeOverlaidScrollbars ? `${overlaidHideOffset + contentScrollSize.w}px` : '',
-          height: scrollX && !showNativeOverlaidScrollbars ? `${overlaidHideOffset + contentScrollSize.h}px` : '',
+          width: scrollY && !showNativeOverlaidScrollbars ? overlaidHideOffset + contentScrollSize.w : '',
+          height: scrollX && !showNativeOverlaidScrollbars ? overlaidHideOffset + contentScrollSize.h : '',
         });
       }
     }
@@ -120,7 +120,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): LifecycleUp
 
     if (heightIntrinsic) {
       style(_viewport, {
-        maxHeight: `${_host.clientHeight + (scrollX ? scrollbarsHideOffsetX : 0)}px`,
+        maxHeight: _host.clientHeight + (scrollX ? scrollbarsHideOffsetX : 0),
       });
     }
 
