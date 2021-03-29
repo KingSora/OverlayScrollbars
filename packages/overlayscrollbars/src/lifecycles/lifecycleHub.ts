@@ -1,13 +1,39 @@
-import { CacheValues, each, push, validateOptions, assignDeep, isEmptyObject, OptionsValidated } from 'support';
+import { TRBL, CacheValues, each, push, OptionsValidated, hasOwnProperty } from 'support';
 import { Options } from 'options';
-import { getEnvironment, Environment } from 'environment';
+import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
 import { createStructureLifecycle } from 'lifecycles/structureLifecycle';
+import { createPaddingLifecycle } from 'lifecycles/paddingLifecycle';
 import { createOverflowLifecycle } from 'lifecycles/overflowLifecycle';
-import { LifecycleUpdateFunction, LifecycleUpdateHints } from 'lifecycles/lifecycleUpdateFunction';
 import { createSizeObserver } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver } from 'observers/domObserver';
+import { StyleObject } from 'typings';
+
+export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
+
+export interface LifecycleOptionInfo<T> {
+  readonly _value: T;
+  _changed: boolean;
+}
+
+export interface LifecycleAdaptiveUpdateHints {
+  _sizeChanged: boolean;
+  _hostMutation: boolean;
+  _contentMutation: boolean;
+  _paddingStyleChanged: boolean;
+}
+
+export interface LifecycleUpdateHints extends LifecycleAdaptiveUpdateHints {
+  _directionIsRTL: CacheValues<boolean>;
+  _heightIntrinsic: CacheValues<boolean>;
+}
+
+export type Lifecycle = (
+  updateHints: LifecycleUpdateHints,
+  checkOption: LifecycleCheckOption,
+  force: boolean
+) => Partial<LifecycleAdaptiveUpdateHints> | void;
 
 export interface LifecycleHubInstance {
   _update(changedOptions?: OptionsValidated<Options> | null, force?: boolean): void;
@@ -17,9 +43,23 @@ export interface LifecycleHubInstance {
 export interface LifecycleHub {
   _options: Options;
   _structureSetup: StructureSetup;
+  _getPadding(): TRBL;
+  _setPadding(newPadding?: TRBL | null): void;
+  _getPaddingStyle(): StyleObject;
+  _setPaddingStyle(newPaddingStlye?: StyleObject | null): void;
 }
 
+const getPropByPath = <T>(obj: any, path: string): T =>
+  obj && path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj);
+
 const attrs = ['id', 'class', 'style', 'open'];
+const paddingFallback: TRBL = { t: 0, r: 0, b: 0, l: 0 };
+const viewportPaddingStyleFallback: StyleObject = {
+  marginTop: 0,
+  marginRight: 0,
+  marginBottom: 0,
+  marginLeft: 0,
+};
 const directionIsRTLCacheValuesFallback: CacheValues<boolean> = {
   _value: false,
   _previous: false,
@@ -32,6 +72,8 @@ const heightIntrinsicCacheValuesFallback: CacheValues<boolean> = {
 };
 
 export const createLifecycleHub = (options: Options, structureSetup: StructureSetup): LifecycleHubInstance => {
+  let padding = paddingFallback;
+  let viewportPaddingStyle = viewportPaddingStyleFallback;
   const { _host, _viewport, _content } = structureSetup._targetObj;
   const {
     _nativeScrollbarStyling,
@@ -39,39 +81,66 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
     _addListener: addEnvironmentListener,
     _removeListener: removeEnvironmentListener,
   } = getEnvironment();
-  const lifecycles: LifecycleUpdateFunction[] = [];
+  const lifecycles: Lifecycle[] = [];
   const instance: LifecycleHub = {
     _options: options,
     _structureSetup: structureSetup,
+    _getPadding: () => padding,
+    _setPadding(newPadding) {
+      padding = newPadding || paddingFallback;
+    },
+    _getPaddingStyle: () => viewportPaddingStyle,
+    _setPaddingStyle(newPaddingStlye: StyleObject) {
+      viewportPaddingStyle = newPaddingStlye || viewportPaddingStyleFallback;
+    },
   };
 
   // push(lifecycles, createStructureLifecycle(instance));
+  push(lifecycles, createPaddingLifecycle(instance));
   push(lifecycles, createOverflowLifecycle(instance));
 
   const runLifecycles = (updateHints?: Partial<LifecycleUpdateHints> | null, changedOptions?: OptionsValidated<Options> | null, force?: boolean) => {
-    let { _directionIsRTL, _heightIntrinsic, _sizeChanged = force || false, _hostMutation = force || false, _contentMutation = force || false } =
-      updateHints || {};
+    let {
+      _directionIsRTL,
+      _heightIntrinsic,
+      _sizeChanged = force || false,
+      _hostMutation = force || false,
+      _contentMutation = force || false,
+      _paddingStyleChanged = force || false,
+    } = updateHints || {};
     const finalDirectionIsRTL =
       _directionIsRTL || (sizeObserver ? sizeObserver._getCurrentCacheValues(force)._directionIsRTL : directionIsRTLCacheValuesFallback);
     const finalHeightIntrinsic =
       _heightIntrinsic || (trinsicObserver ? trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : heightIntrinsicCacheValuesFallback);
+    const checkOption: LifecycleCheckOption = (path) => ({
+      _value: getPropByPath(options, path),
+      _changed: force || getPropByPath(changedOptions, path) !== undefined,
+    });
 
     each(lifecycles, (lifecycle) => {
-      const { _sizeChanged: adaptiveSizeChanged, _hostMutation: adaptiveHostMutation, _contentMutation: adaptiveContentMutation } = lifecycle(
-        {
-          _directionIsRTL: finalDirectionIsRTL,
-          _heightIntrinsic: finalHeightIntrinsic,
-          _sizeChanged,
-          _hostMutation,
-          _contentMutation,
-        },
-        changedOptions,
-        force
-      );
+      const {
+        _sizeChanged: adaptiveSizeChanged,
+        _hostMutation: adaptiveHostMutation,
+        _contentMutation: adaptiveContentMutation,
+        _paddingStyleChanged: adaptivePaddingStyleChanged,
+      } =
+        lifecycle(
+          {
+            _directionIsRTL: finalDirectionIsRTL,
+            _heightIntrinsic: finalHeightIntrinsic,
+            _sizeChanged,
+            _hostMutation,
+            _contentMutation,
+            _paddingStyleChanged,
+          },
+          checkOption,
+          !!force
+        ) || {};
 
       _sizeChanged = adaptiveSizeChanged || _sizeChanged;
       _hostMutation = adaptiveHostMutation || _hostMutation;
       _contentMutation = adaptiveContentMutation || _contentMutation;
+      _paddingStyleChanged = adaptivePaddingStyleChanged || _paddingStyleChanged;
     });
   };
 

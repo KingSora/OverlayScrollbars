@@ -1,6 +1,6 @@
 import { each, keys } from 'support/utils';
 import { isString, isNumber, isArray } from 'support/utils/types';
-import { PlainObject } from 'typings';
+import { PlainObject, StyleObject } from 'typings';
 
 export interface TRBL {
   t: number;
@@ -9,7 +9,6 @@ export interface TRBL {
   l: number;
 }
 
-type CssStyles = { [key: string]: string | number };
 const cssNumber = {
   animationiterationcount: 1,
   columncount: 1,
@@ -49,10 +48,10 @@ const setCSSVal = (elm: HTMLElement | null | undefined, prop: string, val: strin
  * @param elm The element to which the styles shall be applied to / be read from.
  * @param styles The styles which shall be set or read.
  */
-export function style(elm: HTMLElement | null | undefined, styles: CssStyles): void;
+export function style(elm: HTMLElement | null | undefined, styles: StyleObject): void;
 export function style(elm: HTMLElement | null | undefined, styles: string): string;
 export function style(elm: HTMLElement | null | undefined, styles: Array<string> | string): { [key: string]: string };
-export function style(elm: HTMLElement | null | undefined, styles: CssStyles | Array<string> | string): { [key: string]: string } | string | void {
+export function style(elm: HTMLElement | null | undefined, styles: StyleObject | Array<string> | string): { [key: string]: string } | string | void {
   const getSingleStyle = isString(styles);
   const getStyles = isArray(styles) || getSingleStyle;
 
