@@ -102,9 +102,10 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     const { x: overlaidX, y: overlaidY } = _nativeScrollbarIsOverlaid;
     const determineOverflow = !viewportStyleObj;
     const arrangeHideOffset = _content && !_nativeScrollbarStyling && !showNativeOverlaidScrollbars ? overlaidScrollbarsHideOffset : 0;
+    const styleObj = determineOverflow ? style(_viewport, ['overflowX', 'overflowY']) : viewportStyleObj;
     const scroll = {
-      x: (determineOverflow ? style(_viewport, 'overflow-x') : viewportStyleObj!.overflowX) === 'scroll',
-      y: (determineOverflow ? style(_viewport, 'overflow-y') : viewportStyleObj!.overflowY) === 'scroll',
+      x: styleObj!.overflowX === 'scroll',
+      y: styleObj!.overflowY === 'scroll',
     };
     const scrollbarsHideOffset = {
       x: scroll.x && !_nativeScrollbarStyling ? (overlaidX ? arrangeHideOffset : _nativeScrollbarSize.x) : 0,

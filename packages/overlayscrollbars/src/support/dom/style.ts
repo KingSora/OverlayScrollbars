@@ -34,7 +34,7 @@ const parseToZeroOrNumber = (value: string, toFloat?: boolean): number => {
 const adaptCSSVal = (prop: string, val: string | number): string | number => (!cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val);
 const getCSSVal = (elm: HTMLElement, computedStyle: CSSStyleDeclaration, prop: string): string =>
   /* istanbul ignore next */
-  computedStyle != null ? computedStyle.getPropertyValue(prop) : elm.style[prop];
+  computedStyle != null ? computedStyle[prop] || computedStyle.getPropertyValue(prop) : elm.style[prop];
 const setCSSVal = (elm: HTMLElement | null | undefined, prop: string, val: string | number): void => {
   try {
     if (elm && elm.style[prop] !== undefined) {
