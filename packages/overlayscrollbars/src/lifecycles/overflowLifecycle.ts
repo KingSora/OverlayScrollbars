@@ -12,6 +12,8 @@ import {
   addClass,
   removeClass,
   clientSize,
+  offsetSize,
+  getBoundingClientRect,
 } from 'support';
 import { LifecycleHub, Lifecycle } from 'lifecycles/lifecycleHub';
 import { getEnvironment } from 'environment';
@@ -21,6 +23,10 @@ import { classNameViewportScrollbarStyling } from 'classnames';
 
 const overlaidScrollbarsHideOffset = 42;
 const overlaidScrollbarsHideBorderStyle = `${overlaidScrollbarsHideOffset}px solid transparent`;
+interface ContentScrollSizeCacheContext {
+  _viewportSize: WH<number>;
+  _viewportScrollSize: WH<number>;
+}
 interface OverflowAmountCacheContext {
   _contentScrollSize: WH<number>;
   _viewportSize: WH<number>;
@@ -29,26 +35,48 @@ interface OverflowAmountCacheContext {
 export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
   const { _structureSetup, _getPaddingStyle } = lifecycleHub;
   const { _host, _padding, _viewport, _content, _contentArrange } = _structureSetup._targetObj;
-  const { _update: updateContentScrollSizeCache, _current: getCurrentContentScrollSizeCache } = createCache<WH<number>>(
-    () => scrollSize(_content || _viewport),
+  const { _update: updateContentScrollSizeCache, _current: getCurrentContentScrollSizeCache } = createCache<
+    WH<number>,
+    ContentScrollSizeCacheContext
+  >(
+    (ctx) => {
+      const { _viewportSize, _viewportScrollSize } = ctx;
+      const contentViewportScrollSize = scrollSize(_content || _viewport);
+
+      return _content ? fixScrollSizeRounding(contentViewportScrollSize, _viewportSize, _viewportScrollSize) : contentViewportScrollSize;
+    },
     { _equal: equalWH }
   );
   const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache<XY<number>, OverflowAmountCacheContext>(
     (ctx) => ({
-      x: Math.max(0, Math.round((ctx._contentScrollSize.w - ctx._viewportSize.w) * 100) / 100),
-      y: Math.max(0, Math.round((ctx._contentScrollSize.h - ctx._viewportSize.h) * 100) / 100),
+      x: Math.max(0, ctx._contentScrollSize.w - ctx._viewportSize.w),
+      y: Math.max(0, ctx._contentScrollSize.h - ctx._viewportSize.h),
     }),
     { _equal: equalXY }
   );
 
+  const fixScrollSizeRounding = (contentScrollSize: WH<number>, viewportSize: WH<number>, viewportScrollSize: WH<number>): WH<number> => {
+    const equalViewportSizes = viewportSize.w === viewportScrollSize.w || viewportSize.h === viewportScrollSize.h;
+    const contentViewportScrollSizeOverflow = contentScrollSize.w > viewportScrollSize.w || contentScrollSize.h > viewportScrollSize.h;
+
+    if (equalViewportSizes && contentViewportScrollSizeOverflow) {
+      const viewportRect = getBoundingClientRect(_viewport);
+      const viewportOffsetSize = offsetSize(_viewport);
+
+      return {
+        w: contentScrollSize.w - Math.ceil(Math.max(0, viewportRect.width - viewportOffsetSize.w)),
+        h: contentScrollSize.h - Math.ceil(Math.max(0, viewportRect.height - viewportOffsetSize.h)),
+      };
+    }
+
+    return contentScrollSize;
+  };
+
   const setViewportOverflowStyle = (horizontal: boolean, amount: number, behavior: OverflowBehavior, styleObj: StyleObject) => {
     const overflowKey = horizontal ? 'overflowX' : 'overflowY';
-    //const scrollMaxKey = horizontal ? 'scrollLeftMax' : 'scrollTopMax';
     const behaviorIsScroll = behavior === 'scroll';
     const behaviorIsVisibleScroll = behavior === 'visible-scroll';
     const hideOverflow = behaviorIsScroll || behavior === 'hidden';
-    //const scrollMax = _viewport[scrollMaxKey];
-    //const scrollMaxOverflow = isNumber(scrollMax) ? scrollMax > 0 : true;
     const applyStyle = amount > 0 && hideOverflow;
 
     if (applyStyle) {
@@ -156,7 +184,11 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       const contentClientSize = clientSize(_content || _viewport); // needs to be client Size because applied border for content arrange on content
       const contentArrangeOffsetSize = clientSize(_contentArrange); // can be offset size aswell
 
-      contentScrollSizeCache = updateContentScrollSizeCache(force);
+      contentScrollSizeCache = updateContentScrollSizeCache(force, {
+        _viewportSize: viewportSize,
+        _viewportScrollSize: viewportScrollSize,
+      });
+
       const { _value: contentScrollSize } = contentScrollSizeCache;
       overflowAmuntCache = updateOverflowAmountCache(force, {
         _contentScrollSize: {
@@ -230,8 +262,8 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       // TODO: Test without content
       // TODO: Test without padding
       // TODO: hide host || padding overflow if scroll x or y
-      // TODO: fix false overflow bug (fractal scroll size)
       // TODO: add trinsic lifecycle
+      // TODO: IE max-width fix not always working
       // TODO: remove lifecycleHub get set padding if not needed
 
       style(_viewport, viewportStyle);

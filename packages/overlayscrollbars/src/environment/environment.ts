@@ -12,7 +12,8 @@ import {
   removeElements,
   windowSize,
   runEach,
-  equalWH,
+  equalBCRWH,
+  getBoundingClientRect,
 } from 'support';
 import {
   classNameEnvironment,
@@ -87,14 +88,14 @@ const getRtlScrollBehavior = (parentElm: HTMLElement, childElm: HTMLElement): { 
 
 const getFlexboxGlue = (parentElm: HTMLElement, childElm: HTMLElement): boolean => {
   addClass(parentElm, classNameEnvironmentFlexboxGlue);
-  const minOffsetsizeParent = offsetSize(parentElm);
-  const minOffsetsize = offsetSize(childElm);
-  const supportsMin = equalWH(minOffsetsize, minOffsetsizeParent);
+  const minOffsetsizeParent = getBoundingClientRect(parentElm);
+  const minOffsetsize = getBoundingClientRect(childElm);
+  const supportsMin = equalBCRWH(minOffsetsize, minOffsetsizeParent, true);
 
   addClass(parentElm, classNameEnvironmentFlexboxGlueMax);
-  const maxOffsetsizeParent = offsetSize(parentElm);
-  const maxOffsetsize = offsetSize(childElm);
-  const supportsMax = equalWH(maxOffsetsize, maxOffsetsizeParent);
+  const maxOffsetsizeParent = getBoundingClientRect(parentElm);
+  const maxOffsetsize = getBoundingClientRect(childElm);
+  const supportsMax = equalBCRWH(maxOffsetsize, maxOffsetsizeParent, true);
 
   return supportsMin && supportsMax;
 };

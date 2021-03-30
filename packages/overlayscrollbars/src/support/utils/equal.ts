@@ -8,11 +8,18 @@ import { PlainObject } from 'typings';
  * @param b Object b.
  * @param props The props which shall be compared.
  */
-export const equal = <T extends PlainObject>(a: T | undefined, b: T | undefined, props: Array<keyof T>): boolean => {
+export const equal = <T extends PlainObject>(
+  a: T | undefined,
+  b: T | undefined,
+  props: Array<keyof T>,
+  propMutation?: ((value: any) => any) | null | false
+): boolean => {
   if (a && b) {
     let result = true;
     each(props, (prop) => {
-      if (a[prop] !== b[prop]) {
+      const compareA = propMutation ? propMutation(a[prop]) : a[prop];
+      const compareB = propMutation ? propMutation(b[prop]) : b[prop];
+      if (compareA !== compareB) {
         result = false;
       }
     });
@@ -44,3 +51,13 @@ export const equalXY = (a?: XY, b?: XY) => equal<XY>(a, b, ['x', 'y']);
  * @param b Object b.
  */
 export const equalTRBL = (a?: TRBL, b?: TRBL) => equal<TRBL>(a, b, ['t', 'r', 'b', 'l']);
+
+/**
+ * Compares two DOM Rects for their equality of their width and height properties
+ * Also returns false if one of the DOM Rects is undefined or null.
+ * @param a DOM Rect a.
+ * @param b DOM Rect b.
+ * @param round Whether the values should be rounded.
+ */
+export const equalBCRWH = (a?: DOMRect, b?: DOMRect, round?: boolean) =>
+  equal<DOMRect>(a, b, ['width', 'height'], round && ((value) => Math.round(value)));
