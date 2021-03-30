@@ -93,20 +93,40 @@ describe('dom style', () => {
   });
 
   describe('topRightBottomLeft', () => {
-    test('normal', () => {
-      const result = topRightBottomLeft(document.body);
-      expect(result.t).toBe(0);
-      expect(result.r).toBe(0);
-      expect(result.b).toBe(0);
-      expect(result.l).toBe(0);
+    describe('without prefix and suffix', () => {
+      test('normal', () => {
+        const result = topRightBottomLeft(document.body);
+        expect(result.t).toBe(0);
+        expect(result.r).toBe(0);
+        expect(result.b).toBe(0);
+        expect(result.l).toBe(0);
+      });
+
+      test('null', () => {
+        const result = topRightBottomLeft(null);
+        expect(result.t).toBe(0);
+        expect(result.r).toBe(0);
+        expect(result.b).toBe(0);
+        expect(result.l).toBe(0);
+      });
     });
 
-    test('null', () => {
-      const result = topRightBottomLeft(null);
-      expect(result.t).toBe(0);
-      expect(result.r).toBe(0);
-      expect(result.b).toBe(0);
-      expect(result.l).toBe(0);
+    describe('with prefix and suffix', () => {
+      test('normal', () => {
+        const result = topRightBottomLeft(document.body, 'border', 'width');
+        expect(result.t).toBe(0);
+        expect(result.r).toBe(0);
+        expect(result.b).toBe(0);
+        expect(result.l).toBe(0);
+      });
+
+      test('null', () => {
+        const result = topRightBottomLeft(null, 'border', 'width');
+        expect(result.t).toBe(0);
+        expect(result.r).toBe(0);
+        expect(result.b).toBe(0);
+        expect(result.l).toBe(0);
+      });
     });
   });
 });

@@ -1,4 +1,4 @@
-import { equal, equalTRBL, equalWH, equalXY } from 'support/utils/equal';
+import { equal, equalTRBL, equalWH, equalXY, equalBCRWH } from 'support/utils/equal';
 
 describe('equal', () => {
   test('equal', () => {
@@ -32,5 +32,14 @@ describe('equal', () => {
   test('equalXY', () => {
     expect(equalXY({ x: 0, y: 0 }, { x: 0, y: 0 })).toBe(true);
     expect(equalXY({ x: 0, y: 0 }, { x: 0, y: 1 })).toBe(false);
+  });
+
+  test('equalBCRWH', () => {
+    const bodyBCR = document.body.getBoundingClientRect();
+    expect(equalBCRWH(bodyBCR, bodyBCR)).toBe(true);
+    expect(equalBCRWH(bodyBCR, { ...bodyBCR, height: 5 })).toBe(false);
+
+    expect(equalBCRWH({ ...bodyBCR, height: 4.1 }, { ...bodyBCR, height: 4.12 })).toBe(false);
+    expect(equalBCRWH({ ...bodyBCR, height: 4.1 }, { ...bodyBCR, height: 4.12 }, true)).toBe(true);
   });
 });

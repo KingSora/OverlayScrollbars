@@ -60,17 +60,15 @@ export const createTrinsicObserver = (
     intersectionObserverInstance.observe(trinsicObserver);
     push(offListeners, () => intersectionObserverInstance.disconnect());
   } else {
-    push(
-      offListeners,
-      createSizeObserver(trinsicObserver, () => {
-        const newSize = offsetSize(trinsicObserver);
-        const heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
-
-        if (heightIntrinsicCache._changed) {
-          onTrinsicChangedCallback(heightIntrinsicCache);
-        }
-      })._destroy
-    );
+    const onSizeChanged = () => {
+      const newSize = offsetSize(trinsicObserver);
+      const heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
+      if (heightIntrinsicCache._changed) {
+        onTrinsicChangedCallback(heightIntrinsicCache);
+      }
+    };
+    push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged)._destroy);
+    onSizeChanged();
   }
 
   prependChildren(target, trinsicObserver);
