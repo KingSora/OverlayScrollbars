@@ -20,17 +20,16 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
 
   return (updateHints, checkOption, force) => {
     let { _value: padding, _changed: paddingChanged } = currentPaddingCache(force);
-    const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
-    const { _sizeChanged, _directionIsRTL, _heightIntrinsic } = updateHints;
-    const { _value: directionIsRTL, _changed: directionRTLChanged } = _directionIsRTL;
+    const { _nativeScrollbarStyling } = getEnvironment();
+    const { _sizeChanged, _directionIsRTL } = updateHints;
+    const { _value: directionIsRTL, _changed: directionChanged } = _directionIsRTL;
     const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = checkOption('paddingAbsolute');
-    const { _value: heightIntrinsic } = _heightIntrinsic;
 
     if (_sizeChanged || paddingChanged) {
       ({ _value: padding, _changed: paddingChanged } = updatePaddingCache(force));
     }
 
-    const paddingStyleChanged = paddingAbsoluteChanged || directionRTLChanged || paddingChanged;
+    const paddingStyleChanged = paddingAbsoluteChanged || directionChanged || paddingChanged;
 
     if (paddingStyleChanged) {
       // if there is no padding element and no scrollbar styling padding absolute isn't supported

@@ -86,7 +86,9 @@
 }
 
 .os-content-arrange {
-  position: absolute;
+  min-width: 1px;
+  min-height: 1px;
   z-index: -1;
+  position: absolute;
   pointer-events: none;
 }

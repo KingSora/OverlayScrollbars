@@ -124,7 +124,7 @@ const createEnvironment = (): Environment => {
 
   const onChangedListener: Set<OnEnvironmentChanged> = new Set();
   const nativeScrollbarSize = getNativeScrollbarSize(body, envElm);
-  const nativeScrollbarStyling = false; //getNativeScrollbarStyling(envElm); TODO: Re - enable;
+  const nativeScrollbarStyling = false; //getNativeScrollbarStyling(envElm); //TODO: Re - enable;
   const nativeScrollbarIsOverlaid = {
     x: nativeScrollbarSize.x === 0,
     y: nativeScrollbarSize.y === 0,

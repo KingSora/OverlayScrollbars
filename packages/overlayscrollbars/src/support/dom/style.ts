@@ -93,12 +93,12 @@ export const show = (elm: HTMLElement | null | undefined): void => {
  * @param property
  */
 export const topRightBottomLeft = (elm: HTMLElement | null | undefined, propertyPrefix?: string, propertySuffix?: string): TRBL => {
-  const finalPrefix = propertyPrefix || '';
-  const finalSuffix = propertySuffix || '';
-  const top = `${finalPrefix}-top-${finalSuffix}`;
-  const right = `${finalPrefix}-right-${finalSuffix}`;
-  const bottom = `${finalPrefix}-bottom-${finalSuffix}`;
-  const left = `${finalPrefix}-left-${finalSuffix}`;
+  const finalPrefix = propertyPrefix ? `${propertyPrefix}-` : '';
+  const finalSuffix = propertySuffix ? `-${propertySuffix}` : '';
+  const top = `${finalPrefix}top${finalSuffix}`;
+  const right = `${finalPrefix}right${finalSuffix}`;
+  const bottom = `${finalPrefix}bottom${finalSuffix}`;
+  const left = `${finalPrefix}left${finalSuffix}`;
   const result = style(elm, [top, right, bottom, left]);
   return {
     t: parseToZeroOrNumber(result[top]),
