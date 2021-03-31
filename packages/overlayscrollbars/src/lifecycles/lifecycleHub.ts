@@ -1,8 +1,7 @@
-import { TRBL, CacheValues, each, push, OptionsValidated, hasOwnProperty } from 'support';
+import { XY, TRBL, CacheValues, each, push, OptionsValidated, hasOwnProperty, isNumber, scrollLeft, scrollTop } from 'support';
 import { Options } from 'options';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
-import { createStructureLifecycle } from 'lifecycles/structureLifecycle';
 import { createPaddingLifecycle } from 'lifecycles/paddingLifecycle';
 import { createOverflowLifecycle } from 'lifecycles/overflowLifecycle';
 import { createSizeObserver } from 'observers/sizeObserver';
@@ -47,6 +46,8 @@ export interface LifecycleHub {
   _setPadding(newPadding?: TRBL | null): void;
   _getPaddingStyle(): StyleObject;
   _setPaddingStyle(newPaddingStlye?: StyleObject | null): void;
+  _getViewportOverflowScroll(): XY<boolean>;
+  _setViewportOverflowScroll(newViewportOverflowScroll: XY<boolean>): void;
 }
 
 const getPropByPath = <T>(obj: any, path: string): T =>
@@ -59,6 +60,10 @@ const viewportPaddingStyleFallback: StyleObject = {
   marginRight: 0,
   marginBottom: 0,
   marginLeft: 0,
+};
+const viewportOverflowScrollFallback: XY<boolean> = {
+  x: false,
+  y: false,
 };
 const directionIsRTLCacheValuesFallback: CacheValues<boolean> = {
   _value: false,
@@ -74,7 +79,8 @@ const heightIntrinsicCacheValuesFallback: CacheValues<boolean> = {
 export const createLifecycleHub = (options: Options, structureSetup: StructureSetup): LifecycleHubInstance => {
   let padding = paddingFallback;
   let viewportPaddingStyle = viewportPaddingStyleFallback;
-  const { _host, _viewport, _content } = structureSetup._targetObj;
+  let viewportOverflowScroll = viewportOverflowScrollFallback;
+  const { _host, _viewport, _content, _contentArrange } = structureSetup._targetObj;
   const {
     _nativeScrollbarStyling,
     _flexboxGlue,
@@ -90,8 +96,12 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
       padding = newPadding || paddingFallback;
     },
     _getPaddingStyle: () => viewportPaddingStyle,
-    _setPaddingStyle(newPaddingStlye: StyleObject) {
+    _setPaddingStyle(newPaddingStlye) {
       viewportPaddingStyle = newPaddingStlye || viewportPaddingStyleFallback;
+    },
+    _getViewportOverflowScroll: () => viewportOverflowScroll,
+    _setViewportOverflowScroll(newViewportOverflowScroll) {
+      viewportOverflowScroll = newViewportOverflowScroll || viewportOverflowScrollFallback;
     },
   };
 
@@ -99,7 +109,11 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
   push(lifecycles, createPaddingLifecycle(instance));
   push(lifecycles, createOverflowLifecycle(instance));
 
-  const runLifecycles = (updateHints?: Partial<LifecycleUpdateHints> | null, changedOptions?: OptionsValidated<Options> | null, force?: boolean) => {
+  const updateLifecycles = (
+    updateHints?: Partial<LifecycleUpdateHints> | null,
+    changedOptions?: OptionsValidated<Options> | null,
+    force?: boolean
+  ) => {
     let {
       _directionIsRTL,
       _heightIntrinsic,
@@ -116,6 +130,9 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
       _value: getPropByPath(options, path),
       _changed: force || getPropByPath(changedOptions, path) !== undefined,
     });
+    const adjustScrollOffset = _contentArrange || !_flexboxGlue;
+    const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
+    const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
 
     each(lifecycles, (lifecycle) => {
       const {
@@ -142,24 +159,31 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
       _contentMutation = adaptiveContentMutation || _contentMutation;
       _paddingStyleChanged = adaptivePaddingStyleChanged || _paddingStyleChanged;
     });
+
+    if (isNumber(scrollOffsetX)) {
+      scrollLeft(_viewport, scrollOffsetX);
+    }
+    if (isNumber(scrollOffsetY)) {
+      scrollTop(_viewport, scrollOffsetY);
+    }
   };
 
   const onSizeChanged = (directionIsRTL?: CacheValues<boolean>) => {
     const sizeChanged = !directionIsRTL;
-    runLifecycles({
+    updateLifecycles({
       _directionIsRTL: directionIsRTL,
       _sizeChanged: sizeChanged,
     });
   };
   const onTrinsicChanged = (heightIntrinsic: CacheValues<boolean>) => {
-    runLifecycles({
+    updateLifecycles({
       _heightIntrinsic: heightIntrinsic,
     });
   };
   const onHostMutation = () => {
     // TODO: rAF only here because IE
     requestAnimationFrame(() => {
-      runLifecycles({
+      updateLifecycles({
         _hostMutation: true,
       });
     });
@@ -167,7 +191,7 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
   const onContentMutation = () => {
     // TODO: rAF only here because IE
     requestAnimationFrame(() => {
-      runLifecycles({
+      updateLifecycles({
         _contentMutation: true,
       });
     });
@@ -201,16 +225,16 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
       */
   });
 
-  const updateAll = (changedOptions?: OptionsValidated<Options> | null, force?: boolean) => {
-    runLifecycles(null, changedOptions, force);
+  const update = (changedOptions?: OptionsValidated<Options> | null, force?: boolean) => {
+    updateLifecycles(null, changedOptions, force);
   };
-  const envUpdateListener = updateAll.bind(null, null, true);
+  const envUpdateListener = update.bind(null, null, true);
   addEnvironmentListener(envUpdateListener);
 
   console.log('flexboxGlue', _flexboxGlue);
 
   return {
-    _update: updateAll,
+    _update: update,
     _destroy() {
       removeEnvironmentListener(envUpdateListener);
     },

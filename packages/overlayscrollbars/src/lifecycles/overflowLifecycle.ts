@@ -7,14 +7,11 @@ import {
   scrollSize,
   CacheValues,
   equalWH,
-  scrollLeft,
-  scrollTop,
   addClass,
   removeClass,
   clientSize,
   offsetSize,
   getBoundingClientRect,
-  topRightBottomLeft,
 } from 'support';
 import { LifecycleHub, Lifecycle } from 'lifecycles/lifecycleHub';
 import { getEnvironment } from 'environment';
@@ -74,9 +71,6 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
   });
 
   const fixFlexboxGlue = (viewportOverflowState: ViewportOverflowState, heightIntrinsic: boolean) => {
-    const offsetLeft = scrollLeft(_viewport);
-    const offsetTop = scrollTop(_viewport);
-
     style(_viewport, {
       maxHeight: '',
     });
@@ -84,17 +78,14 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     if (heightIntrinsic) {
       const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
       const hostBCR = getBoundingClientRect(_host);
-
-      // TODO: change to offset size - client size calculation.
-      const border = topRightBottomLeft(_host, 'border', 'width');
+      const hostOffsetSize = offsetSize(_host);
+      const hostClientSize = clientSize(_host);
+      const clientSizeWithoutRounding = hostClientSize.h + (hostBCR.height - hostOffsetSize.h);
 
       style(_viewport, {
-        maxHeight: hostBCR.height - (border.t + border.b) + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0),
+        maxHeight: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0),
       });
     }
-
-    scrollLeft(_viewport, offsetLeft);
-    scrollTop(_viewport, offsetTop);
   };
 
   const getViewportOverflowState = (showNativeOverlaidScrollbars: boolean, viewportStyleObj?: StyleObject): ViewportOverflowState => {
