@@ -30,6 +30,7 @@ export interface Environment {
   _nativeScrollbarStyling: boolean;
   _rtlScrollBehavior: { n: boolean; i: boolean };
   _flexboxGlue: boolean;
+  _cssCustomProperties: boolean;
   _addListener(listener: OnEnvironmentChanged): void;
   _removeListener(listener: OnEnvironmentChanged): void;
 }
@@ -135,6 +136,7 @@ const createEnvironment = (): Environment => {
     _nativeScrollbarSize: nativeScrollbarSize,
     _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
     _nativeScrollbarStyling: nativeScrollbarStyling,
+    _cssCustomProperties: style(envElm, 'zIndex') === '-1',
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
     _addListener(listener: OnEnvironmentChanged): void {
@@ -144,6 +146,8 @@ const createEnvironment = (): Environment => {
       onChangedListener.delete(listener);
     },
   };
+
+  console.log(env);
 
   removeAttr(envElm, 'style');
   removeElements(envElm);

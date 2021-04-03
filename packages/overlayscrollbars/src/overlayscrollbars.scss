@@ -3,12 +3,14 @@
 @import './structurelifecycle.scss';
 
 .os-environment {
+  --css-custom-prop: -1;
   position: fixed;
   opacity: 0;
   visibility: hidden;
   overflow: scroll;
   height: 200px;
   width: 200px;
+  z-index: var(--css-custom-prop);
 
   div {
     width: 200%;
@@ -68,7 +70,7 @@
 }
 .os-environment,
 .os-viewport {
-  -ms-overflow-style: scrollbar !important;
+  -ms-overflow-style: -ms-autohiding-scrollbar !important;
 }
 .os-viewport-scrollbar-styled.os-environment,
 .os-viewport-scrollbar-styled.os-viewport {
@@ -85,10 +87,15 @@
   background: transparent !important;
 }
 
-.os-content-arrange {
-  min-width: 1px;
-  min-height: 1px;
-  z-index: -1;
+.os-viewport-arrange::before {
+  content: '';
   position: absolute;
   pointer-events: none;
+  z-index: -1;
+  min-width: 1px;
+  min-height: 1px;
+}
+
+.os-host {
+  padding: 5px 50px 15px 20px;
 }

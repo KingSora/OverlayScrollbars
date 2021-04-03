@@ -76,7 +76,10 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
       style(_padding || _viewport, paddingStyle);
       style(_viewport, viewportStyle);
 
-      lifecycleHub._setPadding(padding);
+      lifecycleHub._setPaddingInfo({
+        _absolute: !paddingRelative,
+        _padding: padding!,
+      });
       lifecycleHub._setPaddingStyle(!_padding ? paddingStyle : null);
     }
 

@@ -12,14 +12,15 @@ import {
   removeClass,
   push,
   runEach,
-  prependChildren,
+  insertBefore,
+  attr,
 } from 'support';
 import {
   classNameHost,
   classNamePadding,
   classNameViewport,
+  classNameViewportArrange,
   classNameContent,
-  classNameContentArrange,
   classNameViewportScrollbarStyling,
 } from 'classnames';
 import { getEnvironment } from 'environment';
@@ -36,7 +37,7 @@ export interface OSTargetContext {
 
 export interface PreparedOSTargetObject extends Required<InternalVersionOf<OSTargetObject>> {
   _host: HTMLElement;
-  _contentArrange: HTMLElement | null;
+  _contentArrange: HTMLStyleElement | null;
 }
 
 export interface StructureSetup {
@@ -48,6 +49,16 @@ export interface StructureSetup {
 const unwrap = (elm: HTMLElement | null | undefined) => {
   appendChildren(parent(elm), contents(elm));
   removeElements(elm);
+};
+
+let contentArrangeCounter = 0;
+const createUniqueContentArrangeElement = () => {
+  const elm = document.createElement('style');
+
+  attr(elm, 'id', `${classNameViewportArrange}-${contentArrangeCounter}`);
+  contentArrangeCounter++;
+
+  return elm;
 };
 
 export const createStructureSetup = (target: OSTarget | OSTargetObject): StructureSetup => {
@@ -160,14 +171,14 @@ export const createStructureSetup = (target: OSTarget | OSTargetObject): Structu
     _host,
   };
 
-  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid } = getEnvironment();
+  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } = getEnvironment();
   if (_nativeScrollbarStyling) {
     push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
   } else if (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y) {
-    if (obj._content) {
-      const contentArrangeElm = createDiv(classNameContentArrange);
+    if (true) {
+      const contentArrangeElm = createUniqueContentArrangeElement();
 
-      prependChildren(_viewport, contentArrangeElm);
+      insertBefore(_viewport, contentArrangeElm);
       push(destroyFns, removeElements.bind(0, contentArrangeElm));
 
       obj._contentArrange = contentArrangeElm;

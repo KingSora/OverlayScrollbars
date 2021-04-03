@@ -11,6 +11,11 @@ import { StyleObject } from 'typings';
 
 export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
 
+export interface PaddingInfo {
+  _absolute: boolean;
+  _padding: TRBL;
+}
+
 export interface LifecycleOptionInfo<T> {
   readonly _value: T;
   _changed: boolean;
@@ -42,8 +47,8 @@ export interface LifecycleHubInstance {
 export interface LifecycleHub {
   _options: Options;
   _structureSetup: StructureSetup;
-  _getPadding(): TRBL;
-  _setPadding(newPadding?: TRBL | null): void;
+  _getPaddingInfo(): PaddingInfo;
+  _setPaddingInfo(newPadding?: PaddingInfo | null): void;
   _getPaddingStyle(): StyleObject;
   _setPaddingStyle(newPaddingStlye?: StyleObject | null): void;
   _getViewportOverflowScroll(): XY<boolean>;
@@ -54,7 +59,15 @@ const getPropByPath = <T>(obj: any, path: string): T =>
   obj && path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj);
 
 const attrs = ['id', 'class', 'style', 'open'];
-const paddingFallback: TRBL = { t: 0, r: 0, b: 0, l: 0 };
+const paddingInfoFallback: PaddingInfo = {
+  _absolute: false,
+  _padding: {
+    t: 0,
+    r: 0,
+    b: 0,
+    l: 0,
+  },
+};
 const viewportPaddingStyleFallback: StyleObject = {
   marginTop: 0,
   marginRight: 0,
@@ -77,7 +90,7 @@ const heightIntrinsicCacheValuesFallback: CacheValues<boolean> = {
 };
 
 export const createLifecycleHub = (options: Options, structureSetup: StructureSetup): LifecycleHubInstance => {
-  let padding = paddingFallback;
+  let paddingInfo = paddingInfoFallback;
   let viewportPaddingStyle = viewportPaddingStyleFallback;
   let viewportOverflowScroll = viewportOverflowScrollFallback;
   const { _host, _viewport, _content, _contentArrange } = structureSetup._targetObj;
@@ -91,9 +104,9 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
   const instance: LifecycleHub = {
     _options: options,
     _structureSetup: structureSetup,
-    _getPadding: () => padding,
-    _setPadding(newPadding) {
-      padding = newPadding || paddingFallback;
+    _getPaddingInfo: () => paddingInfo,
+    _setPaddingInfo(newPaddingInfo) {
+      paddingInfo = newPaddingInfo || paddingInfoFallback;
     },
     _getPaddingStyle: () => viewportPaddingStyle,
     _setPaddingStyle(newPaddingStlye) {
