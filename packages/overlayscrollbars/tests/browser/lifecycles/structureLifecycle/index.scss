@@ -28,7 +28,6 @@ body {
 }
 
 #target {
-  overflow: hidden;
   position: relative;
   border: 2px solid red;
   min-height: 100px;
@@ -138,7 +137,6 @@ body {
 
 .resizer {
   position: relative;
-  overflow: hidden;
 }
 
 .resizeBtn {

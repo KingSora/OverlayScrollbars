@@ -3,21 +3,17 @@ import { LifecycleHub, Lifecycle } from 'lifecycles/lifecycleHub';
 import { StyleObject } from 'typings';
 import { getEnvironment } from 'environment';
 
+/**
+ * Lifecycle with the responsibility to adjust the padding styling of the padding and viewport element.
+ * @param lifecycleHub
+ * @returns
+ */
 export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
   const { _setPaddingInfo, _setViewportPaddingStyle, _structureSetup } = lifecycleHub;
   const { _host, _padding, _viewport } = _structureSetup._targetObj;
   const { _update: updatePaddingCache, _current: currentPaddingCache } = createCache(() => topRightBottomLeft(_host, 'padding'), {
     _equal: equalTRBL,
   });
-
-  /*
-  const onTrinsicChanged = (heightIntrinsic: CacheValues<boolean>) => {
-    const { _changed, _value } = heightIntrinsic;
-    if (_changed) {
-      style(_content, { height: _value ? 'auto' : '100%' });
-    }
-  };
-  */
 
   return (updateHints, checkOption, force) => {
     let { _value: padding, _changed: paddingChanged } = currentPaddingCache(force);

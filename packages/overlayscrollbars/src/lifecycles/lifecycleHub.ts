@@ -48,9 +48,11 @@ export interface LifecycleHubInstance {
 export interface LifecycleHub {
   _options: Options;
   _structureSetup: StructureSetup;
+  // whether the "viewport arrange" strategy must be used (true if no native scrollbar hiding and scrollbars are overlaid)
   _doViewportArrange: boolean;
   _getPaddingInfo(): PaddingInfo;
   _setPaddingInfo(newPadding?: PaddingInfo | null): void;
+  // padding related styles applied to the viewport element
   _getViewportPaddingStyle(): StyleObject;
   _setViewportPaddingStyle(newPaddingStlye?: StyleObject | null): void;
   _getViewportOverflowScroll(): XY<boolean>;
@@ -70,6 +72,7 @@ const emptyStylePropsToZero = (stlyeObj: StyleObject, baseStyle?: StyleObject) =
     { ...baseStyle }
   );
 
+// TODO: tabindex, open etc.
 const attrs = ['id', 'class', 'style', 'open'];
 const paddingInfoFallback: PaddingInfo = {
   _absolute: false,
@@ -229,7 +232,7 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
     });
   };
 
-  const trinsicObserver = _content ? createTrinsicObserver(_host, onTrinsicChanged) : null;
+  const trinsicObserver = _content && createTrinsicObserver(_host, onTrinsicChanged);
   const sizeObserver = createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: !_nativeScrollbarStyling });
   const hostMutationObserver = createDOMObserver(_host, onHostMutation, {
     _styleChangingAttributes: attrs,
