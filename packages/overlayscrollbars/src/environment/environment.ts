@@ -147,8 +147,6 @@ const createEnvironment = (): Environment => {
     },
   };
 
-  console.log(env);
-
   removeAttr(envElm, 'style');
   removeElements(envElm);
 

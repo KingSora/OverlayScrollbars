@@ -1,4 +1,4 @@
-import { XY, TRBL, CacheValues, each, push, OptionsValidated, hasOwnProperty, isNumber, scrollLeft, scrollTop } from 'support';
+import { XY, TRBL, CacheValues, each, push, keys, OptionsValidated, hasOwnProperty, isNumber, scrollLeft, scrollTop } from 'support';
 import { Options } from 'options';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
@@ -47,16 +47,27 @@ export interface LifecycleHubInstance {
 export interface LifecycleHub {
   _options: Options;
   _structureSetup: StructureSetup;
+  _doViewportArrange: boolean;
   _getPaddingInfo(): PaddingInfo;
   _setPaddingInfo(newPadding?: PaddingInfo | null): void;
-  _getPaddingStyle(): StyleObject;
-  _setPaddingStyle(newPaddingStlye?: StyleObject | null): void;
+  _getViewportPaddingStyle(): StyleObject;
+  _setViewportPaddingStyle(newPaddingStlye?: StyleObject | null): void;
   _getViewportOverflowScroll(): XY<boolean>;
   _setViewportOverflowScroll(newViewportOverflowScroll: XY<boolean>): void;
 }
 
 const getPropByPath = <T>(obj: any, path: string): T =>
   obj && path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj);
+
+const emptyStylePropsToZero = (stlyeObj: StyleObject, baseStyle?: StyleObject) =>
+  keys(stlyeObj).reduce(
+    (obj, key) => {
+      const value = stlyeObj[key];
+      obj[key] = value === '' ? 0 : value;
+      return obj;
+    },
+    { ...baseStyle }
+  );
 
 const attrs = ['id', 'class', 'style', 'open'];
 const paddingInfoFallback: PaddingInfo = {
@@ -73,6 +84,10 @@ const viewportPaddingStyleFallback: StyleObject = {
   marginRight: 0,
   marginBottom: 0,
   marginLeft: 0,
+  paddingTop: 0,
+  paddingRight: 0,
+  paddingBottom: 0,
+  paddingLeft: 0,
 };
 const viewportOverflowScrollFallback: XY<boolean> = {
   x: false,
@@ -93,24 +108,27 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
   let paddingInfo = paddingInfoFallback;
   let viewportPaddingStyle = viewportPaddingStyleFallback;
   let viewportOverflowScroll = viewportOverflowScrollFallback;
-  const { _host, _viewport, _content, _contentArrange } = structureSetup._targetObj;
+  const { _host, _viewport, _content } = structureSetup._targetObj;
   const {
     _nativeScrollbarStyling,
+    _nativeScrollbarIsOverlaid,
     _flexboxGlue,
     _addListener: addEnvironmentListener,
     _removeListener: removeEnvironmentListener,
   } = getEnvironment();
+  const doViewportArrange = !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
   const lifecycles: Lifecycle[] = [];
   const instance: LifecycleHub = {
     _options: options,
     _structureSetup: structureSetup,
+    _doViewportArrange: doViewportArrange,
     _getPaddingInfo: () => paddingInfo,
     _setPaddingInfo(newPaddingInfo) {
       paddingInfo = newPaddingInfo || paddingInfoFallback;
     },
-    _getPaddingStyle: () => viewportPaddingStyle,
-    _setPaddingStyle(newPaddingStlye) {
-      viewportPaddingStyle = newPaddingStlye || viewportPaddingStyleFallback;
+    _getViewportPaddingStyle: () => viewportPaddingStyle,
+    _setViewportPaddingStyle(newPaddingStlye) {
+      viewportPaddingStyle = newPaddingStlye ? emptyStylePropsToZero(newPaddingStlye, viewportPaddingStyleFallback) : viewportPaddingStyleFallback;
     },
     _getViewportOverflowScroll: () => viewportOverflowScroll,
     _setViewportOverflowScroll(newViewportOverflowScroll) {
@@ -143,7 +161,7 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
       _value: getPropByPath(options, path),
       _changed: force || getPropByPath(changedOptions, path) !== undefined,
     });
-    const adjustScrollOffset = _contentArrange || !_flexboxGlue;
+    const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
     const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
 

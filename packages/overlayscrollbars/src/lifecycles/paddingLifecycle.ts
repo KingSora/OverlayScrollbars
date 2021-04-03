@@ -4,7 +4,8 @@ import { StyleObject } from 'typings';
 import { getEnvironment } from 'environment';
 
 export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
-  const { _host, _padding, _viewport } = lifecycleHub._structureSetup._targetObj;
+  const { _setPaddingInfo, _setViewportPaddingStyle, _structureSetup } = lifecycleHub;
+  const { _host, _padding, _viewport } = _structureSetup._targetObj;
   const { _update: updatePaddingCache, _current: currentPaddingCache } = createCache(() => topRightBottomLeft(_host, 'padding'), {
     _equal: equalTRBL,
   });
@@ -76,11 +77,18 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
       style(_padding || _viewport, paddingStyle);
       style(_viewport, viewportStyle);
 
-      lifecycleHub._setPaddingInfo({
+      _setPaddingInfo({
         _absolute: !paddingRelative,
         _padding: padding!,
       });
-      lifecycleHub._setPaddingStyle(!_padding ? paddingStyle : null);
+      _setViewportPaddingStyle(
+        _padding
+          ? viewportStyle
+          : {
+              ...paddingStyle,
+              ...viewportStyle,
+            }
+      );
     }
 
     return {

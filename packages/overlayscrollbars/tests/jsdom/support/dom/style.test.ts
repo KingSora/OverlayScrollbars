@@ -1,6 +1,7 @@
 import { isEmptyObject } from 'support/utils/object';
 import { isString, isPlainObject } from 'support/utils/types';
 import { style, hide, show, topRightBottomLeft } from 'support/dom/style';
+import { StyleObject } from 'typings';
 
 describe('dom style', () => {
   afterEach(() => {
@@ -34,6 +35,10 @@ describe('dom style', () => {
         expect(document.body.style.width).toBe('');
         style(document.body, { width: '123px' });
         expect(document.body.style.width).toBe('123px');
+
+        expect(document.body.style.getPropertyValue('--custom')).toBe('');
+        style(document.body, { '--custom': '123px' });
+        expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
       });
 
       test('single add px', () => {
@@ -54,11 +59,13 @@ describe('dom style', () => {
         expect(document.body.style.opacity).toBe('');
         expect(document.body.style.zIndex).toBe('');
         expect(document.body.style.lineHeight).toBe('');
-        style(document.body, { width: '123px', height: 321, opacity: '0.5', zIndex: 1 });
+        expect(document.body.style.getPropertyValue('--custom')).toBe('');
+        style(document.body, { width: '123px', height: 321, opacity: '0.5', zIndex: 1, '--custom': '123px' });
         expect(document.body.style.width).toBe('123px');
         expect(document.body.style.height).toBe('321px');
         expect(document.body.style.opacity).toBe('0.5');
         expect(document.body.style.zIndex).toBe('1');
+        expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
       });
 
       test('null', () => {

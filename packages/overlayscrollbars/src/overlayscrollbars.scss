@@ -1,6 +1,5 @@
 @import './sizeobserver.scss';
 @import './trinsicobserver.scss';
-@import './structurelifecycle.scss';
 
 .os-environment {
   --css-custom-prop: -1;
@@ -70,7 +69,7 @@
 }
 .os-environment,
 .os-viewport {
-  -ms-overflow-style: -ms-autohiding-scrollbar !important;
+  -ms-overflow-style: scrollbar !important;
 }
 .os-viewport-scrollbar-styled.os-environment,
 .os-viewport-scrollbar-styled.os-viewport {
@@ -87,6 +86,34 @@
   background: transparent !important;
 }
 
+.os-host,
+.os-padding {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.os-padding,
+.os-viewport {
+  box-sizing: border-box;
+  position: relative;
+  flex: auto;
+  height: auto;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+  overflow: visible;
+  max-width: 100%;
+  z-index: 0;
+}
+
+.os-viewport {
+  --viewport-arrange-width: 0;
+  --viewport-arrange-height: 0;
+}
+
 .os-viewport-arrange::before {
   content: '';
   position: absolute;
@@ -94,8 +121,6 @@
   z-index: -1;
   min-width: 1px;
   min-height: 1px;
-}
-
-.os-host {
-  padding: 5px 50px 15px 20px;
+  width: var(--viewport-arrange-width);
+  height: var(--viewport-arrange-height);
 }

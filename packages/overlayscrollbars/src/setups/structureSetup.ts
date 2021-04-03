@@ -37,7 +37,7 @@ export interface OSTargetContext {
 
 export interface PreparedOSTargetObject extends Required<InternalVersionOf<OSTargetObject>> {
   _host: HTMLElement;
-  _contentArrange: HTMLStyleElement | null;
+  _viewportArrange: HTMLStyleElement | null;
 }
 
 export interface StructureSetup {
@@ -52,7 +52,7 @@ const unwrap = (elm: HTMLElement | null | undefined) => {
 };
 
 let contentArrangeCounter = 0;
-const createUniqueContentArrangeElement = () => {
+const createUniqueViewportArrangeElement = () => {
   const elm = document.createElement('style');
 
   attr(elm, 'id', `${classNameViewportArrange}-${contentArrangeCounter}`);
@@ -174,15 +174,13 @@ export const createStructureSetup = (target: OSTarget | OSTargetObject): Structu
   const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } = getEnvironment();
   if (_nativeScrollbarStyling) {
     push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
-  } else if (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y) {
-    if (true) {
-      const contentArrangeElm = createUniqueContentArrangeElement();
+  } else if (!_cssCustomProperties && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y)) {
+    const viewportArrangeElm = createUniqueViewportArrangeElement();
 
-      insertBefore(_viewport, contentArrangeElm);
-      push(destroyFns, removeElements.bind(0, contentArrangeElm));
+    insertBefore(_viewport, viewportArrangeElm);
+    push(destroyFns, removeElements.bind(0, viewportArrangeElm));
 
-      obj._contentArrange = contentArrangeElm;
-    }
+    obj._viewportArrange = viewportArrangeElm;
   }
 
   return {
