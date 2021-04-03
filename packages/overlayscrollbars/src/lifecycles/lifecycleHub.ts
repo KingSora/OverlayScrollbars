@@ -2,6 +2,7 @@ import { XY, TRBL, CacheValues, each, push, keys, OptionsValidated, hasOwnProper
 import { Options } from 'options';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
+import { createTrinsicLifecycle } from 'lifecycles/trinsicLifecycle';
 import { createPaddingLifecycle } from 'lifecycles/paddingLifecycle';
 import { createOverflowLifecycle } from 'lifecycles/overflowLifecycle';
 import { createSizeObserver } from 'observers/sizeObserver';
@@ -136,7 +137,7 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
     },
   };
 
-  // push(lifecycles, createStructureLifecycle(instance));
+  push(lifecycles, createTrinsicLifecycle(instance));
   push(lifecycles, createPaddingLifecycle(instance));
   push(lifecycles, createOverflowLifecycle(instance));
 
@@ -228,8 +229,8 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
     });
   };
 
+  const trinsicObserver = _content ? createTrinsicObserver(_host, onTrinsicChanged) : null;
   const sizeObserver = createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: !_nativeScrollbarStyling });
-  const trinsicObserver = createTrinsicObserver(_host, onTrinsicChanged);
   const hostMutationObserver = createDOMObserver(_host, onHostMutation, {
     _styleChangingAttributes: attrs,
     _attributes: attrs,
