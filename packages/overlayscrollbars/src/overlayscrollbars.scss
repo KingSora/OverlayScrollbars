@@ -90,15 +90,15 @@
 .os-padding {
   position: relative;
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
 }
 
 .os-padding,
 .os-viewport {
   box-sizing: border-box;
   position: relative;
-  flex: auto;
+  flex: auto !important;
   height: auto;
   width: 100%;
   padding: 0;
@@ -106,21 +106,20 @@
   border: none;
   overflow: visible;
   max-width: 100%;
-  z-index: 0;
 }
 
 .os-viewport {
   --viewport-arrange-width: 0;
   --viewport-arrange-height: 0;
-}
 
-.os-viewport-arrange::before {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-  z-index: -1;
-  min-width: 1px;
-  min-height: 1px;
-  width: var(--viewport-arrange-width);
-  height: var(--viewport-arrange-height);
+  &.os-viewport-arrange::before {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    z-index: -1;
+    min-width: 1px;
+    min-height: 1px;
+    width: var(--viewport-arrange-width);
+    height: var(--viewport-arrange-height);
+  }
 }

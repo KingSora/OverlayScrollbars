@@ -36,8 +36,10 @@ describe('dom style', () => {
         style(document.body, { width: '123px' });
         expect(document.body.style.width).toBe('123px');
 
+        interface O {}
+
         expect(document.body.style.getPropertyValue('--custom')).toBe('');
-        style(document.body, { '--custom': '123px' });
+        style<'--custom'>(document.body, { '--custom': '123px' });
         expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
       });
 
@@ -60,7 +62,7 @@ describe('dom style', () => {
         expect(document.body.style.zIndex).toBe('');
         expect(document.body.style.lineHeight).toBe('');
         expect(document.body.style.getPropertyValue('--custom')).toBe('');
-        style(document.body, { width: '123px', height: 321, opacity: '0.5', zIndex: 1, '--custom': '123px' });
+        style<'--custom'>(document.body, { width: '123px', height: 321, opacity: '0.5', zIndex: 1, '--custom': '123px' });
         expect(document.body.style.width).toBe('123px');
         expect(document.body.style.height).toBe('321px');
         expect(document.body.style.opacity).toBe('0.5');

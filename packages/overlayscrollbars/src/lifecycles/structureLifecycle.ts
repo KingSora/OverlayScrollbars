@@ -61,9 +61,9 @@ export const createStructureLifecycle = (lifecycleHub: LifecycleHub): Lifecycle 
       style(_padding, {
         top: paddingStyle.t,
         left: paddingStyle.l,
-        'margin-right': paddingStyle.r,
-        'margin-bottom': paddingStyle.b,
-        'max-width': `calc(100% + ${paddingStyle.r * -1}px)`,
+        marginRight: paddingStyle.r,
+        marginBottom: paddingStyle.b,
+        maxWidth: `calc(100% + ${paddingStyle.r * -1}px)`,
       });
     }
 

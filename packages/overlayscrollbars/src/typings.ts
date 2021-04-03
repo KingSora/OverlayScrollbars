@@ -1,7 +1,7 @@
 export type PlainObject<T = any> = { [name: string]: T };
 
-export type StyleObject<CustomCssProps = {}> = {
-  [K in keyof (CSSStyleDeclaration & CustomCssProps)]?: string | number;
+export type StyleObject<CustomCssProps = ''> = {
+  [Key in (keyof CSSStyleDeclaration | (CustomCssProps extends string ? CustomCssProps : ''))]?: string | number;
 }
 
 export type InternalVersionOf<T> = {

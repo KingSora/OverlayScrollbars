@@ -43,16 +43,11 @@ interface OverflowOption {
   y: OverflowBehavior;
 }
 
-interface ViewportArrangeCustomCssProps {
-  '--viewport-arrange-width': string;
-  '--viewport-arrange-height': string;
-}
-
 const overlaidScrollbarsHideOffset = 42;
 
 export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
   const { _structureSetup, _doViewportArrange, _getViewportPaddingStyle, _getPaddingInfo } = lifecycleHub;
-  const { _host, _padding, _viewport, _viewportArrange } = _structureSetup._targetObj;
+  const { _host, _padding, _viewport, _content, _viewportArrange } = _structureSetup._targetObj;
   const { _update: updateContentScrollSizeCache, _current: getCurrentContentScrollSizeCache } = createCache<
     WH<number>,
     ContentScrollSizeCacheContext
@@ -78,7 +73,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
 
   const fixFlexboxGlue = (viewportOverflowState: ViewportOverflowState, heightIntrinsic: boolean) => {
     style(_viewport, {
-      maxHeight: '',
+      height: '',
     });
 
     if (heightIntrinsic) {
@@ -91,7 +86,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       const clientSizeWithoutRounding = hostClientSize.h + (hostBCR.height - hostOffsetSize.h);
 
       style(_viewport, {
-        maxHeight: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingAbsoluteVertical,
+        height: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingAbsoluteVertical,
       });
     }
   };
@@ -193,7 +188,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
           }
         }
       } else {
-        style<ViewportArrangeCustomCssProps>(_viewport, {
+        style<'--viewport-arrange-width' | '--viewport-arrange-height'>(_viewport, {
           '--viewport-arrange-width': arrangeSize.w,
           '--viewport-arrange-height': arrangeSize.h,
         });
@@ -232,18 +227,19 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     }
   };
 
-  const undoOverlaidScrollbarsHiding = () => {
-    const paddingStyle = _getViewportPaddingStyle();
-    const viewportStyle = {
-      marginTop: '',
-      marginRight: '',
-      marginBottom: '',
-      marginLeft: '',
-      ...paddingStyle,
-    };
-    const prevStyle = style(_viewport, keys(viewportStyle));
+  const undoOverlaidScrollbarsHiding = (adjustFlexboxGlue?: boolean) => {
+    let paddingStyle = _getViewportPaddingStyle();
+
+    if (adjustFlexboxGlue) {
+      paddingStyle = {
+        ...paddingStyle,
+        height: '',
+      };
+    }
+
+    const prevStyle = style(_viewport, keys(paddingStyle));
     removeClass(_viewport, classNameViewportArrange);
-    style(_viewport, viewportStyle);
+    style(_viewport, paddingStyle);
 
     return () => {
       style(_viewport, prevStyle);
@@ -281,7 +277,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     }
 
     if (_sizeChanged || _paddingStyleChanged || _contentMutation || directionChanged) {
-      const redoOverlaidScrollbarsHiding = viewportArrange ? undoOverlaidScrollbarsHiding() : noop;
+      const redoOverlaidScrollbarsHiding = viewportArrange ? undoOverlaidScrollbarsHiding(adjustFlexboxGlue) : noop;
       const contentSize = clientSize(_viewport);
       const viewportRect = getBoundingClientRect(_viewport);
       const viewportOffsetSize = offsetSize(_viewport);
