@@ -266,7 +266,7 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
   const envUpdateListener = update.bind(null, null, true);
   addEnvironmentListener(envUpdateListener);
 
-  console.log('flexboxGlue', _flexboxGlue);
+  console.log(getEnvironment());
 
   return {
     _update: update,
