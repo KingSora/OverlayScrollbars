@@ -1302,6 +1302,10 @@
       };
       return {
         _overflowScroll: scroll,
+        _scrollbarsHideOffsetArrange: {
+          x: overlaidX && !!arrangeHideOffset,
+          y: overlaidY && !!arrangeHideOffset,
+        },
         _scrollbarsHideOffset: scrollbarsHideOffset,
       };
     };
@@ -1345,7 +1349,10 @@
 
     var arrangeViewport = function arrangeViewport(viewportOverflowState, contentScrollSize, directionIsRTL) {
       if (_doViewportArrange) {
-        var _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset;
+        var _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset,
+          _scrollbarsHideOffsetArrange = viewportOverflowState._scrollbarsHideOffsetArrange;
+        var arrangeX = _scrollbarsHideOffsetArrange.x,
+          arrangeY = _scrollbarsHideOffsetArrange.y;
         var hideOffsetX = _scrollbarsHideOffset.x,
           hideOffsetY = _scrollbarsHideOffset.y;
 
@@ -1355,8 +1362,8 @@
         var viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
         var viewportArrangeVerticalPaddingValue = viewportPaddingStyle.paddingTop;
         var arrangeSize = {
-          w: hideOffsetY ? hideOffsetY + contentScrollSize.w - viewportArrangeHorizontalPaddingValue + 'px' : '',
-          h: hideOffsetX ? hideOffsetX + contentScrollSize.h - viewportArrangeVerticalPaddingValue + 'px' : '',
+          w: hideOffsetY && arrangeY ? hideOffsetY + contentScrollSize.w - viewportArrangeHorizontalPaddingValue + 'px' : '',
+          h: hideOffsetX && arrangeX ? hideOffsetX + contentScrollSize.h - viewportArrangeVerticalPaddingValue + 'px' : '',
         };
 
         if (_viewportArrange) {
@@ -1391,7 +1398,10 @@
         _nativeScrollbarStyling = _getEnvironment2._nativeScrollbarStyling;
 
       var _overflowScroll = viewportOverflowState._overflowScroll,
-        _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset;
+        _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset,
+        _scrollbarsHideOffsetArrange = viewportOverflowState._scrollbarsHideOffsetArrange;
+      var arrangeX = _scrollbarsHideOffsetArrange.x,
+        arrangeY = _scrollbarsHideOffsetArrange.y;
       var hideOffsetX = _scrollbarsHideOffset.x,
         hideOffsetY = _scrollbarsHideOffset.y;
       var scrollX = _overflowScroll.x,
@@ -1410,8 +1420,8 @@
       viewportStyleObj.marginBottom = -hideOffsetX + verticalMarginValue;
 
       if (viewportArrange) {
-        viewportStyleObj[viewportHorizontalPaddingKey] = horizontalPaddingValue + hideOffsetY;
-        viewportStyleObj.paddingBottom = verticalPaddingValue + hideOffsetX;
+        viewportStyleObj[viewportHorizontalPaddingKey] = horizontalPaddingValue + (arrangeY ? hideOffsetY : 0);
+        viewportStyleObj.paddingBottom = verticalPaddingValue + (arrangeX ? hideOffsetX : 0);
       }
 
       if (!_nativeScrollbarStyling) {
@@ -1421,29 +1431,53 @@
       }
     };
 
-    var undoViewportArrange = function undoViewportArrange() {
+    var undoViewportArrange = function undoViewportArrange(showNativeOverlaidScrollbars, viewportOverflowState) {
       if (_doViewportArrange) {
-        var _getEnvironment3 = getEnvironment(),
-          _flexboxGlue = _getEnvironment3._flexboxGlue;
+        var finalViewportOverflowState = viewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars);
 
         var paddingStyle = _getViewportPaddingStyle();
 
-        if (!_flexboxGlue) {
-          paddingStyle = _extends_1({}, paddingStyle, {
-            height: '',
+        var _getEnvironment3 = getEnvironment(),
+          _flexboxGlue = _getEnvironment3._flexboxGlue;
+
+        var _scrollbarsHideOffsetArrange = finalViewportOverflowState._scrollbarsHideOffsetArrange;
+        var arrangeX = _scrollbarsHideOffsetArrange.x,
+          arrangeY = _scrollbarsHideOffsetArrange.y;
+        var finalPaddingStyle = {};
+
+        var assignProps = function assignProps(props) {
+          return each(props.split(' '), function (prop) {
+            finalPaddingStyle[prop] = paddingStyle[prop];
           });
+        };
+
+        if (!_flexboxGlue) {
+          finalPaddingStyle.height = '';
         }
 
-        var prevStyle = style(_viewport, keys(paddingStyle));
+        if (arrangeX) {
+          assignProps('marginTop marginBottom paddingTop paddingBottom');
+        }
+
+        if (arrangeY) {
+          assignProps('marginLeft marginRight paddingLeft paddingRight');
+        }
+
+        var prevStyle = style(_viewport, keys(finalPaddingStyle));
         removeClass(_viewport, classNameViewportArrange);
-        style(_viewport, paddingStyle);
-        return function () {
-          style(_viewport, prevStyle);
-          addClass(_viewport, classNameViewportArrange);
+        style(_viewport, finalPaddingStyle);
+        return {
+          _redoViewportArrange: function _redoViewportArrange() {
+            style(_viewport, prevStyle);
+            addClass(_viewport, classNameViewportArrange);
+          },
+          _viewportOverflowState: finalViewportOverflowState,
         };
       }
 
-      return noop;
+      return {
+        _redoViewportArrange: noop,
+      };
     };
 
     return function (updateHints, checkOption, force) {
@@ -1489,7 +1523,10 @@
       }
 
       if (_sizeChanged || _paddingStyleChanged || _contentMutation || showNativeOverlaidScrollbarsChanged || directionChanged) {
-        var redoViewportArrange = undoViewportArrange();
+        var _undoViewportArrange = undoViewportArrange(showNativeOverlaidScrollbars, preMeasureViewportOverflowState),
+          _redoViewportArrange = _undoViewportArrange._redoViewportArrange,
+          undoViewportArrangeOverflowState = _undoViewportArrange._viewportOverflowState;
+
         var contentSize = clientSize(_viewport);
         var viewportRect = getBoundingClientRect(_viewport);
         var viewportOffsetSize = offsetSize(_viewport);
@@ -1504,19 +1541,16 @@
           _contentScrollSize = _contentScrollSizeCac._value,
           _contentScrollSizeChanged = _contentScrollSizeCac._changed;
 
-        redoViewportArrange();
+        _redoViewportArrange();
 
-        if ((_contentScrollSizeChanged || showNativeOverlaidScrollbarsChanged) && !showNativeOverlaidScrollbars) {
-          var arranged = arrangeViewport(
-            preMeasureViewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars),
-            _contentScrollSize,
-            directionIsRTL
-          );
-
-          if (arranged) {
-            viewportClientSize = clientSize(_viewport);
-            viewportScrollSize = fixScrollSizeRounding(scrollSize(_viewport), offsetSize(_viewport), getBoundingClientRect(_viewport));
-          }
+        if (
+          (_contentScrollSizeChanged || showNativeOverlaidScrollbarsChanged) &&
+          undoViewportArrangeOverflowState &&
+          !showNativeOverlaidScrollbars &&
+          arrangeViewport(undoViewportArrangeOverflowState, _contentScrollSize, directionIsRTL)
+        ) {
+          viewportClientSize = clientSize(_viewport);
+          viewportScrollSize = fixScrollSizeRounding(scrollSize(_viewport), offsetSize(_viewport), getBoundingClientRect(_viewport));
         }
 
         overflowAmuntCache = updateOverflowAmountCache(force, {
@@ -2261,7 +2295,7 @@
 
     var envUpdateListener = update.bind(null, null, true);
     addEnvironmentListener(envUpdateListener);
-    console.log('flexboxGlue', _flexboxGlue);
+    console.log(getEnvironment());
     return {
       _update: update,
       _destroy: function _destroy() {
