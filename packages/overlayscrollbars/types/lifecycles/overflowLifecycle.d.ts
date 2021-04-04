@@ -1,3 +1,7 @@
-import { LifecycleUpdateFunction } from 'lifecycles/lifecycleUpdateFunction';
-import { LifecycleHub } from 'lifecycles/lifecycleHub';
-export declare const createOverflowLifecycle: (lifecycleHub: LifecycleHub) => LifecycleUpdateFunction;
+import { LifecycleHub, Lifecycle } from 'lifecycles/lifecycleHub';
+/**
+ * Lifecycle with the responsibility to set the correct overflow and scrollbar hiding styles of the viewport element.
+ * @param lifecycleHub
+ * @returns
+ */
+export declare const createOverflowLifecycle: (lifecycleHub: LifecycleHub) => Lifecycle;

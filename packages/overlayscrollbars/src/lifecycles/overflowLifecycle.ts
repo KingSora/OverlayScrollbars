@@ -144,7 +144,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     viewportStyleObj: StyleObject
   ): ViewportOverflowState => {
     const setPartialStylePerAxis = (horizontal: boolean, overflowAmount: number, behavior: OverflowBehavior, styleObj: StyleObject) => {
-      const overflowKey = horizontal ? 'overflowX' : 'overflowY';
+      const overflowKey: keyof StyleObject = horizontal ? 'overflowX' : 'overflowY';
       const behaviorIsScroll = behavior === 'scroll';
       const behaviorIsVisibleScroll = behavior === 'visible-scroll';
       const hideOverflow = behaviorIsScroll || behavior === 'hidden';
@@ -184,7 +184,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       const { _scrollbarsHideOffset } = viewportOverflowState;
       const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
       const viewportPaddingStyle = _getViewportPaddingStyle();
-      const viewportArrangeHorizontalPaddingKey = directionIsRTL ? 'paddingRight' : 'paddingLeft';
+      const viewportArrangeHorizontalPaddingKey: keyof StyleObject = directionIsRTL ? 'paddingRight' : 'paddingLeft';
       const viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[viewportArrangeHorizontalPaddingKey] as number;
       const viewportArrangeVerticalPaddingValue = viewportPaddingStyle.paddingTop as number;
       const arrangeSize = {
@@ -238,10 +238,10 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
     const { x: scrollX, y: scrollY } = _overflowScroll;
     const paddingStyle = _getViewportPaddingStyle();
-    const horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
+    const horizontalMarginKey: keyof StyleObject = directionIsRTL ? 'marginLeft' : 'marginRight';
+    const viewportHorizontalPaddingKey: keyof StyleObject = directionIsRTL ? 'paddingLeft' : 'paddingRight';
     const horizontalMarginValue = paddingStyle[horizontalMarginKey] as number;
     const verticalMarginValue = paddingStyle.marginBottom as number;
-    const viewportHorizontalPaddingKey = directionIsRTL ? 'paddingLeft' : 'paddingRight';
     const horizontalPaddingValue = paddingStyle[viewportHorizontalPaddingKey] as number;
     const verticalPaddingValue = paddingStyle.paddingBottom as number;
 
@@ -376,13 +376,13 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       adjustFlexboxGlue
     ) {
       const viewportStyle: StyleObject = {
+        marginTop: 0,
+        marginRight: 0,
+        marginBottom: 0,
+        marginLeft: 0,
+        maxWidth: '',
         overflowY: '',
         overflowX: '',
-        marginTop: '',
-        marginRight: '',
-        marginBottom: '',
-        marginLeft: '',
-        maxWidth: '',
       };
 
       const viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, overflowAmount!, overflow, viewportStyle);

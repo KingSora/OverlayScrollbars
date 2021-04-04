@@ -1,6 +1,9 @@
 export declare type PlainObject<T = any> = {
     [name: string]: T;
 };
+export declare type StyleObject<CustomCssProps = ''> = {
+    [Key in (keyof CSSStyleDeclaration | (CustomCssProps extends string ? CustomCssProps : ''))]?: string | number;
+};
 export declare type InternalVersionOf<T> = {
     [K in keyof T as `_${Uncapitalize<string & K>}`]: T[K];
 };

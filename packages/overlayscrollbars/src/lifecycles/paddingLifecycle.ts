@@ -29,44 +29,37 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
     const paddingStyleChanged = paddingAbsoluteChanged || directionChanged || paddingChanged;
 
     if (paddingStyleChanged) {
-      // if there is no padding element and no scrollbar styling padding absolute isn't supported
       const { _value: padding } = updatePaddingCache(force);
+      // if there is no padding element and no scrollbar styling padding absolute isn't supported
       const paddingRelative = !paddingAbsolute || (!_padding && !_nativeScrollbarStyling);
       const paddingHorizontal = padding!.r + padding!.l;
       const paddingVertical = padding!.t + padding!.b;
+
       const paddingStyle: StyleObject = {
-        marginTop: '',
-        marginRight: '',
-        marginBottom: '',
-        marginLeft: '',
-        top: '',
-        right: '',
-        bottom: '',
-        left: '',
-        maxWidth: '',
+        marginTop: 0,
+        marginRight: 0,
+        marginBottom: paddingRelative ? -paddingVertical : 0,
+        marginLeft: 0,
+        top: paddingRelative ? -padding!.t : 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        maxWidth: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
       };
       const viewportStyle: StyleObject = {
-        paddingTop: '',
-        paddingRight: '',
-        paddingBottom: '',
-        paddingLeft: '',
+        paddingTop: paddingRelative ? padding!.t : 0,
+        paddingRight: paddingRelative ? padding!.r : 0,
+        paddingBottom: paddingRelative ? padding!.b : 0,
+        paddingLeft: paddingRelative ? padding!.l : 0,
       };
 
       if (paddingRelative) {
-        const horizontalPositionKey = directionIsRTL ? 'right' : 'left';
+        const horizontalPositionKey: keyof StyleObject = directionIsRTL ? 'right' : 'left';
+        const horizontalMarginKey: keyof StyleObject = directionIsRTL ? 'marginLeft' : 'marginRight';
         const horizontalPositionValue = directionIsRTL ? padding!.r : padding!.l;
-        const horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
 
-        paddingStyle.top = -padding!.t;
         paddingStyle[horizontalPositionKey] = -horizontalPositionValue;
-        paddingStyle.marginBottom = -paddingVertical;
         paddingStyle[horizontalMarginKey] = -paddingHorizontal;
-        paddingStyle.maxWidth = `calc(100% + ${paddingHorizontal}px)`;
-
-        viewportStyle.paddingTop = padding!.t;
-        viewportStyle.paddingRight = padding!.r;
-        viewportStyle.paddingBottom = padding!.b;
-        viewportStyle.paddingLeft = padding!.l;
       }
 
       // if there is no padding element apply the style to the viewport element instead

@@ -10,6 +10,7 @@ export interface Environment {
         i: boolean;
     };
     _flexboxGlue: boolean;
+    _cssCustomProperties: boolean;
     _addListener(listener: OnEnvironmentChanged): void;
     _removeListener(listener: OnEnvironmentChanged): void;
 }
