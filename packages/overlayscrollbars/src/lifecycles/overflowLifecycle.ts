@@ -133,8 +133,8 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     return {
       _overflowScroll: scroll,
       _scrollbarsHideOffsetArrange: {
-        x: overlaidX,
-        y: overlaidY,
+        x: overlaidX && !!arrangeHideOffset,
+        y: overlaidY && !!arrangeHideOffset,
       },
       _scrollbarsHideOffset: scrollbarsHideOffset,
     };
@@ -203,9 +203,6 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
         w: hideOffsetY && arrangeY ? `${hideOffsetY + contentScrollSize.w - viewportArrangeHorizontalPaddingValue}px` : '',
         h: hideOffsetX && arrangeX ? `${hideOffsetX + contentScrollSize.h - viewportArrangeVerticalPaddingValue}px` : '',
       };
-
-      console.log(arrangeX);
-      console.log(arrangeY);
 
       // adjust content arrange / before element
       if (_viewportArrange) {
