@@ -1,4 +1,4 @@
-declare type NodeCollection = ArrayLike<Node> | Node | null | undefined;
+declare type NodeCollection = ArrayLike<Node> | Node | false | null | undefined;
 /**
  * Appends the given children at the end of the given Node.
  * @param node The Node to which the children shall be appended.

@@ -1,21 +1,35 @@
-import { OptionsTemplate, OptionsWithOptionsTemplate, OptionsTemplateTypes } from 'support/options';
+import {
+  OptionsTemplate,
+  OptionsObjectType,
+  OptionsTemplateNativeTypes,
+  OptionsTemplateTypes,
+  OptionsTemplateValue,
+} from 'support/options/validation';
 import { PlainObject } from 'typings';
 import { isArray } from 'support/utils/types';
 import { each, keys } from 'support/utils';
 
-export interface OptionsWithOptionsTemplateTransformation<T extends Required<T>> {
+export interface OptionsWithOptionsTemplateTransformation<T> {
   _template: OptionsTemplate<T>;
   _options: T;
 }
+
+export type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];
+
+export type OptionsWithOptionsTemplate<T> = {
+  [P in keyof T]: T[P] extends OptionsObjectType
+    ? OptionsWithOptionsTemplate<T[P]>
+    : T[P] extends OptionsTemplateNativeTypes
+    ? OptionsWithOptionsTemplateValue<T[P]>
+    : never;
+};
 
 /**
  * Transforms the given OptionsWithOptionsTemplate<T> object to its corresponding generic (T) Object or its corresponding Template object.
  * @param optionsWithOptionsTemplate The OptionsWithOptionsTemplate<T> object which shall be converted.
  * @param toTemplate True if the given OptionsWithOptionsTemplate<T> shall be converted to its corresponding Template object.
  */
-export function transformOptions<T extends Required<T>>(
-  optionsWithOptionsTemplate: OptionsWithOptionsTemplate<T>
-): OptionsWithOptionsTemplateTransformation<T> {
+export const transformOptions = <T>(optionsWithOptionsTemplate: OptionsWithOptionsTemplate<T>): OptionsWithOptionsTemplateTransformation<T> => {
   const result: any = {
     _template: {},
     _options: {},
@@ -36,4 +50,4 @@ export function transformOptions<T extends Required<T>>(
   });
 
   return result;
-}
+};

@@ -10,19 +10,19 @@ export interface TRBL {
 }
 
 const cssNumber = {
-  animationiterationcount: 1,
-  columncount: 1,
-  fillopacity: 1,
-  flexgrow: 1,
-  flexshrink: 1,
-  fontweight: 1,
-  lineheight: 1,
-  opacity: 1,
-  order: 1,
-  orphans: 1,
-  widows: 1,
-  zindex: 1,
-  zoom: 1,
+  //animationiterationcount: 1,
+  //columncount: 1,
+  //fillopacity: 1,
+  //flexgrow: 1,
+  //flexshrink: 1,
+  //fontweight: 1,
+  //lineheight: 1,
+  //opacity: 1,
+  //order: 1,
+  //orphans: 1,
+  //widows: 1,
+  //zindex: 1,
+  //zoom: 1,
 };
 
 const parseToZeroOrNumber = (value: string, toFloat?: boolean): number => {
@@ -35,7 +35,7 @@ const adaptCSSVal = (prop: string, val: string | number): string | number => (!c
 const getCSSVal = (elm: HTMLElement, computedStyle: CSSStyleDeclaration, prop: string): string =>
   /* istanbul ignore next */
   computedStyle != null ? computedStyle[prop] || computedStyle.getPropertyValue(prop) : elm.style[prop];
-const setCSSVal = (elm: HTMLElement | null | undefined, prop: string, val: string | number): void => {
+const setCSSVal = (elm: HTMLElement | false | null | undefined, prop: string, val: string | number): void => {
   try {
     if (elm) {
       const { style } = elm;
@@ -53,11 +53,11 @@ const setCSSVal = (elm: HTMLElement | null | undefined, prop: string, val: strin
  * @param elm The element to which the styles shall be applied to / be read from.
  * @param styles The styles which shall be set or read.
  */
-export function style<CustomCssProps>(elm: HTMLElement | null | undefined, styles: StyleObject<CustomCssProps>): void;
-export function style<CustomCssProps>(elm: HTMLElement | null | undefined, styles: string): string;
-export function style<CustomCssProps>(elm: HTMLElement | null | undefined, styles: Array<string> | string): { [key: string]: string };
+export function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: StyleObject<CustomCssProps>): void;
+export function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: string): string;
+export function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: Array<string> | string): { [key: string]: string };
 export function style<CustomCssProps>(
-  elm: HTMLElement | null | undefined,
+  elm: HTMLElement | false | null | undefined,
   styles: StyleObject<CustomCssProps> | Array<string> | string
 ): { [key: string]: string } | string | void {
   const getSingleStyle = isString(styles);
@@ -83,7 +83,7 @@ export function style<CustomCssProps>(
  * Hides the passed element (display: none).
  * @param elm The element which shall be hidden.
  */
-export const hide = (elm: HTMLElement | null): void => {
+export const hide = (elm: HTMLElement | false | null | undefined): void => {
   style(elm, { display: 'none' });
 };
 
@@ -91,7 +91,7 @@ export const hide = (elm: HTMLElement | null): void => {
  * Shows the passed element (display: block).
  * @param elm The element which shall be shown.
  */
-export const show = (elm: HTMLElement | null | undefined): void => {
+export const show = (elm: HTMLElement | false | null | undefined): void => {
   style(elm, { display: 'block' });
 };
 
@@ -100,7 +100,7 @@ export const show = (elm: HTMLElement | null | undefined): void => {
  * @param elm
  * @param property
  */
-export const topRightBottomLeft = (elm: HTMLElement | null | undefined, propertyPrefix?: string, propertySuffix?: string): TRBL => {
+export const topRightBottomLeft = (elm: HTMLElement | false | null | undefined, propertyPrefix?: string, propertySuffix?: string): TRBL => {
   const finalPrefix = propertyPrefix ? `${propertyPrefix}-` : '';
   const finalSuffix = propertySuffix ? `-${propertySuffix}` : '';
   const top = `${finalPrefix}top${finalSuffix}`;

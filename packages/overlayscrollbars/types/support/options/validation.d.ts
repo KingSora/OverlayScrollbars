@@ -1,5 +1,42 @@
-import { OptionsTemplate, OptionsTemplateType, Func, OptionsValidationResult } from 'support/options';
 import { PlainObject } from 'typings';
+export declare type OptionsObjectType = Record<string, unknown>;
+export declare type OptionsFunctionType = (this: unknown, ...args: unknown[]) => unknown;
+export declare type OptionsTemplateType<T extends OptionsTemplateNativeTypes> = ExtractPropsKey<OptionsTemplateTypeMap, T>;
+export declare type OptionsTemplateTypes = keyof OptionsTemplateTypeMap;
+export declare type OptionsTemplateNativeTypes = OptionsTemplateTypeMap[keyof OptionsTemplateTypeMap];
+export declare type OptionsTemplateValue<T extends OptionsTemplateNativeTypes = string> = T extends string ? string extends T ? OptionsTemplateValueNonEnum<T> : string : OptionsTemplateValueNonEnum<T>;
+export declare type OptionsTemplate<T> = {
+    [P in keyof T]: T[P] extends OptionsObjectType ? OptionsTemplate<T[P]> : T[P] extends OptionsTemplateNativeTypes ? OptionsTemplateValue<T[P]> : never;
+};
+export declare type OptionsValidationResult<T> = {
+    readonly _foreign: Record<string, unknown>;
+    readonly _validated: PartialOptions<T>;
+};
+export declare type PartialOptions<T> = {
+    [P in keyof T]?: T[P] extends OptionsObjectType ? PartialOptions<T[P]> : T[P];
+};
+declare type OptionsTemplateTypeMap = {
+    __TPL_boolean_TYPE__: boolean;
+    __TPL_number_TYPE__: number;
+    __TPL_string_TYPE__: string;
+    __TPL_array_TYPE__: Array<any> | ReadonlyArray<any>;
+    __TPL_function_TYPE__: OptionsFunctionType;
+    __TPL_null_TYPE__: null;
+    __TPL_object_TYPE__: OptionsObjectType;
+};
+declare type OptionsTemplateValueNonEnum<T extends OptionsTemplateNativeTypes> = OptionsTemplateType<T> | [OptionsTemplateType<T>, ...Array<OptionsTemplateTypes>];
+declare type ExtractPropsKey<T, TProps extends T[keyof T]> = {
+    [P in keyof T]: TProps extends T[P] ? P : never;
+}[keyof T];
+declare type OptionsTemplateTypesDictionary = {
+    readonly boolean: OptionsTemplateType<boolean>;
+    readonly number: OptionsTemplateType<number>;
+    readonly string: OptionsTemplateType<string>;
+    readonly array: OptionsTemplateType<Array<any>>;
+    readonly object: OptionsTemplateType<OptionsObjectType>;
+    readonly function: OptionsTemplateType<OptionsFunctionType>;
+    readonly null: OptionsTemplateType<null>;
+};
 /**
  * A object which serves as a mapping for "normal" types and template types.
  * Key   = normal type string
@@ -23,14 +60,5 @@ declare const optionsTemplateTypes: OptionsTemplateTypesDictionary;
  * Without the optionsDiff object the returned validated object would be: { a: 'a', b: 'b', c: 'c' }
  * @param doWriteErrors True if errors shall be logged into the console, false otherwise.
  */
-declare const validateOptions: <T extends PlainObject<any>>(options: T, template: OptionsTemplate<Required<T>>, optionsDiff?: T | null | undefined, doWriteErrors?: boolean | undefined) => OptionsValidationResult<T>;
+declare const validateOptions: <T extends PlainObject<any>>(options: PartialOptions<T>, template: OptionsTemplate<T>, optionsDiff?: T | null | undefined, doWriteErrors?: boolean | undefined) => OptionsValidationResult<T>;
 export { validateOptions, optionsTemplateTypes };
-declare type OptionsTemplateTypesDictionary = {
-    readonly boolean: OptionsTemplateType<boolean>;
-    readonly number: OptionsTemplateType<number>;
-    readonly string: OptionsTemplateType<string>;
-    readonly array: OptionsTemplateType<Array<any>>;
-    readonly object: OptionsTemplateType<Record<string, unknown>>;
-    readonly function: OptionsTemplateType<Func>;
-    readonly null: OptionsTemplateType<null>;
-};

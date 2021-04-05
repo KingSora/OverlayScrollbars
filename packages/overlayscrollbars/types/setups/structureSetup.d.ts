@@ -1,4 +1,4 @@
-import { OSTarget, OSTargetObject, InternalVersionOf } from 'typings';
+import { OSTarget, OSTargetObject, OSTargetElement } from 'typings';
 export interface OSTargetContext {
     _isTextarea: boolean;
     _isBody: boolean;
@@ -7,9 +7,13 @@ export interface OSTargetContext {
     _windowElm: Window;
     _documentElm: HTMLDocument;
 }
-export interface PreparedOSTargetObject extends Required<InternalVersionOf<OSTargetObject>> {
+export interface PreparedOSTargetObject {
+    _target: OSTargetElement;
     _host: HTMLElement;
-    _viewportArrange: HTMLStyleElement | null;
+    _viewport: HTMLElement;
+    _padding: HTMLElement | false | null;
+    _content: HTMLElement | false | null;
+    _viewportArrange: HTMLStyleElement | false | null;
 }
 export interface StructureSetup {
     _targetObj: PreparedOSTargetObject;

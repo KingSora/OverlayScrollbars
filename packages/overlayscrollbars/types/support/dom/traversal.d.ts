@@ -1,4 +1,4 @@
-declare type InputElementType = Element | Node | null | undefined;
+declare type InputElementType = Element | Node | false | null | undefined;
 declare type OutputElementType = Element | null;
 /**
  * Find all elements with the passed selector, outgoing (and including) the passed element or the document if no element was provided.

@@ -551,21 +551,7 @@
     };
   };
 
-  var cssNumber = {
-    animationiterationcount: 1,
-    columncount: 1,
-    fillopacity: 1,
-    flexgrow: 1,
-    flexshrink: 1,
-    fontweight: 1,
-    lineheight: 1,
-    opacity: 1,
-    order: 1,
-    orphans: 1,
-    widows: 1,
-    zindex: 1,
-    zoom: 1,
-  };
+  var cssNumber = {};
 
   var parseToZeroOrNumber = function parseToZeroOrNumber(value, toFloat) {
     var num = toFloat ? parseFloat(value) : parseInt(value, 10);
@@ -772,7 +758,7 @@
     return validateRecursive(options, template, optionsDiff || {}, doWriteErrors || false);
   };
 
-  function transformOptions(optionsWithOptionsTemplate) {
+  var transformOptions = function transformOptions(optionsWithOptionsTemplate) {
     var result = {
       _template: {},
       _options: {},
@@ -790,7 +776,7 @@
       }
     });
     return result;
-  }
+  };
 
   var classNameEnvironment = 'os-environment';
   var classNameEnvironmentFlexboxGlue = classNameEnvironment + '-flexbox-glue';
@@ -809,9 +795,59 @@
   var classNameSizeObserverListenerItemFinal = classNameSizeObserverListenerItem + '-final';
   var classNameTrinsicObserver = 'os-trinsic-observer';
 
+  var numberAllowedValues = optionsTemplateTypes.number;
+  var stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
+  var booleanTrueTemplate = [true, optionsTemplateTypes.boolean];
+  var booleanFalseTemplate = [false, optionsTemplateTypes.boolean];
+  var resizeAllowedValues = 'none both horizontal vertical';
+  var overflowAllowedValues = 'visible-hidden visible-scroll scroll hidden';
+  var scrollbarsVisibilityAllowedValues = 'visible hidden auto';
+  var scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
+  var defaultOptionsWithTemplate = {
+    resize: ['none', resizeAllowedValues],
+    paddingAbsolute: booleanFalseTemplate,
+    updating: {
+      elementEvents: [[['img', 'load']], [optionsTemplateTypes.array, optionsTemplateTypes.null]],
+      contentMutationDebounce: [80, numberAllowedValues],
+      hostMutationDebounce: [0, numberAllowedValues],
+      resizeDebounce: [0, numberAllowedValues],
+    },
+    overflow: {
+      x: ['scroll', overflowAllowedValues],
+      y: ['scroll', overflowAllowedValues],
+    },
+    scrollbars: {
+      visibility: ['auto', scrollbarsVisibilityAllowedValues],
+      autoHide: ['never', scrollbarsAutoHideAllowedValues],
+      autoHideDelay: [800, numberAllowedValues],
+      dragScroll: booleanTrueTemplate,
+      clickScroll: booleanFalseTemplate,
+      touch: booleanTrueTemplate,
+    },
+    textarea: {
+      dynWidth: booleanFalseTemplate,
+      dynHeight: booleanFalseTemplate,
+      inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues],
+    },
+    nativeScrollbarsOverlaid: {
+      show: booleanFalseTemplate,
+      initialize: booleanFalseTemplate,
+    },
+  };
+
+  var _transformOptions = transformOptions(defaultOptionsWithTemplate),
+    optionsTemplate = _transformOptions._template,
+    defaultOptions = _transformOptions._options;
+
   var environmentInstance;
   var abs = Math.abs,
     round = Math.round;
+
+  var diffBiggerThanOne = function diffBiggerThanOne(valOne, valTwo) {
+    var absValOne = abs(valOne);
+    var absValTwo = abs(valTwo);
+    return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
+  };
 
   var getNativeScrollbarSize = function getNativeScrollbarSize(body, measureElm) {
     appendChildren(body, measureElm);
@@ -859,10 +895,11 @@
     return window.devicePixelRatio || dDPI / sDPI;
   };
 
-  var diffBiggerThanOne = function diffBiggerThanOne(valOne, valTwo) {
-    var absValOne = abs(valOne);
-    var absValTwo = abs(valTwo);
-    return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
+  var getDefaultInitializationStrategy = function getDefaultInitializationStrategy(nativeScrollbarStyling) {
+    return {
+      _padding: !nativeScrollbarStyling,
+      _content: false,
+    };
   };
 
   var createEnvironment = function createEnvironment() {
@@ -878,6 +915,9 @@
       x: nativeScrollbarSize.x === 0,
       y: nativeScrollbarSize.y === 0,
     };
+    var defaultInitializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
+    var initializationStrategy = defaultInitializationStrategy;
+    var defaultDefaultOptions = defaultOptions;
     var env = {
       _autoUpdateLoop: false,
       _nativeScrollbarSize: nativeScrollbarSize,
@@ -892,6 +932,20 @@
       _removeListener: function _removeListener(listener) {
         onChangedListener.delete(listener);
       },
+      _getInitializationStrategy: function _getInitializationStrategy() {
+        return _extends_1({}, initializationStrategy);
+      },
+      _setInitializationStrategy: function _setInitializationStrategy(newInitializationStrategy) {
+        initializationStrategy = assignDeep({}, initializationStrategy, newInitializationStrategy);
+      },
+      _getDefaultOptions: function _getDefaultOptions() {
+        return _extends_1({}, defaultDefaultOptions);
+      },
+      _setDefaultOptions: function _setDefaultOptions(newDefaultOptions) {
+        defaultDefaultOptions = assignDeep({}, defaultDefaultOptions, newDefaultOptions);
+      },
+      _defaultInitializationStrategy: defaultInitializationStrategy,
+      _defaultDefaultOptions: defaultDefaultOptions,
     };
     removeAttr(envElm, 'style');
     removeElements(envElm);
@@ -964,24 +1018,42 @@
     return elm;
   };
 
+  var evaluateCreationFromStrategy = function evaluateCreationFromStrategy(initializationValue, strategy) {
+    var isBooleanValue = isBoolean(initializationValue);
+
+    if (isBooleanValue || isUndefined(initializationValue)) {
+      return (isBooleanValue ? initializationValue : strategy) && undefined;
+    }
+
+    return initializationValue;
+  };
+
   var createStructureSetup = function createStructureSetup(target) {
+    var _getEnvironment = getEnvironment(),
+      _getInitializationStrategy = _getEnvironment._getInitializationStrategy,
+      _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
+      _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid,
+      _cssCustomProperties = _getEnvironment._cssCustomProperties;
+
+    var _getInitializationStr = _getInitializationStrategy(),
+      paddingNeeded = _getInitializationStr._padding,
+      contentNeeded = _getInitializationStr._content;
+
     var targetIsElm = isHTMLElement(target);
     var osTargetObj = targetIsElm
       ? {}
       : {
           _host: target.host,
           _target: target.target,
-          _padding: target.padding,
           _viewport: target.viewport,
-          _content: target.content,
+          _padding: evaluateCreationFromStrategy(target.padding, paddingNeeded),
+          _content: evaluateCreationFromStrategy(target.content, contentNeeded),
         };
 
     if (targetIsElm) {
-      var padding = createDiv(classNamePadding);
       var viewport = createDiv(classNameViewport);
-      var content = createDiv(classNameContent);
-      appendChildren(padding, viewport);
-      appendChildren(viewport, content);
+      var padding = paddingNeeded && createDiv(classNamePadding);
+      var content = contentNeeded && createDiv(classNameContent);
       osTargetObj._target = target;
       osTargetObj._padding = padding;
       osTargetObj._viewport = viewport;
@@ -1013,11 +1085,14 @@
     }
 
     if (targetIsElm) {
-      appendChildren(_content, getTargetContents(_target));
+      var contentSlot = _content || _viewport;
+      appendChildren(contentSlot, getTargetContents(_target));
       appendChildren(_host, _padding);
+      appendChildren(_padding || _host, _viewport);
+      appendChildren(_viewport, _content);
       push(destroyFns, function () {
-        appendChildren(_host, contents(_content));
-        removeElements(_padding);
+        appendChildren(_host, contents(contentSlot));
+        removeElements(_padding || _viewport);
         removeClass(_host, classNameHost);
       });
     } else {
@@ -1032,8 +1107,10 @@
       appendChildren(_host, _padding);
       appendChildren(_padding || _host, _viewport);
       appendChildren(_viewport, _content);
-      var contentSlot = _content || _viewport;
-      appendChildren(contentSlot, targetContents);
+
+      var _contentSlot = _content || _viewport;
+
+      appendChildren(_contentSlot, targetContents);
       push(destroyFns, function () {
         if (createContent) {
           unwrap(_content);
@@ -1073,11 +1150,6 @@
     var obj = _extends_1({}, osTargetObj, {
       _host: _host,
     });
-
-    var _getEnvironment = getEnvironment(),
-      _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
-      _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid,
-      _cssCustomProperties = _getEnvironment._cssCustomProperties;
 
     if (_nativeScrollbarStyling) {
       push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
@@ -2304,52 +2376,11 @@
     };
   };
 
-  var numberAllowedValues = optionsTemplateTypes.number;
-  var stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
-  var booleanTrueTemplate = [true, optionsTemplateTypes.boolean];
-  var booleanFalseTemplate = [false, optionsTemplateTypes.boolean];
-  var resizeAllowedValues = 'none both horizontal vertical';
-  var overflowAllowedValues = 'visible-hidden visible-scroll scroll hidden';
-  var scrollbarsVisibilityAllowedValues = 'visible hidden auto';
-  var scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
-  var defaultOptionsWithTemplate = {
-    resize: ['none', resizeAllowedValues],
-    paddingAbsolute: booleanFalseTemplate,
-    updating: {
-      elementEvents: [[['img', 'load']], [optionsTemplateTypes.array, optionsTemplateTypes.null]],
-      contentMutationDebounce: [80, numberAllowedValues],
-      hostMutationDebounce: [0, numberAllowedValues],
-      resizeDebounce: [0, numberAllowedValues],
-    },
-    overflow: {
-      x: ['scroll', overflowAllowedValues],
-      y: ['scroll', overflowAllowedValues],
-    },
-    scrollbars: {
-      visibility: ['auto', scrollbarsVisibilityAllowedValues],
-      autoHide: ['never', scrollbarsAutoHideAllowedValues],
-      autoHideDelay: [800, numberAllowedValues],
-      dragScroll: booleanTrueTemplate,
-      clickScroll: booleanFalseTemplate,
-      touch: booleanTrueTemplate,
-    },
-    textarea: {
-      dynWidth: booleanFalseTemplate,
-      dynHeight: booleanFalseTemplate,
-      inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues],
-    },
-    nativeScrollbarsOverlaid: {
-      show: booleanFalseTemplate,
-      initialize: booleanFalseTemplate,
-    },
-  };
-
-  var _transformOptions = transformOptions(defaultOptionsWithTemplate),
-    optionsTemplate = _transformOptions._template,
-    defaultOptions = _transformOptions._options;
-
   var OverlayScrollbars = function OverlayScrollbars(target, options, extensions) {
-    var currentOptions = assignDeep({}, defaultOptions, validateOptions(options || {}, optionsTemplate, null, true)._validated);
+    var _getEnvironment = getEnvironment(),
+      _getDefaultOptions = _getEnvironment._getDefaultOptions;
+
+    var currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options || {}, optionsTemplate, null, true)._validated);
     var structureSetup = createStructureSetup(target);
     var lifecycleHub = createLifecycleHub(currentOptions, structureSetup);
     var instance = {
@@ -2375,10 +2406,6 @@
     return instance;
   };
 
-  var index = function () {
-    return [getEnvironment(), OverlayScrollbars(document.body)];
-  };
-
-  return index;
+  return OverlayScrollbars;
 });
 //# sourceMappingURL=overlayscrollbars.js.map

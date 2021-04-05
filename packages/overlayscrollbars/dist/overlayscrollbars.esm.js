@@ -477,21 +477,7 @@ const debounce = (functionToDebounce, timeout, maxWait) => {
   };
 };
 
-const cssNumber = {
-  animationiterationcount: 1,
-  columncount: 1,
-  fillopacity: 1,
-  flexgrow: 1,
-  flexshrink: 1,
-  fontweight: 1,
-  lineheight: 1,
-  opacity: 1,
-  order: 1,
-  orphans: 1,
-  widows: 1,
-  zindex: 1,
-  zoom: 1,
-};
+const cssNumber = {};
 
 const parseToZeroOrNumber = (value, toFloat) => {
   const num = toFloat ? parseFloat(value) : parseInt(value, 10);
@@ -682,7 +668,7 @@ const validateOptions = (options, template, optionsDiff, doWriteErrors) => {
   return validateRecursive(options, template, optionsDiff || {}, doWriteErrors || false);
 };
 
-function transformOptions(optionsWithOptionsTemplate) {
+const transformOptions = (optionsWithOptionsTemplate) => {
   const result = {
     _template: {},
     _options: {},
@@ -700,7 +686,7 @@ function transformOptions(optionsWithOptionsTemplate) {
     }
   });
   return result;
-}
+};
 
 const classNameEnvironment = 'os-environment';
 const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
@@ -719,8 +705,55 @@ const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item
 const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
 const classNameTrinsicObserver = 'os-trinsic-observer';
 
+const numberAllowedValues = optionsTemplateTypes.number;
+const stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
+const booleanTrueTemplate = [true, optionsTemplateTypes.boolean];
+const booleanFalseTemplate = [false, optionsTemplateTypes.boolean];
+const resizeAllowedValues = 'none both horizontal vertical';
+const overflowAllowedValues = 'visible-hidden visible-scroll scroll hidden';
+const scrollbarsVisibilityAllowedValues = 'visible hidden auto';
+const scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
+const defaultOptionsWithTemplate = {
+  resize: ['none', resizeAllowedValues],
+  paddingAbsolute: booleanFalseTemplate,
+  updating: {
+    elementEvents: [[['img', 'load']], [optionsTemplateTypes.array, optionsTemplateTypes.null]],
+    contentMutationDebounce: [80, numberAllowedValues],
+    hostMutationDebounce: [0, numberAllowedValues],
+    resizeDebounce: [0, numberAllowedValues],
+  },
+  overflow: {
+    x: ['scroll', overflowAllowedValues],
+    y: ['scroll', overflowAllowedValues],
+  },
+  scrollbars: {
+    visibility: ['auto', scrollbarsVisibilityAllowedValues],
+    autoHide: ['never', scrollbarsAutoHideAllowedValues],
+    autoHideDelay: [800, numberAllowedValues],
+    dragScroll: booleanTrueTemplate,
+    clickScroll: booleanFalseTemplate,
+    touch: booleanTrueTemplate,
+  },
+  textarea: {
+    dynWidth: booleanFalseTemplate,
+    dynHeight: booleanFalseTemplate,
+    inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues],
+  },
+  nativeScrollbarsOverlaid: {
+    show: booleanFalseTemplate,
+    initialize: booleanFalseTemplate,
+  },
+};
+const { _template: optionsTemplate, _options: defaultOptions } = transformOptions(defaultOptionsWithTemplate);
+
 let environmentInstance;
 const { abs, round } = Math;
+
+const diffBiggerThanOne = (valOne, valTwo) => {
+  const absValOne = abs(valOne);
+  const absValTwo = abs(valTwo);
+  return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
+};
 
 const getNativeScrollbarSize = (body, measureElm) => {
   appendChildren(body, measureElm);
@@ -768,11 +801,10 @@ const getWindowDPR = () => {
   return window.devicePixelRatio || dDPI / sDPI;
 };
 
-const diffBiggerThanOne = (valOne, valTwo) => {
-  const absValOne = abs(valOne);
-  const absValTwo = abs(valTwo);
-  return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
-};
+const getDefaultInitializationStrategy = (nativeScrollbarStyling) => ({
+  _padding: !nativeScrollbarStyling,
+  _content: false,
+});
 
 const createEnvironment = () => {
   const { body } = document;
@@ -786,6 +818,9 @@ const createEnvironment = () => {
     x: nativeScrollbarSize.x === 0,
     y: nativeScrollbarSize.y === 0,
   };
+  const defaultInitializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
+  let initializationStrategy = defaultInitializationStrategy;
+  let defaultDefaultOptions = defaultOptions;
   const env = {
     _autoUpdateLoop: false,
     _nativeScrollbarSize: nativeScrollbarSize,
@@ -802,6 +837,21 @@ const createEnvironment = () => {
     _removeListener(listener) {
       onChangedListener.delete(listener);
     },
+
+    _getInitializationStrategy: () => _extends_1({}, initializationStrategy),
+
+    _setInitializationStrategy(newInitializationStrategy) {
+      initializationStrategy = assignDeep({}, initializationStrategy, newInitializationStrategy);
+    },
+
+    _getDefaultOptions: () => _extends_1({}, defaultDefaultOptions),
+
+    _setDefaultOptions(newDefaultOptions) {
+      defaultDefaultOptions = assignDeep({}, defaultDefaultOptions, newDefaultOptions);
+    },
+
+    _defaultInitializationStrategy: defaultInitializationStrategy,
+    _defaultDefaultOptions: defaultDefaultOptions,
   };
   removeAttr(envElm, 'style');
   removeElements(envElm);
@@ -874,24 +924,36 @@ const createUniqueViewportArrangeElement = () => {
   return elm;
 };
 
+const evaluateCreationFromStrategy = (initializationValue, strategy) => {
+  const isBooleanValue = isBoolean(initializationValue);
+
+  if (isBooleanValue || isUndefined(initializationValue)) {
+    return (isBooleanValue ? initializationValue : strategy) && undefined;
+  }
+
+  return initializationValue;
+};
+
 const createStructureSetup = (target) => {
+  const { _getInitializationStrategy, _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } = getEnvironment();
+
+  const { _padding: paddingNeeded, _content: contentNeeded } = _getInitializationStrategy();
+
   const targetIsElm = isHTMLElement(target);
   const osTargetObj = targetIsElm
     ? {}
     : {
         _host: target.host,
         _target: target.target,
-        _padding: target.padding,
         _viewport: target.viewport,
-        _content: target.content,
+        _padding: evaluateCreationFromStrategy(target.padding, paddingNeeded),
+        _content: evaluateCreationFromStrategy(target.content, contentNeeded),
       };
 
   if (targetIsElm) {
-    const padding = createDiv(classNamePadding);
     const viewport = createDiv(classNameViewport);
-    const content = createDiv(classNameContent);
-    appendChildren(padding, viewport);
-    appendChildren(viewport, content);
+    const padding = paddingNeeded && createDiv(classNamePadding);
+    const content = contentNeeded && createDiv(classNameContent);
     osTargetObj._target = target;
     osTargetObj._padding = padding;
     osTargetObj._viewport = viewport;
@@ -918,11 +980,14 @@ const createStructureSetup = (target) => {
   }
 
   if (targetIsElm) {
-    appendChildren(_content, getTargetContents(_target));
+    const contentSlot = _content || _viewport;
+    appendChildren(contentSlot, getTargetContents(_target));
     appendChildren(_host, _padding);
+    appendChildren(_padding || _host, _viewport);
+    appendChildren(_viewport, _content);
     push(destroyFns, () => {
-      appendChildren(_host, contents(_content));
-      removeElements(_padding);
+      appendChildren(_host, contents(contentSlot));
+      removeElements(_padding || _viewport);
       removeClass(_host, classNameHost);
     });
   } else {
@@ -978,8 +1043,6 @@ const createStructureSetup = (target) => {
   const obj = _extends_1({}, osTargetObj, {
     _host,
   });
-
-  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } = getEnvironment();
 
   if (_nativeScrollbarStyling) {
     push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
@@ -2040,49 +2103,9 @@ const createLifecycleHub = (options, structureSetup) => {
   };
 };
 
-const numberAllowedValues = optionsTemplateTypes.number;
-const stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
-const booleanTrueTemplate = [true, optionsTemplateTypes.boolean];
-const booleanFalseTemplate = [false, optionsTemplateTypes.boolean];
-const resizeAllowedValues = 'none both horizontal vertical';
-const overflowAllowedValues = 'visible-hidden visible-scroll scroll hidden';
-const scrollbarsVisibilityAllowedValues = 'visible hidden auto';
-const scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
-const defaultOptionsWithTemplate = {
-  resize: ['none', resizeAllowedValues],
-  paddingAbsolute: booleanFalseTemplate,
-  updating: {
-    elementEvents: [[['img', 'load']], [optionsTemplateTypes.array, optionsTemplateTypes.null]],
-    contentMutationDebounce: [80, numberAllowedValues],
-    hostMutationDebounce: [0, numberAllowedValues],
-    resizeDebounce: [0, numberAllowedValues],
-  },
-  overflow: {
-    x: ['scroll', overflowAllowedValues],
-    y: ['scroll', overflowAllowedValues],
-  },
-  scrollbars: {
-    visibility: ['auto', scrollbarsVisibilityAllowedValues],
-    autoHide: ['never', scrollbarsAutoHideAllowedValues],
-    autoHideDelay: [800, numberAllowedValues],
-    dragScroll: booleanTrueTemplate,
-    clickScroll: booleanFalseTemplate,
-    touch: booleanTrueTemplate,
-  },
-  textarea: {
-    dynWidth: booleanFalseTemplate,
-    dynHeight: booleanFalseTemplate,
-    inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues],
-  },
-  nativeScrollbarsOverlaid: {
-    show: booleanFalseTemplate,
-    initialize: booleanFalseTemplate,
-  },
-};
-const { _template: optionsTemplate, _options: defaultOptions } = transformOptions(defaultOptionsWithTemplate);
-
 const OverlayScrollbars = (target, options, extensions) => {
-  const currentOptions = assignDeep({}, defaultOptions, validateOptions(options || {}, optionsTemplate, null, true)._validated);
+  const { _getDefaultOptions } = getEnvironment();
+  const currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options || {}, optionsTemplate, null, true)._validated);
   const structureSetup = createStructureSetup(target);
   const lifecycleHub = createLifecycleHub(currentOptions, structureSetup);
   const instance = {
@@ -2108,9 +2131,5 @@ const OverlayScrollbars = (target, options, extensions) => {
   return instance;
 };
 
-var index = () => {
-  return [getEnvironment(), OverlayScrollbars(document.body)];
-};
-
-export default index;
+export default OverlayScrollbars;
 //# sourceMappingURL=overlayscrollbars.esm.js.map

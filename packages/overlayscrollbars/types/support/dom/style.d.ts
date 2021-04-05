@@ -10,24 +10,24 @@ export interface TRBL {
  * @param elm The element to which the styles shall be applied to / be read from.
  * @param styles The styles which shall be set or read.
  */
-export declare function style<CustomCssProps>(elm: HTMLElement | null | undefined, styles: StyleObject<CustomCssProps>): void;
-export declare function style<CustomCssProps>(elm: HTMLElement | null | undefined, styles: string): string;
-export declare function style<CustomCssProps>(elm: HTMLElement | null | undefined, styles: Array<string> | string): {
+export declare function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: StyleObject<CustomCssProps>): void;
+export declare function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: string): string;
+export declare function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: Array<string> | string): {
     [key: string]: string;
 };
 /**
  * Hides the passed element (display: none).
  * @param elm The element which shall be hidden.
  */
-export declare const hide: (elm: HTMLElement | null) => void;
+export declare const hide: (elm: HTMLElement | false | null | undefined) => void;
 /**
  * Shows the passed element (display: block).
  * @param elm The element which shall be shown.
  */
-export declare const show: (elm: HTMLElement | null | undefined) => void;
+export declare const show: (elm: HTMLElement | false | null | undefined) => void;
 /**
  * Returns a top
  * @param elm
  * @param property
  */
-export declare const topRightBottomLeft: (elm: HTMLElement | null | undefined, propertyPrefix?: string | undefined, propertySuffix?: string | undefined) => TRBL;
+export declare const topRightBottomLeft: (elm: HTMLElement | false | null | undefined, propertyPrefix?: string | undefined, propertySuffix?: string | undefined) => TRBL;

@@ -4,7 +4,6 @@ import {
   OptionsTemplateValue,
   OptionsWithOptionsTemplateValue,
   OptionsWithOptionsTemplate,
-  Func,
 } from 'support/options';
 import { ResizeBehavior, OverflowBehavior, VisibilityBehavior, AutoHideBehavior, OverlayScrollbarsOptions } from 'options';
 

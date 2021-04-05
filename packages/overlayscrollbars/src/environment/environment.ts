@@ -17,13 +17,13 @@ import {
   assignDeep,
   PartialOptions,
 } from 'support';
-import { OverlayScrollbarsOptions, defaultOptions } from 'options';
 import {
   classNameEnvironment,
   classNameEnvironmentFlexboxGlue,
   classNameEnvironmentFlexboxGlueMax,
   classNameViewportScrollbarStyling,
 } from 'classnames';
+import { OverlayScrollbarsOptions, defaultOptions } from 'options';
 
 export interface InitializationStrategy {
   _padding: boolean;
