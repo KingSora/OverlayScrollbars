@@ -2,7 +2,7 @@ import { isArrayLike } from 'support/utils/types';
 import { each, from } from 'support/utils/array';
 import { parent } from 'support/dom/traversal';
 
-type NodeCollection = ArrayLike<Node> | Node | null | undefined;
+type NodeCollection = ArrayLike<Node> | Node | false | null | undefined;
 
 /**
  * Inserts Nodes before the given preferredAnchor element.
@@ -10,7 +10,7 @@ type NodeCollection = ArrayLike<Node> | Node | null | undefined;
  * @param preferredAnchor The element before which the Nodes shall be inserted or null if the elements shall be appended at the end.
  * @param insertedElms The Nodes which shall be inserted.
  */
-const before = (parentElm: Node | null | undefined, preferredAnchor: Node | null | undefined, insertedElms: NodeCollection): void => {
+const before = (parentElm: Node | false | null | undefined, preferredAnchor: Node | null | undefined, insertedElms: NodeCollection): void => {
   if (insertedElms) {
     let anchor: Node | null | undefined = preferredAnchor;
     let fragment: DocumentFragment | Node | null | undefined;

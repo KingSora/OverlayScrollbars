@@ -24,35 +24,35 @@ export type SizeChangedCallback = (this: any, args?: SizeChangedArgs) => void;
 
 export type UpdatedCallback = (this: any, args?: UpdatedArgs) => void;
 
-export interface Options {
-  resize?: ResizeBehavior;
-  paddingAbsolute?: boolean;
-  updating?: {
-    elementEvents?: ReadonlyArray<[string, string]> | null;
-    contentMutationDebounce?: number;
-    hostMutationDebounce?: number;
-    resizeDebounce?: number;
+export interface OverlayScrollbarsOptions {
+  resize: ResizeBehavior;
+  paddingAbsolute: boolean;
+  updating: {
+    elementEvents: ReadonlyArray<[string, string]> | null;
+    contentMutationDebounce: number;
+    hostMutationDebounce: number;
+    resizeDebounce: number;
   };
-  overflow?: {
-    x?: OverflowBehavior;
-    y?: OverflowBehavior;
+  overflow: {
+    x: OverflowBehavior;
+    y: OverflowBehavior;
   };
-  scrollbars?: {
-    visibility?: VisibilityBehavior;
-    autoHide?: AutoHideBehavior;
-    autoHideDelay?: number;
-    dragScroll?: boolean;
-    clickScroll?: boolean;
-    touch?: boolean;
+  scrollbars: {
+    visibility: VisibilityBehavior;
+    autoHide: AutoHideBehavior;
+    autoHideDelay: number;
+    dragScroll: boolean;
+    clickScroll: boolean;
+    touch: boolean;
   };
-  textarea?: {
-    dynWidth?: boolean;
-    dynHeight?: boolean;
-    inheritedAttrs?: string | ReadonlyArray<string> | null;
+  textarea: {
+    dynWidth: boolean;
+    dynHeight: boolean;
+    inheritedAttrs: string | ReadonlyArray<string> | null;
   };
-  nativeScrollbarsOverlaid?: {
-    show?: boolean;
-    initialize?: boolean;
+  nativeScrollbarsOverlaid: {
+    show: boolean;
+    initialize: boolean;
   };
   /*
   callbacks?: {

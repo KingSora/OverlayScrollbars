@@ -1,6 +1,6 @@
 import { each, hasOwnProperty, keys, push, isEmptyObject } from 'support/utils';
 import { type, isArray, isUndefined, isPlainObject, isString } from 'support/utils/types';
-import { OptionsTemplate, OptionsTemplateTypes, OptionsTemplateType, Func, OptionsValidationResult, OptionsValidated } from 'support/options';
+import { OptionsTemplate, OptionsTemplateTypes, OptionsTemplateType, PartialOptions, Func, OptionsValidationResult } from 'support/options';
 import { PlainObject } from 'typings';
 
 const { stringify } = JSON;
@@ -41,14 +41,14 @@ const optionsTemplateTypes: OptionsTemplateTypesDictionary = ['boolean', 'number
  * @param propPath The propertyPath which lead to this object. (used for error logging)
  */
 const validateRecursive = <T extends PlainObject>(
-  options: T,
-  template: OptionsTemplate<Required<T>>,
+  options: PartialOptions<T>,
+  template: OptionsTemplate<T>,
   optionsDiff: T,
   doWriteErrors?: boolean,
   propPath?: string
 ): OptionsValidationResult<T> => {
-  const validatedOptions: OptionsValidated<T> = {};
-  const optionsCopy: T = { ...options };
+  const validatedOptions: PartialOptions<T> = {};
+  const optionsCopy: PartialOptions<T> = { ...options };
   const props = keys(template).filter((prop) => hasOwnProperty(options, prop));
 
   each(props, (prop: Extract<keyof T, string>) => {
@@ -60,7 +60,7 @@ const validateRecursive = <T extends PlainObject>(
 
     // if the template has a object as value, it means that the options are complex (verschachtelt)
     if (templateIsComplex && isPlainObject(optionsValue)) {
-      const validatedResult = validateRecursive(optionsValue, templateValue as PlainObject, optionsDiffValue, doWriteErrors, propPrefix + prop);
+      const validatedResult = validateRecursive(optionsValue, templateValue as T, optionsDiffValue, doWriteErrors, propPrefix + prop);
       validatedOptions[prop] = validatedResult._validated as any;
       optionsCopy[prop] = validatedResult._foreign as any;
 
@@ -147,8 +147,8 @@ const validateRecursive = <T extends PlainObject>(
  * @param doWriteErrors True if errors shall be logged into the console, false otherwise.
  */
 const validateOptions = <T extends PlainObject>(
-  options: T,
-  template: OptionsTemplate<Required<T>>,
+  options: PartialOptions<T>,
+  template: OptionsTemplate<T>,
   optionsDiff?: T | null,
   doWriteErrors?: boolean
 ): OptionsValidationResult<T> => {

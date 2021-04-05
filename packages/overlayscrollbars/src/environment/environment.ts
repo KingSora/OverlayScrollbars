@@ -14,13 +14,21 @@ import {
   runEach,
   equalBCRWH,
   getBoundingClientRect,
+  assignDeep,
+  PartialOptions,
 } from 'support';
+import { OverlayScrollbarsOptions, defaultOptions } from 'options';
 import {
   classNameEnvironment,
   classNameEnvironmentFlexboxGlue,
   classNameEnvironmentFlexboxGlueMax,
   classNameViewportScrollbarStyling,
 } from 'classnames';
+
+export interface InitializationStrategy {
+  _padding: boolean;
+  _content: boolean;
+}
 
 export type OnEnvironmentChanged = (env: Environment) => void;
 export interface Environment {
@@ -33,10 +41,22 @@ export interface Environment {
   _cssCustomProperties: boolean;
   _addListener(listener: OnEnvironmentChanged): void;
   _removeListener(listener: OnEnvironmentChanged): void;
+  _getInitializationStrategy(): InitializationStrategy;
+  _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
+  _getDefaultOptions(): OverlayScrollbarsOptions;
+  _setDefaultOptions(newDefaultOptions: PartialOptions<OverlayScrollbarsOptions>): void;
+  _defaultInitializationStrategy: InitializationStrategy;
+  _defaultDefaultOptions: OverlayScrollbarsOptions;
 }
 
 let environmentInstance: Environment;
 const { abs, round } = Math;
+
+const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
+  const absValOne = abs(valOne);
+  const absValTwo = abs(valTwo);
+  return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
+};
 
 const getNativeScrollbarSize = (body: HTMLElement, measureElm: HTMLElement): XY => {
   appendChildren(body, measureElm);
@@ -111,18 +131,16 @@ const getWindowDPR = (): number => {
   return window.devicePixelRatio || dDPI / sDPI;
 };
 
-const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
-  const absValOne = abs(valOne);
-  const absValTwo = abs(valTwo);
-  return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
-};
+const getDefaultInitializationStrategy = (nativeScrollbarStyling: boolean): InitializationStrategy => ({
+  _padding: !nativeScrollbarStyling,
+  _content: false,
+});
 
 const createEnvironment = (): Environment => {
   const { body } = document;
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
-
   const onChangedListener: Set<OnEnvironmentChanged> = new Set();
   const nativeScrollbarSize = getNativeScrollbarSize(body, envElm);
   const nativeScrollbarStyling = false; //getNativeScrollbarStyling(envElm); //TODO: Re - enable;
@@ -130,6 +148,9 @@ const createEnvironment = (): Environment => {
     x: nativeScrollbarSize.x === 0,
     y: nativeScrollbarSize.y === 0,
   };
+  const defaultInitializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
+  let initializationStrategy = defaultInitializationStrategy;
+  let defaultDefaultOptions = defaultOptions;
 
   const env: Environment = {
     _autoUpdateLoop: false,
@@ -145,6 +166,16 @@ const createEnvironment = (): Environment => {
     _removeListener(listener: OnEnvironmentChanged): void {
       onChangedListener.delete(listener);
     },
+    _getInitializationStrategy: () => ({ ...initializationStrategy }),
+    _setInitializationStrategy(newInitializationStrategy) {
+      initializationStrategy = assignDeep({}, initializationStrategy, newInitializationStrategy);
+    },
+    _getDefaultOptions: () => ({ ...defaultDefaultOptions }),
+    _setDefaultOptions(newDefaultOptions) {
+      defaultDefaultOptions = assignDeep({}, defaultDefaultOptions, newDefaultOptions);
+    },
+    _defaultInitializationStrategy: defaultInitializationStrategy,
+    _defaultDefaultOptions: defaultDefaultOptions,
   };
 
   removeAttr(envElm, 'style');

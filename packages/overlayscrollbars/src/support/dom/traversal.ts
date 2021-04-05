@@ -1,7 +1,7 @@
 import { isElement } from 'support/utils/types';
 import { push, from } from 'support/utils/array';
 
-type InputElementType = Element | Node | null | undefined;
+type InputElementType = Element | Node | false | null | undefined;
 type OutputElementType = Element | null;
 
 const elmPrototype = Element.prototype;

@@ -4,18 +4,18 @@ import { assignDeep, isEmptyObject } from 'support/utils';
 type TestOptionsObj = { propA: 'propA'; null: null };
 type TestOptionsEnum = 'A' | 'B' | 'C';
 type TestOptions = {
-  str?: string;
-  strArrNull?: string | Array<string> | null;
-  nullbool?: boolean | null;
-  nested?: {
-    num?: number;
-    switch?: boolean;
-    abc?: TestOptionsEnum;
+  str: string;
+  strArrNull: string | Array<string> | null;
+  nullbool: boolean | null;
+  nested: {
+    num: number;
+    switch: boolean;
+    abc: TestOptionsEnum;
   };
-  obj?: TestOptionsObj | null;
-  abc?: TestOptionsEnum;
-  arr?: Array<any>;
-  func?: () => void;
+  obj: TestOptionsObj | null;
+  abc: TestOptionsEnum;
+  arr: Array<any>;
+  func: () => void;
 };
 
 const options: TestOptions = {
@@ -33,7 +33,7 @@ const options: TestOptions = {
   func: () => {},
 };
 
-const template: OptionsTemplate<Required<TestOptions>> = {
+const template: OptionsTemplate<TestOptions> = {
   str: oTypes.string,
   strArrNull: [oTypes.string, oTypes.array, oTypes.null],
   nullbool: [oTypes.boolean, oTypes.null],
@@ -385,7 +385,7 @@ describe('options validation', () => {
     });
 
     test('nested object is undefined', () => {
-      const modifiedOptions = assignDeep({}, options);
+      const modifiedOptions: Partial<TestOptions> = assignDeep({}, options);
       modifiedOptions.nested = undefined;
       const result = validateOptions(modifiedOptions, template);
       const { _validated } = result;
@@ -399,7 +399,7 @@ describe('options validation', () => {
       const { warn } = console;
       console.warn = jest.fn();
 
-      validateOptions(options, template, {}, true);
+      validateOptions(options, template, null, true);
       expect(console.warn).not.toBeCalled();
 
       console.warn = warn;
@@ -410,7 +410,7 @@ describe('options validation', () => {
       console.warn = jest.fn();
 
       const modifiedOptions = assignDeep({}, options, { str: 1 });
-      validateOptions(modifiedOptions, template, {}, false);
+      validateOptions(modifiedOptions, template, null, false);
       expect(console.warn).not.toBeCalled();
 
       console.warn = warn;
@@ -421,15 +421,15 @@ describe('options validation', () => {
       console.warn = jest.fn();
 
       // str must be string
-      validateOptions(assignDeep({}, options, { str: 1 }), template, {}, true);
+      validateOptions(assignDeep({}, options, { str: 1 }), template, null, true);
       expect(console.warn).toBeCalledTimes(1);
 
       // abc must be A | B | C
-      validateOptions(assignDeep({}, options, { abc: 'some string' }), template, {}, true);
+      validateOptions(assignDeep({}, options, { abc: 'some string' }), template, null, true);
       expect(console.warn).toBeCalledTimes(2);
 
       // everthing OK
-      validateOptions(assignDeep({}, options, { abc: 'C' }), template, {}, true);
+      validateOptions(assignDeep({}, options, { abc: 'C' }), template, null, true);
       expect(console.warn).toBeCalledTimes(2);
 
       console.warn = warn;

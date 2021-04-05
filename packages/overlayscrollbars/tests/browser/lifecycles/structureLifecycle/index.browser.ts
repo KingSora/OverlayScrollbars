@@ -4,7 +4,7 @@ import { createDiv, appendChildren, parent, style, on, off, addClass, WH, XY, cl
 import { OverlayScrollbars } from 'overlayscrollbars/OverlayScrollbars';
 
 const targetElm = document.querySelector('#target') as HTMLElement;
-window.os = OverlayScrollbars({ target: targetElm });
+window.os = OverlayScrollbars({ target: targetElm, content: null });
 
 export const resize = (element: HTMLElement) => {
   const strMouseTouchDownEvent = 'mousedown touchstart';

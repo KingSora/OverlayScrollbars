@@ -6,7 +6,7 @@ import {
   OptionsWithOptionsTemplate,
   Func,
 } from 'support/options';
-import { ResizeBehavior, OverflowBehavior, VisibilityBehavior, AutoHideBehavior, Options } from 'options';
+import { ResizeBehavior, OverflowBehavior, VisibilityBehavior, AutoHideBehavior, OverlayScrollbarsOptions } from 'options';
 
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
 const stringArrayNullAllowedValues: OptionsTemplateValue<string | ReadonlyArray<string> | null> = [oTypes.string, oTypes.array, oTypes.null];
@@ -33,7 +33,8 @@ const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<AutoHideBehavior> = 
  * Property "a" has a default value of 'default' and it can be a string or null
  * Property "b" has a default value of 250 and it can be number
  */
-const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<Required<Options>> = {
+
+const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<OverlayScrollbarsOptions> = {
   resize: ['none', resizeAllowedValues], // none || both  || horizontal || vertical || n || b || h || v
   paddingAbsolute: booleanFalseTemplate, // true || false
   updating: {

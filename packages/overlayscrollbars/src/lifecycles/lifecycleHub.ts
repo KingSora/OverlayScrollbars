@@ -1,5 +1,5 @@
-import { XY, TRBL, CacheValues, each, push, keys, OptionsValidated, hasOwnProperty, isNumber, scrollLeft, scrollTop } from 'support';
-import { Options } from 'options';
+import { XY, TRBL, CacheValues, PartialOptions, each, push, keys, hasOwnProperty, isNumber, scrollLeft, scrollTop } from 'support';
+import { OverlayScrollbarsOptions } from 'options';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
 import { createTrinsicLifecycle } from 'lifecycles/trinsicLifecycle';
@@ -41,12 +41,12 @@ export type Lifecycle = (
 ) => Partial<LifecycleAdaptiveUpdateHints> | void;
 
 export interface LifecycleHubInstance {
-  _update(changedOptions?: OptionsValidated<Options> | null, force?: boolean): void;
+  _update(changedOptions?: PartialOptions<OverlayScrollbarsOptions> | null, force?: boolean): void;
   _destroy(): void;
 }
 
 export interface LifecycleHub {
-  _options: Options;
+  _options: OverlayScrollbarsOptions;
   _structureSetup: StructureSetup;
   // whether the "viewport arrange" strategy must be used (true if no native scrollbar hiding and scrollbars are overlaid)
   _doViewportArrange: boolean;
@@ -108,7 +108,7 @@ const heightIntrinsicCacheValuesFallback: CacheValues<boolean> = {
   _changed: false,
 };
 
-export const createLifecycleHub = (options: Options, structureSetup: StructureSetup): LifecycleHubInstance => {
+export const createLifecycleHub = (options: OverlayScrollbarsOptions, structureSetup: StructureSetup): LifecycleHubInstance => {
   let paddingInfo = paddingInfoFallback;
   let viewportPaddingStyle = viewportPaddingStyleFallback;
   let viewportOverflowScroll = viewportOverflowScrollFallback;
@@ -146,7 +146,7 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
 
   const updateLifecycles = (
     updateHints?: Partial<LifecycleUpdateHints> | null,
-    changedOptions?: OptionsValidated<Options> | null,
+    changedOptions?: Partial<OverlayScrollbarsOptions> | null,
     force?: boolean
   ) => {
     let {
@@ -260,7 +260,7 @@ export const createLifecycleHub = (options: Options, structureSetup: StructureSe
       */
   });
 
-  const update = (changedOptions?: OptionsValidated<Options> | null, force?: boolean) => {
+  const update = (changedOptions?: Partial<OverlayScrollbarsOptions> | null, force?: boolean) => {
     updateLifecycles(null, changedOptions, force);
   };
   const envUpdateListener = update.bind(null, null, true);

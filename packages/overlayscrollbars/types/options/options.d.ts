@@ -1,2 +1,2 @@
-import { Options } from 'options';
-export declare const optionsTemplate: import("../support/options").OptionsTemplate<Required<Options>>, defaultOptions: Required<Options>;
+import { OverlayScrollbarsOptions } from 'options';
+export declare const optionsTemplate: import("../support/options").OptionsTemplate<Required<OverlayScrollbarsOptions>>, defaultOptions: Required<OverlayScrollbarsOptions>;

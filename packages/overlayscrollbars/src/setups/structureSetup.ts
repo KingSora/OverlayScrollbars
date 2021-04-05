@@ -14,6 +14,7 @@ import {
   runEach,
   insertBefore,
   attr,
+  isBoolean,
 } from 'support';
 import {
   classNameHost,
@@ -24,7 +25,7 @@ import {
   classNameViewportScrollbarStyling,
 } from 'classnames';
 import { getEnvironment } from 'environment';
-import { OSTarget, OSTargetObject, InternalVersionOf, OSTargetElement } from 'typings';
+import { OSTarget, OSTargetObject, OSTargetElement } from 'typings';
 
 export interface OSTargetContext {
   _isTextarea: boolean;
@@ -35,9 +36,13 @@ export interface OSTargetContext {
   _documentElm: HTMLDocument;
 }
 
-export interface PreparedOSTargetObject extends Required<InternalVersionOf<OSTargetObject>> {
+export interface PreparedOSTargetObject {
+  _target: OSTargetElement;
   _host: HTMLElement;
-  _viewportArrange: HTMLStyleElement | null;
+  _viewport: HTMLElement;
+  _padding: HTMLElement | false | null;
+  _content: HTMLElement | false | null;
+  _viewportArrange: HTMLStyleElement | false | null;
 }
 
 export interface StructureSetup {
@@ -46,13 +51,13 @@ export interface StructureSetup {
   _destroy: () => void;
 }
 
-const unwrap = (elm: HTMLElement | null | undefined) => {
+const unwrap = (elm: HTMLElement | false | null | undefined) => {
   appendChildren(parent(elm), contents(elm));
   removeElements(elm);
 };
 
 let contentArrangeCounter = 0;
-const createUniqueViewportArrangeElement = () => {
+const createUniqueViewportArrangeElement = (): HTMLStyleElement => {
   const elm = document.createElement('style');
 
   attr(elm, 'id', `${classNameViewportArrange}-${contentArrangeCounter}`);
@@ -60,26 +65,32 @@ const createUniqueViewportArrangeElement = () => {
 
   return elm;
 };
+const evaluateCreationFromStrategy = (initializationValue: HTMLElement | boolean | undefined, strategy: boolean): HTMLElement | false | undefined => {
+  const isBooleanValue = isBoolean(initializationValue);
+  if (isBooleanValue || isUndefined(initializationValue)) {
+    return (isBooleanValue ? initializationValue : strategy) && undefined;
+  }
+  return initializationValue as HTMLElement;
+};
 
 export const createStructureSetup = (target: OSTarget | OSTargetObject): StructureSetup => {
+  const { _getInitializationStrategy, _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } = getEnvironment();
+  const { _padding: paddingNeeded, _content: contentNeeded } = _getInitializationStrategy();
   const targetIsElm = isHTMLElement(target);
-  const osTargetObj: InternalVersionOf<OSTargetObject> = targetIsElm
-    ? ({} as InternalVersionOf<OSTargetObject>)
+  const osTargetObj: Partial<PreparedOSTargetObject> = targetIsElm
+    ? ({} as Partial<PreparedOSTargetObject>)
     : {
         _host: (target as OSTargetObject).host,
         _target: (target as OSTargetObject).target,
-        _padding: (target as OSTargetObject).padding,
         _viewport: (target as OSTargetObject).viewport,
-        _content: (target as OSTargetObject).content,
+        _padding: evaluateCreationFromStrategy((target as OSTargetObject).padding, paddingNeeded),
+        _content: evaluateCreationFromStrategy((target as OSTargetObject).content, contentNeeded),
       };
 
   if (targetIsElm) {
-    const padding = createDiv(classNamePadding);
     const viewport = createDiv(classNameViewport);
-    const content = createDiv(classNameContent);
-
-    appendChildren(padding, viewport);
-    appendChildren(viewport, content);
+    const padding = paddingNeeded && createDiv(classNamePadding);
+    const content = contentNeeded && createDiv(classNameContent);
 
     osTargetObj._target = target as OSTargetElement;
     osTargetObj._padding = padding;
@@ -106,12 +117,15 @@ export const createStructureSetup = (target: OSTarget | OSTargetObject): Structu
   }
 
   if (targetIsElm) {
-    appendChildren(_content!, getTargetContents(_target));
+    const contentSlot = _content || _viewport;
+    appendChildren(contentSlot, getTargetContents(_target!));
     appendChildren(_host, _padding);
+    appendChildren(_padding || _host, _viewport);
+    appendChildren(_viewport, _content);
 
     push(destroyFns, () => {
-      appendChildren(_host, contents(_content));
-      removeElements(_padding);
+      appendChildren(_host, contents(contentSlot));
+      removeElements(_padding || _viewport);
       removeClass(_host, classNameHost);
     });
   } else {
@@ -154,7 +168,7 @@ export const createStructureSetup = (target: OSTarget | OSTargetObject): Structu
   addClass(_viewport, classNameViewport);
   addClass(_content, classNameContent);
 
-  const ownerDocument: HTMLDocument = _target.ownerDocument;
+  const ownerDocument: HTMLDocument = _target!.ownerDocument;
   const bodyElm = ownerDocument.body as HTMLBodyElement;
   const wnd = ownerDocument.defaultView as Window;
   const ctx: OSTargetContext = {
@@ -171,7 +185,6 @@ export const createStructureSetup = (target: OSTarget | OSTargetObject): Structu
     _host,
   };
 
-  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } = getEnvironment();
   if (_nativeScrollbarStyling) {
     push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
   } else if (!_cssCustomProperties && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y)) {

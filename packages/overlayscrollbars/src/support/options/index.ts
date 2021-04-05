@@ -3,6 +3,8 @@ import { PlainObject } from 'typings';
 export * from 'support/options/validation';
 export * from 'support/options/transformation';
 
+type ObjectType = Record<string, unknown>;
+
 export type Func = (this: any, ...args: any[]) => any;
 export type OptionsTemplateType<T extends OptionsTemplateNativeTypes> = ExtractPropsKey<OptionsTemplateTypeMap, T>;
 export type OptionsTemplateTypes = keyof OptionsTemplateTypeMap;
@@ -12,29 +14,26 @@ export type OptionsTemplateValue<T extends OptionsTemplateNativeTypes = string> 
     ? OptionsTemplateValueNonEnum<T>
     : string
   : OptionsTemplateValueNonEnum<T>;
-export type OptionsTemplate<T extends Required<T>> = {
-  [P in keyof T]: PlainObject extends T[P]
-    ? OptionsTemplate<Required<T[P]>>
-    : T[P] extends OptionsTemplateNativeTypes
-    ? OptionsTemplateValue<T[P]>
-    : never;
-};
-export type OptionsValidated<T> = {
-  [P in keyof T]?: T[P];
+export type OptionsTemplate<T> = {
+  [P in keyof T]: T[P] extends ObjectType ? OptionsTemplate<T[P]> : T[P] extends OptionsTemplateNativeTypes ? OptionsTemplateValue<T[P]> : never;
 };
 export type OptionsValidationResult<T> = {
   readonly _foreign: PlainObject;
-  readonly _validated: OptionsValidated<T>;
+  readonly _validated: PartialOptions<T>;
 };
 // Options With Options Template Typings:
 export type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];
 export type OptionsWithOptionsTemplate<T extends Required<T>> = {
-  [P in keyof T]: PlainObject extends T[P]
+  [P in keyof T]: T[P] extends ObjectType
     ? OptionsWithOptionsTemplate<Required<T[P]>>
     : T[P] extends OptionsTemplateNativeTypes
     ? OptionsWithOptionsTemplateValue<T[P]>
     : never;
 };
+export type PartialOptions<T> = {
+  [P in keyof T]?: T[P] extends ObjectType ? PartialOptions<T[P]> : T[P];
+};
+
 type OptionsTemplateTypeMap = {
   __TPL_boolean_TYPE__: boolean;
   __TPL_number_TYPE__: number;
