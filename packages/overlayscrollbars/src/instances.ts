@@ -1,4 +1,4 @@
-import { OverlayScrollbars } from './';
+import { OverlayScrollbars } from 'overlayscrollbars';
 
 const targets: Set<Element> = new Set();
 const targetInstanceMap: WeakMap<Element, OverlayScrollbars> = new WeakMap();

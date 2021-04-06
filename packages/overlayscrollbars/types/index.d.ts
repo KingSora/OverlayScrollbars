@@ -1,2 +1,1 @@
-import { OverlayScrollbars } from 'overlayscrollbars/overlayscrollbars';
-export default OverlayScrollbars;
+export { OverlayScrollbars as default } from 'overlayscrollbars';

@@ -1,1 +1,1 @@
-export * from 'overlayscrollbars';
+export { OverlayScrollbars as default } from 'overlayscrollbars';

@@ -6,7 +6,6 @@ export interface InitializationStrategy {
 }
 export declare type OnEnvironmentChanged = (env: Environment) => void;
 export interface Environment {
-    _autoUpdateLoop: boolean;
     _nativeScrollbarSize: XY;
     _nativeScrollbarIsOverlaid: XY<boolean>;
     _nativeScrollbarStyling: boolean;

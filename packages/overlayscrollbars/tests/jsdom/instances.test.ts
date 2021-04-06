@@ -1,5 +1,5 @@
 import { addInstance, removeInstance, getInstance, allInstances } from 'instances';
-import OverlayScrollbars from 'overlayscrollbars';
+import { OverlayScrollbars } from 'overlayscrollbars';
 
 const testElm = document.body;
 const testInstance = OverlayScrollbars(document.body);

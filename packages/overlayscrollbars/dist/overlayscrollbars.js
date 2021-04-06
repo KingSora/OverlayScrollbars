@@ -551,7 +551,10 @@
     };
   };
 
-  var cssNumber = {};
+  var cssNumber = {
+    opacity: 1,
+    zindex: 1,
+  };
 
   var parseToZeroOrNumber = function parseToZeroOrNumber(value, toFloat) {
     var num = toFloat ? parseFloat(value) : parseInt(value, 10);
@@ -919,7 +922,6 @@
     var initializationStrategy = defaultInitializationStrategy;
     var defaultDefaultOptions = defaultOptions;
     var env = {
-      _autoUpdateLoop: false,
       _nativeScrollbarSize: nativeScrollbarSize,
       _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
       _nativeScrollbarStyling: nativeScrollbarStyling,
@@ -2344,8 +2346,7 @@
       });
     };
 
-    var trinsicObserver = _content && createTrinsicObserver(_host, onTrinsicChanged);
-
+    var trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
     var sizeObserver = createSizeObserver(_host, onSizeChanged, {
       _appear: true,
       _direction: !_nativeScrollbarStyling,
@@ -2367,7 +2368,6 @@
 
     var envUpdateListener = update.bind(null, null, true);
     addEnvironmentListener(envUpdateListener);
-    console.log(getEnvironment());
     return {
       _update: update,
       _destroy: function _destroy() {

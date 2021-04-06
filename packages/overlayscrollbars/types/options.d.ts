@@ -1,4 +1,3 @@
-export * from 'options/options';
 export declare type ResizeBehavior = 'none' | 'both' | 'horizontal' | 'vertical';
 export declare type OverflowBehavior = 'hidden' | 'scroll' | 'visible-hidden' | 'visible-scroll';
 export declare type VisibilityBehavior = 'visible' | 'hidden' | 'auto';
@@ -11,7 +10,7 @@ export declare type OverflowAmountChangedCallback = (this: any, args?: OverflowA
 export declare type DirectionChangedCallback = (this: any, args?: DirectionChangedArgs) => void;
 export declare type SizeChangedCallback = (this: any, args?: SizeChangedArgs) => void;
 export declare type UpdatedCallback = (this: any, args?: UpdatedArgs) => void;
-export interface OverlayScrollbarsOptions {
+export interface OSOptions {
     resize: ResizeBehavior;
     paddingAbsolute: boolean;
     updating: {
@@ -64,3 +63,4 @@ export interface SizeChangedArgs {
 export interface UpdatedArgs {
     forced: boolean;
 }
+export declare const optionsTemplate: import("./support/options").OptionsTemplate<OSOptions>, defaultOptions: OSOptions;

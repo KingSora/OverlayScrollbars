@@ -16,7 +16,7 @@ export interface OverlayScrollbars {
   update(force?: boolean): void;
 }
 
-const OverlayScrollbars: OverlayScrollbarsStatic = (
+export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target: OSTarget | OSTargetObject,
   options?: PartialOptions<OSOptions>,
   extensions?: any
@@ -50,5 +50,3 @@ const OverlayScrollbars: OverlayScrollbarsStatic = (
 
   return instance;
 };
-
-export default OverlayScrollbars;

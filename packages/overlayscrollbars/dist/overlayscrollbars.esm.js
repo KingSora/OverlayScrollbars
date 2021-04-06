@@ -477,7 +477,10 @@ const debounce = (functionToDebounce, timeout, maxWait) => {
   };
 };
 
-const cssNumber = {};
+const cssNumber = {
+  opacity: 1,
+  zindex: 1,
+};
 
 const parseToZeroOrNumber = (value, toFloat) => {
   const num = toFloat ? parseFloat(value) : parseInt(value, 10);
@@ -822,7 +825,6 @@ const createEnvironment = () => {
   let initializationStrategy = defaultInitializationStrategy;
   let defaultDefaultOptions = defaultOptions;
   const env = {
-    _autoUpdateLoop: false,
     _nativeScrollbarSize: nativeScrollbarSize,
     _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
     _nativeScrollbarStyling: nativeScrollbarStyling,
@@ -2070,8 +2072,7 @@ const createLifecycleHub = (options, structureSetup) => {
     });
   };
 
-  const trinsicObserver = _content && createTrinsicObserver(_host, onTrinsicChanged);
-
+  const trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
   const sizeObserver = createSizeObserver(_host, onSizeChanged, {
     _appear: true,
     _direction: !_nativeScrollbarStyling,
@@ -2093,7 +2094,6 @@ const createLifecycleHub = (options, structureSetup) => {
 
   const envUpdateListener = update.bind(null, null, true);
   addEnvironmentListener(envUpdateListener);
-  console.log(getEnvironment());
   return {
     _update: update,
 

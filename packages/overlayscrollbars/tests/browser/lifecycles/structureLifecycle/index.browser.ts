@@ -1,7 +1,7 @@
 import 'styles/overlayscrollbars.scss';
 import './index.scss';
 import { createDiv, appendChildren, parent, style, on, off, addClass, WH, XY, clientSize } from 'support';
-import OverlayScrollbars from 'overlayscrollbars';
+import { OverlayScrollbars } from 'overlayscrollbars';
 
 const targetElm = document.querySelector('#target') as HTMLElement;
 window.os = OverlayScrollbars({ target: targetElm, content: false });
