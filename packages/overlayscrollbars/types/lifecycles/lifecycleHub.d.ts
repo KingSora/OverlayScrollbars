@@ -1,5 +1,5 @@
 import { XY, TRBL, CacheValues, PartialOptions } from 'support';
-import { OverlayScrollbarsOptions } from 'options';
+import { OSOptions } from 'options';
 import { StructureSetup } from 'setups/structureSetup';
 import { StyleObject } from 'typings';
 export declare type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
@@ -23,11 +23,11 @@ export interface LifecycleUpdateHints extends LifecycleAdaptiveUpdateHints {
 }
 export declare type Lifecycle = (updateHints: LifecycleUpdateHints, checkOption: LifecycleCheckOption, force: boolean) => Partial<LifecycleAdaptiveUpdateHints> | void;
 export interface LifecycleHubInstance {
-    _update(changedOptions?: PartialOptions<OverlayScrollbarsOptions> | null, force?: boolean): void;
+    _update(changedOptions?: PartialOptions<OSOptions> | null, force?: boolean): void;
     _destroy(): void;
 }
 export interface LifecycleHub {
-    _options: OverlayScrollbarsOptions;
+    _options: OSOptions;
     _structureSetup: StructureSetup;
     _doViewportArrange: boolean;
     _getPaddingInfo(): PaddingInfo;
@@ -37,4 +37,4 @@ export interface LifecycleHub {
     _getViewportOverflowScroll(): XY<boolean>;
     _setViewportOverflowScroll(newViewportOverflowScroll: XY<boolean>): void;
 }
-export declare const createLifecycleHub: (options: OverlayScrollbarsOptions, structureSetup: StructureSetup) => LifecycleHubInstance;
+export declare const createLifecycleHub: (options: OSOptions, structureSetup: StructureSetup) => LifecycleHubInstance;

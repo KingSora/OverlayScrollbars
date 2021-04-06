@@ -1,5 +1,5 @@
 import { XY, TRBL, CacheValues, PartialOptions, each, push, keys, hasOwnProperty, isNumber, scrollLeft, scrollTop } from 'support';
-import { OverlayScrollbarsOptions } from 'options';
+import { OSOptions } from 'options';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
 import { createTrinsicLifecycle } from 'lifecycles/trinsicLifecycle';
@@ -41,12 +41,12 @@ export type Lifecycle = (
 ) => Partial<LifecycleAdaptiveUpdateHints> | void;
 
 export interface LifecycleHubInstance {
-  _update(changedOptions?: PartialOptions<OverlayScrollbarsOptions> | null, force?: boolean): void;
+  _update(changedOptions?: PartialOptions<OSOptions> | null, force?: boolean): void;
   _destroy(): void;
 }
 
 export interface LifecycleHub {
-  _options: OverlayScrollbarsOptions;
+  _options: OSOptions;
   _structureSetup: StructureSetup;
   // whether the "viewport arrange" strategy must be used (true if no native scrollbar hiding and scrollbars are overlaid)
   _doViewportArrange: boolean;
@@ -108,7 +108,7 @@ const heightIntrinsicCacheValuesFallback: CacheValues<boolean> = {
   _changed: false,
 };
 
-export const createLifecycleHub = (options: OverlayScrollbarsOptions, structureSetup: StructureSetup): LifecycleHubInstance => {
+export const createLifecycleHub = (options: OSOptions, structureSetup: StructureSetup): LifecycleHubInstance => {
   let paddingInfo = paddingInfoFallback;
   let viewportPaddingStyle = viewportPaddingStyleFallback;
   let viewportOverflowScroll = viewportOverflowScrollFallback;
@@ -144,11 +144,7 @@ export const createLifecycleHub = (options: OverlayScrollbarsOptions, structureS
   push(lifecycles, createPaddingLifecycle(instance));
   push(lifecycles, createOverflowLifecycle(instance));
 
-  const updateLifecycles = (
-    updateHints?: Partial<LifecycleUpdateHints> | null,
-    changedOptions?: Partial<OverlayScrollbarsOptions> | null,
-    force?: boolean
-  ) => {
+  const updateLifecycles = (updateHints?: Partial<LifecycleUpdateHints> | null, changedOptions?: Partial<OSOptions> | null, force?: boolean) => {
     let {
       _directionIsRTL,
       _heightIntrinsic,
@@ -232,7 +228,7 @@ export const createLifecycleHub = (options: OverlayScrollbarsOptions, structureS
     });
   };
 
-  const trinsicObserver = _content && createTrinsicObserver(_host, onTrinsicChanged);
+  const trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
   const sizeObserver = createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: !_nativeScrollbarStyling });
   const hostMutationObserver = createDOMObserver(_host, onHostMutation, {
     _styleChangingAttributes: attrs,
@@ -260,7 +256,7 @@ export const createLifecycleHub = (options: OverlayScrollbarsOptions, structureS
       */
   });
 
-  const update = (changedOptions?: Partial<OverlayScrollbarsOptions> | null, force?: boolean) => {
+  const update = (changedOptions?: Partial<OSOptions> | null, force?: boolean) => {
     updateLifecycles(null, changedOptions, force);
   };
   const envUpdateListener = update.bind(null, null, true);

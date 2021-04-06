@@ -1,5 +1,9 @@
 import { rAF, cAF, isEmptyArray, indexOf, createCache, runEach, push } from 'support';
-import { getEnvironment } from 'environment';
+//import { getEnvironment } from 'environment';
+
+/**
+ * This code isn't used in the final build, just created it have it in case this feature is needed.
+ */
 
 export interface AutoUpdateLoop {
   _add(fn: (delta: number) => any): () => void;
@@ -56,7 +60,7 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
       push(loopFunctions, fn);
 
       if (!loopIsRunning && !isEmptyArray(loopFunctions)) {
-        getEnvironment()._autoUpdateLoop = loopIsRunning = true;
+        //getEnvironment()._autoUpdateLoop = loopIsRunning = true;
 
         updateTimeCache(true);
         loop();
@@ -66,7 +70,7 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
         loopFunctions.splice(indexOf(loopFunctions, fn), 1);
 
         if (isEmptyArray(loopFunctions) && loopIsRunning) {
-          getEnvironment()._autoUpdateLoop = loopIsRunning = false;
+          //getEnvironment()._autoUpdateLoop = loopIsRunning = false;
 
           cAF!(loopId!);
           loopId = undefined;

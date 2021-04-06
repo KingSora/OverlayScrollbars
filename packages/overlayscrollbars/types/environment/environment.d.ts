@@ -1,5 +1,5 @@
 import { XY, PartialOptions } from 'support';
-import { OverlayScrollbarsOptions } from 'options';
+import { OSOptions } from 'options';
 export interface InitializationStrategy {
     _padding: boolean;
     _content: boolean;
@@ -20,9 +20,9 @@ export interface Environment {
     _removeListener(listener: OnEnvironmentChanged): void;
     _getInitializationStrategy(): InitializationStrategy;
     _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
-    _getDefaultOptions(): OverlayScrollbarsOptions;
-    _setDefaultOptions(newDefaultOptions: PartialOptions<OverlayScrollbarsOptions>): void;
+    _getDefaultOptions(): OSOptions;
+    _setDefaultOptions(newDefaultOptions: PartialOptions<OSOptions>): void;
     _defaultInitializationStrategy: InitializationStrategy;
-    _defaultDefaultOptions: OverlayScrollbarsOptions;
+    _defaultDefaultOptions: OSOptions;
 }
 export declare const getEnvironment: () => Environment;

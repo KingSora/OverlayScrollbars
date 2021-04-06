@@ -23,7 +23,7 @@ import {
   classNameEnvironmentFlexboxGlueMax,
   classNameViewportScrollbarStyling,
 } from 'classnames';
-import { OverlayScrollbarsOptions, defaultOptions } from 'options';
+import { OSOptions, defaultOptions } from 'options';
 
 export interface InitializationStrategy {
   _padding: boolean;
@@ -32,7 +32,6 @@ export interface InitializationStrategy {
 
 export type OnEnvironmentChanged = (env: Environment) => void;
 export interface Environment {
-  _autoUpdateLoop: boolean;
   _nativeScrollbarSize: XY;
   _nativeScrollbarIsOverlaid: XY<boolean>;
   _nativeScrollbarStyling: boolean;
@@ -43,10 +42,10 @@ export interface Environment {
   _removeListener(listener: OnEnvironmentChanged): void;
   _getInitializationStrategy(): InitializationStrategy;
   _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
-  _getDefaultOptions(): OverlayScrollbarsOptions;
-  _setDefaultOptions(newDefaultOptions: PartialOptions<OverlayScrollbarsOptions>): void;
+  _getDefaultOptions(): OSOptions;
+  _setDefaultOptions(newDefaultOptions: PartialOptions<OSOptions>): void;
   _defaultInitializationStrategy: InitializationStrategy;
-  _defaultDefaultOptions: OverlayScrollbarsOptions;
+  _defaultDefaultOptions: OSOptions;
 }
 
 let environmentInstance: Environment;
@@ -153,7 +152,6 @@ const createEnvironment = (): Environment => {
   let defaultDefaultOptions = defaultOptions;
 
   const env: Environment = {
-    _autoUpdateLoop: false,
     _nativeScrollbarSize: nativeScrollbarSize,
     _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
     _nativeScrollbarStyling: nativeScrollbarStyling,
