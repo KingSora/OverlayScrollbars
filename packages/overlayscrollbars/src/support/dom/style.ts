@@ -17,11 +17,11 @@ const cssNumber = {
   //flexshrink: 1,
   //fontweight: 1,
   //lineheight: 1,
-  //opacity: 1,
+  opacity: 1,
   //order: 1,
   //orphans: 1,
   //widows: 1,
-  //zindex: 1,
+  zindex: 1,
   //zoom: 1,
 };
 

@@ -262,8 +262,6 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
   const envUpdateListener = update.bind(null, null, true);
   addEnvironmentListener(envUpdateListener);
 
-  console.log(getEnvironment());
-
   return {
     _update: update,
     _destroy() {

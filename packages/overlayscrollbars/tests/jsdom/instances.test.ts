@@ -1,7 +1,8 @@
 import { addInstance, removeInstance, getInstance, allInstances } from 'instances';
+import OverlayScrollbars from 'overlayscrollbars';
 
 const testElm = document.body;
-const testInstance = { value: 'value' };
+const testInstance = OverlayScrollbars(document.body);
 
 describe('instances', () => {
   afterEach(() => {

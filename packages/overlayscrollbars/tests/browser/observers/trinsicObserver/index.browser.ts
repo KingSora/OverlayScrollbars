@@ -1,4 +1,4 @@
-import 'overlayscrollbars.scss';
+import 'styles/overlayscrollbars.scss';
 import './index.scss';
 import should from 'should';
 import { generateClassChangeSelectCallback, iterateSelect, selectOption } from '@/testing-browser/Select';
@@ -118,7 +118,7 @@ const start = async () => {
 
 startBtn?.addEventListener('click', start);
 
-createTrinsicObserver(targetElm as HTMLElement, (widthIntrinsic, heightIntrinsicCache) => {
+createTrinsicObserver(targetElm as HTMLElement, (heightIntrinsicCache) => {
   if (heightIntrinsicCache._changed) {
     heightIterations += 1;
     heightIntrinsic = heightIntrinsicCache._value;

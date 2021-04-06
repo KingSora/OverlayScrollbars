@@ -1,11 +1,11 @@
 import { rAF, cAF, isEmptyArray, indexOf, createCache, runEach, push } from 'support';
-//import { getEnvironment } from 'environment';
+// import { getEnvironment } from 'environment';
 
 /**
  * This code isn't used in the final build, just created it have it in case this feature is needed.
  */
 
-export interface AutoUpdateLoop {
+interface AutoUpdateLoop {
   _add(fn: (delta: number) => any): () => void;
   _interval(newInterval: number): () => void;
   _interval(): number;
@@ -81,7 +81,7 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
   };
 };
 
-export const getAutoUpdateLoop = (): AutoUpdateLoop => {
+const getAutoUpdateLoop = (): AutoUpdateLoop => {
   if (!autoUpdateLoopInstance) {
     autoUpdateLoopInstance = createAutoUpdateLoop();
   }
