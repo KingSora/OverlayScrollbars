@@ -9,6 +9,7 @@ const del = require('del');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
+const glob = require('glob');
 const resolve = require('./resolve.config.json');
 
 const isTestEnv = process.env.NODE_ENV === 'test';
@@ -124,6 +125,7 @@ const resolveConfig = (config, userConfig) => {
 };
 
 const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, silent, fast } = {}) => {
+  const repoPackageJson = require(path.resolve(__dirname, 'package.json'));
   const projectPath = resolvePath(__dirname, project);
   const relativeBackPath = path.relative(projectPath, __dirname);
   const projectName = path.basename(project);
@@ -189,6 +191,21 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
   });
 
   const genConfig = ({ esm, typeDeclaration }) => {
+    const { exclude, compilerOptions } = require(tsconfigJSONPath);
+    const { paths } = compilerOptions || {};
+    const finalPaths = paths || {};
+    const workspacesPaths = repoPackageJson.workspaces
+      .map((pattern) => glob.sync(pattern, { cwd: __dirname }))
+      .reduce((arr, paths) => {
+        arr.push(...paths);
+        return arr;
+      }, [])
+      .reduce((obj, resolvedPath) => {
+        const absolutePath = path.resolve(__dirname, resolvedPath);
+        obj[`@/${path.basename(absolutePath)}*`] = [`${normalizePath(path.resolve(absolutePath, rollupConfigDefaults.src))}*`];
+        return obj;
+      }, {});
+
     const pipelineMap = {
       typescript: isTypeScriptProject
         ? rollupTypescript({
@@ -202,8 +219,12 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
                 sourceMap: sourcemap,
                 declaration: typeDeclaration && types !== null,
                 declarationDir: typesPath,
+                paths: {
+                  ...finalPaths,
+                  ...workspacesPaths,
+                },
               },
-              exclude: (require(tsconfigJSONPath).exclude || []).concat(testsPath),
+              exclude: (exclude || []).concat(testsPath),
             },
             include: ['*.ts+(|x)', '**/*.ts+(|x)'].map(prependBackPath),
             exclude: ['*.d.ts', '**/*.d.ts'].map(prependBackPath),

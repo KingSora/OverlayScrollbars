@@ -38,6 +38,7 @@
     "eslint-plugin-react-hooks": "^4.0.8",
     "expect-playwright": "^0.3.1",
     "express": "^4.17.1",
+    "glob": "^7.1.6",
     "jest": "^26.6.0",
     "jest-dev-server": "^4.4.0",
     "jest-playwright-preset": "^1.4.5",
