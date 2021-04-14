@@ -72,6 +72,7 @@ const emptyStylePropsToZero = (stlyeObj: StyleObject, baseStyle?: StyleObject) =
     { ...baseStyle }
   );
 
+// TODO: observer textarea attrs if textarea
 // TODO: tabindex, open etc.
 const attrs = ['id', 'class', 'style', 'open'];
 const paddingInfoFallback: PaddingInfo = {

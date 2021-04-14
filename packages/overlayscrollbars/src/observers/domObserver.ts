@@ -44,7 +44,7 @@ export interface DOMObserverOptions {
   _ignoreContentChange?: DOMObserverIgnoreContentChange;
 }
 export interface DOMObserver {
-  _disconnect: () => void;
+  _destroy: () => void;
   _updateEventContentChange: (newEventContentChange?: DOMObserverEventContentChange) => void;
   _update: () => void;
 }
@@ -52,18 +52,21 @@ export interface DOMObserver {
 // const styleChangingAttributes = ['id', 'class', 'style', 'open'];
 // const mutationObserverAttrsTextarea = ['wrap', 'cols', 'rows'];
 
-const createEventContentChange = (
-  target: Element,
-  eventContentChange: DOMObserverEventContentChange,
-  map: Map<Node, string>,
-  callback: (...args: any) => any
-) => {
+/**
+ * Creates a set of helper functions to observe events of elements inside the target element.
+ * @param target The target element of which the children elements shall be observed. (not only direct children but also nested ones)
+ * @param eventContentChange The event content change array. (array of tuples: selector and eventname(s))
+ * @param callback Callback which is called if one of the elements emits the corresponding event.
+ * @returns A object which contains a set of helper functions to destroy and update the observation of elements.
+ */
+const createEventContentChange = (target: Element, eventContentChange: DOMObserverEventContentChange, callback: (...args: any) => any) => {
+  let map: Map<Node, string> | undefined;
   let eventContentChangeRef: DOMObserverEventContentChange;
   const addEvent = (elm: Node, eventName: string) => {
-    const entry = map.get(elm);
+    const entry = map!.get(elm);
     const newEntry = isUndefined(entry);
     const registerEvent = () => {
-      map.set(elm, eventName);
+      map!.set(elm, eventName);
       on(elm, eventName, callback);
     };
 
@@ -75,10 +78,10 @@ const createEventContentChange = (
     }
   };
   const _destroy = () => {
-    map.forEach((eventName: string, elm: Node) => {
+    map!.forEach((eventName: string, elm: Node) => {
       off(elm, eventName, callback);
     });
-    map.clear();
+    map!.clear();
   };
   const _updateElements = (getElements?: (selector: string) => Node[]) => {
     if (eventContentChangeRef) {
@@ -105,23 +108,31 @@ const createEventContentChange = (
       });
     }
   };
-  const _update = (newEventContentChange: DOMObserverEventContentChange) => {
+  const _updateEventContentChange = (newEventContentChange: DOMObserverEventContentChange) => {
+    map = map || new Map<Node, string>();
     eventContentChangeRef = newEventContentChange;
     _destroy();
     _updateElements();
   };
 
   if (eventContentChange) {
-    _update(eventContentChange);
+    _updateEventContentChange(eventContentChange);
   }
 
   return {
     _destroy,
     _updateElements,
-    _update,
+    _updateEventContentChange,
   };
 };
 
+/**
+ * Creates a DOM observer which observes DOM changes to either the target element or its children. (not only direct children but also nested ones)
+ * @param target The element which shall be observed.
+ * @param callback The callback which gets called if a change was detected.
+ * @param options The options for DOM change detection.
+ * @returns A object which represents the instance of the DOM observer.
+ */
 export const createDOMObserver = (
   target: HTMLElement,
   callback: (targetChangedAttrs: string[], targetStyleChanged: boolean, contentChanged: boolean) => any,
@@ -138,13 +149,12 @@ export const createDOMObserver = (
     _ignoreContentChange,
   } = options || {};
   const {
-    _updateElements: updateEventContentChangeElements,
     _destroy: destroyEventContentChange,
-    _update: updateEventContentChange,
+    _updateElements: updateEventContentChangeElements,
+    _updateEventContentChange: updateEventContentChange,
   } = createEventContentChange(
     target,
     _observeContent && _eventContentChange,
-    new Map<Node, string>(),
     debounce(() => {
       if (isConnected) {
         callback([], false, true);
@@ -155,7 +165,7 @@ export const createDOMObserver = (
   // MutationObserver
   const finalAttributes = _attributes || [];
   const finalStyleChangingAttributes = _styleChangingAttributes || [];
-  const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes); // TODO: observer textarea attrs if textarea
+  const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
   const observerCallback = (mutations: MutationRecord[]) => {
     const ignoreTargetChange = _ignoreTargetChange || noop;
     const ignoreContentChange = _ignoreContentChange || noop;
@@ -199,6 +209,7 @@ export const createDOMObserver = (
     });
 
     if (childListChanged && !isEmptyArray(totalAddedNodes)) {
+      // adds / removes the new elements from the event content change
       updateEventContentChangeElements((selector) =>
         totalAddedNodes.reduce<Node[]>((arr, node) => {
           push(arr, find(selector, node));
@@ -224,7 +235,7 @@ export const createDOMObserver = (
   isConnected = true;
 
   return {
-    _disconnect: () => {
+    _destroy: () => {
       if (isConnected) {
         destroyEventContentChange();
         mutationObserver.disconnect();
