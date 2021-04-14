@@ -29,8 +29,8 @@ $scrollbar-cushion: 100px;
 }
 
 .os-size-observer-appear {
-  animation-duration: 0.001s;
-  animation-name: os-size-observer-appear-animation;
+  // "forwards" is important for older browsers
+  animation: os-size-observer-appear-animation 1ms forwards;
 }
 
 .os-size-observer-listener {

@@ -12,8 +12,7 @@ import {
   prependChildren,
   removeElements,
   on,
-  preventDefault,
-  stopPropagation,
+  stopAndPrevent,
   addClass,
   equalWH,
   push,
@@ -21,8 +20,6 @@ import {
   rAF,
   ResizeObserverConstructor,
   isArray,
-  indexOf,
-  each,
   isBoolean,
 } from 'support';
 import { getEnvironment } from 'environment';
@@ -35,10 +32,6 @@ import {
   classNameSizeObserverListenerItemFinal,
 } from 'classnames';
 
-interface SizeObserverEntry {
-  contentRect: DOMRectReadOnly;
-}
-
 export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };
 
 export interface SizeObserver {
@@ -50,21 +43,24 @@ export interface SizeObserver {
   };
 }
 
-const animationStartEventName = 'animationstart';
-const scrollEventName = 'scroll';
-const scrollAmount = 3333333;
+/*
 const directionIsRTLMap = {
   direction: ['rtl'],
-  // 'writing-mode': ['sideways-rl', 'tb', 'tb-rl', 'vertical-rl'],
+  'writing-mode': ['sideways-rl', 'tb', 'tb-rl', 'vertical-rl'],
 };
 const directionIsRTL = (elm: HTMLElement): boolean => {
   let isRTL = false;
-  const styles = style(elm, ['direction' /* , 'writing-mode' */]);
+  const styles = style(elm, ['direction', 'writing-mode']);
   each(styles, (value, key) => {
     isRTL = isRTL || indexOf(directionIsRTLMap[key], value) > -1;
   });
   return isRTL;
 };
+*/
+const animationStartEventName = 'animationstart';
+const scrollEventName = 'scroll';
+const scrollAmount = 3333333;
+const directionIsRTL = (elm: HTMLElement): boolean => style(elm, 'direction') === 'rtl';
 const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height || rect.width);
 
 export const createSizeObserver = (
@@ -86,7 +82,7 @@ export const createSizeObserver = (
         (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
       ),
   });
-  const onSizeChangedCallbackProxy = (sizeChangedContext?: CacheValues<boolean> | SizeObserverEntry[] | Event) => {
+  const onSizeChangedCallbackProxy = (sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry[] | Event) => {
     const hasDirectionCache = sizeChangedContext && isBoolean((sizeChangedContext as CacheValues<boolean>)._value);
 
     let skip = false;
@@ -100,7 +96,7 @@ export const createSizeObserver = (
     }
     // else if its triggered with DirectionCache
     else if (hasDirectionCache) {
-      doDirectionScroll = (sizeChangedContext as CacheValues<boolean>)._changed; // direction scroll when DirectionCache changed, false toherwise
+      doDirectionScroll = (sizeChangedContext as CacheValues<boolean>)._changed; // direction scroll when DirectionCache changed, false otherwise
     }
 
     if (observeDirectionChange) {
@@ -150,24 +146,22 @@ export const createSizeObserver = (
         onSizeChangedCallbackProxy();
       }
     };
-    const onScroll = (scrollEvent?: Event) => {
+    const onScroll = (scrollEvent?: Event | false) => {
       currSize = offsetSize(listenerElement);
       isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
-      if (scrollEvent && isDirty && !rAFId) {
-        cAF!(rAFId);
-        rAFId = rAF!(onResized);
-      } else if (!scrollEvent) {
+      if (scrollEvent) {
+        stopAndPrevent(scrollEvent);
+
+        if (isDirty && !rAFId) {
+          cAF!(rAFId);
+          rAFId = rAF!(onResized);
+        }
+      } else {
         onResized();
       }
 
       reset();
-
-      if (scrollEvent) {
-        preventDefault(scrollEvent);
-        stopPropagation(scrollEvent);
-      }
-      return false;
     };
 
     push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
@@ -177,8 +171,10 @@ export const createSizeObserver = (
       width: scrollAmount,
       height: scrollAmount,
     });
+
     reset();
-    appearCallback = observeAppearChange ? () => onScroll() : reset;
+
+    appearCallback = observeAppearChange ? onScroll.bind(0, false) : reset;
   }
 
   if (observeDirectionChange) {
@@ -198,9 +194,7 @@ export const createSizeObserver = (
           onSizeChangedCallbackProxy(directionIsRTLCacheValues);
         }
 
-        preventDefault(event);
-        stopPropagation(event);
-        return false;
+        stopAndPrevent(event);
       })
     );
   }

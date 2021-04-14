@@ -7,7 +7,14 @@ describe('SizeObserver', () => {
     await page.goto(url);
   });
 
-  test('test', async () => {
+  test('with ResizeOserver', async () => {
+    await page.click('#start');
+    await expect(page).toHaveSelector('#testResult.passed');
+  });
+
+  test('with ResizeOserver polyfill', async () => {
+    await page.click('#resizeobserver-polyfill');
+    await page.waitForTimeout(500);
     await page.click('#start');
     await expect(page).toHaveSelector('#testResult.passed');
   });

@@ -1,4 +1,4 @@
-import { off, preventDefault, stopPropagation, OnOptions } from 'support/dom/events';
+import { off, preventDefault, stopPropagation, stopAndPrevent, OnOptions } from 'support/dom/events';
 
 const testElm = document.body;
 const mockEventListener = (passive?: boolean, add?: (...args: any) => any, remove?: (...args: any) => any) => {
@@ -80,7 +80,7 @@ describe('dom events', () => {
     [true, false].forEach((passiveSupport) => {
       describe(`passive event listeners support: ${passiveSupport}`, () => {
         ['testEventName', 'testEventName testEventName2 testEventName3'].forEach((eventNames) => {
-          const title = eventNames.split(' ').length === 1 ? 'signle' : 'multiple';
+          const title = eventNames.split(' ').length === 1 ? 'single' : 'multiple';
           test(title, () => {
             onOffTest(passiveSupport, eventNames);
             onOffTest(passiveSupport, eventNames, { _capture: true });
@@ -113,7 +113,7 @@ describe('dom events', () => {
     };
 
     ['testEventName', 'testEventName testEventName2 testEventName3'].forEach((eventNames) => {
-      const title = eventNames.split(' ').length === 1 ? 'signle' : 'multiple';
+      const title = eventNames.split(' ').length === 1 ? 'single' : 'multiple';
       test(title, () => {
         offTest(eventNames, false);
         offTest(eventNames, true);
@@ -137,5 +137,16 @@ describe('dom events', () => {
     };
     stopPropagation(fakeEvent);
     expect(fakeEvent.stopPropagation).toHaveBeenCalled();
+  });
+
+  test('stopAndPrevent', () => {
+    // @ts-ignore
+    const fakeEvent: Event = {
+      stopPropagation: jest.fn(),
+      preventDefault: jest.fn(),
+    };
+    stopAndPrevent(fakeEvent);
+    expect(fakeEvent.stopPropagation).toHaveBeenCalled();
+    expect(fakeEvent.preventDefault).toHaveBeenCalled();
   });
 });

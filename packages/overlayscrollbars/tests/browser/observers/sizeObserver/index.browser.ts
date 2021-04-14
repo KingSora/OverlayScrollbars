@@ -1,7 +1,7 @@
 import 'styles/overlayscrollbars.scss';
 import './index.scss';
+import './handleResizeObserver';
 import should from 'should';
-// import { generateClassChangeSelectCallback, iterateSelect, setTestResult, waitForOrFailTest, timeout } from '@/testing-browser';
 import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { timeout } from '@/testing-browser/timeout';
@@ -33,6 +33,23 @@ const displaySelect: HTMLSelectElement | null = document.querySelector('#display
 const directionSelect: HTMLSelectElement | null = document.querySelector('#direction');
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const resizesSlot: HTMLButtonElement | null = document.querySelector('#resizes');
+
+const sizeObserver = createSizeObserver(
+  targetElm as HTMLElement,
+  (directionIsRTLCache?: any) => {
+    if (directionIsRTLCache) {
+      directionIterations += 1;
+    } else {
+      sizeIterations += 1;
+    }
+    requestAnimationFrame(() => {
+      if (resizesSlot) {
+        resizesSlot.textContent = (directionIterations + sizeIterations).toString();
+      }
+    });
+  },
+  { _direction: true, _appear: true }
+);
 
 const selectCallback = generateClassChangeSelectCallback(targetElm as HTMLElement);
 const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) => {
@@ -84,7 +101,9 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
             should.equal(sizeIterations, currSizeIterations + 1);
           }
           if (dirChanged) {
+            const expectedCacheValue = newDir === 'rtl';
             should.equal(directionIterations, currDirectionIterations + 1);
+            should.equal(sizeObserver._getCurrentCacheValues()._directionIsRTL._value, expectedCacheValue);
           }
         });
       }
@@ -133,7 +152,6 @@ const iterateDisplay = async (afterEach?: () => any) => {
 const iterateDirection = async (afterEach?: () => any) => {
   await iterate(directionSelect, afterEach);
 };
-
 const start = async () => {
   setTestResult(null);
 
@@ -156,26 +174,11 @@ const start = async () => {
     });
   });
 
+  sizeObserver._destroy();
+  should.ok(targetElm?.children.length === 0);
   setTestResult(true);
 };
 
 startBtn?.addEventListener('click', start);
-
-createSizeObserver(
-  targetElm as HTMLElement,
-  (directionIsRTLCache?: any) => {
-    if (directionIsRTLCache) {
-      directionIterations += 1;
-    } else {
-      sizeIterations += 1;
-    }
-    requestAnimationFrame(() => {
-      if (resizesSlot) {
-        resizesSlot.textContent = (directionIterations + sizeIterations).toString();
-      }
-    });
-  },
-  { _direction: true, _appear: true }
-);
 
 export { start };

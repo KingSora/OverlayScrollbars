@@ -87,10 +87,16 @@ export const on = <T extends Event = Event>(
  * Shorthand for the stopPropagation event Method.
  * @param evt The event of which the stopPropagation method shall be called.
  */
-export const stopPropagation = (evt: Event) => evt.stopPropagation();
+export const stopPropagation = (evt: Event): void => evt.stopPropagation();
 
 /**
  * Shorthand for the preventDefault event Method.
  * @param evt The event of which the preventDefault method shall be called.
  */
-export const preventDefault = (evt: Event) => evt.preventDefault();
+export const preventDefault = (evt: Event): void => evt.preventDefault();
+
+/**
+ * Shorthand for the stopPropagation and preventDefault event Method.
+ * @param evt The event of which the stopPropagation and preventDefault methods shall be called.
+ */
+export const stopAndPrevent = (evt: Event): void => (stopPropagation(evt) as undefined) || (preventDefault(evt) as undefined);
