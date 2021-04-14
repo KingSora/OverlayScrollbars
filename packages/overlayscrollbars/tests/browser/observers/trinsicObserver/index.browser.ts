@@ -1,5 +1,6 @@
 import 'styles/overlayscrollbars.scss';
 import './index.scss';
+import './handleEnvironment';
 import should from 'should';
 import { generateClassChangeSelectCallback, iterateSelect, selectOption } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
@@ -18,6 +19,19 @@ const targetHeightSelect: HTMLSelectElement | null = document.querySelector('#ta
 const displaySelect: HTMLSelectElement | null = document.querySelector('#display');
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const changesSlot: HTMLButtonElement | null = document.querySelector('#changes');
+const preInitChildren = targetElm?.children.length;
+
+const trinsicObserver = createTrinsicObserver(targetElm as HTMLElement, (heightIntrinsicCache) => {
+  if (heightIntrinsicCache._changed) {
+    heightIterations += 1;
+    heightIntrinsic = heightIntrinsicCache._value;
+  }
+  requestAnimationFrame(() => {
+    if (changesSlot) {
+      changesSlot.textContent = heightIterations.toString();
+    }
+  });
+});
 
 const envElmSelectCallback = generateClassChangeSelectCallback(envElm as HTMLElement);
 const targetElmSelectCallback = generateClassChangeSelectCallback(targetElm as HTMLElement);
@@ -53,6 +67,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
         if (trinsicHeightChanged) {
           should.equal(heightIterations, currHeightIterations + 1);
         }
+        should.equal(trinsicObserver._getCurrentCacheValues()._heightIntrinsic._value, newHeightIntrinsic);
       });
     },
     afterEach,
@@ -113,21 +128,11 @@ const start = async () => {
   });
   await changeWhileHidden();
 
+  trinsicObserver._destroy();
+  should.equal(targetElm?.children.length, preInitChildren);
   setTestResult(true);
 };
 
 startBtn?.addEventListener('click', start);
-
-createTrinsicObserver(targetElm as HTMLElement, (heightIntrinsicCache) => {
-  if (heightIntrinsicCache._changed) {
-    heightIterations += 1;
-    heightIntrinsic = heightIntrinsicCache._value;
-  }
-  requestAnimationFrame(() => {
-    if (changesSlot) {
-      changesSlot.textContent = heightIterations.toString();
-    }
-  });
-});
 
 export { start };

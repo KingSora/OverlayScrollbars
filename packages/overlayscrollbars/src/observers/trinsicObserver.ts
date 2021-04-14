@@ -1,7 +1,7 @@
 import {
   WH,
   CacheValues,
-  createDOM,
+  createDiv,
   offsetSize,
   runEach,
   prependChildren,
@@ -26,7 +26,7 @@ export const createTrinsicObserver = (
   target: HTMLElement,
   onTrinsicChangedCallback: (heightIntrinsic: CacheValues<boolean>) => any
 ): TrinsicObserver => {
-  const trinsicObserver = createDOM(`<div class="${classNameTrinsicObserver}"></div>`)[0] as HTMLElement;
+  const trinsicObserver = createDiv(classNameTrinsicObserver);
   const offListeners: (() => void)[] = [];
   const { _update: updateHeightIntrinsicCache, _current: getCurrentHeightIntrinsicCache } = createCache<
     boolean,

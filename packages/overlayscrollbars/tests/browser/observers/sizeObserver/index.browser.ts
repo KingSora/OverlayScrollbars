@@ -1,6 +1,6 @@
 import 'styles/overlayscrollbars.scss';
 import './index.scss';
-import './handleResizeObserver';
+import './handleEnvironment';
 import should from 'should';
 import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
@@ -33,6 +33,7 @@ const displaySelect: HTMLSelectElement | null = document.querySelector('#display
 const directionSelect: HTMLSelectElement | null = document.querySelector('#direction');
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const resizesSlot: HTMLButtonElement | null = document.querySelector('#resizes');
+const preInitChildren = targetElm?.children.length;
 
 const sizeObserver = createSizeObserver(
   targetElm as HTMLElement,
@@ -175,7 +176,7 @@ const start = async () => {
   });
 
   sizeObserver._destroy();
-  should.ok(targetElm?.children.length === 0);
+  should.equal(targetElm?.children.length, preInitChildren);
   setTestResult(true);
 };
 

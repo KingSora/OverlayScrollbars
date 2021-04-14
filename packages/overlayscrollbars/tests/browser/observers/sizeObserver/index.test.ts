@@ -13,7 +13,7 @@ describe('SizeObserver', () => {
   });
 
   test('with ResizeOserver polyfill', async () => {
-    await page.click('#resizeobserver-polyfill');
+    await page.click('#roPolyfill');
     await page.waitForTimeout(500);
     await page.click('#start');
     await expect(page).toHaveSelector('#testResult.passed');

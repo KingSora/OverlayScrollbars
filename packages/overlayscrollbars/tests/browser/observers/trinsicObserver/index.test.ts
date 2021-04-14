@@ -7,7 +7,23 @@ describe('TrinsicObserver', () => {
     await page.goto(url);
   });
 
-  test('test', async () => {
+  test('with IntersectionObserver', async () => {
+    await page.click('#start');
+    await expect(page).toHaveSelector('#testResult.passed');
+  });
+
+  test('with ResizeObserver', async () => {
+    await page.click('#ioPolyfill');
+    await page.waitForTimeout(500);
+    await page.click('#start');
+    await expect(page).toHaveSelector('#testResult.passed');
+  });
+
+  test('with ResizeObserver polyfill', async () => {
+    await page.click('#ioPolyfill');
+    await page.waitForTimeout(500);
+    await page.click('#roPolyfill');
+    await page.waitForTimeout(500);
     await page.click('#start');
     await expect(page).toHaveSelector('#testResult.passed');
   });
