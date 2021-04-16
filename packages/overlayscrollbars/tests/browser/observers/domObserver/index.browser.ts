@@ -21,14 +21,14 @@ import {
 
 import { createDOMObserver } from 'observers/domObserver';
 
-interface DOMObserverResult {
+type DOMContentObserverResult = boolean;
+type DOMTargetObserverResult = {
   changedTargetAttrs: string[];
   styleChanged: boolean;
-  contentChanged: boolean;
-}
+};
 interface SeparateChangeThrough {
-  added?: DOMObserverResult[];
-  removed?: DOMObserverResult[];
+  added?: DOMContentObserverResult[];
+  removed?: DOMContentObserverResult[];
 }
 
 const targetChangesCountSlot: HTMLElement | null = document.querySelector('#targetChanges');
@@ -68,23 +68,31 @@ const hostSelector = '.host';
 const ignorePrefix = 'ignore';
 const attrs = ['id', 'class', 'style', 'open'];
 const contentChangeArr: Array<[string, string | ((elms: Node[]) => string)]> = [['img', 'load']];
-const targetElmObservations: DOMObserverResult[] = [];
-const targetElmContentElmObservations: DOMObserverResult[] = [];
+const domTargetObserverObservations: DOMTargetObserverResult[] = [];
+const domContentObserverObservations: DOMContentObserverResult[] = [];
 
-createDOMObserver(
-  document.querySelector('#target') as HTMLElement,
-  (changedTargetAttrs: string[], styleChanged: boolean, contentChanged: boolean) => {
-    targetElmObservations.push({ changedTargetAttrs, styleChanged, contentChanged });
+const targetDomObserver = createDOMObserver(
+  document.querySelector('#target')!,
+  false,
+  (changedTargetAttrs: string[], styleChanged: boolean) => {
+    should.ok(Array.isArray(changedTargetAttrs), 'The changedTargetAttrs parameter in a target dom observer must be a array.');
+    should.equal(typeof styleChanged, 'boolean', 'The styleChanged parameter in a target dom observer must be a boolean.');
+
+    if (styleChanged && changedTargetAttrs.length === 0) {
+      should.ok(false, 'Style changing properties must always be inside the changedTargetAttrs array.');
+    }
+
+    domTargetObserverObservations.push({ changedTargetAttrs, styleChanged });
     requestAnimationFrame(() => {
       if (targetChangesCountSlot) {
-        targetChangesCountSlot.textContent = `${targetElmObservations.length}`;
+        targetChangesCountSlot.textContent = `${domTargetObserverObservations.length}`;
       }
     });
   },
   {
     _styleChangingAttributes: attrs,
     _attributes: attrs.concat(['data-target']),
-    _ignoreTargetAttrChange: (target, attrName, oldValue, newValue) => {
+    _ignoreTargetChange: (target, attrName, oldValue, newValue) => {
       if (attrName === 'class' && oldValue && newValue) {
         const diff = diffClass(oldValue, newValue);
         const ignore = diff.length === 1 && diff[0].startsWith(ignorePrefix);
@@ -92,20 +100,35 @@ createDOMObserver(
       }
       return false;
     },
+    // @ts-ignore
+    _ignoreContentChange: () => {
+      // if param: isContentObserver = false, this function should never be called.
+      should.ok(false, 'A target dom observer must not call the _ignoreContentChange method.');
+      return true;
+    },
+    // @ts-ignore
+    _ignoreNestedTargetChange: () => {
+      // if param: isContentObserver = false, this function should never be called.
+      should.ok(false, 'A target dom observer must not call the _ignoreNestedTargetChange method.');
+      return true;
+    },
   }
 );
-const { _updateEventContentChange } = createDOMObserver(
-  document.querySelector('#target .content') as HTMLElement,
-  (changedTargetAttrs: string[], styleChanged: boolean, contentChanged: boolean) => {
-    targetElmContentElmObservations.push({ changedTargetAttrs, styleChanged, contentChanged });
+
+const contentDomObserver = createDOMObserver(
+  document.querySelector('#target .content')!,
+  true,
+  (contentChanged: boolean) => {
+    should.equal(typeof contentChanged, 'boolean', 'The contentChanged parameter in a content dom observer must be a boolean.');
+
+    domContentObserverObservations.push(contentChanged);
     requestAnimationFrame(() => {
       if (contentChangesCountSlot) {
-        contentChangesCountSlot.textContent = `${targetElmContentElmObservations.length}`;
+        contentChangesCountSlot.textContent = `${domContentObserverObservations.length}`;
       }
     });
   },
   {
-    _observeContent: true,
     _styleChangingAttributes: attrs,
     _attributes: attrs,
     _eventContentChange: contentChangeArr,
@@ -114,7 +137,7 @@ const { _updateEventContentChange } = createDOMObserver(
       const { target, attributeName } = mutation;
       return isNestedTarget ? false : attributeName ? liesBetween(target as Element, hostSelector, '.content') : false;
     },
-    _ignoreTargetAttrChange: (target, attrName, oldValue, newValue) => {
+    _ignoreNestedTargetChange: (target, attrName, oldValue, newValue) => {
       if (attrName === 'class' && oldValue && newValue) {
         const diff = diffClass(oldValue, newValue);
         const ignore = diff.length === 1 && diff[0].startsWith(ignorePrefix);
@@ -122,15 +145,23 @@ const { _updateEventContentChange } = createDOMObserver(
       }
       return false;
     },
+    // @ts-ignore
+    _ignoreTargetChange: () => {
+      // if param: isContentObserver = true, this function should never be called.
+      should.ok(false, 'A content dom observer must not call the _ignoreTargetChange method.');
+      return true;
+    },
   }
 );
 
-const getTotalObservations = () => targetElmObservations.length + targetElmContentElmObservations.length;
+const getTotalObservations = () => domTargetObserverObservations.length + domContentObserverObservations.length;
 const getLast = <T>(arr: T[], indexFromLast = 0): T => arr[arr.length - 1 - indexFromLast] || ({} as T);
-const changedThrough = (observationLists?: Array<DOMObserverResult[]> | DOMObserverResult[]) => {
+const changedThrough = <ChangeThrough extends DOMContentObserverResult | DOMTargetObserverResult>(
+  observationLists?: Array<ChangeThrough[]> | ChangeThrough[]
+) => {
   interface Stat {
     total: number;
-    lists: Array<[DOMObserverResult[], number]>;
+    lists: Array<[ChangeThrough[], number]>;
   }
   const noObservationLists = observationLists === undefined;
   let before: Stat;
@@ -139,13 +170,13 @@ const changedThrough = (observationLists?: Array<DOMObserverResult[]> | DOMObser
     observationLists = [];
   }
   if (isArray(observationLists) && !isArray(observationLists[0])) {
-    observationLists = [observationLists] as Array<DOMObserverResult[]>;
+    observationLists = [observationLists] as Array<ChangeThrough[]>;
   }
 
   const getStats = (): Stat => {
     return {
       total: getTotalObservations(),
-      lists: (observationLists as Array<DOMObserverResult[]>).map((list) => [list, list.length]),
+      lists: (observationLists as Array<ChangeThrough[]>).map((list) => [list, list.length]),
     };
   };
 
@@ -156,7 +187,7 @@ const changedThrough = (observationLists?: Array<DOMObserverResult[]> | DOMObser
     after: () => {
       after = getStats();
     },
-    compare: (comparisonTableOrNumber: number | Map<DOMObserverResult[], number> = 0) => {
+    compare: (comparisonTableOrNumber: number | Map<ChangeThrough[], number> = 0) => {
       let totalDiff = 0;
       if (isNumber(comparisonTableOrNumber) || noObservationLists) {
         before.lists.forEach((_, index) => {
@@ -164,7 +195,11 @@ const changedThrough = (observationLists?: Array<DOMObserverResult[]> | DOMObser
           const [, afterCount] = after.lists[index];
 
           totalDiff += afterCount - beforeCount;
-          should(afterCount).equal(beforeCount + (noObservationLists ? 0 : (comparisonTableOrNumber as number)));
+          should.equal(
+            afterCount,
+            beforeCount + (noObservationLists ? 0 : (comparisonTableOrNumber as number)),
+            'Before and after changes for a certain observer are correct. (number)'
+          );
         });
       } else {
         before.lists.forEach((_, index) => {
@@ -172,10 +207,14 @@ const changedThrough = (observationLists?: Array<DOMObserverResult[]> | DOMObser
           const [, afterCount] = after.lists[index];
 
           totalDiff += afterCount - beforeCount;
-          should(afterCount).equal(beforeCount + (comparisonTableOrNumber.get(list) || 0));
+          should.equal(
+            afterCount,
+            beforeCount + (comparisonTableOrNumber.get(list) || 0),
+            'Before and after changes for a certain observer are correct. (Map)'
+          );
         });
       }
-      should(after.total).equal(before.total + totalDiff);
+      should.equal(after.total, before.total + totalDiff, 'Total changes are correct.');
     },
   };
 };
@@ -188,10 +227,10 @@ const attrChangeListener = (attrChangeTarget: HTMLElement | null) =>
     isClass && target.classList.add('something');
     !isClass && target.setAttribute(selectedValue, 'something');
   });
-const iterateAttrChange = async (
+const iterateAttrChange = async <ChangeThrough extends DOMContentObserverResult | DOMTargetObserverResult>(
   select: HTMLSelectElement | null,
-  changeThrough?: DOMObserverResult[],
-  checkChange?: (observation: DOMObserverResult, selected: string) => any
+  changeThrough?: ChangeThrough[],
+  checkChange?: (observation: ChangeThrough, selected: string) => any
 ) => {
   const { before, after, compare } = changedThrough(changeThrough);
 
@@ -214,10 +253,10 @@ const iterateAttrChange = async (
     },
   });
 };
-const addRemoveElementsTest = async (slot: Element | null, changeThrough?: DOMObserverResult[] | SeparateChangeThrough) => {
+const addRemoveElementsTest = async (slot: Element | null, changeThrough?: DOMContentObserverResult[] | SeparateChangeThrough) => {
   if (slot) {
-    let addChangeThrough: DOMObserverResult[] | undefined = changeThrough as DOMObserverResult[] | undefined;
-    let removeChangeThrough: DOMObserverResult[] | undefined = changeThrough as DOMObserverResult[] | undefined;
+    let addChangeThrough: DOMContentObserverResult[] | undefined = changeThrough as DOMContentObserverResult[] | undefined;
+    let removeChangeThrough: DOMContentObserverResult[] | undefined = changeThrough as DOMContentObserverResult[] | undefined;
     if (changeThrough && !isArray(changeThrough)) {
       addChangeThrough = (changeThrough as SeparateChangeThrough).added;
       removeChangeThrough = (changeThrough as SeparateChangeThrough).removed;
@@ -236,11 +275,9 @@ const addRemoveElementsTest = async (slot: Element | null, changeThrough?: DOMOb
       });
 
       if (addChangeThrough) {
-        const { contentChanged, styleChanged, changedTargetAttrs } = getLast(addChangeThrough);
+        const contentChanged = getLast(addChangeThrough);
         await waitForOrFailTest(() => {
-          should(contentChanged).equal(true);
-          should(styleChanged).equal(false);
-          should(changedTargetAttrs.length).equal(0);
+          should.equal(contentChanged, true, 'Adding an content element must result in a content change.');
         });
       }
     };
@@ -259,10 +296,8 @@ const addRemoveElementsTest = async (slot: Element | null, changeThrough?: DOMOb
           compare(1);
 
           if (removeChangeThrough) {
-            const { changedTargetAttrs, styleChanged, contentChanged } = getLast(removeChangeThrough);
-            should(changedTargetAttrs.length).equal(0);
-            should(styleChanged).equal(false);
-            should(contentChanged).equal(true);
+            const contentChanged = getLast(removeChangeThrough);
+            should.equal(contentChanged, true, 'Removing an content element must result in a content change.');
           }
         });
       }
@@ -277,7 +312,7 @@ const addRemoveElementsTest = async (slot: Element | null, changeThrough?: DOMOb
     await removeElm();
   }
 };
-const triggerSummaryElemet = async (summaryElm: HTMLElement | null, changeThrough?: DOMObserverResult[]) => {
+const triggerSummaryElemet = async (summaryElm: HTMLElement | null, changeThrough?: DOMContentObserverResult[]) => {
   // onyl do if summary is working (IE. exception)
   if (summaryElm && (summaryElm.nextElementSibling as HTMLElement)?.offsetHeight === 0) {
     const click = async () => {
@@ -302,17 +337,17 @@ const addRemoveTargetElmsFn = async () => {
   await addRemoveElementsTest(targetElmsSlot);
 };
 const addRemoveTargetContentElmsFn = async () => {
-  await addRemoveElementsTest(targetContentElmsSlot, targetElmContentElmObservations);
+  await addRemoveElementsTest(targetContentElmsSlot, domContentObserverObservations);
 };
 const addRemoveTargetContentBetweenElmsFn = async () => {
-  await addRemoveElementsTest(targetContentBetweenElmsSlot, targetElmContentElmObservations);
+  await addRemoveElementsTest(targetContentBetweenElmsSlot, domContentObserverObservations);
 };
 const addRemoveImgElmsFn = async () => {
   const add = async () => {
     const img = new Image(1, 1);
     img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
-    const { before, after, compare } = changedThrough(targetElmContentElmObservations);
+    const { before, after, compare } = changedThrough(domContentObserverObservations);
     const imgHolder = createDiv('img');
     appendChildren(imgHolder, img);
 
@@ -323,15 +358,11 @@ const addRemoveImgElmsFn = async () => {
       after();
       compare(2);
 
-      const mutationObserverObservation = getLast(targetElmContentElmObservations, 1);
-      should(mutationObserverObservation.contentChanged).equal(true);
-      should(mutationObserverObservation.styleChanged).equal(false);
-      should(mutationObserverObservation.changedTargetAttrs.length).equal(0);
+      const previousContentChanged = getLast(domContentObserverObservations, 1);
+      should.equal(previousContentChanged, true, 'Adding an content image must result in a content change.');
 
-      const eventObservation = getLast(targetElmContentElmObservations);
-      should(eventObservation.contentChanged).equal(true);
-      should(eventObservation.styleChanged).equal(false);
-      should(eventObservation.changedTargetAttrs.length).equal(0);
+      const lastContentChanged = getLast(domContentObserverObservations);
+      should.equal(lastContentChanged, true, 'The images load event must result in a content change.');
     });
   };
 
@@ -341,7 +372,7 @@ const addRemoveImgElmsFn = async () => {
 
   // test event content change debounce
   const addMultiple = async () => {
-    const { before, after, compare } = changedThrough(targetElmContentElmObservations);
+    const { before, after, compare } = changedThrough(domContentObserverObservations);
     const addMultipleItem = () => {
       const img = new Image(1, 1);
       img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
@@ -362,15 +393,11 @@ const addRemoveImgElmsFn = async () => {
       after();
       compare(2);
 
-      const mutationObserverObservation = getLast(targetElmContentElmObservations, 1);
-      should(mutationObserverObservation.contentChanged).equal(true);
-      should(mutationObserverObservation.styleChanged).equal(false);
-      should(mutationObserverObservation.changedTargetAttrs.length).equal(0);
+      const previousContentChanged = getLast(domContentObserverObservations, 1);
+      should.equal(previousContentChanged, true, 'Adding mutliple content images must result in a single content change. (debounced)');
 
-      const eventObservation = getLast(targetElmContentElmObservations);
-      should(eventObservation.contentChanged).equal(true);
-      should(eventObservation.styleChanged).equal(false);
-      should(eventObservation.changedTargetAttrs.length).equal(0);
+      const lastContentChanged = getLast(domContentObserverObservations);
+      should.equal(lastContentChanged, true, 'Multiple images load events must result in a single cintent change. (debounced)');
     });
   };
 
@@ -384,7 +411,7 @@ const addRemoveTransitionElmsFn = async () => {
   const startTransition = async (elm: Element, expectTransitionEndContentChange: boolean) => {
     await timeout(50); // time for css to apply class a bit later to trigger transition
 
-    const { before: beforeTransition, after: afterTransition, compare: compareTransition } = changedThrough(targetElmContentElmObservations);
+    const { before: beforeTransition, after: afterTransition, compare: compareTransition } = changedThrough(domContentObserverObservations);
     beforeTransition();
     removeClass(elm, 'resetTransition'); // IE...
     addClass(elm, 'active');
@@ -398,10 +425,8 @@ const addRemoveTransitionElmsFn = async () => {
             afterTransition();
             compareTransition(expectTransitionEndContentChange ? 2 : 1); // 2 because 1: added class mutation and 2: transition end event
 
-            const eventObservation = getLast(targetElmContentElmObservations);
-            should(eventObservation.contentChanged).equal(true);
-            should(eventObservation.styleChanged).equal(false);
-            should(eventObservation.changedTargetAttrs.length).equal(0);
+            const contentChanged = getLast(domContentObserverObservations);
+            should.equal(contentChanged, true, 'The transitionend event must trigger a event content change.');
             resolve(1);
           });
         },
@@ -414,7 +439,7 @@ const addRemoveTransitionElmsFn = async () => {
   };
   const add = async (expectTransitionEndContentChange: boolean) => {
     const elm = createDiv(`transition ${expectTransitionEndContentChange ? 'highlight' : ''}`);
-    const { before, after, compare } = changedThrough(targetElmContentElmObservations);
+    const { before, after, compare } = changedThrough(domContentObserverObservations);
 
     before();
 
@@ -424,14 +449,12 @@ const addRemoveTransitionElmsFn = async () => {
       after();
       compare(1);
 
-      const eventObservation = getLast(targetElmContentElmObservations);
-      should(eventObservation.contentChanged).equal(true);
-      should(eventObservation.styleChanged).equal(false);
-      should(eventObservation.changedTargetAttrs.length).equal(0);
+      const contentChanged = getLast(domContentObserverObservations);
+      should.equal(contentChanged, true, 'Adding an content element (transition) must result in a content change.');
     });
 
     await startTransition(elm, expectTransitionEndContentChange && true);
-    _updateEventContentChange(contentChangeArr);
+    contentDomObserver._updateEventContentChange(contentChangeArr);
     await startTransition(elm, expectTransitionEndContentChange && false);
 
     removeElements(elm);
@@ -441,13 +464,13 @@ const addRemoveTransitionElmsFn = async () => {
 
   await add(false);
 
-  _updateEventContentChange(
+  contentDomObserver._updateEventContentChange(
     contentChangeArr.concat([
       [
         '.transition',
         (elms) => {
           elms.forEach((elm) => {
-            should(hasClass(elm as Element, 'transition')).equal(true);
+            should.equal(hasClass(elm as Element, 'transition'), true, 'Every checked element must match the correpsonding selector.'); // in this case "".transition"
           });
           return 'transitionend';
         },
@@ -458,7 +481,10 @@ const addRemoveTransitionElmsFn = async () => {
   await add(true);
 };
 const ignoreTargetChangeFn = async () => {
-  const check = async (target: Element | null, changeThrough: DOMObserverResult[]) => {
+  const check = async <ChangeThrough extends DOMContentObserverResult | DOMTargetObserverResult>(
+    target: Element | null,
+    changeThrough: ChangeThrough[]
+  ) => {
     const { before, after, compare } = changedThrough(changeThrough);
     before();
 
@@ -473,24 +499,25 @@ const ignoreTargetChangeFn = async () => {
     });
   };
 
-  await check(targetElm, targetElmObservations);
-  await check(targetElmContentElm, targetElmContentElmObservations);
+  await check(targetElm, domTargetObserverObservations);
+  await check(targetElmContentElm, domContentObserverObservations);
 };
 const iterateTargetAttrChange = async () => {
-  await iterateAttrChange(setTargetAttr, targetElmObservations, (observation, selected) => {
-    const { changedTargetAttrs, styleChanged, contentChanged } = observation;
-    should(changedTargetAttrs.includes(selected)).equal(true);
-    should(styleChanged).equal(true);
-    should(contentChanged).equal(false);
+  await iterateAttrChange(setTargetAttr, domTargetObserverObservations, (observation, selected) => {
+    const { changedTargetAttrs, styleChanged } = observation;
+    should.equal(
+      changedTargetAttrs.includes(selected),
+      true,
+      'A attribute change on the target element for a DOMTargetObserver must be inside the changedTargetAttrs array.'
+    );
+    should.equal(styleChanged, true, 'A style changing attribute on the target element for a DOMTargetObserver must set styleChanged to true.');
   });
   await iterateAttrChange(setFilteredTargetAttr);
 };
 const iterateContentAttrChange = async () => {
-  await iterateAttrChange(setContentAttr, targetElmContentElmObservations, (observation) => {
-    const { changedTargetAttrs, styleChanged, contentChanged } = observation;
-    should(changedTargetAttrs.length).equal(0);
-    should(styleChanged).equal(false);
-    should(contentChanged).equal(true);
+  await iterateAttrChange(setContentAttr, domContentObserverObservations, (observation) => {
+    const contentChanged = observation;
+    should.equal(contentChanged, true, 'A attribute change inside the content must trigger a content change for a DOMContentObserver.');
   });
   await iterateAttrChange(setFilteredContentAttr);
 };
@@ -499,16 +526,14 @@ const iterateContentBetweenAttrChange = async () => {
   await iterateAttrChange(setFilteredContentBetweenAttr);
 };
 const iterateContentHostElmAttrChange = async () => {
-  await iterateAttrChange(setContentHostElmAttr, targetElmContentElmObservations, (observation) => {
-    const { changedTargetAttrs, styleChanged, contentChanged } = observation;
-    should(changedTargetAttrs.length).equal(0);
-    should(styleChanged).equal(false);
-    should(contentChanged).equal(true);
+  await iterateAttrChange(setContentHostElmAttr, domContentObserverObservations, (observation) => {
+    const contentChanged = observation;
+    should.equal(contentChanged, true, 'A attribute change for a nested target must trigger a content change for a DOMContentObserver.');
   });
   await iterateAttrChange(setFilteredContentHostElmAttr);
 };
 const triggerContentSummaryChange = async () => {
-  await triggerSummaryElemet(summaryContent, targetElmContentElmObservations);
+  await triggerSummaryElemet(summaryContent, domContentObserverObservations);
 };
 const triggerBetweenSummaryChange = async () => {
   await triggerSummaryElemet(summaryBetween);
@@ -550,6 +575,16 @@ const start = async () => {
   await addRemoveImgElmsFn();
 
   setTestResult(true);
+
+  targetDomObserver._update();
+  targetDomObserver._destroy();
+  targetDomObserver._update();
+
+  contentDomObserver._updateEventContentChange([]);
+  contentDomObserver._update();
+  contentDomObserver._destroy();
+  contentDomObserver._updateEventContentChange([]);
+  contentDomObserver._update();
 };
 
 startBtn?.addEventListener('click', start);

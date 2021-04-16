@@ -90,21 +90,27 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
 
       // no overflow if not needed
       if (targetElm && newContentSize.w > 0) {
-        should.ok(observerElm.getBoundingClientRect().right <= targetElm.getBoundingClientRect().right);
+        should.ok(
+          observerElm.getBoundingClientRect().right <= targetElm.getBoundingClientRect().right,
+          'Generated observer element inst overflowing target element. (width)'
+        );
       }
       if (targetElm && newContentSize.h > 0) {
-        should.ok(observerElm.getBoundingClientRect().bottom <= targetElm.getBoundingClientRect().bottom);
+        should.ok(
+          observerElm.getBoundingClientRect().bottom <= targetElm.getBoundingClientRect().bottom,
+          'Generated observer element inst overflowing target element. (height)'
+        );
       }
 
       if (dimensions && (offsetSizeChanged || contentSizeChanged || dirChanged)) {
         await waitForOrFailTest(() => {
           if (offsetSizeChanged || contentSizeChanged) {
-            should.equal(sizeIterations, currSizeIterations + 1);
+            should.equal(sizeIterations, currSizeIterations + 1, 'Size change was detected correctly.');
           }
           if (dirChanged) {
             const expectedCacheValue = newDir === 'rtl';
-            should.equal(directionIterations, currDirectionIterations + 1);
-            should.equal(sizeObserver._getCurrentCacheValues()._directionIsRTL._value, expectedCacheValue);
+            should.equal(directionIterations, currDirectionIterations + 1, 'Direction change was detected correctly.');
+            should.equal(sizeObserver._getCurrentCacheValues()._directionIsRTL._value, expectedCacheValue, 'Direction cache value is correct.');
           }
         });
       }
@@ -158,8 +164,8 @@ const start = async () => {
 
   console.log('init direction changes:', directionIterations);
   console.log('init size changes:', sizeIterations);
-  should.ok(directionIterations > 0);
-  should.ok(sizeIterations > 0);
+  should.ok(directionIterations > 0, 'Initial direction observations are fired.');
+  should.ok(sizeIterations > 0, 'Initial size observations are fired.');
 
   targetElm?.removeAttribute('style');
   await iterateDisplay();
@@ -176,7 +182,7 @@ const start = async () => {
   });
 
   sizeObserver._destroy();
-  should.equal(targetElm?.children.length, preInitChildren);
+  should.equal(targetElm?.children.length, preInitChildren, 'Destruction removes all generated elements.');
   setTestResult(true);
 };
 

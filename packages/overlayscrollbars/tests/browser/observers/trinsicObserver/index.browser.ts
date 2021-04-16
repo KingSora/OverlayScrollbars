@@ -65,9 +65,13 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
 
       await waitForOrFailTest(() => {
         if (trinsicHeightChanged) {
-          should.equal(heightIterations, currHeightIterations + 1);
+          should.equal(heightIterations, currHeightIterations + 1, 'Height intrinsic change has been detected correctly.');
         }
-        should.equal(trinsicObserver._getCurrentCacheValues()._heightIntrinsic._value, newHeightIntrinsic);
+        should.equal(
+          trinsicObserver._getCurrentCacheValues()._heightIntrinsic._value,
+          newHeightIntrinsic,
+          'Height intrinsic cache value is correct.'
+        );
       });
     },
     afterEach,
@@ -93,7 +97,7 @@ const changeWhileHidden = async () => {
     selectOption(displaySelect as HTMLSelectElement, 'displayBlock');
 
     await waitForOrFailTest(() => {
-      should.equal(heightIntrinsic, false);
+      should.equal(heightIntrinsic, false, 'Trinsic sizing changes while hidden from intrinsic to extrinsic.');
     });
   };
 
@@ -107,7 +111,7 @@ const changeWhileHidden = async () => {
     selectOption(displaySelect as HTMLSelectElement, 'displayBlock');
 
     await waitForOrFailTest(() => {
-      should.equal(heightIntrinsic, true);
+      should.equal(heightIntrinsic, true, 'Trinsic sizing changes while hidden from extrinsic to intrinsic.');
     });
   };
 
@@ -129,7 +133,7 @@ const start = async () => {
   await changeWhileHidden();
 
   trinsicObserver._destroy();
-  should.equal(targetElm?.children.length, preInitChildren);
+  should.equal(targetElm?.children.length, preInitChildren, 'After destruction all generated elements are removed.');
   setTestResult(true);
 };
 

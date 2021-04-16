@@ -231,12 +231,11 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
 
   const trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
   const sizeObserver = createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: !_nativeScrollbarStyling });
-  const hostMutationObserver = createDOMObserver(_host, onHostMutation, {
+  const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: attrs,
     _attributes: attrs,
   });
-  const contentMutationObserver = createDOMObserver(_content || _viewport, onContentMutation, {
-    _observeContent: true,
+  const contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
     _styleChangingAttributes: attrs,
     _attributes: attrs,
     _eventContentChange: options!.updating!.elementEvents as [string, string][],
