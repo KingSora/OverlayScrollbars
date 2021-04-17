@@ -28,7 +28,7 @@ interface DOMObserverOptionsBase {
 }
 
 interface DOMContentObserverOptions extends DOMObserverOptionsBase {
-  _eventContentChange?: DOMObserverEventContentChange; // [selector, eventname | function returning eventname]
+  _eventContentChange?: DOMObserverEventContentChange; // [selector, eventname(s) | function returning eventname(s)] -> eventnames divided by whitespaces
   _nestedTargetSelector?: string;
   _ignoreContentChange?: DOMObserverIgnoreContentChange; // function which will prevent marking certain dom changes as content change if it returns true
   _ignoreNestedTargetChange?: DOMObserverIgnoreTargetChange; // a function which will prevent marking certain attributes as changed on nested targets if it returns true
@@ -50,7 +50,7 @@ interface DOMContentObserver extends DOMObserverBase {
 interface DOMTargetObserver extends DOMObserverBase {}
 
 export type DOMObserverEventContentChange =
-  | Array<[StringNullUndefined, ((elms: Node[]) => string) | StringNullUndefined] | null | undefined>
+  | Array<[StringNullUndefined, ((elms: Node[]) => StringNullUndefined) | StringNullUndefined] | null | undefined>
   | false
   | null
   | undefined;
@@ -90,22 +90,6 @@ export type DOMObserver<ContentObserver extends boolean> = ContentObserver exten
 const createEventContentChange = (target: Element, eventContentChange: DOMObserverEventContentChange, callback: (...args: any) => any) => {
   let map: Map<Node, string> | undefined;
   let eventContentChangeRef: DOMObserverEventContentChange;
-  const addEvent = (elm: Node, eventName: string) => {
-    if (map) {
-      const entry = map.get(elm);
-      const newEntry = isUndefined(entry);
-      const changedExistingEntry = !newEntry && eventName !== entry;
-      const register = newEntry || changedExistingEntry;
-
-      if (changedExistingEntry) {
-        off(elm, entry!, callback);
-      }
-      if (register) {
-        map.set(elm, eventName);
-        on(elm, eventName, callback);
-      }
-    }
-  };
   const _destroy = () => {
     if (map) {
       map.forEach((eventName: string, elm: Node) => off(elm, eventName, callback));
@@ -113,28 +97,37 @@ const createEventContentChange = (target: Element, eventContentChange: DOMObserv
     }
   };
   const _updateElements = (getElements?: (selector: string) => Node[]) => {
-    if (eventContentChangeRef) {
+    if (map && eventContentChangeRef) {
       const eventElmList = eventContentChangeRef.reduce<Array<[Node[], string]>>((arr, item) => {
         if (item) {
           const selector = item[0];
-          const eventName = item[1];
-          const elements = eventName && selector && (getElements ? getElements(selector) : find(selector, target));
+          const eventNames = item[1];
+          const elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
+          const parsedEventNames = isFunction(eventNames) ? eventNames(elements) : eventNames;
 
-          if (elements) {
-            push(arr, [elements, isFunction(eventName) ? eventName(elements) : eventName!], true);
+          if (elements && elements.length && parsedEventNames && isString(parsedEventNames)) {
+            push(arr, [elements, parsedEventNames.trim()], true);
           }
         }
         return arr;
       }, []);
 
-      each(eventElmList, (item) => {
-        const elements = item[0];
-        const eventName = item[1];
+      each(eventElmList, (item) =>
+        each(item[0], (elm) => {
+          const eventNames = item[1];
+          const registredEventNames = map!.get(elm);
+          const newEntry = isUndefined(registredEventNames);
+          const changingExistingEntry = !newEntry && eventNames !== registredEventNames;
+          const finalEventNames = changingExistingEntry ? `${registredEventNames} ${eventNames}` : eventNames;
 
-        each(elements, (elm) => {
-          addEvent(elm, eventName);
-        });
-      });
+          if (changingExistingEntry) {
+            off(elm, registredEventNames!, callback);
+          }
+
+          map!.set(elm, finalEventNames);
+          on(elm, finalEventNames, callback);
+        })
+      );
     }
   };
   const _updateEventContentChange = (newEventContentChange: DOMObserverEventContentChange) => {

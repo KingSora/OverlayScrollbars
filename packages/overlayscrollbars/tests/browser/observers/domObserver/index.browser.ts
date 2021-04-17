@@ -354,6 +354,8 @@ const addRemoveImgElmsFn = async () => {
     before();
     appendChildren(imgElmsSlot, imgHolder);
 
+    await timeout(250);
+
     await waitForOrFailTest(() => {
       after();
       compare(2);
@@ -389,6 +391,8 @@ const addRemoveImgElmsFn = async () => {
     addMultipleItem();
     addMultipleItem();
 
+    await timeout(250);
+
     await waitForOrFailTest(() => {
       after();
       compare(2);
@@ -402,6 +406,45 @@ const addRemoveImgElmsFn = async () => {
   };
 
   await addMultiple();
+
+  // remove load event from image test
+  const addChanged = async (
+    newEventContentChange: Array<[string | null | undefined, (() => string | null | undefined) | string | null | undefined] | null | undefined>
+  ) => {
+    contentDomObserver._updateEventContentChange(newEventContentChange);
+
+    const img = new Image(1, 1);
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
+    const { before, after, compare } = changedThrough(domContentObserverObservations);
+    const imgHolder = createDiv('img');
+    appendChildren(imgHolder, img);
+
+    before();
+    appendChildren(imgElmsSlot, imgHolder);
+
+    await timeout(250);
+
+    await waitForOrFailTest(() => {
+      after();
+      compare(1);
+    });
+
+    contentDomObserver._updateEventContentChange(contentChangeArr);
+  };
+
+  await addChanged([
+    ['img', 'something'],
+    ['img', 'something2'],
+    ['img', null],
+    ['img', undefined],
+    ['img', () => 'hi'],
+    ['img', () => null],
+    ['img', () => undefined],
+    null,
+    undefined,
+  ]);
+  await addChanged([]);
 
   removeElements(document.querySelectorAll('.img'));
 
@@ -578,10 +621,12 @@ const start = async () => {
 
   targetDomObserver._update();
   targetDomObserver._destroy();
+  targetDomObserver._destroy();
   targetDomObserver._update();
 
   contentDomObserver._updateEventContentChange([]);
   contentDomObserver._update();
+  contentDomObserver._destroy();
   contentDomObserver._destroy();
   contentDomObserver._updateEventContentChange([]);
   contentDomObserver._update();
