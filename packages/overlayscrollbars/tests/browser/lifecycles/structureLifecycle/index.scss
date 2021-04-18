@@ -27,7 +27,19 @@ body {
   left: 0;
 }
 
-#target {
+.columns {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.column {
+  width: 100%;
+  height: 100%;
+}
+
+#target,
+#comparison {
   position: relative;
   border: 2px solid red;
   min-height: 100px;
@@ -37,21 +49,25 @@ body {
   padding: 5px 50px 15px 20px;
 }
 
-#resize {
+#comparison {
+  overflow: hidden;
+}
+
+.resize {
   overflow: hidden;
   background: blue;
   border: 1px solid black;
   padding: 10px;
 }
 
-#percent {
+.percent {
   height: 50%;
   background: purple;
   border: 1px solid black;
   padding: 10px;
 }
 
-#end {
+.end {
   position: relative;
   background: green;
   border: 1px solid black;
@@ -60,7 +76,7 @@ body {
   display: none;
 }
 
-#end::before {
+.end::before {
   content: '';
   position: absolute;
   display: block;

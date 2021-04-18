@@ -1,7 +1,10 @@
 // @ts-ignore
-import { createDiv, appendChildren, parent, style, on, off, addClass, WH, XY, clientSize } from '@/overlayscrollbars/support';
+import { createDiv, appendChildren, parent, style, on, off, addClass, WH, XY, clientSize, each } from '@/overlayscrollbars/support';
+
+type ResizeListener = (width: number, height: number) => void;
 
 export const resize = (element: HTMLElement) => {
+  const resizeListeners: ResizeListener[] = [];
   const strMouseTouchDownEvent = 'mousedown touchstart';
   const strMouseTouchUpEvent = 'mouseup touchend';
   const strMouseTouchMoveEvent = 'mousemove touchmove';
@@ -30,6 +33,13 @@ export const resize = (element: HTMLElement) => {
     };
 
     style(dragResizer, sizeStyle);
+
+    each(resizeListeners, (listener: ResizeListener) => {
+      if (listener) {
+        listener(sizeStyle.width, sizeStyle.height);
+      }
+    });
+
     event.stopPropagation();
   };
 
@@ -67,4 +77,10 @@ export const resize = (element: HTMLElement) => {
       event.stopPropagation();
     }
   });
+
+  return {
+    addResizeListener(listener: ResizeListener) {
+      resizeListeners.push(listener);
+    },
+  };
 };
