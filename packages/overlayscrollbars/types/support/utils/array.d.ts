@@ -7,12 +7,12 @@ declare type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
  * If the function returns true its treated like a "continue" statement.
  * If the function returns false its treated like a "break" statement.
  */
-export declare function each<T>(array: Array<T> | ReadonlyArray<T>, callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | void): Array<T> | ReadonlyArray<T>;
-export declare function each<T>(array: Array<T> | ReadonlyArray<T> | null | undefined, callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | void): Array<T> | ReadonlyArray<T> | null | undefined;
-export declare function each<T>(arrayLikeObject: ArrayLike<T>, callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | void): ArrayLike<T>;
-export declare function each<T>(arrayLikeObject: ArrayLike<T> | null | undefined, callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | void): ArrayLike<T> | null | undefined;
-export declare function each(obj: PlainObject, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject;
-export declare function each(obj: PlainObject | null | undefined, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | void): PlainObject | null | undefined;
+export declare function each<T>(array: Array<T> | ReadonlyArray<T>, callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | unknown): Array<T> | ReadonlyArray<T>;
+export declare function each<T>(array: Array<T> | ReadonlyArray<T> | null | undefined, callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | unknown): Array<T> | ReadonlyArray<T> | null | undefined;
+export declare function each<T>(arrayLikeObject: ArrayLike<T>, callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown): ArrayLike<T>;
+export declare function each<T>(arrayLikeObject: ArrayLike<T> | null | undefined, callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown): ArrayLike<T> | null | undefined;
+export declare function each(obj: PlainObject, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown): PlainObject;
+export declare function each(obj: PlainObject | null | undefined, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown): PlainObject | null | undefined;
 /**
  * Returns the index of the given inside the given array or -1 if the given item isn't part of the given array.
  * @param arr The array.

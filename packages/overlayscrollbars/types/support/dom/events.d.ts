@@ -29,3 +29,8 @@ export declare const stopPropagation: (evt: Event) => void;
  * @param evt The event of which the preventDefault method shall be called.
  */
 export declare const preventDefault: (evt: Event) => void;
+/**
+ * Shorthand for the stopPropagation and preventDefault event Method.
+ * @param evt The event of which the stopPropagation and preventDefault methods shall be called.
+ */
+export declare const stopAndPrevent: (evt: Event) => void;

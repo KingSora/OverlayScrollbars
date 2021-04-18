@@ -63,4 +63,4 @@ export interface SizeChangedArgs {
 export interface UpdatedArgs {
     forced: boolean;
 }
-export declare const optionsTemplate: import("./support/options").OptionsTemplate<OSOptions>, defaultOptions: OSOptions;
+export declare const optionsTemplate: import("support/options").OptionsTemplate<OSOptions>, defaultOptions: OSOptions;

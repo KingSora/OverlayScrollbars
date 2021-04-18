@@ -432,6 +432,7 @@ const on = (target, eventNames, listener, options) => {
 };
 const stopPropagation = (evt) => evt.stopPropagation();
 const preventDefault = (evt) => evt.preventDefault();
+const stopAndPrevent = (evt) => stopPropagation(evt) || preventDefault(evt);
 
 const equal = (a, b, props, propMutation) => {
   if (a && b) {
@@ -1478,18 +1479,8 @@ const createOverflowLifecycle = (lifecycleHub) => {
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
-const directionIsRTLMap = {
-  direction: ['rtl'],
-};
 
-const directionIsRTL = (elm) => {
-  let isRTL = false;
-  const styles = style(elm, ['direction']);
-  each(styles, (value, key) => {
-    isRTL = isRTL || indexOf(directionIsRTLMap[key], value) > -1;
-  });
-  return isRTL;
-};
+const directionIsRTL = (elm) => style(elm, 'direction') === 'rtl';
 
 const domRectHasDimensions = (rect) => rect && (rect.height || rect.width);
 
@@ -1569,21 +1560,18 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       currSize = offsetSize(listenerElement);
       isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
-      if (scrollEvent && isDirty && !rAFId) {
-        cAF(rAFId);
-        rAFId = rAF(onResized);
-      } else if (!scrollEvent) {
+      if (scrollEvent) {
+        stopAndPrevent(scrollEvent);
+
+        if (isDirty && !rAFId) {
+          cAF(rAFId);
+          rAFId = rAF(onResized);
+        }
+      } else {
         onResized();
       }
 
       reset();
-
-      if (scrollEvent) {
-        preventDefault(scrollEvent);
-        stopPropagation(scrollEvent);
-      }
-
-      return false;
     };
 
     push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
@@ -1592,7 +1580,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       height: scrollAmount,
     });
     reset();
-    appearCallback = observeAppearChange ? () => onScroll() : reset;
+    appearCallback = observeAppearChange ? onScroll.bind(0, false) : reset;
   }
 
   if (observeDirectionChange) {
@@ -1620,9 +1608,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
           onSizeChangedCallbackProxy(directionIsRTLCacheValues);
         }
 
-        preventDefault(event);
-        stopPropagation(event);
-        return false;
+        stopAndPrevent(event);
       })
     );
   }
@@ -1659,7 +1645,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
 };
 
 const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
-  const trinsicObserver = createDOM(`<div class="${classNameTrinsicObserver}"></div>`)[0];
+  const trinsicObserver = createDiv(classNameTrinsicObserver);
   const offListeners = [];
   const { _update: updateHeightIntrinsicCache, _current: getCurrentHeightIntrinsicCache } = createCache(
     (ioEntryOrSize) => ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0,
@@ -1718,59 +1704,54 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
   };
 };
 
-const createEventContentChange = (target, eventContentChange, map, callback) => {
+const createEventContentChange = (target, eventContentChange, callback) => {
+  let map;
   let eventContentChangeRef;
 
-  const addEvent = (elm, eventName) => {
-    const entry = map.get(elm);
-    const newEntry = isUndefined(entry);
-
-    const registerEvent = () => {
-      map.set(elm, eventName);
-      on(elm, eventName, callback);
-    };
-
-    if (!newEntry && eventName !== entry) {
-      off(elm, entry, callback);
-      registerEvent();
-    } else if (newEntry) {
-      registerEvent();
+  const _destroy = () => {
+    if (map) {
+      map.forEach((eventName, elm) => off(elm, eventName, callback));
+      map.clear();
     }
   };
 
-  const _destroy = () => {
-    map.forEach((eventName, elm) => {
-      off(elm, eventName, callback);
-    });
-    map.clear();
-  };
-
   const _updateElements = (getElements) => {
-    if (eventContentChangeRef) {
+    if (map && eventContentChangeRef) {
       const eventElmList = eventContentChangeRef.reduce((arr, item) => {
         if (item) {
           const selector = item[0];
-          const eventName = item[1];
-          const elements = eventName && selector && (getElements ? getElements(selector) : find(selector, target));
+          const eventNames = item[1];
+          const elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
+          const parsedEventNames = isFunction(eventNames) ? eventNames(elements) : eventNames;
 
-          if (elements) {
-            push(arr, [elements, isFunction(eventName) ? eventName(elements) : eventName], true);
+          if (elements && elements.length && parsedEventNames && isString(parsedEventNames)) {
+            push(arr, [elements, parsedEventNames.trim()], true);
           }
         }
 
         return arr;
       }, []);
-      each(eventElmList, (item) => {
-        const elements = item[0];
-        const eventName = item[1];
-        each(elements, (elm) => {
-          addEvent(elm, eventName);
-        });
-      });
+      each(eventElmList, (item) =>
+        each(item[0], (elm) => {
+          const eventNames = item[1];
+          const registredEventNames = map.get(elm);
+          const newEntry = isUndefined(registredEventNames);
+          const changingExistingEntry = !newEntry && eventNames !== registredEventNames;
+          const finalEventNames = changingExistingEntry ? `${registredEventNames} ${eventNames}` : eventNames;
+
+          if (changingExistingEntry) {
+            off(elm, registredEventNames, callback);
+          }
+
+          map.set(elm, finalEventNames);
+          on(elm, finalEventNames, callback);
+        })
+      );
     }
   };
 
-  const _update = (newEventContentChange) => {
+  const _updateEventContentChange = (newEventContentChange) => {
+    map = map || new Map();
     eventContentChangeRef = newEventContentChange;
 
     _destroy();
@@ -1779,38 +1760,37 @@ const createEventContentChange = (target, eventContentChange, map, callback) => 
   };
 
   if (eventContentChange) {
-    _update(eventContentChange);
+    _updateEventContentChange(eventContentChange);
   }
 
   return {
     _destroy,
     _updateElements,
-    _update,
+    _updateEventContentChange,
   };
 };
 
-const createDOMObserver = (target, callback, options) => {
+const createDOMObserver = (target, isContentObserver, callback, options) => {
   let isConnected = false;
   const {
-    _observeContent,
     _attributes,
     _styleChangingAttributes,
     _eventContentChange,
     _nestedTargetSelector,
-    _ignoreTargetAttrChange: _ignoreTargetChange,
+    _ignoreTargetChange,
+    _ignoreNestedTargetChange,
     _ignoreContentChange,
   } = options || {};
   const {
-    _updateElements: updateEventContentChangeElements,
     _destroy: destroyEventContentChange,
-    _update: updateEventContentChange,
+    _updateElements: updateEventContentChangeElements,
+    _updateEventContentChange: updateEventContentChange,
   } = createEventContentChange(
     target,
-    _observeContent && _eventContentChange,
-    new Map(),
+    isContentObserver && _eventContentChange,
     debounce(() => {
       if (isConnected) {
-        callback([], false, true);
+        callback(true);
       }
     }, 84)
   );
@@ -1819,7 +1799,7 @@ const createDOMObserver = (target, callback, options) => {
   const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
 
   const observerCallback = (mutations) => {
-    const ignoreTargetChange = _ignoreTargetChange || noop;
+    const ignoreTargetChange = (isContentObserver ? _ignoreNestedTargetChange : _ignoreTargetChange) || noop;
     const ignoreContentChange = _ignoreContentChange || noop;
     const targetChangedAttrs = [];
     const totalAddedNodes = [];
@@ -1833,20 +1813,11 @@ const createDOMObserver = (target, callback, options) => {
       const targetIsMutationTarget = target === mutationTarget;
       const attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
       const attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
-      const targetAttrChanged =
-        attributeChanged &&
-        targetIsMutationTarget &&
-        !_observeContent &&
-        !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue);
       const styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
 
-      if (targetAttrChanged) {
-        push(targetChangedAttrs, attributeName);
-      }
-
-      if (_observeContent) {
+      if (isContentObserver && !targetIsMutationTarget) {
         const notOnlyAttrChanged = !isAttributesType;
-        const contentAttrChanged = isAttributesType && styleChangingAttrChanged && !targetIsMutationTarget;
+        const contentAttrChanged = isAttributesType && styleChangingAttrChanged;
         const isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
         const baseAssertion = isNestedTarget
           ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
@@ -1857,7 +1828,15 @@ const createDOMObserver = (target, callback, options) => {
         childListChanged = childListChanged || isChildListType;
       }
 
-      targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
+      if (
+        !isContentObserver &&
+        targetIsMutationTarget &&
+        attributeChanged &&
+        !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
+      ) {
+        push(targetChangedAttrs, attributeName);
+        targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
+      }
     });
 
     if (childListChanged && !isEmptyArray(totalAddedNodes)) {
@@ -1869,8 +1848,10 @@ const createDOMObserver = (target, callback, options) => {
       );
     }
 
-    if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged || contentChanged) {
-      callback(targetChangedAttrs, targetStyleChanged, contentChanged);
+    if (isContentObserver) {
+      contentChanged && callback(contentChanged);
+    } else if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
+      callback(targetChangedAttrs, targetStyleChanged);
     }
   };
 
@@ -1879,13 +1860,13 @@ const createDOMObserver = (target, callback, options) => {
     attributes: true,
     attributeOldValue: true,
     attributeFilter: observedAttributes,
-    subtree: _observeContent,
-    childList: _observeContent,
-    characterData: _observeContent,
+    subtree: isContentObserver,
+    childList: isContentObserver,
+    characterData: isContentObserver,
   });
   isConnected = true;
   return {
-    _disconnect: () => {
+    _destroy: () => {
       if (isConnected) {
         destroyEventContentChange();
         mutationObserver.disconnect();
@@ -1893,7 +1874,7 @@ const createDOMObserver = (target, callback, options) => {
       }
     },
     _updateEventContentChange: (newEventContentChange) => {
-      updateEventContentChange(isConnected && _observeContent && newEventContentChange);
+      updateEventContentChange(isConnected && isContentObserver && newEventContentChange);
     },
     _update: () => {
       if (isConnected) {
@@ -2077,12 +2058,11 @@ const createLifecycleHub = (options, structureSetup) => {
     _appear: true,
     _direction: !_nativeScrollbarStyling,
   });
-  const hostMutationObserver = createDOMObserver(_host, onHostMutation, {
+  const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: attrs,
     _attributes: attrs,
   });
-  const contentMutationObserver = createDOMObserver(_content || _viewport, onContentMutation, {
-    _observeContent: true,
+  const contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
     _styleChangingAttributes: attrs,
     _attributes: attrs,
     _eventContentChange: options.updating.elementEvents,

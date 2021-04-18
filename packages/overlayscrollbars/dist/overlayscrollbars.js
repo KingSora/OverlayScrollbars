@@ -490,6 +490,9 @@
   var preventDefault = function preventDefault(evt) {
     return evt.preventDefault();
   };
+  var stopAndPrevent = function stopAndPrevent(evt) {
+    return stopPropagation(evt) || preventDefault(evt);
+  };
 
   var equal = function equal(a, b, props, propMutation) {
     if (a && b) {
@@ -1686,17 +1689,9 @@
   var animationStartEventName = 'animationstart';
   var scrollEventName = 'scroll';
   var scrollAmount = 3333333;
-  var directionIsRTLMap = {
-    direction: ['rtl'],
-  };
 
   var directionIsRTL = function directionIsRTL(elm) {
-    var isRTL = false;
-    var styles = style(elm, ['direction']);
-    each(styles, function (value, key) {
-      isRTL = isRTL || indexOf(directionIsRTLMap[key], value) > -1;
-    });
-    return isRTL;
+    return style(elm, 'direction') === 'rtl';
   };
 
   var domRectHasDimensions = function domRectHasDimensions(rect) {
@@ -1806,21 +1801,18 @@
         currSize = offsetSize(listenerElement);
         isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
-        if (scrollEvent && isDirty && !rAFId) {
-          cAF(rAFId);
-          rAFId = rAF(onResized);
-        } else if (!scrollEvent) {
+        if (scrollEvent) {
+          stopAndPrevent(scrollEvent);
+
+          if (isDirty && !rAFId) {
+            cAF(rAFId);
+            rAFId = rAF(onResized);
+          }
+        } else {
           onResized();
         }
 
         reset();
-
-        if (scrollEvent) {
-          preventDefault(scrollEvent);
-          stopPropagation(scrollEvent);
-        }
-
-        return false;
       };
 
       push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
@@ -1829,11 +1821,7 @@
         height: scrollAmount,
       });
       reset();
-      appearCallback = observeAppearChange
-        ? function () {
-            return onScroll();
-          }
-        : reset;
+      appearCallback = observeAppearChange ? onScroll.bind(0, false) : reset;
     }
 
     if (observeDirectionChange) {
@@ -1865,9 +1853,7 @@
             onSizeChangedCallbackProxy(directionIsRTLCacheValues);
           }
 
-          preventDefault(event);
-          stopPropagation(event);
-          return false;
+          stopAndPrevent(event);
         })
       );
     }
@@ -1903,7 +1889,7 @@
   };
 
   var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
-    var trinsicObserver = createDOM('<div class="' + classNameTrinsicObserver + '"></div>')[0];
+    var trinsicObserver = createDiv(classNameTrinsicObserver);
     var offListeners = [];
 
     var _createCache = createCache(
@@ -1968,59 +1954,56 @@
     };
   };
 
-  var createEventContentChange = function createEventContentChange(target, eventContentChange, map, callback) {
+  var createEventContentChange = function createEventContentChange(target, eventContentChange, callback) {
+    var map;
     var eventContentChangeRef;
 
-    var addEvent = function addEvent(elm, eventName) {
-      var entry = map.get(elm);
-      var newEntry = isUndefined(entry);
-
-      var registerEvent = function registerEvent() {
-        map.set(elm, eventName);
-        on(elm, eventName, callback);
-      };
-
-      if (!newEntry && eventName !== entry) {
-        off(elm, entry, callback);
-        registerEvent();
-      } else if (newEntry) {
-        registerEvent();
+    var _destroy = function _destroy() {
+      if (map) {
+        map.forEach(function (eventName, elm) {
+          return off(elm, eventName, callback);
+        });
+        map.clear();
       }
     };
 
-    var _destroy = function _destroy() {
-      map.forEach(function (eventName, elm) {
-        off(elm, eventName, callback);
-      });
-      map.clear();
-    };
-
     var _updateElements = function _updateElements(getElements) {
-      if (eventContentChangeRef) {
+      if (map && eventContentChangeRef) {
         var eventElmList = eventContentChangeRef.reduce(function (arr, item) {
           if (item) {
             var selector = item[0];
-            var eventName = item[1];
-            var elements = eventName && selector && (getElements ? getElements(selector) : find(selector, target));
+            var eventNames = item[1];
+            var elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
+            var parsedEventNames = isFunction(eventNames) ? eventNames(elements) : eventNames;
 
-            if (elements) {
-              push(arr, [elements, isFunction(eventName) ? eventName(elements) : eventName], true);
+            if (elements && elements.length && parsedEventNames && isString(parsedEventNames)) {
+              push(arr, [elements, parsedEventNames.trim()], true);
             }
           }
 
           return arr;
         }, []);
         each(eventElmList, function (item) {
-          var elements = item[0];
-          var eventName = item[1];
-          each(elements, function (elm) {
-            addEvent(elm, eventName);
+          return each(item[0], function (elm) {
+            var eventNames = item[1];
+            var registredEventNames = map.get(elm);
+            var newEntry = isUndefined(registredEventNames);
+            var changingExistingEntry = !newEntry && eventNames !== registredEventNames;
+            var finalEventNames = changingExistingEntry ? registredEventNames + ' ' + eventNames : eventNames;
+
+            if (changingExistingEntry) {
+              off(elm, registredEventNames, callback);
+            }
+
+            map.set(elm, finalEventNames);
+            on(elm, finalEventNames, callback);
           });
         });
       }
     };
 
-    var _update = function _update(newEventContentChange) {
+    var _updateEventContentChange = function _updateEventContentChange(newEventContentChange) {
+      map = map || new Map();
       eventContentChangeRef = newEventContentChange;
 
       _destroy();
@@ -2029,48 +2012,47 @@
     };
 
     if (eventContentChange) {
-      _update(eventContentChange);
+      _updateEventContentChange(eventContentChange);
     }
 
     return {
       _destroy: _destroy,
       _updateElements: _updateElements,
-      _update: _update,
+      _updateEventContentChange: _updateEventContentChange,
     };
   };
 
-  var createDOMObserver = function createDOMObserver(target, callback, options) {
+  var createDOMObserver = function createDOMObserver(target, isContentObserver, callback, options) {
     var isConnected = false;
 
     var _ref = options || {},
-      _observeContent = _ref._observeContent,
       _attributes = _ref._attributes,
       _styleChangingAttributes = _ref._styleChangingAttributes,
       _eventContentChange = _ref._eventContentChange,
       _nestedTargetSelector = _ref._nestedTargetSelector,
-      _ignoreTargetChange = _ref._ignoreTargetAttrChange,
+      _ignoreTargetChange = _ref._ignoreTargetChange,
+      _ignoreNestedTargetChange = _ref._ignoreNestedTargetChange,
       _ignoreContentChange = _ref._ignoreContentChange;
 
     var _createEventContentCh = createEventContentChange(
         target,
-        _observeContent && _eventContentChange,
-        new Map(),
+        isContentObserver && _eventContentChange,
         debounce(function () {
           if (isConnected) {
-            callback([], false, true);
+            callback(true);
           }
         }, 84)
       ),
-      updateEventContentChangeElements = _createEventContentCh._updateElements,
       destroyEventContentChange = _createEventContentCh._destroy,
-      updateEventContentChange = _createEventContentCh._update;
+      updateEventContentChangeElements = _createEventContentCh._updateElements,
+      updateEventContentChange = _createEventContentCh._updateEventContentChange;
 
     var finalAttributes = _attributes || [];
     var finalStyleChangingAttributes = _styleChangingAttributes || [];
     var observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
 
     var observerCallback = function observerCallback(mutations) {
-      var ignoreTargetChange = _ignoreTargetChange || noop;
+      var ignoreTargetChange = (isContentObserver ? _ignoreNestedTargetChange : _ignoreTargetChange) || noop;
       var ignoreContentChange = _ignoreContentChange || noop;
       var targetChangedAttrs = [];
       var totalAddedNodes = [];
@@ -2088,20 +2070,11 @@
         var targetIsMutationTarget = target === mutationTarget;
         var attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
         var attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
-        var targetAttrChanged =
-          attributeChanged &&
-          targetIsMutationTarget &&
-          !_observeContent &&
-          !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue);
         var styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
 
-        if (targetAttrChanged) {
-          push(targetChangedAttrs, attributeName);
-        }
-
-        if (_observeContent) {
+        if (isContentObserver && !targetIsMutationTarget) {
           var notOnlyAttrChanged = !isAttributesType;
-          var contentAttrChanged = isAttributesType && styleChangingAttrChanged && !targetIsMutationTarget;
+          var contentAttrChanged = isAttributesType && styleChangingAttrChanged;
           var isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
           var baseAssertion = isNestedTarget
             ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
@@ -2112,7 +2085,15 @@
           childListChanged = childListChanged || isChildListType;
         }
 
-        targetStyleChanged = targetStyleChanged || (targetAttrChanged && styleChangingAttrChanged);
+        if (
+          !isContentObserver &&
+          targetIsMutationTarget &&
+          attributeChanged &&
+          !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
+        ) {
+          push(targetChangedAttrs, attributeName);
+          targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
+        }
       });
 
       if (childListChanged && !isEmptyArray(totalAddedNodes)) {
@@ -2124,8 +2105,10 @@
         });
       }
 
-      if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged || contentChanged) {
-        callback(targetChangedAttrs, targetStyleChanged, contentChanged);
+      if (isContentObserver) {
+        contentChanged && callback(contentChanged);
+      } else if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
+        callback(targetChangedAttrs, targetStyleChanged);
       }
     };
 
@@ -2134,13 +2117,13 @@
       attributes: true,
       attributeOldValue: true,
       attributeFilter: observedAttributes,
-      subtree: _observeContent,
-      childList: _observeContent,
-      characterData: _observeContent,
+      subtree: isContentObserver,
+      childList: isContentObserver,
+      characterData: isContentObserver,
     });
     isConnected = true;
     return {
-      _disconnect: function _disconnect() {
+      _destroy: function _destroy() {
         if (isConnected) {
           destroyEventContentChange();
           mutationObserver.disconnect();
@@ -2148,7 +2131,7 @@
         }
       },
       _updateEventContentChange: function _updateEventContentChange(newEventContentChange) {
-        updateEventContentChange(isConnected && _observeContent && newEventContentChange);
+        updateEventContentChange(isConnected && isContentObserver && newEventContentChange);
       },
       _update: function _update() {
         if (isConnected) {
@@ -2351,12 +2334,11 @@
       _appear: true,
       _direction: !_nativeScrollbarStyling,
     });
-    var hostMutationObserver = createDOMObserver(_host, onHostMutation, {
+    var hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
       _styleChangingAttributes: attrs,
       _attributes: attrs,
     });
-    var contentMutationObserver = createDOMObserver(_content || _viewport, onContentMutation, {
-      _observeContent: true,
+    var contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
       _styleChangingAttributes: attrs,
       _attributes: attrs,
       _eventContentChange: options.updating.elementEvents,
