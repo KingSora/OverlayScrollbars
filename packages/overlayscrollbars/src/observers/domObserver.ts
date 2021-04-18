@@ -222,8 +222,13 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         contentChanged = contentChanged || contentFinalChanged;
         childListChanged = childListChanged || isChildListType;
       }
-      // else if is target observer and target attr changed
-      else if (attributeChanged && !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue as string | null)) {
+      // if is target observer and target attr changed
+      if (
+        !isContentObserver &&
+        targetIsMutationTarget &&
+        attributeChanged &&
+        !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue as string | null)
+      ) {
         push(targetChangedAttrs, attributeName!);
         targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
       }
@@ -239,8 +244,8 @@ export const createDOMObserver = <ContentObserver extends boolean>(
       );
     }
 
-    if (isContentObserver && contentChanged) {
-      (callback as DOMContentObserverCallback)(contentChanged);
+    if (isContentObserver) {
+      contentChanged && (callback as DOMContentObserverCallback)(contentChanged);
     } else if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
       (callback as DOMTargetObserverCallback)(targetChangedAttrs, targetStyleChanged);
     }

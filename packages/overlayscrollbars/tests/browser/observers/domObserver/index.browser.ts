@@ -438,6 +438,8 @@ const addRemoveImgElmsFn = async () => {
     ['img', 'something2'],
     ['img', null],
     ['img', undefined],
+    [null, null],
+    [undefined, undefined],
     ['img', () => 'hi'],
     ['img', () => null],
     ['img', () => undefined],
