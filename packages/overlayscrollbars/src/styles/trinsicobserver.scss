@@ -11,6 +11,7 @@
   z-index: -1;
   height: 0;
   top: calc(-100% + 1px);
+  contain: strict;
 
   &:not(:empty) {
     height: calc(100% + 1px);
