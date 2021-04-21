@@ -18,7 +18,7 @@ const resizeElms = document.querySelectorAll('.resize');
 const percentElms = document.querySelectorAll('.percent');
 const endElms = document.querySelectorAll('.end');
 const envElms = document.querySelectorAll<HTMLElement>('.env');
-const containerElms = document.querySelectorAll<HTMLElement>('#target, #comparison');
+const containerElms = document.querySelectorAll<HTMLElement>('.container');
 
 resize(target!).addResizeListener((width, height) => style(comparison, { width, height }));
 //resize(comparison!).addResizeListener((width, height) => style(target, { width, height }));
@@ -31,9 +31,9 @@ target!.querySelector('.os-viewport')?.addEventListener('scroll', (e) => {
   comparison!.scrollTop = viewport.scrollTop;
 });
 
+const selectCallbackEnv = generateClassChangeSelectCallback(from(envElms));
 const envWidthSelect = document.querySelector<HTMLSelectElement>('#envWidth');
 const envHeightSelect = document.querySelector<HTMLSelectElement>('#envHeight');
-const selectCallbackEnv = generateClassChangeSelectCallback(from(envElms));
 const containerWidthSelect = document.querySelector<HTMLSelectElement>('#width');
 const containerHeightSelect = document.querySelector<HTMLSelectElement>('#height');
 const containerFloatSelect = document.querySelector<HTMLSelectElement>('#float');
@@ -43,28 +43,27 @@ const containerMarginSelect = document.querySelector<HTMLSelectElement>('#margin
 const containerBoxSizingSelect = document.querySelector<HTMLSelectElement>('#boxSizing');
 const containerDirectionSelect = document.querySelector<HTMLSelectElement>('#direction');
 const containerMinMaxSelect = document.querySelector<HTMLSelectElement>('#minMax');
-const selectCallbackContainer = generateClassChangeSelectCallback(from(containerElms));
 
 envWidthSelect?.addEventListener('change', selectCallbackEnv);
 envHeightSelect?.addEventListener('change', selectCallbackEnv);
-containerWidthSelect?.addEventListener('change', selectCallbackContainer);
-containerHeightSelect?.addEventListener('change', selectCallbackContainer);
-containerFloatSelect?.addEventListener('change', selectCallbackContainer);
-containerPaddingSelect?.addEventListener('change', selectCallbackContainer);
-containerBorderSelect?.addEventListener('change', selectCallbackContainer);
-containerMarginSelect?.addEventListener('change', selectCallbackContainer);
-containerBoxSizingSelect?.addEventListener('change', selectCallbackContainer);
-containerDirectionSelect?.addEventListener('change', selectCallbackContainer);
-containerMinMaxSelect?.addEventListener('change', selectCallbackContainer);
+containerWidthSelect?.addEventListener('change', selectCallbackEnv);
+containerHeightSelect?.addEventListener('change', selectCallbackEnv);
+containerFloatSelect?.addEventListener('change', selectCallbackEnv);
+containerPaddingSelect?.addEventListener('change', selectCallbackEnv);
+containerBorderSelect?.addEventListener('change', selectCallbackEnv);
+containerMarginSelect?.addEventListener('change', selectCallbackEnv);
+containerBoxSizingSelect?.addEventListener('change', selectCallbackEnv);
+containerDirectionSelect?.addEventListener('change', selectCallbackEnv);
+containerMinMaxSelect?.addEventListener('change', selectCallbackEnv);
 
 selectCallbackEnv(envWidthSelect);
 selectCallbackEnv(envHeightSelect);
-selectCallbackContainer(containerWidthSelect);
-selectCallbackContainer(containerHeightSelect);
-selectCallbackContainer(containerFloatSelect);
-selectCallbackContainer(containerPaddingSelect);
-selectCallbackContainer(containerBorderSelect);
-selectCallbackContainer(containerMarginSelect);
-selectCallbackContainer(containerBoxSizingSelect);
-selectCallbackContainer(containerDirectionSelect);
-selectCallbackContainer(containerMinMaxSelect);
+selectCallbackEnv(containerWidthSelect);
+selectCallbackEnv(containerHeightSelect);
+selectCallbackEnv(containerFloatSelect);
+selectCallbackEnv(containerPaddingSelect);
+selectCallbackEnv(containerBorderSelect);
+selectCallbackEnv(containerMarginSelect);
+selectCallbackEnv(containerBoxSizingSelect);
+selectCallbackEnv(containerDirectionSelect);
+selectCallbackEnv(containerMinMaxSelect);

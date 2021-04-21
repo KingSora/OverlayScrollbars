@@ -126,111 +126,111 @@ body {
   opacity: 0.3;
 }
 
-.widthAuto,
+.widthAuto > .container,
 .envWidthAuto {
   width: auto;
   display: inline-block;
 }
-#target.widthAuto {
+.widthAuto > #target {
   display: inline-flex;
 }
-.widthHundred,
+.widthHundred > .container,
 .envWidthHundred {
   width: 100%;
 }
 
-.heightAuto,
+.heightAuto > .container,
 .envHeightAuto {
   height: auto;
 }
-.heightHundred,
+.heightHundred > .container,
 .envHeightHundred {
   height: 100%;
 }
 
-.width200 {
+.width200 > .container {
   width: 200px;
 }
-.height200 {
+.height200 > .container {
   height: 200px;
 }
 
-.floatNone {
+.floatNone > .container {
   float: none;
 }
 
-.floatLeft {
+.floatLeft > .container {
   float: left;
 }
 
-.floatRight {
+.floatRight > .container {
   float: right;
 }
 
-.paddingNone {
+.paddingNone > .container {
   padding: 0;
 }
 
-.paddingSmall {
+.paddingSmall > .container {
   padding: 5px 50px 15px 20px;
 }
 
-.paddingLarge {
+.paddingLarge > .container {
   padding: 12px 22px 53px 33px;
 }
 
-.borderNone {
+.borderNone > .container {
   border: none;
 }
 
-.borderSmall {
+.borderSmall > .container {
   border-color: darkorange;
   border-style: solid;
   border-width: 2px 5px 3px 4px;
 }
 
-.borderLarge {
+.borderLarge > .container {
   border-color: darkorange;
   border-style: solid;
   border-width: 9px 6px 7px 3px;
 }
 
-.marginNone {
+.marginNone > .container {
   margin: 0;
 }
 
-.marginSmall {
+.marginSmall > .container {
   margin: 21px 16px 4px 33px;
 }
 
-.marginLarge {
+.marginLarge > .container {
   margin: 33px 46px 69px 23px;
 }
 
-.boxSizingBorderBox {
+.boxSizingBorderBox > .container {
   box-sizing: border-box;
 }
 
-.boxSizingContentBox {
+.boxSizingContentBox > .container {
   box-sizing: content-box;
 }
 
-.directionLTR {
+.directionLTR > .container {
   direction: ltr;
 }
 
-.directionRTL {
+.directionRTL > .container {
   direction: rtl;
 }
 
-.minMaxFixed {
+.minMaxFixed > .container {
   min-height: 180px;
   min-width: 180px;
   max-height: 420px;
   max-width: 420px;
 }
 
-.minMaxNone {
+.minMaxNone > .container {
   min-height: 0;
   min-width: 0;
   max-height: none;
