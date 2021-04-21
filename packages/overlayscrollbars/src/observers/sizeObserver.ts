@@ -21,6 +21,7 @@ import {
   ResizeObserverConstructor,
   isArray,
   isBoolean,
+  removeClass,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -64,7 +65,7 @@ const directionIsRTL = (elm: HTMLElement): boolean => style(elm, 'direction') ==
 const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height || rect.width);
 
 /**
- * Creates a size observer which observes any size, padding, margin and border changes of the target element. Depending on the options also direction and appear can be observed.
+ * Creates a size observer which observes any size, padding, border, margin and box-sizing changes of the target element. Depending on the options also direction and appear can be observed.
  * @param target The target element which shall be observed.
  * @param onSizeChangedCallback The callback which gets called after a size change was detected.
  * @param options The options for size detection, whether to observe also direction and appear.
@@ -193,10 +194,11 @@ export const createSizeObserver = (
         const directionIsRTLCacheValues = updateDirectionIsRTLCache();
         const { _value, _changed } = directionIsRTLCacheValues;
         if (_changed) {
+          removeClass(listenerElement, 'ltr rtl');
           if (_value) {
-            style(listenerElement, { left: 'auto', right: 0 });
+            addClass(listenerElement, 'rtl');
           } else {
-            style(listenerElement, { left: 0, right: 'auto' });
+            addClass(listenerElement, 'ltr');
           }
           onSizeChangedCallbackProxy(directionIsRTLCacheValues);
         }

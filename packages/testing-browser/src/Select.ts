@@ -10,22 +10,25 @@ const noop = <T>(): T => {
 const getSelectOptions = (selectElement: HTMLSelectElement) => Array.from(selectElement.options).map((option) => option.value);
 
 export const generateSelectCallback = (
-  targetElm: HTMLElement | null,
+  targetElms: HTMLElement[] | HTMLElement | null,
   callback: (targetAffectedElm: HTMLElement, possibleValues: string[], selectedValue: string) => any
 ) => (event: Event | HTMLSelectElement | null) => {
   const target: HTMLSelectElement | null = isEvent(event) ? (event.target as HTMLSelectElement) : event;
   if (target) {
     const selectedOption = target.value;
     const selectOptions = getSelectOptions(target);
+    const elmsArr = Array.isArray(targetElms) ? targetElms : [targetElms];
 
-    if (targetElm) {
-      callback(targetElm, selectOptions, selectedOption);
-    }
+    elmsArr.forEach((elm) => {
+      if (elm) {
+        callback(elm, selectOptions, selectedOption);
+      }
+    });
   }
 };
 
-export const generateClassChangeSelectCallback = (targetElm: HTMLElement | null) =>
-  generateSelectCallback(targetElm, (targetAffectedElm, possibleValues, selectedValue) => {
+export const generateClassChangeSelectCallback = (targetElms: HTMLElement[] | HTMLElement | null) =>
+  generateSelectCallback(targetElms, (targetAffectedElm, possibleValues, selectedValue) => {
     possibleValues.forEach((clazz) => targetAffectedElm.classList.remove(clazz));
     targetAffectedElm.classList.add(selectedValue);
   });

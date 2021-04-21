@@ -2,14 +2,14 @@
 @import './trinsicobserver.scss';
 
 .os-environment {
-  --css-custom-prop: -1;
+  --os-css-custom-prop: -1;
   position: fixed;
   opacity: 0;
   visibility: hidden;
   overflow: scroll;
   height: 200px;
   width: 200px;
-  z-index: var(--css-custom-prop);
+  z-index: var(--os-css-custom-prop);
 
   div {
     width: 200%;
@@ -96,7 +96,7 @@
 
 .os-padding,
 .os-viewport {
-  box-sizing: border-box;
+  box-sizing: inherit;
   position: relative;
   flex: auto !important;
   height: auto;
@@ -106,6 +106,7 @@
   border: none;
   overflow: visible;
   max-width: 100%;
+  z-index: 0;
 }
 
 .os-viewport {
@@ -122,4 +123,8 @@
     width: var(--viewport-arrange-width);
     height: var(--viewport-arrange-height);
   }
+}
+
+.os-content {
+  box-sizing: inherit;
 }

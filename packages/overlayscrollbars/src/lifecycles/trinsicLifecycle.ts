@@ -19,5 +19,10 @@ export const createTrinsicLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
         height: heightIntrinsic ? 'auto' : '100%',
       });
     }
+
+    return {
+      _sizeChanged: heightIntrinsicChanged,
+      _contentMutation: heightIntrinsicChanged,
+    };
   };
 };

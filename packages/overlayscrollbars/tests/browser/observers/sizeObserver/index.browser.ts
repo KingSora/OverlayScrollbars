@@ -2,7 +2,7 @@ import 'styles/overlayscrollbars.scss';
 import './index.scss';
 import './handleEnvironment';
 import should from 'should';
-import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
+import { generateClassChangeSelectCallback, iterateSelect, selectOption } from '@/testing-browser/Select';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { timeout } from '@/testing-browser/timeout';
 import { hasDimensions, offsetSize, WH, style } from 'support';
@@ -60,6 +60,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
     currOffsetSize: WH<number>;
     currContentSize: WH<number>;
     currDir: string;
+    currBoxSizing: string;
   }
 
   await iterateSelect<IterateSelect>(select, {
@@ -69,6 +70,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       const currOffsetSize = offsetSize(targetElm as HTMLElement);
       const currContentSize = contentBox(targetElm as HTMLElement);
       const currDir = style(targetElm as HTMLElement, 'direction');
+      const currBoxSizing = style(targetElm as HTMLElement, 'box-sizing');
 
       return {
         currSizeIterations,
@@ -76,15 +78,18 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
         currOffsetSize,
         currContentSize,
         currDir,
+        currBoxSizing,
       };
     },
-    async check({ currSizeIterations, currDirectionIterations, currOffsetSize, currContentSize, currDir }) {
+    async check({ currSizeIterations, currDirectionIterations, currOffsetSize, currContentSize, currDir, currBoxSizing }) {
       const newOffsetSize = offsetSize(targetElm as HTMLElement);
       const newContentSize = contentBox(targetElm as HTMLElement);
       const newDir = style(targetElm as HTMLElement, 'direction');
+      const newBoxSizing = style(targetElm as HTMLElement, 'box-sizing');
       const offsetSizeChanged = currOffsetSize.w !== newOffsetSize.w || currOffsetSize.h !== newOffsetSize.h;
       const contentSizeChanged = currContentSize.w !== newContentSize.w || currContentSize.h !== newContentSize.h;
       const dirChanged = currDir !== newDir;
+      const boxSizingChanged = currBoxSizing !== newBoxSizing;
       const dimensions = hasDimensions(targetElm as HTMLElement);
       const observerElm = targetElm?.firstElementChild as HTMLElement;
 
@@ -102,9 +107,9 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
         );
       }
 
-      if (dimensions && (offsetSizeChanged || contentSizeChanged || dirChanged)) {
+      if (dimensions && (offsetSizeChanged || contentSizeChanged || dirChanged || boxSizingChanged)) {
         await waitForOrFailTest(() => {
-          if (offsetSizeChanged || contentSizeChanged) {
+          if (offsetSizeChanged || contentSizeChanged || boxSizingChanged) {
             should.equal(sizeIterations, currSizeIterations + 1, 'Size change was detected correctly.');
           }
           if (dirChanged) {
@@ -159,6 +164,36 @@ const iterateDisplay = async (afterEach?: () => any) => {
 const iterateDirection = async (afterEach?: () => any) => {
   await iterate(directionSelect, afterEach);
 };
+const cleanBoxSizingChange = async () => {
+  selectOption(heightSelect as HTMLSelectElement, 'heightAuto');
+  selectOption(widthSelect as HTMLSelectElement, 'widthAuto');
+  selectOption(paddingSelect as HTMLSelectElement, 'padding0');
+  selectOption(borderSelect as HTMLSelectElement, 'border0');
+
+  await timeout(250);
+
+  await iterateDirection(async () => {
+    await iterateBoxSizing();
+  });
+
+  selectOption(heightSelect as HTMLSelectElement, 'height200');
+  selectOption(widthSelect as HTMLSelectElement, 'width200');
+
+  await timeout(250);
+
+  await iterateDirection(async () => {
+    await iterateBoxSizing();
+  });
+
+  selectOption(heightSelect as HTMLSelectElement, 'heightHundred');
+  selectOption(widthSelect as HTMLSelectElement, 'widthHundred');
+
+  await timeout(250);
+
+  await iterateDirection(async () => {
+    await iterateBoxSizing();
+  });
+};
 const start = async () => {
   setTestResult(null);
 
@@ -180,6 +215,7 @@ const start = async () => {
       });
     });
   });
+  await cleanBoxSizingChange();
 
   sizeObserver._destroy();
   should.equal(targetElm?.children.length, preInitChildren, 'Destruction removes all generated elements.');

@@ -34,6 +34,7 @@ body {
   // prevent container from reaching 0x0 dimensions for testing purposes
   min-width: 50px;
   min-height: 50px;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .padding0 {

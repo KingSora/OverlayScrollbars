@@ -36,21 +36,45 @@ body {
 .column {
   width: 100%;
   height: 100%;
+  font-size: 0;
+  line-height: 0;
+}
+
+.env {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 #target,
 #comparison {
   position: relative;
-  border: 2px solid red;
-  min-height: 100px;
-  min-width: 200px;
-  max-height: 300px;
-  max-width: 320px;
-  padding: 5px 50px 15px 20px;
+
+  .os-viewport::before,
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    border: 2px dotted red;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  * {
+    font-size: medium;
+    line-height: normal;
+  }
+}
+
+#target::before {
+  opacity: 0.3;
 }
 
 #comparison {
   overflow: hidden;
+  z-index: 0;
 }
 
 .resize {
@@ -73,7 +97,6 @@ body {
   border: 1px solid black;
   padding: 10px;
   margin: 10px;
-  display: none;
 }
 
 .end::before {
@@ -89,68 +112,6 @@ body {
   opacity: 0.5;
 }
 
-.padding0 {
-  padding: 0;
-}
-.padding10 {
-  padding: 10px;
-}
-.padding50 {
-  padding: 50px;
-}
-
-.border2 {
-  border: 2px solid red;
-}
-.border10 {
-  border: 10px solid red;
-}
-.border0 {
-  border: none;
-}
-
-.heightAuto {
-  height: auto;
-}
-.height200 {
-  height: 200px;
-}
-.heightHundred {
-  height: 100%;
-}
-
-.widthAuto {
-  width: auto;
-  float: left;
-}
-.width200 {
-  width: 200px;
-}
-.widthHundred {
-  width: 100%;
-}
-
-.boxSizingBorderBox {
-  box-sizing: border-box;
-}
-.boxSizingContentBox {
-  box-sizing: content-box;
-}
-
-.displayNone {
-  display: none;
-}
-.displayBlock {
-  display: block;
-}
-
-.directionltr {
-  direction: ltr;
-}
-.directionRTL {
-  direction: rtl;
-}
-
 .resizer {
   position: relative;
 }
@@ -163,6 +124,117 @@ body {
   width: 20px;
   background: red;
   opacity: 0.3;
+}
+
+.widthAuto,
+.envWidthAuto {
+  width: auto;
+  display: inline-block;
+}
+#target.widthAuto {
+  display: inline-flex;
+}
+.widthHundred,
+.envWidthHundred {
+  width: 100%;
+}
+
+.heightAuto,
+.envHeightAuto {
+  height: auto;
+}
+.heightHundred,
+.envHeightHundred {
+  height: 100%;
+}
+
+.width200 {
+  width: 200px;
+}
+.height200 {
+  height: 200px;
+}
+
+.floatNone {
+  float: none;
+}
+
+.floatLeft {
+  float: left;
+}
+
+.floatRight {
+  float: right;
+}
+
+.paddingNone {
+  padding: 0;
+}
+
+.paddingSmall {
+  padding: 5px 50px 15px 20px;
+}
+
+.paddingLarge {
+  padding: 12px 22px 53px 33px;
+}
+
+.borderNone {
+  border: none;
+}
+
+.borderSmall {
+  border-color: darkorange;
+  border-style: solid;
+  border-width: 2px 5px 3px 4px;
+}
+
+.borderLarge {
+  border-color: darkorange;
+  border-style: solid;
+  border-width: 9px 6px 7px 3px;
+}
+
+.marginNone {
+  margin: 0;
+}
+
+.marginSmall {
+  margin: 21px 16px 4px 33px;
+}
+
+.marginLarge {
+  margin: 33px 46px 69px 23px;
+}
+
+.boxSizingBorderBox {
+  box-sizing: border-box;
+}
+
+.boxSizingContentBox {
+  box-sizing: content-box;
+}
+
+.directionLTR {
+  direction: ltr;
+}
+
+.directionRTL {
+  direction: rtl;
+}
+
+.minMaxFixed {
+  min-height: 180px;
+  min-width: 180px;
+  max-height: 420px;
+  max-width: 420px;
+}
+
+.minMaxNone {
+  min-height: 0;
+  min-width: 0;
+  max-height: none;
+  max-width: none;
 }
 
 /*
