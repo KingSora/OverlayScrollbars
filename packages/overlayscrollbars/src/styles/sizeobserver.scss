@@ -1,5 +1,5 @@
-$scrollbar-cushion: 100px;
-$inflate-margin: 200px;
+$inflate-cushion: 100px;
+$inflate-margin: 100px;
 
 .os-size-observer,
 .os-size-observer-listener {
@@ -21,8 +21,6 @@ $inflate-margin: 200px;
 }
 
 .os-size-observer {
-  height: 25%;
-  width: 25%;
   z-index: -1;
   contain: strict;
   display: flex;
@@ -32,6 +30,10 @@ $inflate-margin: 200px;
   border: inherit;
   box-sizing: inherit;
   margin: 0;
+  top: -$inflate-cushion;
+  right: -$inflate-cushion;
+  bottom: -$inflate-cushion;
+  left: -$inflate-cushion;
 
   &::before,
   &::after {
@@ -60,23 +62,22 @@ $inflate-margin: 200px;
   box-sizing: border-box;
   position: relative;
   flex: auto;
-  margin: -#{$inflate-margin};
+  margin: -$inflate-margin;
 
   &.ltr {
-    margin-right: -#{$inflate-margin * 2};
+    margin-right: -$inflate-margin * 2;
     margin-left: 0;
   }
   &.rtl {
-    margin-left: -#{$inflate-margin * 2};
+    margin-left: -$inflate-margin * 2;
     margin-right: 0;
   }
 
-  // lets assume no scrollbar is 100px wide
   & > .os-size-observer-listener-item {
-    top: -$scrollbar-cushion;
-    right: -$scrollbar-cushion;
-    bottom: -$scrollbar-cushion;
-    left: -$scrollbar-cushion;
+    top: -$inflate-cushion;
+    right: -$inflate-cushion;
+    bottom: -$inflate-cushion;
+    left: -$inflate-cushion;
   }
 }
 
