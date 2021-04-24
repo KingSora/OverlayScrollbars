@@ -8,7 +8,7 @@ import {
 
 export type ResizeBehavior = 'none' | 'both' | 'horizontal' | 'vertical';
 
-export type OverflowBehavior = 'hidden' | 'scroll' | 'visible-hidden' | 'visible-scroll';
+export type OverflowBehavior = 'hidden' | 'scroll' | 'visible' | 'visible-hidden';
 
 export type VisibilityBehavior = 'visible' | 'hidden' | 'auto';
 
@@ -111,7 +111,7 @@ const booleanTrueTemplate: OptionsWithOptionsTemplateValue<boolean> = [true, oTy
 const booleanFalseTemplate: OptionsWithOptionsTemplateValue<boolean> = [false, oTypes.boolean];
 // const callbackTemplate: OptionsWithOptionsTemplateValue<Func | null> = [null, [oTypes.function, oTypes.null]];
 const resizeAllowedValues: OptionsTemplateValue<ResizeBehavior> = 'none both horizontal vertical';
-const overflowAllowedValues: OptionsTemplateValue<OverflowBehavior> = 'visible-hidden visible-scroll scroll hidden';
+const overflowAllowedValues: OptionsTemplateValue<OverflowBehavior> = 'hidden scroll visible visible-hidden';
 const scrollbarsVisibilityAllowedValues: OptionsTemplateValue<VisibilityBehavior> = 'visible hidden auto';
 const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<AutoHideBehavior> = 'never scroll leavemove';
 

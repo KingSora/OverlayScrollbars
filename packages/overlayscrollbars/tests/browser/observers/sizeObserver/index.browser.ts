@@ -94,7 +94,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       const observerElm = targetElm?.firstElementChild as HTMLElement;
 
       // no overflow if not needed
-      /*
+
       if (targetElm && newContentSize.w > 0) {
         should.ok(
           observerElm.getBoundingClientRect().right <= targetElm.getBoundingClientRect().right,
@@ -107,7 +107,6 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
           'Generated observer element inst overflowing target element. (height)'
         );
       }
-      */
 
       if (dimensions && (offsetSizeChanged || contentSizeChanged || dirChanged || boxSizingChanged)) {
         await waitForOrFailTest(() => {

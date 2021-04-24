@@ -1,4 +1,4 @@
-$inflate-cushion: 100px;
+$scrollbars-cushion: 100px; // assume no scrollbar takes more than 100px space
 $inflate-margin: 100px;
 
 .os-size-observer,
@@ -29,11 +29,12 @@ $inflate-margin: 100px;
   padding: inherit;
   border: inherit;
   box-sizing: inherit;
-  margin: 0;
-  top: -$inflate-cushion;
-  right: -$inflate-cushion;
-  bottom: -$inflate-cushion;
-  left: -$inflate-cushion;
+  margin: -$inflate-margin;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: scale(0.1);
 
   &::before,
   &::after {
@@ -42,9 +43,9 @@ $inflate-margin: 100px;
     box-sizing: inherit;
   }
   &::before {
-    padding: 1px;
-    width: 1px;
-    height: 1px;
+    padding: 10px;
+    width: 10px;
+    height: 10px;
   }
   &::after {
     content: '';
@@ -74,10 +75,10 @@ $inflate-margin: 100px;
   }
 
   & > .os-size-observer-listener-item {
-    top: -$inflate-cushion;
-    right: -$inflate-cushion;
-    bottom: -$inflate-cushion;
-    left: -$inflate-cushion;
+    top: -$scrollbars-cushion;
+    right: -$scrollbars-cushion;
+    bottom: -$scrollbars-cushion;
+    left: -$scrollbars-cushion;
   }
 }
 

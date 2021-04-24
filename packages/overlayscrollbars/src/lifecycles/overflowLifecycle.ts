@@ -100,11 +100,12 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       const hostBCR = getBoundingClientRect(_host);
       const hostOffsetSize = offsetSize(_host);
       const hostClientSize = clientSize(_host);
-      const paddingAbsoluteVertical = paddingAbsolute ? padding.b + padding.t : 0;
+      // padding subtraction is only needed if padding is absolute or if viewport is content-box
+      const paddingVertical = paddingAbsolute || style(_viewport, 'boxSizing') === 'content-box' ? padding.b + padding.t : 0;
       const clientSizeWithoutRounding = hostClientSize.h + (hostBCR.height - hostOffsetSize.h);
 
       style(_viewport, {
-        height: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingAbsoluteVertical,
+        height: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
       });
     }
   };
@@ -156,18 +157,20 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
   ): ViewportOverflowState => {
     const setPartialStylePerAxis = (horizontal: boolean, overflowAmount: number, behavior: OverflowBehavior, styleObj: StyleObject) => {
       const overflowKey: keyof StyleObject = horizontal ? 'overflowX' : 'overflowY';
+      const behaviorIsVisible = behavior.indexOf('visible') === 0;
+      const behaviorIsVisibleHidden = behavior === 'visible-hidden';
       const behaviorIsScroll = behavior === 'scroll';
-      const behaviorIsVisibleScroll = behavior === 'visible-scroll';
-      const hideOverflow = behaviorIsScroll || behavior === 'hidden';
-      const applyStyle = overflowAmount > 0 && hideOverflow;
 
-      if (applyStyle) {
+      if (behaviorIsVisible) {
+        styleObj[overflowKey] = 'visible';
+      }
+      if (behaviorIsScroll && overflowAmount > 0) {
         styleObj[overflowKey] = behavior;
       }
 
       return {
-        _visible: !applyStyle,
-        _behavior: behaviorIsVisibleScroll ? 'scroll' : 'hidden',
+        _visible: behaviorIsVisible,
+        _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
       };
     };
     const { _visible: xVisible, _behavior: xVisibleBehavior } = setPartialStylePerAxis(true, overflowAmount!.x, overflow.x, viewportStyleObj);
@@ -245,11 +248,9 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     viewportArrange: boolean,
     viewportStyleObj: StyleObject
   ) => {
-    const { _nativeScrollbarStyling } = getEnvironment();
-    const { _overflowScroll, _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
+    const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
     const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
     const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
-    const { x: scrollX, y: scrollY } = _overflowScroll;
     const paddingStyle = _getViewportPaddingStyle();
     const horizontalMarginKey: keyof StyleObject = directionIsRTL ? 'marginLeft' : 'marginRight';
     const viewportHorizontalPaddingKey: keyof StyleObject = directionIsRTL ? 'paddingLeft' : 'paddingRight';
@@ -270,22 +271,20 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       viewportStyleObj[viewportHorizontalPaddingKey] = horizontalPaddingValue + (arrangeY ? hideOffsetY : 0);
       viewportStyleObj.paddingBottom = verticalPaddingValue + (arrangeX ? hideOffsetX : 0);
     }
-
-    // hide overflowing scrollbars if there are any
-    if (!_nativeScrollbarStyling) {
-      style(_padding || _host, {
-        overflow: scrollX || scrollY ? 'hidden' : '',
-      });
-    }
   };
 
   /**
    * Removes all styles applied because of the viewport arrange strategy.
    * @param showNativeOverlaidScrollbars Whether native overlaid scrollbars are shown instead of hidden.
+   * @param directionIsRTL Whether the direction is RTL or not.
    * @param viewportOverflowState The currentviewport overflow state or undefined if it has to be determined.
    * @returns A object with a function which applies all the removed styles and the determined viewport vverflow state.
    */
-  const undoViewportArrange = (showNativeOverlaidScrollbars: boolean, viewportOverflowState?: ViewportOverflowState): UndoViewportArrangeResult => {
+  const undoViewportArrange = (
+    showNativeOverlaidScrollbars: boolean,
+    directionIsRTL: boolean,
+    viewportOverflowState?: ViewportOverflowState
+  ): UndoViewportArrangeResult => {
     if (_doViewportArrange) {
       const finalViewportOverflowState = viewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars);
       const paddingStyle = _getViewportPaddingStyle();
@@ -316,6 +315,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
 
       return {
         _redoViewportArrange: () => {
+          hideNativeScrollbars(finalViewportOverflowState, directionIsRTL, _doViewportArrange, prevStyle);
           style(_viewport, prevStyle);
           addClass(_viewport, classNameViewportArrange);
         },
@@ -358,6 +358,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     if (_sizeChanged || _paddingStyleChanged || _contentMutation || showNativeOverlaidScrollbarsChanged || directionChanged) {
       const { _redoViewportArrange, _viewportOverflowState: undoViewportArrangeOverflowState } = undoViewportArrange(
         showNativeOverlaidScrollbars,
+        directionIsRTL!,
         preMeasureViewportOverflowState
       );
       const contentSize = clientSize(_viewport);
@@ -431,6 +432,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       // TODO: hide host overflow if scroll x or y and no padding element there
       // TODO: Test without content
       // TODO: Test without padding
+      // TODO: overflow: visible on padding / host if overflow visible on both axis
 
       style(_viewport, viewportStyle);
 

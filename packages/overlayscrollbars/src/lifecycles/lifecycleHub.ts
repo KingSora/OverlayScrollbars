@@ -160,7 +160,7 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
       _heightIntrinsic || (trinsicObserver ? trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : heightIntrinsicCacheValuesFallback);
     const checkOption: LifecycleCheckOption = (path) => ({
       _value: getPropByPath(options, path),
-      _changed: force || getPropByPath(changedOptions, path) !== undefined,
+      _changed: force || (!!changedOptions && getPropByPath(changedOptions, path) !== undefined),
     });
     const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
@@ -261,6 +261,8 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
   };
   const envUpdateListener = update.bind(null, null, true);
   addEnvironmentListener(envUpdateListener);
+
+  console.log(getEnvironment());
 
   return {
     _update: update,

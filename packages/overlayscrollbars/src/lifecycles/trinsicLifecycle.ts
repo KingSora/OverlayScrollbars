@@ -16,7 +16,8 @@ export const createTrinsicLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
 
     if (heightIntrinsicChanged) {
       style(_content, {
-        height: heightIntrinsic ? 'auto' : '100%',
+        height: heightIntrinsic ? '' : '100%',
+        display: heightIntrinsic ? '' : 'inline',
       });
     }
 
