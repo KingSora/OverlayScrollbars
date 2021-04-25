@@ -3,11 +3,10 @@ import './index.scss';
 import should from 'should';
 import { resize } from '@/testing-browser/Resize';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
-import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
+import { generateClassChangeSelectCallback, iterateSelect, selectOption } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { createTrinsicObserver } from 'observers/trinsicObserver';
-import { from, getBoundingClientRect, style, parent, addClass } from 'support';
+import { clientSize, from, getBoundingClientRect, style, parent, addClass, WH, removeAttr } from 'support';
 
 // @ts-ignore
 const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
@@ -27,22 +26,7 @@ const comparisonPercent: HTMLElement | null = document.querySelector('#compariso
 const targetEnd: HTMLElement | null = document.querySelector('#target .end');
 const comparisonEnd: HTMLElement | null = document.querySelector('#comparison .end');
 
-const resizeElms = document.querySelectorAll('.resize');
-const percentElms = document.querySelectorAll('.percent');
-const endElms = document.querySelectorAll('.end');
 const envElms = document.querySelectorAll<HTMLElement>('.env');
-const containerElms = document.querySelectorAll<HTMLElement>('.container');
-
-resize(target!).addResizeListener((width, height) => style(comparison, { width, height }));
-//resize(comparison!).addResizeListener((width, height) => style(target, { width, height }));
-resize(targetResize!).addResizeListener((width, height) => style(comparisonResize, { width, height }));
-//resize(comparisonRes!).addResizeListener((width, height) => style(targetRes, { width, height }));
-
-target!.querySelector('.os-viewport')?.addEventListener('scroll', (e) => {
-  const viewport: HTMLElement | null = e.currentTarget as HTMLElement;
-  comparison!.scrollLeft = viewport.scrollLeft;
-  comparison!.scrollTop = viewport.scrollTop;
-});
 
 if (!useContentElement) {
   envElms.forEach((elm) => {
@@ -51,6 +35,17 @@ if (!useContentElement) {
 }
 
 const osInstance = (window.os = OverlayScrollbars({ target: target!, content: useContentElement }));
+
+target!.querySelector('.os-viewport')?.addEventListener('scroll', (e) => {
+  const viewport: HTMLElement | null = e.currentTarget as HTMLElement;
+  comparison!.scrollLeft = viewport.scrollLeft;
+  comparison!.scrollTop = viewport.scrollTop;
+});
+
+resize(target!).addResizeListener((width, height) => style(comparison, { width, height }));
+//resize(comparison!).addResizeListener((width, height) => style(target, { width, height }));
+resize(targetResize!).addResizeListener((width, height) => style(comparisonResize, { width, height }));
+//resize(comparisonRes!).addResizeListener((width, height) => style(targetRes, { width, height }));
 
 const selectCallbackEnv = generateClassChangeSelectCallback(from(envElms));
 const envWidthSelect = document.querySelector<HTMLSelectElement>('#envWidth');
@@ -89,105 +84,102 @@ selectCallbackEnv(containerBoxSizingSelect);
 selectCallbackEnv(containerDirectionSelect);
 selectCallbackEnv(containerMinMaxSelect);
 
-// 1. no overflow
-// 2. 1px overflow (width)
-// 3. 1px overflow (height)
-// 4. lerge overflow (width & height)
+const checkMetrics = async () => {
+  const comparisonEnvBCR = getBoundingClientRect(parent(comparison!) as HTMLElement);
+  const comparisonBCR = getBoundingClientRect(comparison!);
+  const comparisonPercentBCR = getBoundingClientRect(comparisonPercent!);
+  const comparisonEndBCR = getBoundingClientRect(comparisonEnd!);
+  const comparisonMetrics = {
+    offset: {
+      left: (comparisonBCR.left - comparisonEnvBCR.left).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
+      top: (comparisonBCR.top - comparisonEnvBCR.top).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
+    },
+    size: {
+      width: comparisonBCR.width.toFixed(fixedDigits),
+      height: comparisonBCR.height.toFixed(fixedDigits),
+    },
+    scroll: {
+      width: comparison!.scrollWidth - comparison!.clientWidth,
+      height: comparison!.scrollHeight - comparison!.clientHeight,
+    },
+    percentElm: {
+      width: comparisonPercentBCR.width.toFixed(fixedDigits),
+      height: comparisonPercentBCR.height.toFixed(fixedDigits),
+    },
+    endElm: {
+      width: comparisonEndBCR.width.toFixed(fixedDigits),
+      height: comparisonEndBCR.height.toFixed(fixedDigits),
+    },
+  };
 
-// tests for restricted measuring without content elm
+  await waitForOrFailTest(async () => {
+    const targetEnvBCR = getBoundingClientRect(parent(target!) as HTMLElement);
+    const targetBCR = getBoundingClientRect(target!);
+    const targetPercentBCR = getBoundingClientRect(targetPercent!);
+    const targetEndBCR = getBoundingClientRect(targetEnd!);
+    const targetViewport = target!.querySelector<HTMLElement>('.os-viewport');
+
+    const targetMetrics = {
+      offset: {
+        left: (targetBCR.left - targetEnvBCR.left).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
+        top: (targetBCR.top - targetEnvBCR.top).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
+      },
+      size: {
+        width: targetBCR.width.toFixed(fixedDigits),
+        height: targetBCR.height.toFixed(fixedDigits),
+      },
+      scroll: {
+        width: targetViewport!.scrollWidth - targetViewport!.clientWidth,
+        height: targetViewport!.scrollHeight - targetViewport!.clientHeight,
+      },
+      percentElm: {
+        width: targetPercentBCR.width.toFixed(fixedDigits),
+        height: targetPercentBCR.height.toFixed(fixedDigits),
+      },
+      endElm: {
+        width: targetEndBCR.width.toFixed(fixedDigits),
+        height: targetEndBCR.height.toFixed(fixedDigits),
+      },
+    };
+
+    //console.log('t', targetMetrics);
+    //console.log('c', comparisonMatrics);
+
+    should.equal(targetMetrics.offset.left, comparisonMetrics.offset.left, 'Offset left equality.');
+    should.equal(targetMetrics.offset.top, comparisonMetrics.offset.top, 'Offset top equality.');
+
+    should.equal(targetMetrics.size.width, comparisonMetrics.size.width, 'Size width equality.');
+    should.equal(targetMetrics.size.height, comparisonMetrics.size.height, 'Size height equality.');
+
+    should.equal(targetMetrics.scroll.width, comparisonMetrics.scroll.width, 'Scroll width equality.');
+    should.equal(targetMetrics.scroll.height, comparisonMetrics.scroll.height, 'Scroll height equality.');
+
+    if (targetMetrics.scroll.width > 0) {
+      should.equal(style(targetViewport!, 'overflowX'), 'scroll', 'Overflow-X should result in scroll.');
+    } else {
+      should.notEqual(style(targetViewport!, 'overflowX'), 'scroll', 'No Overflow-X shouldnt result in scroll.');
+    }
+
+    if (targetMetrics.scroll.height > 0) {
+      should.equal(style(targetViewport!, 'overflowY'), 'scroll', 'Overflow-Y should result in scroll.');
+    } else {
+      should.notEqual(style(targetViewport!, 'overflowY'), 'scroll', 'No Overflow-Y shouldnt result in scroll.');
+    }
+
+    should.equal(targetMetrics.percentElm.width, comparisonMetrics.percentElm.width, 'Percent Elements width equality.');
+    should.equal(targetMetrics.percentElm.height, comparisonMetrics.percentElm.height, 'Percent Elements height equality.');
+
+    should.equal(targetMetrics.endElm.width, comparisonMetrics.endElm.width, 'End Elements width equality.');
+    should.equal(targetMetrics.endElm.height, comparisonMetrics.endElm.height, 'End Elements height equality.');
+
+    await timeout(1);
+  });
+};
 
 const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) => {
   await iterateSelect(select, {
     async check() {
-      const comparisonEnvBCR = getBoundingClientRect(parent(comparison!) as HTMLElement);
-      const comparisonBCR = getBoundingClientRect(comparison!);
-      const comparisonPercentBCR = getBoundingClientRect(comparisonPercent!);
-      const comparisonEndBCR = getBoundingClientRect(comparisonEnd!);
-      const comparisonMatrics = {
-        offset: {
-          left: (comparisonBCR.left - comparisonEnvBCR.left).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
-          top: (comparisonBCR.top - comparisonEnvBCR.top).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
-        },
-        size: {
-          width: comparisonBCR.width.toFixed(fixedDigits),
-          height: comparisonBCR.height.toFixed(fixedDigits),
-        },
-        scroll: {
-          width: comparison!.scrollWidth - comparison!.clientWidth,
-          height: comparison!.scrollHeight - comparison!.clientHeight,
-        },
-        percentElm: {
-          width: comparisonPercentBCR.width.toFixed(fixedDigits),
-          height: comparisonPercentBCR.height.toFixed(fixedDigits),
-        },
-        endElm: {
-          width: comparisonEndBCR.width.toFixed(fixedDigits),
-          height: comparisonEndBCR.height.toFixed(fixedDigits),
-        },
-      };
-
-      await waitForOrFailTest(async () => {
-        const targetEnvBCR = getBoundingClientRect(parent(target!) as HTMLElement);
-        const targetBCR = getBoundingClientRect(target!);
-        const targetPercentBCR = getBoundingClientRect(targetPercent!);
-        const targetEndBCR = getBoundingClientRect(targetEnd!);
-        const targetViewport = target!.querySelector<HTMLElement>('.os-viewport');
-
-        const targetMetrics = {
-          offset: {
-            left: (targetBCR.left - targetEnvBCR.left).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
-            top: (targetBCR.top - targetEnvBCR.top).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
-          },
-          size: {
-            width: targetBCR.width.toFixed(fixedDigits),
-            height: targetBCR.height.toFixed(fixedDigits),
-          },
-          scroll: {
-            width: targetViewport!.scrollWidth - targetViewport!.clientWidth,
-            height: targetViewport!.scrollHeight - targetViewport!.clientHeight,
-          },
-          percentElm: {
-            width: targetPercentBCR.width.toFixed(fixedDigits),
-            height: targetPercentBCR.height.toFixed(fixedDigits),
-          },
-          endElm: {
-            width: targetEndBCR.width.toFixed(fixedDigits),
-            height: targetEndBCR.height.toFixed(fixedDigits),
-          },
-        };
-
-        //console.log('t', targetMetrics);
-        //console.log('c', comparisonMatrics);
-
-        should.equal(targetMetrics.offset.left, comparisonMatrics.offset.left, 'Offset left equality.');
-        should.equal(targetMetrics.offset.top, comparisonMatrics.offset.top, 'Offset top equality.');
-
-        should.equal(targetMetrics.size.width, comparisonMatrics.size.width, 'Size width equality.');
-        should.equal(targetMetrics.size.height, comparisonMatrics.size.height, 'Size height equality.');
-
-        should.equal(targetMetrics.scroll.width, comparisonMatrics.scroll.width, 'Scroll width equality.');
-        should.equal(targetMetrics.scroll.height, comparisonMatrics.scroll.height, 'Scroll height equality.');
-
-        if (targetMetrics.scroll.width > 0) {
-          should.equal(style(targetViewport!, 'overflowX'), 'scroll', 'Overflow-X should result in scroll.');
-        } else {
-          should.notEqual(style(targetViewport!, 'overflowX'), 'scroll', 'No Overflow-X shouldnt result in scroll.');
-        }
-
-        if (targetMetrics.scroll.height > 0) {
-          should.equal(style(targetViewport!, 'overflowY'), 'scroll', 'Overflow-Y should result in scroll.');
-        } else {
-          should.notEqual(style(targetViewport!, 'overflowY'), 'scroll', 'No Overflow-Y shouldnt result in scroll.');
-        }
-
-        should.equal(targetMetrics.percentElm.width, comparisonMatrics.percentElm.width, 'Percent Elements width equality.');
-        should.equal(targetMetrics.percentElm.height, comparisonMatrics.percentElm.height, 'Percent Elements height equality.');
-
-        should.equal(targetMetrics.endElm.width, comparisonMatrics.endElm.width, 'End Elements width equality.');
-        should.equal(targetMetrics.endElm.height, comparisonMatrics.endElm.height, 'End Elements height equality.');
-
-        await timeout(1);
-      });
+      await checkMetrics();
     },
     afterEach,
   });
@@ -227,10 +219,7 @@ const iterateMinMax = async (afterEach?: () => any) => {
   await iterate(containerMinMaxSelect, afterEach);
 };
 
-const start = async () => {
-  setTestResult(null);
-
-  target?.removeAttribute('style');
+const containerTest = async () => {
   await iterateMinMax(async () => {
     await iterateBoxSizing(async () => {
       await iterateHeight(async () => {
@@ -250,6 +239,134 @@ const start = async () => {
       });
     });
   });
+};
+const overflowTest = async () => {
+  const contentBox = (elm: HTMLElement | null): WH<number> => {
+    if (elm) {
+      const computedStyle = window.getComputedStyle(elm);
+      const size = clientSize(elm);
+      return {
+        w: size.w - (parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight)),
+        h: size.h - (parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom)),
+      };
+    }
+
+    return { w: 0, h: 0 };
+  };
+  const setNoOverflow = async () => {
+    const styleObj = { width: 0, height: 0 };
+    style(targetResize, styleObj);
+    style(comparisonResize, styleObj);
+
+    await checkMetrics();
+  };
+  const setSmallestOverflow = async (width?: boolean, height?: boolean) => {
+    const { maxWidth, maxHeight } = style(comparison, ['maxWidth', 'maxHeight']);
+
+    if (maxWidth !== 'none' && maxHeight !== 'none') {
+      const { paddingRight, paddingBottom } = style(comparison, ['paddingRight', 'paddingBottom']);
+      const comparisonContentBox = contentBox(comparison);
+      const widthOverflow = width ? 1 : 0;
+      const heightOverflow = height ? 1 : 0;
+      const styleObj = { width: comparisonContentBox.w + widthOverflow, height: comparisonContentBox.h + heightOverflow };
+
+      style(comparisonResize, styleObj);
+
+      const overflowAmount = {
+        width: comparison!.scrollWidth - comparison!.clientWidth,
+        height: comparison!.scrollHeight - comparison!.clientHeight,
+      };
+
+      if (width && overflowAmount.width <= 0) {
+        styleObj.width += parseFloat(paddingRight);
+      }
+      if (height && overflowAmount.height <= 0) {
+        styleObj.height += parseFloat(paddingBottom);
+      }
+
+      style(comparisonResize, styleObj);
+
+      if (width) {
+        while (comparison!.scrollWidth - comparison!.clientWidth <= 0) {
+          styleObj.width += 1;
+          style(comparisonResize, styleObj);
+        }
+      }
+
+      if (height) {
+        while (comparison!.scrollHeight - comparison!.clientHeight <= 0) {
+          styleObj.height += 1;
+          style(comparisonResize, styleObj);
+        }
+      }
+
+      const overflowAmountCheck = {
+        width: comparison!.scrollWidth - comparison!.clientWidth,
+        height: comparison!.scrollHeight - comparison!.clientHeight,
+      };
+
+      should.equal(overflowAmountCheck.width, width ? 1 : 0, 'Correct smallest possible overflow width.');
+      should.equal(overflowAmountCheck.height, height ? 1 : 0, 'Correct smallest possible overflow height.');
+
+      style(targetResize, styleObj);
+
+      await checkMetrics();
+    }
+  };
+  const setLargeOverflow = async (width?: boolean, height?: boolean) => {
+    const comparisonContentBox = contentBox(comparison);
+    const widthOverflow = width ? 1000 : 0;
+    const heightOverflow = height ? 1000 : 0;
+    const styleObj = { width: comparisonContentBox.w + widthOverflow, height: comparisonContentBox.h + heightOverflow };
+    style(targetResize, styleObj);
+    style(comparisonResize, styleObj);
+
+    await checkMetrics();
+  };
+
+  style(targetResize, { boxSizing: 'border-box' });
+  style(comparisonResize, { boxSizing: 'border-box' });
+  style(targetPercent, { display: 'none' });
+  style(comparisonPercent, { display: 'none' });
+  style(targetEnd, { display: 'none' });
+  style(comparisonEnd, { display: 'none' });
+
+  await iterateMinMax(async () => {
+    await iterateBoxSizing(async () => {
+      await iterateHeight(async () => {
+        await iterateWidth(async () => {
+          await iterateBorder(async () => {
+            await iteratePadding(async () => {
+              await setNoOverflow();
+              await setSmallestOverflow(true, false);
+              await setSmallestOverflow(false, true);
+              await setSmallestOverflow(true, true);
+
+              await setNoOverflow();
+              await setLargeOverflow(true, false);
+              await setLargeOverflow(false, true);
+              await setLargeOverflow(true, true);
+            });
+          });
+        });
+      });
+    });
+  });
+
+  removeAttr(targetResize, 'style');
+  removeAttr(comparisonResize, 'style');
+  removeAttr(targetPercent, 'style');
+  removeAttr(comparisonPercent, 'style');
+  removeAttr(targetEnd, 'style');
+  removeAttr(comparisonEnd, 'style');
+};
+
+const start = async () => {
+  setTestResult(null);
+
+  target?.removeAttribute('style');
+  //await containerTest();
+  await overflowTest();
 
   setTestResult(true);
 };
