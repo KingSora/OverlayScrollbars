@@ -1,4 +1,4 @@
-import { XY, TRBL, CacheValues, PartialOptions, each, push, keys, hasOwnProperty, isNumber, scrollLeft, scrollTop } from 'support';
+import { XY, WH, TRBL, CacheValues, PartialOptions, each, push, keys, hasOwnProperty, isNumber, scrollLeft, scrollTop } from 'support';
 import { OSOptions } from 'options';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
@@ -42,6 +42,7 @@ export type Lifecycle = (
 
 export interface LifecycleHubInstance {
   _update(changedOptions?: PartialOptions<OSOptions> | null, force?: boolean): void;
+  _state(): any;
   _destroy(): void;
 }
 
@@ -56,7 +57,9 @@ export interface LifecycleHub {
   _getViewportPaddingStyle(): StyleObject;
   _setViewportPaddingStyle(newPaddingStlye?: StyleObject | null): void;
   _getViewportOverflowScroll(): XY<boolean>;
-  _setViewportOverflowScroll(newViewportOverflowScroll: XY<boolean>): void;
+  _setViewportOverflowScroll(newViewportOverflowScroll?: XY<boolean>): void;
+  _getViewportOverflowAmount(): WH<number>;
+  _setViewportOverflowAmount(newViewportOverflowAmount?: WH<number>): void;
 }
 
 const getPropByPath = <T>(obj: any, path: string): T =>
@@ -98,6 +101,10 @@ const viewportOverflowScrollFallback: XY<boolean> = {
   x: false,
   y: false,
 };
+const viewportOverflowAmountFallback: WH<number> = {
+  w: 0,
+  h: 0,
+};
 const directionIsRTLCacheValuesFallback: CacheValues<boolean> = {
   _value: false,
   _previous: false,
@@ -113,6 +120,7 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
   let paddingInfo = paddingInfoFallback;
   let viewportPaddingStyle = viewportPaddingStyleFallback;
   let viewportOverflowScroll = viewportOverflowScrollFallback;
+  let viewportOverflowAmount = viewportOverflowAmountFallback;
   const { _host, _viewport, _content } = structureSetup._targetObj;
   const {
     _nativeScrollbarStyling,
@@ -138,6 +146,10 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
     _getViewportOverflowScroll: () => viewportOverflowScroll,
     _setViewportOverflowScroll(newViewportOverflowScroll) {
       viewportOverflowScroll = newViewportOverflowScroll || viewportOverflowScrollFallback;
+    },
+    _getViewportOverflowAmount: () => viewportOverflowAmount,
+    _setViewportOverflowAmount(newViewportOverflowAmount) {
+      viewportOverflowAmount = newViewportOverflowAmount || viewportOverflowAmountFallback;
     },
   };
 
@@ -266,6 +278,9 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
 
   return {
     _update: update,
+    _state: () => ({
+      _overflowAmount: viewportOverflowAmount,
+    }),
     _destroy() {
       removeEnvironmentListener(envUpdateListener);
     },

@@ -142,9 +142,6 @@ const checkMetrics = async () => {
       },
     };
 
-    //console.log('t', targetMetrics);
-    //console.log('c', comparisonMatrics);
-
     should.equal(targetMetrics.offset.left, comparisonMetrics.offset.left, 'Offset left equality.');
     should.equal(targetMetrics.offset.top, comparisonMetrics.offset.top, 'Offset top equality.');
 
@@ -153,6 +150,9 @@ const checkMetrics = async () => {
 
     should.equal(targetMetrics.scroll.width, comparisonMetrics.scroll.width, 'Scroll width equality.');
     should.equal(targetMetrics.scroll.height, comparisonMetrics.scroll.height, 'Scroll height equality.');
+
+    should.equal(osInstance.state()._overflowAmount.w, comparisonMetrics.scroll.width, 'Overflow amount width equality.');
+    should.equal(osInstance.state()._overflowAmount.h, comparisonMetrics.scroll.height, 'Overflow amount height equality.');
 
     if (targetMetrics.scroll.width > 0) {
       should.equal(style(targetViewport!, 'overflowX'), 'scroll', 'Overflow-X should result in scroll.');
@@ -324,8 +324,8 @@ const overflowTest = async () => {
     await checkMetrics();
   };
 
-  style(targetResize, { boxSizing: 'border-box' });
-  style(comparisonResize, { boxSizing: 'border-box' });
+  style(targetResize, { boxSizing: 'border-box', background: 'rgba(0, 0, 0, 0.1)' });
+  style(comparisonResize, { boxSizing: 'border-box', background: 'rgba(0, 0, 0, 0.1)' });
   style(targetPercent, { display: 'none' });
   style(comparisonPercent, { display: 'none' });
   style(targetEnd, { display: 'none' });

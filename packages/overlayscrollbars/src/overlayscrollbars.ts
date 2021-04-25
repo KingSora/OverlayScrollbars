@@ -14,6 +14,8 @@ export interface OverlayScrollbars {
   options(newOptions?: PartialOptions<OSOptions>): OSOptions;
 
   update(force?: boolean): void;
+
+  state(): any;
 }
 
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
@@ -41,6 +43,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       }
       return currentOptions;
     },
+    state: () => lifecycleHub._state(),
     update(force?: boolean) {
       lifecycleHub._update(null, force);
     },
