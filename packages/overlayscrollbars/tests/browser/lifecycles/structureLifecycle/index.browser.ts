@@ -10,10 +10,11 @@ import { clientSize, from, getBoundingClientRect, style, parent, addClass, WH, r
 
 // @ts-ignore
 const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
+const msedge = window.navigator.userAgent.indexOf('Edge') > -1;
 const firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 const useContentElement = false;
-const fixedDigits = msie11 ? 1 : 10;
+const fixedDigits = msie11 || msedge ? 1 : 10;
 const fixedDigitsOffset = firefox ? 3 : fixedDigits; // ff does roundign errors here only
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
@@ -225,11 +226,13 @@ const containerTest = async () => {
       await iterateHeight(async () => {
         await iterateWidth(async () => {
           await iterateBorder(async () => {
-            // assume this part isn't critical for IE11, to boost test speed
-            if (!msie11) {
+            // assume this part isn't critical for IE11 and edge, to boost test speed
+            if (!msie11 && !msedge) {
               await iterateFloat(async () => {
                 await iterateMargin();
               });
+            } else if (msedge) {
+              await iterateMargin();
             }
 
             await iteratePadding();
@@ -305,8 +308,17 @@ const overflowTest = async () => {
         height: comparison!.scrollHeight - comparison!.clientHeight,
       };
 
-      should.equal(overflowAmountCheck.width, width ? 1 : 0, 'Correct smallest possible overflow width.');
-      should.equal(overflowAmountCheck.height, height ? 1 : 0, 'Correct smallest possible overflow height.');
+      if (width) {
+        should.ok(overflowAmountCheck.width >= 1, 'Correct smallest possible overflow width.');
+      } else {
+        should.equal(overflowAmountCheck.width, 0, 'Correct smallest possible overflow width.');
+      }
+
+      if (height) {
+        should.ok(overflowAmountCheck.height >= 1, 'Correct smallest possible overflow height.');
+      } else {
+        should.equal(overflowAmountCheck.height, 0, 'Correct smallest possible overflow height.');
+      }
 
       style(targetResize, styleObj);
 
@@ -365,8 +377,8 @@ const start = async () => {
   setTestResult(null);
 
   target?.removeAttribute('style');
-  //await containerTest();
-  await overflowTest();
+  await containerTest();
+  //await overflowTest();
 
   setTestResult(true);
 };
