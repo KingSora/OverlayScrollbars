@@ -1,5 +1,22 @@
-import { XY, WH, TRBL, CacheValues, PartialOptions, each, push, keys, hasOwnProperty, isNumber, scrollLeft, scrollTop } from 'support';
+import {
+  XY,
+  WH,
+  TRBL,
+  CacheValues,
+  PartialOptions,
+  each,
+  push,
+  keys,
+  hasOwnProperty,
+  isNumber,
+  scrollLeft,
+  scrollTop,
+  assignDeep,
+  liesBetween,
+  diffClass,
+} from 'support';
 import { OSOptions } from 'options';
+import { classNameHost, classNameViewport, classNameContent } from 'classnames';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
 import { createTrinsicLifecycle } from 'lifecycles/trinsicLifecycle';
@@ -12,14 +29,19 @@ import { StyleObject } from 'typings';
 
 export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
 
-export interface PaddingInfo {
-  _absolute: boolean;
-  _padding: TRBL;
-}
-
 export interface LifecycleOptionInfo<T> {
   readonly _value: T;
   _changed: boolean;
+}
+
+export interface LifecycleCommunication {
+  _paddingInfo: {
+    _absolute: boolean;
+    _padding: TRBL;
+  };
+  _viewportPaddingStyle: StyleObject;
+  _viewportOverflowScroll: XY<boolean>;
+  _viewportOverflowAmount: WH<number>;
 }
 
 export interface LifecycleAdaptiveUpdateHints {
@@ -40,9 +62,13 @@ export type Lifecycle = (
   force: boolean
 ) => Partial<LifecycleAdaptiveUpdateHints> | void;
 
+export interface LifecycleHubState {
+  _overflowAmount: WH<number>;
+}
+
 export interface LifecycleHubInstance {
   _update(changedOptions?: PartialOptions<OSOptions> | null, force?: boolean): void;
-  _state(): any;
+  _state(): LifecycleHubState;
   _destroy(): void;
 }
 
@@ -51,19 +77,12 @@ export interface LifecycleHub {
   _structureSetup: StructureSetup;
   // whether the "viewport arrange" strategy must be used (true if no native scrollbar hiding and scrollbars are overlaid)
   _doViewportArrange: boolean;
-  _getPaddingInfo(): PaddingInfo;
-  _setPaddingInfo(newPadding?: PaddingInfo | null): void;
-  // padding related styles applied to the viewport element
-  _getViewportPaddingStyle(): StyleObject;
-  _setViewportPaddingStyle(newPaddingStlye?: StyleObject | null): void;
-  _getViewportOverflowScroll(): XY<boolean>;
-  _setViewportOverflowScroll(newViewportOverflowScroll?: XY<boolean>): void;
-  _getViewportOverflowAmount(): WH<number>;
-  _setViewportOverflowAmount(newViewportOverflowAmount?: WH<number>): void;
+  _getLifecycleCommunication(): LifecycleCommunication;
+  _setLifecycleCommunication(newLifecycleCommunication?: Partial<LifecycleCommunication>): void;
 }
 
 const getPropByPath = <T>(obj: any, path: string): T =>
-  obj && path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj);
+  obj ? path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj) : undefined;
 
 const emptyStylePropsToZero = (stlyeObj: StyleObject, baseStyle?: StyleObject) =>
   keys(stlyeObj).reduce(
@@ -77,33 +96,19 @@ const emptyStylePropsToZero = (stlyeObj: StyleObject, baseStyle?: StyleObject) =
 
 // TODO: observer textarea attrs if textarea
 // TODO: tabindex, open etc.
+// TODO: test _ignoreContentChange & _ignoreNestedTargetChange for content dom observer
+// TODO: test _ignoreTargetChange for target dom observer
+const ignorePrefix = 'os-';
+const hostSelector = `.${classNameHost}`;
+const viewportSelector = `.${classNameViewport}`;
+const contentSelector = `.${classNameContent}`;
 const attrs = ['id', 'class', 'style', 'open'];
-const paddingInfoFallback: PaddingInfo = {
-  _absolute: false,
-  _padding: {
-    t: 0,
-    r: 0,
-    b: 0,
-    l: 0,
-  },
-};
-const viewportPaddingStyleFallback: StyleObject = {
-  marginTop: 0,
-  marginRight: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  paddingTop: 0,
-  paddingRight: 0,
-  paddingBottom: 0,
-  paddingLeft: 0,
-};
-const viewportOverflowScrollFallback: XY<boolean> = {
-  x: false,
-  y: false,
-};
-const viewportOverflowAmountFallback: WH<number> = {
-  w: 0,
-  h: 0,
+const ignoreTargetChange = (target: Node, attrName: string, oldValue: string | null, newValue: string | null) => {
+  if (attrName === 'class' && oldValue && newValue) {
+    const diff = diffClass(oldValue, newValue);
+    return !!diff.find((addedOrRemovedClass) => addedOrRemovedClass.indexOf(ignorePrefix) !== 0);
+  }
+  return false;
 };
 const directionIsRTLCacheValuesFallback: CacheValues<boolean> = {
   _value: false,
@@ -115,12 +120,38 @@ const heightIntrinsicCacheValuesFallback: CacheValues<boolean> = {
   _previous: false,
   _changed: false,
 };
+const lifecycleCommunicationFallback: LifecycleCommunication = {
+  _paddingInfo: {
+    _absolute: false,
+    _padding: {
+      t: 0,
+      r: 0,
+      b: 0,
+      l: 0,
+    },
+  },
+  _viewportOverflowScroll: {
+    x: false,
+    y: false,
+  },
+  _viewportOverflowAmount: {
+    w: 0,
+    h: 0,
+  },
+  _viewportPaddingStyle: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+};
 
 export const createLifecycleHub = (options: OSOptions, structureSetup: StructureSetup): LifecycleHubInstance => {
-  let paddingInfo = paddingInfoFallback;
-  let viewportPaddingStyle = viewportPaddingStyleFallback;
-  let viewportOverflowScroll = viewportOverflowScrollFallback;
-  let viewportOverflowAmount = viewportOverflowAmountFallback;
+  let lifecycleCommunication = lifecycleCommunicationFallback;
   const { _host, _viewport, _content } = structureSetup._targetObj;
   const {
     _nativeScrollbarStyling,
@@ -135,21 +166,16 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
     _options: options,
     _structureSetup: structureSetup,
     _doViewportArrange: doViewportArrange,
-    _getPaddingInfo: () => paddingInfo,
-    _setPaddingInfo(newPaddingInfo) {
-      paddingInfo = newPaddingInfo || paddingInfoFallback;
-    },
-    _getViewportPaddingStyle: () => viewportPaddingStyle,
-    _setViewportPaddingStyle(newPaddingStlye) {
-      viewportPaddingStyle = newPaddingStlye ? emptyStylePropsToZero(newPaddingStlye, viewportPaddingStyleFallback) : viewportPaddingStyleFallback;
-    },
-    _getViewportOverflowScroll: () => viewportOverflowScroll,
-    _setViewportOverflowScroll(newViewportOverflowScroll) {
-      viewportOverflowScroll = newViewportOverflowScroll || viewportOverflowScrollFallback;
-    },
-    _getViewportOverflowAmount: () => viewportOverflowAmount,
-    _setViewportOverflowAmount(newViewportOverflowAmount) {
-      viewportOverflowAmount = newViewportOverflowAmount || viewportOverflowAmountFallback;
+    _getLifecycleCommunication: () => lifecycleCommunication,
+    _setLifecycleCommunication(newLifecycleCommunication) {
+      if (newLifecycleCommunication && newLifecycleCommunication._viewportPaddingStyle) {
+        newLifecycleCommunication._viewportPaddingStyle = emptyStylePropsToZero(
+          newLifecycleCommunication._viewportPaddingStyle,
+          lifecycleCommunicationFallback._viewportPaddingStyle
+        );
+      }
+
+      lifecycleCommunication = assignDeep({}, lifecycleCommunication, newLifecycleCommunication);
     },
   };
 
@@ -172,7 +198,7 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
       _heightIntrinsic || (trinsicObserver ? trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : heightIntrinsicCacheValuesFallback);
     const checkOption: LifecycleCheckOption = (path) => ({
       _value: getPropByPath(options, path),
-      _changed: force || (!!changedOptions && getPropByPath(changedOptions, path) !== undefined),
+      _changed: force || getPropByPath(changedOptions, path) !== undefined,
     });
     const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
@@ -246,26 +272,22 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
   const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: attrs,
     _attributes: attrs,
+    _ignoreTargetChange: ignoreTargetChange,
   });
   const contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
     _styleChangingAttributes: attrs,
     _attributes: attrs,
-    _eventContentChange: options!.updating!.elementEvents as [string, string][],
-    /*
-      _nestedTargetSelector: hostSelector,
-      _ignoreContentChange: (mutation, isNestedTarget) => {
-        const { target, attributeName } = mutation;
-        return isNestedTarget ? false : attributeName ? liesBetween(target as Element, hostSelector, '.content') : false;
-      },
-      _ignoreTargetAttrChange: (target, attrName, oldValue, newValue) => {
-        if (attrName === 'class' && oldValue && newValue) {
-          const diff = diffClass(oldValue, newValue);
-          const ignore = diff.length === 1 && diff[0].startsWith(ignorePrefix);
-          return ignore;
-        }
-        return false;
-      },
-      */
+    _eventContentChange: options!.updating!.elementEvents,
+    _nestedTargetSelector: hostSelector,
+    _ignoreContentChange: (mutation, isNestedTarget) => {
+      const { target, attributeName } = mutation;
+      return isNestedTarget
+        ? false
+        : attributeName
+        ? liesBetween(target as Element, hostSelector, viewportSelector) || liesBetween(target as Element, hostSelector, contentSelector)
+        : false;
+    },
+    _ignoreNestedTargetChange: ignoreTargetChange,
   });
 
   const update = (changedOptions?: Partial<OSOptions> | null, force?: boolean) => {
@@ -279,7 +301,7 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
   return {
     _update: update,
     _state: () => ({
-      _overflowAmount: viewportOverflowAmount,
+      _overflowAmount: lifecycleCommunication._viewportOverflowAmount,
     }),
     _destroy() {
       removeEnvironmentListener(envUpdateListener);

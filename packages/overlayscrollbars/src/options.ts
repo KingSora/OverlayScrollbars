@@ -34,7 +34,7 @@ export interface OSOptions {
   resize: ResizeBehavior;
   paddingAbsolute: boolean;
   updating: {
-    elementEvents: ReadonlyArray<[string, string]> | null;
+    elementEvents: Array<[string, string]> | null;
     contentMutationDebounce: number;
     hostMutationDebounce: number;
     resizeDebounce: number;
@@ -54,7 +54,7 @@ export interface OSOptions {
   textarea: {
     dynWidth: boolean;
     dynHeight: boolean;
-    inheritedAttrs: string | ReadonlyArray<string> | null;
+    inheritedAttrs: string | Array<string> | null;
   };
   nativeScrollbarsOverlaid: {
     show: boolean;

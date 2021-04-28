@@ -12,6 +12,9 @@ import { clientSize, from, getBoundingClientRect, style, parent, addClass, WH, r
 const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
 const firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
+msie11 && addClass(document.body, 'msie11');
+firefox && addClass(document.body, 'firefox');
+
 const useContentElement = false;
 const fixedDigits = msie11 ? 1 : 10;
 const fixedDigitsOffset = firefox ? 3 : fixedDigits; // ff does roundign errors here only
@@ -220,27 +223,6 @@ const iterateMinMax = async (afterEach?: () => any) => {
 };
 
 const containerTest = async () => {
-  await iterateMinMax(async () => {
-    await iterateBoxSizing(async () => {
-      await iterateHeight(async () => {
-        await iterateWidth(async () => {
-          await iterateBorder(async () => {
-            // assume this part isn't critical for IE11, to boost test speed
-            if (!msie11) {
-              await iterateFloat(async () => {
-                await iterateMargin();
-              });
-            }
-
-            await iteratePadding();
-            await iterateDirection();
-          });
-        });
-      });
-    });
-  });
-};
-const overflowTest = async () => {
   const contentBox = (elm: HTMLElement | null): WH<number> => {
     if (elm) {
       const computedStyle = window.getComputedStyle(elm);
@@ -323,50 +305,66 @@ const overflowTest = async () => {
 
     await checkMetrics();
   };
+  const overflowTest = async () => {
+    style(targetResize, { boxSizing: 'border-box' });
+    style(comparisonResize, { boxSizing: 'border-box' });
+    style(targetPercent, { display: 'none' });
+    style(comparisonPercent, { display: 'none' });
+    style(targetEnd, { display: 'none' });
+    style(comparisonEnd, { display: 'none' });
 
-  style(targetResize, { boxSizing: 'border-box', background: 'rgba(0, 0, 0, 0.1)' });
-  style(comparisonResize, { boxSizing: 'border-box', background: 'rgba(0, 0, 0, 0.1)' });
-  style(targetPercent, { display: 'none' });
-  style(comparisonPercent, { display: 'none' });
-  style(targetEnd, { display: 'none' });
-  style(comparisonEnd, { display: 'none' });
+    await setNoOverflow();
+    await setSmallestOverflow(true, false);
+    await setSmallestOverflow(false, true);
+    await setSmallestOverflow(true, true);
+
+    await setNoOverflow();
+    await setLargeOverflow(true, false);
+    await setLargeOverflow(false, true);
+    await setLargeOverflow(true, true);
+
+    removeAttr(targetResize, 'style');
+    removeAttr(comparisonResize, 'style');
+    removeAttr(targetPercent, 'style');
+    removeAttr(comparisonPercent, 'style');
+    removeAttr(targetEnd, 'style');
+    removeAttr(comparisonEnd, 'style');
+
+    if (msie11) {
+      await timeout(20);
+    }
+
+    await checkMetrics();
+  };
 
   await iterateMinMax(async () => {
     await iterateBoxSizing(async () => {
       await iterateHeight(async () => {
         await iterateWidth(async () => {
           await iterateBorder(async () => {
-            await iteratePadding(async () => {
-              await setNoOverflow();
-              await setSmallestOverflow(true, false);
-              await setSmallestOverflow(false, true);
-              await setSmallestOverflow(true, true);
+            // assume this part isn't critical for IE11, to boost test speed
+            if (!msie11) {
+              await iterateFloat(async () => {
+                await iterateMargin();
+              });
+            }
 
-              await setNoOverflow();
-              await setLargeOverflow(true, false);
-              await setLargeOverflow(false, true);
-              await setLargeOverflow(true, true);
+            await iteratePadding(async () => {
+              await overflowTest();
             });
+            await iterateDirection();
           });
         });
       });
     });
   });
-
-  removeAttr(targetResize, 'style');
-  removeAttr(comparisonResize, 'style');
-  removeAttr(targetPercent, 'style');
-  removeAttr(comparisonPercent, 'style');
-  removeAttr(targetEnd, 'style');
-  removeAttr(comparisonEnd, 'style');
 };
 
 const start = async () => {
   setTestResult(null);
 
   target?.removeAttribute('style');
-  //await containerTest();
-  await overflowTest();
+  await containerTest();
 
   setTestResult(true);
 };

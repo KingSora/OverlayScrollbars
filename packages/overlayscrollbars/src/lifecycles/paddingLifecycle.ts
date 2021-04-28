@@ -9,7 +9,7 @@ import { getEnvironment } from 'environment';
  * @returns
  */
 export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
-  const { _setPaddingInfo, _setViewportPaddingStyle, _structureSetup } = lifecycleHub;
+  const { _structureSetup, _setLifecycleCommunication } = lifecycleHub;
   const { _host, _padding, _viewport } = _structureSetup._targetObj;
   const { _update: updatePaddingCache, _current: currentPaddingCache } = createCache(() => topRightBottomLeft(_host, 'padding'), {
     _equal: equalTRBL,
@@ -66,18 +66,18 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
       style(_padding || _viewport, paddingStyle);
       style(_viewport, viewportStyle);
 
-      _setPaddingInfo({
-        _absolute: !paddingRelative,
-        _padding: padding!,
-      });
-      _setViewportPaddingStyle(
-        _padding
+      _setLifecycleCommunication({
+        _paddingInfo: {
+          _absolute: !paddingRelative,
+          _padding: padding!,
+        },
+        _viewportPaddingStyle: _padding
           ? viewportStyle
           : {
               ...paddingStyle,
               ...viewportStyle,
-            }
-      );
+            },
+      });
     }
 
     return {

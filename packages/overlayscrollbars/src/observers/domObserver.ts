@@ -49,11 +49,9 @@ interface DOMContentObserver extends DOMObserverBase {
 
 interface DOMTargetObserver extends DOMObserverBase {}
 
-export type DOMObserverEventContentChange =
-  | Array<[StringNullUndefined, ((elms: Node[]) => StringNullUndefined) | StringNullUndefined] | null | undefined>
-  | false
-  | null
-  | undefined;
+type ContentChangeArrayItem = [StringNullUndefined, ((elms: Node[]) => StringNullUndefined) | StringNullUndefined] | null | undefined;
+
+export type DOMObserverEventContentChange = Array<ContentChangeArrayItem> | false | null | undefined;
 
 export type DOMObserverIgnoreContentChange = (
   mutation: MutationRecord,

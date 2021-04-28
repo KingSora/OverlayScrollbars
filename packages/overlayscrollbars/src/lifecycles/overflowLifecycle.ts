@@ -57,14 +57,7 @@ const overlaidScrollbarsHideOffset = 42;
  * @returns
  */
 export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
-  const {
-    _structureSetup,
-    _doViewportArrange,
-    _getViewportPaddingStyle,
-    _getPaddingInfo,
-    _setViewportOverflowScroll,
-    _setViewportOverflowAmount,
-  } = lifecycleHub;
+  const { _structureSetup, _doViewportArrange, _getLifecycleCommunication, _setLifecycleCommunication } = lifecycleHub;
   const { _host, _viewport, _viewportArrange } = _structureSetup._targetObj;
   const { _update: updateContentScrollSizeCache, _current: getCurrentContentScrollSizeCache } = createCache<
     WH<number>,
@@ -101,7 +94,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     });
 
     if (heightIntrinsic) {
-      const { _absolute: paddingAbsolute, _padding: padding } = _getPaddingInfo();
+      const { _absolute: paddingAbsolute, _padding: padding } = _getLifecycleCommunication()._paddingInfo;
       const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
       const hostBCR = getBoundingClientRect(_host);
       const hostOffsetSize = offsetSize(_host);
@@ -204,7 +197,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
       const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
       const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
-      const viewportPaddingStyle = _getViewportPaddingStyle();
+      const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
       const viewportArrangeHorizontalPaddingKey: keyof StyleObject = directionIsRTL ? 'paddingRight' : 'paddingLeft';
       const viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[viewportArrangeHorizontalPaddingKey] as number;
       const viewportArrangeVerticalPaddingValue = viewportPaddingStyle.paddingTop as number;
@@ -257,13 +250,13 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
     const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
     const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
-    const paddingStyle = _getViewportPaddingStyle();
+    const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
     const horizontalMarginKey: keyof StyleObject = directionIsRTL ? 'marginLeft' : 'marginRight';
     const viewportHorizontalPaddingKey: keyof StyleObject = directionIsRTL ? 'paddingLeft' : 'paddingRight';
-    const horizontalMarginValue = paddingStyle[horizontalMarginKey] as number;
-    const verticalMarginValue = paddingStyle.marginBottom as number;
-    const horizontalPaddingValue = paddingStyle[viewportHorizontalPaddingKey] as number;
-    const verticalPaddingValue = paddingStyle.paddingBottom as number;
+    const horizontalMarginValue = viewportPaddingStyle[horizontalMarginKey] as number;
+    const verticalMarginValue = viewportPaddingStyle.marginBottom as number;
+    const horizontalPaddingValue = viewportPaddingStyle[viewportHorizontalPaddingKey] as number;
+    const verticalPaddingValue = viewportPaddingStyle.paddingBottom as number;
 
     // horizontal
     viewportStyleObj.maxWidth = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
@@ -293,14 +286,14 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
   ): UndoViewportArrangeResult => {
     if (_doViewportArrange) {
       const finalViewportOverflowState = viewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars);
-      const paddingStyle = _getViewportPaddingStyle();
+      const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
       const { _flexboxGlue } = getEnvironment();
       const { _scrollbarsHideOffsetArrange } = finalViewportOverflowState;
       const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
       const finalPaddingStyle: StyleObject = {};
       const assignProps = (props: string) =>
         each(props.split(' '), (prop) => {
-          finalPaddingStyle[prop] = paddingStyle[prop];
+          finalPaddingStyle[prop] = viewportPaddingStyle[prop];
         });
 
       if (!_flexboxGlue) {
@@ -443,8 +436,10 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
 
       style(_viewport, viewportStyle);
 
-      _setViewportOverflowScroll(viewportOverflowState._overflowScroll);
-      _setViewportOverflowAmount(overflowAmount);
+      _setLifecycleCommunication({
+        _viewportOverflowScroll: viewportOverflowState._overflowScroll,
+        _viewportOverflowAmount: overflowAmount,
+      });
     }
   };
 };
