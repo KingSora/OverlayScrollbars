@@ -8,5 +8,6 @@ export interface OverlayScrollbars {
     options(): OSOptions;
     options(newOptions?: PartialOptions<OSOptions>): OSOptions;
     update(force?: boolean): void;
+    state(): any;
 }
 export declare const OverlayScrollbars: OverlayScrollbarsStatic;

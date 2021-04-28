@@ -1,5 +1,5 @@
 export declare type ResizeBehavior = 'none' | 'both' | 'horizontal' | 'vertical';
-export declare type OverflowBehavior = 'hidden' | 'scroll' | 'visible-hidden' | 'visible-scroll';
+export declare type OverflowBehavior = 'hidden' | 'scroll' | 'visible' | 'visible-hidden';
 export declare type VisibilityBehavior = 'visible' | 'hidden' | 'auto';
 export declare type AutoHideBehavior = 'never' | 'scroll' | 'leave' | 'move';
 export declare type ScrollBehavior = 'always' | 'ifneeded' | 'never';
@@ -14,7 +14,7 @@ export interface OSOptions {
     resize: ResizeBehavior;
     paddingAbsolute: boolean;
     updating: {
-        elementEvents: ReadonlyArray<[string, string]> | null;
+        elementEvents: Array<[string, string]> | null;
         contentMutationDebounce: number;
         hostMutationDebounce: number;
         resizeDebounce: number;
@@ -34,7 +34,7 @@ export interface OSOptions {
     textarea: {
         dynWidth: boolean;
         dynHeight: boolean;
-        inheritedAttrs: string | ReadonlyArray<string> | null;
+        inheritedAttrs: string | Array<string> | null;
     };
     nativeScrollbarsOverlaid: {
         show: boolean;

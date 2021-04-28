@@ -23,7 +23,8 @@ interface DOMContentObserver extends DOMObserverBase {
 }
 interface DOMTargetObserver extends DOMObserverBase {
 }
-export declare type DOMObserverEventContentChange = Array<[StringNullUndefined, ((elms: Node[]) => StringNullUndefined) | StringNullUndefined] | null | undefined> | false | null | undefined;
+declare type ContentChangeArrayItem = [StringNullUndefined, ((elms: Node[]) => StringNullUndefined) | StringNullUndefined] | null | undefined;
+export declare type DOMObserverEventContentChange = Array<ContentChangeArrayItem> | false | null | undefined;
 export declare type DOMObserverIgnoreContentChange = (mutation: MutationRecord, isNestedTarget: boolean, domObserverTarget: HTMLElement, domObserverOptions: DOMContentObserverOptions | undefined) => boolean;
 export declare type DOMObserverIgnoreTargetChange = (target: Node, attributeName: string, oldAttributeValue: string | null, newAttributeValue: string | null) => boolean;
 export declare type DOMObserverCallback<ContentObserver extends boolean> = ContentObserver extends true ? DOMContentObserverCallback : DOMTargetObserverCallback;

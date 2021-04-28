@@ -213,6 +213,11 @@ const find = (selector, elm) => {
   return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
 };
 
+const findFirst = (selector, elm) => {
+  const rootElm = elm ? (isElement(elm) ? elm : null) : document;
+  return rootElm ? rootElm.querySelector(selector) : null;
+};
+
 const is = (elm, selector) => {
   if (isElement(elm)) {
     const fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
@@ -225,6 +230,36 @@ const is = (elm, selector) => {
 const contents = (elm) => (elm ? from(elm.childNodes) : []);
 
 const parent = (elm) => (elm ? elm.parentElement : null);
+
+const closest = (elm, selector) => {
+  if (isElement(elm)) {
+    const closestFn = elmPrototype.closest;
+
+    if (closestFn) {
+      return closestFn.call(elm, selector);
+    }
+
+    do {
+      if (is(elm, selector)) {
+        return elm;
+      }
+
+      elm = parent(elm);
+    } while (elm);
+  }
+
+  return null;
+};
+
+const liesBetween = (elm, highBoundarySelector, deepBoundarySelector) => {
+  const closestHighBoundaryElm = elm && closest(elm, highBoundarySelector);
+  const closestDeepBoundaryElm = elm && findFirst(deepBoundarySelector, closestHighBoundaryElm);
+  return closestHighBoundaryElm && closestDeepBoundaryElm
+    ? closestHighBoundaryElm === elm ||
+        closestDeepBoundaryElm === elm ||
+        closest(closest(elm, deepBoundarySelector), highBoundarySelector) !== closestHighBoundaryElm
+    : false;
+};
 
 const before = (parentElm, preferredAnchor, insertedElms) => {
   if (insertedElms) {
@@ -345,6 +380,22 @@ const addClass = (elm, className) => {
 const removeClass = (elm, className) => {
   classListAction(elm, className, (classList, clazz) => classList.remove(clazz));
 };
+const diffClass = (classNameA, classNameB) => {
+  const classNameASplit = classNameA && classNameA.split(' ');
+  const classNameBSplit = classNameB && classNameB.split(' ');
+  const tempObj = {};
+  each(classNameASplit, (className) => {
+    tempObj[className] = 1;
+  });
+  each(classNameBSplit, (className) => {
+    if (tempObj[className]) {
+      delete tempObj[className];
+    } else {
+      tempObj[className] = 1;
+    }
+  });
+  return keys(tempObj);
+};
 
 const zeroObj = {
   w: 0,
@@ -451,7 +502,6 @@ const equal = (a, b, props, propMutation) => {
   return false;
 };
 const equalWH = (a, b) => equal(a, b, ['w', 'h']);
-const equalXY = (a, b) => equal(a, b, ['x', 'y']);
 const equalTRBL = (a, b) => equal(a, b, ['t', 'r', 'b', 'l']);
 const equalBCRWH = (a, b, round) => equal(a, b, ['width', 'height'], round && ((value) => Math.round(value)));
 
@@ -714,7 +764,7 @@ const stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTempla
 const booleanTrueTemplate = [true, optionsTemplateTypes.boolean];
 const booleanFalseTemplate = [false, optionsTemplateTypes.boolean];
 const resizeAllowedValues = 'none both horizontal vertical';
-const overflowAllowedValues = 'visible-hidden visible-scroll scroll hidden';
+const overflowAllowedValues = 'hidden scroll visible visible-hidden';
 const scrollbarsVisibilityAllowedValues = 'visible hidden auto';
 const scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
 const defaultOptionsWithTemplate = {
@@ -1074,14 +1124,20 @@ const createTrinsicLifecycle = (lifecycleHub) => {
 
     if (heightIntrinsicChanged) {
       style(_content, {
-        height: heightIntrinsic ? 'auto' : '100%',
+        height: heightIntrinsic ? '' : '100%',
+        display: heightIntrinsic ? '' : 'inline',
       });
     }
+
+    return {
+      _sizeChanged: heightIntrinsicChanged,
+      _contentMutation: heightIntrinsicChanged,
+    };
   };
 };
 
 const createPaddingLifecycle = (lifecycleHub) => {
-  const { _setPaddingInfo, _setViewportPaddingStyle, _structureSetup } = lifecycleHub;
+  const { _structureSetup, _setLifecycleCommunication } = lifecycleHub;
   const { _host, _padding, _viewport } = _structureSetup._targetObj;
   const { _update: updatePaddingCache, _current: currentPaddingCache } = createCache(() => topRightBottomLeft(_host, 'padding'), {
     _equal: equalTRBL,
@@ -1133,12 +1189,13 @@ const createPaddingLifecycle = (lifecycleHub) => {
       style(_padding || _viewport, paddingStyle);
       style(_viewport, viewportStyle);
 
-      _setPaddingInfo({
-        _absolute: !paddingRelative,
-        _padding: _padding2,
+      _setLifecycleCommunication({
+        _paddingInfo: {
+          _absolute: !paddingRelative,
+          _padding: _padding2,
+        },
+        _viewportPaddingStyle: _padding ? viewportStyle : _extends_1({}, paddingStyle, viewportStyle),
       });
-
-      _setViewportPaddingStyle(_padding ? viewportStyle : _extends_1({}, paddingStyle, viewportStyle));
     }
 
     return {
@@ -1149,8 +1206,8 @@ const createPaddingLifecycle = (lifecycleHub) => {
 
 const overlaidScrollbarsHideOffset = 42;
 const createOverflowLifecycle = (lifecycleHub) => {
-  const { _structureSetup, _doViewportArrange, _getViewportPaddingStyle, _getPaddingInfo, _setViewportOverflowScroll } = lifecycleHub;
-  const { _host, _padding, _viewport, _viewportArrange } = _structureSetup._targetObj;
+  const { _structureSetup, _doViewportArrange, _getLifecycleCommunication, _setLifecycleCommunication } = lifecycleHub;
+  const { _host, _viewport, _viewportArrange } = _structureSetup._targetObj;
   const { _update: updateContentScrollSizeCache, _current: getCurrentContentScrollSizeCache } = createCache(
     (ctx) => fixScrollSizeRounding(ctx._viewportScrollSize, ctx._viewportOffsetSize, ctx._viewportRect),
     {
@@ -1159,14 +1216,14 @@ const createOverflowLifecycle = (lifecycleHub) => {
   );
   const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache(
     (ctx) => ({
-      x: Math.max(0, ctx._contentScrollSize.w - ctx._viewportSize.w),
-      y: Math.max(0, ctx._contentScrollSize.h - ctx._viewportSize.h),
+      w: Math.max(0, ctx._contentScrollSize.w - ctx._viewportSize.w),
+      h: Math.max(0, ctx._contentScrollSize.h - ctx._viewportSize.h),
     }),
     {
-      _equal: equalXY,
+      _equal: equalWH,
       _initialValue: {
-        x: 0,
-        y: 0,
+        w: 0,
+        h: 0,
       },
     }
   );
@@ -1182,16 +1239,16 @@ const createOverflowLifecycle = (lifecycleHub) => {
     });
 
     if (heightIntrinsic) {
-      const { _absolute: paddingAbsolute, _padding: padding } = _getPaddingInfo();
+      const { _absolute: paddingAbsolute, _padding: padding } = _getLifecycleCommunication()._paddingInfo;
 
       const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
       const hostBCR = getBoundingClientRect(_host);
       const hostOffsetSize = offsetSize(_host);
       const hostClientSize = clientSize(_host);
-      const paddingAbsoluteVertical = paddingAbsolute ? padding.b + padding.t : 0;
+      const paddingVertical = paddingAbsolute || style(_viewport, 'boxSizing') === 'content-box' ? padding.b + padding.t : 0;
       const clientSizeWithoutRounding = hostClientSize.h + (hostBCR.height - hostOffsetSize.h);
       style(_viewport, {
-        height: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingAbsoluteVertical,
+        height: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
       });
     }
   };
@@ -1223,23 +1280,26 @@ const createOverflowLifecycle = (lifecycleHub) => {
   const setViewportOverflowState = (showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyleObj) => {
     const setPartialStylePerAxis = (horizontal, overflowAmount, behavior, styleObj) => {
       const overflowKey = horizontal ? 'overflowX' : 'overflowY';
+      const behaviorIsVisible = behavior.indexOf('visible') === 0;
+      const behaviorIsVisibleHidden = behavior === 'visible-hidden';
       const behaviorIsScroll = behavior === 'scroll';
-      const behaviorIsVisibleScroll = behavior === 'visible-scroll';
-      const hideOverflow = behaviorIsScroll || behavior === 'hidden';
-      const applyStyle = overflowAmount > 0 && hideOverflow;
 
-      if (applyStyle) {
+      if (behaviorIsVisible) {
+        styleObj[overflowKey] = 'visible';
+      }
+
+      if (behaviorIsScroll && overflowAmount > 0) {
         styleObj[overflowKey] = behavior;
       }
 
       return {
-        _visible: !applyStyle,
-        _behavior: behaviorIsVisibleScroll ? 'scroll' : 'hidden',
+        _visible: behaviorIsVisible,
+        _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
       };
     };
 
-    const { _visible: xVisible, _behavior: xVisibleBehavior } = setPartialStylePerAxis(true, overflowAmount.x, overflow.x, viewportStyleObj);
-    const { _visible: yVisible, _behavior: yVisibleBehavior } = setPartialStylePerAxis(false, overflowAmount.y, overflow.y, viewportStyleObj);
+    const { _visible: xVisible, _behavior: xVisibleBehavior } = setPartialStylePerAxis(true, overflowAmount.w, overflow.x, viewportStyleObj);
+    const { _visible: yVisible, _behavior: yVisibleBehavior } = setPartialStylePerAxis(false, overflowAmount.h, overflow.y, viewportStyleObj);
 
     if (xVisible && !yVisible) {
       viewportStyleObj.overflowX = xVisibleBehavior;
@@ -1258,7 +1318,7 @@ const createOverflowLifecycle = (lifecycleHub) => {
       const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
       const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
 
-      const viewportPaddingStyle = _getViewportPaddingStyle();
+      const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
 
       const viewportArrangeHorizontalPaddingKey = directionIsRTL ? 'paddingRight' : 'paddingLeft';
       const viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
@@ -1296,20 +1356,18 @@ const createOverflowLifecycle = (lifecycleHub) => {
   };
 
   const hideNativeScrollbars = (viewportOverflowState, directionIsRTL, viewportArrange, viewportStyleObj) => {
-    const { _nativeScrollbarStyling } = getEnvironment();
-    const { _overflowScroll, _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
+    const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
     const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
     const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
-    const { x: scrollX, y: scrollY } = _overflowScroll;
 
-    const paddingStyle = _getViewportPaddingStyle();
+    const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
 
     const horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
     const viewportHorizontalPaddingKey = directionIsRTL ? 'paddingLeft' : 'paddingRight';
-    const horizontalMarginValue = paddingStyle[horizontalMarginKey];
-    const verticalMarginValue = paddingStyle.marginBottom;
-    const horizontalPaddingValue = paddingStyle[viewportHorizontalPaddingKey];
-    const verticalPaddingValue = paddingStyle.paddingBottom;
+    const horizontalMarginValue = viewportPaddingStyle[horizontalMarginKey];
+    const verticalMarginValue = viewportPaddingStyle.marginBottom;
+    const horizontalPaddingValue = viewportPaddingStyle[viewportHorizontalPaddingKey];
+    const verticalPaddingValue = viewportPaddingStyle.paddingBottom;
     viewportStyleObj.maxWidth = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
     viewportStyleObj[horizontalMarginKey] = -hideOffsetY + horizontalMarginValue;
     viewportStyleObj.marginBottom = -hideOffsetX + verticalMarginValue;
@@ -1318,19 +1376,13 @@ const createOverflowLifecycle = (lifecycleHub) => {
       viewportStyleObj[viewportHorizontalPaddingKey] = horizontalPaddingValue + (arrangeY ? hideOffsetY : 0);
       viewportStyleObj.paddingBottom = verticalPaddingValue + (arrangeX ? hideOffsetX : 0);
     }
-
-    if (!_nativeScrollbarStyling) {
-      style(_padding || _host, {
-        overflow: scrollX || scrollY ? 'hidden' : '',
-      });
-    }
   };
 
-  const undoViewportArrange = (showNativeOverlaidScrollbars, viewportOverflowState) => {
+  const undoViewportArrange = (showNativeOverlaidScrollbars, directionIsRTL, viewportOverflowState) => {
     if (_doViewportArrange) {
       const finalViewportOverflowState = viewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars);
 
-      const paddingStyle = _getViewportPaddingStyle();
+      const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
 
       const { _flexboxGlue } = getEnvironment();
       const { _scrollbarsHideOffsetArrange } = finalViewportOverflowState;
@@ -1339,7 +1391,7 @@ const createOverflowLifecycle = (lifecycleHub) => {
 
       const assignProps = (props) =>
         each(props.split(' '), (prop) => {
-          finalPaddingStyle[prop] = paddingStyle[prop];
+          finalPaddingStyle[prop] = viewportPaddingStyle[prop];
         });
 
       if (!_flexboxGlue) {
@@ -1359,6 +1411,7 @@ const createOverflowLifecycle = (lifecycleHub) => {
       style(_viewport, finalPaddingStyle);
       return {
         _redoViewportArrange: () => {
+          hideNativeScrollbars(finalViewportOverflowState, directionIsRTL, _doViewportArrange, prevStyle);
           style(_viewport, prevStyle);
           addClass(_viewport, classNameViewportArrange);
         },
@@ -1402,6 +1455,7 @@ const createOverflowLifecycle = (lifecycleHub) => {
     if (_sizeChanged || _paddingStyleChanged || _contentMutation || showNativeOverlaidScrollbarsChanged || directionChanged) {
       const { _redoViewportArrange, _viewportOverflowState: undoViewportArrangeOverflowState } = undoViewportArrange(
         showNativeOverlaidScrollbars,
+        directionIsRTL,
         preMeasureViewportOverflowState
       );
       const contentSize = clientSize(_viewport);
@@ -1471,7 +1525,10 @@ const createOverflowLifecycle = (lifecycleHub) => {
 
       style(_viewport, viewportStyle);
 
-      _setViewportOverflowScroll(viewportOverflowState._overflowScroll);
+      _setLifecycleCommunication({
+        _viewportOverflowScroll: viewportOverflowState._overflowScroll,
+        _viewportOverflowAmount: overflowAmount,
+      });
     }
   };
 };
@@ -1593,16 +1650,12 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
         const { _value, _changed } = directionIsRTLCacheValues;
 
         if (_changed) {
+          removeClass(listenerElement, 'ltr rtl');
+
           if (_value) {
-            style(listenerElement, {
-              left: 'auto',
-              right: 0,
-            });
+            addClass(listenerElement, 'rtl');
           } else {
-            style(listenerElement, {
-              left: 0,
-              right: 'auto',
-            });
+            addClass(listenerElement, 'ltr');
           }
 
           onSizeChangedCallbackProxy(directionIsRTLCacheValues);
@@ -1884,7 +1937,8 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
   };
 };
 
-const getPropByPath = (obj, path) => obj && path.split('.').reduce((o, prop) => (o && hasOwnProperty$1(o, prop) ? o[prop] : undefined), obj);
+const getPropByPath = (obj, path) =>
+  obj ? path.split('.').reduce((o, prop) => (o && hasOwnProperty$1(o, prop) ? o[prop] : undefined), obj) : undefined;
 
 const emptyStylePropsToZero = (stlyeObj, baseStyle) =>
   keys(stlyeObj).reduce((obj, key) => {
@@ -1893,30 +1947,21 @@ const emptyStylePropsToZero = (stlyeObj, baseStyle) =>
     return obj;
   }, _extends_1({}, baseStyle));
 
+const ignorePrefix = 'os-';
+const hostSelector = `.${classNameHost}`;
+const viewportSelector = `.${classNameViewport}`;
+const contentSelector = `.${classNameContent}`;
 const attrs = ['id', 'class', 'style', 'open'];
-const paddingInfoFallback = {
-  _absolute: false,
-  _padding: {
-    t: 0,
-    r: 0,
-    b: 0,
-    l: 0,
-  },
+
+const ignoreTargetChange = (target, attrName, oldValue, newValue) => {
+  if (attrName === 'class' && oldValue && newValue) {
+    const diff = diffClass(oldValue, newValue);
+    return !!diff.find((addedOrRemovedClass) => addedOrRemovedClass.indexOf(ignorePrefix) !== 0);
+  }
+
+  return false;
 };
-const viewportPaddingStyleFallback = {
-  marginTop: 0,
-  marginRight: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  paddingTop: 0,
-  paddingRight: 0,
-  paddingBottom: 0,
-  paddingLeft: 0,
-};
-const viewportOverflowScrollFallback = {
-  x: false,
-  y: false,
-};
+
 const directionIsRTLCacheValuesFallback = {
   _value: false,
   _previous: false,
@@ -1927,10 +1972,37 @@ const heightIntrinsicCacheValuesFallback = {
   _previous: false,
   _changed: false,
 };
+const lifecycleCommunicationFallback = {
+  _paddingInfo: {
+    _absolute: false,
+    _padding: {
+      t: 0,
+      r: 0,
+      b: 0,
+      l: 0,
+    },
+  },
+  _viewportOverflowScroll: {
+    x: false,
+    y: false,
+  },
+  _viewportOverflowAmount: {
+    w: 0,
+    h: 0,
+  },
+  _viewportPaddingStyle: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+};
 const createLifecycleHub = (options, structureSetup) => {
-  let paddingInfo = paddingInfoFallback;
-  let viewportPaddingStyle = viewportPaddingStyleFallback;
-  let viewportOverflowScroll = viewportOverflowScrollFallback;
+  let lifecycleCommunication = lifecycleCommunicationFallback;
   const { _host, _viewport, _content } = structureSetup._targetObj;
   const {
     _nativeScrollbarStyling,
@@ -1945,22 +2017,17 @@ const createLifecycleHub = (options, structureSetup) => {
     _options: options,
     _structureSetup: structureSetup,
     _doViewportArrange: doViewportArrange,
-    _getPaddingInfo: () => paddingInfo,
+    _getLifecycleCommunication: () => lifecycleCommunication,
 
-    _setPaddingInfo(newPaddingInfo) {
-      paddingInfo = newPaddingInfo || paddingInfoFallback;
-    },
+    _setLifecycleCommunication(newLifecycleCommunication) {
+      if (newLifecycleCommunication && newLifecycleCommunication._viewportPaddingStyle) {
+        newLifecycleCommunication._viewportPaddingStyle = emptyStylePropsToZero(
+          newLifecycleCommunication._viewportPaddingStyle,
+          lifecycleCommunicationFallback._viewportPaddingStyle
+        );
+      }
 
-    _getViewportPaddingStyle: () => viewportPaddingStyle,
-
-    _setViewportPaddingStyle(newPaddingStlye) {
-      viewportPaddingStyle = newPaddingStlye ? emptyStylePropsToZero(newPaddingStlye, viewportPaddingStyleFallback) : viewportPaddingStyleFallback;
-    },
-
-    _getViewportOverflowScroll: () => viewportOverflowScroll,
-
-    _setViewportOverflowScroll(newViewportOverflowScroll) {
-      viewportOverflowScroll = newViewportOverflowScroll || viewportOverflowScrollFallback;
+      lifecycleCommunication = assignDeep({}, lifecycleCommunication, newLifecycleCommunication);
     },
   };
   push(lifecycles, createTrinsicLifecycle(instance));
@@ -2061,11 +2128,22 @@ const createLifecycleHub = (options, structureSetup) => {
   const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: attrs,
     _attributes: attrs,
+    _ignoreTargetChange: ignoreTargetChange,
   });
   const contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
     _styleChangingAttributes: attrs,
     _attributes: attrs,
     _eventContentChange: options.updating.elementEvents,
+    _nestedTargetSelector: hostSelector,
+    _ignoreContentChange: (mutation, isNestedTarget) => {
+      const { target, attributeName } = mutation;
+      return isNestedTarget
+        ? false
+        : attributeName
+        ? liesBetween(target, hostSelector, viewportSelector) || liesBetween(target, hostSelector, contentSelector)
+        : false;
+    },
+    _ignoreNestedTargetChange: ignoreTargetChange,
   });
 
   const update = (changedOptions, force) => {
@@ -2074,8 +2152,12 @@ const createLifecycleHub = (options, structureSetup) => {
 
   const envUpdateListener = update.bind(null, null, true);
   addEnvironmentListener(envUpdateListener);
+  console.log(getEnvironment());
   return {
     _update: update,
+    _state: () => ({
+      _overflowAmount: lifecycleCommunication._viewportOverflowAmount,
+    }),
 
     _destroy() {
       removeEnvironmentListener(envUpdateListener);
@@ -2102,6 +2184,8 @@ const OverlayScrollbars = (target, options, extensions) => {
 
       return currentOptions;
     },
+
+    state: () => lifecycleHub._state(),
 
     update(force) {
       lifecycleHub._update(null, force);
