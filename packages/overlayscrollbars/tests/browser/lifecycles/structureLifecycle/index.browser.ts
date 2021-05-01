@@ -11,6 +11,7 @@ import { clientSize, from, getBoundingClientRect, style, parent, addClass, WH, r
 
 // @ts-ignore
 const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
+const msedge = window.navigator.userAgent.indexOf('Edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
 
@@ -223,6 +224,29 @@ const iterateMinMax = async (afterEach?: () => any) => {
 };
 
 const containerTest = async () => {
+  await iterateMinMax(async () => {
+    await iterateBoxSizing(async () => {
+      await iterateHeight(async () => {
+        await iterateWidth(async () => {
+          await iterateBorder(async () => {
+            // assume this part isn't critical for IE11 and edge, to boost test speed
+            if (!msie11 && !msedge) {
+              await iterateFloat(async () => {
+                await iterateMargin();
+              });
+            } else if (msedge) {
+              await iterateMargin();
+            }
+
+            await iteratePadding();
+            await iterateDirection();
+          });
+        });
+      });
+    });
+  });
+};
+const overflowTest = async () => {
   const contentBox = (elm: HTMLElement | null): WH<number> => {
     if (elm) {
       const computedStyle = window.getComputedStyle(elm);
@@ -287,8 +311,17 @@ const containerTest = async () => {
         height: comparison!.scrollHeight - comparison!.clientHeight,
       };
 
-      should.equal(overflowAmountCheck.width, width ? 1 : 0, 'Correct smallest possible overflow width.');
-      should.equal(overflowAmountCheck.height, height ? 1 : 0, 'Correct smallest possible overflow height.');
+      if (width) {
+        should.ok(overflowAmountCheck.width >= 1, 'Correct smallest possible overflow width.');
+      } else {
+        should.equal(overflowAmountCheck.width, 0, 'Correct smallest possible overflow width.');
+      }
+
+      if (height) {
+        should.ok(overflowAmountCheck.height >= 1, 'Correct smallest possible overflow height.');
+      } else {
+        should.equal(overflowAmountCheck.height, 0, 'Correct smallest possible overflow height.');
+      }
 
       style(targetResize, styleObj);
 
