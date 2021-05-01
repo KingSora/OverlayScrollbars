@@ -64,10 +64,17 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     ContentScrollSizeCacheContext
   >((ctx) => fixScrollSizeRounding(ctx._viewportScrollSize, ctx._viewportOffsetSize, ctx._viewportRect), { _equal: equalWH });
   const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache<WH<number>, OverflowAmountCacheContext>(
-    (ctx) => ({
-      w: Math.max(0, ctx._contentScrollSize.w - ctx._viewportSize.w),
-      h: Math.max(0, ctx._contentScrollSize.h - ctx._viewportSize.h),
-    }),
+    (ctx) => {
+      // @ts-ignore
+      //const { scrollLeftMax, scrollTopMax } = _viewport;
+      //const multiplicatorW = (isNumber(scrollLeftMax) ? scrollLeftMax !== 0 : true) ? 1 : 0;
+      //const multiplicatorH = (isNumber(scrollTopMax) ? scrollTopMax !== 0 : true) ? 1 : 0;
+
+      return {
+        w: Math.round(Math.max(0, ctx._contentScrollSize.w - ctx._viewportSize.w)),
+        h: Math.round(Math.max(0, ctx._contentScrollSize.h - ctx._viewportSize.h)),
+      };
+    },
     { _equal: equalWH, _initialValue: { w: 0, h: 0 } }
   );
 
@@ -79,8 +86,8 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
    * @returns The passed scroll size without rounding errors.
    */
   const fixScrollSizeRounding = (viewportScrollSize: WH<number>, viewportOffsetSize: WH<number>, viewportRect: DOMRect): WH<number> => ({
-    w: viewportScrollSize.w - Math.round(Math.max(0, viewportRect.width - viewportOffsetSize.w)),
-    h: viewportScrollSize.h - Math.round(Math.max(0, viewportRect.height - viewportOffsetSize.h)),
+    w: viewportScrollSize.w + (viewportRect.width - viewportOffsetSize.w),
+    h: viewportScrollSize.h + (viewportRect.height - viewportOffsetSize.h),
   });
 
   /**

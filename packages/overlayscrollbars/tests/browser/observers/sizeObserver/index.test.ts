@@ -3,7 +3,8 @@ import 'expect-playwright';
 import url from './.build/build.html';
 
 describe('SizeObserver', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await jestPlaywright.resetPage();
     await page.goto(url);
   });
 

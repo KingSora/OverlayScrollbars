@@ -38,6 +38,7 @@ body {
   height: 100%;
   font-size: 0;
   line-height: 0;
+  flex: none;
 }
 
 .env {
@@ -265,42 +266,59 @@ body {
   }
 }
 
-// fully overlaid scrollbars in chrome
-/*
-.os-environment::-webkit-scrollbar,
-.os-viewport::-webkit-scrollbar,
-.os-environment::-webkit-scrollbar-corner,
-.os-viewport::-webkit-scrollbar-corner {
-  display: none !important;
-  width: 0px !important;
-  height: 0px !important;
-  visibility: hidden !important;
-  background: transparent !important;
+// disable native scrollbar styling detection
+.nss {
+  .os-viewport-scrollbar-styled.os-environment {
+    scrollbar-width: auto !important;
+  }
+  .os-viewport-scrollbar-styled.os-environment::-webkit-scrollbar,
+  .os-viewport-scrollbar-styled.os-environment::-webkit-scrollbar-corner {
+    display: block !important;
+  }
 }
-*/
 
-// partially overlaid scrollbars in chrome y
-/*
-.os-environment::-webkit-scrollbar,
-.os-viewport::-webkit-scrollbar,
-.os-environment::-webkit-scrollbar-corner,
-.os-viewport::-webkit-scrollbar-corner {
-  display: block !important;
-  width: 10px !important;
-  height: 0 !important;
-  background: red !important;
+// disable flexboxglue detection
+.fbg {
+  .os-environment-flexbox-glue.os-environment {
+    display: block !important;
+  }
 }
-*/
 
-// partially overlaid scrollbars in chrome x
-/*
-.os-environment::-webkit-scrollbar,
-.os-viewport::-webkit-scrollbar,
-.os-environment::-webkit-scrollbar-corner,
-.os-viewport::-webkit-scrollbar-corner {
-  display: block !important;
-  width: 0 !important;
-  height: 10px !important;
-  background: red !important;
+// disable css custom props detection
+.ccp {
+  .os-environment {
+    z-index: 0 !important;
+  }
 }
-*/
+
+// fully overlaid
+.fo {
+  .os-environment::-webkit-scrollbar,
+  .os-viewport::-webkit-scrollbar,
+  .os-environment::-webkit-scrollbar-corner,
+  .os-viewport::-webkit-scrollbar-corner {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+    visibility: hidden !important;
+    background: transparent !important;
+  }
+
+  .os-environment,
+  .os-viewport {
+    scrollbar-width: none !important;
+  }
+}
+
+// partially overlaid (chrome only)
+.po {
+  .os-environment::-webkit-scrollbar,
+  .os-viewport::-webkit-scrollbar,
+  .os-environment::-webkit-scrollbar-corner,
+  .os-viewport::-webkit-scrollbar-corner {
+    display: block !important;
+    width: 10px !important;
+    height: 0 !important;
+    background: red !important;
+  }
+}

@@ -3602,10 +3602,10 @@ expand-tilde@^1.2.2:
   dependencies:
     os-homedir "^1.0.1"
 
-expect-playwright@^0.3.0, expect-playwright@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/expect-playwright/-/expect-playwright-0.3.1.tgz#86268c6f0c900ec583b62fe7a989defd92b75462"
-  integrity sha512-ev8sGRCleoipm2BMtblM45mj1NxQNjtdWQd78je/XFOqhH1c6MC48AqncRdSqonFWHGm7at4FuWCT/CBWayLBg==
+expect-playwright@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/expect-playwright/-/expect-playwright-0.3.4.tgz#97a2eea0f4887350cf57b1f132484d14ca5bb301"
+  integrity sha512-JulhMkc5lVvpF18ImWLqviHZpo4qzT9FfpF+lP4D+U9guGUnYOCFpS/5Qk1c3zKhYHJL1JBEfiiGfcRUuzsnEg==
 
 expect@^26.6.2:
   version "26.6.2"
@@ -5154,15 +5154,15 @@ jest-mock@^26.6.2:
     "@jest/types" "^26.6.2"
     "@types/node" "*"
 
-jest-playwright-preset@^1.4.5:
-  version "1.4.5"
-  resolved "https://registry.yarnpkg.com/jest-playwright-preset/-/jest-playwright-preset-1.4.5.tgz#f797dcdc04053bb92bd81798b639bc679ceffa36"
-  integrity sha512-IM/Aw5bNIyjhLelKU2C1+xg8t6WcTgwYtX/23mbSHCV6cCry4J3bwrHQHWmYKAqkv7NM6ONTFTSdYv0125epdg==
+jest-playwright-preset@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/jest-playwright-preset/-/jest-playwright-preset-1.5.2.tgz#7f32a26b92c2e4d7f10e6b2397d402476f8d1707"
+  integrity sha512-L7a5poZUR1vbmVNF4te1Ic3rMDBEU0KmIdjuLfGkdGpLgPdfhr6Xh//blbvmpfMj3TMnuuLlf37QkDtJnVa5gA==
   dependencies:
-    expect-playwright "^0.3.0"
+    expect-playwright "^0.3.4"
     jest-circus "^26.6.3"
     jest-environment-node "^26.6.2"
-    jest-process-manager "^0.2.9"
+    jest-process-manager "^0.3.1"
     jest-runner "^26.6.3"
     nyc "^15.1.0"
     playwright-core ">=1.2.0"
@@ -5174,21 +5174,21 @@ jest-pnp-resolver@^1.2.2:
   resolved "https://registry.yarnpkg.com/jest-pnp-resolver/-/jest-pnp-resolver-1.2.2.tgz#b704ac0ae028a89108a4d040b3f919dfddc8e33c"
   integrity sha512-olV41bKSMm8BdnuMsewT4jqlZ8+3TCARAXjZGT9jcoSnrfUnRCqnMoF9XEeoWjbzObpqF9dRhHQj0Xb9QdF6/w==
 
-jest-process-manager@^0.2.9:
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/jest-process-manager/-/jest-process-manager-0.2.9.tgz#4bfa99dda115a2bae1cd0e645f78e3d84e780575"
-  integrity sha512-IKVdOSz1NLwKg9HTeyEDn63waMvKK6wcS+tCarGquNIktlXt4zAW2cfJ9vAA/xBcidWYKOPXHvy1l1N8qfw3Ww==
+jest-process-manager@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/jest-process-manager/-/jest-process-manager-0.3.1.tgz#e748da83ea66ac5073087feb1150ba1270332b2e"
+  integrity sha512-x9W54UgZ7IkzUHgXtnI1x4GKOVjxtwW0CA/7yGbTHtT/YhENO0Lic2yfVyC/gekn7OIEMcQmy0L1r9WLQABfqw==
   dependencies:
     "@types/wait-on" "^5.2.0"
     chalk "^4.1.0"
     cwd "^0.10.0"
     exit "^0.1.2"
     find-process "^1.4.4"
-    prompts "^2.4.0"
+    prompts "^2.4.1"
     signal-exit "^3.0.3"
-    spawnd "^4.4.0"
+    spawnd "^5.0.0"
     tree-kill "^1.2.2"
-    wait-on "^5.2.1"
+    wait-on "^5.3.0"
 
 jest-regex-util@^26.0.0:
   version "26.0.0"
@@ -5733,10 +5733,15 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
-lodash@^4.0.0, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@~4.17.10:
+lodash@^4.0.0, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@~4.17.10:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
+
+lodash@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
 loglevel-colored-level-prefix@^1.0.0:
   version "1.0.0"
@@ -6696,10 +6701,10 @@ pkg-dir@^4.1.0, pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-chromium@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.8.0.tgz#5e68b07ee27e5fe132f758c40a5ee37a0e501288"
-  integrity sha512-DMyWmFPXkW0Tm5yBx2pV3m5F8qBSk29+DuZd21liwnG8qNZX43zEY1QpsS51zWPYFgi+nHkRr343GycyAoSUzQ==
+playwright-chromium@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.10.0.tgz#df0e65e42cdda66b599df38d062d9cd8c2dea09c"
+  integrity sha512-ry/60/YKGJfrnaS7j5C3+xmA2DAMv6pBE351FoTHe4Llq0WU92IL0rBYK3TkK3PzSHYtp1KdCRsRjDnJhImA3g==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -6712,9 +6717,10 @@ playwright-chromium@^1.8.0:
     proper-lockfile "^4.1.1"
     proxy-from-env "^1.1.0"
     rimraf "^3.0.2"
+    stack-utils "^2.0.3"
     ws "^7.3.1"
 
-playwright-core@>=1.2.0, playwright-core@^1.8.0:
+playwright-core@>=1.2.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.8.0.tgz#3c2e8c52d21a032e68f2cdda91d107d9e6b79498"
   integrity sha512-3FDiIMabIkamEOPqdjHrPA1puIElx3iYIaln1k5G8ZyGRubmPE9AijHyTXYqkavgteUp+Kb8QOeE13nlnQ++Fg==
@@ -6732,10 +6738,10 @@ playwright-core@>=1.2.0, playwright-core@^1.8.0:
     rimraf "^3.0.2"
     ws "^7.3.1"
 
-playwright-firefox@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/playwright-firefox/-/playwright-firefox-1.8.0.tgz#0f63a9f52d47b6c0d07123c0a10a48990711c6bc"
-  integrity sha512-CuBjgfnZX7w8hm4+YrBKaAWDJRE2SrNOn0qQcM6PEY3wzxrFAbtAH56m5ngEQjwNnEoM4XdrrxWjeP7h+WFW3Q==
+playwright-core@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.10.0.tgz#0ed3590ddf97ec4a5fd4baef40346e2d8e2f19ba"
+  integrity sha512-SDA5KPwnJJSfnNX/b7h8y0ChwBmcbbcCofYXkZGMVuzXZsmHPGLOBRhgkwN2nzJ10Ezf4cd1OcVOeOLKPxjeRg==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -6748,12 +6754,13 @@ playwright-firefox@^1.8.0:
     proper-lockfile "^4.1.1"
     proxy-from-env "^1.1.0"
     rimraf "^3.0.2"
+    stack-utils "^2.0.3"
     ws "^7.3.1"
 
-playwright-webkit@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/playwright-webkit/-/playwright-webkit-1.8.0.tgz#b0342bccc11d333adce2862100d0e04e20f5cdd4"
-  integrity sha512-2kg/RCOxHolSY5JEFEsmYz9ogMZkL/PiOEW9QqUCDvYPRBEES/LE6k/orerIRwc9qmw//pWDxjZNLOWob2ioCw==
+playwright-firefox@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/playwright-firefox/-/playwright-firefox-1.10.0.tgz#842f6f93ebdced83eecbd23d6820cad930686728"
+  integrity sha512-TR7Vyw9PgS4KtbSOIUGqNa20gJxjpRHK6IQv4oDhgehpW/YnCjqxe5ylI9eLrzzYPUPsoyD7bZRxSZDtrcCTLA==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -6766,12 +6773,13 @@ playwright-webkit@^1.8.0:
     proper-lockfile "^4.1.1"
     proxy-from-env "^1.1.0"
     rimraf "^3.0.2"
+    stack-utils "^2.0.3"
     ws "^7.3.1"
 
-playwright@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.8.0.tgz#8eca2250967ee892b9fdfec44e2358455ab0f8e3"
-  integrity sha512-urMJDLX92KawbkWKrt3chVVBPQsuuNwlS5St7I5YQENXAEItoyUqX7FjiYaoPgXifKqe1+BKC+7pBAq1QUkgSw==
+playwright-webkit@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/playwright-webkit/-/playwright-webkit-1.10.0.tgz#0d32f73c5ab3296fb9114b053b0cd1d35597b2c4"
+  integrity sha512-Dql/wJQ+aFgL3/HHMv9UfVAd3+pzQluLdDHnG7eX8PWLK80ly4idyQO0HYRjwwvoZuyx1G1rA+kuh7jtn7OfHg==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -6784,6 +6792,26 @@ playwright@^1.8.0:
     proper-lockfile "^4.1.1"
     proxy-from-env "^1.1.0"
     rimraf "^3.0.2"
+    stack-utils "^2.0.3"
+    ws "^7.3.1"
+
+playwright@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.10.0.tgz#a14d295f1ad886caf4cc5e674afe03ac832066bc"
+  integrity sha512-b7SGBcCPq4W3pb4ImEDmNXtO0ZkJbZMuWiShsaNJd+rGfY/6fqwgllsAojmxGSgFmijYw7WxCoPiAIEDIH16Kw==
+  dependencies:
+    commander "^6.1.0"
+    debug "^4.1.1"
+    extract-zip "^2.0.1"
+    https-proxy-agent "^5.0.0"
+    jpeg-js "^0.4.2"
+    mime "^2.4.6"
+    pngjs "^5.0.0"
+    progress "^2.0.3"
+    proper-lockfile "^4.1.1"
+    proxy-from-env "^1.1.0"
+    rimraf "^3.0.2"
+    stack-utils "^2.0.3"
     ws "^7.3.1"
 
 pngjs@^5.0.0:
@@ -7216,10 +7244,10 @@ prompts@^2.0.1, prompts@^2.3.0:
     kleur "^3.0.3"
     sisteransi "^1.0.4"
 
-prompts@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/prompts/-/prompts-2.4.0.tgz#4aa5de0723a231d1ee9121c40fdf663df73f61d7"
-  integrity sha512-awZAKrk3vN6CroQukBL+R9051a4R3zCZBlJm/HBfrSZ8iTpYix3VX1vU4mveiLpiwmOJT4wokTF9m6HUk4KqWQ==
+prompts@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/prompts/-/prompts-2.4.1.tgz#befd3b1195ba052f9fd2fde8a486c4e82ee77f61"
+  integrity sha512-EQyfIuO2hPDsX1L/blblV+H7I0knhgAd82cVneCwcdND9B8AuCDuRcBH6yIcG4dFzlOUqbazQqwGjx5xmsNLuQ==
   dependencies:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
@@ -8162,6 +8190,16 @@ spawnd@^4.4.0:
     tree-kill "^1.2.2"
     wait-port "^0.2.7"
 
+spawnd@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/spawnd/-/spawnd-5.0.0.tgz#ea72200bdc468998e84e1c3e7b914ce85fc1c32c"
+  integrity sha512-28+AJr82moMVWolQvlAIv3JcYDkjkFTEmfDc503wxrF5l2rQ3dFz6DpbXp3kD4zmgGGldfM4xM4v1sFj/ZaIOA==
+  dependencies:
+    exit "^0.1.2"
+    signal-exit "^3.0.3"
+    tree-kill "^1.2.2"
+    wait-port "^0.2.9"
+
 spdx-correct@^3.0.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/spdx-correct/-/spdx-correct-3.1.1.tgz#dece81ac9c1e6713e5f7d1b6f17d468fa53d89a9"
@@ -8224,6 +8262,13 @@ stack-utils@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/stack-utils/-/stack-utils-2.0.2.tgz#5cf48b4557becb4638d0bc4f21d23f5d19586593"
   integrity sha512-0H7QK2ECz3fyZMzQ8rH0j2ykpfbnd20BFtfg/SqVC2+sCTtcw0aDTGB7dk+de4U4uUeuz6nOtJcrkFFLG1B0Rg==
+  dependencies:
+    escape-string-regexp "^2.0.0"
+
+stack-utils@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/stack-utils/-/stack-utils-2.0.3.tgz#cd5f030126ff116b78ccb3c027fe302713b61277"
+  integrity sha512-gL//fkxfWUsIlFL2Tl42Cl6+HFALEaB1FU76I/Fy+oZjRreP7OPMXFlGbxM7NQsI0ZpUfw76sHnv0WNYuTb7Iw==
   dependencies:
     escape-string-regexp "^2.0.0"
 
@@ -8984,18 +9029,18 @@ wait-on@^3.3.0:
     request "^2.88.0"
     rx "^4.1.0"
 
-wait-on@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-5.2.1.tgz#05b66fcb4d7f5da01537f03e7cf96e8836422996"
-  integrity sha512-H2F986kNWMU9hKlI9l/ppO6tN8ZSJd35yBljMLa1/vjzWP++Qh6aXyt77/u7ySJFZQqBtQxnvm/xgG48AObXcw==
+wait-on@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-5.3.0.tgz#584e17d4b3fe7b46ac2b9f8e5e102c005c2776c7"
+  integrity sha512-DwrHrnTK+/0QFaB9a8Ol5Lna3k7WvUR4jzSKmz0YaPBpuN2sACyiPVKVfj6ejnjcajAcvn3wlbTyMIn9AZouOg==
   dependencies:
     axios "^0.21.1"
     joi "^17.3.0"
-    lodash "^4.17.20"
+    lodash "^4.17.21"
     minimist "^1.2.5"
     rxjs "^6.6.3"
 
-wait-port@^0.2.7:
+wait-port@^0.2.7, wait-port@^0.2.9:
   version "0.2.9"
   resolved "https://registry.yarnpkg.com/wait-port/-/wait-port-0.2.9.tgz#3905cf271b5dbe37a85c03b85b418b81cb24ee55"
   integrity sha512-hQ/cVKsNqGZ/UbZB/oakOGFqic00YAMM5/PEj3Bt4vKarv2jWIWzDbqlwT94qMs/exAQAsvMOq99sZblV92zxQ==

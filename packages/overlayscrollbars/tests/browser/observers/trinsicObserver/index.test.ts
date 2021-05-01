@@ -3,7 +3,8 @@ import 'expect-playwright';
 import url from './.build/build.html';
 
 describe('TrinsicObserver', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await jestPlaywright.resetPage();
     await page.goto(url);
   });
 

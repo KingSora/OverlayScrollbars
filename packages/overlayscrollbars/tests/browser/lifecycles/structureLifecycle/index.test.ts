@@ -1,34 +1,55 @@
 import 'jest-playwright-preset';
 import 'expect-playwright';
-import { Environment } from 'environment';
 import url from './.build/build.html';
 
-/**
- * env test cases:
- * 1. overlaid scrollbars
- *    - with scrollbar styling
- *    - without scrollbar styling
- *      - with css custom properties
- *      - without css custom properties
- * 2. partially overlaid, partially normal scrollbars
- *    - with scrollbar styling
- *    - without scrollbar styling
- *      - with css custom properties
- *      - without css custom properties
- * 3. normal scrollbars
- *    - with scrollbar styling
- *    - without scrollbar styling
- */
-
 describe('StructureLifecycle', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await jestPlaywright.resetPage();
     await page.goto(url);
   });
 
-  test('page should be titled "Environment"', async () => {
-    // @ts-ignore
-    const a: Environment = await page.evaluate(() => window.structureLifecycle.envInstance);
-    console.log(a);
-    await expect(page.title()).resolves.toMatch('structureLifecycle');
+  [false, true].forEach(async (nativeScrollbarStyling) => {
+    const withText = nativeScrollbarStyling ? 'with' : 'without';
+    const nss = async () => {
+      if (!nativeScrollbarStyling) {
+        await page.click('#nss');
+        await page.waitForTimeout(500);
+      }
+    };
+
+    describe(`structureLifecycles ${withText} native scrollbar styling`, () => {
+      test('default', async () => {
+        await nss();
+        await page.click('#start');
+        await expect(page).toHaveSelector('#testResult.passed');
+      });
+
+      test('without flexbox glue & css custom props', async () => {
+        await nss();
+        await page.click('#fbg');
+        await page.waitForTimeout(500);
+        await page.click('#ccp');
+        await page.waitForTimeout(500);
+        await page.click('#start');
+        await expect(page).toHaveSelector('#testResult.passed');
+      });
+
+      // firefox can't simulate partially overlaid scrollbars, boost speed by omitting webkit
+      test.jestPlaywrightSkip({ browsers: ['firefox', 'webkit'] }, 'with partially overlaid scrollbars', async () => {
+        await nss();
+        await page.click('#po');
+        await page.waitForTimeout(500);
+        await page.click('#start');
+        await expect(page).toHaveSelector('#testResult.passed');
+      });
+
+      test('with fully overlaid scrollbars', async () => {
+        await nss();
+        await page.click('#fo');
+        await page.waitForTimeout(500);
+        await page.click('#start');
+        await expect(page).toHaveSelector('#testResult.passed');
+      });
+    });
   });
 });

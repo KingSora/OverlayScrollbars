@@ -17,12 +17,13 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
 
   return (updateHints, checkOption, force) => {
     let { _value: padding, _changed: paddingChanged } = currentPaddingCache(force);
-    const { _nativeScrollbarStyling } = getEnvironment();
-    const { _sizeChanged, _directionIsRTL } = updateHints;
+    const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+    const { _sizeChanged, _directionIsRTL, _contentMutation } = updateHints;
     const { _value: directionIsRTL, _changed: directionChanged } = _directionIsRTL;
     const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = checkOption('paddingAbsolute');
+    const contentMutation = !_flexboxGlue && _contentMutation;
 
-    if (_sizeChanged || paddingChanged) {
+    if (_sizeChanged || paddingChanged || contentMutation) {
       ({ _value: padding, _changed: paddingChanged } = updatePaddingCache(force));
     }
 

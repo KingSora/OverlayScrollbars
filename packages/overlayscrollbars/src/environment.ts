@@ -15,6 +15,7 @@ import {
   equalBCRWH,
   getBoundingClientRect,
   assignDeep,
+  cssProperty,
   PartialOptions,
 } from 'support';
 import {
@@ -73,7 +74,8 @@ const getNativeScrollbarStyling = (testElm: HTMLElement): boolean => {
   addClass(testElm, classNameViewportScrollbarStyling);
   try {
     result =
-      style(testElm, 'scrollbar-width') === 'none' || window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
+      style(testElm, cssProperty('scrollbar-width')) === 'none' ||
+      window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
   } catch (ex) {}
 
   return result;
@@ -142,7 +144,7 @@ const createEnvironment = (): Environment => {
   const envChildElm = envElm.firstChild as HTMLElement;
   const onChangedListener: Set<OnEnvironmentChanged> = new Set();
   const nativeScrollbarSize = getNativeScrollbarSize(body, envElm);
-  const nativeScrollbarStyling = false; //getNativeScrollbarStyling(envElm); //TODO: Re - enable;
+  const nativeScrollbarStyling = getNativeScrollbarStyling(envElm);
   const nativeScrollbarIsOverlaid = {
     x: nativeScrollbarSize.x === 0,
     y: nativeScrollbarSize.y === 0,

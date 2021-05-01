@@ -33,12 +33,12 @@ describe('vendors', () => {
   describe('cssProperty', () => {
     test('gets transform', () => {
       const transform = cssProperty('transform');
-      expect(transform).not.toBeUndefined();
+      expect(transform).not.toBe('');
     });
 
     test('gets undefined', () => {
       const propWhichDontExist = cssProperty('propWhichDontExist');
-      expect(propWhichDontExist).toBeUndefined();
+      expect(propWhichDontExist).toBe('');
     });
 
     test('cache is used', () => {
@@ -54,17 +54,17 @@ describe('vendors', () => {
   describe('cssPropertyValue', () => {
     test('gets calc', () => {
       const calc = cssPropertyValue('width', 'calc', '(1px)');
-      expect(calc).not.toBeUndefined();
+      expect(calc).not.toBe('');
     });
 
     test('gets calc as second value', () => {
       const calc = cssPropertyValue('width', 'nonexistend-calc calc', '(1px)');
-      expect(calc).not.toBeUndefined();
+      expect(calc).not.toBe('');
     });
 
     test('gets undefined', () => {
       const nonexistend = cssPropertyValue('width', 'nonexistend');
-      expect(nonexistend).toBeUndefined();
+      expect(nonexistend).toBe('');
     });
 
     test('cache is used', () => {

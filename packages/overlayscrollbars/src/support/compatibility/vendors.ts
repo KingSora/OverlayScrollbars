@@ -14,10 +14,10 @@ export const jsCache: { [key: string]: any } = {};
 export const cssCache: { [key: string]: string } = {};
 
 /**
- * Gets the name of the given CSS property with vendor prefix if it isn't supported without, or undefined if unsupported.
+ * Gets the name of the given CSS property with vendor prefix if it isn't supported without it, or and empty string if unsupported.
  * @param name The name of the CSS property which shall be get.
  */
-export const cssProperty = (name: string): string | undefined => {
+export const cssProperty = (name: string): string => {
   let result: string | undefined = cssCache[name];
 
   if (hasOwnProperty(cssCache, name)) {
@@ -35,21 +35,19 @@ export const cssProperty = (name: string): string | undefined => {
       prefixWithoutDashes + uppercasedName, // webkitTransition
       firstLetterToUpper(prefixWithoutDashes) + uppercasedName, // WebkitTransition
     ];
-    result = resultPossibilities.find((resultPossibility: string) => elmStyle[resultPossibility] !== undefined);
-    return !result;
+    return !(result = resultPossibilities.find((resultPossibility: string) => elmStyle[resultPossibility] !== undefined));
   });
 
-  cssCache[name] = result;
-  return result;
+  return (cssCache[name] = result || '');
 };
 
 /**
- * Get the name of the given CSS property value(s), with vendor prefix if it isn't supported wuthout, or undefined if no value is supported.
+ * Get the name of the given CSS property value(s), with vendor prefix if it isn't supported without it, or an empty string if no value is supported.
  * @param property The CSS property to which the CSS property value(s) belong.
  * @param values The value(s) separated by spaces which shall be get.
  * @param suffix A suffix which is added to each value in case the value is a function or something else more advanced.
  */
-export const cssPropertyValue = (property: string, values: string, suffix?: string): string | undefined => {
+export const cssPropertyValue = (property: string, values: string, suffix?: string): string => {
   const name = `${property} ${values}`;
   let result: string | undefined = cssCache[name];
 
@@ -74,8 +72,7 @@ export const cssPropertyValue = (property: string, values: string, suffix?: stri
     return !result;
   });
 
-  cssCache[name] = result;
-  return result;
+  return (cssCache[name] = result || '');
 };
 
 /**
