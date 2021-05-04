@@ -236,6 +236,10 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
     if (isNumber(scrollOffsetY)) {
       scrollTop(_viewport, scrollOffsetY);
     }
+
+    if (options.callbacks.onUpdated) {
+      options.callbacks.onUpdated();
+    }
   };
 
   const onSizeChanged = (directionIsRTL?: CacheValues<boolean>) => {

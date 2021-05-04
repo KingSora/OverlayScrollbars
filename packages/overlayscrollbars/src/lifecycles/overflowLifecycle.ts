@@ -85,10 +85,15 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
    * @param viewportRect The viewport bounding client rect.
    * @returns The passed scroll size without rounding errors.
    */
-  const fixScrollSizeRounding = (viewportScrollSize: WH<number>, viewportOffsetSize: WH<number>, viewportRect: DOMRect): WH<number> => ({
-    w: viewportScrollSize.w + (viewportRect.width - viewportOffsetSize.w),
-    h: viewportScrollSize.h + (viewportRect.height - viewportOffsetSize.h),
-  });
+  const fixScrollSizeRounding = (viewportScrollSize: WH<number>, viewportOffsetSize: WH<number>, viewportRect: DOMRect): WH<number> => {
+    const wFix = viewportRect.width - viewportOffsetSize.w;
+    const hFix = viewportRect.height - viewportOffsetSize.h;
+
+    return {
+      w: viewportScrollSize.w + (Math.abs(wFix) < 1 ? wFix : 0),
+      h: viewportScrollSize.h + (Math.abs(hFix) < 1 ? hFix : 0),
+    };
+  };
 
   /**
    * Applies a fixed height to the viewport so it can't overflow or underflow the host element.

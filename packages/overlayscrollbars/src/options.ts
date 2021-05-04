@@ -60,6 +60,9 @@ export interface OSOptions {
     show: boolean;
     initialize: boolean;
   };
+  callbacks: {
+    onUpdated: (() => any) | null;
+  };
   /*
   callbacks?: {
     onInitialized?: BasicEventCallback | null;
@@ -159,6 +162,9 @@ const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<OSOptions> = {
   nativeScrollbarsOverlaid: {
     show: booleanFalseTemplate, // true || false
     initialize: booleanFalseTemplate, // true || false
+  },
+  callbacks: {
+    onUpdated: [null, [oTypes.function, oTypes.null]],
   },
   /*
   callbacks: {
