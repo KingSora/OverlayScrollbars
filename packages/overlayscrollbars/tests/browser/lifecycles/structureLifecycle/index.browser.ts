@@ -4,7 +4,7 @@ import './handleEnvironment';
 import should from 'should';
 import { resize } from '@/testing-browser/Resize';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
-import { generateClassChangeSelectCallback, iterateSelect, selectOption } from '@/testing-browser/Select';
+import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { assignDeep, clientSize, from, getBoundingClientRect, style, parent, addClass, WH, removeAttr } from 'support';
@@ -57,19 +57,10 @@ const getMetrics = (elm: HTMLElement): Metrics => {
 
   const hasOverflow = (elm: HTMLElement) => {
     const measure = scrollMeasure(elm);
-
-    elm.scrollLeft = 9999;
-    elm.scrollTop = 9999;
-
-    const hasOverflow = {
-      x: measure.width > 0 && elm.scrollLeft >= 1,
-      y: measure.height > 0 && elm.scrollTop >= 1,
+    return {
+      x: measure.width > 0,
+      y: measure.height > 0,
     };
-
-    elm.scrollLeft = 0;
-    elm.scrollTop = 0;
-
-    return hasOverflow;
   };
 
   return {
@@ -100,6 +91,8 @@ const metricsDimensionsEqual = (a: Metrics, b: Metrics) => {
 
   return JSON.stringify(aDimensions) === JSON.stringify(bDimensions);
 };
+
+const isFractionalPixelRatio = () => window.devicePixelRatio % 1 !== 0;
 
 const plusMinusArr = (original: number, plusMinus: number) => {
   return [original, original + plusMinus, original - plusMinus];
@@ -158,9 +151,13 @@ target!.querySelector('.os-viewport')?.addEventListener('scroll', (e) => {
   comparison!.scrollTop = viewport.scrollTop;
 });
 
-resize(target!).addResizeListener((width, height) => style(comparison, { width, height }));
+resize(target!).addResizeListener((width, height) => {
+  style(comparison, { width, height });
+});
 //resize(comparison!).addResizeListener((width, height) => style(target, { width, height }));
-resize(targetResize!).addResizeListener((width, height) => style(comparisonResize, { width, height }));
+resize(targetResize!).addResizeListener((width, height) => {
+  style(comparisonResize, { width, height });
+});
 //resize(comparisonRes!).addResizeListener((width, height) => style(targetRes, { width, height }));
 
 const selectCallbackEnv = generateClassChangeSelectCallback(from(envElms));
@@ -219,19 +216,32 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     should.equal(targetMetrics.size.width, comparisonMetrics.size.width, 'Size width equality.');
     should.equal(targetMetrics.size.height, comparisonMetrics.size.height, 'Size height equality.');
 
-    //should.equal(targetMetrics.scroll.width, comparisonMetrics.scroll.width, 'Scroll width equality.');
-    //should.equal(targetMetrics.scroll.height, comparisonMetrics.scroll.height, 'Scroll height equality.');
+    if (isFractionalPixelRatio()) {
+      should.ok(plusMinusArr(targetMetrics.scroll.width, 1).indexOf(comparisonMetrics.scroll.width) > -1, 'Scroll width equality. (+-1)');
+      should.ok(plusMinusArr(targetMetrics.scroll.height, 1).indexOf(comparisonMetrics.scroll.height) > -1, 'Scroll height equality. (+-1)');
 
-    //should.equal(osInstance.state()._overflowAmount.w, comparisonMetrics.scroll.width, 'Overflow amount width equality.');
-    //should.equal(osInstance.state()._overflowAmount.h, comparisonMetrics.scroll.height, 'Overflow amount height equality.');
+      should.ok(
+        plusMinusArr(osInstance.state()._overflowAmount.w, 1).indexOf(comparisonMetrics.scroll.width) > -1,
+        'Overflow amount width equality. (+-1)'
+      );
+      should.ok(
+        plusMinusArr(osInstance.state()._overflowAmount.h, 1).indexOf(comparisonMetrics.scroll.height) > -1,
+        'Overflow amount height equality. (+-1)'
+      );
+    } else {
+      should.equal(targetMetrics.scroll.width, comparisonMetrics.scroll.width, 'Scroll width equality.');
+      should.equal(targetMetrics.scroll.height, comparisonMetrics.scroll.height, 'Scroll height equality.');
 
-    should.equal(targetMetrics.hasOverflow.x, comparisonMetrics.hasOverflow.x, 'Has overflow x equality.');
-    should.equal(targetMetrics.hasOverflow.y, comparisonMetrics.hasOverflow.y, 'Has overflow y equality.');
+      should.equal(osInstance.state()._overflowAmount.w, comparisonMetrics.scroll.width, 'Overflow amount width equality.');
+      should.equal(osInstance.state()._overflowAmount.h, comparisonMetrics.scroll.height, 'Overflow amount height equality.');
+    }
+
+    //should.equal(targetMetrics.hasOverflow.x, comparisonMetrics.hasOverflow.x, 'Has overflow x equality.');
+    //should.equal(targetMetrics.hasOverflow.y, comparisonMetrics.hasOverflow.y, 'Has overflow y equality.');
 
     if (targetMetrics.hasOverflow.x) {
       should.equal(style(targetViewport!, 'overflowX'), 'scroll', 'Overflow-X should result in scroll.');
       should.ok(osInstance.state()._overflowAmount.w > 0, 'Overflow amount width should be > 0 with overflow.');
-      //should.ok(plusMinusArr(targetMetrics.scroll.width, 1).indexOf(comparisonMetrics.scroll.width) > -1, 'Scroll width equality. (+-1)');
     } else {
       should.notEqual(style(targetViewport!, 'overflowX'), 'scroll', 'No Overflow-X shouldnt result in scroll.');
       should.equal(osInstance.state()._overflowAmount.w, 0, 'Overflow amount width should be 0 without overflow.');
@@ -240,7 +250,6 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     if (targetMetrics.hasOverflow.y) {
       should.equal(style(targetViewport!, 'overflowY'), 'scroll', 'Overflow-Y should result in scroll.');
       should.ok(osInstance.state()._overflowAmount.h > 0, 'Overflow amount height should be > 0 with overflow.');
-      //should.ok(plusMinusArr(targetMetrics.scroll.height, 1).indexOf(comparisonMetrics.scroll.height) > -1, 'Scroll height equality. (+-1)');
     } else {
       should.notEqual(style(targetViewport!, 'overflowY'), 'scroll', 'No Overflow-Y shouldnt result in scroll.');
       should.equal(osInstance.state()._overflowAmount.h, 0, 'Overflow amount height should be 0 without overflow.');
@@ -307,6 +316,12 @@ const iterateMinMax = async (afterEach?: () => any) => {
 };
 
 const overflowTest = async () => {
+  const additiveOverflow = () => {
+    if (isFractionalPixelRatio()) {
+      return 1 + Math.max(1, Math.round(window.devicePixelRatio));
+    }
+    return 1;
+  };
   const contentBox = (elm: HTMLElement | null): WH<number> => {
     if (elm) {
       const computedStyle = window.getComputedStyle(elm);
@@ -335,14 +350,15 @@ const overflowTest = async () => {
     const { maxWidth, maxHeight } = style(comparison, ['maxWidth', 'maxHeight']);
 
     if (maxWidth !== 'none' && maxHeight !== 'none') {
+      const addOverflow = additiveOverflow();
       const before: CheckComparisonObj = {
         updCount: updateCount,
         metrics: getMetrics(comparison!),
       };
       const { paddingRight, paddingBottom } = style(comparison, ['paddingRight', 'paddingBottom']);
       const comparisonContentBox = contentBox(comparison);
-      const widthOverflow = width ? 1 : 0;
-      const heightOverflow = height ? 1 : 0;
+      const widthOverflow = width ? addOverflow : 0;
+      const heightOverflow = height ? addOverflow : 0;
       const styleObj = { width: comparisonContentBox.w + widthOverflow, height: comparisonContentBox.h + heightOverflow };
 
       style(comparisonResize, styleObj);
@@ -362,15 +378,15 @@ const overflowTest = async () => {
       style(comparisonResize, styleObj);
 
       if (width) {
-        while (comparison!.scrollWidth - comparison!.clientWidth <= 0) {
-          styleObj.width += 1;
+        while (comparison!.scrollWidth - comparison!.clientWidth <= addOverflow - 1) {
+          styleObj.width += addOverflow;
           style(comparisonResize, styleObj);
         }
       }
 
       if (height) {
-        while (comparison!.scrollHeight - comparison!.clientHeight <= 0) {
-          styleObj.height += 1;
+        while (comparison!.scrollHeight - comparison!.clientHeight <= addOverflow - 1) {
+          styleObj.height += addOverflow;
           style(comparisonResize, styleObj);
         }
       }
@@ -381,13 +397,13 @@ const overflowTest = async () => {
       };
 
       if (width) {
-        should.ok(overflowAmountCheck.width >= 1, 'Correct smallest possible overflow width.');
+        should.ok(overflowAmountCheck.width >= addOverflow, 'Correct smallest possible overflow width.');
       } else {
         should.equal(overflowAmountCheck.width, 0, 'Correct smallest possible overflow width.');
       }
 
       if (height) {
-        should.ok(overflowAmountCheck.height >= 1, 'Correct smallest possible overflow height.');
+        should.ok(overflowAmountCheck.height >= addOverflow, 'Correct smallest possible overflow height.');
       } else {
         should.equal(overflowAmountCheck.height, 0, 'Correct smallest possible overflow height.');
       }
@@ -472,5 +488,3 @@ const start = async () => {
 };
 
 startBtn?.addEventListener('click', start);
-
-window.getMetrics = getMetrics;
