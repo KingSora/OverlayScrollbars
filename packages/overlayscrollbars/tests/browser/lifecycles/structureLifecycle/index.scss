@@ -234,10 +234,10 @@ body {
 }
 
 .minMaxFixed > .container {
-  min-height: 180px;
-  min-width: 180px;
-  max-height: 420px;
-  max-width: 420px;
+  min-height: 180.5px;
+  min-width: 180.5px;
+  max-height: 420.3px;
+  max-width: 420.8px;
 }
 
 .minMaxNone > .container {
@@ -307,6 +307,7 @@ body {
   .os-environment,
   .os-viewport {
     scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
   }
 }
 

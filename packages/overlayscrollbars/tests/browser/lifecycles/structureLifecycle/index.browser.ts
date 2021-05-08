@@ -100,7 +100,7 @@ const plusMinusArr = (original: number, plusMinus: number) => {
 
 // @ts-ignore
 const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
-const msedge = window.navigator.userAgent.indexOf('Edge') > -1;
+const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
 
@@ -234,10 +234,10 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
 
       should.equal(osInstance.state()._overflowAmount.w, comparisonMetrics.scroll.width, 'Overflow amount width equality.');
       should.equal(osInstance.state()._overflowAmount.h, comparisonMetrics.scroll.height, 'Overflow amount height equality.');
-    }
 
-    //should.equal(targetMetrics.hasOverflow.x, comparisonMetrics.hasOverflow.x, 'Has overflow x equality.');
-    //should.equal(targetMetrics.hasOverflow.y, comparisonMetrics.hasOverflow.y, 'Has overflow y equality.');
+      should.equal(targetMetrics.hasOverflow.x, comparisonMetrics.hasOverflow.x, 'Has overflow x equality.');
+      should.equal(targetMetrics.hasOverflow.y, comparisonMetrics.hasOverflow.y, 'Has overflow y equality.');
+    }
 
     if (targetMetrics.hasOverflow.x) {
       should.equal(style(targetViewport!, 'overflowX'), 'scroll', 'Overflow-X should result in scroll.');
@@ -262,6 +262,11 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     should.equal(targetMetrics.endElm.height, comparisonMetrics.endElm.height, 'End Elements height equality.');
 
     await timeout(1);
+
+    // steady pace for ie11 or it will freeze progressively
+    if (msie11) {
+      await timeout(25);
+    }
   });
 };
 
@@ -396,17 +401,19 @@ const overflowTest = async () => {
         height: comparison!.scrollHeight - comparison!.clientHeight,
       };
 
-      if (width) {
-        should.ok(overflowAmountCheck.width >= addOverflow, 'Correct smallest possible overflow width.');
-      } else {
-        should.equal(overflowAmountCheck.width, 0, 'Correct smallest possible overflow width.');
-      }
+      await waitForOrFailTest(() => {
+        if (width) {
+          should.ok(overflowAmountCheck.width >= addOverflow, 'Correct smallest possible overflow width.');
+        } else {
+          should.equal(overflowAmountCheck.width, 0, 'Correct smallest possible overflow width.');
+        }
 
-      if (height) {
-        should.ok(overflowAmountCheck.height >= addOverflow, 'Correct smallest possible overflow height.');
-      } else {
-        should.equal(overflowAmountCheck.height, 0, 'Correct smallest possible overflow height.');
-      }
+        if (height) {
+          should.ok(overflowAmountCheck.height >= addOverflow, 'Correct smallest possible overflow height.');
+        } else {
+          should.equal(overflowAmountCheck.height, 0, 'Correct smallest possible overflow height.');
+        }
+      });
 
       style(targetResize, styleObj);
 
@@ -458,13 +465,11 @@ const overflowTest = async () => {
       await iterateHeight(async () => {
         await iterateWidth(async () => {
           await iterateBorder(async () => {
-            // assume this part isn't critical for IE11, to boost test speed
+            // assume this part isn't critical
             /*
-            if (!msie11) {
-              await iterateFloat(async () => {
-                await iterateMargin();
-              });
-            }
+            await iterateFloat(async () => {
+              await iterateMargin();
+            });
             */
 
             await iteratePadding(async () => {

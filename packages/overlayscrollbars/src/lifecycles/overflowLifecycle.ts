@@ -266,7 +266,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     const verticalPaddingValue = viewportPaddingStyle.paddingBottom as number;
 
     // horizontal
-    viewportStyleObj.maxWidth = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
+    viewportStyleObj.width = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
     viewportStyleObj[horizontalMarginKey] = -hideOffsetY + horizontalMarginValue;
 
     // vertical
@@ -420,7 +420,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
         marginRight: 0,
         marginBottom: 0,
         marginLeft: 0,
-        maxWidth: '',
+        width: '',
         overflowY: '',
         overflowX: '',
       };
@@ -433,12 +433,10 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
         fixFlexboxGlue(viewportOverflowState, !!heightIntrinsic);
       }
 
-      // TODO: enlargen viewport if div too small for firefox scrollbar hiding behavior
       // TODO: hide host overflow if scroll x or y and no padding element there
       // TODO: Test without content
       // TODO: Test without padding
       // TODO: overflow: visible on padding / host if overflow visible on both axis
-      // TODO: change lifecyclehub communication to single object & assign
 
       style(_viewport, viewportStyle);
 

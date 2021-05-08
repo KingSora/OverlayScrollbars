@@ -45,7 +45,7 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
         right: 0,
         bottom: 0,
         left: 0,
-        maxWidth: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
+        width: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
       };
       const viewportStyle: StyleObject = {
         paddingTop: paddingRelative ? padding!.t : 0,
