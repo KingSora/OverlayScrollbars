@@ -108,18 +108,26 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
         );
       }
 
-      if (dimensions && (offsetSizeChanged || contentSizeChanged || dirChanged || boxSizingChanged)) {
+      if (dirChanged) {
         await waitForOrFailTest(() => {
-          if (offsetSizeChanged || contentSizeChanged || boxSizingChanged) {
-            should.equal(sizeIterations, currSizeIterations + 1, 'Size change was detected correctly.');
-          }
-          if (dirChanged) {
-            const expectedCacheValue = newDir === 'rtl';
-            should.equal(directionIterations, currDirectionIterations + 1, 'Direction change was detected correctly.');
-            should.equal(sizeObserver._getCurrentCacheValues()._directionIsRTL._value, expectedCacheValue, 'Direction cache value is correct.');
-          }
+          const expectedCacheValue = newDir === 'rtl';
+          should.equal(directionIterations, currDirectionIterations + 1, 'Direction change was detected correctly.');
+          should.equal(sizeObserver._getCurrentCacheValues()._directionIsRTL._value, expectedCacheValue, 'Direction cache value is correct.');
         });
       }
+
+      if (boxSizingChanged) {
+        await waitForOrFailTest(() => {
+          should.equal(sizeIterations, currSizeIterations + 1, 'BoxSizing change was detected correctly.');
+        });
+      }
+
+      if (dimensions && (offsetSizeChanged || contentSizeChanged)) {
+        await waitForOrFailTest(() => {
+          should.equal(sizeIterations, currSizeIterations + 1, 'Size change was detected correctly.');
+        });
+      }
+
       if (!dimensions) {
         await timeout(100);
       }

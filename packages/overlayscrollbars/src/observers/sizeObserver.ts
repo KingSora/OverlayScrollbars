@@ -136,7 +136,7 @@ export const createSizeObserver = (
     const expandElement = observerElementChildrenRoot.firstChild as HTMLElement;
     const expandElementChild = expandElement?.firstChild as HTMLElement;
 
-    let cacheSize = offsetSize(listenerElement);
+    let cacheSize = offsetSize(observerElementChildrenRoot);
     let currSize = cacheSize;
     let isDirty = false;
     let rAFId: number;
@@ -155,7 +155,7 @@ export const createSizeObserver = (
       }
     };
     const onScroll = (scrollEvent?: Event | false) => {
-      currSize = offsetSize(listenerElement);
+      currSize = offsetSize(observerElementChildrenRoot);
       isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
       if (scrollEvent) {
@@ -186,12 +186,13 @@ export const createSizeObserver = (
   }
 
   if (observeDirectionChange) {
-    directionIsRTLCache = createCache(() => directionIsRTL(sizeObserver));
+    directionIsRTLCache = createCache(directionIsRTL.bind(0, sizeObserver));
     const { _update: updateDirectionIsRTLCache } = directionIsRTLCache;
     push(
       offListeners,
       on(sizeObserver, scrollEventName, (event: Event) => {
         const directionIsRTLCacheValues = updateDirectionIsRTLCache();
+        console.log;
         const { _value, _changed } = directionIsRTLCacheValues;
         if (_changed) {
           removeClass(listenerElement, 'ltr rtl');

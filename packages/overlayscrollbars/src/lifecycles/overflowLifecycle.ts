@@ -87,11 +87,11 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
   const { _structureSetup, _doViewportArrange, _getLifecycleCommunication, _setLifecycleCommunication } = lifecycleHub;
   const { _host, _viewport, _viewportArrange } = _structureSetup._targetObj;
   const { _update: updateViewportSizeFraction, _current: getCurrentViewportSizeFraction } = createCache<WH<number>>(
-    () => sizeFraction(_viewport),
+    sizeFraction.bind(0, _viewport),
     whCacheOptions
   );
   const { _update: updateViewportScrollSizeCache, _current: getCurrentViewportScrollSizeCache } = createCache<WH<number>>(
-    () => scrollSize(_viewport),
+    scrollSize.bind(0, _viewport),
     whCacheOptions
   );
   const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache<WH<number>, OverflowAmountCacheContext>(
@@ -119,10 +119,10 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       const hostClientSize = clientSize(_host);
       // padding subtraction is only needed if padding is absolute or if viewport is content-box
       const paddingVertical = paddingAbsolute || style(_viewport, 'boxSizing') === 'content-box' ? padding.b + padding.t : 0;
-      const fractionalcleintHeight = hostClientSize.h + (abs(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
+      const fractionalClientHeight = hostClientSize.h + (abs(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
 
       style(_viewport, {
-        height: fractionalcleintHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
+        height: fractionalClientHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
       });
     }
   };
