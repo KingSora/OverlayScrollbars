@@ -58,6 +58,25 @@ const sizeFraction = (elm: HTMLElement): WH<number> => {
     h: viewportRect.height - viewportOffsetSize.h,
   };
 };
+const setAxisOverflowStyle = (horizontal: boolean, overflowAmount: number, behavior: OverflowBehavior, styleObj: StyleObject) => {
+  const overflowKey: keyof StyleObject = horizontal ? 'overflowX' : 'overflowY';
+  const behaviorIsVisible = behavior.indexOf('visible') === 0;
+  const behaviorIsVisibleHidden = behavior === 'visible-hidden';
+  const behaviorIsScroll = behavior === 'scroll';
+  const hasOverflow = overflowAmount > 0;
+
+  if (behaviorIsVisible) {
+    styleObj[overflowKey] = 'visible';
+  }
+  if (behaviorIsScroll && hasOverflow) {
+    styleObj[overflowKey] = behavior;
+  }
+
+  return {
+    _visible: behaviorIsVisible,
+    _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
+  };
+};
 
 /**
  * Lifecycle with the responsibility to set the correct overflow and scrollbar hiding styles of the viewport element.
@@ -96,15 +115,14 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     if (heightIntrinsic) {
       const { _absolute: paddingAbsolute, _padding: padding } = _getLifecycleCommunication()._paddingInfo;
       const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
-      const hostBCR = getBoundingClientRect(_host);
-      const hostOffsetSize = offsetSize(_host);
+      const hostSizeFraction = sizeFraction(_host);
       const hostClientSize = clientSize(_host);
       // padding subtraction is only needed if padding is absolute or if viewport is content-box
       const paddingVertical = paddingAbsolute || style(_viewport, 'boxSizing') === 'content-box' ? padding.b + padding.t : 0;
-      const clientSizeWithoutRounding = hostClientSize.h + (hostBCR.height - hostOffsetSize.h);
+      const fractionalcleintHeight = hostClientSize.h + (abs(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
 
       style(_viewport, {
-        height: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
+        height: fractionalcleintHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
       });
     }
   };
@@ -154,26 +172,8 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     overflow: OverflowOption,
     viewportStyleObj: StyleObject
   ): ViewportOverflowState => {
-    const setPartialStylePerAxis = (horizontal: boolean, overflowAmount: number, behavior: OverflowBehavior, styleObj: StyleObject) => {
-      const overflowKey: keyof StyleObject = horizontal ? 'overflowX' : 'overflowY';
-      const behaviorIsVisible = behavior.indexOf('visible') === 0;
-      const behaviorIsVisibleHidden = behavior === 'visible-hidden';
-      const behaviorIsScroll = behavior === 'scroll';
-
-      if (behaviorIsVisible) {
-        styleObj[overflowKey] = 'visible';
-      }
-      if (behaviorIsScroll && overflowAmount > 0) {
-        styleObj[overflowKey] = behavior;
-      }
-
-      return {
-        _visible: behaviorIsVisible,
-        _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
-      };
-    };
-    const { _visible: xVisible, _behavior: xVisibleBehavior } = setPartialStylePerAxis(true, overflowAmount!.w, overflow.x, viewportStyleObj);
-    const { _visible: yVisible, _behavior: yVisibleBehavior } = setPartialStylePerAxis(false, overflowAmount!.h, overflow.y, viewportStyleObj);
+    const { _visible: xVisible, _behavior: xVisibleBehavior } = setAxisOverflowStyle(true, overflowAmount!.w, overflow.x, viewportStyleObj);
+    const { _visible: yVisible, _behavior: yVisibleBehavior } = setAxisOverflowStyle(false, overflowAmount!.h, overflow.y, viewportStyleObj);
 
     if (xVisible && !yVisible) {
       viewportStyleObj.overflowX = xVisibleBehavior;
@@ -231,9 +231,9 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
           }
         }
       } else {
-        style<'--viewport-arrange-width' | '--viewport-arrange-height'>(_viewport, {
-          '--viewport-arrange-width': arrangeSize.w,
-          '--viewport-arrange-height': arrangeSize.h,
+        style<'--os-vaw' | '--os-vah'>(_viewport, {
+          '--os-vaw': arrangeSize.w,
+          '--os-vah': arrangeSize.h,
         });
       }
     }
@@ -308,7 +308,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       }
 
       if (arrangeX) {
-        assignProps('marginTop marginBottom paddingTop paddingBottom');
+        assignProps('marginBottom paddingTop paddingBottom');
       }
 
       if (arrangeY) {
@@ -416,7 +416,6 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       adjustFlexboxGlue
     ) {
       const viewportStyle: StyleObject = {
-        marginTop: 0,
         marginRight: 0,
         marginBottom: 0,
         marginLeft: 0,

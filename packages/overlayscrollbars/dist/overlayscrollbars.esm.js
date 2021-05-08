@@ -333,8 +333,29 @@ const createDOM = (html) => {
 };
 
 const firstLetterToUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+const getDummyStyle = () => createDiv().style;
+
+const cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
 const jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
 const jsCache = {};
+const cssCache = {};
+const cssProperty = (name) => {
+  let result = cssCache[name];
+
+  if (hasOwnProperty$1(cssCache, name)) {
+    return result;
+  }
+
+  const uppercasedName = firstLetterToUpper(name);
+  const elmStyle = getDummyStyle();
+  each(cssPrefixes, (prefix) => {
+    const prefixWithoutDashes = prefix.replace(/-/g, '');
+    const resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
+    return !(result = resultPossibilities.find((resultPossibility) => elmStyle[resultPossibility] !== undefined));
+  });
+  return (cssCache[name] = result || '');
+};
 const jsAPI = (name) => {
   let result = jsCache[name] || window[name];
 
@@ -797,6 +818,9 @@ const defaultOptionsWithTemplate = {
     show: booleanFalseTemplate,
     initialize: booleanFalseTemplate,
   },
+  callbacks: {
+    onUpdated: [null, [optionsTemplateTypes.function, optionsTemplateTypes.null]],
+  },
 };
 const { _template: optionsTemplate, _options: defaultOptions } = transformOptions(defaultOptionsWithTemplate);
 
@@ -817,6 +841,19 @@ const getNativeScrollbarSize = (body, measureElm) => {
     x: oSize.h - cSize.h,
     y: oSize.w - cSize.w,
   };
+};
+
+const getNativeScrollbarStyling = (testElm) => {
+  let result = false;
+  addClass(testElm, classNameViewportScrollbarStyling);
+
+  try {
+    result =
+      style(testElm, cssProperty('scrollbar-width')) === 'none' ||
+      window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
+  } catch (ex) {}
+
+  return result;
 };
 
 const getRtlScrollBehavior = (parentElm, childElm) => {
@@ -867,7 +904,7 @@ const createEnvironment = () => {
   const envChildElm = envElm.firstChild;
   const onChangedListener = new Set();
   const nativeScrollbarSize = getNativeScrollbarSize(body, envElm);
-  const nativeScrollbarStyling = false;
+  const nativeScrollbarStyling = getNativeScrollbarStyling(envElm);
   const nativeScrollbarIsOverlaid = {
     x: nativeScrollbarSize.x === 0,
     y: nativeScrollbarSize.y === 0,
@@ -909,7 +946,7 @@ const createEnvironment = () => {
   removeAttr(envElm, 'style');
   removeElements(envElm);
 
-  if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
+  if (!nativeScrollbarStyling && (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y)) {
     let size = windowSize();
     let dpr = getWindowDPR();
     let scrollbarSize = nativeScrollbarSize;
@@ -1141,58 +1178,48 @@ const createPaddingLifecycle = (lifecycleHub) => {
   const { _host, _padding, _viewport } = _structureSetup._targetObj;
   const { _update: updatePaddingCache, _current: currentPaddingCache } = createCache(() => topRightBottomLeft(_host, 'padding'), {
     _equal: equalTRBL,
+    _initialValue: topRightBottomLeft(),
   });
   return (updateHints, checkOption, force) => {
     let { _value: padding, _changed: paddingChanged } = currentPaddingCache(force);
-    const { _nativeScrollbarStyling } = getEnvironment();
-    const { _sizeChanged, _directionIsRTL } = updateHints;
+    const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+    const { _sizeChanged, _directionIsRTL, _contentMutation } = updateHints;
     const { _value: directionIsRTL, _changed: directionChanged } = _directionIsRTL;
     const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = checkOption('paddingAbsolute');
+    const contentMutation = !_flexboxGlue && _contentMutation;
 
-    if (_sizeChanged || paddingChanged) {
+    if (_sizeChanged || paddingChanged || contentMutation) {
       ({ _value: padding, _changed: paddingChanged } = updatePaddingCache(force));
     }
 
     const paddingStyleChanged = paddingAbsoluteChanged || directionChanged || paddingChanged;
 
     if (paddingStyleChanged) {
-      const { _value: _padding2 } = updatePaddingCache(force);
       const paddingRelative = !paddingAbsolute || (!_padding && !_nativeScrollbarStyling);
-      const paddingHorizontal = _padding2.r + _padding2.l;
-      const paddingVertical = _padding2.t + _padding2.b;
+      const paddingHorizontal = padding.r + padding.l;
+      const paddingVertical = padding.t + padding.b;
       const paddingStyle = {
-        marginTop: 0,
-        marginRight: 0,
+        marginRight: paddingRelative && !directionIsRTL ? -paddingHorizontal : 0,
         marginBottom: paddingRelative ? -paddingVertical : 0,
-        marginLeft: 0,
-        top: paddingRelative ? -_padding2.t : 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        maxWidth: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
+        marginLeft: paddingRelative && directionIsRTL ? -paddingHorizontal : 0,
+        top: paddingRelative ? -padding.t : 0,
+        right: paddingRelative ? (directionIsRTL ? -padding.r : 'auto') : 0,
+        left: paddingRelative ? (directionIsRTL ? 'auto' : -padding.l) : 0,
+        width: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
       };
       const viewportStyle = {
-        paddingTop: paddingRelative ? _padding2.t : 0,
-        paddingRight: paddingRelative ? _padding2.r : 0,
-        paddingBottom: paddingRelative ? _padding2.b : 0,
-        paddingLeft: paddingRelative ? _padding2.l : 0,
+        paddingTop: paddingRelative ? padding.t : 0,
+        paddingRight: paddingRelative ? padding.r : 0,
+        paddingBottom: paddingRelative ? padding.b : 0,
+        paddingLeft: paddingRelative ? padding.l : 0,
       };
-
-      if (paddingRelative) {
-        const horizontalPositionKey = directionIsRTL ? 'right' : 'left';
-        const horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
-        const horizontalPositionValue = directionIsRTL ? _padding2.r : _padding2.l;
-        paddingStyle[horizontalPositionKey] = -horizontalPositionValue;
-        paddingStyle[horizontalMarginKey] = -paddingHorizontal;
-      }
-
       style(_padding || _viewport, paddingStyle);
       style(_viewport, viewportStyle);
 
       _setLifecycleCommunication({
         _paddingInfo: {
           _absolute: !paddingRelative,
-          _padding: _padding2,
+          _padding: padding,
         },
         _viewportPaddingStyle: _padding ? viewportStyle : _extends_1({}, paddingStyle, viewportStyle),
       });
@@ -1204,34 +1231,64 @@ const createPaddingLifecycle = (lifecycleHub) => {
   };
 };
 
+const { max, abs: abs$1, round: round$1 } = Math;
 const overlaidScrollbarsHideOffset = 42;
+const whCacheOptions = {
+  _equal: equalWH,
+  _initialValue: {
+    w: 0,
+    h: 0,
+  },
+};
+
+const sizeFraction = (elm) => {
+  const viewportOffsetSize = offsetSize(elm);
+  const viewportRect = getBoundingClientRect(elm);
+  return {
+    w: viewportRect.width - viewportOffsetSize.w,
+    h: viewportRect.height - viewportOffsetSize.h,
+  };
+};
+
+const setAxisOverflowStyle = (horizontal, overflowAmount, behavior, styleObj) => {
+  const overflowKey = horizontal ? 'overflowX' : 'overflowY';
+  const behaviorIsVisible = behavior.indexOf('visible') === 0;
+  const behaviorIsVisibleHidden = behavior === 'visible-hidden';
+  const behaviorIsScroll = behavior === 'scroll';
+  const hasOverflow = overflowAmount > 0;
+
+  if (behaviorIsVisible) {
+    styleObj[overflowKey] = 'visible';
+  }
+
+  if (behaviorIsScroll && hasOverflow) {
+    styleObj[overflowKey] = behavior;
+  }
+
+  return {
+    _visible: behaviorIsVisible,
+    _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
+  };
+};
+
 const createOverflowLifecycle = (lifecycleHub) => {
   const { _structureSetup, _doViewportArrange, _getLifecycleCommunication, _setLifecycleCommunication } = lifecycleHub;
   const { _host, _viewport, _viewportArrange } = _structureSetup._targetObj;
-  const { _update: updateContentScrollSizeCache, _current: getCurrentContentScrollSizeCache } = createCache(
-    (ctx) => fixScrollSizeRounding(ctx._viewportScrollSize, ctx._viewportOffsetSize, ctx._viewportRect),
-    {
-      _equal: equalWH,
-    }
+  const { _update: updateViewportSizeFraction, _current: getCurrentViewportSizeFraction } = createCache(
+    () => sizeFraction(_viewport),
+    whCacheOptions
+  );
+  const { _update: updateViewportScrollSizeCache, _current: getCurrentViewportScrollSizeCache } = createCache(
+    () => scrollSize(_viewport),
+    whCacheOptions
   );
   const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache(
-    (ctx) => ({
-      w: Math.max(0, ctx._contentScrollSize.w - ctx._viewportSize.w),
-      h: Math.max(0, ctx._contentScrollSize.h - ctx._viewportSize.h),
+    ({ _viewportScrollSize, _viewportClientSize, _viewportSizeFraction }) => ({
+      w: round$1(max(0, _viewportScrollSize.w - _viewportClientSize.w) - max(0, _viewportSizeFraction.w)),
+      h: round$1(max(0, _viewportScrollSize.h - _viewportClientSize.h) - max(0, _viewportSizeFraction.h)),
     }),
-    {
-      _equal: equalWH,
-      _initialValue: {
-        w: 0,
-        h: 0,
-      },
-    }
+    whCacheOptions
   );
-
-  const fixScrollSizeRounding = (viewportScrollSize, viewportOffsetSize, viewportRect) => ({
-    w: viewportScrollSize.w - Math.round(Math.max(0, viewportRect.width - viewportOffsetSize.w)),
-    h: viewportScrollSize.h - Math.round(Math.max(0, viewportRect.height - viewportOffsetSize.h)),
-  });
 
   const fixFlexboxGlue = (viewportOverflowState, heightIntrinsic) => {
     style(_viewport, {
@@ -1242,13 +1299,12 @@ const createOverflowLifecycle = (lifecycleHub) => {
       const { _absolute: paddingAbsolute, _padding: padding } = _getLifecycleCommunication()._paddingInfo;
 
       const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
-      const hostBCR = getBoundingClientRect(_host);
-      const hostOffsetSize = offsetSize(_host);
+      const hostSizeFraction = sizeFraction(_host);
       const hostClientSize = clientSize(_host);
       const paddingVertical = paddingAbsolute || style(_viewport, 'boxSizing') === 'content-box' ? padding.b + padding.t : 0;
-      const clientSizeWithoutRounding = hostClientSize.h + (hostBCR.height - hostOffsetSize.h);
+      const fractionalcleintHeight = hostClientSize.h + (abs$1(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
       style(_viewport, {
-        height: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
+        height: fractionalcleintHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
       });
     }
   };
@@ -1278,28 +1334,8 @@ const createOverflowLifecycle = (lifecycleHub) => {
   };
 
   const setViewportOverflowState = (showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyleObj) => {
-    const setPartialStylePerAxis = (horizontal, overflowAmount, behavior, styleObj) => {
-      const overflowKey = horizontal ? 'overflowX' : 'overflowY';
-      const behaviorIsVisible = behavior.indexOf('visible') === 0;
-      const behaviorIsVisibleHidden = behavior === 'visible-hidden';
-      const behaviorIsScroll = behavior === 'scroll';
-
-      if (behaviorIsVisible) {
-        styleObj[overflowKey] = 'visible';
-      }
-
-      if (behaviorIsScroll && overflowAmount > 0) {
-        styleObj[overflowKey] = behavior;
-      }
-
-      return {
-        _visible: behaviorIsVisible,
-        _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
-      };
-    };
-
-    const { _visible: xVisible, _behavior: xVisibleBehavior } = setPartialStylePerAxis(true, overflowAmount.w, overflow.x, viewportStyleObj);
-    const { _visible: yVisible, _behavior: yVisibleBehavior } = setPartialStylePerAxis(false, overflowAmount.h, overflow.y, viewportStyleObj);
+    const { _visible: xVisible, _behavior: xVisibleBehavior } = setAxisOverflowStyle(true, overflowAmount.w, overflow.x, viewportStyleObj);
+    const { _visible: yVisible, _behavior: yVisibleBehavior } = setAxisOverflowStyle(false, overflowAmount.h, overflow.y, viewportStyleObj);
 
     if (xVisible && !yVisible) {
       viewportStyleObj.overflowX = xVisibleBehavior;
@@ -1312,7 +1348,7 @@ const createOverflowLifecycle = (lifecycleHub) => {
     return getViewportOverflowState(showNativeOverlaidScrollbars, viewportStyleObj);
   };
 
-  const arrangeViewport = (viewportOverflowState, contentScrollSize, directionIsRTL) => {
+  const arrangeViewport = (viewportOverflowState, viewportScrollSize, viewportSizeFraction, directionIsRTL) => {
     if (_doViewportArrange) {
       const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
       const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
@@ -1323,9 +1359,11 @@ const createOverflowLifecycle = (lifecycleHub) => {
       const viewportArrangeHorizontalPaddingKey = directionIsRTL ? 'paddingRight' : 'paddingLeft';
       const viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
       const viewportArrangeVerticalPaddingValue = viewportPaddingStyle.paddingTop;
+      const fractionalContentWidth = viewportScrollSize.w + (abs$1(viewportSizeFraction.w) < 1 ? viewportSizeFraction.w : 0);
+      const fractionalContenHeight = viewportScrollSize.h + (abs$1(viewportSizeFraction.h) < 1 ? viewportSizeFraction.h : 0);
       const arrangeSize = {
-        w: hideOffsetY && arrangeY ? `${hideOffsetY + contentScrollSize.w - viewportArrangeHorizontalPaddingValue}px` : '',
-        h: hideOffsetX && arrangeX ? `${hideOffsetX + contentScrollSize.h - viewportArrangeVerticalPaddingValue}px` : '',
+        w: hideOffsetY && arrangeY ? `${hideOffsetY + fractionalContentWidth - viewportArrangeHorizontalPaddingValue}px` : '',
+        h: hideOffsetX && arrangeX ? `${hideOffsetX + fractionalContenHeight - viewportArrangeVerticalPaddingValue}px` : '',
       };
 
       if (_viewportArrange) {
@@ -1346,8 +1384,8 @@ const createOverflowLifecycle = (lifecycleHub) => {
         }
       } else {
         style(_viewport, {
-          '--viewport-arrange-width': arrangeSize.w,
-          '--viewport-arrange-height': arrangeSize.h,
+          '--os-vaw': arrangeSize.w,
+          '--os-vah': arrangeSize.h,
         });
       }
     }
@@ -1368,7 +1406,7 @@ const createOverflowLifecycle = (lifecycleHub) => {
     const verticalMarginValue = viewportPaddingStyle.marginBottom;
     const horizontalPaddingValue = viewportPaddingStyle[viewportHorizontalPaddingKey];
     const verticalPaddingValue = viewportPaddingStyle.paddingBottom;
-    viewportStyleObj.maxWidth = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
+    viewportStyleObj.width = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
     viewportStyleObj[horizontalMarginKey] = -hideOffsetY + horizontalMarginValue;
     viewportStyleObj.marginBottom = -hideOffsetX + verticalMarginValue;
 
@@ -1399,7 +1437,7 @@ const createOverflowLifecycle = (lifecycleHub) => {
       }
 
       if (arrangeX) {
-        assignProps('marginTop marginBottom paddingTop paddingBottom');
+        assignProps('marginBottom paddingTop paddingBottom');
       }
 
       if (arrangeY) {
@@ -1435,8 +1473,9 @@ const createOverflowLifecycle = (lifecycleHub) => {
     const showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
     const adjustFlexboxGlue =
       !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || heightIntrinsicChanged);
+    let viewportSizeFractionCache = getCurrentViewportSizeFraction(force);
+    let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
     let overflowAmuntCache = getCurrentOverflowAmountCache(force);
-    let contentScrollSizeCache = getCurrentContentScrollSizeCache(force);
     let preMeasureViewportOverflowState;
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
@@ -1458,48 +1497,48 @@ const createOverflowLifecycle = (lifecycleHub) => {
         directionIsRTL,
         preMeasureViewportOverflowState
       );
-      const contentSize = clientSize(_viewport);
-      const viewportRect = getBoundingClientRect(_viewport);
-      const viewportOffsetSize = offsetSize(_viewport);
-      let viewportScrollSize = scrollSize(_viewport);
-      let viewportClientSize = contentSize;
-      const { _value: _contentScrollSize, _changed: _contentScrollSizeChanged } = (contentScrollSizeCache = updateContentScrollSizeCache(force, {
-        _viewportRect: viewportRect,
-        _viewportOffsetSize: viewportOffsetSize,
-        _viewportScrollSize: viewportScrollSize,
-      }));
+      const { _value: _viewportSizeFraction2, _changed: viewportSizeFractionCahnged } = (viewportSizeFractionCache = updateViewportSizeFraction(
+        force
+      ));
+      const { _value: _viewportScrollSize2, _changed: _viewportScrollSizeChanged } = (viewportScrollSizeCache = updateViewportScrollSizeCache(force));
+      const viewportContentSize = clientSize(_viewport);
+      let arrangedViewportScrollSize = _viewportScrollSize2;
+      let arrangedViewportClientSize = viewportContentSize;
 
       _redoViewportArrange();
 
       if (
-        (_contentScrollSizeChanged || showNativeOverlaidScrollbarsChanged) &&
+        (_viewportScrollSizeChanged || viewportSizeFractionCahnged || showNativeOverlaidScrollbarsChanged) &&
         undoViewportArrangeOverflowState &&
         !showNativeOverlaidScrollbars &&
-        arrangeViewport(undoViewportArrangeOverflowState, _contentScrollSize, directionIsRTL)
+        arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize2, _viewportSizeFraction2, directionIsRTL)
       ) {
-        viewportClientSize = clientSize(_viewport);
-        viewportScrollSize = fixScrollSizeRounding(scrollSize(_viewport), offsetSize(_viewport), getBoundingClientRect(_viewport));
+        arrangedViewportClientSize = clientSize(_viewport);
+        arrangedViewportScrollSize = scrollSize(_viewport);
       }
 
       overflowAmuntCache = updateOverflowAmountCache(force, {
-        _contentScrollSize: {
-          w: Math.max(_contentScrollSize.w, viewportScrollSize.w),
-          h: Math.max(_contentScrollSize.h, viewportScrollSize.h),
+        _viewportSizeFraction: _viewportSizeFraction2,
+        _viewportScrollSize: {
+          w: max(_viewportScrollSize2.w, arrangedViewportScrollSize.w),
+          h: max(_viewportScrollSize2.h, arrangedViewportScrollSize.h),
         },
-        _viewportSize: {
-          w: viewportClientSize.w + Math.max(0, contentSize.w - _contentScrollSize.w),
-          h: viewportClientSize.h + Math.max(0, contentSize.h - _contentScrollSize.h),
+        _viewportClientSize: {
+          w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - _viewportScrollSize2.w),
+          h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize2.h),
         },
       });
     }
 
-    const { _value: overflow, _changed: overflowChanged } = checkOption('overflow');
-    const { _value: contentScrollSize, _changed: contentScrollSizeChanged } = contentScrollSizeCache;
+    const { _value: viewportSizeFraction, _changed: viewportSizeFractionChanged } = viewportSizeFractionCache;
+    const { _value: viewportScrollSize, _changed: viewportScrollSizeChanged } = viewportScrollSizeCache;
     const { _value: overflowAmount, _changed: overflowAmountChanged } = overflowAmuntCache;
+    const { _value: overflow, _changed: overflowChanged } = checkOption('overflow');
 
     if (
       _paddingStyleChanged ||
-      contentScrollSizeChanged ||
+      viewportSizeFractionChanged ||
+      viewportScrollSizeChanged ||
       overflowAmountChanged ||
       overflowChanged ||
       showNativeOverlaidScrollbarsChanged ||
@@ -1507,16 +1546,15 @@ const createOverflowLifecycle = (lifecycleHub) => {
       adjustFlexboxGlue
     ) {
       const viewportStyle = {
-        marginTop: 0,
         marginRight: 0,
         marginBottom: 0,
         marginLeft: 0,
-        maxWidth: '',
+        width: '',
         overflowY: '',
         overflowX: '',
       };
       const viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyle);
-      const viewportArranged = arrangeViewport(viewportOverflowState, contentScrollSize, directionIsRTL);
+      const viewportArranged = arrangeViewport(viewportOverflowState, viewportScrollSize, viewportSizeFraction, directionIsRTL);
       hideNativeScrollbars(viewportOverflowState, directionIsRTL, viewportArranged, viewportStyle);
 
       if (adjustFlexboxGlue) {
@@ -1940,13 +1978,6 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
 const getPropByPath = (obj, path) =>
   obj ? path.split('.').reduce((o, prop) => (o && hasOwnProperty$1(o, prop) ? o[prop] : undefined), obj) : undefined;
 
-const emptyStylePropsToZero = (stlyeObj, baseStyle) =>
-  keys(stlyeObj).reduce((obj, key) => {
-    const value = stlyeObj[key];
-    obj[key] = value === '' ? 0 : value;
-    return obj;
-  }, _extends_1({}, baseStyle));
-
 const ignorePrefix = 'os-';
 const hostSelector = `.${classNameHost}`;
 const viewportSelector = `.${classNameViewport}`;
@@ -1991,7 +2022,6 @@ const lifecycleCommunicationFallback = {
     h: 0,
   },
   _viewportPaddingStyle: {
-    marginTop: 0,
     marginRight: 0,
     marginBottom: 0,
     marginLeft: 0,
@@ -2012,7 +2042,6 @@ const createLifecycleHub = (options, structureSetup) => {
     _removeListener: removeEnvironmentListener,
   } = getEnvironment();
   const doViewportArrange = !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
-  const lifecycles = [];
   const instance = {
     _options: options,
     _structureSetup: structureSetup,
@@ -2020,19 +2049,10 @@ const createLifecycleHub = (options, structureSetup) => {
     _getLifecycleCommunication: () => lifecycleCommunication,
 
     _setLifecycleCommunication(newLifecycleCommunication) {
-      if (newLifecycleCommunication && newLifecycleCommunication._viewportPaddingStyle) {
-        newLifecycleCommunication._viewportPaddingStyle = emptyStylePropsToZero(
-          newLifecycleCommunication._viewportPaddingStyle,
-          lifecycleCommunicationFallback._viewportPaddingStyle
-        );
-      }
-
       lifecycleCommunication = assignDeep({}, lifecycleCommunication, newLifecycleCommunication);
     },
   };
-  push(lifecycles, createTrinsicLifecycle(instance));
-  push(lifecycles, createPaddingLifecycle(instance));
-  push(lifecycles, createOverflowLifecycle(instance));
+  const lifecycles = [createTrinsicLifecycle(instance), createPaddingLifecycle(instance), createOverflowLifecycle(instance)];
 
   const updateLifecycles = (updateHints, changedOptions, force) => {
     let {
@@ -2087,6 +2107,10 @@ const createLifecycleHub = (options, structureSetup) => {
 
     if (isNumber(scrollOffsetY)) {
       scrollTop(_viewport, scrollOffsetY);
+    }
+
+    if (options.callbacks.onUpdated) {
+      options.callbacks.onUpdated();
     }
   };
 

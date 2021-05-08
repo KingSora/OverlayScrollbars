@@ -5,8 +5,6 @@ import {
   CacheValues,
   PartialOptions,
   each,
-  push,
-  keys,
   hasOwnProperty,
   isNumber,
   scrollLeft,
@@ -84,16 +82,6 @@ export interface LifecycleHub {
 const getPropByPath = <T>(obj: any, path: string): T =>
   obj ? path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj) : undefined;
 
-const emptyStylePropsToZero = (stlyeObj: StyleObject, baseStyle?: StyleObject) =>
-  keys(stlyeObj).reduce(
-    (obj, key) => {
-      const value = stlyeObj[key];
-      obj[key] = value === '' ? 0 : value;
-      return obj;
-    },
-    { ...baseStyle }
-  );
-
 // TODO: observer textarea attrs if textarea
 // TODO: tabindex, open etc.
 // TODO: test _ignoreContentChange & _ignoreNestedTargetChange for content dom observer
@@ -139,7 +127,6 @@ const lifecycleCommunicationFallback: LifecycleCommunication = {
     h: 0,
   },
   _viewportPaddingStyle: {
-    marginTop: 0,
     marginRight: 0,
     marginBottom: 0,
     marginLeft: 0,
@@ -161,27 +148,16 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
     _removeListener: removeEnvironmentListener,
   } = getEnvironment();
   const doViewportArrange = !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
-  const lifecycles: Lifecycle[] = [];
   const instance: LifecycleHub = {
     _options: options,
     _structureSetup: structureSetup,
     _doViewportArrange: doViewportArrange,
     _getLifecycleCommunication: () => lifecycleCommunication,
     _setLifecycleCommunication(newLifecycleCommunication) {
-      if (newLifecycleCommunication && newLifecycleCommunication._viewportPaddingStyle) {
-        newLifecycleCommunication._viewportPaddingStyle = emptyStylePropsToZero(
-          newLifecycleCommunication._viewportPaddingStyle,
-          lifecycleCommunicationFallback._viewportPaddingStyle
-        );
-      }
-
       lifecycleCommunication = assignDeep({}, lifecycleCommunication, newLifecycleCommunication);
     },
   };
-
-  push(lifecycles, createTrinsicLifecycle(instance));
-  push(lifecycles, createPaddingLifecycle(instance));
-  push(lifecycles, createOverflowLifecycle(instance));
+  const lifecycles: Lifecycle[] = [createTrinsicLifecycle(instance), createPaddingLifecycle(instance), createOverflowLifecycle(instance)];
 
   const updateLifecycles = (updateHints?: Partial<LifecycleUpdateHints> | null, changedOptions?: Partial<OSOptions> | null, force?: boolean) => {
     let {

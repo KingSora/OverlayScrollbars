@@ -374,8 +374,33 @@
   var firstLetterToUpper = function firstLetterToUpper(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
+
+  var getDummyStyle = function getDummyStyle() {
+    return createDiv().style;
+  };
+
+  var cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
   var jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
   var jsCache = {};
+  var cssCache = {};
+  var cssProperty = function cssProperty(name) {
+    var result = cssCache[name];
+
+    if (hasOwnProperty$1(cssCache, name)) {
+      return result;
+    }
+
+    var uppercasedName = firstLetterToUpper(name);
+    var elmStyle = getDummyStyle();
+    each(cssPrefixes, function (prefix) {
+      var prefixWithoutDashes = prefix.replace(/-/g, '');
+      var resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
+      return !(result = resultPossibilities.find(function (resultPossibility) {
+        return elmStyle[resultPossibility] !== undefined;
+      }));
+    });
+    return (cssCache[name] = result || '');
+  };
   var jsAPI = function jsAPI(name) {
     var result = jsCache[name] || window[name];
 
@@ -887,6 +912,9 @@
       show: booleanFalseTemplate,
       initialize: booleanFalseTemplate,
     },
+    callbacks: {
+      onUpdated: [null, [optionsTemplateTypes.function, optionsTemplateTypes.null]],
+    },
   };
 
   var _transformOptions = transformOptions(defaultOptionsWithTemplate),
@@ -911,6 +939,19 @@
       x: oSize.h - cSize.h,
       y: oSize.w - cSize.w,
     };
+  };
+
+  var getNativeScrollbarStyling = function getNativeScrollbarStyling(testElm) {
+    var result = false;
+    addClass(testElm, classNameViewportScrollbarStyling);
+
+    try {
+      result =
+        style(testElm, cssProperty('scrollbar-width')) === 'none' ||
+        window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
+    } catch (ex) {}
+
+    return result;
   };
 
   var getRtlScrollBehavior = function getRtlScrollBehavior(parentElm, childElm) {
@@ -964,7 +1005,7 @@
     var envChildElm = envElm.firstChild;
     var onChangedListener = new Set();
     var nativeScrollbarSize = getNativeScrollbarSize(body, envElm);
-    var nativeScrollbarStyling = false;
+    var nativeScrollbarStyling = getNativeScrollbarStyling(envElm);
     var nativeScrollbarIsOverlaid = {
       x: nativeScrollbarSize.x === 0,
       y: nativeScrollbarSize.y === 0,
@@ -1003,7 +1044,7 @@
     removeAttr(envElm, 'style');
     removeElements(envElm);
 
-    if (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y) {
+    if (!nativeScrollbarStyling && (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y)) {
       var size = windowSize();
       var dpr = getWindowDPR();
       var scrollbarSize = nativeScrollbarSize;
@@ -1258,6 +1299,7 @@
         },
         {
           _equal: equalTRBL,
+          _initialValue: topRightBottomLeft(),
         }
       ),
       updatePaddingCache = _createCache._update,
@@ -1269,10 +1311,12 @@
         paddingChanged = _currentPaddingCache._changed;
 
       var _getEnvironment = getEnvironment(),
-        _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling;
+        _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
+        _flexboxGlue = _getEnvironment._flexboxGlue;
 
       var _sizeChanged = updateHints._sizeChanged,
-        _directionIsRTL = updateHints._directionIsRTL;
+        _directionIsRTL = updateHints._directionIsRTL,
+        _contentMutation = updateHints._contentMutation;
       var directionIsRTL = _directionIsRTL._value,
         directionChanged = _directionIsRTL._changed;
 
@@ -1280,7 +1324,9 @@
         paddingAbsolute = _checkOption._value,
         paddingAbsoluteChanged = _checkOption._changed;
 
-      if (_sizeChanged || paddingChanged) {
+      var contentMutation = !_flexboxGlue && _contentMutation;
+
+      if (_sizeChanged || paddingChanged || contentMutation) {
         var _updatePaddingCache = updatePaddingCache(force);
 
         padding = _updatePaddingCache._value;
@@ -1290,45 +1336,31 @@
       var paddingStyleChanged = paddingAbsoluteChanged || directionChanged || paddingChanged;
 
       if (paddingStyleChanged) {
-        var _updatePaddingCache2 = updatePaddingCache(force),
-          _padding2 = _updatePaddingCache2._value;
-
         var paddingRelative = !paddingAbsolute || (!_padding && !_nativeScrollbarStyling);
-        var paddingHorizontal = _padding2.r + _padding2.l;
-        var paddingVertical = _padding2.t + _padding2.b;
+        var paddingHorizontal = padding.r + padding.l;
+        var paddingVertical = padding.t + padding.b;
         var paddingStyle = {
-          marginTop: 0,
-          marginRight: 0,
+          marginRight: paddingRelative && !directionIsRTL ? -paddingHorizontal : 0,
           marginBottom: paddingRelative ? -paddingVertical : 0,
-          marginLeft: 0,
-          top: paddingRelative ? -_padding2.t : 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
-          maxWidth: paddingRelative ? 'calc(100% + ' + paddingHorizontal + 'px)' : '',
+          marginLeft: paddingRelative && directionIsRTL ? -paddingHorizontal : 0,
+          top: paddingRelative ? -padding.t : 0,
+          right: paddingRelative ? (directionIsRTL ? -padding.r : 'auto') : 0,
+          left: paddingRelative ? (directionIsRTL ? 'auto' : -padding.l) : 0,
+          width: paddingRelative ? 'calc(100% + ' + paddingHorizontal + 'px)' : '',
         };
         var viewportStyle = {
-          paddingTop: paddingRelative ? _padding2.t : 0,
-          paddingRight: paddingRelative ? _padding2.r : 0,
-          paddingBottom: paddingRelative ? _padding2.b : 0,
-          paddingLeft: paddingRelative ? _padding2.l : 0,
+          paddingTop: paddingRelative ? padding.t : 0,
+          paddingRight: paddingRelative ? padding.r : 0,
+          paddingBottom: paddingRelative ? padding.b : 0,
+          paddingLeft: paddingRelative ? padding.l : 0,
         };
-
-        if (paddingRelative) {
-          var horizontalPositionKey = directionIsRTL ? 'right' : 'left';
-          var horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
-          var horizontalPositionValue = directionIsRTL ? _padding2.r : _padding2.l;
-          paddingStyle[horizontalPositionKey] = -horizontalPositionValue;
-          paddingStyle[horizontalMarginKey] = -paddingHorizontal;
-        }
-
         style(_padding || _viewport, paddingStyle);
         style(_viewport, viewportStyle);
 
         _setLifecycleCommunication({
           _paddingInfo: {
             _absolute: !paddingRelative,
-            _padding: _padding2,
+            _padding: padding,
           },
           _viewportPaddingStyle: _padding ? viewportStyle : _extends_1({}, paddingStyle, viewportStyle),
         });
@@ -1340,7 +1372,48 @@
     };
   };
 
+  var max = Math.max,
+    abs$1 = Math.abs,
+    round$1 = Math.round;
   var overlaidScrollbarsHideOffset = 42;
+  var whCacheOptions = {
+    _equal: equalWH,
+    _initialValue: {
+      w: 0,
+      h: 0,
+    },
+  };
+
+  var sizeFraction = function sizeFraction(elm) {
+    var viewportOffsetSize = offsetSize(elm);
+    var viewportRect = getBoundingClientRect(elm);
+    return {
+      w: viewportRect.width - viewportOffsetSize.w,
+      h: viewportRect.height - viewportOffsetSize.h,
+    };
+  };
+
+  var setAxisOverflowStyle = function setAxisOverflowStyle(horizontal, overflowAmount, behavior, styleObj) {
+    var overflowKey = horizontal ? 'overflowX' : 'overflowY';
+    var behaviorIsVisible = behavior.indexOf('visible') === 0;
+    var behaviorIsVisibleHidden = behavior === 'visible-hidden';
+    var behaviorIsScroll = behavior === 'scroll';
+    var hasOverflow = overflowAmount > 0;
+
+    if (behaviorIsVisible) {
+      styleObj[overflowKey] = 'visible';
+    }
+
+    if (behaviorIsScroll && hasOverflow) {
+      styleObj[overflowKey] = behavior;
+    }
+
+    return {
+      _visible: behaviorIsVisible,
+      _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
+    };
+  };
+
   var createOverflowLifecycle = function createOverflowLifecycle(lifecycleHub) {
     var _structureSetup = lifecycleHub._structureSetup,
       _doViewportArrange = lifecycleHub._doViewportArrange,
@@ -1351,41 +1424,29 @@
       _viewport = _structureSetup$_targ._viewport,
       _viewportArrange = _structureSetup$_targ._viewportArrange;
 
-    var _createCache = createCache(
-        function (ctx) {
-          return fixScrollSizeRounding(ctx._viewportScrollSize, ctx._viewportOffsetSize, ctx._viewportRect);
-        },
-        {
-          _equal: equalWH,
-        }
-      ),
-      updateContentScrollSizeCache = _createCache._update,
-      getCurrentContentScrollSizeCache = _createCache._current;
+    var _createCache = createCache(function () {
+        return sizeFraction(_viewport);
+      }, whCacheOptions),
+      updateViewportSizeFraction = _createCache._update,
+      getCurrentViewportSizeFraction = _createCache._current;
 
-    var _createCache2 = createCache(
-        function (ctx) {
-          return {
-            w: Math.max(0, ctx._contentScrollSize.w - ctx._viewportSize.w),
-            h: Math.max(0, ctx._contentScrollSize.h - ctx._viewportSize.h),
-          };
-        },
-        {
-          _equal: equalWH,
-          _initialValue: {
-            w: 0,
-            h: 0,
-          },
-        }
-      ),
-      updateOverflowAmountCache = _createCache2._update,
-      getCurrentOverflowAmountCache = _createCache2._current;
+    var _createCache2 = createCache(function () {
+        return scrollSize(_viewport);
+      }, whCacheOptions),
+      updateViewportScrollSizeCache = _createCache2._update,
+      getCurrentViewportScrollSizeCache = _createCache2._current;
 
-    var fixScrollSizeRounding = function fixScrollSizeRounding(viewportScrollSize, viewportOffsetSize, viewportRect) {
-      return {
-        w: viewportScrollSize.w - Math.round(Math.max(0, viewportRect.width - viewportOffsetSize.w)),
-        h: viewportScrollSize.h - Math.round(Math.max(0, viewportRect.height - viewportOffsetSize.h)),
-      };
-    };
+    var _createCache3 = createCache(function (_ref) {
+        var _viewportScrollSize = _ref._viewportScrollSize,
+          _viewportClientSize = _ref._viewportClientSize,
+          _viewportSizeFraction = _ref._viewportSizeFraction;
+        return {
+          w: round$1(max(0, _viewportScrollSize.w - _viewportClientSize.w) - max(0, _viewportSizeFraction.w)),
+          h: round$1(max(0, _viewportScrollSize.h - _viewportClientSize.h) - max(0, _viewportSizeFraction.h)),
+        };
+      }, whCacheOptions),
+      updateOverflowAmountCache = _createCache3._update,
+      getCurrentOverflowAmountCache = _createCache3._current;
 
     var fixFlexboxGlue = function fixFlexboxGlue(viewportOverflowState, heightIntrinsic) {
       style(_viewport, {
@@ -1399,13 +1460,12 @@
 
         var _overflowScroll = viewportOverflowState._overflowScroll,
           _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset;
-        var hostBCR = getBoundingClientRect(_host);
-        var hostOffsetSize = offsetSize(_host);
+        var hostSizeFraction = sizeFraction(_host);
         var hostClientSize = clientSize(_host);
         var paddingVertical = paddingAbsolute || style(_viewport, 'boxSizing') === 'content-box' ? padding.b + padding.t : 0;
-        var clientSizeWithoutRounding = hostClientSize.h + (hostBCR.height - hostOffsetSize.h);
+        var fractionalcleintHeight = hostClientSize.h + (abs$1(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
         style(_viewport, {
-          height: clientSizeWithoutRounding + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
+          height: fractionalcleintHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
         });
       }
     };
@@ -1440,33 +1500,13 @@
     };
 
     var setViewportOverflowState = function setViewportOverflowState(showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyleObj) {
-      var setPartialStylePerAxis = function setPartialStylePerAxis(horizontal, overflowAmount, behavior, styleObj) {
-        var overflowKey = horizontal ? 'overflowX' : 'overflowY';
-        var behaviorIsVisible = behavior.indexOf('visible') === 0;
-        var behaviorIsVisibleHidden = behavior === 'visible-hidden';
-        var behaviorIsScroll = behavior === 'scroll';
+      var _setAxisOverflowStyle = setAxisOverflowStyle(true, overflowAmount.w, overflow.x, viewportStyleObj),
+        xVisible = _setAxisOverflowStyle._visible,
+        xVisibleBehavior = _setAxisOverflowStyle._behavior;
 
-        if (behaviorIsVisible) {
-          styleObj[overflowKey] = 'visible';
-        }
-
-        if (behaviorIsScroll && overflowAmount > 0) {
-          styleObj[overflowKey] = behavior;
-        }
-
-        return {
-          _visible: behaviorIsVisible,
-          _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
-        };
-      };
-
-      var _setPartialStylePerAx = setPartialStylePerAxis(true, overflowAmount.w, overflow.x, viewportStyleObj),
-        xVisible = _setPartialStylePerAx._visible,
-        xVisibleBehavior = _setPartialStylePerAx._behavior;
-
-      var _setPartialStylePerAx2 = setPartialStylePerAxis(false, overflowAmount.h, overflow.y, viewportStyleObj),
-        yVisible = _setPartialStylePerAx2._visible,
-        yVisibleBehavior = _setPartialStylePerAx2._behavior;
+      var _setAxisOverflowStyle2 = setAxisOverflowStyle(false, overflowAmount.h, overflow.y, viewportStyleObj),
+        yVisible = _setAxisOverflowStyle2._visible,
+        yVisibleBehavior = _setAxisOverflowStyle2._behavior;
 
       if (xVisible && !yVisible) {
         viewportStyleObj.overflowX = xVisibleBehavior;
@@ -1479,7 +1519,7 @@
       return getViewportOverflowState(showNativeOverlaidScrollbars, viewportStyleObj);
     };
 
-    var arrangeViewport = function arrangeViewport(viewportOverflowState, contentScrollSize, directionIsRTL) {
+    var arrangeViewport = function arrangeViewport(viewportOverflowState, viewportScrollSize, viewportSizeFraction, directionIsRTL) {
       if (_doViewportArrange) {
         var _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset,
           _scrollbarsHideOffsetArrange = viewportOverflowState._scrollbarsHideOffsetArrange;
@@ -1494,9 +1534,11 @@
         var viewportArrangeHorizontalPaddingKey = directionIsRTL ? 'paddingRight' : 'paddingLeft';
         var viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
         var viewportArrangeVerticalPaddingValue = viewportPaddingStyle.paddingTop;
+        var fractionalContentWidth = viewportScrollSize.w + (abs$1(viewportSizeFraction.w) < 1 ? viewportSizeFraction.w : 0);
+        var fractionalContenHeight = viewportScrollSize.h + (abs$1(viewportSizeFraction.h) < 1 ? viewportSizeFraction.h : 0);
         var arrangeSize = {
-          w: hideOffsetY && arrangeY ? hideOffsetY + contentScrollSize.w - viewportArrangeHorizontalPaddingValue + 'px' : '',
-          h: hideOffsetX && arrangeX ? hideOffsetX + contentScrollSize.h - viewportArrangeVerticalPaddingValue + 'px' : '',
+          w: hideOffsetY && arrangeY ? hideOffsetY + fractionalContentWidth - viewportArrangeHorizontalPaddingValue + 'px' : '',
+          h: hideOffsetX && arrangeX ? hideOffsetX + fractionalContenHeight - viewportArrangeVerticalPaddingValue + 'px' : '',
         };
 
         if (_viewportArrange) {
@@ -1517,8 +1559,8 @@
           }
         } else {
           style(_viewport, {
-            '--viewport-arrange-width': arrangeSize.w,
-            '--viewport-arrange-height': arrangeSize.h,
+            '--os-vaw': arrangeSize.w,
+            '--os-vah': arrangeSize.h,
           });
         }
       }
@@ -1543,7 +1585,7 @@
       var verticalMarginValue = viewportPaddingStyle.marginBottom;
       var horizontalPaddingValue = viewportPaddingStyle[viewportHorizontalPaddingKey];
       var verticalPaddingValue = viewportPaddingStyle.paddingBottom;
-      viewportStyleObj.maxWidth = 'calc(100% + ' + (hideOffsetY + horizontalMarginValue * -1) + 'px)';
+      viewportStyleObj.width = 'calc(100% + ' + (hideOffsetY + horizontalMarginValue * -1) + 'px)';
       viewportStyleObj[horizontalMarginKey] = -hideOffsetY + horizontalMarginValue;
       viewportStyleObj.marginBottom = -hideOffsetX + verticalMarginValue;
 
@@ -1579,7 +1621,7 @@
         }
 
         if (arrangeX) {
-          assignProps('marginTop marginBottom paddingTop paddingBottom');
+          assignProps('marginBottom paddingTop paddingBottom');
         }
 
         if (arrangeY) {
@@ -1629,8 +1671,9 @@
       var showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
       var adjustFlexboxGlue =
         !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || heightIntrinsicChanged);
+      var viewportSizeFractionCache = getCurrentViewportSizeFraction(force);
+      var viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
       var overflowAmuntCache = getCurrentOverflowAmountCache(force);
-      var contentScrollSizeCache = getCurrentContentScrollSizeCache(force);
       var preMeasureViewportOverflowState;
 
       if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
@@ -1651,58 +1694,61 @@
           _redoViewportArrange = _undoViewportArrange._redoViewportArrange,
           undoViewportArrangeOverflowState = _undoViewportArrange._viewportOverflowState;
 
-        var contentSize = clientSize(_viewport);
-        var viewportRect = getBoundingClientRect(_viewport);
-        var viewportOffsetSize = offsetSize(_viewport);
-        var viewportScrollSize = scrollSize(_viewport);
-        var viewportClientSize = contentSize;
+        var _viewportSizeFraction3 = (viewportSizeFractionCache = updateViewportSizeFraction(force)),
+          _viewportSizeFraction2 = _viewportSizeFraction3._value,
+          viewportSizeFractionCahnged = _viewportSizeFraction3._changed;
 
-        var _contentScrollSizeCac = (contentScrollSizeCache = updateContentScrollSizeCache(force, {
-            _viewportRect: viewportRect,
-            _viewportOffsetSize: viewportOffsetSize,
-            _viewportScrollSize: viewportScrollSize,
-          })),
-          _contentScrollSize = _contentScrollSizeCac._value,
-          _contentScrollSizeChanged = _contentScrollSizeCac._changed;
+        var _viewportScrollSizeCa = (viewportScrollSizeCache = updateViewportScrollSizeCache(force)),
+          _viewportScrollSize2 = _viewportScrollSizeCa._value,
+          _viewportScrollSizeChanged = _viewportScrollSizeCa._changed;
+
+        var viewportContentSize = clientSize(_viewport);
+        var arrangedViewportScrollSize = _viewportScrollSize2;
+        var arrangedViewportClientSize = viewportContentSize;
 
         _redoViewportArrange();
 
         if (
-          (_contentScrollSizeChanged || showNativeOverlaidScrollbarsChanged) &&
+          (_viewportScrollSizeChanged || viewportSizeFractionCahnged || showNativeOverlaidScrollbarsChanged) &&
           undoViewportArrangeOverflowState &&
           !showNativeOverlaidScrollbars &&
-          arrangeViewport(undoViewportArrangeOverflowState, _contentScrollSize, directionIsRTL)
+          arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize2, _viewportSizeFraction2, directionIsRTL)
         ) {
-          viewportClientSize = clientSize(_viewport);
-          viewportScrollSize = fixScrollSizeRounding(scrollSize(_viewport), offsetSize(_viewport), getBoundingClientRect(_viewport));
+          arrangedViewportClientSize = clientSize(_viewport);
+          arrangedViewportScrollSize = scrollSize(_viewport);
         }
 
         overflowAmuntCache = updateOverflowAmountCache(force, {
-          _contentScrollSize: {
-            w: Math.max(_contentScrollSize.w, viewportScrollSize.w),
-            h: Math.max(_contentScrollSize.h, viewportScrollSize.h),
+          _viewportSizeFraction: _viewportSizeFraction2,
+          _viewportScrollSize: {
+            w: max(_viewportScrollSize2.w, arrangedViewportScrollSize.w),
+            h: max(_viewportScrollSize2.h, arrangedViewportScrollSize.h),
           },
-          _viewportSize: {
-            w: viewportClientSize.w + Math.max(0, contentSize.w - _contentScrollSize.w),
-            h: viewportClientSize.h + Math.max(0, contentSize.h - _contentScrollSize.h),
+          _viewportClientSize: {
+            w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - _viewportScrollSize2.w),
+            h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize2.h),
           },
         });
       }
+
+      var _viewportSizeFraction4 = viewportSizeFractionCache,
+        viewportSizeFraction = _viewportSizeFraction4._value,
+        viewportSizeFractionChanged = _viewportSizeFraction4._changed;
+      var _viewportScrollSizeCa2 = viewportScrollSizeCache,
+        viewportScrollSize = _viewportScrollSizeCa2._value,
+        viewportScrollSizeChanged = _viewportScrollSizeCa2._changed;
+      var _overflowAmuntCache = overflowAmuntCache,
+        overflowAmount = _overflowAmuntCache._value,
+        overflowAmountChanged = _overflowAmuntCache._changed;
 
       var _checkOption2 = checkOption('overflow'),
         overflow = _checkOption2._value,
         overflowChanged = _checkOption2._changed;
 
-      var _contentScrollSizeCac2 = contentScrollSizeCache,
-        contentScrollSize = _contentScrollSizeCac2._value,
-        contentScrollSizeChanged = _contentScrollSizeCac2._changed;
-      var _overflowAmuntCache = overflowAmuntCache,
-        overflowAmount = _overflowAmuntCache._value,
-        overflowAmountChanged = _overflowAmuntCache._changed;
-
       if (
         _paddingStyleChanged ||
-        contentScrollSizeChanged ||
+        viewportSizeFractionChanged ||
+        viewportScrollSizeChanged ||
         overflowAmountChanged ||
         overflowChanged ||
         showNativeOverlaidScrollbarsChanged ||
@@ -1710,16 +1756,15 @@
         adjustFlexboxGlue
       ) {
         var viewportStyle = {
-          marginTop: 0,
           marginRight: 0,
           marginBottom: 0,
           marginLeft: 0,
-          maxWidth: '',
+          width: '',
           overflowY: '',
           overflowX: '',
         };
         var viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyle);
-        var viewportArranged = arrangeViewport(viewportOverflowState, contentScrollSize, directionIsRTL);
+        var viewportArranged = arrangeViewport(viewportOverflowState, viewportScrollSize, viewportSizeFraction, directionIsRTL);
         hideNativeScrollbars(viewportOverflowState, directionIsRTL, viewportArranged, viewportStyle);
 
         if (adjustFlexboxGlue) {
@@ -2195,14 +2240,6 @@
       : undefined;
   };
 
-  var emptyStylePropsToZero = function emptyStylePropsToZero(stlyeObj, baseStyle) {
-    return keys(stlyeObj).reduce(function (obj, key) {
-      var value = stlyeObj[key];
-      obj[key] = value === '' ? 0 : value;
-      return obj;
-    }, _extends_1({}, baseStyle));
-  };
-
   var ignorePrefix = 'os-';
   var hostSelector = '.' + classNameHost;
   var viewportSelector = '.' + classNameViewport;
@@ -2249,7 +2286,6 @@
       h: 0,
     },
     _viewportPaddingStyle: {
-      marginTop: 0,
       marginRight: 0,
       marginBottom: 0,
       marginLeft: 0,
@@ -2274,7 +2310,6 @@
       removeEnvironmentListener = _getEnvironment._removeListener;
 
     var doViewportArrange = !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
-    var lifecycles = [];
     var instance = {
       _options: options,
       _structureSetup: structureSetup,
@@ -2283,19 +2318,10 @@
         return lifecycleCommunication;
       },
       _setLifecycleCommunication: function _setLifecycleCommunication(newLifecycleCommunication) {
-        if (newLifecycleCommunication && newLifecycleCommunication._viewportPaddingStyle) {
-          newLifecycleCommunication._viewportPaddingStyle = emptyStylePropsToZero(
-            newLifecycleCommunication._viewportPaddingStyle,
-            lifecycleCommunicationFallback._viewportPaddingStyle
-          );
-        }
-
         lifecycleCommunication = assignDeep({}, lifecycleCommunication, newLifecycleCommunication);
       },
     };
-    push(lifecycles, createTrinsicLifecycle(instance));
-    push(lifecycles, createPaddingLifecycle(instance));
-    push(lifecycles, createOverflowLifecycle(instance));
+    var lifecycles = [createTrinsicLifecycle(instance), createPaddingLifecycle(instance), createOverflowLifecycle(instance)];
 
     var updateLifecycles = function updateLifecycles(updateHints, changedOptions, force) {
       var _ref = updateHints || {},
@@ -2356,6 +2382,10 @@
 
       if (isNumber(scrollOffsetY)) {
         scrollTop(_viewport, scrollOffsetY);
+      }
+
+      if (options.callbacks.onUpdated) {
+        options.callbacks.onUpdated();
       }
     };
 

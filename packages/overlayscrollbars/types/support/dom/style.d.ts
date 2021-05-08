@@ -26,8 +26,9 @@ export declare const hide: (elm: HTMLElement | false | null | undefined) => void
  */
 export declare const show: (elm: HTMLElement | false | null | undefined) => void;
 /**
- * Returns a top
- * @param elm
- * @param property
+ * Returns the top right bottom left values of the passed css property.
+ * @param elm The element of which the values shall be returned.
+ * @param propertyPrefix The css property prefix. (e.g. "border")
+ * @param propertySuffix The css property suffix. (e.g. "width")
  */
-export declare const topRightBottomLeft: (elm: HTMLElement | false | null | undefined, propertyPrefix?: string | undefined, propertySuffix?: string | undefined) => TRBL;
+export declare const topRightBottomLeft: (elm?: HTMLElement | false | null | undefined, propertyPrefix?: string | undefined, propertySuffix?: string | undefined) => TRBL;

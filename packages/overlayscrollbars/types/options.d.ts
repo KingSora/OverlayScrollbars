@@ -40,6 +40,9 @@ export interface OSOptions {
         show: boolean;
         initialize: boolean;
     };
+    callbacks: {
+        onUpdated: (() => any) | null;
+    };
 }
 export interface OverflowChangedArgs {
     x: boolean;

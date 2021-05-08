@@ -2,14 +2,14 @@
 @import './trinsicobserver.scss';
 
 .os-environment {
-  --os-css-custom-prop: -1;
+  --os-custom-prop: -1;
   position: fixed;
   opacity: 0;
   visibility: hidden;
   overflow: scroll;
   height: 200px;
   width: 200px;
-  z-index: var(--os-css-custom-prop);
+  z-index: var(--os-custom-prop);
 
   div {
     width: 200%;
@@ -93,8 +93,8 @@
 }
 
 .os-viewport {
-  --viewport-arrange-width: 0;
-  --viewport-arrange-height: 0;
+  --os-vaw: 0;
+  --os-vah: 0;
 
   &.os-viewport-arrange::before {
     content: '';
@@ -103,8 +103,8 @@
     z-index: -1;
     min-width: 1px;
     min-height: 1px;
-    width: var(--viewport-arrange-width);
-    height: var(--viewport-arrange-height);
+    width: var(--os-vaw);
+    height: var(--os-vah);
   }
 }
 
