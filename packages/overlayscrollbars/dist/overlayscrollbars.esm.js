@@ -1176,7 +1176,7 @@ const createTrinsicLifecycle = (lifecycleHub) => {
 const createPaddingLifecycle = (lifecycleHub) => {
   const { _structureSetup, _setLifecycleCommunication } = lifecycleHub;
   const { _host, _padding, _viewport } = _structureSetup._targetObj;
-  const { _update: updatePaddingCache, _current: currentPaddingCache } = createCache(() => topRightBottomLeft(_host, 'padding'), {
+  const { _update: updatePaddingCache, _current: currentPaddingCache } = createCache(topRightBottomLeft.bind(0, _host, 'padding'), {
     _equal: equalTRBL,
     _initialValue: topRightBottomLeft(),
   });
@@ -1275,11 +1275,11 @@ const createOverflowLifecycle = (lifecycleHub) => {
   const { _structureSetup, _doViewportArrange, _getLifecycleCommunication, _setLifecycleCommunication } = lifecycleHub;
   const { _host, _viewport, _viewportArrange } = _structureSetup._targetObj;
   const { _update: updateViewportSizeFraction, _current: getCurrentViewportSizeFraction } = createCache(
-    () => sizeFraction(_viewport),
+    sizeFraction.bind(0, _viewport),
     whCacheOptions
   );
   const { _update: updateViewportScrollSizeCache, _current: getCurrentViewportScrollSizeCache } = createCache(
-    () => scrollSize(_viewport),
+    scrollSize.bind(0, _viewport),
     whCacheOptions
   );
   const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache(
@@ -1302,9 +1302,9 @@ const createOverflowLifecycle = (lifecycleHub) => {
       const hostSizeFraction = sizeFraction(_host);
       const hostClientSize = clientSize(_host);
       const paddingVertical = paddingAbsolute || style(_viewport, 'boxSizing') === 'content-box' ? padding.b + padding.t : 0;
-      const fractionalcleintHeight = hostClientSize.h + (abs$1(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
+      const fractionalClientHeight = hostClientSize.h + (abs$1(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
       style(_viewport, {
-        height: fractionalcleintHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
+        height: fractionalClientHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
       });
     }
   };
@@ -1630,7 +1630,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
     const shrinkElement = observerElementChildrenRoot.lastChild;
     const expandElement = observerElementChildrenRoot.firstChild;
     const expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
-    let cacheSize = offsetSize(listenerElement);
+    let cacheSize = offsetSize(observerElementChildrenRoot);
     let currSize = cacheSize;
     let isDirty = false;
     let rAFId;
@@ -1652,7 +1652,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
     };
 
     const onScroll = (scrollEvent) => {
-      currSize = offsetSize(listenerElement);
+      currSize = offsetSize(observerElementChildrenRoot);
       isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
       if (scrollEvent) {
@@ -1679,7 +1679,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   }
 
   if (observeDirectionChange) {
-    directionIsRTLCache = createCache(() => directionIsRTL(sizeObserver));
+    directionIsRTLCache = createCache(directionIsRTL.bind(0, sizeObserver));
     const { _update: updateDirectionIsRTLCache } = directionIsRTLCache;
     push(
       offListeners,

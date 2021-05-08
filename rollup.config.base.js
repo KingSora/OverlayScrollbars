@@ -276,6 +276,9 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
                         regex: /^_/,
                       },
                     },
+                    compress: {
+                      evaluate: false,
+                    },
                   }),
                 ],
               },

@@ -1293,15 +1293,10 @@
       _padding = _structureSetup$_targ._padding,
       _viewport = _structureSetup$_targ._viewport;
 
-    var _createCache = createCache(
-        function () {
-          return topRightBottomLeft(_host, 'padding');
-        },
-        {
-          _equal: equalTRBL,
-          _initialValue: topRightBottomLeft(),
-        }
-      ),
+    var _createCache = createCache(topRightBottomLeft.bind(0, _host, 'padding'), {
+        _equal: equalTRBL,
+        _initialValue: topRightBottomLeft(),
+      }),
       updatePaddingCache = _createCache._update,
       currentPaddingCache = _createCache._current;
 
@@ -1424,15 +1419,11 @@
       _viewport = _structureSetup$_targ._viewport,
       _viewportArrange = _structureSetup$_targ._viewportArrange;
 
-    var _createCache = createCache(function () {
-        return sizeFraction(_viewport);
-      }, whCacheOptions),
+    var _createCache = createCache(sizeFraction.bind(0, _viewport), whCacheOptions),
       updateViewportSizeFraction = _createCache._update,
       getCurrentViewportSizeFraction = _createCache._current;
 
-    var _createCache2 = createCache(function () {
-        return scrollSize(_viewport);
-      }, whCacheOptions),
+    var _createCache2 = createCache(scrollSize.bind(0, _viewport), whCacheOptions),
       updateViewportScrollSizeCache = _createCache2._update,
       getCurrentViewportScrollSizeCache = _createCache2._current;
 
@@ -1463,9 +1454,9 @@
         var hostSizeFraction = sizeFraction(_host);
         var hostClientSize = clientSize(_host);
         var paddingVertical = paddingAbsolute || style(_viewport, 'boxSizing') === 'content-box' ? padding.b + padding.t : 0;
-        var fractionalcleintHeight = hostClientSize.h + (abs$1(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
+        var fractionalClientHeight = hostClientSize.h + (abs$1(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
         style(_viewport, {
-          height: fractionalcleintHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
+          height: fractionalClientHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
         });
       }
     };
@@ -1871,7 +1862,7 @@
       var shrinkElement = observerElementChildrenRoot.lastChild;
       var expandElement = observerElementChildrenRoot.firstChild;
       var expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
-      var cacheSize = offsetSize(listenerElement);
+      var cacheSize = offsetSize(observerElementChildrenRoot);
       var currSize = cacheSize;
       var isDirty = false;
       var rAFId;
@@ -1893,7 +1884,7 @@
       };
 
       var onScroll = function onScroll(scrollEvent) {
-        currSize = offsetSize(listenerElement);
+        currSize = offsetSize(observerElementChildrenRoot);
         isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
         if (scrollEvent) {
@@ -1920,9 +1911,7 @@
     }
 
     if (observeDirectionChange) {
-      directionIsRTLCache = createCache(function () {
-        return directionIsRTL(sizeObserver);
-      });
+      directionIsRTLCache = createCache(directionIsRTL.bind(0, sizeObserver));
       var _directionIsRTLCache = directionIsRTLCache,
         updateDirectionIsRTLCache = _directionIsRTLCache._update;
       push(
