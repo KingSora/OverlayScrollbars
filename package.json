@@ -67,6 +67,7 @@
     "test": "yarn workspaces run test",
     "test:jsdom": "yarn workspaces run test:jsdom",
     "test:browser": "yarn workspaces run test:browser",
+    "test:browser:quick": "yarn workspaces run test:browser:quick",
     "test:browser-dev": "yarn workspaces run test:browser-dev",
     "build": "yarn workspaces run build",
     "lint": "npx eslint --fix ."
