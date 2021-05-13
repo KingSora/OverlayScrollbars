@@ -244,11 +244,6 @@
     return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
   };
 
-  var findFirst = function findFirst(selector, elm) {
-    var rootElm = elm ? (isElement(elm) ? elm : null) : document;
-    return rootElm ? rootElm.querySelector(selector) : null;
-  };
-
   var is = function is(elm, selector) {
     if (isElement(elm)) {
       var fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
@@ -264,36 +259,6 @@
 
   var parent = function parent(elm) {
     return elm ? elm.parentElement : null;
-  };
-
-  var closest = function closest(elm, selector) {
-    if (isElement(elm)) {
-      var closestFn = elmPrototype.closest;
-
-      if (closestFn) {
-        return closestFn.call(elm, selector);
-      }
-
-      do {
-        if (is(elm, selector)) {
-          return elm;
-        }
-
-        elm = parent(elm);
-      } while (elm);
-    }
-
-    return null;
-  };
-
-  var liesBetween = function liesBetween(elm, highBoundarySelector, deepBoundarySelector) {
-    var closestHighBoundaryElm = elm && closest(elm, highBoundarySelector);
-    var closestDeepBoundaryElm = elm && findFirst(deepBoundarySelector, closestHighBoundaryElm);
-    return closestHighBoundaryElm && closestDeepBoundaryElm
-      ? closestHighBoundaryElm === elm ||
-          closestDeepBoundaryElm === elm ||
-          closest(closest(elm, deepBoundarySelector), highBoundarySelector) !== closestHighBoundaryElm
-      : false;
   };
 
   var before = function before(parentElm, preferredAnchor, insertedElms) {
@@ -604,27 +569,72 @@
     );
   };
 
-  var noop = function noop() {};
-  var debounce = function debounce(functionToDebounce, timeout, maxWait) {
-    var timeoutId;
-    var lastCallTime;
-    var hasTimeout = isNumber(timeout) && timeout > 0;
-    var hasMaxWait = isNumber(maxWait) && maxWait > 0;
-    var cancel = hasTimeout ? window.clearTimeout : cAF;
-    var set = hasTimeout ? window.setTimeout : rAF;
+  var setT = window.setTimeout;
 
-    var setFn = function setFn(args) {
-      lastCallTime = hasMaxWait ? performance.now() : 0;
-      timeoutId && cancel(timeoutId);
+  var clearTimeouts = function clearTimeouts(id) {
+    id && window.clearTimeout(id);
+    id && cAF(id);
+  };
+
+  var noop = function noop() {};
+  var debounce = function debounce(functionToDebounce, options) {
+    var timeoutId;
+    var maxTimeoutId;
+    var prevArguments;
+    var latestArguments;
+    var _timeout = options._timeout,
+      _maxDelay = options._maxDelay,
+      _mergeParams = options._mergeParams;
+
+    var invokeFunctionToDebounce = function invokeFunctionToDebounce(args) {
+      clearTimeouts(timeoutId);
+      clearTimeouts(maxTimeoutId);
+      maxTimeoutId = timeoutId = prevArguments = undefined;
       functionToDebounce.apply(this, args);
     };
 
-    return function () {
-      var boundSetFn = setFn.bind(this, arguments);
-      var forceCall = hasMaxWait ? performance.now() - lastCallTime >= maxWait : false;
-      timeoutId && cancel(timeoutId);
-      timeoutId = forceCall ? boundSetFn() : set(boundSetFn, timeout);
+    var mergeParms = function mergeParms(curr) {
+      return _mergeParams && prevArguments ? _mergeParams(prevArguments, curr) : curr;
     };
+
+    var flush = function flush() {
+      if (timeoutId) {
+        invokeFunctionToDebounce(mergeParms(latestArguments) || latestArguments);
+      }
+    };
+
+    var debouncedFn = function debouncedFn() {
+      var args = arguments;
+      var finalTimeout = isFunction(_timeout) ? _timeout() : _timeout;
+      var hasTimeout = isNumber(finalTimeout) && finalTimeout >= 0;
+
+      if (hasTimeout) {
+        var finalMaxWait = isFunction(_maxDelay) ? _maxDelay() : _maxDelay;
+        var hasMaxWait = isNumber(finalMaxWait) && finalMaxWait >= 0;
+        var setTimeoutFn = finalTimeout > 0 ? setT : rAF;
+        var mergeParamsResult = mergeParms(args);
+        var invokedArgs = mergeParamsResult || args;
+        var boundInvoke = invokeFunctionToDebounce.bind(0, invokedArgs);
+
+        if (!mergeParamsResult) {
+          invokeFunctionToDebounce(prevArguments || args);
+        }
+
+        clearTimeouts(timeoutId);
+        timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
+
+        if (hasMaxWait && !maxTimeoutId) {
+          maxTimeoutId = setT(flush, finalMaxWait);
+        }
+
+        prevArguments = latestArguments = invokedArgs;
+      } else {
+        invokeFunctionToDebounce(args);
+      }
+    };
+
+    debouncedFn._flush = flush;
+    return debouncedFn;
   };
 
   var cssNumber = {
@@ -875,6 +885,7 @@
   var classNameTrinsicObserver = 'os-trinsic-observer';
 
   var numberAllowedValues = optionsTemplateTypes.number;
+  var arrayNullValues = [optionsTemplateTypes.array, optionsTemplateTypes.null];
   var stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
   var booleanTrueTemplate = [true, optionsTemplateTypes.boolean];
   var booleanFalseTemplate = [false, optionsTemplateTypes.boolean];
@@ -886,10 +897,12 @@
     resize: ['none', resizeAllowedValues],
     paddingAbsolute: booleanFalseTemplate,
     updating: {
-      elementEvents: [[['img', 'load']], [optionsTemplateTypes.array, optionsTemplateTypes.null]],
-      contentMutationDebounce: [80, numberAllowedValues],
-      hostMutationDebounce: [0, numberAllowedValues],
-      resizeDebounce: [0, numberAllowedValues],
+      elementEvents: [[['img', 'load']], arrayNullValues],
+      attributes: [null, arrayNullValues],
+      debounce: [
+        [0, 33],
+        [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null],
+      ],
     },
     overflow: {
       x: ['scroll', overflowAllowedValues],
@@ -1260,6 +1273,612 @@
       _destroy: function _destroy() {
         runEach(destroyFns);
       },
+    };
+  };
+
+  var animationStartEventName = 'animationstart';
+  var scrollEventName = 'scroll';
+  var scrollAmount = 3333333;
+
+  var directionIsRTL = function directionIsRTL(elm) {
+    return style(elm, 'direction') === 'rtl';
+  };
+
+  var domRectHasDimensions = function domRectHasDimensions(rect) {
+    return rect && (rect.height || rect.width);
+  };
+
+  var createSizeObserver = function createSizeObserver(target, onSizeChangedCallback, options) {
+    var _ref = options || {},
+      _ref$_direction = _ref._direction,
+      observeDirectionChange = _ref$_direction === void 0 ? false : _ref$_direction,
+      _ref$_appear = _ref._appear,
+      observeAppearChange = _ref$_appear === void 0 ? false : _ref$_appear;
+
+    var _getEnvironment = getEnvironment(),
+      rtlScrollBehavior = _getEnvironment._rtlScrollBehavior;
+
+    var baseElements = createDOM('<div class="' + classNameSizeObserver + '"><div class="' + classNameSizeObserverListener + '"></div></div>');
+    var sizeObserver = baseElements[0];
+    var listenerElement = sizeObserver.firstChild;
+
+    var _createCache = createCache(0, {
+        _alwaysUpdateValues: true,
+        _equal: function _equal(currVal, newVal) {
+          return !(!currVal || (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal)));
+        },
+      }),
+      updateResizeObserverContentRectCache = _createCache._update;
+
+    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(sizeChangedContext) {
+      var hasDirectionCache = sizeChangedContext && isBoolean(sizeChangedContext._value);
+      var skip = false;
+      var appear = false;
+      var doDirectionScroll = true;
+
+      if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
+        var _updateResizeObserver = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect),
+          _previous = _updateResizeObserver._previous,
+          _value = _updateResizeObserver._value;
+
+        var hasDimensions = domRectHasDimensions(_value);
+        var hadDimensions = domRectHasDimensions(_previous);
+        skip = !_previous || !hasDimensions;
+        appear = !hadDimensions && hasDimensions;
+        doDirectionScroll = !skip;
+      } else if (hasDirectionCache) {
+        doDirectionScroll = sizeChangedContext._changed;
+      } else {
+        appear = sizeChangedContext === true;
+      }
+
+      if (observeDirectionChange && doDirectionScroll) {
+        var rtl = hasDirectionCache ? sizeChangedContext._value : directionIsRTL(sizeObserver);
+        scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
+        scrollTop(sizeObserver, scrollAmount);
+      }
+
+      if (!skip) {
+        onSizeChangedCallback({
+          _sizeChanged: !hasDirectionCache,
+          _directionIsRTLCache: hasDirectionCache ? sizeChangedContext : undefined,
+          _appear: !!appear,
+        });
+      }
+    };
+
+    var offListeners = [];
+    var appearCallback = observeAppearChange ? onSizeChangedCallbackProxy : false;
+    var directionIsRTLCache;
+
+    if (ResizeObserverConstructor) {
+      var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
+      resizeObserverInstance.observe(listenerElement);
+      push(offListeners, function () {
+        return resizeObserverInstance.disconnect();
+      });
+    } else {
+      var observerElementChildren = createDOM(
+        '<div class="' +
+          classNameSizeObserverListenerItem +
+          '" dir="ltr"><div class="' +
+          classNameSizeObserverListenerItem +
+          '"><div class="' +
+          classNameSizeObserverListenerItemFinal +
+          '"></div></div><div class="' +
+          classNameSizeObserverListenerItem +
+          '"><div class="' +
+          classNameSizeObserverListenerItemFinal +
+          '" style="width: 200%; height: 200%"></div></div></div>'
+      );
+      appendChildren(listenerElement, observerElementChildren);
+      addClass(listenerElement, classNameSizeObserverListenerScroll);
+      var observerElementChildrenRoot = observerElementChildren[0];
+      var shrinkElement = observerElementChildrenRoot.lastChild;
+      var expandElement = observerElementChildrenRoot.firstChild;
+      var expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
+      var cacheSize = offsetSize(observerElementChildrenRoot);
+      var currSize = cacheSize;
+      var isDirty = false;
+      var rAFId;
+
+      var reset = function reset() {
+        scrollLeft(expandElement, scrollAmount);
+        scrollTop(expandElement, scrollAmount);
+        scrollLeft(shrinkElement, scrollAmount);
+        scrollTop(shrinkElement, scrollAmount);
+      };
+
+      var onResized = function onResized(appear) {
+        rAFId = 0;
+
+        if (isDirty) {
+          cacheSize = currSize;
+          onSizeChangedCallbackProxy(appear === true);
+        }
+      };
+
+      var onScroll = function onScroll(scrollEvent) {
+        currSize = offsetSize(observerElementChildrenRoot);
+        isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
+
+        if (scrollEvent) {
+          stopAndPrevent(scrollEvent);
+
+          if (isDirty && !rAFId) {
+            cAF(rAFId);
+            rAFId = rAF(onResized);
+          }
+        } else {
+          onResized(scrollEvent === false);
+        }
+
+        reset();
+      };
+
+      push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
+      style(expandElementChild, {
+        width: scrollAmount,
+        height: scrollAmount,
+      });
+      reset();
+      appearCallback = observeAppearChange ? onScroll.bind(0, false) : reset;
+    }
+
+    if (observeDirectionChange) {
+      directionIsRTLCache = createCache(directionIsRTL.bind(0, sizeObserver));
+      var _directionIsRTLCache = directionIsRTLCache,
+        updateDirectionIsRTLCache = _directionIsRTLCache._update;
+      push(
+        offListeners,
+        on(sizeObserver, scrollEventName, function (event) {
+          var directionIsRTLCacheValues = updateDirectionIsRTLCache();
+          var _value = directionIsRTLCacheValues._value,
+            _changed = directionIsRTLCacheValues._changed;
+
+          if (_changed) {
+            removeClass(listenerElement, 'ltr rtl');
+
+            if (_value) {
+              addClass(listenerElement, 'rtl');
+            } else {
+              addClass(listenerElement, 'ltr');
+            }
+
+            onSizeChangedCallbackProxy(directionIsRTLCacheValues);
+          }
+
+          stopAndPrevent(event);
+        })
+      );
+    }
+
+    if (appearCallback) {
+      addClass(sizeObserver, classNameSizeObserverAppear);
+      push(
+        offListeners,
+        on(sizeObserver, animationStartEventName, appearCallback, {
+          _once: !!ResizeObserverConstructor,
+        })
+      );
+    }
+
+    prependChildren(target, sizeObserver);
+    return {
+      _destroy: function _destroy() {
+        runEach(offListeners);
+        removeElements(sizeObserver);
+      },
+      _getCurrentCacheValues: function _getCurrentCacheValues(force) {
+        return {
+          _directionIsRTL: directionIsRTLCache
+            ? directionIsRTLCache._current(force)
+            : {
+                _value: false,
+                _previous: false,
+                _changed: false,
+              },
+        };
+      },
+    };
+  };
+
+  var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
+    var trinsicObserver = createDiv(classNameTrinsicObserver);
+    var offListeners = [];
+
+    var _createCache = createCache(
+        function (ioEntryOrSize) {
+          return ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
+        },
+        {
+          _initialValue: false,
+        }
+      ),
+      updateHeightIntrinsicCache = _createCache._update,
+      getCurrentHeightIntrinsicCache = _createCache._current;
+
+    if (IntersectionObserverConstructor) {
+      var intersectionObserverInstance = new IntersectionObserverConstructor(
+        function (entries) {
+          if (entries && entries.length > 0) {
+            var last = entries.pop();
+
+            if (last) {
+              var heightIntrinsic = updateHeightIntrinsicCache(0, last);
+
+              if (heightIntrinsic._changed) {
+                onTrinsicChangedCallback(heightIntrinsic);
+              }
+            }
+          }
+        },
+        {
+          root: target,
+        }
+      );
+      intersectionObserverInstance.observe(trinsicObserver);
+      push(offListeners, function () {
+        return intersectionObserverInstance.disconnect();
+      });
+    } else {
+      var onSizeChanged = function onSizeChanged() {
+        var newSize = offsetSize(trinsicObserver);
+        var heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
+
+        if (heightIntrinsicCache._changed) {
+          onTrinsicChangedCallback(heightIntrinsicCache);
+        }
+      };
+
+      push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged)._destroy);
+      onSizeChanged();
+    }
+
+    prependChildren(target, trinsicObserver);
+    return {
+      _destroy: function _destroy() {
+        runEach(offListeners);
+        removeElements(trinsicObserver);
+      },
+      _getCurrentCacheValues: function _getCurrentCacheValues(force) {
+        return {
+          _heightIntrinsic: getCurrentHeightIntrinsicCache(force),
+        };
+      },
+    };
+  };
+
+  var createEventContentChange = function createEventContentChange(target, eventContentChange, callback) {
+    var map;
+
+    var _destroy = function _destroy() {
+      if (map) {
+        map.forEach(function (eventName, elm) {
+          return off(elm, eventName, callback);
+        });
+        map.clear();
+      }
+    };
+
+    var _updateElements = function _updateElements(getElements) {
+      if (map && eventContentChange) {
+        var eventElmList = eventContentChange.reduce(function (arr, item) {
+          if (item) {
+            var selector = item[0];
+            var eventNames = item[1];
+            var elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
+
+            if (elements && elements.length && eventNames && isString(eventNames)) {
+              push(arr, [elements, eventNames.trim()], true);
+            }
+          }
+
+          return arr;
+        }, []);
+        each(eventElmList, function (item) {
+          return each(item[0], function (elm) {
+            var eventNames = item[1];
+            var registredEventNames = map.get(elm);
+            var newEntry = isUndefined(registredEventNames);
+            var changingExistingEntry = !newEntry && eventNames !== registredEventNames;
+            var finalEventNames = changingExistingEntry ? registredEventNames + ' ' + eventNames : eventNames;
+
+            if (changingExistingEntry) {
+              off(elm, registredEventNames, callback);
+            }
+
+            map.set(elm, finalEventNames);
+            on(elm, finalEventNames, callback);
+          });
+        });
+      }
+    };
+
+    if (eventContentChange) {
+      map = map || new Map();
+
+      _destroy();
+
+      _updateElements();
+    }
+
+    return {
+      _destroy: _destroy,
+      _updateElements: _updateElements,
+    };
+  };
+
+  var createDOMObserver = function createDOMObserver(target, isContentObserver, callback, options) {
+    var isConnected = false;
+
+    var _ref = options || {},
+      _attributes = _ref._attributes,
+      _styleChangingAttributes = _ref._styleChangingAttributes,
+      _eventContentChange = _ref._eventContentChange,
+      _nestedTargetSelector = _ref._nestedTargetSelector,
+      _ignoreTargetChange = _ref._ignoreTargetChange,
+      _ignoreNestedTargetChange = _ref._ignoreNestedTargetChange,
+      _ignoreContentChange = _ref._ignoreContentChange;
+
+    var _createEventContentCh = createEventContentChange(
+        target,
+        isContentObserver && _eventContentChange,
+        debounce(
+          function () {
+            if (isConnected) {
+              callback(true);
+            }
+          },
+          {
+            _timeout: 33,
+            _maxDelay: 99,
+          }
+        )
+      ),
+      destroyEventContentChange = _createEventContentCh._destroy,
+      updateEventContentChangeElements = _createEventContentCh._updateElements;
+
+    var finalAttributes = _attributes || [];
+    var finalStyleChangingAttributes = _styleChangingAttributes || [];
+    var observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
+
+    var observerCallback = function observerCallback(mutations) {
+      var ignoreTargetChange = (isContentObserver ? _ignoreNestedTargetChange : _ignoreTargetChange) || noop;
+      var ignoreContentChange = _ignoreContentChange || noop;
+      var targetChangedAttrs = [];
+      var totalAddedNodes = [];
+      var targetStyleChanged = false;
+      var contentChanged = false;
+      var childListChanged = false;
+      each(mutations, function (mutation) {
+        var attributeName = mutation.attributeName,
+          mutationTarget = mutation.target,
+          type = mutation.type,
+          oldValue = mutation.oldValue,
+          addedNodes = mutation.addedNodes;
+        var isAttributesType = type === 'attributes';
+        var isChildListType = type === 'childList';
+        var targetIsMutationTarget = target === mutationTarget;
+        var attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
+        var attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
+        var styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
+
+        if (isContentObserver && !targetIsMutationTarget) {
+          var notOnlyAttrChanged = !isAttributesType;
+          var contentAttrChanged = isAttributesType && styleChangingAttrChanged;
+          var isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
+          var baseAssertion = isNestedTarget
+            ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
+            : notOnlyAttrChanged || contentAttrChanged;
+          var contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
+          push(totalAddedNodes, addedNodes);
+          contentChanged = contentChanged || contentFinalChanged;
+          childListChanged = childListChanged || isChildListType;
+        }
+
+        if (
+          !isContentObserver &&
+          targetIsMutationTarget &&
+          attributeChanged &&
+          !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
+        ) {
+          push(targetChangedAttrs, attributeName);
+          targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
+        }
+      });
+
+      if (childListChanged && !isEmptyArray(totalAddedNodes)) {
+        updateEventContentChangeElements(function (selector) {
+          return totalAddedNodes.reduce(function (arr, node) {
+            push(arr, find(selector, node));
+            return is(node, selector) ? push(arr, node) : arr;
+          }, []);
+        });
+      }
+
+      if (isContentObserver) {
+        contentChanged && callback(false);
+      } else if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
+        callback(targetChangedAttrs, targetStyleChanged);
+      }
+    };
+
+    var mutationObserver = new MutationObserverConstructor(observerCallback);
+    mutationObserver.observe(target, {
+      attributes: true,
+      attributeOldValue: true,
+      attributeFilter: observedAttributes,
+      subtree: isContentObserver,
+      childList: isContentObserver,
+      characterData: isContentObserver,
+    });
+    isConnected = true;
+    return {
+      _destroy: function _destroy() {
+        if (isConnected) {
+          destroyEventContentChange();
+          mutationObserver.disconnect();
+          isConnected = false;
+        }
+      },
+      _update: function _update() {
+        if (isConnected) {
+          observerCallback(mutationObserver.takeRecords());
+        }
+      },
+    };
+  };
+
+  var ignorePrefix = 'os-';
+  var baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
+  var baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
+
+  var ignoreTargetChange = function ignoreTargetChange(target, attrName, oldValue, newValue) {
+    if (attrName === 'class' && oldValue && newValue) {
+      var diff = diffClass(oldValue, newValue);
+      return !!diff.find(function (addedOrRemovedClass) {
+        return addedOrRemovedClass.indexOf(ignorePrefix) !== 0;
+      });
+    }
+
+    return false;
+  };
+
+  var lifecycleHubOservers = function lifecycleHubOservers(instance, updateLifecycles) {
+    var debounceTimeout;
+    var debounceMaxDelay;
+    var _structureSetup = instance._structureSetup;
+    var _targetObj = _structureSetup._targetObj,
+      _targetCtx = _structureSetup._targetCtx;
+    var _host = _targetObj._host,
+      _viewport = _targetObj._viewport,
+      _content = _targetObj._content;
+    var _isTextarea = _targetCtx._isTextarea;
+
+    var _getEnvironment = getEnvironment(),
+      _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
+      _flexboxGlue = _getEnvironment._flexboxGlue;
+
+    var contentMutationObserverAttr = _isTextarea ? baseStyleChangingAttrsTextarea : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
+    var updateLifecyclesWithDebouncedAdaptiveUpdateHints = debounce(updateLifecycles, {
+      _timeout: function _timeout() {
+        return debounceTimeout;
+      },
+      _maxDelay: function _maxDelay() {
+        return debounceMaxDelay;
+      },
+      _mergeParams: function _mergeParams(prev, curr) {
+        var _prev$ = prev[0],
+          prevSizeChanged = _prev$._sizeChanged,
+          prevHostMutation = _prev$._hostMutation,
+          prevContentMutation = _prev$._contentMutation;
+        var _curr$ = curr[0],
+          currSizeChanged = _curr$._sizeChanged,
+          currvHostMutation = _curr$._hostMutation,
+          currContentMutation = _curr$._contentMutation;
+        var merged = [
+          {
+            _sizeChanged: prevSizeChanged || currSizeChanged,
+            _hostMutation: prevHostMutation || currvHostMutation,
+            _contentMutation: prevContentMutation || currContentMutation,
+          },
+        ];
+        return merged;
+      },
+    });
+
+    var onTrinsicChanged = function onTrinsicChanged(heightIntrinsic) {
+      updateLifecycles({
+        _heightIntrinsic: heightIntrinsic,
+      });
+    };
+
+    var onSizeChanged = function onSizeChanged(_ref) {
+      var _sizeChanged = _ref._sizeChanged,
+        _directionIsRTLCache = _ref._directionIsRTLCache,
+        _appear = _ref._appear;
+      var updateFn = !_sizeChanged || _appear ? updateLifecycles : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
+      updateFn({
+        _sizeChanged: _sizeChanged,
+        _directionIsRTL: _directionIsRTLCache,
+      });
+    };
+
+    var onContentMutation = function onContentMutation(contentChangedTroughEvent) {
+      var updateFn = contentChangedTroughEvent ? updateLifecycles : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
+      updateFn({
+        _contentMutation: true,
+      });
+    };
+
+    var onHostMutation = updateLifecyclesWithDebouncedAdaptiveUpdateHints.bind(0, {
+      _hostMutation: true,
+    });
+    var trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
+    var sizeObserver = createSizeObserver(_host, onSizeChanged, {
+      _appear: true,
+      _direction: !_nativeScrollbarStyling,
+    });
+    var hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
+      _styleChangingAttributes: baseStyleChangingAttrs,
+      _attributes: baseStyleChangingAttrs,
+      _ignoreTargetChange: ignoreTargetChange,
+    });
+    var contentMutationObserver;
+
+    var updateOptions = function updateOptions(checkOption) {
+      var _checkOption = checkOption('updating.elementEvents'),
+        elementEvents = _checkOption._value,
+        elementEventsChanged = _checkOption._changed;
+
+      var _checkOption2 = checkOption('updating.attributes'),
+        attributes = _checkOption2._value,
+        attributesChanged = _checkOption2._changed;
+
+      var _checkOption3 = checkOption('updating.debounce'),
+        debounce = _checkOption3._value,
+        debounceChanged = _checkOption3._changed;
+
+      var updateContentMutationObserver = elementEventsChanged || attributesChanged;
+
+      if (updateContentMutationObserver) {
+        if (contentMutationObserver) {
+          contentMutationObserver._update();
+
+          contentMutationObserver._destroy();
+        }
+
+        contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
+          _styleChangingAttributes: contentMutationObserverAttr.concat(attributes || []),
+          _attributes: contentMutationObserverAttr.concat(attributes || []),
+          _eventContentChange: elementEvents,
+          _ignoreNestedTargetChange: ignoreTargetChange,
+        });
+      }
+
+      if (debounceChanged) {
+        updateLifecyclesWithDebouncedAdaptiveUpdateHints._flush();
+
+        if (isArray(debounce)) {
+          var timeout = debounce[0];
+          var maxWait = debounce[1];
+          debounceTimeout = isNumber(timeout) ? timeout : false;
+          debounceMaxDelay = isNumber(maxWait) ? maxWait : false;
+        } else if (isNumber(debounce)) {
+          debounceTimeout = debounce;
+          debounceMaxDelay = false;
+        } else {
+          debounceTimeout = false;
+          debounceMaxDelay = false;
+        }
+      }
+    };
+
+    return {
+      _trinsicObserver: trinsicObserver,
+      _sizeObserver: sizeObserver,
+      _updateObserverOptions: updateOptions,
     };
   };
 
@@ -1772,455 +2391,6 @@
     };
   };
 
-  var animationStartEventName = 'animationstart';
-  var scrollEventName = 'scroll';
-  var scrollAmount = 3333333;
-
-  var directionIsRTL = function directionIsRTL(elm) {
-    return style(elm, 'direction') === 'rtl';
-  };
-
-  var domRectHasDimensions = function domRectHasDimensions(rect) {
-    return rect && (rect.height || rect.width);
-  };
-
-  var createSizeObserver = function createSizeObserver(target, onSizeChangedCallback, options) {
-    var _ref = options || {},
-      _ref$_direction = _ref._direction,
-      observeDirectionChange = _ref$_direction === void 0 ? false : _ref$_direction,
-      _ref$_appear = _ref._appear,
-      observeAppearChange = _ref$_appear === void 0 ? false : _ref$_appear;
-
-    var _getEnvironment = getEnvironment(),
-      rtlScrollBehavior = _getEnvironment._rtlScrollBehavior;
-
-    var baseElements = createDOM('<div class="' + classNameSizeObserver + '"><div class="' + classNameSizeObserverListener + '"></div></div>');
-    var sizeObserver = baseElements[0];
-    var listenerElement = sizeObserver.firstChild;
-
-    var _createCache = createCache(0, {
-        _alwaysUpdateValues: true,
-        _equal: function _equal(currVal, newVal) {
-          return !(!currVal || (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal)));
-        },
-      }),
-      updateResizeObserverContentRectCache = _createCache._update;
-
-    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(sizeChangedContext) {
-      var hasDirectionCache = sizeChangedContext && isBoolean(sizeChangedContext._value);
-      var skip = false;
-
-      if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
-        var _updateResizeObserver = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect),
-          _previous = _updateResizeObserver._previous,
-          _value = _updateResizeObserver._value,
-          _changed = _updateResizeObserver._changed;
-
-        skip = !_previous || !domRectHasDimensions(_value);
-      } else if (hasDirectionCache) {
-        sizeChangedContext._changed;
-      }
-
-      if (observeDirectionChange) {
-        var rtl = hasDirectionCache ? sizeChangedContext._value : directionIsRTL(sizeObserver);
-        scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
-        scrollTop(sizeObserver, scrollAmount);
-      }
-
-      if (!skip) {
-        onSizeChangedCallback(hasDirectionCache ? sizeChangedContext : undefined);
-      }
-    };
-
-    var offListeners = [];
-    var appearCallback = observeAppearChange ? onSizeChangedCallbackProxy : false;
-    var directionIsRTLCache;
-
-    if (ResizeObserverConstructor) {
-      var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
-      resizeObserverInstance.observe(listenerElement);
-      push(offListeners, function () {
-        return resizeObserverInstance.disconnect();
-      });
-    } else {
-      var observerElementChildren = createDOM(
-        '<div class="' +
-          classNameSizeObserverListenerItem +
-          '" dir="ltr"><div class="' +
-          classNameSizeObserverListenerItem +
-          '"><div class="' +
-          classNameSizeObserverListenerItemFinal +
-          '"></div></div><div class="' +
-          classNameSizeObserverListenerItem +
-          '"><div class="' +
-          classNameSizeObserverListenerItemFinal +
-          '" style="width: 200%; height: 200%"></div></div></div>'
-      );
-      appendChildren(listenerElement, observerElementChildren);
-      addClass(listenerElement, classNameSizeObserverListenerScroll);
-      var observerElementChildrenRoot = observerElementChildren[0];
-      var shrinkElement = observerElementChildrenRoot.lastChild;
-      var expandElement = observerElementChildrenRoot.firstChild;
-      var expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
-      var cacheSize = offsetSize(observerElementChildrenRoot);
-      var currSize = cacheSize;
-      var isDirty = false;
-      var rAFId;
-
-      var reset = function reset() {
-        scrollLeft(expandElement, scrollAmount);
-        scrollTop(expandElement, scrollAmount);
-        scrollLeft(shrinkElement, scrollAmount);
-        scrollTop(shrinkElement, scrollAmount);
-      };
-
-      var onResized = function onResized() {
-        rAFId = 0;
-
-        if (isDirty) {
-          cacheSize = currSize;
-          onSizeChangedCallbackProxy();
-        }
-      };
-
-      var onScroll = function onScroll(scrollEvent) {
-        currSize = offsetSize(observerElementChildrenRoot);
-        isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
-
-        if (scrollEvent) {
-          stopAndPrevent(scrollEvent);
-
-          if (isDirty && !rAFId) {
-            cAF(rAFId);
-            rAFId = rAF(onResized);
-          }
-        } else {
-          onResized();
-        }
-
-        reset();
-      };
-
-      push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
-      style(expandElementChild, {
-        width: scrollAmount,
-        height: scrollAmount,
-      });
-      reset();
-      appearCallback = observeAppearChange ? onScroll.bind(0, false) : reset;
-    }
-
-    if (observeDirectionChange) {
-      directionIsRTLCache = createCache(directionIsRTL.bind(0, sizeObserver));
-      var _directionIsRTLCache = directionIsRTLCache,
-        updateDirectionIsRTLCache = _directionIsRTLCache._update;
-      push(
-        offListeners,
-        on(sizeObserver, scrollEventName, function (event) {
-          var directionIsRTLCacheValues = updateDirectionIsRTLCache();
-          var _value = directionIsRTLCacheValues._value,
-            _changed = directionIsRTLCacheValues._changed;
-
-          if (_changed) {
-            removeClass(listenerElement, 'ltr rtl');
-
-            if (_value) {
-              addClass(listenerElement, 'rtl');
-            } else {
-              addClass(listenerElement, 'ltr');
-            }
-
-            onSizeChangedCallbackProxy(directionIsRTLCacheValues);
-          }
-
-          stopAndPrevent(event);
-        })
-      );
-    }
-
-    if (appearCallback) {
-      addClass(sizeObserver, classNameSizeObserverAppear);
-      push(
-        offListeners,
-        on(sizeObserver, animationStartEventName, appearCallback, {
-          _once: !!ResizeObserverConstructor,
-        })
-      );
-    }
-
-    prependChildren(target, sizeObserver);
-    return {
-      _destroy: function _destroy() {
-        runEach(offListeners);
-        removeElements(sizeObserver);
-      },
-      _getCurrentCacheValues: function _getCurrentCacheValues(force) {
-        return {
-          _directionIsRTL: directionIsRTLCache
-            ? directionIsRTLCache._current(force)
-            : {
-                _value: false,
-                _previous: false,
-                _changed: false,
-              },
-        };
-      },
-    };
-  };
-
-  var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
-    var trinsicObserver = createDiv(classNameTrinsicObserver);
-    var offListeners = [];
-
-    var _createCache = createCache(
-        function (ioEntryOrSize) {
-          return ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
-        },
-        {
-          _initialValue: false,
-        }
-      ),
-      updateHeightIntrinsicCache = _createCache._update,
-      getCurrentHeightIntrinsicCache = _createCache._current;
-
-    if (IntersectionObserverConstructor) {
-      var intersectionObserverInstance = new IntersectionObserverConstructor(
-        function (entries) {
-          if (entries && entries.length > 0) {
-            var last = entries.pop();
-
-            if (last) {
-              var heightIntrinsic = updateHeightIntrinsicCache(0, last);
-
-              if (heightIntrinsic._changed) {
-                onTrinsicChangedCallback(heightIntrinsic);
-              }
-            }
-          }
-        },
-        {
-          root: target,
-        }
-      );
-      intersectionObserverInstance.observe(trinsicObserver);
-      push(offListeners, function () {
-        return intersectionObserverInstance.disconnect();
-      });
-    } else {
-      var onSizeChanged = function onSizeChanged() {
-        var newSize = offsetSize(trinsicObserver);
-        var heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
-
-        if (heightIntrinsicCache._changed) {
-          onTrinsicChangedCallback(heightIntrinsicCache);
-        }
-      };
-
-      push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged)._destroy);
-      onSizeChanged();
-    }
-
-    prependChildren(target, trinsicObserver);
-    return {
-      _destroy: function _destroy() {
-        runEach(offListeners);
-        removeElements(trinsicObserver);
-      },
-      _getCurrentCacheValues: function _getCurrentCacheValues(force) {
-        return {
-          _heightIntrinsic: getCurrentHeightIntrinsicCache(force),
-        };
-      },
-    };
-  };
-
-  var createEventContentChange = function createEventContentChange(target, eventContentChange, callback) {
-    var map;
-    var eventContentChangeRef;
-
-    var _destroy = function _destroy() {
-      if (map) {
-        map.forEach(function (eventName, elm) {
-          return off(elm, eventName, callback);
-        });
-        map.clear();
-      }
-    };
-
-    var _updateElements = function _updateElements(getElements) {
-      if (map && eventContentChangeRef) {
-        var eventElmList = eventContentChangeRef.reduce(function (arr, item) {
-          if (item) {
-            var selector = item[0];
-            var eventNames = item[1];
-            var elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
-            var parsedEventNames = isFunction(eventNames) ? eventNames(elements) : eventNames;
-
-            if (elements && elements.length && parsedEventNames && isString(parsedEventNames)) {
-              push(arr, [elements, parsedEventNames.trim()], true);
-            }
-          }
-
-          return arr;
-        }, []);
-        each(eventElmList, function (item) {
-          return each(item[0], function (elm) {
-            var eventNames = item[1];
-            var registredEventNames = map.get(elm);
-            var newEntry = isUndefined(registredEventNames);
-            var changingExistingEntry = !newEntry && eventNames !== registredEventNames;
-            var finalEventNames = changingExistingEntry ? registredEventNames + ' ' + eventNames : eventNames;
-
-            if (changingExistingEntry) {
-              off(elm, registredEventNames, callback);
-            }
-
-            map.set(elm, finalEventNames);
-            on(elm, finalEventNames, callback);
-          });
-        });
-      }
-    };
-
-    var _updateEventContentChange = function _updateEventContentChange(newEventContentChange) {
-      map = map || new Map();
-      eventContentChangeRef = newEventContentChange;
-
-      _destroy();
-
-      _updateElements();
-    };
-
-    if (eventContentChange) {
-      _updateEventContentChange(eventContentChange);
-    }
-
-    return {
-      _destroy: _destroy,
-      _updateElements: _updateElements,
-      _updateEventContentChange: _updateEventContentChange,
-    };
-  };
-
-  var createDOMObserver = function createDOMObserver(target, isContentObserver, callback, options) {
-    var isConnected = false;
-
-    var _ref = options || {},
-      _attributes = _ref._attributes,
-      _styleChangingAttributes = _ref._styleChangingAttributes,
-      _eventContentChange = _ref._eventContentChange,
-      _nestedTargetSelector = _ref._nestedTargetSelector,
-      _ignoreTargetChange = _ref._ignoreTargetChange,
-      _ignoreNestedTargetChange = _ref._ignoreNestedTargetChange,
-      _ignoreContentChange = _ref._ignoreContentChange;
-
-    var _createEventContentCh = createEventContentChange(
-        target,
-        isContentObserver && _eventContentChange,
-        debounce(function () {
-          if (isConnected) {
-            callback(true);
-          }
-        }, 84)
-      ),
-      destroyEventContentChange = _createEventContentCh._destroy,
-      updateEventContentChangeElements = _createEventContentCh._updateElements,
-      updateEventContentChange = _createEventContentCh._updateEventContentChange;
-
-    var finalAttributes = _attributes || [];
-    var finalStyleChangingAttributes = _styleChangingAttributes || [];
-    var observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
-
-    var observerCallback = function observerCallback(mutations) {
-      var ignoreTargetChange = (isContentObserver ? _ignoreNestedTargetChange : _ignoreTargetChange) || noop;
-      var ignoreContentChange = _ignoreContentChange || noop;
-      var targetChangedAttrs = [];
-      var totalAddedNodes = [];
-      var targetStyleChanged = false;
-      var contentChanged = false;
-      var childListChanged = false;
-      each(mutations, function (mutation) {
-        var attributeName = mutation.attributeName,
-          mutationTarget = mutation.target,
-          type = mutation.type,
-          oldValue = mutation.oldValue,
-          addedNodes = mutation.addedNodes;
-        var isAttributesType = type === 'attributes';
-        var isChildListType = type === 'childList';
-        var targetIsMutationTarget = target === mutationTarget;
-        var attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
-        var attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
-        var styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
-
-        if (isContentObserver && !targetIsMutationTarget) {
-          var notOnlyAttrChanged = !isAttributesType;
-          var contentAttrChanged = isAttributesType && styleChangingAttrChanged;
-          var isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
-          var baseAssertion = isNestedTarget
-            ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
-            : notOnlyAttrChanged || contentAttrChanged;
-          var contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
-          push(totalAddedNodes, addedNodes);
-          contentChanged = contentChanged || contentFinalChanged;
-          childListChanged = childListChanged || isChildListType;
-        }
-
-        if (
-          !isContentObserver &&
-          targetIsMutationTarget &&
-          attributeChanged &&
-          !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
-        ) {
-          push(targetChangedAttrs, attributeName);
-          targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
-        }
-      });
-
-      if (childListChanged && !isEmptyArray(totalAddedNodes)) {
-        updateEventContentChangeElements(function (selector) {
-          return totalAddedNodes.reduce(function (arr, node) {
-            push(arr, find(selector, node));
-            return is(node, selector) ? push(arr, node) : arr;
-          }, []);
-        });
-      }
-
-      if (isContentObserver) {
-        contentChanged && callback(contentChanged);
-      } else if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
-        callback(targetChangedAttrs, targetStyleChanged);
-      }
-    };
-
-    var mutationObserver = new MutationObserverConstructor(observerCallback);
-    mutationObserver.observe(target, {
-      attributes: true,
-      attributeOldValue: true,
-      attributeFilter: observedAttributes,
-      subtree: isContentObserver,
-      childList: isContentObserver,
-      characterData: isContentObserver,
-    });
-    isConnected = true;
-    return {
-      _destroy: function _destroy() {
-        if (isConnected) {
-          destroyEventContentChange();
-          mutationObserver.disconnect();
-          isConnected = false;
-        }
-      },
-      _updateEventContentChange: function _updateEventContentChange(newEventContentChange) {
-        updateEventContentChange(isConnected && isContentObserver && newEventContentChange);
-      },
-      _update: function _update() {
-        if (isConnected) {
-          observerCallback(mutationObserver.takeRecords());
-        }
-      },
-    };
-  };
-
   var getPropByPath = function getPropByPath(obj, path) {
     return obj
       ? path.split('.').reduce(function (o, prop) {
@@ -2229,29 +2399,7 @@
       : undefined;
   };
 
-  var ignorePrefix = 'os-';
-  var hostSelector = '.' + classNameHost;
-  var viewportSelector = '.' + classNameViewport;
-  var contentSelector = '.' + classNameContent;
-  var attrs = ['id', 'class', 'style', 'open'];
-
-  var ignoreTargetChange = function ignoreTargetChange(target, attrName, oldValue, newValue) {
-    if (attrName === 'class' && oldValue && newValue) {
-      var diff = diffClass(oldValue, newValue);
-      return !!diff.find(function (addedOrRemovedClass) {
-        return addedOrRemovedClass.indexOf(ignorePrefix) !== 0;
-      });
-    }
-
-    return false;
-  };
-
-  var directionIsRTLCacheValuesFallback = {
-    _value: false,
-    _previous: false,
-    _changed: false,
-  };
-  var heightIntrinsicCacheValuesFallback = {
+  var booleanCacheValuesFallback = {
     _value: false,
     _previous: false,
     _changed: false,
@@ -2286,10 +2434,7 @@
   };
   var createLifecycleHub = function createLifecycleHub(options, structureSetup) {
     var lifecycleCommunication = lifecycleCommunicationFallback;
-    var _structureSetup$_targ = structureSetup._targetObj,
-      _host = _structureSetup$_targ._host,
-      _viewport = _structureSetup$_targ._viewport,
-      _content = _structureSetup$_targ._content;
+    var _viewport = structureSetup._targetObj._viewport;
 
     var _getEnvironment = getEnvironment(),
       _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
@@ -2326,9 +2471,9 @@
         _paddingStyleChanged = _ref$_paddingStyleCha === void 0 ? force || false : _ref$_paddingStyleCha;
 
       var finalDirectionIsRTL =
-        _directionIsRTL || (sizeObserver ? sizeObserver._getCurrentCacheValues(force)._directionIsRTL : directionIsRTLCacheValuesFallback);
+        _directionIsRTL || (_sizeObserver ? _sizeObserver._getCurrentCacheValues(force)._directionIsRTL : booleanCacheValuesFallback);
       var finalHeightIntrinsic =
-        _heightIntrinsic || (trinsicObserver ? trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : heightIntrinsicCacheValuesFallback);
+        _heightIntrinsic || (_trinsicObserver ? _trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : booleanCacheValuesFallback);
 
       var checkOption = function checkOption(path) {
         return {
@@ -2340,6 +2485,11 @@
       var adjustScrollOffset = doViewportArrange || !_flexboxGlue;
       var scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
       var scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
+
+      if (_updateObserverOptions) {
+        _updateObserverOptions(checkOption);
+      }
+
       each(lifecycles, function (lifecycle) {
         var _ref2 =
             lifecycle(
@@ -2378,62 +2528,10 @@
       }
     };
 
-    var onSizeChanged = function onSizeChanged(directionIsRTL) {
-      var sizeChanged = !directionIsRTL;
-      updateLifecycles({
-        _directionIsRTL: directionIsRTL,
-        _sizeChanged: sizeChanged,
-      });
-    };
-
-    var onTrinsicChanged = function onTrinsicChanged(heightIntrinsic) {
-      updateLifecycles({
-        _heightIntrinsic: heightIntrinsic,
-      });
-    };
-
-    var onHostMutation = function onHostMutation() {
-      requestAnimationFrame(function () {
-        updateLifecycles({
-          _hostMutation: true,
-        });
-      });
-    };
-
-    var onContentMutation = function onContentMutation() {
-      requestAnimationFrame(function () {
-        updateLifecycles({
-          _contentMutation: true,
-        });
-      });
-    };
-
-    var trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
-    var sizeObserver = createSizeObserver(_host, onSizeChanged, {
-      _appear: true,
-      _direction: !_nativeScrollbarStyling,
-    });
-    var hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
-      _styleChangingAttributes: attrs,
-      _attributes: attrs,
-      _ignoreTargetChange: ignoreTargetChange,
-    });
-    var contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
-      _styleChangingAttributes: attrs,
-      _attributes: attrs,
-      _eventContentChange: options.updating.elementEvents,
-      _nestedTargetSelector: hostSelector,
-      _ignoreContentChange: function _ignoreContentChange(mutation, isNestedTarget) {
-        var target = mutation.target,
-          attributeName = mutation.attributeName;
-        return isNestedTarget
-          ? false
-          : attributeName
-          ? liesBetween(target, hostSelector, viewportSelector) || liesBetween(target, hostSelector, contentSelector)
-          : false;
-      },
-      _ignoreNestedTargetChange: ignoreTargetChange,
-    });
+    var _lifecycleHubOservers = lifecycleHubOservers(instance, updateLifecycles),
+      _sizeObserver = _lifecycleHubOservers._sizeObserver,
+      _trinsicObserver = _lifecycleHubOservers._trinsicObserver,
+      _updateObserverOptions = _lifecycleHubOservers._updateObserverOptions;
 
     var update = function update(changedOptions, force) {
       updateLifecycles(null, changedOptions, force);

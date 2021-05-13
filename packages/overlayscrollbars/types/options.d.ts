@@ -15,9 +15,8 @@ export interface OSOptions {
     paddingAbsolute: boolean;
     updating: {
         elementEvents: Array<[string, string]> | null;
-        contentMutationDebounce: number;
-        hostMutationDebounce: number;
-        resizeDebounce: number;
+        attributes: string[] | null;
+        debounce: number | [number, number] | null;
     };
     overflow: {
         x: OverflowBehavior;

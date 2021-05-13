@@ -1,8 +1,13 @@
 import { CacheValues } from 'support';
-export declare type SizeObserverOptions = {
+export interface SizeObserverOptions {
     _direction?: boolean;
     _appear?: boolean;
-};
+}
+export interface SizeObserverCallbackParams {
+    _sizeChanged: boolean;
+    _directionIsRTLCache?: CacheValues<boolean>;
+    _appear?: boolean;
+}
 export interface SizeObserver {
     _destroy(): void;
     _getCurrentCacheValues(force?: boolean): {
@@ -16,4 +21,4 @@ export interface SizeObserver {
  * @param options The options for size detection, whether to observe also direction and appear.
  * @returns A object which represents the instance of the size observer.
  */
-export declare const createSizeObserver: (target: HTMLElement, onSizeChangedCallback: (directionIsRTLCache?: CacheValues<boolean> | undefined) => any, options?: SizeObserverOptions | undefined) => SizeObserver;
+export declare const createSizeObserver: (target: HTMLElement, onSizeChangedCallback: (params: SizeObserverCallbackParams) => any, options?: SizeObserverOptions | undefined) => SizeObserver;
