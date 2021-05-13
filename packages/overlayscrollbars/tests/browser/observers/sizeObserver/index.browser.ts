@@ -37,11 +37,13 @@ const preInitChildren = targetElm?.children.length;
 
 const sizeObserver = createSizeObserver(
   targetElm as HTMLElement,
-  (directionIsRTLCache?: any) => {
-    if (directionIsRTLCache) {
-      directionIterations += 1;
-    } else {
+  ({ _directionIsRTLCache, _sizeChanged, _appear }) => {
+    if (_sizeChanged) {
       sizeIterations += 1;
+    }
+
+    if (_directionIsRTLCache) {
+      directionIterations += 1;
     }
     requestAnimationFrame(() => {
       if (resizesSlot) {

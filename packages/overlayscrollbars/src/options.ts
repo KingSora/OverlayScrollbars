@@ -35,9 +35,8 @@ export interface OSOptions {
   paddingAbsolute: boolean;
   updating: {
     elementEvents: Array<[string, string]> | null;
-    contentMutationDebounce: number;
-    hostMutationDebounce: number;
-    resizeDebounce: number;
+    attributes: string[] | null;
+    debounce: number | [number, number] | null;
   };
   overflow: {
     x: OverflowBehavior;
@@ -109,6 +108,7 @@ export interface UpdatedArgs {
 }
 
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
+const arrayNullValues: OptionsTemplateValue<Array<unknown> | null> = [oTypes.array, oTypes.null];
 const stringArrayNullAllowedValues: OptionsTemplateValue<string | ReadonlyArray<string> | null> = [oTypes.string, oTypes.array, oTypes.null];
 const booleanTrueTemplate: OptionsWithOptionsTemplateValue<boolean> = [true, oTypes.boolean];
 const booleanFalseTemplate: OptionsWithOptionsTemplateValue<boolean> = [false, oTypes.boolean];
@@ -137,10 +137,12 @@ const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<OSOptions> = {
   resize: ['none', resizeAllowedValues], // none || both  || horizontal || vertical || n || b || h || v
   paddingAbsolute: booleanFalseTemplate, // true || false
   updating: {
-    elementEvents: [[['img', 'load']], [oTypes.array, oTypes.null]], // array of tuples || null
-    contentMutationDebounce: [80, numberAllowedValues], // number
-    hostMutationDebounce: [0, numberAllowedValues], // number
-    resizeDebounce: [0, numberAllowedValues], // number
+    elementEvents: [[['img', 'load']], arrayNullValues], // array of tuples || null
+    attributes: [null, arrayNullValues],
+    debounce: [
+      [0, 33],
+      [oTypes.number, oTypes.array, oTypes.null],
+    ], // number || number array || null
   },
   overflow: {
     x: ['scroll', overflowAllowedValues], // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s

@@ -1,28 +1,11 @@
-import {
-  XY,
-  WH,
-  TRBL,
-  CacheValues,
-  PartialOptions,
-  each,
-  hasOwnProperty,
-  isNumber,
-  scrollLeft,
-  scrollTop,
-  assignDeep,
-  liesBetween,
-  diffClass,
-} from 'support';
+import { XY, WH, TRBL, CacheValues, PartialOptions, each, hasOwnProperty, isNumber, scrollLeft, scrollTop, assignDeep } from 'support';
 import { OSOptions } from 'options';
-import { classNameHost, classNameViewport, classNameContent } from 'classnames';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
+import { lifecycleHubOservers } from 'lifecycles/lifecycleHubObservers';
 import { createTrinsicLifecycle } from 'lifecycles/trinsicLifecycle';
 import { createPaddingLifecycle } from 'lifecycles/paddingLifecycle';
 import { createOverflowLifecycle } from 'lifecycles/overflowLifecycle';
-import { createSizeObserver } from 'observers/sizeObserver';
-import { createTrinsicObserver } from 'observers/trinsicObserver';
-import { createDOMObserver } from 'observers/domObserver';
 import { StyleObject } from 'typings';
 
 export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
@@ -82,28 +65,7 @@ export interface LifecycleHub {
 const getPropByPath = <T>(obj: any, path: string): T =>
   obj ? path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj) : undefined;
 
-// TODO: observer textarea attrs if textarea
-// TODO: tabindex, open etc.
-// TODO: test _ignoreContentChange & _ignoreNestedTargetChange for content dom observer
-// TODO: test _ignoreTargetChange for target dom observer
-const ignorePrefix = 'os-';
-const hostSelector = `.${classNameHost}`;
-const viewportSelector = `.${classNameViewport}`;
-const contentSelector = `.${classNameContent}`;
-const attrs = ['id', 'class', 'style', 'open'];
-const ignoreTargetChange = (target: Node, attrName: string, oldValue: string | null, newValue: string | null) => {
-  if (attrName === 'class' && oldValue && newValue) {
-    const diff = diffClass(oldValue, newValue);
-    return !!diff.find((addedOrRemovedClass) => addedOrRemovedClass.indexOf(ignorePrefix) !== 0);
-  }
-  return false;
-};
-const directionIsRTLCacheValuesFallback: CacheValues<boolean> = {
-  _value: false,
-  _previous: false,
-  _changed: false,
-};
-const heightIntrinsicCacheValuesFallback: CacheValues<boolean> = {
+const booleanCacheValuesFallback: CacheValues<boolean> = {
   _value: false,
   _previous: false,
   _changed: false,
@@ -139,7 +101,7 @@ const lifecycleCommunicationFallback: LifecycleCommunication = {
 
 export const createLifecycleHub = (options: OSOptions, structureSetup: StructureSetup): LifecycleHubInstance => {
   let lifecycleCommunication = lifecycleCommunicationFallback;
-  const { _host, _viewport, _content } = structureSetup._targetObj;
+  const { _viewport } = structureSetup._targetObj;
   const {
     _nativeScrollbarStyling,
     _nativeScrollbarIsOverlaid,
@@ -168,10 +130,11 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
       _contentMutation = force || false,
       _paddingStyleChanged = force || false,
     } = updateHints || {};
+
     const finalDirectionIsRTL =
-      _directionIsRTL || (sizeObserver ? sizeObserver._getCurrentCacheValues(force)._directionIsRTL : directionIsRTLCacheValuesFallback);
+      _directionIsRTL || (_sizeObserver ? _sizeObserver._getCurrentCacheValues(force)._directionIsRTL : booleanCacheValuesFallback);
     const finalHeightIntrinsic =
-      _heightIntrinsic || (trinsicObserver ? trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : heightIntrinsicCacheValuesFallback);
+      _heightIntrinsic || (_trinsicObserver ? _trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : booleanCacheValuesFallback);
     const checkOption: LifecycleCheckOption = (path) => ({
       _value: getPropByPath(options, path),
       _changed: force || getPropByPath(changedOptions, path) !== undefined,
@@ -179,6 +142,11 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
     const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
     const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
+
+    // place before updating lifecycles because of possible flushing of debounce
+    if (_updateObserverOptions) {
+      _updateObserverOptions(checkOption);
+    }
 
     each(lifecycles, (lifecycle) => {
       const {
@@ -217,58 +185,7 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
       options.callbacks.onUpdated();
     }
   };
-
-  const onSizeChanged = (directionIsRTL?: CacheValues<boolean>) => {
-    const sizeChanged = !directionIsRTL;
-    updateLifecycles({
-      _directionIsRTL: directionIsRTL,
-      _sizeChanged: sizeChanged,
-    });
-  };
-  const onTrinsicChanged = (heightIntrinsic: CacheValues<boolean>) => {
-    updateLifecycles({
-      _heightIntrinsic: heightIntrinsic,
-    });
-  };
-  const onHostMutation = () => {
-    // TODO: rAF only here because IE
-    requestAnimationFrame(() => {
-      updateLifecycles({
-        _hostMutation: true,
-      });
-    });
-  };
-  const onContentMutation = () => {
-    // TODO: rAF only here because IE
-    requestAnimationFrame(() => {
-      updateLifecycles({
-        _contentMutation: true,
-      });
-    });
-  };
-
-  const trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
-  const sizeObserver = createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: !_nativeScrollbarStyling });
-  const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
-    _styleChangingAttributes: attrs,
-    _attributes: attrs,
-    _ignoreTargetChange: ignoreTargetChange,
-  });
-  const contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
-    _styleChangingAttributes: attrs,
-    _attributes: attrs,
-    _eventContentChange: options!.updating!.elementEvents,
-    _nestedTargetSelector: hostSelector,
-    _ignoreContentChange: (mutation, isNestedTarget) => {
-      const { target, attributeName } = mutation;
-      return isNestedTarget
-        ? false
-        : attributeName
-        ? liesBetween(target as Element, hostSelector, viewportSelector) || liesBetween(target as Element, hostSelector, contentSelector)
-        : false;
-    },
-    _ignoreNestedTargetChange: ignoreTargetChange,
-  });
+  const { _sizeObserver, _trinsicObserver, _updateObserverOptions } = lifecycleHubOservers(instance, updateLifecycles);
 
   const update = (changedOptions?: Partial<OSOptions> | null, force?: boolean) => {
     updateLifecycles(null, changedOptions, force);
