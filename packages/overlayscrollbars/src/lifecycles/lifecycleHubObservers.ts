@@ -1,4 +1,4 @@
-import { CacheValues, diffClass, debounce, isArray, isNumber } from 'support';
+import { CacheValues, diffClass, debounce, isArray, isNumber, each, indexOf, isString, attr, removeAttr } from 'support';
 import { getEnvironment } from 'environment';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
@@ -8,7 +8,6 @@ import { LifecycleHub, LifecycleCheckOption, LifecycleUpdateHints } from 'lifecy
 //const hostSelector = `.${classNameHost}`;
 
 // TODO: observer textarea attrs if textarea
-// TODO: tabindex, etc. attributes for viewport
 // TODO: test _ignoreContentChange & _ignoreNestedTargetChange for content dom observer
 // TODO: test _ignoreTargetChange for target dom observer
 
@@ -30,6 +29,7 @@ const ignoreTargetChange = (target: Node, attrName: string, oldValue: string | n
 export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (updateHints?: Partial<LifecycleUpdateHints> | null) => unknown) => {
   let debounceTimeout: number | false | undefined;
   let debounceMaxDelay: number | false | undefined;
+  let contentMutationObserver: DOMObserver | undefined;
   const { _structureSetup } = instance;
   const { _targetObj, _targetCtx } = _structureSetup;
   const { _host, _viewport, _content } = _targetObj;
@@ -54,6 +54,18 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
     },
   });
 
+  const updateViewportAttrsFromHost = (attributes?: string[]) => {
+    each(attributes || viewportAttrsFromTarget, (attribute) => {
+      if (indexOf(viewportAttrsFromTarget, attribute) > -1) {
+        const hostAttr = attr(_host, attribute);
+        if (isString(hostAttr)) {
+          attr(_viewport, attribute, hostAttr);
+        } else {
+          removeAttr(_viewport, attribute);
+        }
+      }
+    });
+  };
   const onTrinsicChanged = (heightIntrinsic: CacheValues<boolean>) => {
     updateLifecycles({
       _heightIntrinsic: heightIntrinsic,
@@ -73,18 +85,23 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
       _contentMutation: true,
     });
   };
-  const onHostMutation = updateLifecyclesWithDebouncedAdaptiveUpdateHints.bind(0, {
-    _hostMutation: true,
-  }) as () => any;
+  const onHostMutation = (targetChangedAttrs: string[], targetStyleChanged: boolean) => {
+    if (targetStyleChanged) {
+      updateLifecyclesWithDebouncedAdaptiveUpdateHints({
+        _hostMutation: true,
+      });
+    } else {
+      updateViewportAttrsFromHost(targetChangedAttrs);
+    }
+  };
 
   const trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
   const sizeObserver = createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: !_nativeScrollbarStyling });
   const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: baseStyleChangingAttrs,
-    _attributes: baseStyleChangingAttrs,
+    _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
     _ignoreTargetChange: ignoreTargetChange,
   });
-  let contentMutationObserver: DOMObserver | undefined;
 
   const updateOptions = (checkOption: LifecycleCheckOption) => {
     const { _value: elementEvents, _changed: elementEventsChanged } = checkOption<Array<[string, string]> | null>('updating.elementEvents');
@@ -133,9 +150,17 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
     }
   };
 
+  updateViewportAttrsFromHost();
+
   return {
     _trinsicObserver: trinsicObserver,
     _sizeObserver: sizeObserver,
     _updateObserverOptions: updateOptions,
+    _destroy() {
+      contentMutationObserver && contentMutationObserver._destroy();
+      trinsicObserver && trinsicObserver._destroy();
+      sizeObserver._destroy();
+      hostMutationObserver._destroy();
+    },
   };
 };

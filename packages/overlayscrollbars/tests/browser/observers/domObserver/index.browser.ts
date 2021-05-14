@@ -632,17 +632,17 @@ const start = async () => {
 
   await addRemoveImgElmsFn();
 
+  targetDomObserver._update();
+  targetDomObserver._destroy();
+  targetDomObserver._destroy();
+  targetDomObserver._update();
+
+  contentDomObserver._update();
+  contentDomObserver._destroy();
+  contentDomObserver._destroy();
+  contentDomObserver._update();
+
   setTestResult(true);
-
-  targetDomObserver._update();
-  targetDomObserver._destroy();
-  targetDomObserver._destroy();
-  targetDomObserver._update();
-
-  contentDomObserver._update();
-  contentDomObserver._destroy();
-  contentDomObserver._destroy();
-  contentDomObserver._update();
 };
 
 startBtn?.addEventListener('click', start);

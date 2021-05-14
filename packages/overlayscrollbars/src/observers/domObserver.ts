@@ -77,7 +77,9 @@ const createEventContentChange = (target: Element, eventContentChange: DOMObserv
   let map: Map<Node, string> | undefined;
   const _destroy = () => {
     if (map) {
-      map.forEach((eventName: string, elm: Node) => off(elm, eventName, callback));
+      map.forEach((eventName: string, elm: Node) => {
+        off(elm, eventName, callback);
+      });
       map.clear();
     }
   };

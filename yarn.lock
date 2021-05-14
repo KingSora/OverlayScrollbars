@@ -6702,9 +6702,9 @@ pkg-dir@^4.1.0, pkg-dir@^4.2.0:
     find-up "^4.0.0"
 
 playwright-chromium@^1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.10.0.tgz#df0e65e42cdda66b599df38d062d9cd8c2dea09c"
-  integrity sha512-ry/60/YKGJfrnaS7j5C3+xmA2DAMv6pBE351FoTHe4Llq0WU92IL0rBYK3TkK3PzSHYtp1KdCRsRjDnJhImA3g==
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.11.0.tgz#fcd2a86baca011c758288f246a84304453c4ab42"
+  integrity sha512-CNV58vXoyItAXOuK9rgyESBmnwVMnQg12TBJEDq1IksJo9m2Gi1maReiMOOJAFduMhicvLGgRsQfdzm44KCcxA==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -6719,6 +6719,7 @@ playwright-chromium@^1.10.0:
     rimraf "^3.0.2"
     stack-utils "^2.0.3"
     ws "^7.3.1"
+    yazl "^2.5.1"
 
 playwright-core@>=1.2.0:
   version "1.8.0"
@@ -6739,9 +6740,9 @@ playwright-core@>=1.2.0:
     ws "^7.3.1"
 
 playwright-core@^1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.10.0.tgz#0ed3590ddf97ec4a5fd4baef40346e2d8e2f19ba"
-  integrity sha512-SDA5KPwnJJSfnNX/b7h8y0ChwBmcbbcCofYXkZGMVuzXZsmHPGLOBRhgkwN2nzJ10Ezf4cd1OcVOeOLKPxjeRg==
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.11.0.tgz#992c24303ff84cc66022a3327c24026fc433a66a"
+  integrity sha512-P5+FzindrR0wI48WVRBiJ59D1wgladPA7KzODAC+EZkwlrCQ6Pj2L0JkrKMCst/3g/x/nSLYcM+QXk2O3HJ/VQ==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -6756,11 +6757,12 @@ playwright-core@^1.10.0:
     rimraf "^3.0.2"
     stack-utils "^2.0.3"
     ws "^7.3.1"
+    yazl "^2.5.1"
 
 playwright-firefox@^1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/playwright-firefox/-/playwright-firefox-1.10.0.tgz#842f6f93ebdced83eecbd23d6820cad930686728"
-  integrity sha512-TR7Vyw9PgS4KtbSOIUGqNa20gJxjpRHK6IQv4oDhgehpW/YnCjqxe5ylI9eLrzzYPUPsoyD7bZRxSZDtrcCTLA==
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/playwright-firefox/-/playwright-firefox-1.11.0.tgz#f73fd2dbca5178d148ef389241ca1ab0e5354787"
+  integrity sha512-mKmTFXRgr91pmXC8FHHdNlLzoBVcdTAcjYxzNGPzc97AcjLDYczwQkxw5i60k+4UuooayX9dHLq45oI/4j9+Pg==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -6775,11 +6777,12 @@ playwright-firefox@^1.10.0:
     rimraf "^3.0.2"
     stack-utils "^2.0.3"
     ws "^7.3.1"
+    yazl "^2.5.1"
 
 playwright-webkit@^1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/playwright-webkit/-/playwright-webkit-1.10.0.tgz#0d32f73c5ab3296fb9114b053b0cd1d35597b2c4"
-  integrity sha512-Dql/wJQ+aFgL3/HHMv9UfVAd3+pzQluLdDHnG7eX8PWLK80ly4idyQO0HYRjwwvoZuyx1G1rA+kuh7jtn7OfHg==
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/playwright-webkit/-/playwright-webkit-1.11.0.tgz#6fab9ffc5b030cc4370bd1ae55d5e96f2cfd7fa1"
+  integrity sha512-/LiyWkuMNPvRpdXQ6h69WTqiYzVwAriEEZMROjOJWAYVfuRHmyUtp5vs8utbDiJBBgYOAta0+jCr1feoTMmi5g==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -6794,11 +6797,12 @@ playwright-webkit@^1.10.0:
     rimraf "^3.0.2"
     stack-utils "^2.0.3"
     ws "^7.3.1"
+    yazl "^2.5.1"
 
 playwright@^1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.10.0.tgz#a14d295f1ad886caf4cc5e674afe03ac832066bc"
-  integrity sha512-b7SGBcCPq4W3pb4ImEDmNXtO0ZkJbZMuWiShsaNJd+rGfY/6fqwgllsAojmxGSgFmijYw7WxCoPiAIEDIH16Kw==
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.11.0.tgz#0796cf08f4756e8187e01c705315d8e1fb48e25f"
+  integrity sha512-s3FQBRpu/pW/vZ/lFYhG/Q3WBUbT2rvMgrgy1PHDA7QtPN910C2rj9Ovd6A/m8yxuLnltd/OKqvlAGevWISHKw==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -6813,6 +6817,7 @@ playwright@^1.10.0:
     rimraf "^3.0.2"
     stack-utils "^2.0.3"
     ws "^7.3.1"
+    yazl "^2.5.1"
 
 pngjs@^5.0.0:
   version "5.0.0"
@@ -9261,3 +9266,10 @@ yauzl@^2.10.0:
   dependencies:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.1.0"
+
+yazl@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/yazl/-/yazl-2.5.1.tgz#a3d65d3dd659a5b0937850e8609f22fffa2b5c35"
+  integrity sha512-phENi2PLiHnHb6QBVot+dJnaAZ0xosj7p3fWl+znIjBDlnMI2PsZCJZ306BPTFOaHf5qdDEI8x5qFrSOBN5vrw==
+  dependencies:
+    buffer-crc32 "~0.2.3"

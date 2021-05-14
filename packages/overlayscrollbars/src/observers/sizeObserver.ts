@@ -146,7 +146,9 @@ export const createSizeObserver = (
   if (ResizeObserverConstructor) {
     const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
     resizeObserverInstance.observe(listenerElement);
-    push(offListeners, () => resizeObserverInstance.disconnect());
+    push(offListeners, () => {
+      resizeObserverInstance.disconnect();
+    });
   } else {
     const observerElementChildren = createDOM(
       `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`

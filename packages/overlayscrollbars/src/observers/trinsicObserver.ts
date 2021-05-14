@@ -64,7 +64,9 @@ export const createTrinsicObserver = (
       { root: target }
     );
     intersectionObserverInstance.observe(trinsicObserver);
-    push(offListeners, () => intersectionObserverInstance.disconnect());
+    push(offListeners, () => {
+      intersectionObserverInstance.disconnect();
+    });
   } else {
     const onSizeChanged = () => {
       const newSize = offsetSize(trinsicObserver);

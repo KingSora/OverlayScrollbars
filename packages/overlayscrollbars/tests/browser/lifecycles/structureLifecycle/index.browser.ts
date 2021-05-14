@@ -285,8 +285,8 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
 
     await timeout(1);
 
-    // steady pace for ie11 or it will freeze progressively
-    if (msie11) {
+    // steady pace for ie11 / edge or it will freeze progressively
+    if (msie11 || msedge) {
       await timeout(25);
     }
   });

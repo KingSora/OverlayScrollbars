@@ -10,6 +10,12 @@ import { StyleObject } from 'typings';
 
 export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
 
+export type Lifecycle = (
+  updateHints: LifecycleUpdateHints,
+  checkOption: LifecycleCheckOption,
+  force: boolean
+) => Partial<LifecycleAdaptiveUpdateHints> | void;
+
 export interface LifecycleOptionInfo<T> {
   readonly _value: T;
   _changed: boolean;
@@ -36,12 +42,6 @@ export interface LifecycleUpdateHints extends LifecycleAdaptiveUpdateHints {
   _directionIsRTL: CacheValues<boolean>;
   _heightIntrinsic: CacheValues<boolean>;
 }
-
-export type Lifecycle = (
-  updateHints: LifecycleUpdateHints,
-  checkOption: LifecycleCheckOption,
-  force: boolean
-) => Partial<LifecycleAdaptiveUpdateHints> | void;
 
 export interface LifecycleHubState {
   _overflowAmount: WH<number>;
@@ -185,11 +185,9 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
       options.callbacks.onUpdated();
     }
   };
-  const { _sizeObserver, _trinsicObserver, _updateObserverOptions } = lifecycleHubOservers(instance, updateLifecycles);
+  const { _sizeObserver, _trinsicObserver, _updateObserverOptions, _destroy: destroyObservers } = lifecycleHubOservers(instance, updateLifecycles);
 
-  const update = (changedOptions?: Partial<OSOptions> | null, force?: boolean) => {
-    updateLifecycles(null, changedOptions, force);
-  };
+  const update = (changedOptions?: Partial<OSOptions> | null, force?: boolean) => updateLifecycles(null, changedOptions, force);
   const envUpdateListener = update.bind(null, null, true);
   addEnvironmentListener(envUpdateListener);
 
@@ -201,6 +199,7 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
       _overflowAmount: lifecycleCommunication._viewportOverflowAmount,
     }),
     _destroy() {
+      destroyObservers();
       removeEnvironmentListener(envUpdateListener);
     },
   };
