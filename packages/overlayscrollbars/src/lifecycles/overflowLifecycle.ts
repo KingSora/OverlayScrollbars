@@ -96,8 +96,8 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
   );
   const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache<WH<number>, OverflowAmountCacheContext>(
     ({ _viewportScrollSize, _viewportClientSize, _viewportSizeFraction }) => ({
-      w: round(max(0, _viewportScrollSize.w - _viewportClientSize.w) - max(0, _viewportSizeFraction.w)),
-      h: round(max(0, _viewportScrollSize.h - _viewportClientSize.h) - max(0, _viewportSizeFraction.h)),
+      w: max(0, round(max(0, _viewportScrollSize.w - _viewportClientSize.w) - max(0, _viewportSizeFraction.w))),
+      h: max(0, round(max(0, _viewportScrollSize.h - _viewportClientSize.h) - max(0, _viewportSizeFraction.h))),
     }),
     whCacheOptions
   );

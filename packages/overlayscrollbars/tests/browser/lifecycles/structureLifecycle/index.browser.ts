@@ -41,7 +41,10 @@ interface CheckComparisonObj {
   metrics: Metrics;
 }
 
+const isFractionalPixelRatio = () => window.devicePixelRatio % 1 !== 0;
+
 const getMetrics = (elm: HTMLElement): Metrics => {
+  const rounding = isFractionalPixelRatio() ? Math.round : (num: number) => num;
   const comparisonEnvBCR = getBoundingClientRect(parent(elm!) as HTMLElement);
   const comparisonBCR = getBoundingClientRect(elm!);
   const comparisonPercentBCR = getBoundingClientRect(elm!.querySelector('.percent')!);
@@ -50,8 +53,8 @@ const getMetrics = (elm: HTMLElement): Metrics => {
 
   const scrollMeasure = (elm: HTMLElement) => {
     return {
-      width: elm!.scrollWidth - elm!.clientWidth,
-      height: elm!.scrollHeight - elm!.clientHeight,
+      width: Math.max(0, elm!.scrollWidth - elm!.clientWidth),
+      height: Math.max(0, elm!.scrollHeight - elm!.clientHeight),
     };
   };
 
@@ -65,22 +68,22 @@ const getMetrics = (elm: HTMLElement): Metrics => {
 
   return {
     offset: {
-      left: (comparisonBCR.left - comparisonEnvBCR.left).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
-      top: (comparisonBCR.top - comparisonEnvBCR.top).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
+      left: rounding(comparisonBCR.left - comparisonEnvBCR.left).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
+      top: rounding(comparisonBCR.top - comparisonEnvBCR.top).toFixed(Math.min(fixedDigitsOffset, fixedDigits)),
     },
     size: {
-      width: comparisonBCR.width.toFixed(fixedDigits),
-      height: comparisonBCR.height.toFixed(fixedDigits),
+      width: rounding(comparisonBCR.width).toFixed(fixedDigits),
+      height: rounding(comparisonBCR.height).toFixed(fixedDigits),
     },
     scroll: elm === target ? scrollMeasure(targetViewport!) : scrollMeasure(comparison!),
     hasOverflow: elm === target ? hasOverflow(targetViewport!) : hasOverflow(comparison!),
     percentElm: {
-      width: comparisonPercentBCR.width.toFixed(fixedDigits),
-      height: comparisonPercentBCR.height.toFixed(fixedDigits),
+      width: rounding(comparisonPercentBCR.width).toFixed(fixedDigits),
+      height: rounding(comparisonPercentBCR.height).toFixed(fixedDigits),
     },
     endElm: {
-      width: comparisonEndBCR.width.toFixed(fixedDigits),
-      height: comparisonEndBCR.height.toFixed(fixedDigits),
+      width: rounding(comparisonEndBCR.width).toFixed(fixedDigits),
+      height: rounding(comparisonEndBCR.height).toFixed(fixedDigits),
     },
   };
 };
@@ -91,8 +94,6 @@ const metricsDimensionsEqual = (a: Metrics, b: Metrics) => {
 
   return JSON.stringify(aDimensions) === JSON.stringify(bDimensions);
 };
-
-const isFractionalPixelRatio = () => window.devicePixelRatio % 1 !== 0;
 
 const plusMinusArr = (original: number, plusMinus: number) => {
   return [original, original + plusMinus, original - plusMinus];
@@ -362,9 +363,9 @@ const overflowTest = async () => {
       };
       const { paddingRight, paddingBottom } = style(comparison, ['paddingRight', 'paddingBottom']);
       const comparisonContentBox = contentBox(comparison);
-      const widthOverflow = width ? addOverflow : 0;
-      const heightOverflow = height ? addOverflow : 0;
-      const styleObj = { width: comparisonContentBox.w + widthOverflow, height: comparisonContentBox.h + heightOverflow };
+      const widthOverflow = width ? comparisonContentBox.w + addOverflow : 0;
+      const heightOverflow = height ? comparisonContentBox.h + addOverflow : 0;
+      const styleObj = { width: widthOverflow, height: heightOverflow };
 
       style(comparisonResize, styleObj);
 
