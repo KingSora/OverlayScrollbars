@@ -58,7 +58,7 @@ const sizeFraction = (elm: HTMLElement): WH<number> => {
     h: viewportRect.height - viewportOffsetSize.h,
   };
 };
-const isFractionalPixelRatio = () => window.devicePixelRatio % 1 !== 0;
+const fractionalPixelRatioTollerance = () => (window.devicePixelRatio % 1 === 0 ? 0 : 1);
 const setAxisOverflowStyle = (horizontal: boolean, overflowAmount: number, behavior: OverflowBehavior, styleObj: StyleObject) => {
   const overflowKey: keyof StyleObject = horizontal ? 'overflowX' : 'overflowY';
   const behaviorIsVisible = behavior.indexOf('visible') === 0;
@@ -97,8 +97,8 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
   );
   const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache<WH<number>, OverflowAmountCacheContext>(
     ({ _viewportScrollSize, _viewportClientSize, _viewportSizeFraction }) => ({
-      w: max(0, round(max(0, _viewportScrollSize.w - _viewportClientSize.w) - max(0, _viewportSizeFraction.w))),
-      h: max(0, round(max(0, _viewportScrollSize.h - _viewportClientSize.h) - max(0, _viewportSizeFraction.h))),
+      w: max(0, round(max(0, _viewportScrollSize.w - _viewportClientSize.w) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.w)))),
+      h: max(0, round(max(0, _viewportScrollSize.h - _viewportClientSize.h) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.h)))),
     }),
     whCacheOptions
   );

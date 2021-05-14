@@ -45,6 +45,7 @@ const isFractionalPixelRatio = () => window.devicePixelRatio % 1 !== 0;
 
 const getMetrics = (elm: HTMLElement): Metrics => {
   const rounding = isFractionalPixelRatio() ? Math.round : (num: number) => num;
+  const elmIsTarget = elm === target;
   const comparisonEnvBCR = getBoundingClientRect(parent(elm!) as HTMLElement);
   const comparisonBCR = getBoundingClientRect(elm!);
   const comparisonPercentBCR = getBoundingClientRect(elm!.querySelector('.percent')!);
@@ -60,10 +61,15 @@ const getMetrics = (elm: HTMLElement): Metrics => {
 
   const hasOverflow = (elm: HTMLElement) => {
     const measure = scrollMeasure(elm);
-    return {
-      x: measure.width > 0,
-      y: measure.height > 0,
-    };
+    return elmIsTarget
+      ? {
+          x: osInstance.state()._overflowAmount.w > 0,
+          y: osInstance.state()._overflowAmount.h > 0,
+        }
+      : {
+          x: measure.width > 0,
+          y: measure.height > 0,
+        };
   };
 
   return {
@@ -75,8 +81,8 @@ const getMetrics = (elm: HTMLElement): Metrics => {
       width: rounding(comparisonBCR.width).toFixed(fixedDigits),
       height: rounding(comparisonBCR.height).toFixed(fixedDigits),
     },
-    scroll: elm === target ? scrollMeasure(targetViewport!) : scrollMeasure(comparison!),
-    hasOverflow: elm === target ? hasOverflow(targetViewport!) : hasOverflow(comparison!),
+    scroll: elmIsTarget ? scrollMeasure(targetViewport!) : scrollMeasure(comparison!),
+    hasOverflow: elmIsTarget ? hasOverflow(targetViewport!) : hasOverflow(comparison!),
     percentElm: {
       width: rounding(comparisonPercentBCR.width).toFixed(fixedDigits),
       height: rounding(comparisonPercentBCR.height).toFixed(fixedDigits),
@@ -112,7 +118,7 @@ msie11 && addClass(document.body, 'msie11');
 const useContentElement = false;
 const fixedDigits = msie11 ? 1 : 3;
 const fixedDigitsOffset = 3;
-const fractionalPixelRatioTollerance = 2;
+const fractionalPixelRatioTollerance = 2; // nss=true && any overlaid ? 2 : 1;
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const target: HTMLElement | null = document.querySelector('#target');
@@ -339,7 +345,7 @@ const iterateMinMax = async (afterEach?: () => any) => {
 const overflowTest = async () => {
   const additiveOverflow = () => {
     if (isFractionalPixelRatio()) {
-      return 1 + Math.max(1, Math.round(window.devicePixelRatio));
+      return 1;
     }
     return 1;
   };
@@ -419,15 +425,15 @@ const overflowTest = async () => {
 
       await waitForOrFailTest(() => {
         if (width) {
-          should.ok(overflowAmountCheck.width >= addOverflow, 'Correct smallest possible overflow width.');
+          should.ok(overflowAmountCheck.width >= addOverflow, 'Correct smallest possible overflow width. (?)');
         } else {
-          should.equal(overflowAmountCheck.width, 0, 'Correct smallest possible overflow width.');
+          should.equal(overflowAmountCheck.width, 0, 'Correct smallest possible overflow width. (0)');
         }
 
         if (height) {
-          should.ok(overflowAmountCheck.height >= addOverflow, 'Correct smallest possible overflow height.');
+          should.ok(overflowAmountCheck.height >= addOverflow, 'Correct smallest possible overflow height. (?)');
         } else {
-          should.equal(overflowAmountCheck.height, 0, 'Correct smallest possible overflow height.');
+          should.equal(overflowAmountCheck.height, 0, 'Correct smallest possible overflow height. (0)');
         }
       });
 
