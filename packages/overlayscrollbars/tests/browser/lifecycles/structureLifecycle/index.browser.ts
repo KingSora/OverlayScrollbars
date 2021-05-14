@@ -96,7 +96,11 @@ const metricsDimensionsEqual = (a: Metrics, b: Metrics) => {
 };
 
 const plusMinusArr = (original: number, plusMinus: number) => {
-  return [original, original + plusMinus, original - plusMinus];
+  const arr = Array.from(Array(plusMinus).keys())
+    .map((_, index) => original + (index + 1))
+    .concat(Array.from(Array(plusMinus).keys()).map((_, index) => original - (index + 1)));
+  arr.push(original);
+  return arr;
 };
 
 // @ts-ignore
@@ -108,6 +112,7 @@ msie11 && addClass(document.body, 'msie11');
 const useContentElement = false;
 const fixedDigits = msie11 ? 1 : 3;
 const fixedDigitsOffset = 3;
+const fractionalPixelRatioTollerance = 2;
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const target: HTMLElement | null = document.querySelector('#target');
@@ -218,16 +223,26 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     should.equal(targetMetrics.size.height, comparisonMetrics.size.height, 'Size height equality.');
 
     if (isFractionalPixelRatio()) {
-      should.ok(plusMinusArr(targetMetrics.scroll.width, 1).indexOf(comparisonMetrics.scroll.width) > -1, 'Scroll width equality. (+-1)');
-      should.ok(plusMinusArr(targetMetrics.scroll.height, 1).indexOf(comparisonMetrics.scroll.height) > -1, 'Scroll height equality. (+-1)');
-
       should.ok(
-        plusMinusArr(osInstance.state()._overflowAmount.w, 1).indexOf(comparisonMetrics.scroll.width) > -1,
-        'Overflow amount width equality. (+-1)'
+        plusMinusArr(targetMetrics.scroll.width, fractionalPixelRatioTollerance).indexOf(comparisonMetrics.scroll.width) > -1,
+        `Scroll width equality. (+-${fractionalPixelRatioTollerance}) | Target: ${targetMetrics.scroll.width} | Comparison: ${comparisonMetrics.scroll.width}`
       );
       should.ok(
-        plusMinusArr(osInstance.state()._overflowAmount.h, 1).indexOf(comparisonMetrics.scroll.height) > -1,
-        'Overflow amount height equality. (+-1)'
+        plusMinusArr(targetMetrics.scroll.height, fractionalPixelRatioTollerance).indexOf(comparisonMetrics.scroll.height) > -1,
+        `Scroll height equality. (+-${fractionalPixelRatioTollerance}) | Target: ${targetMetrics.scroll.height} | Comparison: ${comparisonMetrics.scroll.height}`
+      );
+
+      should.ok(
+        plusMinusArr(osInstance.state()._overflowAmount.w, fractionalPixelRatioTollerance).indexOf(comparisonMetrics.scroll.width) > -1,
+        `Overflow amount width equality. (+-${fractionalPixelRatioTollerance}) | Amount: ${osInstance.state()._overflowAmount.w} | Comparison: ${
+          comparisonMetrics.scroll.width
+        }`
+      );
+      should.ok(
+        plusMinusArr(osInstance.state()._overflowAmount.h, fractionalPixelRatioTollerance).indexOf(comparisonMetrics.scroll.height) > -1,
+        `Overflow amount height equality. (+-${fractionalPixelRatioTollerance}) | Amount: ${osInstance.state()._overflowAmount.h} | Comparison: ${
+          comparisonMetrics.scroll.height
+        }`
       );
     } else {
       should.equal(targetMetrics.scroll.width, comparisonMetrics.scroll.width, 'Scroll width equality.');

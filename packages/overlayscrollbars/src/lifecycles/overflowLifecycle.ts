@@ -58,6 +58,7 @@ const sizeFraction = (elm: HTMLElement): WH<number> => {
     h: viewportRect.height - viewportOffsetSize.h,
   };
 };
+const isFractionalPixelRatio = () => window.devicePixelRatio % 1 !== 0;
 const setAxisOverflowStyle = (horizontal: boolean, overflowAmount: number, behavior: OverflowBehavior, styleObj: StyleObject) => {
   const overflowKey: keyof StyleObject = horizontal ? 'overflowX' : 'overflowY';
   const behaviorIsVisible = behavior.indexOf('visible') === 0;
