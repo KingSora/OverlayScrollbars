@@ -13,12 +13,11 @@ import {
   find,
   push,
   isUndefined,
-  isFunction,
 } from 'support';
 
 type StringNullUndefined = string | null | undefined;
 
-type DOMContentObserverCallback = (contentChanged: boolean) => any;
+type DOMContentObserverCallback = (contentChangedTroughEvent: boolean) => any;
 
 type DOMTargetObserverCallback = (targetChangedAttrs: string[], targetStyleChanged: boolean) => any;
 
@@ -38,18 +37,7 @@ interface DOMTargetObserverOptions extends DOMObserverOptionsBase {
   _ignoreTargetChange?: DOMObserverIgnoreTargetChange; // a function which will prevent marking certain attributes as changed if it returns true
 }
 
-interface DOMObserverBase {
-  _destroy: () => void;
-  _update: () => void;
-}
-
-interface DOMContentObserver extends DOMObserverBase {
-  _updateEventContentChange: (newEventContentChange?: DOMObserverEventContentChange) => void;
-}
-
-interface DOMTargetObserver extends DOMObserverBase {}
-
-type ContentChangeArrayItem = [StringNullUndefined, ((elms: Node[]) => StringNullUndefined) | StringNullUndefined] | null | undefined;
+type ContentChangeArrayItem = [StringNullUndefined, StringNullUndefined] | null | undefined;
 
 export type DOMObserverEventContentChange = Array<ContentChangeArrayItem> | false | null | undefined;
 
@@ -57,7 +45,7 @@ export type DOMObserverIgnoreContentChange = (
   mutation: MutationRecord,
   isNestedTarget: boolean,
   domObserverTarget: HTMLElement,
-  domObserverOptions: DOMContentObserverOptions | undefined
+  domObserverOptions?: DOMContentObserverOptions
 ) => boolean;
 
 export type DOMObserverIgnoreTargetChange = (
@@ -73,10 +61,10 @@ export type DOMObserverCallback<ContentObserver extends boolean> = ContentObserv
 
 export type DOMObserverOptions<ContentObserver extends boolean> = ContentObserver extends true ? DOMContentObserverOptions : DOMTargetObserverOptions;
 
-export type DOMObserver<ContentObserver extends boolean> = ContentObserver extends true ? DOMContentObserver : DOMTargetObserver;
-
-// const styleChangingAttributes = ['id', 'class', 'style', 'open'];
-// const mutationObserverAttrsTextarea = ['wrap', 'cols', 'rows'];
+export interface DOMObserver {
+  _destroy: () => void;
+  _update: () => void;
+}
 
 /**
  * Creates a set of helper functions to observe events of elements inside the target element.
@@ -87,7 +75,6 @@ export type DOMObserver<ContentObserver extends boolean> = ContentObserver exten
  */
 const createEventContentChange = (target: Element, eventContentChange: DOMObserverEventContentChange, callback: (...args: any) => any) => {
   let map: Map<Node, string> | undefined;
-  let eventContentChangeRef: DOMObserverEventContentChange;
   const _destroy = () => {
     if (map) {
       map.forEach((eventName: string, elm: Node) => off(elm, eventName, callback));
@@ -95,16 +82,15 @@ const createEventContentChange = (target: Element, eventContentChange: DOMObserv
     }
   };
   const _updateElements = (getElements?: (selector: string) => Node[]) => {
-    if (map && eventContentChangeRef) {
-      const eventElmList = eventContentChangeRef.reduce<Array<[Node[], string]>>((arr, item) => {
+    if (map && eventContentChange) {
+      const eventElmList = eventContentChange.reduce<Array<[Node[], string]>>((arr, item) => {
         if (item) {
           const selector = item[0];
           const eventNames = item[1];
           const elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
-          const parsedEventNames = isFunction(eventNames) ? eventNames(elements) : eventNames;
 
-          if (elements && elements.length && parsedEventNames && isString(parsedEventNames)) {
-            push(arr, [elements, parsedEventNames.trim()], true);
+          if (elements && elements.length && eventNames && isString(eventNames)) {
+            push(arr, [elements, eventNames.trim()], true);
           }
         }
         return arr;
@@ -128,21 +114,16 @@ const createEventContentChange = (target: Element, eventContentChange: DOMObserv
       );
     }
   };
-  const _updateEventContentChange = (newEventContentChange: DOMObserverEventContentChange) => {
-    map = map || new Map<Node, string>();
-    eventContentChangeRef = newEventContentChange;
-    _destroy();
-    _updateElements();
-  };
 
   if (eventContentChange) {
-    _updateEventContentChange(eventContentChange);
+    map = map || new Map<Node, string>();
+    _destroy();
+    _updateElements();
   }
 
   return {
     _destroy,
     _updateElements,
-    _updateEventContentChange,
   };
 };
 
@@ -159,7 +140,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   isContentObserver: ContentObserver,
   callback: DOMObserverCallback<ContentObserver>,
   options?: DOMObserverOptions<ContentObserver>
-): DOMObserver<ContentObserver> => {
+): DOMObserver => {
   let isConnected = false;
   const {
     _attributes,
@@ -170,18 +151,17 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     _ignoreNestedTargetChange,
     _ignoreContentChange,
   } = (options as DOMContentObserverOptions & DOMTargetObserverOptions) || {};
-  const {
-    _destroy: destroyEventContentChange,
-    _updateElements: updateEventContentChangeElements,
-    _updateEventContentChange: updateEventContentChange,
-  } = createEventContentChange(
+  const { _destroy: destroyEventContentChange, _updateElements: updateEventContentChangeElements } = createEventContentChange(
     target,
     isContentObserver && _eventContentChange,
-    debounce(() => {
-      if (isConnected) {
-        (callback as DOMContentObserverCallback)(true);
-      }
-    }, 84)
+    debounce(
+      () => {
+        if (isConnected) {
+          (callback as DOMContentObserverCallback)(true);
+        }
+      },
+      { _timeout: 33, _maxDelay: 99 }
+    )
   );
 
   // MutationObserver
@@ -243,7 +223,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     }
 
     if (isContentObserver) {
-      contentChanged && (callback as DOMContentObserverCallback)(contentChanged);
+      contentChanged && (callback as DOMContentObserverCallback)(false);
     } else if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
       (callback as DOMTargetObserverCallback)(targetChangedAttrs, targetStyleChanged);
     }
@@ -269,13 +249,10 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         isConnected = false;
       }
     },
-    _updateEventContentChange: (newEventContentChange?: DOMObserverEventContentChange) => {
-      updateEventContentChange(isConnected && isContentObserver && newEventContentChange);
-    },
     _update: () => {
       if (isConnected) {
         observerCallback(mutationObserver.takeRecords());
       }
     },
-  } as DOMObserver<ContentObserver>;
+  };
 };

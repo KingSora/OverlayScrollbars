@@ -33,7 +33,16 @@ import {
   classNameSizeObserverListenerItemFinal,
 } from 'classnames';
 
-export type SizeObserverOptions = { _direction?: boolean; _appear?: boolean };
+export interface SizeObserverOptions {
+  _direction?: boolean;
+  _appear?: boolean;
+}
+
+export interface SizeObserverCallbackParams {
+  _sizeChanged: boolean;
+  _directionIsRTLCache?: CacheValues<boolean>;
+  _appear?: boolean;
+}
 
 export interface SizeObserver {
   _destroy(): void;
@@ -73,7 +82,7 @@ const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height ||
  */
 export const createSizeObserver = (
   target: HTMLElement,
-  onSizeChangedCallback: (directionIsRTLCache?: CacheValues<boolean>) => any,
+  onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
 ): SizeObserver => {
   const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } = options || {};
@@ -90,31 +99,44 @@ export const createSizeObserver = (
         (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
       ),
   });
-  const onSizeChangedCallbackProxy = (sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry[] | Event) => {
+  const onSizeChangedCallbackProxy = (sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry[] | Event | boolean) => {
     const hasDirectionCache = sizeChangedContext && isBoolean((sizeChangedContext as CacheValues<boolean>)._value);
 
     let skip = false;
+    let appear: boolean | number | undefined = false;
     let doDirectionScroll = true; // always true if sizeChangedContext is Event (appear callback or RO. Polyfill)
 
     // if triggered from RO.
     if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
-      const { _previous, _value, _changed } = updateResizeObserverContentRectCache(0, sizeChangedContext.pop()!.contentRect);
-      skip = !_previous || !domRectHasDimensions(_value); // skip on initial RO. call or if display is none
-      doDirectionScroll = !skip && _changed; // direction scroll when not skipping and changing from display: none to block, false otherwise
+      const { _previous, _value } = updateResizeObserverContentRectCache(0, sizeChangedContext.pop()!.contentRect);
+      const hasDimensions = domRectHasDimensions(_value);
+      const hadDimensions = domRectHasDimensions(_previous);
+      skip = !_previous || !hasDimensions; // skip on initial RO. call or if display is none
+      appear = !hadDimensions && hasDimensions;
+
+      doDirectionScroll = !skip; // direction scroll when not skipping
     }
     // else if its triggered with DirectionCache
     else if (hasDirectionCache) {
       doDirectionScroll = (sizeChangedContext as CacheValues<boolean>)._changed; // direction scroll when DirectionCache changed, false otherwise
     }
+    // else if it triggered with appear from polyfill
+    else {
+      appear = sizeChangedContext === true;
+    }
 
-    if (observeDirectionChange) {
+    if (observeDirectionChange && doDirectionScroll) {
       const rtl = hasDirectionCache ? (sizeChangedContext as CacheValues<boolean>)._value : directionIsRTL(sizeObserver);
       scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
       scrollTop(sizeObserver, scrollAmount);
     }
 
     if (!skip) {
-      onSizeChangedCallback(hasDirectionCache ? (sizeChangedContext as CacheValues<boolean>) : undefined);
+      onSizeChangedCallback({
+        _sizeChanged: !hasDirectionCache,
+        _directionIsRTLCache: hasDirectionCache ? (sizeChangedContext as CacheValues<boolean>) : undefined,
+        _appear: !!appear,
+      });
     }
   };
   const offListeners: (() => void)[] = [];
@@ -147,11 +169,11 @@ export const createSizeObserver = (
       scrollLeft(shrinkElement, scrollAmount);
       scrollTop(shrinkElement, scrollAmount);
     };
-    const onResized = () => {
+    const onResized = (appear?: unknown) => {
       rAFId = 0;
       if (isDirty) {
         cacheSize = currSize;
-        onSizeChangedCallbackProxy();
+        onSizeChangedCallbackProxy(appear === true);
       }
     };
     const onScroll = (scrollEvent?: Event | false) => {
@@ -166,7 +188,7 @@ export const createSizeObserver = (
           rAFId = rAF!(onResized);
         }
       } else {
-        onResized();
+        onResized(scrollEvent === false);
       }
 
       reset();

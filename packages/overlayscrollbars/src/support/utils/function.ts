@@ -1,36 +1,103 @@
-import { isNumber } from 'support/utils/types';
-import { cAF, rAF } from 'support/compatibility/apis';
+import { isNumber, isFunction } from 'support/utils/types';
+import { rAF, cAF } from 'support/compatibility/apis';
+
+const setT = window.setTimeout;
+const clearTimeouts = (id: number | undefined) => {
+  id && window.clearTimeout(id);
+  id && cAF!(id);
+};
+
+type DebounceTiming = number | false | null | undefined;
+
+export interface DebounceOptions<FunctionToDebounce extends (...args: any) => any> {
+  /**
+   * The timeout for debouncing. If null, no debounce is applied.
+   */
+  _timeout?: DebounceTiming | (() => DebounceTiming);
+  /**
+   * A maximum amount of ms. before the function will be called even with debounce.
+   */
+  _maxDelay?: DebounceTiming | (() => DebounceTiming);
+  /**
+   * Function which merges parameters for each canceled debounce.
+   * If parameters can't be merged the function will return null, otherwise it returns the merged parameters.
+   */
+  _mergeParams?: (
+    prev: Parameters<FunctionToDebounce>,
+    curr: Parameters<FunctionToDebounce>
+  ) => Parameters<FunctionToDebounce> | false | null | undefined;
+}
+
+export interface Debounced<FunctionToDebounce extends (...args: any) => any> {
+  (...args: Parameters<FunctionToDebounce>): ReturnType<FunctionToDebounce>;
+  _flush(): void;
+}
 
 export const noop = () => {}; // eslint-disable-line
 
 /**
  * Debounces the given function either with a timeout or a animation frame.
  * @param functionToDebounce The function which shall be debounced.
- * @param timeout The timeout for debouncing. If 0 or lower animation frame is used for debouncing, a timeout otherwise.
- * @param maxWait A maximum amount of ms. before the function will be called even with debounce.
+ * @param options Options for debouncing.
  */
-export const debounce = (functionToDebounce: (...args: any) => any, timeout?: number, maxWait?: number) => {
-  let timeoutId: number | void;
-  let lastCallTime: number;
-  const hasTimeout = isNumber(timeout) && timeout > 0;
-  const hasMaxWait = isNumber(maxWait) && maxWait > 0;
-  const cancel = hasTimeout ? window.clearTimeout : cAF!;
-  const set = hasTimeout ? window.setTimeout : rAF!;
-  const setFn = function (args: IArguments) {
-    lastCallTime = hasMaxWait ? performance.now() : 0;
-    timeoutId && cancel(timeoutId);
+export const debounce = <FunctionToDebounce extends (...args: any) => any>(
+  functionToDebounce: FunctionToDebounce,
+  options: DebounceOptions<FunctionToDebounce>
+): Debounced<FunctionToDebounce> => {
+  let timeoutId: number | undefined;
+  let maxTimeoutId: number | undefined;
+  let prevArguments: Parameters<FunctionToDebounce> | null | undefined;
+  let latestArguments: Parameters<FunctionToDebounce> | null | undefined;
+  const { _timeout, _maxDelay, _mergeParams } = options;
+
+  const invokeFunctionToDebounce = function (args: IArguments) {
+    clearTimeouts(timeoutId);
+    clearTimeouts(maxTimeoutId);
+    maxTimeoutId = timeoutId = prevArguments = undefined;
     // eslint-disable-next-line
     // @ts-ignore
     functionToDebounce.apply(this, args);
   };
 
-  return function () {
-    // eslint-disable-next-line
-    // @ts-ignore
-    const boundSetFn = setFn.bind(this, arguments); // eslint-disable-line
-    const forceCall = hasMaxWait ? performance.now() - lastCallTime >= maxWait! : false;
+  const mergeParms = (curr: Parameters<FunctionToDebounce>): Parameters<FunctionToDebounce> | false | null | undefined =>
+    _mergeParams && prevArguments ? _mergeParams(prevArguments, curr) : curr;
 
-    timeoutId && cancel(timeoutId);
-    timeoutId = forceCall ? boundSetFn() : (set(boundSetFn, timeout!) as number);
+  const flush = () => {
+    if (timeoutId) {
+      invokeFunctionToDebounce(mergeParms(latestArguments!) || latestArguments!);
+    }
   };
+
+  const debouncedFn = function () {
+    const args: Parameters<FunctionToDebounce> = arguments as Parameters<FunctionToDebounce>;
+    const finalTimeout = isFunction(_timeout) ? _timeout() : _timeout;
+    const hasTimeout = isNumber(finalTimeout) && finalTimeout >= 0;
+
+    if (hasTimeout) {
+      const finalMaxWait = isFunction(_maxDelay) ? _maxDelay() : _maxDelay;
+      const hasMaxWait = isNumber(finalMaxWait) && finalMaxWait >= 0;
+      const setTimeoutFn = finalTimeout! > 0 ? setT : rAF!;
+      const mergeParamsResult = mergeParms(args);
+      const invokedArgs = mergeParamsResult || args;
+      const boundInvoke = invokeFunctionToDebounce.bind(0, invokedArgs);
+
+      if (!mergeParamsResult) {
+        invokeFunctionToDebounce(prevArguments || args);
+      }
+
+      clearTimeouts(timeoutId);
+      timeoutId = setTimeoutFn(boundInvoke, finalTimeout as number) as number;
+
+      if (hasMaxWait && !maxTimeoutId) {
+        maxTimeoutId = setT(flush, finalMaxWait as number);
+      }
+
+      prevArguments = latestArguments = invokedArgs;
+    } else {
+      invokeFunctionToDebounce(args);
+    }
+  };
+  debouncedFn._flush = flush;
+
+  return debouncedFn as Debounced<FunctionToDebounce>;
 };

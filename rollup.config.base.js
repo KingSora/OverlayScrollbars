@@ -268,7 +268,7 @@ const rollupConfig = (config = {}, { project = process.cwd(), overwrite = {}, si
                 plugins: [
                   ...(output.plugins || []),
                   rollupTerser({
-                    ecma: 8,
+                    ecma: esm ? 2015 : 5,
                     safari10: true,
                     mangle: {
                       safari10: true,

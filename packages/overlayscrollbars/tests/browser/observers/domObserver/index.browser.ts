@@ -4,24 +4,14 @@ import should from 'should';
 import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
-import {
-  appendChildren,
-  createDiv,
-  removeElements,
-  children,
-  isArray,
-  isNumber,
-  liesBetween,
-  hasClass,
-  addClass,
-  removeClass,
-  diffClass,
-  on,
-} from 'support';
+import { appendChildren, createDiv, removeElements, children, isArray, isNumber, liesBetween, addClass, removeClass, diffClass, on } from 'support';
 
 import { createDOMObserver } from 'observers/domObserver';
 
-type DOMContentObserverResult = boolean;
+type DOMContentObserverResult = {
+  contentChange: boolean;
+  troughEvent: boolean;
+};
 type DOMTargetObserverResult = {
   changedTargetAttrs: string[];
   styleChanged: boolean;
@@ -34,6 +24,7 @@ interface SeparateChangeThrough {
 const targetChangesCountSlot: HTMLElement | null = document.querySelector('#targetChanges');
 const contentChangesCountSlot: HTMLElement | null = document.querySelector('#contentChanges');
 const targetElm: HTMLElement | null = document.querySelector('#target');
+const trargetContentElm: HTMLElement | null = document.querySelector('#target .content');
 const targetElmContentElm: HTMLElement | null = document.querySelector('#content-host');
 const contentElmAttrChange: HTMLElement | null = document.querySelector('#target .content-nest');
 const contentBetweenElmAttrChange: HTMLElement | null = document.querySelector('#content-host .padding-nest-item');
@@ -67,7 +58,7 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const hostSelector = '.host';
 const ignorePrefix = 'ignore';
 const attrs = ['id', 'class', 'style', 'open'];
-const contentChangeArr: Array<[string, string | ((elms: Node[]) => string)]> = [['img', 'load']];
+const contentChangeArr: Array<[string, string]> = [['img', 'load']];
 const domTargetObserverObservations: DOMTargetObserverResult[] = [];
 const domContentObserverObservations: DOMContentObserverResult[] = [];
 
@@ -115,44 +106,48 @@ const targetDomObserver = createDOMObserver(
   }
 );
 
-const contentDomObserver = createDOMObserver(
-  document.querySelector('#target .content')!,
-  true,
-  (contentChanged: boolean) => {
-    should.equal(typeof contentChanged, 'boolean', 'The contentChanged parameter in a content dom observer must be a boolean.');
+const createContentDomOserver = (eventContentChange: Array<[string | null | undefined, string | null | undefined] | null | undefined>) => {
+  return createDOMObserver(
+    trargetContentElm!,
+    true,
+    (contentChangedTroughEvent: boolean) => {
+      should.equal(typeof contentChangedTroughEvent, 'boolean', 'The contentChanged parameter in a content dom observer must be a boolean.');
 
-    domContentObserverObservations.push(contentChanged);
-    requestAnimationFrame(() => {
-      if (contentChangesCountSlot) {
-        contentChangesCountSlot.textContent = `${domContentObserverObservations.length}`;
-      }
-    });
-  },
-  {
-    _styleChangingAttributes: attrs,
-    _attributes: attrs,
-    _eventContentChange: contentChangeArr,
-    _nestedTargetSelector: hostSelector,
-    _ignoreContentChange: (mutation, isNestedTarget) => {
-      const { target, attributeName } = mutation;
-      return isNestedTarget ? false : attributeName ? liesBetween(target as Element, hostSelector, '.content') : false;
+      domContentObserverObservations.push({ contentChange: true, troughEvent: contentChangedTroughEvent });
+      requestAnimationFrame(() => {
+        if (contentChangesCountSlot) {
+          contentChangesCountSlot.textContent = `${domContentObserverObservations.length}`;
+        }
+      });
     },
-    _ignoreNestedTargetChange: (target, attrName, oldValue, newValue) => {
-      if (attrName === 'class' && oldValue && newValue) {
-        const diff = diffClass(oldValue, newValue);
-        const ignore = diff.length === 1 && diff[0].startsWith(ignorePrefix);
-        return ignore;
-      }
-      return false;
-    },
-    // @ts-ignore
-    _ignoreTargetChange: () => {
-      // if param: isContentObserver = true, this function should never be called.
-      should.ok(false, 'A content dom observer must not call the _ignoreTargetChange method.');
-      return true;
-    },
-  }
-);
+    {
+      _styleChangingAttributes: attrs,
+      _attributes: attrs,
+      _eventContentChange: eventContentChange,
+      _nestedTargetSelector: hostSelector,
+      _ignoreContentChange: (mutation, isNestedTarget) => {
+        const { target, attributeName } = mutation;
+        return isNestedTarget ? false : attributeName ? liesBetween(target as Element, hostSelector, '.content') : false;
+      },
+      _ignoreNestedTargetChange: (target, attrName, oldValue, newValue) => {
+        if (attrName === 'class' && oldValue && newValue) {
+          const diff = diffClass(oldValue, newValue);
+          const ignore = diff.length === 1 && diff[0].startsWith(ignorePrefix);
+          return ignore;
+        }
+        return false;
+      },
+      // @ts-ignore
+      _ignoreTargetChange: () => {
+        // if param: isContentObserver = true, this function should never be called.
+        should.ok(false, 'A content dom observer must not call the _ignoreTargetChange method.');
+        return true;
+      },
+    }
+  );
+};
+
+let contentDomObserver = createContentDomOserver(contentChangeArr);
 
 const getTotalObservations = () => domTargetObserverObservations.length + domContentObserverObservations.length;
 const getLast = <T>(arr: T[], indexFromLast = 0): T => arr[arr.length - 1 - indexFromLast] || ({} as T);
@@ -277,7 +272,7 @@ const addRemoveElementsTest = async (slot: Element | null, changeThrough?: DOMCo
       if (addChangeThrough) {
         const contentChanged = getLast(addChangeThrough);
         await waitForOrFailTest(() => {
-          should.equal(contentChanged, true, 'Adding an content element must result in a content change.');
+          should.deepEqual(contentChanged, { contentChange: true, troughEvent: false }, 'Adding an content element must result in a content change.');
         });
       }
     };
@@ -297,7 +292,11 @@ const addRemoveElementsTest = async (slot: Element | null, changeThrough?: DOMCo
 
           if (removeChangeThrough) {
             const contentChanged = getLast(removeChangeThrough);
-            should.equal(contentChanged, true, 'Removing an content element must result in a content change.');
+            should.deepEqual(
+              contentChanged,
+              { contentChange: true, troughEvent: false },
+              'Removing an content element must result in a content change.'
+            );
           }
         });
       }
@@ -361,10 +360,14 @@ const addRemoveImgElmsFn = async () => {
       compare(2);
 
       const previousContentChanged = getLast(domContentObserverObservations, 1);
-      should.equal(previousContentChanged, true, 'Adding an content image must result in a content change.');
+      should.deepEqual(
+        previousContentChanged,
+        { contentChange: true, troughEvent: false },
+        'Adding an content image must result in a content change.'
+      );
 
       const lastContentChanged = getLast(domContentObserverObservations);
-      should.equal(lastContentChanged, true, 'The images load event must result in a content change.');
+      should.deepEqual(lastContentChanged, { contentChange: true, troughEvent: true }, 'The images load event must result in a content change.');
     });
   };
 
@@ -375,21 +378,20 @@ const addRemoveImgElmsFn = async () => {
   // test event content change debounce
   const addMultiple = async () => {
     const { before, after, compare } = changedThrough(domContentObserverObservations);
-    const addMultipleItem = () => {
+    const genImage = () => {
       const img = new Image(1, 1);
       img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
       const imgHolder = createDiv('img');
       appendChildren(imgHolder, img);
 
-      appendChildren(imgElmsSlot, imgHolder);
+      return imgHolder;
     };
 
-    before();
+    await timeout(250);
 
-    addMultipleItem();
-    addMultipleItem();
-    addMultipleItem();
+    before();
+    appendChildren(imgElmsSlot, [genImage(), genImage(), genImage()]);
 
     await timeout(250);
 
@@ -398,20 +400,27 @@ const addRemoveImgElmsFn = async () => {
       compare(2);
 
       const previousContentChanged = getLast(domContentObserverObservations, 1);
-      should.equal(previousContentChanged, true, 'Adding mutliple content images must result in a single content change. (debounced)');
+      should.deepEqual(
+        previousContentChanged,
+        { contentChange: true, troughEvent: false },
+        'Adding mutliple content images must result in a single content change. (debounced)'
+      );
 
       const lastContentChanged = getLast(domContentObserverObservations);
-      should.equal(lastContentChanged, true, 'Multiple images load events must result in a single cintent change. (debounced)');
+      should.deepEqual(
+        lastContentChanged,
+        { contentChange: true, troughEvent: true },
+        'Multiple images load events must result in a single cintent change. (debounced)'
+      );
     });
   };
 
   await addMultiple();
 
   // remove load event from image test
-  const addChanged = async (
-    newEventContentChange: Array<[string | null | undefined, (() => string | null | undefined) | string | null | undefined] | null | undefined>
-  ) => {
-    contentDomObserver._updateEventContentChange(newEventContentChange);
+  const addChanged = async (newEventContentChange: Array<[string | null | undefined, string | null | undefined] | null | undefined>) => {
+    contentDomObserver._destroy();
+    contentDomObserver = createContentDomOserver(newEventContentChange);
 
     const img = new Image(1, 1);
     img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
@@ -430,7 +439,8 @@ const addRemoveImgElmsFn = async () => {
       compare(1);
     });
 
-    contentDomObserver._updateEventContentChange(contentChangeArr);
+    contentDomObserver._destroy();
+    contentDomObserver = createContentDomOserver(contentChangeArr);
   };
 
   await addChanged([
@@ -440,9 +450,6 @@ const addRemoveImgElmsFn = async () => {
     ['img', undefined],
     [null, null],
     [undefined, undefined],
-    ['img', () => 'hi'],
-    ['img', () => null],
-    ['img', () => undefined],
     null,
     undefined,
   ]);
@@ -471,7 +478,11 @@ const addRemoveTransitionElmsFn = async () => {
             compareTransition(expectTransitionEndContentChange ? 2 : 1); // 2 because 1: added class mutation and 2: transition end event
 
             const contentChanged = getLast(domContentObserverObservations);
-            should.equal(contentChanged, true, 'The transitionend event must trigger a event content change.');
+            should.deepEqual(
+              contentChanged,
+              { contentChange: true, troughEvent: expectTransitionEndContentChange },
+              'The transitionend event must trigger a event content change.'
+            );
             resolve(1);
           });
         },
@@ -495,11 +506,16 @@ const addRemoveTransitionElmsFn = async () => {
       compare(1);
 
       const contentChanged = getLast(domContentObserverObservations);
-      should.equal(contentChanged, true, 'Adding an content element (transition) must result in a content change.');
+      should.deepEqual(
+        contentChanged,
+        { contentChange: true, troughEvent: false },
+        'Adding an content element (transition) must result in a content change.'
+      );
     });
 
     await startTransition(elm, expectTransitionEndContentChange && true);
-    contentDomObserver._updateEventContentChange(contentChangeArr);
+    contentDomObserver._destroy();
+    contentDomObserver = createContentDomOserver(contentChangeArr);
     await startTransition(elm, expectTransitionEndContentChange && false);
 
     removeElements(elm);
@@ -509,19 +525,8 @@ const addRemoveTransitionElmsFn = async () => {
 
   await add(false);
 
-  contentDomObserver._updateEventContentChange(
-    contentChangeArr.concat([
-      [
-        '.transition',
-        (elms) => {
-          elms.forEach((elm) => {
-            should.equal(hasClass(elm as Element, 'transition'), true, 'Every checked element must match the correpsonding selector.'); // in this case "".transition"
-          });
-          return 'transitionend';
-        },
-      ],
-    ])
-  );
+  contentDomObserver._destroy();
+  contentDomObserver = createContentDomOserver(contentChangeArr.concat([['.transition', 'transitionend']]));
 
   await add(true);
 };
@@ -562,7 +567,11 @@ const iterateTargetAttrChange = async () => {
 const iterateContentAttrChange = async () => {
   await iterateAttrChange(setContentAttr, domContentObserverObservations, (observation) => {
     const contentChanged = observation;
-    should.equal(contentChanged, true, 'A attribute change inside the content must trigger a content change for a DOMContentObserver.');
+    should.deepEqual(
+      contentChanged,
+      { contentChange: true, troughEvent: false },
+      'A attribute change inside the content must trigger a content change for a DOMContentObserver.'
+    );
   });
   await iterateAttrChange(setFilteredContentAttr);
 };
@@ -573,7 +582,11 @@ const iterateContentBetweenAttrChange = async () => {
 const iterateContentHostElmAttrChange = async () => {
   await iterateAttrChange(setContentHostElmAttr, domContentObserverObservations, (observation) => {
     const contentChanged = observation;
-    should.equal(contentChanged, true, 'A attribute change for a nested target must trigger a content change for a DOMContentObserver.');
+    should.deepEqual(
+      contentChanged,
+      { contentChange: true, troughEvent: false },
+      'A attribute change for a nested target must trigger a content change for a DOMContentObserver.'
+    );
   });
   await iterateAttrChange(setFilteredContentHostElmAttr);
 };
@@ -626,11 +639,9 @@ const start = async () => {
   targetDomObserver._destroy();
   targetDomObserver._update();
 
-  contentDomObserver._updateEventContentChange([]);
   contentDomObserver._update();
   contentDomObserver._destroy();
   contentDomObserver._destroy();
-  contentDomObserver._updateEventContentChange([]);
   contentDomObserver._update();
 };
 
