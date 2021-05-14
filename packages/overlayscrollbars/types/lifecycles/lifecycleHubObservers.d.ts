@@ -3,4 +3,5 @@ export declare const lifecycleHubOservers: (instance: LifecycleHub, updateLifecy
     _trinsicObserver: false | import("observers/trinsicObserver").TrinsicObserver;
     _sizeObserver: import("observers/sizeObserver").SizeObserver;
     _updateObserverOptions: (checkOption: LifecycleCheckOption) => void;
+    _destroy(): void;
 };

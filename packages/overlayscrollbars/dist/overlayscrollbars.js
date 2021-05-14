@@ -1355,7 +1355,7 @@
       var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
       resizeObserverInstance.observe(listenerElement);
       push(offListeners, function () {
-        return resizeObserverInstance.disconnect();
+        resizeObserverInstance.disconnect();
       });
     } else {
       var observerElementChildren = createDOM(
@@ -1519,7 +1519,7 @@
       );
       intersectionObserverInstance.observe(trinsicObserver);
       push(offListeners, function () {
-        return intersectionObserverInstance.disconnect();
+        intersectionObserverInstance.disconnect();
       });
     } else {
       var onSizeChanged = function onSizeChanged() {
@@ -1555,7 +1555,7 @@
     var _destroy = function _destroy() {
       if (map) {
         map.forEach(function (eventName, elm) {
-          return off(elm, eventName, callback);
+          off(elm, eventName, callback);
         });
         map.clear();
       }
@@ -1731,6 +1731,7 @@
   };
 
   var ignorePrefix = 'os-';
+  var viewportAttrsFromTarget = ['tabindex'];
   var baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
   var baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
 
@@ -1748,6 +1749,7 @@
   var lifecycleHubOservers = function lifecycleHubOservers(instance, updateLifecycles) {
     var debounceTimeout;
     var debounceMaxDelay;
+    var contentMutationObserver;
     var _structureSetup = instance._structureSetup;
     var _targetObj = _structureSetup._targetObj,
       _targetCtx = _structureSetup._targetCtx;
@@ -1788,6 +1790,20 @@
       },
     });
 
+    var updateViewportAttrsFromHost = function updateViewportAttrsFromHost(attributes) {
+      each(attributes || viewportAttrsFromTarget, function (attribute) {
+        if (indexOf(viewportAttrsFromTarget, attribute) > -1) {
+          var hostAttr = attr(_host, attribute);
+
+          if (isString(hostAttr)) {
+            attr(_viewport, attribute, hostAttr);
+          } else {
+            removeAttr(_viewport, attribute);
+          }
+        }
+      });
+    };
+
     var onTrinsicChanged = function onTrinsicChanged(heightIntrinsic) {
       updateLifecycles({
         _heightIntrinsic: heightIntrinsic,
@@ -1812,9 +1828,16 @@
       });
     };
 
-    var onHostMutation = updateLifecyclesWithDebouncedAdaptiveUpdateHints.bind(0, {
-      _hostMutation: true,
-    });
+    var onHostMutation = function onHostMutation(targetChangedAttrs, targetStyleChanged) {
+      if (targetStyleChanged) {
+        updateLifecyclesWithDebouncedAdaptiveUpdateHints({
+          _hostMutation: true,
+        });
+      } else {
+        updateViewportAttrsFromHost(targetChangedAttrs);
+      }
+    };
+
     var trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
     var sizeObserver = createSizeObserver(_host, onSizeChanged, {
       _appear: true,
@@ -1822,10 +1845,9 @@
     });
     var hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
       _styleChangingAttributes: baseStyleChangingAttrs,
-      _attributes: baseStyleChangingAttrs,
+      _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
       _ignoreTargetChange: ignoreTargetChange,
     });
-    var contentMutationObserver;
 
     var updateOptions = function updateOptions(checkOption) {
       var _checkOption = checkOption('updating.elementEvents'),
@@ -1875,10 +1897,19 @@
       }
     };
 
+    updateViewportAttrsFromHost();
     return {
       _trinsicObserver: trinsicObserver,
       _sizeObserver: sizeObserver,
       _updateObserverOptions: updateOptions,
+      _destroy: function _destroy() {
+        contentMutationObserver && contentMutationObserver._destroy();
+        trinsicObserver && trinsicObserver._destroy();
+
+        sizeObserver._destroy();
+
+        hostMutationObserver._destroy();
+      },
     };
   };
 
@@ -2007,6 +2038,10 @@
     };
   };
 
+  var fractionalPixelRatioTollerance = function fractionalPixelRatioTollerance() {
+    return window.devicePixelRatio % 1 === 0 ? 0 : 1;
+  };
+
   var setAxisOverflowStyle = function setAxisOverflowStyle(horizontal, overflowAmount, behavior, styleObj) {
     var overflowKey = horizontal ? 'overflowX' : 'overflowY';
     var behaviorIsVisible = behavior.indexOf('visible') === 0;
@@ -2051,8 +2086,14 @@
           _viewportClientSize = _ref._viewportClientSize,
           _viewportSizeFraction = _ref._viewportSizeFraction;
         return {
-          w: round$1(max(0, _viewportScrollSize.w - _viewportClientSize.w) - max(0, _viewportSizeFraction.w)),
-          h: round$1(max(0, _viewportScrollSize.h - _viewportClientSize.h) - max(0, _viewportSizeFraction.h)),
+          w: max(
+            0,
+            round$1(max(0, _viewportScrollSize.w - _viewportClientSize.w) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.w)))
+          ),
+          h: max(
+            0,
+            round$1(max(0, _viewportScrollSize.h - _viewportClientSize.h) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.h)))
+          ),
         };
       }, whCacheOptions),
       updateOverflowAmountCache = _createCache3._update,
@@ -2531,10 +2572,11 @@
     var _lifecycleHubOservers = lifecycleHubOservers(instance, updateLifecycles),
       _sizeObserver = _lifecycleHubOservers._sizeObserver,
       _trinsicObserver = _lifecycleHubOservers._trinsicObserver,
-      _updateObserverOptions = _lifecycleHubOservers._updateObserverOptions;
+      _updateObserverOptions = _lifecycleHubOservers._updateObserverOptions,
+      destroyObservers = _lifecycleHubOservers._destroy;
 
     var update = function update(changedOptions, force) {
-      updateLifecycles(null, changedOptions, force);
+      return updateLifecycles(null, changedOptions, force);
     };
 
     var envUpdateListener = update.bind(null, null, true);
@@ -2548,6 +2590,7 @@
         };
       },
       _destroy: function _destroy() {
+        destroyObservers();
         removeEnvironmentListener(envUpdateListener);
       },
     };

@@ -3,6 +3,7 @@ import { OSOptions } from 'options';
 import { StructureSetup } from 'setups/structureSetup';
 import { StyleObject } from 'typings';
 export declare type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
+export declare type Lifecycle = (updateHints: LifecycleUpdateHints, checkOption: LifecycleCheckOption, force: boolean) => Partial<LifecycleAdaptiveUpdateHints> | void;
 export interface LifecycleOptionInfo<T> {
     readonly _value: T;
     _changed: boolean;
@@ -26,7 +27,6 @@ export interface LifecycleUpdateHints extends LifecycleAdaptiveUpdateHints {
     _directionIsRTL: CacheValues<boolean>;
     _heightIntrinsic: CacheValues<boolean>;
 }
-export declare type Lifecycle = (updateHints: LifecycleUpdateHints, checkOption: LifecycleCheckOption, force: boolean) => Partial<LifecycleAdaptiveUpdateHints> | void;
 export interface LifecycleHubState {
     _overflowAmount: WH<number>;
 }

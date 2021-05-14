@@ -1221,7 +1221,9 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   if (ResizeObserverConstructor) {
     const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
     resizeObserverInstance.observe(listenerElement);
-    push(offListeners, () => resizeObserverInstance.disconnect());
+    push(offListeners, () => {
+      resizeObserverInstance.disconnect();
+    });
   } else {
     const observerElementChildren = createDOM(
       `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
@@ -1367,7 +1369,9 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
       }
     );
     intersectionObserverInstance.observe(trinsicObserver);
-    push(offListeners, () => intersectionObserverInstance.disconnect());
+    push(offListeners, () => {
+      intersectionObserverInstance.disconnect();
+    });
   } else {
     const onSizeChanged = () => {
       const newSize = offsetSize(trinsicObserver);
@@ -1402,7 +1406,9 @@ const createEventContentChange = (target, eventContentChange, callback) => {
 
   const _destroy = () => {
     if (map) {
-      map.forEach((eventName, elm) => off(elm, eventName, callback));
+      map.forEach((eventName, elm) => {
+        off(elm, eventName, callback);
+      });
       map.clear();
     }
   };
@@ -1569,6 +1575,7 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
 };
 
 const ignorePrefix = 'os-';
+const viewportAttrsFromTarget = ['tabindex'];
 const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
 const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
 
@@ -1584,6 +1591,7 @@ const ignoreTargetChange = (target, attrName, oldValue, newValue) => {
 const lifecycleHubOservers = (instance, updateLifecycles) => {
   let debounceTimeout;
   let debounceMaxDelay;
+  let contentMutationObserver;
   const { _structureSetup } = instance;
   const { _targetObj, _targetCtx } = _structureSetup;
   const { _host, _viewport, _content } = _targetObj;
@@ -1608,6 +1616,20 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
     },
   });
 
+  const updateViewportAttrsFromHost = (attributes) => {
+    each(attributes || viewportAttrsFromTarget, (attribute) => {
+      if (indexOf(viewportAttrsFromTarget, attribute) > -1) {
+        const hostAttr = attr(_host, attribute);
+
+        if (isString(hostAttr)) {
+          attr(_viewport, attribute, hostAttr);
+        } else {
+          removeAttr(_viewport, attribute);
+        }
+      }
+    });
+  };
+
   const onTrinsicChanged = (heightIntrinsic) => {
     updateLifecycles({
       _heightIntrinsic: heightIntrinsic,
@@ -1629,9 +1651,16 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
     });
   };
 
-  const onHostMutation = updateLifecyclesWithDebouncedAdaptiveUpdateHints.bind(0, {
-    _hostMutation: true,
-  });
+  const onHostMutation = (targetChangedAttrs, targetStyleChanged) => {
+    if (targetStyleChanged) {
+      updateLifecyclesWithDebouncedAdaptiveUpdateHints({
+        _hostMutation: true,
+      });
+    } else {
+      updateViewportAttrsFromHost(targetChangedAttrs);
+    }
+  };
+
   const trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
   const sizeObserver = createSizeObserver(_host, onSizeChanged, {
     _appear: true,
@@ -1639,10 +1668,9 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
   });
   const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: baseStyleChangingAttrs,
-    _attributes: baseStyleChangingAttrs,
+    _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
     _ignoreTargetChange: ignoreTargetChange,
   });
-  let contentMutationObserver;
 
   const updateOptions = (checkOption) => {
     const { _value: elementEvents, _changed: elementEventsChanged } = checkOption('updating.elementEvents');
@@ -1683,10 +1711,20 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
     }
   };
 
+  updateViewportAttrsFromHost();
   return {
     _trinsicObserver: trinsicObserver,
     _sizeObserver: sizeObserver,
     _updateObserverOptions: updateOptions,
+
+    _destroy() {
+      contentMutationObserver && contentMutationObserver._destroy();
+      trinsicObserver && trinsicObserver._destroy();
+
+      sizeObserver._destroy();
+
+      hostMutationObserver._destroy();
+    },
   };
 };
 
@@ -1788,6 +1826,8 @@ const sizeFraction = (elm) => {
   };
 };
 
+const fractionalPixelRatioTollerance = () => (window.devicePixelRatio % 1 === 0 ? 0 : 1);
+
 const setAxisOverflowStyle = (horizontal, overflowAmount, behavior, styleObj) => {
   const overflowKey = horizontal ? 'overflowX' : 'overflowY';
   const behaviorIsVisible = behavior.indexOf('visible') === 0;
@@ -1822,8 +1862,14 @@ const createOverflowLifecycle = (lifecycleHub) => {
   );
   const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache(
     ({ _viewportScrollSize, _viewportClientSize, _viewportSizeFraction }) => ({
-      w: round$1(max(0, _viewportScrollSize.w - _viewportClientSize.w) - max(0, _viewportSizeFraction.w)),
-      h: round$1(max(0, _viewportScrollSize.h - _viewportClientSize.h) - max(0, _viewportSizeFraction.h)),
+      w: max(
+        0,
+        round$1(max(0, _viewportScrollSize.w - _viewportClientSize.w) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.w)))
+      ),
+      h: max(
+        0,
+        round$1(max(0, _viewportScrollSize.h - _viewportClientSize.h) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.h)))
+      ),
     }),
     whCacheOptions
   );
@@ -2233,11 +2279,9 @@ const createLifecycleHub = (options, structureSetup) => {
     }
   };
 
-  const { _sizeObserver, _trinsicObserver, _updateObserverOptions } = lifecycleHubOservers(instance, updateLifecycles);
+  const { _sizeObserver, _trinsicObserver, _updateObserverOptions, _destroy: destroyObservers } = lifecycleHubOservers(instance, updateLifecycles);
 
-  const update = (changedOptions, force) => {
-    updateLifecycles(null, changedOptions, force);
-  };
+  const update = (changedOptions, force) => updateLifecycles(null, changedOptions, force);
 
   const envUpdateListener = update.bind(null, null, true);
   addEnvironmentListener(envUpdateListener);
@@ -2249,6 +2293,7 @@ const createLifecycleHub = (options, structureSetup) => {
     }),
 
     _destroy() {
+      destroyObservers();
       removeEnvironmentListener(envUpdateListener);
     },
   };
