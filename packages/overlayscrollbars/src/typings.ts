@@ -1,3 +1,5 @@
+
+
 export type PlainObject<T = any> = { [name: string]: T };
 
 export type StyleObject<CustomCssProps = ''> = {
@@ -11,6 +13,19 @@ export type InternalVersionOf<T> = {
 export type OSTargetElement = HTMLElement | HTMLTextAreaElement;
 
 /**
+ * Static elements MUST be present.
+ */
+type StructureInitializationStaticElement = HTMLElement;
+
+/**
+ * Dynamic element CAN be present.
+ * If its a element the element will be handled as the repsective element.
+ * True means that the respective dynamic element is forced to be generated.
+ * False means that the respective dynamic element is forced NOT to be generated.
+ */
+type StructureInitializationDynamicElement = HTMLElement | boolean;
+
+/**
  * Object for special initialization.
  * 
  * Target is always required, if element is not provided or undefined it will be generated.
@@ -18,19 +33,29 @@ export type OSTargetElement = HTMLElement | HTMLTextAreaElement;
  * If element is provided, the provided element takes all its responsibilities. 
  * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
  * 
- * Undefined means that the plugin decides whether the respective element needs to be added or can be savely omitted.
- * True means that even if the plugin would decide to not generate the element, the element is still generated.
- * False means that event if the plugin would decide to generate the element, the element won't be generated.
+ * Undefined means that the environment initialization strategy for the respective element is used.
  */
-export interface OSTargetObject {
+ export interface StructureInitialization {
   target: OSTargetElement;
-  host?: HTMLElement;
-  padding?: HTMLElement | boolean;
-  viewport?: HTMLElement;
-  content?: HTMLElement | boolean;
+  host?: StructureInitializationStaticElement; // only relevant for textarea
+  viewport?: StructureInitializationStaticElement;
+  padding?: StructureInitializationDynamicElement;
+  content?: StructureInitializationDynamicElement;
 }
 
-export type OSTarget = OSTargetElement | OSTargetObject;
+/**
+ * Object for special initialization.
+ * 
+ * scrollbarsSlot is the element to which the scrollbars are applied to. If null or undefined the plugin decides by itself whats the scrollbars slot.
+ */
+export interface ScrollbarsInitialization {
+  scrollbarsSlot?: null | HTMLElement | ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => null | HTMLElement);
+}
+
+export interface OSInitializationObject extends StructureInitialization, ScrollbarsInitialization {
+}
+
+export type OSTarget = OSTargetElement | OSInitializationObject;
 
 /*
 export namespace OverlayScrollbars {

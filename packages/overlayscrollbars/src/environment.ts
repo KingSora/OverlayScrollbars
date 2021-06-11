@@ -25,11 +25,39 @@ import {
   classNameViewportScrollbarStyling,
 } from 'classnames';
 import { OSOptions, defaultOptions } from 'options';
+import { OSTargetElement } from 'typings';
 
-export interface InitializationStrategy {
-  _padding: boolean;
-  _content: boolean;
+type StructureInitializationElementFn<T> = ((target: OSTargetElement) => HTMLElement | T) | T;
+
+type ScrollbarsInitializationElementFn<T> = ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => HTMLElement | T) | T;
+
+/**
+ * A Static element is an element which MUST be generated.
+ * If null (or the returned result is null), the initialization function is generatig the element, otherwise
+ * the element returned by the function acts as the generated element.
+ */
+export type StructureInitializationStaticElement = StructureInitializationElementFn<null>;
+
+/**
+ * A Dynamic element is an element which CAN be generated.
+ * If null (or the returned result is null), then the default behavior is used.
+ * If boolean (or the returned result is boolean), the generation of the element is forced (or not).
+ * If the function returns and element, the element returned by the function acts as the generated element.
+ */
+export type StructureInitializationDynamicElement = StructureInitializationElementFn<boolean | null>;
+
+export interface StructureInitializationStrategy {
+  _host: StructureInitializationStaticElement;
+  _viewport: StructureInitializationStaticElement;
+  _padding: StructureInitializationDynamicElement;
+  _content: StructureInitializationDynamicElement;
 }
+
+export interface ScrollbarsInitializationStrategy {
+  _scrollbarsSlot: ScrollbarsInitializationElementFn<null | undefined>;
+}
+
+export interface InitializationStrategy extends StructureInitializationStrategy, ScrollbarsInitializationStrategy {}
 
 export type OnEnvironmentChanged = (env: Environment) => void;
 export interface Environment {
@@ -132,9 +160,13 @@ const getWindowDPR = (): number => {
   return window.devicePixelRatio || dDPI / sDPI;
 };
 
+// init function decides for all values
 const getDefaultInitializationStrategy = (nativeScrollbarStyling: boolean): InitializationStrategy => ({
-  _padding: !nativeScrollbarStyling,
-  _content: false,
+  _host: null,
+  _viewport: null,
+  _padding: null,
+  _content: null,
+  _scrollbarsSlot: null,
 });
 
 const createEnvironment = (): Environment => {

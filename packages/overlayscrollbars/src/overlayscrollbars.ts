@@ -1,12 +1,13 @@
-import { OSTarget, OSTargetObject } from 'typings';
+import { OSTarget, OSInitializationObject } from 'typings';
 import { PartialOptions, validateOptions, assignDeep, isEmptyObject } from 'support';
 import { createStructureSetup, StructureSetup } from 'setups/structureSetup';
+import { createScrollbarsSetup, ScrollbarsSetup } from 'setups/scrollbarsSetup';
 import { createLifecycleHub } from 'lifecycles/lifecycleHub';
 import { OSOptions, optionsTemplate } from 'options';
 import { getEnvironment } from 'environment';
 
 export interface OverlayScrollbarsStatic {
-  (target: OSTarget | OSTargetObject, options?: PartialOptions<OSOptions>, extensions?: any): OverlayScrollbars;
+  (target: OSTarget | OSInitializationObject, options?: PartialOptions<OSOptions>, extensions?: any): OverlayScrollbars;
 }
 
 export interface OverlayScrollbars {
@@ -14,12 +15,13 @@ export interface OverlayScrollbars {
   options(newOptions?: PartialOptions<OSOptions>): OSOptions;
 
   update(force?: boolean): void;
+  destroy(): void;
 
   state(): any;
 }
 
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
-  target: OSTarget | OSTargetObject,
+  target: OSTarget | OSInitializationObject,
   options?: PartialOptions<OSOptions>,
   extensions?: any
 ): OverlayScrollbars => {
@@ -30,7 +32,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     validateOptions(options || ({} as PartialOptions<OSOptions>), optionsTemplate, null, true)._validated
   );
   const structureSetup: StructureSetup = createStructureSetup(target);
-  const lifecycleHub = createLifecycleHub(currentOptions, structureSetup);
+  const scrollbarsSetup: ScrollbarsSetup = createScrollbarsSetup(target, structureSetup);
+  const lifecycleHub = createLifecycleHub(currentOptions, structureSetup, scrollbarsSetup);
+
   const instance: OverlayScrollbars = {
     options(newOptions?: PartialOptions<OSOptions>) {
       if (newOptions) {
@@ -47,6 +51,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     update(force?: boolean) {
       lifecycleHub._update(null, force);
     },
+    destroy: () => lifecycleHub._destroy(),
   };
 
   instance.update(true);

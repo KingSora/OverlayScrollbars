@@ -17,3 +17,9 @@ export const classNameSizeObserverListenerItem = `${classNameSizeObserverListene
 export const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
 
 export const classNameTrinsicObserver = 'os-trinsic-observer';
+
+export const classNameScrollbar = 'os-scrollbar';
+export const classNameScrollbarHorizontal = `${classNameScrollbar}-horizontal`;
+export const classNameScrollbarVertical = `${classNameScrollbar}-vertical`;
+export const classNameScrollbarTrack = 'os-scrollbar-track';
+export const classNameScrollbarHandle = 'os-scrollbar-handle';

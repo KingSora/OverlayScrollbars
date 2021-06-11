@@ -32,7 +32,7 @@ export function isBoolean(obj: any): obj is boolean {
   return typeof obj === 'boolean';
 }
 
-export function isFunction(obj: any): obj is (...args: Array<unknown>) => unknown {
+export function isFunction(obj: any): obj is (...args: any[]) => any {
   return typeof obj === 'function';
 }
 

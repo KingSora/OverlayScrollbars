@@ -7,6 +7,7 @@ import { createTrinsicLifecycle } from 'lifecycles/trinsicLifecycle';
 import { createPaddingLifecycle } from 'lifecycles/paddingLifecycle';
 import { createOverflowLifecycle } from 'lifecycles/overflowLifecycle';
 import { StyleObject } from 'typings';
+import { ScrollbarsSetup } from 'setups/scrollbarsSetup';
 
 export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
 
@@ -99,7 +100,7 @@ const lifecycleCommunicationFallback: LifecycleCommunication = {
   },
 };
 
-export const createLifecycleHub = (options: OSOptions, structureSetup: StructureSetup): LifecycleHubInstance => {
+export const createLifecycleHub = (options: OSOptions, structureSetup: StructureSetup, scrollbarsSetup: ScrollbarsSetup): LifecycleHubInstance => {
   let lifecycleCommunication = lifecycleCommunicationFallback;
   const { _viewport } = structureSetup._targetObj;
   const {
@@ -201,6 +202,9 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
     _destroy() {
       destroyObservers();
       removeEnvironmentListener(envUpdateListener);
+
+      structureSetup._destroy();
+      scrollbarsSetup._destroy();
     },
   };
 };
