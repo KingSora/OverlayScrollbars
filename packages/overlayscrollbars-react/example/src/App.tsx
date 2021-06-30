@@ -1,7 +1,7 @@
 import './App.css';
 import React, { RefObject } from 'react';
 import OverlayScrollbars from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import { OverlayScrollbarsComponent, OverlayScrollbarsComponentHandle } from 'overlayscrollbars-react';
 
 export interface AppState {
     loremList: Array<string>;
@@ -17,13 +17,13 @@ export default class App extends React.Component<any, AppState> {
     loremIpsumLong: string = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.';
     loremIpsumMedium: string = 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.';
     loremIpsumShort: string = 'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.';
-    osComponentRef1: RefObject<OverlayScrollbarsComponent>;
-    osComponentRef2: RefObject<OverlayScrollbarsComponent>;
+    osComponentRef1: RefObject<OverlayScrollbarsComponentHandle>;
+    osComponentRef2: RefObject<OverlayScrollbarsComponentHandle>;
 
     constructor(props: any) {
         super(props);
-        this.osComponentRef1 = React.createRef<OverlayScrollbarsComponent>();
-        this.osComponentRef2 = React.createRef<OverlayScrollbarsComponent>();
+        this.osComponentRef1 = React.createRef<OverlayScrollbarsComponentHandle>();
+        this.osComponentRef2 = React.createRef<OverlayScrollbarsComponentHandle>();
         this.state = {
             hasCustomClassName: false,
             componentContent: 'Lorem Ipsum',
@@ -46,7 +46,7 @@ export default class App extends React.Component<any, AppState> {
         console.log(this.osComponentRef2.current);
     }
 
-    onBtnScrollRandom(event: React.MouseEvent<HTMLButtonElement, MouseEvent>, refArray: Array<RefObject<OverlayScrollbarsComponent>>) {
+    onBtnScrollRandom(event: React.MouseEvent<HTMLButtonElement, MouseEvent>, refArray: Array<RefObject<OverlayScrollbarsComponentHandle>>) {
         if (refArray) {
             for (let i = 0; i < refArray.length; i++) {
                 if (refArray[i] && refArray[i].current) {
