@@ -58,7 +58,7 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const hostSelector = '.host';
 const ignorePrefix = 'ignore';
 const attrs = ['id', 'class', 'style', 'open'];
-const contentChangeArr: Array<[string, string]> = [['img', 'load']];
+const contentChangeArr: Array<[string?, string?, boolean?]> = [['img', 'load', true]];
 const domTargetObserverObservations: DOMTargetObserverResult[] = [];
 const domContentObserverObservations: DOMContentObserverResult[] = [];
 
@@ -106,7 +106,7 @@ const targetDomObserver = createDOMObserver(
   }
 );
 
-const createContentDomOserver = (eventContentChange: Array<[string | null | undefined, string | null | undefined] | null | undefined>) => {
+const createContentDomOserver = (eventContentChange: Array<[string?, string?, boolean?] | null | undefined>) => {
   return createDOMObserver(
     trargetContentElm!,
     true,
@@ -344,7 +344,10 @@ const addRemoveTargetContentBetweenElmsFn = async () => {
 const addRemoveImgElmsFn = async () => {
   const add = async () => {
     const img = new Image(1, 1);
-    img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+    img.src = 'www.something.com/something/sometest';
+    setTimeout(() => {
+      img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+    }, 250);
 
     const { before, after, compare } = changedThrough(domContentObserverObservations);
     const imgHolder = createDiv('img');
@@ -380,7 +383,10 @@ const addRemoveImgElmsFn = async () => {
     const { before, after, compare } = changedThrough(domContentObserverObservations);
     const genImage = () => {
       const img = new Image(1, 1);
-      img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+      img.src = 'www.something.com/something/sometest';
+      setTimeout(() => {
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+      }, 250);
 
       const imgHolder = createDiv('img');
       appendChildren(imgHolder, img);
@@ -418,7 +424,7 @@ const addRemoveImgElmsFn = async () => {
   await addMultiple();
 
   // remove load event from image test
-  const addChanged = async (newEventContentChange: Array<[string | null | undefined, string | null | undefined] | null | undefined>) => {
+  const addChanged = async (newEventContentChange: Array<[string?, string?, boolean?] | null | undefined>) => {
     contentDomObserver._destroy();
     contentDomObserver = createContentDomOserver(newEventContentChange);
 
@@ -443,16 +449,7 @@ const addRemoveImgElmsFn = async () => {
     contentDomObserver = createContentDomOserver(contentChangeArr);
   };
 
-  await addChanged([
-    ['img', 'something'],
-    ['img', 'something2'],
-    ['img', null],
-    ['img', undefined],
-    [null, null],
-    [undefined, undefined],
-    null,
-    undefined,
-  ]);
+  await addChanged([['img', 'something'], ['img', 'something2'], ['img', ''], ['img', undefined], ['', ''], [undefined, undefined], null, undefined]);
   await addChanged([]);
 
   removeElements(document.querySelectorAll('.img'));
@@ -632,6 +629,7 @@ const start = async () => {
 
   await addRemoveImgElmsFn();
 
+  /*
   targetDomObserver._update();
   targetDomObserver._destroy();
   targetDomObserver._destroy();
@@ -641,7 +639,7 @@ const start = async () => {
   contentDomObserver._destroy();
   contentDomObserver._destroy();
   contentDomObserver._update();
-
+*/
   setTestResult(true);
 };
 

@@ -1,5 +1,5 @@
 import { each, hasOwnProperty, keys, push, isEmptyObject } from 'support/utils';
-import { type, isArray, isUndefined, isPlainObject, isString } from 'support/utils/types';
+import { type, isArray, isUndefined, isPlainObject, isString, isNumber, isBoolean } from 'support/utils/types';
 import { PlainObject } from 'typings';
 
 export type OptionsObjectType = Record<string, unknown>;
@@ -163,7 +163,8 @@ const validateRecursive = <T extends PlainObject>(
       });
 
       if (isValid) {
-        const doStringifyComparison = isArray(optionsValue) || isPlainObject(optionsValue);
+        const isPrimitiveArr = isArray(optionsValue) && !optionsValue.some((val) => !isNumber(val) && !isString(val) && !isBoolean(val));
+        const doStringifyComparison = isPrimitiveArr || isPlainObject(optionsValue);
         if (doStringifyComparison ? stringify(optionsValue) !== stringify(optionsDiffValue) : optionsValue !== optionsDiffValue) {
           validatedOptions[prop] = optionsValue;
         }

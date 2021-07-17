@@ -1,21 +1,4 @@
-import {
-  each,
-  noop,
-  debounce,
-  indexOf,
-  isString,
-  MutationObserverConstructor,
-  isEmptyArray,
-  on,
-  off,
-  attr,
-  is,
-  find,
-  push,
-  isUndefined,
-} from 'support';
-
-type StringNullUndefined = string | null | undefined;
+import { each, noop, debounce, indexOf, isString, MutationObserverConstructor, isEmptyArray, on, attr, is, find, push } from 'support';
 
 type DOMContentObserverCallback = (contentChangedTroughEvent: boolean) => any;
 
@@ -37,7 +20,7 @@ interface DOMTargetObserverOptions extends DOMObserverOptionsBase {
   _ignoreTargetChange?: DOMObserverIgnoreTargetChange; // a function which will prevent marking certain attributes as changed if it returns true
 }
 
-type ContentChangeArrayItem = [StringNullUndefined, StringNullUndefined] | null | undefined;
+type ContentChangeArrayItem = [string?, string?, boolean?] | null | undefined;
 
 export type DOMObserverEventContentChange = Array<ContentChangeArrayItem> | false | null | undefined;
 
@@ -74,25 +57,28 @@ export interface DOMObserver {
  * @returns A object which contains a set of helper functions to destroy and update the observation of elements.
  */
 const createEventContentChange = (target: Element, eventContentChange: DOMObserverEventContentChange, callback: (...args: any) => any) => {
-  let map: Map<Node, string> | undefined;
+  let eventSet: Set<() => any> | undefined;
+  let onceSet: WeakMap<Node, 0> | undefined; // use WeakMap instead of WeakSet because of IE11 support
+  let destroyed = false;
   const _destroy = () => {
-    if (map) {
-      map.forEach((eventName: string, elm: Node) => {
-        off(elm, eventName, callback);
+    destroyed = true;
+    if (eventSet) {
+      eventSet.forEach((offFn) => {
+        offFn();
       });
-      map.clear();
+      eventSet.clear();
     }
   };
   const _updateElements = (getElements?: (selector: string) => Node[]) => {
-    if (map && eventContentChange) {
-      const eventElmList = eventContentChange.reduce<Array<[Node[], string]>>((arr, item) => {
+    if (eventSet && onceSet && eventContentChange) {
+      const eventElmList = eventContentChange.reduce<Array<[Node[], string, boolean]>>((arr, item) => {
         if (item) {
           const selector = item[0];
           const eventNames = item[1];
           const elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
 
           if (elements && elements.length && eventNames && isString(eventNames)) {
-            push(arr, [elements, eventNames.trim()], true);
+            push(arr, [elements, eventNames.trim(), !!item[2]], true);
           }
         }
         return arr;
@@ -101,25 +87,31 @@ const createEventContentChange = (target: Element, eventContentChange: DOMObserv
       each(eventElmList, (item) =>
         each(item[0], (elm) => {
           const eventNames = item[1];
-          const registredEventNames = map!.get(elm);
-          const newEntry = isUndefined(registredEventNames);
-          const changingExistingEntry = !newEntry && eventNames !== registredEventNames;
-          const finalEventNames = changingExistingEntry ? `${registredEventNames} ${eventNames}` : eventNames;
+          const once = item[2];
 
-          if (changingExistingEntry) {
-            off(elm, registredEventNames!, callback);
+          if (once && !onceSet!.has(elm)) {
+            onceSet!.set(elm, 0);
+            on(
+              elm,
+              eventNames,
+              (event) => {
+                if (!destroyed) {
+                  callback(event);
+                }
+              },
+              { _once: once }
+            );
+          } else {
+            eventSet!.add(on(elm, eventNames, callback));
           }
-
-          map!.set(elm, finalEventNames);
-          on(elm, finalEventNames, callback);
         })
       );
     }
   };
 
   if (eventContentChange) {
-    map = map || new Map<Node, string>();
-    _destroy();
+    eventSet = eventSet || new Set();
+    onceSet = onceSet || new WeakMap();
     _updateElements();
   }
 
