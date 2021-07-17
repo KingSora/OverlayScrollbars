@@ -629,7 +629,6 @@ const start = async () => {
 
   await addRemoveImgElmsFn();
 
-  /*
   targetDomObserver._update();
   targetDomObserver._destroy();
   targetDomObserver._destroy();
@@ -639,7 +638,7 @@ const start = async () => {
   contentDomObserver._destroy();
   contentDomObserver._destroy();
   contentDomObserver._update();
-*/
+
   setTestResult(true);
 };
 
