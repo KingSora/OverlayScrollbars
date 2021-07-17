@@ -15,6 +15,7 @@ const browserSetupAfterEnvFile = path.resolve(__dirname, './config/jest-browser.
 const base = {
   clearMocks: true,
   coverageDirectory: './.coverage/jsdom',
+  testEnvironment: 'jsdom',
   moduleDirectories: resolve.directories,
   moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),
   testPathIgnorePatterns: ['\\\\node_modules\\\\'],

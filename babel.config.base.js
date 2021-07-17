@@ -5,13 +5,17 @@ module.exports = function (api) {
 
   if (isRollup) {
     return {
-      plugins: ['@babel/plugin-transform-runtime', '@babel/plugin-proposal-class-properties'],
+      plugins: [
+        '@babel/plugin-transform-runtime',
+        '@babel/plugin-proposal-class-properties',
+        ['@babel/plugin-proposal-private-methods', { loose: false }],
+      ],
     };
   }
 
   if (isJest) {
     return {
-      plugins: ['@babel/plugin-transform-modules-commonjs'],
+      plugins: ['@babel/plugin-transform-modules-commonjs', ['@babel/plugin-proposal-private-methods', { loose: false }]],
       presets: [
         [
           '@babel/preset-env',
