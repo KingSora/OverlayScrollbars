@@ -34,7 +34,7 @@ export interface OSOptions {
   resize: ResizeBehavior;
   paddingAbsolute: boolean;
   updating: {
-    elementEvents: Array<[string, string, boolean?]> | null;
+    elementEvents: Array<[string, string]> | null;
     attributes: string[] | null;
     debounce: number | [number, number] | null;
   };
@@ -137,7 +137,7 @@ const defaultOptionsWithTemplate: OptionsWithOptionsTemplate<OSOptions> = {
   resize: ['none', resizeAllowedValues], // none || both  || horizontal || vertical || n || b || h || v
   paddingAbsolute: booleanFalseTemplate, // true || false
   updating: {
-    elementEvents: [[['img', 'load', true]], arrayNullValues], // array of tuples || null
+    elementEvents: [[['img', 'load']], arrayNullValues], // array of tuples || null
     attributes: [null, arrayNullValues],
     debounce: [
       [0, 33],

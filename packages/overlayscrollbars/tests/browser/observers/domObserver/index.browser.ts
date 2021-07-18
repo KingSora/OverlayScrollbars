@@ -58,7 +58,7 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const hostSelector = '.host';
 const ignorePrefix = 'ignore';
 const attrs = ['id', 'class', 'style', 'open'];
-const contentChangeArr: Array<[string?, string?, boolean?]> = [['img', 'load', true]];
+const contentChange: Array<[string?, string?]> = [['img', 'load']];
 const domTargetObserverObservations: DOMTargetObserverResult[] = [];
 const domContentObserverObservations: DOMContentObserverResult[] = [];
 
@@ -106,7 +106,7 @@ const targetDomObserver = createDOMObserver(
   }
 );
 
-const createContentDomOserver = (eventContentChange: Array<[string?, string?, boolean?] | null | undefined>) => {
+const createContentDomOserver = (eventContentChange: Array<[string?, string?] | null | undefined>) => {
   return createDOMObserver(
     trargetContentElm!,
     true,
@@ -147,7 +147,7 @@ const createContentDomOserver = (eventContentChange: Array<[string?, string?, bo
   );
 };
 
-let contentDomObserver = createContentDomOserver(contentChangeArr);
+let contentDomObserver = createContentDomOserver(contentChange);
 
 const getTotalObservations = () => domTargetObserverObservations.length + domContentObserverObservations.length;
 const getLast = <T>(arr: T[], indexFromLast = 0): T => arr[arr.length - 1 - indexFromLast] || ({} as T);
@@ -424,7 +424,7 @@ const addRemoveImgElmsFn = async () => {
   await addMultiple();
 
   // remove load event from image test
-  const addChanged = async (newEventContentChange: Array<[string?, string?, boolean?] | null | undefined>) => {
+  const addChanged = async (newEventContentChange: Array<[string?, string?] | null | undefined>) => {
     contentDomObserver._destroy();
     contentDomObserver = createContentDomOserver(newEventContentChange);
 
@@ -446,7 +446,7 @@ const addRemoveImgElmsFn = async () => {
     });
 
     contentDomObserver._destroy();
-    contentDomObserver = createContentDomOserver(contentChangeArr);
+    contentDomObserver = createContentDomOserver(contentChange);
   };
 
   await addChanged([['img', 'something'], ['img', 'something2'], ['img', ''], ['img', undefined], ['', ''], [undefined, undefined], null, undefined]);
@@ -512,7 +512,7 @@ const addRemoveTransitionElmsFn = async () => {
 
     await startTransition(elm, expectTransitionEndContentChange && true);
     contentDomObserver._destroy();
-    contentDomObserver = createContentDomOserver(contentChangeArr);
+    contentDomObserver = createContentDomOserver(contentChange);
     await startTransition(elm, expectTransitionEndContentChange && false);
 
     removeElements(elm);
@@ -523,7 +523,7 @@ const addRemoveTransitionElmsFn = async () => {
   await add(false);
 
   contentDomObserver._destroy();
-  contentDomObserver = createContentDomOserver(contentChangeArr.concat([['.transition', 'transitionend']]));
+  contentDomObserver = createContentDomOserver(contentChange.concat([['.transition', 'transitionend']]));
 
   await add(true);
 };

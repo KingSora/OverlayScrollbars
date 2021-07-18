@@ -20,7 +20,7 @@ interface DOMTargetObserverOptions extends DOMObserverOptionsBase {
   _ignoreTargetChange?: DOMObserverIgnoreTargetChange; // a function which will prevent marking certain attributes as changed if it returns true
 }
 
-type ContentChangeArrayItem = [string?, string?, boolean?] | null | undefined;
+type ContentChangeArrayItem = [string?, string?] | null | undefined;
 
 export type DOMObserverEventContentChange = Array<ContentChangeArrayItem> | false | null | undefined;
 
@@ -56,29 +56,22 @@ export interface DOMObserver {
  * @param callback Callback which is called if one of the elements emits the corresponding event.
  * @returns A object which contains a set of helper functions to destroy and update the observation of elements.
  */
-const createEventContentChange = (target: Element, eventContentChange: DOMObserverEventContentChange, callback: (...args: any) => any) => {
-  let eventSet: Set<() => any> | undefined;
-  let onceSet: WeakMap<Node, 0> | undefined; // use WeakMap instead of WeakSet because of IE11 support
+const createEventContentChange = (target: Element, callback: (...args: any) => any, eventContentChange?: DOMObserverEventContentChange) => {
+  let map: WeakMap<Node, [string, () => any]> | undefined; // weak map to prevent memory leak for detached elements
   let destroyed = false;
   const _destroy = () => {
     destroyed = true;
-    if (eventSet) {
-      eventSet.forEach((offFn) => {
-        offFn();
-      });
-      eventSet.clear();
-    }
   };
   const _updateElements = (getElements?: (selector: string) => Node[]) => {
-    if (eventSet && onceSet && eventContentChange) {
-      const eventElmList = eventContentChange.reduce<Array<[Node[], string, boolean]>>((arr, item) => {
+    if (eventContentChange) {
+      const eventElmList = eventContentChange.reduce<Array<[Node[], string]>>((arr, item) => {
         if (item) {
           const selector = item[0];
           const eventNames = item[1];
           const elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
 
           if (elements && elements.length && eventNames && isString(eventNames)) {
-            push(arr, [elements, eventNames.trim(), !!item[2]], true);
+            push(arr, [elements, eventNames.trim()], true);
           }
         }
         return arr;
@@ -87,31 +80,34 @@ const createEventContentChange = (target: Element, eventContentChange: DOMObserv
       each(eventElmList, (item) =>
         each(item[0], (elm) => {
           const eventNames = item[1];
-          const once = item[2];
+          const entry = map!.get(elm);
 
-          if (once && !onceSet!.has(elm)) {
-            onceSet!.set(elm, 0);
-            on(
-              elm,
-              eventNames,
-              (event) => {
-                if (!destroyed) {
-                  callback(event);
-                }
-              },
-              { _once: once }
-            );
-          } else {
-            eventSet!.add(on(elm, eventNames, callback));
+          if (entry) {
+            const entryEventNames = entry[0];
+            const entryOff = entry[1];
+
+            // in case an already registered element is registered again, unregister the previous events
+            if (entryEventNames === eventNames) {
+              entryOff();
+            }
           }
+
+          const off = on(elm, eventNames, (event: Event) => {
+            if (destroyed) {
+              off();
+              map!.delete(elm);
+            } else {
+              callback(event);
+            }
+          });
+          map!.set(elm, [eventNames, off]);
         })
       );
     }
   };
 
   if (eventContentChange) {
-    eventSet = eventSet || new Set();
-    onceSet = onceSet || new WeakMap();
+    map = new WeakMap();
     _updateElements();
   }
 
@@ -147,7 +143,6 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   } = (options as DOMContentObserverOptions & DOMTargetObserverOptions) || {};
   const { _destroy: destroyEventContentChange, _updateElements: updateEventContentChangeElements } = createEventContentChange(
     target,
-    isContentObserver && _eventContentChange,
     debounce(
       () => {
         if (isConnected) {
@@ -155,7 +150,8 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         }
       },
       { _timeout: 33, _maxDelay: 99 }
-    )
+    ),
+    _eventContentChange
   );
 
   // MutationObserver
