@@ -2624,7 +2624,9 @@
 
                             if (_isTextarea)
                                 _textareaCoverElement.css(textareaCoverCSS);
-                            _contentGlueElement.css(contentGlueElementCSS);
+                            _contentGlueElement.css({
+                                width: contentGlueElementCSS.width
+                            });
                         }
                         if (widthAuto)
                             contentElementCSS[_strWidth] = _strHundredPercent;
