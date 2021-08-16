@@ -355,14 +355,14 @@ Take the table below only as a overview of all options.
         <td>dynWidth</td>
         <td>boolean</td>
         <td><code>false</code></td>
-        <td>Indiactes whether the textarea width will be dynamic (content dependent).</td>
+        <td>Indicates whether the textarea width will be dynamic (content dependent).</td>
     </tr>
     <tr>
         <td></td>
         <td>dynHeight</td>
         <td>boolean</td>
         <td><code>false</code></td>
-        <td>Indiactes whether the textarea height will be dynamic (content dependent).</td>
+        <td>Indicates whether the textarea height will be dynamic (content dependent).</td>
     </tr>
     <tr>
         <td></td>
