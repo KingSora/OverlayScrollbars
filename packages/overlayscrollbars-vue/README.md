@@ -96,7 +96,7 @@ After the registration you can use it in templates like:
 ```html
 <!-- PascalCase -->
 <OverlayScrollbars>example content</OverlayScrollbars>
-<!-- kebab case -->
+<!-- kebab-case -->
 <overlay-scrollbars>example content</overlay-scrollbars>
 ```
 
