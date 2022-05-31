@@ -1,20 +1,14 @@
 import "overlayscrollbars/css/OverlayScrollbars.css";
-import './styles.css';
-import Vue from 'vue';
-import App from './App.vue';
-import OverlayScrollbars from 'overlayscrollbars';
-import { OverlayScrollbarsPlugin } from "overlayscrollbars-vue";
+import { createApp } from "vue";
+import OverlayScrollbars from "overlayscrollbars";
+import App from "./App.vue";
 
-Vue.config.productionTip = false
+const app = createApp(App);
 
-Vue.use(OverlayScrollbarsPlugin);
-
-new Vue({
-    render: h => h(App),
-}).$mount('#app')
+app.mount("#app");
 
 OverlayScrollbars(document.body, {
-    nativeScrollbarsOverlaid: {
-        initialize: false
-    }
+  nativeScrollbarsOverlaid: {
+    initialize: false,
+  },
 });

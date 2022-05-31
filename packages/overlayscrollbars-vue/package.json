@@ -1,6 +1,6 @@
 {
     "name": "overlayscrollbars-vue",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "description": "OverlayScrollbars wrapper for Vue.",
     "keywords": [
         "overlayscrollbars",
@@ -24,28 +24,30 @@
     "author": "KingSora | Rene Haas",
     "license": "MIT",
     "devDependencies": {
+        "@babel/core": "^7.15.8",
+        "@rollup/plugin-babel": "^5.3.0",
         "@types/overlayscrollbars": "^1.9.0",
+        "@vue/babel-plugin-jsx": "^1.1.1",
         "chalk": "^2.4.2",
         "gulp": "^4.0.2",
         "overlayscrollbars": "^1.11.0",
         "rollup": "^1.32.1",
         "rollup-plugin-commonjs": "^10.1.0",
         "rollup-plugin-node-resolve": "^5.2.0",
-        "rollup-plugin-typescript2": "^0.22.0",
-        "rollup-plugin-vue": "^5.1.6",
+        "rollup-plugin-typescript2": "^0.31.2",
+        "rollup-plugin-vue": "^6.0.0",
         "shelljs": "0.7.7",
-        "typescript": "^3.8.3",
-        "vue": "^2.6.11",
-        "vue-template-compiler": "^2.6.11"
+        "typescript": "^4.4.3",
+        "vue": "^3.0.0"
     },
     "peerDependencies": {
-        "vue": "^2.6.0",
+        "vue": "^3.0.0",
         "overlayscrollbars": "^1.10.0"
     },
     "scripts": {
         "setup": "npm i && cd example && npm i && cd ..",
         "build": "node build.js",
-        "example": "cd example && npm run serve",
+        "example": "cd example && npm run dev",
         "build-example": "cd example && npm run build",
         "test": "echo \"Error: no test specified\" && exit 1"
     }
