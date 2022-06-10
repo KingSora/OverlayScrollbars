@@ -36,23 +36,23 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
     if (paddingStyleChanged) {
       // if there is no padding element and no scrollbar styling, paddingAbsolute isn't supported
       const paddingRelative = !paddingAbsolute || (!_padding && !_nativeScrollbarStyling);
-      const paddingHorizontal = padding!.r + padding!.l;
-      const paddingVertical = padding!.t + padding!.b;
+      const paddingHorizontal = padding.r + padding.l;
+      const paddingVertical = padding.t + padding.b;
 
       const paddingStyle: StyleObject = {
         marginRight: paddingRelative && !directionIsRTL ? -paddingHorizontal : 0,
         marginBottom: paddingRelative ? -paddingVertical : 0,
         marginLeft: paddingRelative && directionIsRTL ? -paddingHorizontal : 0,
-        top: paddingRelative ? -padding!.t : 0,
-        right: paddingRelative ? (directionIsRTL ? -padding!.r : 'auto') : 0,
-        left: paddingRelative ? (directionIsRTL ? 'auto' : -padding!.l) : 0,
+        top: paddingRelative ? -padding.t : 0,
+        right: paddingRelative ? (directionIsRTL ? -padding.r : 'auto') : 0,
+        left: paddingRelative ? (directionIsRTL ? 'auto' : -padding.l) : 0,
         width: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
       };
       const viewportStyle: StyleObject = {
-        paddingTop: paddingRelative ? padding!.t : 0,
-        paddingRight: paddingRelative ? padding!.r : 0,
-        paddingBottom: paddingRelative ? padding!.b : 0,
-        paddingLeft: paddingRelative ? padding!.l : 0,
+        paddingTop: paddingRelative ? padding.t : 0,
+        paddingRight: paddingRelative ? padding.r : 0,
+        paddingBottom: paddingRelative ? padding.b : 0,
+        paddingLeft: paddingRelative ? padding.l : 0,
       };
 
       // if there is no padding element apply the style to the viewport element instead

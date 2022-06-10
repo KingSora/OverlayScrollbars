@@ -1,14 +1,12 @@
-import 'jest-playwright-preset';
-import 'expect-playwright';
+// @ts-ignore
+import { playwrightRollup } from '@/playwright/rollup';
+import { test } from '@playwright/test';
 import { Environment } from 'environment';
-import url from './.build/build.html';
 
-describe('Environment', () => {
-  beforeAll(async () => {
-    await page.goto(url);
-  });
+playwrightRollup();
 
-  test('page should be titled "Environment"', async () => {
+test.describe('Environment', () => {
+  test('page should be titled "Environment"', async ({ page }) => {
     // @ts-ignore
     const a: Environment = await page.evaluate(() => window.environment.envInstance);
     console.log(a);

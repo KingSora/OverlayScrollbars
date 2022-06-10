@@ -192,8 +192,8 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       ? style(_viewport, ['overflowX', 'overflowY'])
       : viewportStyleObj;
     const scroll = {
-      x: styleObj!.overflowX === 'scroll',
-      y: styleObj!.overflowY === 'scroll',
+      x: styleObj.overflowX === 'scroll',
+      y: styleObj.overflowY === 'scroll',
     };
     const scrollbarsHideOffset = {
       x:
@@ -236,13 +236,13 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
   ): ViewportOverflowState => {
     const { _visible: xVisible, _behavior: xVisibleBehavior } = setAxisOverflowStyle(
       true,
-      overflowAmount!.w,
+      overflowAmount.w,
       overflow.x,
       viewportStyleObj
     );
     const { _visible: yVisible, _behavior: yVisibleBehavior } = setAxisOverflowStyle(
       false,
-      overflowAmount!.h,
+      overflowAmount.h,
       overflow.y,
       viewportStyleObj
     );
@@ -524,12 +524,12 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       overflowAmuntCache = updateOverflowAmountCache(force, {
         _viewportSizeFraction: viewportSizeFraction!,
         _viewportScrollSize: {
-          w: max(viewportScrollSize!.w, arrangedViewportScrollSize.w),
-          h: max(viewportScrollSize!.h, arrangedViewportScrollSize.h),
+          w: max(viewportScrollSize.w, arrangedViewportScrollSize.w),
+          h: max(viewportScrollSize.h, arrangedViewportScrollSize.h),
         },
         _viewportClientSize: {
-          w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - viewportScrollSize!.w),
-          h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - viewportScrollSize!.h),
+          w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - viewportScrollSize.w),
+          h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - viewportScrollSize.h),
         },
       });
     }
