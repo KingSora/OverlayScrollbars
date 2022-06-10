@@ -1,5 +1,9 @@
 const createCache = (update, options) => {
-  const { _equal, _initialValue, _alwaysUpdateValues } = options || {};
+  const {
+    _initialValue,
+    _equal,
+    _alwaysUpdateValues
+  } = options || {};
   let _value = _initialValue;
 
   let _previous;
@@ -14,38 +18,25 @@ const createCache = (update, options) => {
       _previous = curr;
     }
 
-    return {
-      _value,
-      _previous,
-      _changed: changed,
-    };
+    return [_value, changed, _previous];
   };
 
-  return {
-    _update: cacheUpdate,
-    _current: (force) => ({
-      _value,
-      _previous,
-      _changed: !!force,
-    }),
-  };
+  return [cacheUpdate, force => [_value, !!force, _previous]];
 };
 
 const ElementNodeType = Node.ELEMENT_NODE;
-const { toString, hasOwnProperty } = Object.prototype;
+const {
+  toString,
+  hasOwnProperty: hasOwnProperty$1
+} = Object.prototype;
 function isUndefined(obj) {
   return obj === undefined;
 }
 function isNull(obj) {
   return obj === null;
 }
-const type = (obj) => {
-  return isUndefined(obj) || isNull(obj)
-    ? `${obj}`
-    : toString
-        .call(obj)
-        .replace(/^\[object (.+)\]$/, '$1')
-        .toLowerCase();
+const type = obj => {
+  return isUndefined(obj) || isNull(obj) ? `${obj}` : toString.call(obj).replace(/^\[object (.+)\]$/, '$1').toLowerCase();
 };
 function isNumber(obj) {
   return typeof obj === 'number';
@@ -68,7 +59,7 @@ function isObject(obj) {
 function isArrayLike(obj) {
   const length = !!obj && obj.length;
   const lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0;
-  return isArray(obj) || (!isFunction(obj) && lengthCorrectFormat) ? (length > 0 && isObject(obj) ? length - 1 in obj : true) : false;
+  return isArray(obj) || !isFunction(obj) && lengthCorrectFormat ? length > 0 && isObject(obj) ? length - 1 in obj : true : false;
 }
 function isPlainObject(obj) {
   if (!obj || !isObject(obj) || type(obj) !== 'object') return false;
@@ -76,25 +67,24 @@ function isPlainObject(obj) {
   const cstr = 'constructor';
   const ctor = obj[cstr];
   const ctorProto = ctor && ctor.prototype;
-  const hasOwnConstructor = hasOwnProperty.call(obj, cstr);
-  const hasIsPrototypeOf = ctorProto && hasOwnProperty.call(ctorProto, 'isPrototypeOf');
+  const hasOwnConstructor = hasOwnProperty$1.call(obj, cstr);
+  const hasIsPrototypeOf = ctorProto && hasOwnProperty$1.call(ctorProto, 'isPrototypeOf');
 
   if (ctor && !hasOwnConstructor && !hasIsPrototypeOf) {
     return false;
   }
 
-  for (key in obj) {
-  }
+  for (key in obj) {}
 
-  return isUndefined(key) || hasOwnProperty.call(obj, key);
+  return isUndefined(key) || hasOwnProperty$1.call(obj, key);
 }
 function isHTMLElement(obj) {
   const instanceofObj = window.HTMLElement;
-  return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
+  return obj ? instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType : false;
 }
 function isElement(obj) {
   const instanceofObj = window.Element;
-  return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
+  return obj ? instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType : false;
 }
 
 function each(source, callback) {
@@ -105,7 +95,7 @@ function each(source, callback) {
       }
     }
   } else if (source) {
-    each(Object.keys(source), (key) => callback(source[key], key, source));
+    each(Object.keys(source), key => callback(source[key], key, source));
   }
 
   return source;
@@ -115,20 +105,20 @@ const push = (array, items, arrayIsSingleItem) => {
   !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
   return array;
 };
-const from = (arr) => {
+const from = arr => {
   if (Array.from) {
     return Array.from(arr);
   }
 
   const result = [];
-  each(arr, (elm) => {
+  each(arr, elm => {
     push(result, elm);
   });
   return result;
 };
-const isEmptyArray = (array) => array && array.length === 0;
+const isEmptyArray = array => array && array.length === 0;
 const runEach = (arr, p1) => {
-  const runFn = (fn) => fn && fn(p1);
+  const runFn = fn => fn && fn(p1);
 
   if (arr instanceof Set) {
     arr.forEach(runFn);
@@ -137,8 +127,8 @@ const runEach = (arr, p1) => {
   }
 };
 
-const hasOwnProperty$1 = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
-const keys = (obj) => (obj ? Object.keys(obj) : []);
+const hasOwnProperty = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+const keys = obj => obj ? Object.keys(obj) : [];
 function assignDeep(target, object1, object2, object3, object4, object5, object6) {
   const sources = [object1, object2, object3, object4, object5, object6];
 
@@ -146,8 +136,8 @@ function assignDeep(target, object1, object2, object3, object4, object5, object6
     target = {};
   }
 
-  each(sources, (source) => {
-    each(keys(source), (key) => {
+  each(sources, source => {
+    each(keys(source), key => {
       const copy = source[key];
 
       if (target === copy) {
@@ -209,7 +199,7 @@ const elmPrototype = Element.prototype;
 
 const find = (selector, elm) => {
   const arr = [];
-  const rootElm = elm ? (isElement(elm) ? elm : null) : document;
+  const rootElm = elm ? isElement(elm) ? elm : null : document;
   return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
 };
 
@@ -222,9 +212,9 @@ const is = (elm, selector) => {
   return false;
 };
 
-const contents = (elm) => (elm ? from(elm.childNodes) : []);
+const contents = elm => elm ? from(elm.childNodes) : [];
 
-const parent = (elm) => (elm ? elm.parentElement : null);
+const parent = elm => elm ? elm.parentElement : null;
 
 const before = (parentElm, preferredAnchor, insertedElms) => {
   if (insertedElms) {
@@ -234,7 +224,7 @@ const before = (parentElm, preferredAnchor, insertedElms) => {
     if (parentElm) {
       if (isArrayLike(insertedElms)) {
         fragment = document.createDocumentFragment();
-        each(insertedElms, (insertedElm) => {
+        each(insertedElms, insertedElm => {
           if (insertedElm === anchor) {
             anchor = insertedElm.previousSibling;
           }
@@ -270,9 +260,9 @@ const insertBefore = (node, insertedNodes) => {
 const insertAfter = (node, insertedNodes) => {
   before(parent(node), node && node.nextSibling, insertedNodes);
 };
-const removeElements = (nodes) => {
+const removeElements = nodes => {
   if (isArrayLike(nodes)) {
-    each(from(nodes), (e) => removeElements(e));
+    each(from(nodes), e => removeElements(e));
   } else if (nodes) {
     const parentElm = parent(nodes);
 
@@ -282,7 +272,7 @@ const removeElements = (nodes) => {
   }
 };
 
-const createDiv = (classNames) => {
+const createDiv = classNames => {
   const div = document.createElement('div');
 
   if (classNames) {
@@ -291,13 +281,13 @@ const createDiv = (classNames) => {
 
   return div;
 };
-const createDOM = (html) => {
+const createDOM = html => {
   const createdDiv = createDiv();
   createdDiv.innerHTML = html.trim();
-  return each(contents(createdDiv), (elm) => removeElements(elm));
+  return each(contents(createdDiv), elm => removeElements(elm));
 };
 
-const firstLetterToUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+const firstLetterToUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 const getDummyStyle = () => createDiv().style;
 
@@ -305,30 +295,30 @@ const cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
 const jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
 const jsCache = {};
 const cssCache = {};
-const cssProperty = (name) => {
+const cssProperty = name => {
   let result = cssCache[name];
 
-  if (hasOwnProperty$1(cssCache, name)) {
+  if (hasOwnProperty(cssCache, name)) {
     return result;
   }
 
   const uppercasedName = firstLetterToUpper(name);
   const elmStyle = getDummyStyle();
-  each(cssPrefixes, (prefix) => {
+  each(cssPrefixes, prefix => {
     const prefixWithoutDashes = prefix.replace(/-/g, '');
     const resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
-    return !(result = resultPossibilities.find((resultPossibility) => elmStyle[resultPossibility] !== undefined));
+    return !(result = resultPossibilities.find(resultPossibility => elmStyle[resultPossibility] !== undefined));
   });
-  return (cssCache[name] = result || '');
+  return cssCache[name] = result || '';
 };
-const jsAPI = (name) => {
+const jsAPI = name => {
   let result = jsCache[name] || window[name];
 
-  if (hasOwnProperty$1(jsCache, name)) {
+  if (hasOwnProperty(jsCache, name)) {
     return result;
   }
 
-  each(jsPrefixes, (prefix) => {
+  each(jsPrefixes, prefix => {
     result = result || window[prefix + firstLetterToUpper(name)];
     return !result;
   });
@@ -353,7 +343,7 @@ const classListAction = (elm, className, action) => {
     const classes = className.match(rnothtmlwhite) || [];
     result = classes.length > 0;
 
-    while ((clazz = classes[i++])) {
+    while (clazz = classes[i++]) {
       result = !!action(elm.classList, clazz) && result;
     }
   }
@@ -370,10 +360,10 @@ const diffClass = (classNameA, classNameB) => {
   const classNameASplit = classNameA && classNameA.split(' ');
   const classNameBSplit = classNameB && classNameB.split(' ');
   const tempObj = {};
-  each(classNameASplit, (className) => {
+  each(classNameASplit, className => {
     tempObj[className] = 1;
   });
-  each(classNameBSplit, (className) => {
+  each(classNameBSplit, className => {
     if (tempObj[className]) {
       delete tempObj[className];
     } else {
@@ -383,36 +373,27 @@ const diffClass = (classNameA, classNameB) => {
   return keys(tempObj);
 };
 
-const zeroObj = {
+const zeroObj$1 = {
   w: 0,
-  h: 0,
+  h: 0
 };
 const windowSize = () => ({
   w: window.innerWidth,
-  h: window.innerHeight,
+  h: window.innerHeight
 });
-const offsetSize = (elm) =>
-  elm
-    ? {
-        w: elm.offsetWidth,
-        h: elm.offsetHeight,
-      }
-    : zeroObj;
-const clientSize = (elm) =>
-  elm
-    ? {
-        w: elm.clientWidth,
-        h: elm.clientHeight,
-      }
-    : zeroObj;
-const scrollSize = (elm) =>
-  elm
-    ? {
-        w: elm.scrollWidth,
-        h: elm.scrollHeight,
-      }
-    : zeroObj;
-const getBoundingClientRect = (elm) => elm.getBoundingClientRect();
+const offsetSize = elm => elm ? {
+  w: elm.offsetWidth,
+  h: elm.offsetHeight
+} : zeroObj$1;
+const clientSize = elm => elm ? {
+  w: elm.clientWidth,
+  h: elm.clientHeight
+} : zeroObj$1;
+const scrollSize = elm => elm ? {
+  w: elm.scrollWidth,
+  h: elm.scrollHeight
+} : zeroObj$1;
+const getBoundingClientRect = elm => elm.getBoundingClientRect();
 
 let passiveEventsSupport;
 
@@ -421,60 +402,52 @@ const supportPassiveEvents = () => {
     passiveEventsSupport = false;
 
     try {
-      window.addEventListener(
-        'test',
-        null,
-        Object.defineProperty({}, 'passive', {
-          get: function () {
-            passiveEventsSupport = true;
-          },
-        })
-      );
+      window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
+        get: function () {
+          passiveEventsSupport = true;
+        }
+      }));
     } catch (e) {}
   }
 
   return passiveEventsSupport;
 };
 
-const splitEventNames = (eventNames) => eventNames.split(' ');
+const splitEventNames = eventNames => eventNames.split(' ');
 
 const off = (target, eventNames, listener, capture) => {
-  each(splitEventNames(eventNames), (eventName) => {
+  each(splitEventNames(eventNames), eventName => {
     target.removeEventListener(eventName, listener, capture);
   });
 };
 const on = (target, eventNames, listener, options) => {
   const doSupportPassiveEvents = supportPassiveEvents();
-  const passive = (doSupportPassiveEvents && options && options._passive) || false;
-  const capture = (options && options._capture) || false;
-  const once = (options && options._once) || false;
+  const passive = doSupportPassiveEvents && options && options._passive || false;
+  const capture = options && options._capture || false;
+  const once = options && options._once || false;
   const offListeners = [];
-  const nativeOptions = doSupportPassiveEvents
-    ? {
-        passive,
-        capture,
-      }
-    : capture;
-  each(splitEventNames(eventNames), (eventName) => {
-    const finalListener = once
-      ? (evt) => {
-          target.removeEventListener(eventName, finalListener, capture);
-          listener && listener(evt);
-        }
-      : listener;
+  const nativeOptions = doSupportPassiveEvents ? {
+    passive,
+    capture
+  } : capture;
+  each(splitEventNames(eventNames), eventName => {
+    const finalListener = once ? evt => {
+      target.removeEventListener(eventName, finalListener, capture);
+      listener && listener(evt);
+    } : listener;
     push(offListeners, off.bind(null, target, eventName, finalListener, capture));
     target.addEventListener(eventName, finalListener, nativeOptions);
   });
   return runEach.bind(0, offListeners);
 };
-const stopPropagation = (evt) => evt.stopPropagation();
-const preventDefault = (evt) => evt.preventDefault();
-const stopAndPrevent = (evt) => stopPropagation(evt) || preventDefault(evt);
+const stopPropagation = evt => evt.stopPropagation();
+const preventDefault = evt => evt.preventDefault();
+const stopAndPrevent = evt => stopPropagation(evt) || preventDefault(evt);
 
 const equal = (a, b, props, propMutation) => {
   if (a && b) {
     let result = true;
-    each(props, (prop) => {
+    each(props, prop => {
       const compareA = propMutation ? propMutation(a[prop]) : a[prop];
       const compareB = propMutation ? propMutation(b[prop]) : b[prop];
 
@@ -489,11 +462,11 @@ const equal = (a, b, props, propMutation) => {
 };
 const equalWH = (a, b) => equal(a, b, ['w', 'h']);
 const equalTRBL = (a, b) => equal(a, b, ['t', 'r', 'b', 'l']);
-const equalBCRWH = (a, b, round) => equal(a, b, ['width', 'height'], round && ((value) => Math.round(value)));
+const equalBCRWH = (a, b, round) => equal(a, b, ['width', 'height'], round && (value => Math.round(value)));
 
 const setT = window.setTimeout;
 
-const clearTimeouts = (id) => {
+const clearTimeouts = id => {
   id && window.clearTimeout(id);
   id && cAF(id);
 };
@@ -504,7 +477,11 @@ const debounce = (functionToDebounce, options) => {
   let maxTimeoutId;
   let prevArguments;
   let latestArguments;
-  const { _timeout, _maxDelay, _mergeParams } = options;
+  const {
+    _timeout,
+    _maxDelay,
+    _mergeParams
+  } = options;
 
   const invokeFunctionToDebounce = function invokeFunctionToDebounce(args) {
     clearTimeouts(timeoutId);
@@ -513,7 +490,7 @@ const debounce = (functionToDebounce, options) => {
     functionToDebounce.apply(this, args);
   };
 
-  const mergeParms = (curr) => (_mergeParams && prevArguments ? _mergeParams(prevArguments, curr) : curr);
+  const mergeParms = curr => _mergeParams && prevArguments ? _mergeParams(prevArguments, curr) : curr;
 
   const flush = () => {
     if (timeoutId) {
@@ -557,7 +534,7 @@ const debounce = (functionToDebounce, options) => {
 
 const cssNumber = {
   opacity: 1,
-  zindex: 1,
+  zindex: 1
 };
 
 const parseToZeroOrNumber = (value, toFloat) => {
@@ -565,15 +542,16 @@ const parseToZeroOrNumber = (value, toFloat) => {
   return Number.isNaN(num) ? 0 : num;
 };
 
-const adaptCSSVal = (prop, val) => (!cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val);
+const adaptCSSVal = (prop, val) => !cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val;
 
-const getCSSVal = (elm, computedStyle, prop) =>
-  computedStyle != null ? computedStyle[prop] || computedStyle.getPropertyValue(prop) : elm.style[prop];
+const getCSSVal = (elm, computedStyle, prop) => computedStyle != null ? computedStyle[prop] || computedStyle.getPropertyValue(prop) : elm.style[prop];
 
 const setCSSVal = (elm, prop, val) => {
   try {
     if (elm) {
-      const { style } = elm;
+      const {
+        style
+      } = elm;
 
       if (!isUndefined(style[prop])) {
         style[prop] = adaptCSSVal(prop, val);
@@ -593,18 +571,16 @@ function style(elm, styles) {
 
     if (elm) {
       const computedStyle = window.getComputedStyle(elm, null);
-      getStylesResult = getSingleStyle
-        ? getCSSVal(elm, computedStyle, styles)
-        : styles.reduce((result, key) => {
-            result[key] = getCSSVal(elm, computedStyle, key);
-            return result;
-          }, getStylesResult);
+      getStylesResult = getSingleStyle ? getCSSVal(elm, computedStyle, styles) : styles.reduce((result, key) => {
+        result[key] = getCSSVal(elm, computedStyle, key);
+        return result;
+      }, getStylesResult);
     }
 
     return getStylesResult;
   }
 
-  each(keys(styles), (key) => setCSSVal(elm, key, styles[key]));
+  each(keys(styles), key => setCSSVal(elm, key, styles[key]));
 }
 const topRightBottomLeft = (elm, propertyPrefix, propertySuffix) => {
   const finalPrefix = propertyPrefix ? `${propertyPrefix}-` : '';
@@ -618,54 +594,54 @@ const topRightBottomLeft = (elm, propertyPrefix, propertySuffix) => {
     t: parseToZeroOrNumber(result[top]),
     r: parseToZeroOrNumber(result[right]),
     b: parseToZeroOrNumber(result[bottom]),
-    l: parseToZeroOrNumber(result[left]),
+    l: parseToZeroOrNumber(result[left])
   };
 };
 
-const zeroObj$1 = {
+const zeroObj = {
   x: 0,
-  y: 0,
+  y: 0
 };
-const absoluteCoordinates = (elm) => {
+const absoluteCoordinates = elm => {
   const rect = elm ? getBoundingClientRect(elm) : 0;
-  return rect
-    ? {
-        x: rect.left + window.pageYOffset,
-        y: rect.top + window.pageXOffset,
-      }
-    : zeroObj$1;
+  return rect ? {
+    x: rect.left + window.pageYOffset,
+    y: rect.top + window.pageXOffset
+  } : zeroObj;
 };
 
-function createCommonjsModule(fn) {
-  var module = { exports: {} };
-  return fn(module, module.exports), module.exports;
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
 
-var _extends_1 = createCommonjsModule(function (module) {
-  function _extends() {
-    module.exports = _extends =
-      Object.assign ||
-      function (target) {
-        for (var i = 1; i < arguments.length; i++) {
-          var source = arguments[i];
+var _extends$1 = {exports: {}};
 
-          for (var key in source) {
-            if (Object.prototype.hasOwnProperty.call(source, key)) {
-              target[key] = source[key];
-            }
+(function (module) {
+  function _extends() {
+    module.exports = _extends = Object.assign ? Object.assign.bind() : function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
           }
         }
+      }
 
-        return target;
-      };
-
+      return target;
+    }, module.exports.__esModule = true, module.exports["default"] = module.exports;
     return _extends.apply(this, arguments);
   }
 
-  module.exports = _extends;
-});
+  module.exports = _extends, module.exports.__esModule = true, module.exports["default"] = module.exports;
+})(_extends$1);
 
-const { stringify } = JSON;
+const _extends = getDefaultExportFromCjs(_extends$1.exports);
+
+const {
+  stringify
+} = JSON;
 const templateTypePrefixSuffix = ['__TPL_', '_TYPE__'];
 const optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 'function', 'null'].reduce((result, item) => {
   result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
@@ -675,10 +651,10 @@ const optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 
 const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPath) => {
   const validatedOptions = {};
 
-  const optionsCopy = _extends_1({}, options);
+  const optionsCopy = _extends({}, options);
 
-  const props = keys(template).filter((prop) => hasOwnProperty$1(options, prop));
-  each(props, (prop) => {
+  const props = keys(template).filter(prop => hasOwnProperty(options, prop));
+  each(props, prop => {
     const optionsDiffValue = isUndefined(optionsDiff[prop]) ? {} : optionsDiff[prop];
     const optionsValue = options[prop];
     const templateValue = template[prop];
@@ -689,7 +665,7 @@ const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPa
       const validatedResult = validateRecursive(optionsValue, templateValue, optionsDiffValue, doWriteErrors, propPrefix + prop);
       validatedOptions[prop] = validatedResult._validated;
       optionsCopy[prop] = validatedResult._foreign;
-      each([optionsCopy, validatedOptions], (value) => {
+      each([optionsCopy, validatedOptions], value => {
         if (isEmptyObject(value[prop])) {
           delete value[prop];
         }
@@ -700,7 +676,7 @@ const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPa
       const errorPossibleTypes = [];
       const optionsValueType = type(optionsValue);
       const templateValueArr = !isArray(templateValue) ? [templateValue] : templateValue;
-      each(templateValueArr, (currTemplateType) => {
+      each(templateValueArr, currTemplateType => {
         let typeString;
         each(optionsTemplateTypes, (value, key) => {
           if (value === currTemplateType) {
@@ -711,7 +687,7 @@ const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPa
 
         if (isEnumString && isString(optionsValue)) {
           const enumStringSplit = currTemplateType.split(' ');
-          isValid = !!enumStringSplit.find((possibility) => possibility === optionsValue);
+          isValid = !!enumStringSplit.find(possibility => possibility === optionsValue);
           push(errorEnumStrings, enumStringSplit);
         } else {
           isValid = optionsTemplateTypes[optionsValueType] === currTemplateType;
@@ -722,18 +698,14 @@ const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPa
       });
 
       if (isValid) {
-        const doStringifyComparison = isArray(optionsValue) || isPlainObject(optionsValue);
+        const isPrimitiveArr = isArray(optionsValue) && !optionsValue.some(val => !isNumber(val) && !isString(val) && !isBoolean(val));
+        const doStringifyComparison = isPrimitiveArr || isPlainObject(optionsValue);
 
         if (doStringifyComparison ? stringify(optionsValue) !== stringify(optionsDiffValue) : optionsValue !== optionsDiffValue) {
           validatedOptions[prop] = optionsValue;
         }
       } else if (doWriteErrors) {
-        console.warn(
-          `${
-            `The option "${propPrefix}${prop}" wasn't set, because it doesn't accept the type [ ${optionsValueType.toUpperCase()} ] with the value of "${optionsValue}".\r\n` +
-            `Accepted types are: [ ${errorPossibleTypes.join(', ').toUpperCase()} ].\r\n`
-          }${errorEnumStrings.length > 0 ? `\r\nValid strings are: [ ${errorEnumStrings.join(', ')} ].` : ''}`
-        );
+        console.warn(`${`The option "${propPrefix}${prop}" wasn't set, because it doesn't accept the type [ ${optionsValueType.toUpperCase()} ] with the value of "${optionsValue}".\r\n` + `Accepted types are: [ ${errorPossibleTypes.join(', ').toUpperCase()} ].\r\n`}${errorEnumStrings.length > 0 ? `\r\nValid strings are: [ ${errorEnumStrings.join(', ')} ].` : ''}`);
       }
 
       delete optionsCopy[prop];
@@ -741,7 +713,7 @@ const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPa
   });
   return {
     _foreign: optionsCopy,
-    _validated: validatedOptions,
+    _validated: validatedOptions
   };
 };
 
@@ -749,12 +721,12 @@ const validateOptions = (options, template, optionsDiff, doWriteErrors) => {
   return validateRecursive(options, template, optionsDiff || {}, doWriteErrors || false);
 };
 
-const transformOptions = (optionsWithOptionsTemplate) => {
+const transformOptions = optionsWithOptionsTemplate => {
   const result = {
     _template: {},
-    _options: {},
+    _options: {}
   };
-  each(keys(optionsWithOptionsTemplate), (key) => {
+  each(keys(optionsWithOptionsTemplate), key => {
     const val = optionsWithOptionsTemplate[key];
 
     if (isArray(val)) {
@@ -785,6 +757,11 @@ const classNameSizeObserverListenerScroll = `${classNameSizeObserverListener}-sc
 const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
 const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
 const classNameTrinsicObserver = 'os-trinsic-observer';
+const classNameScrollbar = 'os-scrollbar';
+const classNameScrollbarHorizontal = `${classNameScrollbar}-horizontal`;
+const classNameScrollbarVertical = `${classNameScrollbar}-vertical`;
+const classNameScrollbarTrack = 'os-scrollbar-track';
+const classNameScrollbarHandle = 'os-scrollbar-handle';
 
 const numberAllowedValues = optionsTemplateTypes.number;
 const arrayNullValues = [optionsTemplateTypes.array, optionsTemplateTypes.null];
@@ -801,14 +778,11 @@ const defaultOptionsWithTemplate = {
   updating: {
     elementEvents: [[['img', 'load']], arrayNullValues],
     attributes: [null, arrayNullValues],
-    debounce: [
-      [0, 33],
-      [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null],
-    ],
+    debounce: [[0, 33], [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null]]
   },
   overflow: {
     x: ['scroll', overflowAllowedValues],
-    y: ['scroll', overflowAllowedValues],
+    y: ['scroll', overflowAllowedValues]
   },
   scrollbars: {
     visibility: ['auto', scrollbarsVisibilityAllowedValues],
@@ -816,29 +790,35 @@ const defaultOptionsWithTemplate = {
     autoHideDelay: [800, numberAllowedValues],
     dragScroll: booleanTrueTemplate,
     clickScroll: booleanFalseTemplate,
-    touch: booleanTrueTemplate,
+    touch: booleanTrueTemplate
   },
   textarea: {
     dynWidth: booleanFalseTemplate,
     dynHeight: booleanFalseTemplate,
-    inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues],
+    inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues]
   },
   nativeScrollbarsOverlaid: {
     show: booleanFalseTemplate,
-    initialize: booleanFalseTemplate,
+    initialize: booleanFalseTemplate
   },
   callbacks: {
-    onUpdated: [null, [optionsTemplateTypes.function, optionsTemplateTypes.null]],
-  },
+    onUpdated: [null, [optionsTemplateTypes.function, optionsTemplateTypes.null]]
+  }
 };
-const { _template: optionsTemplate, _options: defaultOptions } = transformOptions(defaultOptionsWithTemplate);
+const {
+  _template: optionsTemplate,
+  _options: defaultOptions
+} = transformOptions(defaultOptionsWithTemplate);
 
 let environmentInstance;
-const { abs, round } = Math;
+const {
+  abs: abs$1,
+  round: round$1
+} = Math;
 
 const diffBiggerThanOne = (valOne, valTwo) => {
-  const absValOne = abs(valOne);
-  const absValTwo = abs(valTwo);
+  const absValOne = abs$1(valOne);
+  const absValTwo = abs$1(valTwo);
   return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
 };
 
@@ -848,18 +828,16 @@ const getNativeScrollbarSize = (body, measureElm) => {
   const oSize = offsetSize(measureElm);
   return {
     x: oSize.h - cSize.h,
-    y: oSize.w - cSize.w,
+    y: oSize.w - cSize.w
   };
 };
 
-const getNativeScrollbarStyling = (testElm) => {
+const getNativeScrollbarStyling = testElm => {
   let result = false;
   addClass(testElm, classNameViewportScrollbarStyling);
 
   try {
-    result =
-      style(testElm, cssProperty('scrollbar-width')) === 'none' ||
-      window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
+    result = style(testElm, cssProperty('scrollbar-width')) === 'none' || window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
   } catch (ex) {}
 
   return result;
@@ -870,7 +848,7 @@ const getRtlScrollBehavior = (parentElm, childElm) => {
   style(parentElm, {
     overflowX: strHidden,
     overflowY: strHidden,
-    direction: 'rtl',
+    direction: 'rtl'
   });
   scrollLeft(parentElm, 0);
   const parentOffset = absoluteCoordinates(parentElm);
@@ -879,7 +857,7 @@ const getRtlScrollBehavior = (parentElm, childElm) => {
   const childOffsetAfterScroll = absoluteCoordinates(childElm);
   return {
     i: parentOffset.x === childOffset.x,
-    n: childOffset.x !== childOffsetAfterScroll.x,
+    n: childOffset.x !== childOffsetAfterScroll.x
   };
 };
 
@@ -901,13 +879,18 @@ const getWindowDPR = () => {
   return window.devicePixelRatio || dDPI / sDPI;
 };
 
-const getDefaultInitializationStrategy = (nativeScrollbarStyling) => ({
-  _padding: !nativeScrollbarStyling,
-  _content: false,
+const getDefaultInitializationStrategy = nativeScrollbarStyling => ({
+  _host: null,
+  _viewport: null,
+  _padding: null,
+  _content: null,
+  _scrollbarsSlot: null
 });
 
 const createEnvironment = () => {
-  const { body } = document;
+  const {
+    body
+  } = document;
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0];
   const envChildElm = envElm.firstChild;
@@ -916,9 +899,9 @@ const createEnvironment = () => {
   const nativeScrollbarStyling = getNativeScrollbarStyling(envElm);
   const nativeScrollbarIsOverlaid = {
     x: nativeScrollbarSize.x === 0,
-    y: nativeScrollbarSize.y === 0,
+    y: nativeScrollbarSize.y === 0
   };
-  const defaultInitializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
+  const defaultInitializationStrategy = getDefaultInitializationStrategy();
   let initializationStrategy = defaultInitializationStrategy;
   let defaultDefaultOptions = defaultOptions;
   const env = {
@@ -937,20 +920,20 @@ const createEnvironment = () => {
       onChangedListener.delete(listener);
     },
 
-    _getInitializationStrategy: () => _extends_1({}, initializationStrategy),
+    _getInitializationStrategy: () => _extends({}, initializationStrategy),
 
     _setInitializationStrategy(newInitializationStrategy) {
       initializationStrategy = assignDeep({}, initializationStrategy, newInitializationStrategy);
     },
 
-    _getDefaultOptions: () => _extends_1({}, defaultDefaultOptions),
+    _getDefaultOptions: () => _extends({}, defaultDefaultOptions),
 
     _setDefaultOptions(newDefaultOptions) {
       defaultDefaultOptions = assignDeep({}, defaultDefaultOptions, newDefaultOptions);
     },
 
     _defaultInitializationStrategy: defaultInitializationStrategy,
-    _defaultDefaultOptions: defaultDefaultOptions,
+    _defaultDefaultOptions: defaultDefaultOptions
   };
   removeAttr(envElm, 'style');
   removeElements(envElm);
@@ -964,16 +947,16 @@ const createEnvironment = () => {
         const sizeNew = windowSize();
         const deltaSize = {
           w: sizeNew.w - size.w,
-          h: sizeNew.h - size.h,
+          h: sizeNew.h - size.h
         };
         if (deltaSize.w === 0 && deltaSize.h === 0) return;
         const deltaAbsSize = {
-          w: abs(deltaSize.w),
-          h: abs(deltaSize.h),
+          w: abs$1(deltaSize.w),
+          h: abs$1(deltaSize.h)
         };
         const deltaAbsRatio = {
-          w: abs(round(sizeNew.w / (size.w / 100.0))),
-          h: abs(round(sizeNew.h / (size.h / 100.0))),
+          w: abs$1(round$1(sizeNew.w / (size.w / 100.0))),
+          h: abs$1(round$1(sizeNew.h / (size.h / 100.0)))
         };
         const dprNew = getWindowDPR();
         const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
@@ -982,7 +965,7 @@ const createEnvironment = () => {
         const isZoom = deltaIsBigger && difference && dprChanged;
 
         if (isZoom) {
-          const newScrollbarSize = (environmentInstance._nativeScrollbarSize = getNativeScrollbarSize(body, envElm));
+          const newScrollbarSize = environmentInstance._nativeScrollbarSize = getNativeScrollbarSize(body, envElm);
           removeElements(envElm);
 
           if (scrollbarSize.x !== newScrollbarSize.x || scrollbarSize.y !== newScrollbarSize.y) {
@@ -1009,66 +992,103 @@ const getEnvironment = () => {
   return environmentInstance;
 };
 
-const unwrap = (elm) => {
+let contentArrangeCounter = 0;
+
+const unwrap = elm => {
   appendChildren(parent(elm), contents(elm));
   removeElements(elm);
 };
 
-let contentArrangeCounter = 0;
-
 const createUniqueViewportArrangeElement = () => {
-  const elm = document.createElement('style');
-  attr(elm, 'id', `${classNameViewportArrange}-${contentArrangeCounter}`);
-  contentArrangeCounter++;
-  return elm;
-};
+  const {
+    _nativeScrollbarStyling,
+    _nativeScrollbarIsOverlaid,
+    _cssCustomProperties
+  } = getEnvironment();
+  const create = !_cssCustomProperties && !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
+  const result = create ? document.createElement('style') : false;
 
-const evaluateCreationFromStrategy = (initializationValue, strategy) => {
-  const isBooleanValue = isBoolean(initializationValue);
-
-  if (isBooleanValue || isUndefined(initializationValue)) {
-    return (isBooleanValue ? initializationValue : strategy) && undefined;
+  if (result) {
+    attr(result, 'id', `${classNameViewportArrange}-${contentArrangeCounter}`);
+    contentArrangeCounter++;
   }
 
-  return initializationValue;
+  return result;
 };
 
-const createStructureSetup = (target) => {
-  const { _getInitializationStrategy, _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } = getEnvironment();
+const staticCreationFromStrategy = (target, initializationValue, strategy, elementClass) => {
+  const result = initializationValue ? initializationValue : isFunction(strategy) ? strategy(target) : strategy;
+  return result ? result : createDiv(elementClass);
+};
 
-  const { _padding: paddingNeeded, _content: contentNeeded } = _getInitializationStrategy();
+const dynamicCreationFromStrategy = (target, initializationValue, strategy, elementClass, defaultValue) => {
+  const takeInitializationValue = isBoolean(initializationValue) || initializationValue;
+  const result = takeInitializationValue ? initializationValue : isFunction(strategy) ? strategy(target) : strategy;
+
+  if (result === null) {
+    return defaultValue ? createDiv(elementClass) : false;
+  }
+
+  return result === true ? createDiv(elementClass) : result;
+};
+
+const createStructureSetup = target => {
+  const {
+    _getInitializationStrategy,
+    _nativeScrollbarStyling
+  } = getEnvironment();
+
+  const {
+    _host: hostInitializationStrategy,
+    _viewport: viewportInitializationStrategy,
+    _padding: paddingInitializationStrategy,
+    _content: contentInitializationStrategy
+  } = _getInitializationStrategy();
 
   const targetIsElm = isHTMLElement(target);
-  const osTargetObj = targetIsElm
-    ? {}
-    : {
-        _host: target.host,
-        _target: target.target,
-        _viewport: target.viewport,
-        _padding: evaluateCreationFromStrategy(target.padding, paddingNeeded),
-        _content: evaluateCreationFromStrategy(target.content, contentNeeded),
-      };
+  const targetStructureInitialization = target;
+  const targetElement = targetIsElm ? target : targetStructureInitialization.target;
+  const isTextarea = is(targetElement, 'textarea');
+  const isBody = !isTextarea && is(targetElement, 'body');
+  const ownerDocument = targetElement.ownerDocument;
+  const bodyElm = ownerDocument.body;
+  const wnd = ownerDocument.defaultView;
+  const evaluatedTargetObj = {
+    _target: targetElement,
+    _host: isTextarea ? staticCreationFromStrategy(targetElement, targetStructureInitialization.host, hostInitializationStrategy, classNameHost) : targetElement,
+    _viewport: staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy, classNameViewport),
+    _padding: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.padding, paddingInitializationStrategy, classNamePadding, !_nativeScrollbarStyling),
+    _content: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.content, contentInitializationStrategy, classNameContent, false),
+    _viewportArrange: createUniqueViewportArrangeElement()
+  };
+  const ctx = {
+    _windowElm: wnd,
+    _documentElm: ownerDocument,
+    _htmlElm: parent(bodyElm),
+    _bodyElm: bodyElm,
+    _isTextarea: isTextarea,
+    _isBody: isBody,
+    _targetIsElm: targetIsElm
+  };
+  const generatedElements = keys(evaluatedTargetObj).reduce((arr, key) => {
+    const value = evaluatedTargetObj[key];
+    return push(arr, value && !parent(value) ? value : false);
+  }, []);
 
-  if (targetIsElm) {
-    const viewport = createDiv(classNameViewport);
-    const padding = paddingNeeded && createDiv(classNamePadding);
-    const content = contentNeeded && createDiv(classNameContent);
-    osTargetObj._target = target;
-    osTargetObj._padding = padding;
-    osTargetObj._viewport = viewport;
-    osTargetObj._content = content;
-  }
+  const elementIsGenerated = elm => elm ? indexOf(generatedElements, elm) > -1 : null;
 
-  let { _target, _padding, _viewport, _content } = osTargetObj;
+  const {
+    _target,
+    _host,
+    _padding,
+    _viewport,
+    _content,
+    _viewportArrange
+  } = evaluatedTargetObj;
   const destroyFns = [];
-  const isTextarea = is(_target, 'textarea');
-  const isBody = !isTextarea && is(_target, 'body');
-
-  const _host = isTextarea ? osTargetObj._host || createDiv() : _target;
-
-  const getTargetContents = (contentSlot) => (isTextarea ? _target : contents(contentSlot));
-
-  const isTextareaHostGenerated = isTextarea && _host !== osTargetObj._host;
+  const isTextareaHostGenerated = isTextarea && elementIsGenerated(_host);
+  const targetContents = isTextarea ? _target : contents([_content, _viewport, _padding, _host, _target].find(elm => elementIsGenerated(elm) === false));
+  const contentSlot = _content || _viewport;
 
   if (isTextareaHostGenerated) {
     insertAfter(_target, _host);
@@ -1078,41 +1098,29 @@ const createStructureSetup = (target) => {
     });
   }
 
-  if (targetIsElm) {
-    const contentSlot = _content || _viewport;
-    appendChildren(contentSlot, getTargetContents(_target));
-    appendChildren(_host, _padding);
-    appendChildren(_padding || _host, _viewport);
-    appendChildren(_viewport, _content);
-    push(destroyFns, () => {
+  appendChildren(contentSlot, targetContents);
+  appendChildren(_host, _padding);
+  appendChildren(_padding || _host, _viewport);
+  appendChildren(_viewport, _content);
+  addClass(_host, classNameHost);
+  addClass(_padding, classNamePadding);
+  addClass(_viewport, classNameViewport);
+  addClass(_content, classNameContent);
+  push(destroyFns, () => {
+    if (targetIsElm) {
       appendChildren(_host, contents(contentSlot));
       removeElements(_padding || _viewport);
       removeClass(_host, classNameHost);
-    });
-  } else {
-    const contentContainingElm = _content || _viewport || _padding || _host;
-    const createPadding = isUndefined(_padding);
-    const createViewport = isUndefined(_viewport);
-    const createContent = isUndefined(_content);
-    const targetContents = getTargetContents(contentContainingElm);
-    _padding = osTargetObj._padding = createPadding ? createDiv() : _padding;
-    _viewport = osTargetObj._viewport = createViewport ? createDiv() : _viewport;
-    _content = osTargetObj._content = createContent ? createDiv() : _content;
-    appendChildren(_host, _padding);
-    appendChildren(_padding || _host, _viewport);
-    appendChildren(_viewport, _content);
-    const contentSlot = _content || _viewport;
-    appendChildren(contentSlot, targetContents);
-    push(destroyFns, () => {
-      if (createContent) {
+    } else {
+      if (elementIsGenerated(_content)) {
         unwrap(_content);
       }
 
-      if (createViewport) {
+      if (elementIsGenerated(_viewport)) {
         unwrap(_viewport);
       }
 
-      if (createPadding) {
+      if (elementIsGenerated(_padding)) {
         unwrap(_padding);
       }
 
@@ -1120,44 +1128,79 @@ const createStructureSetup = (target) => {
       removeClass(_padding, classNamePadding);
       removeClass(_viewport, classNameViewport);
       removeClass(_content, classNameContent);
-    });
-  }
-
-  addClass(_host, classNameHost);
-  addClass(_padding, classNamePadding);
-  addClass(_viewport, classNameViewport);
-  addClass(_content, classNameContent);
-  const ownerDocument = _target.ownerDocument;
-  const bodyElm = ownerDocument.body;
-  const wnd = ownerDocument.defaultView;
-  const ctx = {
-    _windowElm: wnd,
-    _documentElm: ownerDocument,
-    _htmlElm: parent(bodyElm),
-    _bodyElm: bodyElm,
-    _isTextarea: isTextarea,
-    _isBody: isBody,
-  };
-
-  const obj = _extends_1({}, osTargetObj, {
-    _host,
+    }
   });
 
   if (_nativeScrollbarStyling) {
     push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
-  } else if (!_cssCustomProperties && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y)) {
-    const viewportArrangeElm = createUniqueViewportArrangeElement();
-    insertBefore(_viewport, viewportArrangeElm);
-    push(destroyFns, removeElements.bind(0, viewportArrangeElm));
-    obj._viewportArrange = viewportArrangeElm;
+  }
+
+  if (_viewportArrange) {
+    insertBefore(_viewport, _viewportArrange);
+    push(destroyFns, removeElements.bind(0, _viewportArrange));
   }
 
   return {
-    _targetObj: obj,
+    _targetObj: evaluatedTargetObj,
     _targetCtx: ctx,
     _destroy: () => {
       runEach(destroyFns);
-    },
+    }
+  };
+};
+
+const generateScrollbarDOM = scrollbarClassName => {
+  const scrollbar = createDiv(`${classNameScrollbar} ${scrollbarClassName}`);
+  const track = createDiv(classNameScrollbarTrack);
+  const handle = createDiv(classNameScrollbarHandle);
+  appendChildren(scrollbar, track);
+  appendChildren(track, handle);
+  return {
+    _scrollbar: scrollbar,
+    _track: track,
+    _handle: handle
+  };
+};
+
+const createScrollbarsSetup = (target, structureSetup) => {
+  const {
+    _getInitializationStrategy
+  } = getEnvironment();
+
+  const {
+    _scrollbarsSlot: environmentScrollbarSlot
+  } = _getInitializationStrategy();
+
+  const {
+    _targetObj,
+    _targetCtx
+  } = structureSetup;
+  const {
+    _target,
+    _host,
+    _viewport
+  } = _targetObj;
+  const initializationScrollbarSlot = !_targetCtx._targetIsElm && target.scrollbarsSlot;
+  const initializationScrollbarSlotResult = isFunction(initializationScrollbarSlot) ? initializationScrollbarSlot(_target, _host, _viewport) : initializationScrollbarSlot;
+  const evaluatedScrollbarSlot = initializationScrollbarSlotResult || (isFunction(environmentScrollbarSlot) ? environmentScrollbarSlot(_target, _host, _viewport) : environmentScrollbarSlot) || _host;
+  const horizontalScrollbarStructure = generateScrollbarDOM(classNameScrollbarHorizontal);
+  const verticalScrollbarStructure = generateScrollbarDOM(classNameScrollbarVertical);
+  const {
+    _scrollbar: horizontalScrollbar
+  } = horizontalScrollbarStructure;
+  const {
+    _scrollbar: verticalScrollbar
+  } = verticalScrollbarStructure;
+  appendChildren(evaluatedScrollbarSlot, horizontalScrollbar);
+  appendChildren(evaluatedScrollbarSlot, verticalScrollbar);
+  return {
+    _horizontalScrollbarStructure: horizontalScrollbarStructure,
+    _verticalScrollbarStructure: verticalScrollbarStructure,
+
+    _destroy() {
+      removeElements([horizontalScrollbar, verticalScrollbar]);
+    }
+
   };
 };
 
@@ -1165,43 +1208,51 @@ const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
 
-const directionIsRTL = (elm) => style(elm, 'direction') === 'rtl';
+const getElmDirectionIsRTL = elm => style(elm, 'direction') === 'rtl';
 
-const domRectHasDimensions = (rect) => rect && (rect.height || rect.width);
+const domRectHasDimensions = rect => rect && (rect.height || rect.width);
 
 const createSizeObserver = (target, onSizeChangedCallback, options) => {
-  const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } = options || {};
-  const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
+  const {
+    _direction: observeDirectionChange = false,
+    _appear: observeAppearChange = false
+  } = options || {};
+  const {
+    _rtlScrollBehavior: rtlScrollBehavior
+  } = getEnvironment();
   const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
   const sizeObserver = baseElements[0];
   const listenerElement = sizeObserver.firstChild;
-  const { _update: updateResizeObserverContentRectCache } = createCache(0, {
+  const getIsDirectionRTL = getElmDirectionIsRTL.bind(0, sizeObserver);
+  const [updateResizeObserverContentRectCache] = createCache(0, {
+    _initialValue: undefined,
     _alwaysUpdateValues: true,
-    _equal: (currVal, newVal) => !(!currVal || (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal))),
+    _equal: (currVal, newVal) => !(!currVal || !domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
   });
 
-  const onSizeChangedCallbackProxy = (sizeChangedContext) => {
-    const hasDirectionCache = sizeChangedContext && isBoolean(sizeChangedContext._value);
+  const onSizeChangedCallbackProxy = sizeChangedContext => {
+    const isResizeObserverCall = isArray(sizeChangedContext) && sizeChangedContext.length > 0 && isObject(sizeChangedContext[0]);
+    const hasDirectionCache = !isResizeObserverCall && isBoolean(sizeChangedContext[0]);
     let skip = false;
     let appear = false;
     let doDirectionScroll = true;
 
-    if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
-      const { _previous, _value } = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect);
-      const hasDimensions = domRectHasDimensions(_value);
-      const hadDimensions = domRectHasDimensions(_previous);
-      skip = !_previous || !hasDimensions;
+    if (isResizeObserverCall) {
+      const [currRContentRect,, prevContentRect] = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect);
+      const hasDimensions = domRectHasDimensions(currRContentRect);
+      const hadDimensions = domRectHasDimensions(prevContentRect);
+      skip = !prevContentRect || !hasDimensions;
       appear = !hadDimensions && hasDimensions;
       doDirectionScroll = !skip;
     } else if (hasDirectionCache) {
-      doDirectionScroll = sizeChangedContext._changed;
+      [, doDirectionScroll] = sizeChangedContext;
     } else {
       appear = sizeChangedContext === true;
     }
 
     if (observeDirectionChange && doDirectionScroll) {
-      const rtl = hasDirectionCache ? sizeChangedContext._value : directionIsRTL(sizeObserver);
-      scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
+      const rtl = hasDirectionCache ? sizeChangedContext[0] : getElmDirectionIsRTL(sizeObserver);
+      scrollLeft(sizeObserver, rtl ? rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount : scrollAmount);
       scrollTop(sizeObserver, scrollAmount);
     }
 
@@ -1209,7 +1260,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       onSizeChangedCallback({
         _sizeChanged: !hasDirectionCache,
         _directionIsRTLCache: hasDirectionCache ? sizeChangedContext : undefined,
-        _appear: !!appear,
+        _appear: !!appear
       });
     }
   };
@@ -1225,9 +1276,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       resizeObserverInstance.disconnect();
     });
   } else {
-    const observerElementChildren = createDOM(
-      `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
-    );
+    const observerElementChildren = createDOM(`<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`);
     appendChildren(listenerElement, observerElementChildren);
     addClass(listenerElement, classNameSizeObserverListenerScroll);
     const observerElementChildrenRoot = observerElementChildren[0];
@@ -1246,7 +1295,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       scrollTop(shrinkElement, scrollAmount);
     };
 
-    const onResized = (appear) => {
+    const onResized = appear => {
       rAFId = 0;
 
       if (isDirty) {
@@ -1255,7 +1304,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
       }
     };
 
-    const onScroll = (scrollEvent) => {
+    const onScroll = scrollEvent => {
       currSize = offsetSize(observerElementChildrenRoot);
       isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
@@ -1276,46 +1325,42 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
     push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
     style(expandElementChild, {
       width: scrollAmount,
-      height: scrollAmount,
+      height: scrollAmount
     });
     reset();
     appearCallback = observeAppearChange ? onScroll.bind(0, false) : reset;
   }
 
   if (observeDirectionChange) {
-    directionIsRTLCache = createCache(directionIsRTL.bind(0, sizeObserver));
-    const { _update: updateDirectionIsRTLCache } = directionIsRTLCache;
-    push(
-      offListeners,
-      on(sizeObserver, scrollEventName, (event) => {
-        const directionIsRTLCacheValues = updateDirectionIsRTLCache();
-        const { _value, _changed } = directionIsRTLCacheValues;
+    directionIsRTLCache = createCache(getIsDirectionRTL, {
+      _initialValue: !getIsDirectionRTL()
+    });
+    const [updateDirectionIsRTLCache] = directionIsRTLCache;
+    push(offListeners, on(sizeObserver, scrollEventName, event => {
+      const directionIsRTLCacheValues = updateDirectionIsRTLCache();
+      const [directionIsRTL, directionIsRTLChanged] = directionIsRTLCacheValues;
 
-        if (_changed) {
-          removeClass(listenerElement, 'ltr rtl');
+      if (directionIsRTLChanged) {
+        removeClass(listenerElement, 'ltr rtl');
 
-          if (_value) {
-            addClass(listenerElement, 'rtl');
-          } else {
-            addClass(listenerElement, 'ltr');
-          }
-
-          onSizeChangedCallbackProxy(directionIsRTLCacheValues);
+        if (directionIsRTL) {
+          addClass(listenerElement, 'rtl');
+        } else {
+          addClass(listenerElement, 'ltr');
         }
 
-        stopAndPrevent(event);
-      })
-    );
+        onSizeChangedCallbackProxy(directionIsRTLCacheValues);
+      }
+
+      stopAndPrevent(event);
+    }));
   }
 
   if (appearCallback) {
     addClass(sizeObserver, classNameSizeObserverAppear);
-    push(
-      offListeners,
-      on(sizeObserver, animationStartEventName, appearCallback, {
-        _once: !!ResizeObserverConstructor,
-      })
-    );
+    push(offListeners, on(sizeObserver, animationStartEventName, appearCallback, {
+      _once: !!ResizeObserverConstructor
+    }));
   }
 
   prependChildren(target, sizeObserver);
@@ -1327,47 +1372,39 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
 
     _getCurrentCacheValues(force) {
       return {
-        _directionIsRTL: directionIsRTLCache
-          ? directionIsRTLCache._current(force)
-          : {
-              _value: false,
-              _previous: false,
-              _changed: false,
-            },
+        _directionIsRTL: directionIsRTLCache ? directionIsRTLCache[1](force) : [false, false, false]
       };
-    },
+    }
+
   };
 };
 
 const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
   const trinsicObserver = createDiv(classNameTrinsicObserver);
   const offListeners = [];
-  const { _update: updateHeightIntrinsicCache, _current: getCurrentHeightIntrinsicCache } = createCache(
-    (ioEntryOrSize) => ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0,
-    {
-      _initialValue: false,
+  const [updateHeightIntrinsicCache, getCurrentHeightIntrinsicCache] = createCache(ioEntryOrSize => ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0, {
+    _initialValue: false
+  });
+
+  const triggerOnTrinsicChangedCallback = updateValue => {
+    if (updateValue) {
+      const heightIntrinsic = updateHeightIntrinsicCache(0, updateValue);
+      const [, heightIntrinsicChanged] = heightIntrinsic;
+
+      if (heightIntrinsicChanged) {
+        onTrinsicChangedCallback(heightIntrinsic);
+      }
     }
-  );
+  };
 
   if (IntersectionObserverConstructor) {
-    const intersectionObserverInstance = new IntersectionObserverConstructor(
-      (entries) => {
-        if (entries && entries.length > 0) {
-          const last = entries.pop();
-
-          if (last) {
-            const heightIntrinsic = updateHeightIntrinsicCache(0, last);
-
-            if (heightIntrinsic._changed) {
-              onTrinsicChangedCallback(heightIntrinsic);
-            }
-          }
-        }
-      },
-      {
-        root: target,
+    const intersectionObserverInstance = new IntersectionObserverConstructor(entries => {
+      if (entries && entries.length > 0) {
+        triggerOnTrinsicChangedCallback(entries.pop());
       }
-    );
+    }, {
+      root: target
+    });
     intersectionObserverInstance.observe(trinsicObserver);
     push(offListeners, () => {
       intersectionObserverInstance.disconnect();
@@ -1375,11 +1412,7 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
   } else {
     const onSizeChanged = () => {
       const newSize = offsetSize(trinsicObserver);
-      const heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
-
-      if (heightIntrinsicCache._changed) {
-        onTrinsicChangedCallback(heightIntrinsicCache);
-      }
+      triggerOnTrinsicChangedCallback(newSize);
     };
 
     push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged)._destroy);
@@ -1395,26 +1428,23 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
 
     _getCurrentCacheValues(force) {
       return {
-        _heightIntrinsic: getCurrentHeightIntrinsicCache(force),
+        _heightIntrinsic: getCurrentHeightIntrinsicCache(force)
       };
-    },
+    }
+
   };
 };
 
-const createEventContentChange = (target, eventContentChange, callback) => {
+const createEventContentChange = (target, callback, eventContentChange) => {
   let map;
+  let destroyed = false;
 
   const _destroy = () => {
-    if (map) {
-      map.forEach((eventName, elm) => {
-        off(elm, eventName, callback);
-      });
-      map.clear();
-    }
+    destroyed = true;
   };
 
-  const _updateElements = (getElements) => {
-    if (map && eventContentChange) {
+  const _updateElements = getElements => {
+    if (eventContentChange) {
       const eventElmList = eventContentChange.reduce((arr, item) => {
         if (item) {
           const selector = item[0];
@@ -1428,36 +1458,41 @@ const createEventContentChange = (target, eventContentChange, callback) => {
 
         return arr;
       }, []);
-      each(eventElmList, (item) =>
-        each(item[0], (elm) => {
-          const eventNames = item[1];
-          const registredEventNames = map.get(elm);
-          const newEntry = isUndefined(registredEventNames);
-          const changingExistingEntry = !newEntry && eventNames !== registredEventNames;
-          const finalEventNames = changingExistingEntry ? `${registredEventNames} ${eventNames}` : eventNames;
+      each(eventElmList, item => each(item[0], elm => {
+        const eventNames = item[1];
+        const entry = map.get(elm);
 
-          if (changingExistingEntry) {
-            off(elm, registredEventNames, callback);
+        if (entry) {
+          const entryEventNames = entry[0];
+          const entryOff = entry[1];
+
+          if (entryEventNames === eventNames) {
+            entryOff();
           }
+        }
 
-          map.set(elm, finalEventNames);
-          on(elm, finalEventNames, callback);
-        })
-      );
+        const off = on(elm, eventNames, event => {
+          if (destroyed) {
+            off();
+            map.delete(elm);
+          } else {
+            callback(event);
+          }
+        });
+        map.set(elm, [eventNames, off]);
+      }));
     }
   };
 
   if (eventContentChange) {
-    map = map || new Map();
-
-    _destroy();
+    map = new WeakMap();
 
     _updateElements();
   }
 
   return {
     _destroy,
-    _updateElements,
+    _updateElements
   };
 };
 
@@ -1470,28 +1505,24 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
     _nestedTargetSelector,
     _ignoreTargetChange,
     _ignoreNestedTargetChange,
-    _ignoreContentChange,
+    _ignoreContentChange
   } = options || {};
-  const { _destroy: destroyEventContentChange, _updateElements: updateEventContentChangeElements } = createEventContentChange(
-    target,
-    isContentObserver && _eventContentChange,
-    debounce(
-      () => {
-        if (isConnected) {
-          callback(true);
-        }
-      },
-      {
-        _timeout: 33,
-        _maxDelay: 99,
-      }
-    )
-  );
+  const {
+    _destroy: destroyEventContentChange,
+    _updateElements: updateEventContentChangeElements
+  } = createEventContentChange(target, debounce(() => {
+    if (isConnected) {
+      callback(true);
+    }
+  }, {
+    _timeout: 33,
+    _maxDelay: 99
+  }), _eventContentChange);
   const finalAttributes = _attributes || [];
   const finalStyleChangingAttributes = _styleChangingAttributes || [];
   const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
 
-  const observerCallback = (mutations) => {
+  const observerCallback = mutations => {
     const ignoreTargetChange = (isContentObserver ? _ignoreNestedTargetChange : _ignoreTargetChange) || noop;
     const ignoreContentChange = _ignoreContentChange || noop;
     const targetChangedAttrs = [];
@@ -1499,8 +1530,14 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
     let targetStyleChanged = false;
     let contentChanged = false;
     let childListChanged = false;
-    each(mutations, (mutation) => {
-      const { attributeName, target: mutationTarget, type, oldValue, addedNodes } = mutation;
+    each(mutations, mutation => {
+      const {
+        attributeName,
+        target: mutationTarget,
+        type,
+        oldValue,
+        addedNodes
+      } = mutation;
       const isAttributesType = type === 'attributes';
       const isChildListType = type === 'childList';
       const targetIsMutationTarget = target === mutationTarget;
@@ -1512,33 +1549,24 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
         const notOnlyAttrChanged = !isAttributesType;
         const contentAttrChanged = isAttributesType && styleChangingAttrChanged;
         const isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
-        const baseAssertion = isNestedTarget
-          ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
-          : notOnlyAttrChanged || contentAttrChanged;
+        const baseAssertion = isNestedTarget ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue) : notOnlyAttrChanged || contentAttrChanged;
         const contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
         push(totalAddedNodes, addedNodes);
         contentChanged = contentChanged || contentFinalChanged;
         childListChanged = childListChanged || isChildListType;
       }
 
-      if (
-        !isContentObserver &&
-        targetIsMutationTarget &&
-        attributeChanged &&
-        !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
-      ) {
+      if (!isContentObserver && targetIsMutationTarget && attributeChanged && !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)) {
         push(targetChangedAttrs, attributeName);
         targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
       }
     });
 
     if (childListChanged && !isEmptyArray(totalAddedNodes)) {
-      updateEventContentChangeElements((selector) =>
-        totalAddedNodes.reduce((arr, node) => {
-          push(arr, find(selector, node));
-          return is(node, selector) ? push(arr, node) : arr;
-        }, [])
-      );
+      updateEventContentChangeElements(selector => totalAddedNodes.reduce((arr, node) => {
+        push(arr, find(selector, node));
+        return is(node, selector) ? push(arr, node) : arr;
+      }, []));
     }
 
     if (isContentObserver) {
@@ -1555,7 +1583,7 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
     attributeFilter: observedAttributes,
     subtree: isContentObserver,
     childList: isContentObserver,
-    characterData: isContentObserver,
+    characterData: isContentObserver
   });
   isConnected = true;
   return {
@@ -1570,7 +1598,7 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
       if (isConnected) {
         observerCallback(mutationObserver.takeRecords());
       }
-    },
+    }
   };
 };
 
@@ -1582,7 +1610,7 @@ const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
 const ignoreTargetChange = (target, attrName, oldValue, newValue) => {
   if (attrName === 'class' && oldValue && newValue) {
     const diff = diffClass(oldValue, newValue);
-    return !!diff.find((addedOrRemovedClass) => addedOrRemovedClass.indexOf(ignorePrefix) !== 0);
+    return !!diff.find(addedOrRemovedClass => addedOrRemovedClass.indexOf(ignorePrefix) !== 0);
   }
 
   return false;
@@ -1592,32 +1620,53 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
   let debounceTimeout;
   let debounceMaxDelay;
   let contentMutationObserver;
-  const { _structureSetup } = instance;
-  const { _targetObj, _targetCtx } = _structureSetup;
-  const { _host, _viewport, _content } = _targetObj;
-  const { _isTextarea } = _targetCtx;
-  const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+  const {
+    _structureSetup
+  } = instance;
+  const {
+    _targetObj,
+    _targetCtx
+  } = _structureSetup;
+  const {
+    _host,
+    _viewport,
+    _content
+  } = _targetObj;
+  const {
+    _isTextarea
+  } = _targetCtx;
+  const {
+    _nativeScrollbarStyling,
+    _flexboxGlue
+  } = getEnvironment();
   const contentMutationObserverAttr = _isTextarea ? baseStyleChangingAttrsTextarea : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
   const updateLifecyclesWithDebouncedAdaptiveUpdateHints = debounce(updateLifecycles, {
     _timeout: () => debounceTimeout,
     _maxDelay: () => debounceMaxDelay,
 
     _mergeParams(prev, curr) {
-      const { _sizeChanged: prevSizeChanged, _hostMutation: prevHostMutation, _contentMutation: prevContentMutation } = prev[0];
-      const { _sizeChanged: currSizeChanged, _hostMutation: currvHostMutation, _contentMutation: currContentMutation } = curr[0];
-      const merged = [
-        {
-          _sizeChanged: prevSizeChanged || currSizeChanged,
-          _hostMutation: prevHostMutation || currvHostMutation,
-          _contentMutation: prevContentMutation || currContentMutation,
-        },
-      ];
+      const {
+        _sizeChanged: prevSizeChanged,
+        _hostMutation: prevHostMutation,
+        _contentMutation: prevContentMutation
+      } = prev[0];
+      const {
+        _sizeChanged: currSizeChanged,
+        _hostMutation: currvHostMutation,
+        _contentMutation: currContentMutation
+      } = curr[0];
+      const merged = [{
+        _sizeChanged: prevSizeChanged || currSizeChanged,
+        _hostMutation: prevHostMutation || currvHostMutation,
+        _contentMutation: prevContentMutation || currContentMutation
+      }];
       return merged;
-    },
+    }
+
   });
 
-  const updateViewportAttrsFromHost = (attributes) => {
-    each(attributes || viewportAttrsFromTarget, (attribute) => {
+  const updateViewportAttrsFromHost = attributes => {
+    each(attributes || viewportAttrsFromTarget, attribute => {
       if (indexOf(viewportAttrsFromTarget, attribute) > -1) {
         const hostAttr = attr(_host, attribute);
 
@@ -1630,31 +1679,35 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
     });
   };
 
-  const onTrinsicChanged = (heightIntrinsic) => {
+  const onTrinsicChanged = heightIntrinsic => {
     updateLifecycles({
-      _heightIntrinsic: heightIntrinsic,
+      _heightIntrinsic: heightIntrinsic
     });
   };
 
-  const onSizeChanged = ({ _sizeChanged, _directionIsRTLCache, _appear }) => {
+  const onSizeChanged = ({
+    _sizeChanged,
+    _directionIsRTLCache,
+    _appear
+  }) => {
     const updateFn = !_sizeChanged || _appear ? updateLifecycles : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
     updateFn({
       _sizeChanged,
-      _directionIsRTL: _directionIsRTLCache,
+      _directionIsRTL: _directionIsRTLCache
     });
   };
 
-  const onContentMutation = (contentChangedTroughEvent) => {
+  const onContentMutation = contentChangedTroughEvent => {
     const updateFn = contentChangedTroughEvent ? updateLifecycles : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
     updateFn({
-      _contentMutation: true,
+      _contentMutation: true
     });
   };
 
   const onHostMutation = (targetChangedAttrs, targetStyleChanged) => {
     if (targetStyleChanged) {
       updateLifecyclesWithDebouncedAdaptiveUpdateHints({
-        _hostMutation: true,
+        _hostMutation: true
       });
     } else {
       updateViewportAttrsFromHost(targetChangedAttrs);
@@ -1664,18 +1717,18 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
   const trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
   const sizeObserver = createSizeObserver(_host, onSizeChanged, {
     _appear: true,
-    _direction: !_nativeScrollbarStyling,
+    _direction: !_nativeScrollbarStyling
   });
   const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: baseStyleChangingAttrs,
     _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
-    _ignoreTargetChange: ignoreTargetChange,
+    _ignoreTargetChange: ignoreTargetChange
   });
 
-  const updateOptions = (checkOption) => {
-    const { _value: elementEvents, _changed: elementEventsChanged } = checkOption('updating.elementEvents');
-    const { _value: attributes, _changed: attributesChanged } = checkOption('updating.attributes');
-    const { _value: debounce, _changed: debounceChanged } = checkOption('updating.debounce');
+  const updateOptions = checkOption => {
+    const [elementEvents, elementEventsChanged] = checkOption('updating.elementEvents');
+    const [attributes, attributesChanged] = checkOption('updating.attributes');
+    const [debounceValue, debounceChanged] = checkOption('updating.debounce');
     const updateContentMutationObserver = elementEventsChanged || attributesChanged;
 
     if (updateContentMutationObserver) {
@@ -1689,20 +1742,20 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
         _styleChangingAttributes: contentMutationObserverAttr.concat(attributes || []),
         _attributes: contentMutationObserverAttr.concat(attributes || []),
         _eventContentChange: elementEvents,
-        _ignoreNestedTargetChange: ignoreTargetChange,
+        _ignoreNestedTargetChange: ignoreTargetChange
       });
     }
 
     if (debounceChanged) {
       updateLifecyclesWithDebouncedAdaptiveUpdateHints._flush();
 
-      if (isArray(debounce)) {
-        const timeout = debounce[0];
-        const maxWait = debounce[1];
+      if (isArray(debounceValue)) {
+        const timeout = debounceValue[0];
+        const maxWait = debounceValue[1];
         debounceTimeout = isNumber(timeout) ? timeout : false;
         debounceMaxDelay = isNumber(maxWait) ? maxWait : false;
-      } else if (isNumber(debounce)) {
-        debounceTimeout = debounce;
+      } else if (isNumber(debounceValue)) {
+        debounceTimeout = debounceValue;
         debounceMaxDelay = false;
       } else {
         debounceTimeout = false;
@@ -1724,54 +1777,75 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
       sizeObserver._destroy();
 
       hostMutationObserver._destroy();
-    },
+    }
+
   };
 };
 
-const createTrinsicLifecycle = (lifecycleHub) => {
-  const { _structureSetup } = lifecycleHub;
-  const { _content } = _structureSetup._targetObj;
-  return (updateHints) => {
-    const { _heightIntrinsic } = updateHints;
-    const { _value: heightIntrinsic, _changed: heightIntrinsicChanged } = _heightIntrinsic;
+const createTrinsicLifecycle = lifecycleHub => {
+  const {
+    _structureSetup
+  } = lifecycleHub;
+  const {
+    _content
+  } = _structureSetup._targetObj;
+  return updateHints => {
+    const {
+      _heightIntrinsic
+    } = updateHints;
+    const [heightIntrinsic, heightIntrinsicChanged] = _heightIntrinsic;
 
     if (heightIntrinsicChanged) {
       style(_content, {
         height: heightIntrinsic ? '' : '100%',
-        display: heightIntrinsic ? '' : 'inline',
+        display: heightIntrinsic ? '' : 'inline'
       });
     }
 
     return {
       _sizeChanged: heightIntrinsicChanged,
-      _contentMutation: heightIntrinsicChanged,
+      _contentMutation: heightIntrinsicChanged
     };
   };
 };
 
-const createPaddingLifecycle = (lifecycleHub) => {
-  const { _structureSetup, _setLifecycleCommunication } = lifecycleHub;
-  const { _host, _padding, _viewport } = _structureSetup._targetObj;
-  const { _update: updatePaddingCache, _current: currentPaddingCache } = createCache(topRightBottomLeft.bind(0, _host, 'padding'), {
+const createPaddingLifecycle = lifecycleHub => {
+  const {
+    _structureSetup,
+    _setLifecycleCommunication
+  } = lifecycleHub;
+  const {
+    _host,
+    _padding,
+    _viewport
+  } = _structureSetup._targetObj;
+  const [updatePaddingCache, currentPaddingCache] = createCache(topRightBottomLeft.bind(0, _host, 'padding'), {
     _equal: equalTRBL,
-    _initialValue: topRightBottomLeft(),
+    _initialValue: topRightBottomLeft()
   });
   return (updateHints, checkOption, force) => {
-    let { _value: padding, _changed: paddingChanged } = currentPaddingCache(force);
-    const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
-    const { _sizeChanged, _directionIsRTL, _contentMutation } = updateHints;
-    const { _value: directionIsRTL, _changed: directionChanged } = _directionIsRTL;
-    const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = checkOption('paddingAbsolute');
+    let [padding, paddingChanged] = currentPaddingCache(force);
+    const {
+      _nativeScrollbarStyling,
+      _flexboxGlue
+    } = getEnvironment();
+    const {
+      _sizeChanged,
+      _directionIsRTL,
+      _contentMutation
+    } = updateHints;
+    const [directionIsRTL, directionChanged] = _directionIsRTL;
+    const [paddingAbsolute, paddingAbsoluteChanged] = checkOption('paddingAbsolute');
     const contentMutation = !_flexboxGlue && _contentMutation;
 
     if (_sizeChanged || paddingChanged || contentMutation) {
-      ({ _value: padding, _changed: paddingChanged } = updatePaddingCache(force));
+      [padding, paddingChanged] = updatePaddingCache(force);
     }
 
     const paddingStyleChanged = paddingAbsoluteChanged || directionChanged || paddingChanged;
 
     if (paddingStyleChanged) {
-      const paddingRelative = !paddingAbsolute || (!_padding && !_nativeScrollbarStyling);
+      const paddingRelative = !paddingAbsolute || !_padding && !_nativeScrollbarStyling;
       const paddingHorizontal = padding.r + padding.l;
       const paddingVertical = padding.t + padding.b;
       const paddingStyle = {
@@ -1779,15 +1853,15 @@ const createPaddingLifecycle = (lifecycleHub) => {
         marginBottom: paddingRelative ? -paddingVertical : 0,
         marginLeft: paddingRelative && directionIsRTL ? -paddingHorizontal : 0,
         top: paddingRelative ? -padding.t : 0,
-        right: paddingRelative ? (directionIsRTL ? -padding.r : 'auto') : 0,
-        left: paddingRelative ? (directionIsRTL ? 'auto' : -padding.l) : 0,
-        width: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
+        right: paddingRelative ? directionIsRTL ? -padding.r : 'auto' : 0,
+        left: paddingRelative ? directionIsRTL ? 'auto' : -padding.l : 0,
+        width: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : ''
       };
       const viewportStyle = {
         paddingTop: paddingRelative ? padding.t : 0,
         paddingRight: paddingRelative ? padding.r : 0,
         paddingBottom: paddingRelative ? padding.b : 0,
-        paddingLeft: paddingRelative ? padding.l : 0,
+        paddingLeft: paddingRelative ? padding.l : 0
       };
       style(_padding || _viewport, paddingStyle);
       style(_viewport, viewportStyle);
@@ -1795,38 +1869,42 @@ const createPaddingLifecycle = (lifecycleHub) => {
       _setLifecycleCommunication({
         _paddingInfo: {
           _absolute: !paddingRelative,
-          _padding: padding,
+          _padding: padding
         },
-        _viewportPaddingStyle: _padding ? viewportStyle : _extends_1({}, paddingStyle, viewportStyle),
+        _viewportPaddingStyle: _padding ? viewportStyle : _extends({}, paddingStyle, viewportStyle)
       });
     }
 
     return {
-      _paddingStyleChanged: paddingStyleChanged,
+      _paddingStyleChanged: paddingStyleChanged
     };
   };
 };
 
-const { max, abs: abs$1, round: round$1 } = Math;
+const {
+  max,
+  abs,
+  round
+} = Math;
 const overlaidScrollbarsHideOffset = 42;
 const whCacheOptions = {
   _equal: equalWH,
   _initialValue: {
     w: 0,
-    h: 0,
-  },
+    h: 0
+  }
 };
 
-const sizeFraction = (elm) => {
+const sizeFraction = elm => {
   const viewportOffsetSize = offsetSize(elm);
   const viewportRect = getBoundingClientRect(elm);
   return {
     w: viewportRect.width - viewportOffsetSize.w,
-    h: viewportRect.height - viewportOffsetSize.h,
+    h: viewportRect.height - viewportOffsetSize.h
   };
 };
 
-const fractionalPixelRatioTollerance = () => (window.devicePixelRatio % 1 === 0 ? 0 : 1);
+const fractionalPixelRatioTollerance = () => window.devicePixelRatio % 1 === 0 ? 0 : 1;
 
 const setAxisOverflowStyle = (horizontal, overflowAmount, behavior, styleObj) => {
   const overflowKey = horizontal ? 'overflowX' : 'overflowY';
@@ -1845,81 +1923,104 @@ const setAxisOverflowStyle = (horizontal, overflowAmount, behavior, styleObj) =>
 
   return {
     _visible: behaviorIsVisible,
-    _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
+    _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll'
   };
 };
 
-const createOverflowLifecycle = (lifecycleHub) => {
-  const { _structureSetup, _doViewportArrange, _getLifecycleCommunication, _setLifecycleCommunication } = lifecycleHub;
-  const { _host, _viewport, _viewportArrange } = _structureSetup._targetObj;
-  const { _update: updateViewportSizeFraction, _current: getCurrentViewportSizeFraction } = createCache(
-    sizeFraction.bind(0, _viewport),
-    whCacheOptions
-  );
-  const { _update: updateViewportScrollSizeCache, _current: getCurrentViewportScrollSizeCache } = createCache(
-    scrollSize.bind(0, _viewport),
-    whCacheOptions
-  );
-  const { _update: updateOverflowAmountCache, _current: getCurrentOverflowAmountCache } = createCache(
-    ({ _viewportScrollSize, _viewportClientSize, _viewportSizeFraction }) => ({
-      w: max(
-        0,
-        round$1(max(0, _viewportScrollSize.w - _viewportClientSize.w) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.w)))
-      ),
-      h: max(
-        0,
-        round$1(max(0, _viewportScrollSize.h - _viewportClientSize.h) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.h)))
-      ),
-    }),
-    whCacheOptions
-  );
+const createOverflowLifecycle = lifecycleHub => {
+  const {
+    _structureSetup,
+    _doViewportArrange,
+    _getLifecycleCommunication,
+    _setLifecycleCommunication
+  } = lifecycleHub;
+  const {
+    _host,
+    _viewport,
+    _viewportArrange
+  } = _structureSetup._targetObj;
+  const [updateViewportSizeFraction, getCurrentViewportSizeFraction] = createCache(sizeFraction.bind(0, _viewport), whCacheOptions);
+  const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache(scrollSize.bind(0, _viewport), whCacheOptions);
+  const [updateOverflowAmountCache, getCurrentOverflowAmountCache] = createCache(({
+    _viewportScrollSize,
+    _viewportClientSize,
+    _viewportSizeFraction
+  }) => ({
+    w: max(0, round(max(0, _viewportScrollSize.w - _viewportClientSize.w) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.w)))),
+    h: max(0, round(max(0, _viewportScrollSize.h - _viewportClientSize.h) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.h))))
+  }), whCacheOptions);
 
   const fixFlexboxGlue = (viewportOverflowState, heightIntrinsic) => {
     style(_viewport, {
-      height: '',
+      height: ''
     });
 
     if (heightIntrinsic) {
-      const { _absolute: paddingAbsolute, _padding: padding } = _getLifecycleCommunication()._paddingInfo;
+      const {
+        _nativeScrollbarIsOverlaid
+      } = getEnvironment();
 
-      const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
+      const {
+        _absolute: paddingAbsolute,
+        _padding: padding
+      } = _getLifecycleCommunication()._paddingInfo;
+
+      const {
+        _overflowScroll,
+        _scrollbarsHideOffset
+      } = viewportOverflowState;
       const hostSizeFraction = sizeFraction(_host);
       const hostClientSize = clientSize(_host);
-      const paddingVertical = paddingAbsolute || style(_viewport, 'boxSizing') === 'content-box' ? padding.b + padding.t : 0;
-      const fractionalClientHeight = hostClientSize.h + (abs$1(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
+      const isContentBox = style(_viewport, 'boxSizing') === 'content-box';
+      const paddingVertical = paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
+      const fractionalClientHeight = hostClientSize.h + (abs(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
+      const subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
       style(_viewport, {
-        height: fractionalClientHeight + (_overflowScroll.x ? _scrollbarsHideOffset.x : 0) - paddingVertical,
+        height: fractionalClientHeight + (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) - paddingVertical
       });
     }
   };
 
   const getViewportOverflowState = (showNativeOverlaidScrollbars, viewportStyleObj) => {
-    const { _nativeScrollbarSize, _nativeScrollbarIsOverlaid, _nativeScrollbarStyling } = getEnvironment();
-    const { x: overlaidX, y: overlaidY } = _nativeScrollbarIsOverlaid;
+    const {
+      _nativeScrollbarSize,
+      _nativeScrollbarIsOverlaid,
+      _nativeScrollbarStyling
+    } = getEnvironment();
+    const {
+      x: overlaidX,
+      y: overlaidY
+    } = _nativeScrollbarIsOverlaid;
     const determineOverflow = !viewportStyleObj;
     const arrangeHideOffset = !_nativeScrollbarStyling && !showNativeOverlaidScrollbars ? overlaidScrollbarsHideOffset : 0;
     const styleObj = determineOverflow ? style(_viewport, ['overflowX', 'overflowY']) : viewportStyleObj;
     const scroll = {
       x: styleObj.overflowX === 'scroll',
-      y: styleObj.overflowY === 'scroll',
+      y: styleObj.overflowY === 'scroll'
     };
     const scrollbarsHideOffset = {
-      x: scroll.x && !_nativeScrollbarStyling ? (overlaidX ? arrangeHideOffset : _nativeScrollbarSize.x) : 0,
-      y: scroll.y && !_nativeScrollbarStyling ? (overlaidY ? arrangeHideOffset : _nativeScrollbarSize.y) : 0,
+      x: scroll.x && !_nativeScrollbarStyling ? overlaidX ? arrangeHideOffset : _nativeScrollbarSize.x : 0,
+      y: scroll.y && !_nativeScrollbarStyling ? overlaidY ? arrangeHideOffset : _nativeScrollbarSize.y : 0
     };
     return {
       _overflowScroll: scroll,
       _scrollbarsHideOffsetArrange: {
         x: overlaidX && !!arrangeHideOffset,
-        y: overlaidY && !!arrangeHideOffset,
+        y: overlaidY && !!arrangeHideOffset
       },
-      _scrollbarsHideOffset: scrollbarsHideOffset,
+      _scrollbarsHideOffset: scrollbarsHideOffset
     };
   };
 
   const setViewportOverflowState = (showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyleObj) => {
-    const { _visible: xVisible, _behavior: xVisibleBehavior } = setAxisOverflowStyle(true, overflowAmount.w, overflow.x, viewportStyleObj);
-    const { _visible: yVisible, _behavior: yVisibleBehavior } = setAxisOverflowStyle(false, overflowAmount.h, overflow.y, viewportStyleObj);
+    const {
+      _visible: xVisible,
+      _behavior: xVisibleBehavior
+    } = setAxisOverflowStyle(true, overflowAmount.w, overflow.x, viewportStyleObj);
+    const {
+      _visible: yVisible,
+      _behavior: yVisibleBehavior
+    } = setAxisOverflowStyle(false, overflowAmount.h, overflow.y, viewportStyleObj);
 
     if (xVisible && !yVisible) {
       viewportStyleObj.overflowX = xVisibleBehavior;
@@ -1934,27 +2035,42 @@ const createOverflowLifecycle = (lifecycleHub) => {
 
   const arrangeViewport = (viewportOverflowState, viewportScrollSize, viewportSizeFraction, directionIsRTL) => {
     if (_doViewportArrange) {
-      const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
-      const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
-      const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
+      const {
+        _scrollbarsHideOffset,
+        _scrollbarsHideOffsetArrange
+      } = viewportOverflowState;
+      const {
+        x: arrangeX,
+        y: arrangeY
+      } = _scrollbarsHideOffsetArrange;
+      const {
+        x: hideOffsetX,
+        y: hideOffsetY
+      } = _scrollbarsHideOffset;
 
-      const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
+      const {
+        _viewportPaddingStyle: viewportPaddingStyle
+      } = _getLifecycleCommunication();
 
       const viewportArrangeHorizontalPaddingKey = directionIsRTL ? 'paddingRight' : 'paddingLeft';
       const viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
       const viewportArrangeVerticalPaddingValue = viewportPaddingStyle.paddingTop;
-      const fractionalContentWidth = viewportScrollSize.w + (abs$1(viewportSizeFraction.w) < 1 ? viewportSizeFraction.w : 0);
-      const fractionalContenHeight = viewportScrollSize.h + (abs$1(viewportSizeFraction.h) < 1 ? viewportSizeFraction.h : 0);
+      const fractionalContentWidth = viewportScrollSize.w + (abs(viewportSizeFraction.w) < 1 ? viewportSizeFraction.w : 0);
+      const fractionalContenHeight = viewportScrollSize.h + (abs(viewportSizeFraction.h) < 1 ? viewportSizeFraction.h : 0);
       const arrangeSize = {
         w: hideOffsetY && arrangeY ? `${hideOffsetY + fractionalContentWidth - viewportArrangeHorizontalPaddingValue}px` : '',
-        h: hideOffsetX && arrangeX ? `${hideOffsetX + fractionalContenHeight - viewportArrangeVerticalPaddingValue}px` : '',
+        h: hideOffsetX && arrangeX ? `${hideOffsetX + fractionalContenHeight - viewportArrangeVerticalPaddingValue}px` : ''
       };
 
       if (_viewportArrange) {
-        const { sheet } = _viewportArrange;
+        const {
+          sheet
+        } = _viewportArrange;
 
         if (sheet) {
-          const { cssRules } = sheet;
+          const {
+            cssRules
+          } = sheet;
 
           if (cssRules) {
             if (!cssRules.length) {
@@ -1969,7 +2085,7 @@ const createOverflowLifecycle = (lifecycleHub) => {
       } else {
         style(_viewport, {
           '--os-vaw': arrangeSize.w,
-          '--os-vah': arrangeSize.h,
+          '--os-vah': arrangeSize.h
         });
       }
     }
@@ -1978,11 +2094,22 @@ const createOverflowLifecycle = (lifecycleHub) => {
   };
 
   const hideNativeScrollbars = (viewportOverflowState, directionIsRTL, viewportArrange, viewportStyleObj) => {
-    const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
-    const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
-    const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
+    const {
+      _scrollbarsHideOffset,
+      _scrollbarsHideOffsetArrange
+    } = viewportOverflowState;
+    const {
+      x: arrangeX,
+      y: arrangeY
+    } = _scrollbarsHideOffsetArrange;
+    const {
+      x: hideOffsetX,
+      y: hideOffsetY
+    } = _scrollbarsHideOffset;
 
-    const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
+    const {
+      _viewportPaddingStyle: viewportPaddingStyle
+    } = _getLifecycleCommunication();
 
     const horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
     const viewportHorizontalPaddingKey = directionIsRTL ? 'paddingLeft' : 'paddingRight';
@@ -2004,17 +2131,25 @@ const createOverflowLifecycle = (lifecycleHub) => {
     if (_doViewportArrange) {
       const finalViewportOverflowState = viewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars);
 
-      const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
+      const {
+        _viewportPaddingStyle: viewportPaddingStyle
+      } = _getLifecycleCommunication();
 
-      const { _flexboxGlue } = getEnvironment();
-      const { _scrollbarsHideOffsetArrange } = finalViewportOverflowState;
-      const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
+      const {
+        _flexboxGlue
+      } = getEnvironment();
+      const {
+        _scrollbarsHideOffsetArrange
+      } = finalViewportOverflowState;
+      const {
+        x: arrangeX,
+        y: arrangeY
+      } = _scrollbarsHideOffsetArrange;
       const finalPaddingStyle = {};
 
-      const assignProps = (props) =>
-        each(props.split(' '), (prop) => {
-          finalPaddingStyle[prop] = viewportPaddingStyle[prop];
-        });
+      const assignProps = props => each(props.split(' '), prop => {
+        finalPaddingStyle[prop] = viewportPaddingStyle[prop];
+      });
 
       if (!_flexboxGlue) {
         finalPaddingStyle.height = '';
@@ -2037,26 +2172,34 @@ const createOverflowLifecycle = (lifecycleHub) => {
           style(_viewport, prevStyle);
           addClass(_viewport, classNameViewportArrange);
         },
-        _viewportOverflowState: finalViewportOverflowState,
+        _viewportOverflowState: finalViewportOverflowState
       };
     }
 
     return {
-      _redoViewportArrange: noop,
+      _redoViewportArrange: noop
     };
   };
 
   return (updateHints, checkOption, force) => {
-    const { _directionIsRTL, _heightIntrinsic, _sizeChanged, _hostMutation, _contentMutation, _paddingStyleChanged } = updateHints;
-    const { _flexboxGlue, _nativeScrollbarStyling, _nativeScrollbarIsOverlaid } = getEnvironment();
-    const { _value: heightIntrinsic, _changed: heightIntrinsicChanged } = _heightIntrinsic;
-    const { _value: directionIsRTL, _changed: directionChanged } = _directionIsRTL;
-    const { _value: showNativeOverlaidScrollbarsOption, _changed: showNativeOverlaidScrollbarsChanged } = checkOption(
-      'nativeScrollbarsOverlaid.show'
-    );
+    const {
+      _directionIsRTL,
+      _heightIntrinsic,
+      _sizeChanged,
+      _hostMutation,
+      _contentMutation,
+      _paddingStyleChanged
+    } = updateHints;
+    const {
+      _flexboxGlue,
+      _nativeScrollbarStyling,
+      _nativeScrollbarIsOverlaid
+    } = getEnvironment();
+    const [heightIntrinsic, heightIntrinsicChanged] = _heightIntrinsic;
+    const [directionIsRTL, directionChanged] = _directionIsRTL;
+    const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = checkOption('nativeScrollbarsOverlaid.show');
     const showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
-    const adjustFlexboxGlue =
-      !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || heightIntrinsicChanged);
+    const adjustFlexboxGlue = !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || heightIntrinsicChanged);
     let viewportSizeFractionCache = getCurrentViewportSizeFraction(force);
     let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
     let overflowAmuntCache = getCurrentOverflowAmountCache(force);
@@ -2076,27 +2219,19 @@ const createOverflowLifecycle = (lifecycleHub) => {
     }
 
     if (_sizeChanged || _paddingStyleChanged || _contentMutation || showNativeOverlaidScrollbarsChanged || directionChanged) {
-      const { _redoViewportArrange, _viewportOverflowState: undoViewportArrangeOverflowState } = undoViewportArrange(
-        showNativeOverlaidScrollbars,
-        directionIsRTL,
-        preMeasureViewportOverflowState
-      );
-      const { _value: _viewportSizeFraction2, _changed: viewportSizeFractionCahnged } = (viewportSizeFractionCache = updateViewportSizeFraction(
-        force
-      ));
-      const { _value: _viewportScrollSize2, _changed: _viewportScrollSizeChanged } = (viewportScrollSizeCache = updateViewportScrollSizeCache(force));
+      const {
+        _redoViewportArrange,
+        _viewportOverflowState: undoViewportArrangeOverflowState
+      } = undoViewportArrange(showNativeOverlaidScrollbars, directionIsRTL, preMeasureViewportOverflowState);
+      const [_viewportSizeFraction2, viewportSizeFractionCahnged] = viewportSizeFractionCache = updateViewportSizeFraction(force);
+      const [_viewportScrollSize2, _viewportScrollSizeChanged] = viewportScrollSizeCache = updateViewportScrollSizeCache(force);
       const viewportContentSize = clientSize(_viewport);
       let arrangedViewportScrollSize = _viewportScrollSize2;
       let arrangedViewportClientSize = viewportContentSize;
 
       _redoViewportArrange();
 
-      if (
-        (_viewportScrollSizeChanged || viewportSizeFractionCahnged || showNativeOverlaidScrollbarsChanged) &&
-        undoViewportArrangeOverflowState &&
-        !showNativeOverlaidScrollbars &&
-        arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize2, _viewportSizeFraction2, directionIsRTL)
-      ) {
+      if ((_viewportScrollSizeChanged || viewportSizeFractionCahnged || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize2, _viewportSizeFraction2, directionIsRTL)) {
         arrangedViewportClientSize = clientSize(_viewport);
         arrangedViewportScrollSize = scrollSize(_viewport);
       }
@@ -2105,37 +2240,28 @@ const createOverflowLifecycle = (lifecycleHub) => {
         _viewportSizeFraction: _viewportSizeFraction2,
         _viewportScrollSize: {
           w: max(_viewportScrollSize2.w, arrangedViewportScrollSize.w),
-          h: max(_viewportScrollSize2.h, arrangedViewportScrollSize.h),
+          h: max(_viewportScrollSize2.h, arrangedViewportScrollSize.h)
         },
         _viewportClientSize: {
           w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - _viewportScrollSize2.w),
-          h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize2.h),
-        },
+          h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize2.h)
+        }
       });
     }
 
-    const { _value: viewportSizeFraction, _changed: viewportSizeFractionChanged } = viewportSizeFractionCache;
-    const { _value: viewportScrollSize, _changed: viewportScrollSizeChanged } = viewportScrollSizeCache;
-    const { _value: overflowAmount, _changed: overflowAmountChanged } = overflowAmuntCache;
-    const { _value: overflow, _changed: overflowChanged } = checkOption('overflow');
+    const [viewportSizeFraction, viewportSizeFractionChanged] = viewportSizeFractionCache;
+    const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
+    const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
+    const [overflow, overflowChanged] = checkOption('overflow');
 
-    if (
-      _paddingStyleChanged ||
-      viewportSizeFractionChanged ||
-      viewportScrollSizeChanged ||
-      overflowAmountChanged ||
-      overflowChanged ||
-      showNativeOverlaidScrollbarsChanged ||
-      directionChanged ||
-      adjustFlexboxGlue
-    ) {
+    if (_paddingStyleChanged || viewportSizeFractionChanged || viewportScrollSizeChanged || overflowAmountChanged || overflowChanged || showNativeOverlaidScrollbarsChanged || directionChanged || adjustFlexboxGlue) {
       const viewportStyle = {
         marginRight: 0,
         marginBottom: 0,
         marginLeft: 0,
         width: '',
         overflowY: '',
-        overflowX: '',
+        overflowX: ''
       };
       const viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyle);
       const viewportArranged = arrangeViewport(viewportOverflowState, viewportScrollSize, viewportSizeFraction, directionIsRTL);
@@ -2149,20 +2275,15 @@ const createOverflowLifecycle = (lifecycleHub) => {
 
       _setLifecycleCommunication({
         _viewportOverflowScroll: viewportOverflowState._overflowScroll,
-        _viewportOverflowAmount: overflowAmount,
+        _viewportOverflowAmount: overflowAmount
       });
     }
   };
 };
 
-const getPropByPath = (obj, path) =>
-  obj ? path.split('.').reduce((o, prop) => (o && hasOwnProperty$1(o, prop) ? o[prop] : undefined), obj) : undefined;
+const getPropByPath = (obj, path) => obj ? path.split('.').reduce((o, prop) => o && hasOwnProperty(o, prop) ? o[prop] : undefined, obj) : undefined;
 
-const booleanCacheValuesFallback = {
-  _value: false,
-  _previous: false,
-  _changed: false,
-};
+const booleanCacheValuesFallback = [false, false, false];
 const lifecycleCommunicationFallback = {
   _paddingInfo: {
     _absolute: false,
@@ -2170,16 +2291,16 @@ const lifecycleCommunicationFallback = {
       t: 0,
       r: 0,
       b: 0,
-      l: 0,
-    },
+      l: 0
+    }
   },
   _viewportOverflowScroll: {
     x: false,
-    y: false,
+    y: false
   },
   _viewportOverflowAmount: {
     w: 0,
-    h: 0,
+    h: 0
   },
   _viewportPaddingStyle: {
     marginRight: 0,
@@ -2188,18 +2309,20 @@ const lifecycleCommunicationFallback = {
     paddingTop: 0,
     paddingRight: 0,
     paddingBottom: 0,
-    paddingLeft: 0,
-  },
+    paddingLeft: 0
+  }
 };
-const createLifecycleHub = (options, structureSetup) => {
+const createLifecycleHub = (options, structureSetup, scrollbarsSetup) => {
   let lifecycleCommunication = lifecycleCommunicationFallback;
-  const { _viewport } = structureSetup._targetObj;
+  const {
+    _viewport
+  } = structureSetup._targetObj;
   const {
     _nativeScrollbarStyling,
     _nativeScrollbarIsOverlaid,
     _flexboxGlue,
     _addListener: addEnvironmentListener,
-    _removeListener: removeEnvironmentListener,
+    _removeListener: removeEnvironmentListener
   } = getEnvironment();
   const doViewportArrange = !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
   const instance = {
@@ -2210,7 +2333,8 @@ const createLifecycleHub = (options, structureSetup) => {
 
     _setLifecycleCommunication(newLifecycleCommunication) {
       lifecycleCommunication = assignDeep({}, lifecycleCommunication, newLifecycleCommunication);
-    },
+    }
+
   };
   const lifecycles = [createTrinsicLifecycle(instance), createPaddingLifecycle(instance), createOverflowLifecycle(instance)];
 
@@ -2221,17 +2345,12 @@ const createLifecycleHub = (options, structureSetup) => {
       _sizeChanged = force || false,
       _hostMutation = force || false,
       _contentMutation = force || false,
-      _paddingStyleChanged = force || false,
+      _paddingStyleChanged = force || false
     } = updateHints || {};
-    const finalDirectionIsRTL =
-      _directionIsRTL || (_sizeObserver ? _sizeObserver._getCurrentCacheValues(force)._directionIsRTL : booleanCacheValuesFallback);
-    const finalHeightIntrinsic =
-      _heightIntrinsic || (_trinsicObserver ? _trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : booleanCacheValuesFallback);
+    const finalDirectionIsRTL = _directionIsRTL || (_sizeObserver ? _sizeObserver._getCurrentCacheValues(force)._directionIsRTL : booleanCacheValuesFallback);
+    const finalHeightIntrinsic = _heightIntrinsic || (_trinsicObserver ? _trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : booleanCacheValuesFallback);
 
-    const checkOption = (path) => ({
-      _value: getPropByPath(options, path),
-      _changed: force || getPropByPath(changedOptions, path) !== undefined,
-    });
+    const checkOption = path => [getPropByPath(options, path), force || getPropByPath(changedOptions, path) !== undefined];
 
     const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
@@ -2241,25 +2360,20 @@ const createLifecycleHub = (options, structureSetup) => {
       _updateObserverOptions(checkOption);
     }
 
-    each(lifecycles, (lifecycle) => {
+    each(lifecycles, lifecycle => {
       const {
         _sizeChanged: adaptiveSizeChanged,
         _hostMutation: adaptiveHostMutation,
         _contentMutation: adaptiveContentMutation,
-        _paddingStyleChanged: adaptivePaddingStyleChanged,
-      } =
-        lifecycle(
-          {
-            _directionIsRTL: finalDirectionIsRTL,
-            _heightIntrinsic: finalHeightIntrinsic,
-            _sizeChanged,
-            _hostMutation,
-            _contentMutation,
-            _paddingStyleChanged,
-          },
-          checkOption,
-          !!force
-        ) || {};
+        _paddingStyleChanged: adaptivePaddingStyleChanged
+      } = lifecycle({
+        _directionIsRTL: finalDirectionIsRTL,
+        _heightIntrinsic: finalHeightIntrinsic,
+        _sizeChanged,
+        _hostMutation,
+        _contentMutation,
+        _paddingStyleChanged
+      }, checkOption, !!force) || {};
       _sizeChanged = adaptiveSizeChanged || _sizeChanged;
       _hostMutation = adaptiveHostMutation || _hostMutation;
       _contentMutation = adaptiveContentMutation || _contentMutation;
@@ -2279,7 +2393,12 @@ const createLifecycleHub = (options, structureSetup) => {
     }
   };
 
-  const { _sizeObserver, _trinsicObserver, _updateObserverOptions, _destroy: destroyObservers } = lifecycleHubOservers(instance, updateLifecycles);
+  const {
+    _sizeObserver,
+    _trinsicObserver,
+    _updateObserverOptions,
+    _destroy: destroyObservers
+  } = lifecycleHubOservers(instance, updateLifecycles);
 
   const update = (changedOptions, force) => updateLifecycles(null, changedOptions, force);
 
@@ -2289,25 +2408,35 @@ const createLifecycleHub = (options, structureSetup) => {
   return {
     _update: update,
     _state: () => ({
-      _overflowAmount: lifecycleCommunication._viewportOverflowAmount,
+      _overflowAmount: lifecycleCommunication._viewportOverflowAmount
     }),
 
     _destroy() {
       destroyObservers();
       removeEnvironmentListener(envUpdateListener);
-    },
+
+      structureSetup._destroy();
+
+      scrollbarsSetup._destroy();
+    }
+
   };
 };
 
 const OverlayScrollbars = (target, options, extensions) => {
-  const { _getDefaultOptions } = getEnvironment();
+  const {
+    _getDefaultOptions
+  } = getEnvironment();
   const currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options || {}, optionsTemplate, null, true)._validated);
   const structureSetup = createStructureSetup(target);
-  const lifecycleHub = createLifecycleHub(currentOptions, structureSetup);
+  const scrollbarsSetup = createScrollbarsSetup(target, structureSetup);
+  const lifecycleHub = createLifecycleHub(currentOptions, structureSetup, scrollbarsSetup);
   const instance = {
     options(newOptions) {
       if (newOptions) {
-        const { _validated: _changedOptions } = validateOptions(newOptions, optionsTemplate, currentOptions, true);
+        const {
+          _validated: _changedOptions
+        } = validateOptions(newOptions, optionsTemplate, currentOptions, true);
 
         if (!isEmptyObject(_changedOptions)) {
           assignDeep(currentOptions, _changedOptions);
@@ -2324,10 +2453,12 @@ const OverlayScrollbars = (target, options, extensions) => {
     update(force) {
       lifecycleHub._update(null, force);
     },
+
+    destroy: () => lifecycleHub._destroy()
   };
   instance.update(true);
   return instance;
 };
 
-export default OverlayScrollbars;
+export { OverlayScrollbars as default };
 //# sourceMappingURL=overlayscrollbars.esm.js.map

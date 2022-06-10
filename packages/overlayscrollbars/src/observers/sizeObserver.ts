@@ -22,6 +22,7 @@ import {
   isArray,
   isBoolean,
   removeClass,
+  isObject,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -53,24 +54,10 @@ export interface SizeObserver {
   };
 }
 
-/*
-const directionIsRTLMap = {
-  direction: ['rtl'],
-  'writing-mode': ['sideways-rl', 'tb', 'tb-rl', 'vertical-rl'],
-};
-const directionIsRTL = (elm: HTMLElement): boolean => {
-  let isRTL = false;
-  const styles = style(elm, ['direction', 'writing-mode']);
-  each(styles, (value, key) => {
-    isRTL = isRTL || indexOf(directionIsRTLMap[key], value) > -1;
-  });
-  return isRTL;
-};
-*/
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
-const directionIsRTL = (elm: HTMLElement): boolean => style(elm, 'direction') === 'rtl';
+const getElmDirectionIsRTL = (elm: HTMLElement): boolean => style(elm, 'direction') === 'rtl';
 const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height || rect.width);
 
 /**
@@ -85,12 +72,20 @@ export const createSizeObserver = (
   onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
 ): SizeObserver => {
-  const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } = options || {};
+  const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } =
+    options || {};
   const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
-  const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
+  const baseElements = createDOM(
+    `<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`
+  );
   const sizeObserver = baseElements[0] as HTMLElement;
   const listenerElement = sizeObserver.firstChild as HTMLElement;
-  const { _update: updateResizeObserverContentRectCache } = createCache<DOMRectReadOnly, DOMRectReadOnly>(0, {
+  const getIsDirectionRTL = getElmDirectionIsRTL.bind(0, sizeObserver);
+  const [updateResizeObserverContentRectCache] = createCache<
+    DOMRectReadOnly | undefined,
+    DOMRectReadOnly
+  >(0, {
+    _initialValue: undefined,
     _alwaysUpdateValues: true,
     _equal: (currVal, newVal) =>
       !(
@@ -99,26 +94,37 @@ export const createSizeObserver = (
         (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
       ),
   });
-  const onSizeChangedCallbackProxy = (sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry[] | Event | boolean) => {
-    const hasDirectionCache = sizeChangedContext && isBoolean((sizeChangedContext as CacheValues<boolean>)._value);
+  const onSizeChangedCallbackProxy = (
+    sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry[] | Event | boolean
+  ) => {
+    const isResizeObserverCall =
+      isArray(sizeChangedContext) &&
+      sizeChangedContext.length > 0 &&
+      isObject(sizeChangedContext[0]);
+
+    const hasDirectionCache =
+      !isResizeObserverCall && isBoolean((sizeChangedContext as CacheValues<boolean>)[0]);
 
     let skip = false;
     let appear: boolean | number | undefined = false;
     let doDirectionScroll = true; // always true if sizeChangedContext is Event (appear callback or RO. Polyfill)
 
     // if triggered from RO.
-    if (isArray(sizeChangedContext) && sizeChangedContext.length > 0) {
-      const { _previous, _value } = updateResizeObserverContentRectCache(0, sizeChangedContext.pop()!.contentRect);
-      const hasDimensions = domRectHasDimensions(_value);
-      const hadDimensions = domRectHasDimensions(_previous);
-      skip = !_previous || !hasDimensions; // skip on initial RO. call or if display is none
+    if (isResizeObserverCall) {
+      const [currRContentRect, , prevContentRect] = updateResizeObserverContentRectCache(
+        0,
+        (sizeChangedContext as ResizeObserverEntry[]).pop()!.contentRect
+      );
+      const hasDimensions = domRectHasDimensions(currRContentRect);
+      const hadDimensions = domRectHasDimensions(prevContentRect);
+      skip = !prevContentRect || !hasDimensions; // skip on initial RO. call or if display is none
       appear = !hadDimensions && hasDimensions;
 
       doDirectionScroll = !skip; // direction scroll when not skipping
     }
     // else if its triggered with DirectionCache
     else if (hasDirectionCache) {
-      doDirectionScroll = (sizeChangedContext as CacheValues<boolean>)._changed; // direction scroll when DirectionCache changed, false otherwise
+      [, doDirectionScroll] = sizeChangedContext as CacheValues<boolean>; // direction scroll when DirectionCache changed, false otherwise
     }
     // else if it triggered with appear from polyfill
     else {
@@ -126,21 +132,36 @@ export const createSizeObserver = (
     }
 
     if (observeDirectionChange && doDirectionScroll) {
-      const rtl = hasDirectionCache ? (sizeChangedContext as CacheValues<boolean>)._value : directionIsRTL(sizeObserver);
-      scrollLeft(sizeObserver, rtl ? (rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount) : scrollAmount);
+      const rtl = hasDirectionCache
+        ? (sizeChangedContext as CacheValues<boolean>)[0]
+        : getElmDirectionIsRTL(sizeObserver);
+      scrollLeft(
+        sizeObserver,
+        rtl
+          ? rtlScrollBehavior.n
+            ? -scrollAmount
+            : rtlScrollBehavior.i
+            ? 0
+            : scrollAmount
+          : scrollAmount
+      );
       scrollTop(sizeObserver, scrollAmount);
     }
 
     if (!skip) {
       onSizeChangedCallback({
         _sizeChanged: !hasDirectionCache,
-        _directionIsRTLCache: hasDirectionCache ? (sizeChangedContext as CacheValues<boolean>) : undefined,
+        _directionIsRTLCache: hasDirectionCache
+          ? (sizeChangedContext as CacheValues<boolean>)
+          : undefined,
         _appear: !!appear,
       });
     }
   };
   const offListeners: (() => void)[] = [];
-  let appearCallback: ((...args: any) => any) | false = observeAppearChange ? onSizeChangedCallbackProxy : false;
+  let appearCallback: ((...args: any) => any) | false = observeAppearChange
+    ? onSizeChangedCallbackProxy
+    : false;
   let directionIsRTLCache: Cache<boolean> | undefined;
 
   if (ResizeObserverConstructor) {
@@ -196,7 +217,10 @@ export const createSizeObserver = (
       reset();
     };
 
-    push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
+    push(offListeners, [
+      on(expandElement, scrollEventName, onScroll),
+      on(shrinkElement, scrollEventName, onScroll),
+    ]);
 
     // lets assume that the divs will never be that large and a constant value is enough
     style(expandElementChild, {
@@ -210,17 +234,20 @@ export const createSizeObserver = (
   }
 
   if (observeDirectionChange) {
-    directionIsRTLCache = createCache(directionIsRTL.bind(0, sizeObserver));
-    const { _update: updateDirectionIsRTLCache } = directionIsRTLCache;
+    directionIsRTLCache = createCache(getIsDirectionRTL, {
+      _initialValue: !getIsDirectionRTL(), // invert current value to trigger initial change
+    });
+    const [updateDirectionIsRTLCache] = directionIsRTLCache;
+
     push(
       offListeners,
       on(sizeObserver, scrollEventName, (event: Event) => {
         const directionIsRTLCacheValues = updateDirectionIsRTLCache();
-        console.log;
-        const { _value, _changed } = directionIsRTLCacheValues;
-        if (_changed) {
+        const [directionIsRTL, directionIsRTLChanged] = directionIsRTLCacheValues;
+
+        if (directionIsRTLChanged) {
           removeClass(listenerElement, 'ltr rtl');
-          if (_value) {
+          if (directionIsRTL) {
             addClass(listenerElement, 'rtl');
           } else {
             addClass(listenerElement, 'ltr');
@@ -255,12 +282,8 @@ export const createSizeObserver = (
     _getCurrentCacheValues(force?: boolean) {
       return {
         _directionIsRTL: directionIsRTLCache
-          ? directionIsRTLCache._current(force)
-          : {
-              _value: false,
-              _previous: false,
-              _changed: false,
-            },
+          ? directionIsRTLCache[1](force) // get current cache values
+          : [false, false, false],
       };
     },
   };

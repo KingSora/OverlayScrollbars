@@ -1,11 +1,12 @@
-const base = require('../../rollup.config.base');
+const createRollupConfig = require('../../rollup.config.base');
+const { devDependencies, peerDependencies } = require('./package.json');
 
-const config = {
-  name: 'OverlayScrollbars',
-  exports: 'auto',
-  globals: {
-    jquery: 'jQuery',
+module.exports = createRollupConfig({
+  project: 'OverlayScrollbars',
+  rollup: {
+    external: Object.keys(devDependencies || {}).concat(Object.keys(peerDependencies || {})),
+    output: {
+      exports: 'auto',
+    },
   },
-};
-
-module.exports = (_, ...args) => base(config, ...args);
+});

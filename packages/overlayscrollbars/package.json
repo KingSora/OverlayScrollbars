@@ -3,12 +3,18 @@
   "private": true,
   "description": "OverlayScrollbars version 2",
   "version": "0.0.1",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "types": "types/index.d.ts",
   "scripts": {
     "test": "jest --coverage --runInBand --detectOpenHandles",
-    "test:jsdom": "jest --coverage --runInBand --detectOpenHandles --selectProjects jsdom --testPathPattern",
+    "test:jsdom": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
     "test:browser": "jest --runInBand --detectOpenHandles --selectProjects browser --testPathPattern",
     "test:browser:quick": "jest --runInBand --detectOpenHandles --selectProjects browser --testPathIgnorePatterns=\"/node_modules/|/structureLifecycle/\"",
     "test:browser-dev": "jest --runInBand --detectOpenHandles --selectProjects browser-dev --testPathPattern",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "test:playwright": "playwright test"
   }
 }

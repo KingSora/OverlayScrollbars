@@ -1,4 +1,16 @@
-import { XY, WH, TRBL, CacheValues, PartialOptions, each, hasOwnProperty, isNumber, scrollLeft, scrollTop, assignDeep } from 'support';
+import {
+  XY,
+  WH,
+  TRBL,
+  CacheValues,
+  PartialOptions,
+  each,
+  hasOwnProperty,
+  isNumber,
+  scrollLeft,
+  scrollTop,
+  assignDeep,
+} from 'support';
 import { OSOptions } from 'options';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
@@ -17,10 +29,7 @@ export type Lifecycle = (
   force: boolean
 ) => Partial<LifecycleAdaptiveUpdateHints> | void;
 
-export interface LifecycleOptionInfo<T> {
-  readonly _value: T;
-  _changed: boolean;
-}
+export type LifecycleOptionInfo<T> = [T, boolean];
 
 export interface LifecycleCommunication {
   _paddingInfo: {
@@ -64,13 +73,11 @@ export interface LifecycleHub {
 }
 
 const getPropByPath = <T>(obj: any, path: string): T =>
-  obj ? path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj) : undefined;
+  obj
+    ? path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj)
+    : undefined;
 
-const booleanCacheValuesFallback: CacheValues<boolean> = {
-  _value: false,
-  _previous: false,
-  _changed: false,
-};
+const booleanCacheValuesFallback: CacheValues<boolean> = [false, false, false];
 const lifecycleCommunicationFallback: LifecycleCommunication = {
   _paddingInfo: {
     _absolute: false,
@@ -100,7 +107,11 @@ const lifecycleCommunicationFallback: LifecycleCommunication = {
   },
 };
 
-export const createLifecycleHub = (options: OSOptions, structureSetup: StructureSetup, scrollbarsSetup: ScrollbarsSetup): LifecycleHubInstance => {
+export const createLifecycleHub = (
+  options: OSOptions,
+  structureSetup: StructureSetup,
+  scrollbarsSetup: ScrollbarsSetup
+): LifecycleHubInstance => {
   let lifecycleCommunication = lifecycleCommunicationFallback;
   const { _viewport } = structureSetup._targetObj;
   const {
@@ -110,7 +121,8 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
     _addListener: addEnvironmentListener,
     _removeListener: removeEnvironmentListener,
   } = getEnvironment();
-  const doViewportArrange = !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
+  const doViewportArrange =
+    !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
   const instance: LifecycleHub = {
     _options: options,
     _structureSetup: structureSetup,
@@ -120,11 +132,21 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
       lifecycleCommunication = assignDeep({}, lifecycleCommunication, newLifecycleCommunication);
     },
   };
-  const lifecycles: Lifecycle[] = [createTrinsicLifecycle(instance), createPaddingLifecycle(instance), createOverflowLifecycle(instance)];
+  const lifecycles: Lifecycle[] = [
+    createTrinsicLifecycle(instance),
+    createPaddingLifecycle(instance),
+    createOverflowLifecycle(instance),
+  ];
 
-  const updateLifecycles = (updateHints?: Partial<LifecycleUpdateHints> | null, changedOptions?: Partial<OSOptions> | null, force?: boolean) => {
+  const updateLifecycles = (
+    updateHints?: Partial<LifecycleUpdateHints> | null,
+    changedOptions?: Partial<OSOptions> | null,
+    force?: boolean
+  ) => {
     let {
+      // eslint-disable-next-line prefer-const
       _directionIsRTL,
+      // eslint-disable-next-line prefer-const
       _heightIntrinsic,
       _sizeChanged = force || false,
       _hostMutation = force || false,
@@ -133,13 +155,19 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
     } = updateHints || {};
 
     const finalDirectionIsRTL =
-      _directionIsRTL || (_sizeObserver ? _sizeObserver._getCurrentCacheValues(force)._directionIsRTL : booleanCacheValuesFallback);
+      _directionIsRTL ||
+      (_sizeObserver
+        ? _sizeObserver._getCurrentCacheValues(force)._directionIsRTL
+        : booleanCacheValuesFallback);
     const finalHeightIntrinsic =
-      _heightIntrinsic || (_trinsicObserver ? _trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : booleanCacheValuesFallback);
-    const checkOption: LifecycleCheckOption = (path) => ({
-      _value: getPropByPath(options, path),
-      _changed: force || getPropByPath(changedOptions, path) !== undefined,
-    });
+      _heightIntrinsic ||
+      (_trinsicObserver
+        ? _trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic
+        : booleanCacheValuesFallback);
+    const checkOption: LifecycleCheckOption = (path) => [
+      getPropByPath(options, path),
+      force || getPropByPath(changedOptions, path) !== undefined,
+    ];
     const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
     const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
@@ -186,9 +214,15 @@ export const createLifecycleHub = (options: OSOptions, structureSetup: Structure
       options.callbacks.onUpdated();
     }
   };
-  const { _sizeObserver, _trinsicObserver, _updateObserverOptions, _destroy: destroyObservers } = lifecycleHubOservers(instance, updateLifecycles);
+  const {
+    _sizeObserver,
+    _trinsicObserver,
+    _updateObserverOptions,
+    _destroy: destroyObservers,
+  } = lifecycleHubOservers(instance, updateLifecycles);
 
-  const update = (changedOptions?: Partial<OSOptions> | null, force?: boolean) => updateLifecycles(null, changedOptions, force);
+  const update = (changedOptions?: Partial<OSOptions> | null, force?: boolean) =>
+    updateLifecycles(null, changedOptions, force);
   const envUpdateListener = update.bind(null, null, true);
   addEnvironmentListener(envUpdateListener);
 

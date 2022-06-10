@@ -11,21 +11,24 @@ import { getEnvironment } from 'environment';
 export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
   const { _structureSetup, _setLifecycleCommunication } = lifecycleHub;
   const { _host, _padding, _viewport } = _structureSetup._targetObj;
-  const { _update: updatePaddingCache, _current: currentPaddingCache } = createCache<TRBL>(topRightBottomLeft.bind(0, _host, 'padding'), {
-    _equal: equalTRBL,
-    _initialValue: topRightBottomLeft(),
-  });
+  const [updatePaddingCache, currentPaddingCache] = createCache<TRBL>(
+    topRightBottomLeft.bind(0, _host, 'padding'),
+    {
+      _equal: equalTRBL,
+      _initialValue: topRightBottomLeft(),
+    }
+  );
 
   return (updateHints, checkOption, force) => {
-    let { _value: padding, _changed: paddingChanged } = currentPaddingCache(force);
+    let [padding, paddingChanged] = currentPaddingCache(force);
     const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
     const { _sizeChanged, _directionIsRTL, _contentMutation } = updateHints;
-    const { _value: directionIsRTL, _changed: directionChanged } = _directionIsRTL;
-    const { _value: paddingAbsolute, _changed: paddingAbsoluteChanged } = checkOption('paddingAbsolute');
+    const [directionIsRTL, directionChanged] = _directionIsRTL;
+    const [paddingAbsolute, paddingAbsoluteChanged] = checkOption('paddingAbsolute');
     const contentMutation = !_flexboxGlue && _contentMutation;
 
     if (_sizeChanged || paddingChanged || contentMutation) {
-      ({ _value: padding, _changed: paddingChanged } = updatePaddingCache(force));
+      [padding, paddingChanged] = updatePaddingCache(force);
     }
 
     const paddingStyleChanged = paddingAbsoluteChanged || directionChanged || paddingChanged;

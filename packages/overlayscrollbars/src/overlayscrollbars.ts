@@ -7,7 +7,11 @@ import { OSOptions, optionsTemplate } from 'options';
 import { getEnvironment } from 'environment';
 
 export interface OverlayScrollbarsStatic {
-  (target: OSTarget | OSInitializationObject, options?: PartialOptions<OSOptions>, extensions?: any): OverlayScrollbars;
+  (
+    target: OSTarget | OSInitializationObject,
+    options?: PartialOptions<OSOptions>,
+    extensions?: any
+  ): OverlayScrollbars;
 }
 
 export interface OverlayScrollbars {
@@ -29,7 +33,8 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   const currentOptions: OSOptions = assignDeep(
     {},
     _getDefaultOptions(),
-    validateOptions(options || ({} as PartialOptions<OSOptions>), optionsTemplate, null, true)._validated
+    validateOptions(options || ({} as PartialOptions<OSOptions>), optionsTemplate, null, true)
+      ._validated
   );
   const structureSetup: StructureSetup = createStructureSetup(target);
   const scrollbarsSetup: ScrollbarsSetup = createScrollbarsSetup(target, structureSetup);
@@ -38,7 +43,12 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   const instance: OverlayScrollbars = {
     options(newOptions?: PartialOptions<OSOptions>) {
       if (newOptions) {
-        const { _validated: _changedOptions } = validateOptions(newOptions, optionsTemplate, currentOptions, true);
+        const { _validated: _changedOptions } = validateOptions(
+          newOptions,
+          optionsTemplate,
+          currentOptions,
+          true
+        );
 
         if (!isEmptyObject(_changedOptions)) {
           assignDeep(currentOptions, _changedOptions);

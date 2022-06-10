@@ -1,9 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": "./src/",
+    "baseUrl": "./src",
     "paths": {
-      "@/testing-browser*": ["../../testing-browser/src*"]
+      "@/playwright/rollup": ["../playwright.rollup"],
+      "@/testing-browser*": ["../../testing-browser/src*"],
+      "@/overlayscrollbars*": ["../../overlayscrollbars/src*"]
     }
   }
 }

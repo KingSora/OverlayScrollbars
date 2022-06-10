@@ -1,41 +1,44 @@
-export interface CacheValues<T> {
-  readonly _value?: T;
-  readonly _previous?: T;
-  _changed: boolean;
-}
+export type CacheValues<T> = [
+  T, // value
+  boolean, // changed
+  T | undefined // previous
+];
+
+export type Cache<Value, Ctx = undefined> = [
+  CacheUpdate<Value, Ctx>,
+  (force?: boolean) => CacheValues<Value> // getCurrent
+];
 
 export interface CacheOptions<T> {
+  // initial value of _value.
+  _initialValue: T;
   // Custom comparison function if shallow compare isn't enough. Returns true if nothing changed.
   _equal?: EqualCachePropFunction<T>;
-  // Initial value for _value
-  _initialValue?: T;
-  // If true updates always _value and _previous, otherwise they update only when changed
+  // If true always updates _value and _previous, otherwise they update only when they changed.
   _alwaysUpdateValues?: boolean;
-}
-
-export interface Cache<T, C = undefined> {
-  _current: (force?: boolean) => CacheValues<T>;
-  _update: CacheUpdate<T, C>;
 }
 
 export type CacheUpdate<T, C> = undefined extends C
   ? (force?: boolean | 0, context?: C) => CacheValues<T>
   : (force: boolean | 0, context: C) => CacheValues<T>;
 
-export type UpdateCachePropFunction<T, C> = undefined extends C
-  ? (context?: C, current?: T, previous?: T) => T
-  : C extends T
-  ? ((context: C, current?: T, previous?: T) => T) | 0
-  : (context: C, current?: T, previous?: T) => T;
+export type UpdateCachePropFunction<Value, Ctx> = undefined extends Ctx
+  ? (context?: Ctx, current?: Value, previous?: Value) => Value
+  : Ctx extends Value
+  ? ((context: Ctx, current?: Value, previous?: Value) => Value) | 0
+  : (context: Ctx, current?: Value, previous?: Value) => Value;
 
 export type EqualCachePropFunction<T> = (currentVal?: T, newVal?: T) => boolean;
 
-export const createCache = <T, C = undefined>(update: UpdateCachePropFunction<T, C>, options?: CacheOptions<T>): Cache<T, C> => {
-  const { _equal, _initialValue, _alwaysUpdateValues } = options || {};
-  let _value: T | undefined = _initialValue;
-  let _previous: T | undefined;
+export const createCache = <Value, Ctx = undefined>(
+  update: UpdateCachePropFunction<Value, Ctx>,
+  options: CacheOptions<Value>
+): Cache<Value, Ctx> => {
+  const { _initialValue, _equal, _alwaysUpdateValues } = options || {};
+  let _value: Value = _initialValue;
+  let _previous: Value | undefined;
 
-  const cacheUpdate = ((force?: boolean | 0, context?: C) => {
+  const cacheUpdate = ((force?: boolean | 0, context?: Ctx) => {
     const curr = _value;
     // @ts-ignore
     // update can only not be a function if C extends T as described in "UpdateCachePropFunction" type definition
@@ -48,19 +51,15 @@ export const createCache = <T, C = undefined>(update: UpdateCachePropFunction<T,
       _previous = curr;
     }
 
-    return {
-      _value,
-      _previous,
-      _changed: changed,
-    };
-  }) as CacheUpdate<T, C>;
+    return [_value, changed, _previous];
+  }) as CacheUpdate<Value, Ctx>;
 
-  return {
-    _update: cacheUpdate,
-    _current: (force?: boolean) => ({
+  return [
+    cacheUpdate,
+    (force?: boolean) => [
       _value,
+      !!force, // changed
       _previous,
-      _changed: !!force,
-    }),
-  };
+    ],
+  ];
 };

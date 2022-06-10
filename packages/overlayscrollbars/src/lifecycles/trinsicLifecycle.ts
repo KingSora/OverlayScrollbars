@@ -12,7 +12,7 @@ export const createTrinsicLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
 
   return (updateHints) => {
     const { _heightIntrinsic } = updateHints;
-    const { _value: heightIntrinsic, _changed: heightIntrinsicChanged } = _heightIntrinsic;
+    const [heightIntrinsic, heightIntrinsicChanged] = _heightIntrinsic;
 
     if (heightIntrinsicChanged) {
       style(_content, {

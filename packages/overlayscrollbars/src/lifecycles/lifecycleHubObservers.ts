@@ -1,24 +1,40 @@
-import { CacheValues, diffClass, debounce, isArray, isNumber, each, indexOf, isString, attr, removeAttr } from 'support';
+import {
+  CacheValues,
+  diffClass,
+  debounce,
+  isArray,
+  isNumber,
+  each,
+  indexOf,
+  isString,
+  attr,
+  removeAttr,
+} from 'support';
 import { getEnvironment } from 'environment';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver, DOMObserver } from 'observers/domObserver';
 import { LifecycleHub, LifecycleCheckOption, LifecycleUpdateHints } from 'lifecycles/lifecycleHub';
 
-//const hostSelector = `.${classNameHost}`;
+// const hostSelector = `.${classNameHost}`;
 
 // TODO: observer textarea attrs if textarea
 // TODO: test _ignoreContentChange & _ignoreNestedTargetChange for content dom observer
 // TODO: test _ignoreTargetChange for target dom observer
 
-//const viewportSelector = `.${classNameViewport}`;
-//const contentSelector = `.${classNameContent}`;
+// const viewportSelector = `.${classNameViewport}`;
+// const contentSelector = `.${classNameContent}`;
 const ignorePrefix = 'os-';
 const viewportAttrsFromTarget = ['tabindex'];
 const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
 const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
 
-const ignoreTargetChange = (target: Node, attrName: string, oldValue: string | null, newValue: string | null) => {
+const ignoreTargetChange = (
+  target: Node,
+  attrName: string,
+  oldValue: string | null,
+  newValue: string | null
+) => {
   if (attrName === 'class' && oldValue && newValue) {
     const diff = diffClass(oldValue, newValue);
     return !!diff.find((addedOrRemovedClass) => addedOrRemovedClass.indexOf(ignorePrefix) !== 0);
@@ -26,7 +42,10 @@ const ignoreTargetChange = (target: Node, attrName: string, oldValue: string | n
   return false;
 };
 
-export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (updateHints?: Partial<LifecycleUpdateHints> | null) => unknown) => {
+export const lifecycleHubOservers = (
+  instance: LifecycleHub,
+  updateLifecycles: (updateHints?: Partial<LifecycleUpdateHints> | null) => unknown
+) => {
   let debounceTimeout: number | false | undefined;
   let debounceMaxDelay: number | false | undefined;
   let contentMutationObserver: DOMObserver | undefined;
@@ -35,24 +54,37 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
   const { _host, _viewport, _content } = _targetObj;
   const { _isTextarea } = _targetCtx;
   const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
-  const contentMutationObserverAttr = _isTextarea ? baseStyleChangingAttrsTextarea : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
-  const updateLifecyclesWithDebouncedAdaptiveUpdateHints = debounce(updateLifecycles as (updateHints: Partial<LifecycleUpdateHints>) => any, {
-    _timeout: () => debounceTimeout,
-    _maxDelay: () => debounceMaxDelay,
-    _mergeParams(prev, curr) {
-      const { _sizeChanged: prevSizeChanged, _hostMutation: prevHostMutation, _contentMutation: prevContentMutation } = prev[0];
-      const { _sizeChanged: currSizeChanged, _hostMutation: currvHostMutation, _contentMutation: currContentMutation } = curr[0];
-      const merged: [Partial<LifecycleUpdateHints>] = [
-        {
-          _sizeChanged: prevSizeChanged || currSizeChanged,
-          _hostMutation: prevHostMutation || currvHostMutation,
-          _contentMutation: prevContentMutation || currContentMutation,
-        },
-      ];
+  const contentMutationObserverAttr = _isTextarea
+    ? baseStyleChangingAttrsTextarea
+    : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
+  const updateLifecyclesWithDebouncedAdaptiveUpdateHints = debounce(
+    updateLifecycles as (updateHints: Partial<LifecycleUpdateHints>) => any,
+    {
+      _timeout: () => debounceTimeout,
+      _maxDelay: () => debounceMaxDelay,
+      _mergeParams(prev, curr) {
+        const {
+          _sizeChanged: prevSizeChanged,
+          _hostMutation: prevHostMutation,
+          _contentMutation: prevContentMutation,
+        } = prev[0];
+        const {
+          _sizeChanged: currSizeChanged,
+          _hostMutation: currvHostMutation,
+          _contentMutation: currContentMutation,
+        } = curr[0];
+        const merged: [Partial<LifecycleUpdateHints>] = [
+          {
+            _sizeChanged: prevSizeChanged || currSizeChanged,
+            _hostMutation: prevHostMutation || currvHostMutation,
+            _contentMutation: prevContentMutation || currContentMutation,
+          },
+        ];
 
-      return merged;
-    },
-  });
+        return merged;
+      },
+    }
+  );
 
   const updateViewportAttrsFromHost = (attributes?: string[]) => {
     each(attributes || viewportAttrsFromTarget, (attribute) => {
@@ -71,8 +103,15 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
       _heightIntrinsic: heightIntrinsic,
     });
   };
-  const onSizeChanged = ({ _sizeChanged, _directionIsRTLCache, _appear }: SizeObserverCallbackParams) => {
-    const updateFn = !_sizeChanged || _appear ? updateLifecycles : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
+  const onSizeChanged = ({
+    _sizeChanged,
+    _directionIsRTLCache,
+    _appear,
+  }: SizeObserverCallbackParams) => {
+    const updateFn =
+      !_sizeChanged || _appear
+        ? updateLifecycles
+        : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
     updateFn({
       _sizeChanged,
       _directionIsRTL: _directionIsRTLCache,
@@ -80,7 +119,9 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
   };
   const onContentMutation = (contentChangedTroughEvent: boolean) => {
     // if contentChangedTroughEvent is true its already debounced
-    const updateFn = contentChangedTroughEvent ? updateLifecycles : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
+    const updateFn = contentChangedTroughEvent
+      ? updateLifecycles
+      : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
     updateFn({
       _contentMutation: true,
     });
@@ -95,8 +136,12 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
     }
   };
 
-  const trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
-  const sizeObserver = createSizeObserver(_host, onSizeChanged, { _appear: true, _direction: !_nativeScrollbarStyling });
+  const trinsicObserver =
+    (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
+  const sizeObserver = createSizeObserver(_host, onSizeChanged, {
+    _appear: true,
+    _direction: !_nativeScrollbarStyling,
+  });
   const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: baseStyleChangingAttrs,
     _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
@@ -104,9 +149,13 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
   });
 
   const updateOptions = (checkOption: LifecycleCheckOption) => {
-    const { _value: elementEvents, _changed: elementEventsChanged } = checkOption<Array<[string, string]> | null>('updating.elementEvents');
-    const { _value: attributes, _changed: attributesChanged } = checkOption<string[] | null>('updating.attributes');
-    const { _value: debounce, _changed: debounceChanged } = checkOption<Array<number> | number | null>('updating.debounce');
+    const [elementEvents, elementEventsChanged] = checkOption<Array<[string, string]> | null>(
+      'updating.elementEvents'
+    );
+    const [attributes, attributesChanged] = checkOption<string[] | null>('updating.attributes');
+    const [debounceValue, debounceChanged] = checkOption<Array<number> | number | null>(
+      'updating.debounce'
+    );
     const updateContentMutationObserver = elementEventsChanged || attributesChanged;
 
     if (updateContentMutationObserver) {
@@ -119,7 +168,7 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
         _attributes: contentMutationObserverAttr.concat(attributes || []),
         _eventContentChange: elementEvents,
         _ignoreNestedTargetChange: ignoreTargetChange,
-        //_nestedTargetSelector: hostSelector,
+        // _nestedTargetSelector: hostSelector,
         /*
         _ignoreContentChange: (mutation, isNestedTarget) => {
           const { target, attributeName } = mutation;
@@ -135,13 +184,13 @@ export const lifecycleHubOservers = (instance: LifecycleHub, updateLifecycles: (
 
     if (debounceChanged) {
       updateLifecyclesWithDebouncedAdaptiveUpdateHints._flush();
-      if (isArray(debounce)) {
-        const timeout = debounce[0];
-        const maxWait = debounce[1];
+      if (isArray(debounceValue)) {
+        const timeout = debounceValue[0];
+        const maxWait = debounceValue[1];
         debounceTimeout = isNumber(timeout) ? timeout : false;
         debounceMaxDelay = isNumber(maxWait) ? maxWait : false;
-      } else if (isNumber(debounce)) {
-        debounceTimeout = debounce;
+      } else if (isNumber(debounceValue)) {
+        debounceTimeout = debounceValue;
         debounceMaxDelay = false;
       } else {
         debounceTimeout = false;

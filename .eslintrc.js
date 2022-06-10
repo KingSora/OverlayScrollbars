@@ -1,8 +1,12 @@
 const resolve = require('./resolve.config');
-const browserRollupConfig = require('./config/jest-puppeteer.rollup.config.js');
 
 module.exports = {
-  extends: ['plugin:jest-playwright/recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'airbnb', 'prettier'],
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'airbnb',
+    'prettier',
+  ],
   env: {
     browser: true,
     es2020: true,
@@ -43,6 +47,13 @@ module.exports = {
     'consistent-return': 'off',
     'import/prefer-default-export': 'off',
     'import/no-extraneous-dependencies': 'off',
+    'import/no-unresolved': [
+      'error',
+      {
+        ignore: [`^@/.*`],
+      },
+    ],
+    '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -52,12 +63,6 @@ module.exports = {
       {
         allowDestructuring: true, // Allow `const { props, state } = this`; false by default
         allowedNames: ['self', '_self'], // Allow `const self = this`; `[]` by default
-      },
-    ],
-    'import/no-unresolved': [
-      'error',
-      {
-        ignore: [`^@/.*`],
       },
     ],
     'import/extensions': [
@@ -73,8 +78,10 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.test.*', `*${browserRollupConfig.js.input}.*`],
+      files: ['*.test.*', '**/tests/**'],
       rules: {
+        'no-shadow': 'off',
+        'no-use-before-define': 'off',
         'no-restricted-syntax': 'off',
         '@typescript-eslint/ban-ts-comment': 'off',
         '@typescript-eslint/no-empty-function': 'off',
@@ -87,16 +94,10 @@ module.exports = {
         'no-void': 'off',
         'no-empty-function': 'off',
         'no-new-func': 'off',
-        'import/no-unresolved': [
-          'error',
-          {
-            ignore: [`\\./${browserRollupConfig.build}/${browserRollupConfig.html.output}$`, `^@/.*`],
-          },
-        ],
       },
     },
     {
-      files: ['rollup.config.*'],
+      files: ['*rollup*'],
       rules: {
         'no-console': 'off',
         'global-require': 'off',

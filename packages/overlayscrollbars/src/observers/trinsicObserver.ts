@@ -34,7 +34,7 @@ export const createTrinsicObserver = (
 ): TrinsicObserver => {
   const trinsicObserver = createDiv(classNameTrinsicObserver);
   const offListeners: (() => void)[] = [];
-  const { _update: updateHeightIntrinsicCache, _current: getCurrentHeightIntrinsicCache } = createCache<
+  const [updateHeightIntrinsicCache, getCurrentHeightIntrinsicCache] = createCache<
     boolean,
     IntersectionObserverEntry | WH<number>
   >(
@@ -47,18 +47,24 @@ export const createTrinsicObserver = (
     }
   );
 
+  const triggerOnTrinsicChangedCallback = (
+    updateValue?: IntersectionObserverEntry | WH<number>
+  ) => {
+    if (updateValue) {
+      const heightIntrinsic = updateHeightIntrinsicCache(0, updateValue);
+      const [, heightIntrinsicChanged] = heightIntrinsic;
+
+      if (heightIntrinsicChanged) {
+        onTrinsicChangedCallback(heightIntrinsic);
+      }
+    }
+  };
+
   if (IntersectionObserverConstructor) {
     const intersectionObserverInstance: IntersectionObserver = new IntersectionObserverConstructor(
       (entries: IntersectionObserverEntry[]) => {
         if (entries && entries.length > 0) {
-          const last = entries.pop();
-          if (last) {
-            const heightIntrinsic = updateHeightIntrinsicCache(0, last);
-
-            if (heightIntrinsic._changed) {
-              onTrinsicChangedCallback(heightIntrinsic);
-            }
-          }
+          triggerOnTrinsicChangedCallback(entries.pop());
         }
       },
       { root: target }
@@ -70,10 +76,7 @@ export const createTrinsicObserver = (
   } else {
     const onSizeChanged = () => {
       const newSize = offsetSize(trinsicObserver);
-      const heightIntrinsicCache = updateHeightIntrinsicCache(0, newSize);
-      if (heightIntrinsicCache._changed) {
-        onTrinsicChangedCallback(heightIntrinsicCache);
-      }
+      triggerOnTrinsicChangedCallback(newSize);
     };
     push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged)._destroy);
     onSizeChanged();

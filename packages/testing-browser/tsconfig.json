@@ -1,9 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": "./src/",
-    "paths": {
-      "@/overlayscrollbars*": ["../../overlayscrollbars/src*"]
-    }
+    "baseUrl": "./src/"
   }
 }

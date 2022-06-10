@@ -1,5 +1,17 @@
 // @ts-ignore
-import { createDiv, appendChildren, parent, style, on, off, addClass, WH, XY, clientSize, each } from '@/overlayscrollbars/support';
+import {
+  createDiv,
+  appendChildren,
+  parent,
+  style,
+  on,
+  off,
+  addClass,
+  WH,
+  XY,
+  clientSize,
+  each,
+} from '@/overlayscrollbars/support';
 
 type ResizeListener = (width: number, height: number) => void;
 
@@ -25,7 +37,9 @@ export const resize = (element: HTMLElement) => {
 
   const resizerResize = (event: MouseEvent | TouchEvent) => {
     const isTouchEvent = (event as TouchEvent).touches !== undefined;
-    const mouseOffsetHolder = isTouchEvent ? (event as TouchEvent).touches[0] : (event as MouseEvent);
+    const mouseOffsetHolder = isTouchEvent
+      ? (event as TouchEvent).touches[0]
+      : (event as MouseEvent);
 
     const sizeStyle = {
       width: dragStartSize.w + mouseOffsetHolder.pageX - dragStartPosition.x,
@@ -56,7 +70,9 @@ export const resize = (element: HTMLElement) => {
     const { currentTarget } = event;
     const correctButton = (event as MouseEvent).buttons === 1 || event.which === 1;
     const isTouchEvent = (event as TouchEvent).touches !== undefined;
-    const mouseOffsetHolder = isTouchEvent ? (event as TouchEvent).touches[0] : (event as MouseEvent);
+    const mouseOffsetHolder = isTouchEvent
+      ? (event as TouchEvent).touches[0]
+      : (event as MouseEvent);
 
     if (correctButton || isTouchEvent) {
       dragStartPosition.x = mouseOffsetHolder.pageX;
