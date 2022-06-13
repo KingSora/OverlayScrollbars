@@ -620,6 +620,7 @@
             };
 
             function inArray(item, arr, fromIndex) {
+                if (!arr) return -1;
                 for (var i = fromIndex || 0; i < arr[LEXICON.l]; i++)
                     if (arr[i] === item)
                         return i;
