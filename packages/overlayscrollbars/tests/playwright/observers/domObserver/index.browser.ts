@@ -154,8 +154,8 @@ const targetDomObserver = createDOMObserver(
 
 const createContentDomOserver = (
   eventContentChange: Array<[string?, string?] | null | undefined>
-) => {
-  return createDOMObserver(
+) =>
+  createDOMObserver(
     trargetContentElm!,
     true,
     (contentChangedTroughEvent: boolean) => {
@@ -188,7 +188,7 @@ const createContentDomOserver = (
           ? liesBetween(target as Element, hostSelector, '.content')
           : false;
       },
-      _ignoreNestedTargetChange: (target, attrName, oldValue, newValue) => {
+      _ignoreNestedTargetChange: (_target, attrName, oldValue, newValue) => {
         if (attrName === 'class' && oldValue && newValue) {
           const diff = diffClass(oldValue, newValue);
           const ignore = diff.length === 1 && diff[0].startsWith(ignorePrefix);
@@ -204,7 +204,6 @@ const createContentDomOserver = (
       },
     }
   );
-};
 
 let contentDomObserver = createContentDomOserver(contentChange);
 
@@ -229,12 +228,10 @@ const changedThrough = <ChangeThrough extends DOMContentObserverResult | DOMTarg
     observationLists = [observationLists] as Array<ChangeThrough[]>;
   }
 
-  const getStats = (): Stat => {
-    return {
-      total: getTotalObservations(),
-      lists: (observationLists as Array<ChangeThrough[]>).map((list) => [list, list.length]),
-    };
-  };
+  const getStats = (): Stat => ({
+    total: getTotalObservations(),
+    lists: (observationLists as Array<ChangeThrough[]>).map((list) => [list, list.length]),
+  });
 
   return {
     before: () => {

@@ -1,4 +1,4 @@
-import { push, each, from, indexOf, runEach } from 'support/utils/array';
+import { push, each, from, indexOf, runEach, isEmptyArray } from 'support/utils/array';
 
 describe('array utilities', () => {
   describe('push', () => {
@@ -305,5 +305,11 @@ describe('array utilities', () => {
   test('indexOf', () => {
     const idx = indexOf([1, 2, 3], 2);
     expect(idx).toBe(1);
+  });
+
+  test('isEmptyArray', () => {
+    expect(isEmptyArray([])).toBe(true);
+    expect(isEmptyArray([1, 2, 3])).toBe(false);
+    expect(isEmptyArray(null)).toBe(false);
   });
 });

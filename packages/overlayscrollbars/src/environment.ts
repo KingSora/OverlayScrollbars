@@ -29,7 +29,9 @@ import { OSTargetElement } from 'typings';
 
 type StructureInitializationElementFn<T> = ((target: OSTargetElement) => HTMLElement | T) | T;
 
-type ScrollbarsInitializationElementFn<T> = ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => HTMLElement | T) | T;
+type ScrollbarsInitializationElementFn<T> =
+  | ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => HTMLElement | T)
+  | T;
 
 /**
  * A Static element is an element which MUST be generated.
@@ -44,7 +46,9 @@ export type StructureInitializationStaticElement = StructureInitializationElemen
  * If boolean (or the returned result is boolean), the generation of the element is forced (or not).
  * If the function returns and element, the element returned by the function acts as the generated element.
  */
-export type StructureInitializationDynamicElement = StructureInitializationElementFn<boolean | null>;
+export type StructureInitializationDynamicElement = StructureInitializationElementFn<
+  boolean | null
+>;
 
 export interface StructureInitializationStrategy {
   _host: StructureInitializationStaticElement;
@@ -57,7 +61,9 @@ export interface ScrollbarsInitializationStrategy {
   _scrollbarsSlot: ScrollbarsInitializationElementFn<null | undefined>;
 }
 
-export interface InitializationStrategy extends StructureInitializationStrategy, ScrollbarsInitializationStrategy {}
+export interface InitializationStrategy
+  extends StructureInitializationStrategy,
+    ScrollbarsInitializationStrategy {}
 
 export type OnEnvironmentChanged = (env: Environment) => void;
 export interface Environment {
@@ -103,13 +109,17 @@ const getNativeScrollbarStyling = (testElm: HTMLElement): boolean => {
   try {
     result =
       style(testElm, cssProperty('scrollbar-width')) === 'none' ||
-      window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
+      window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') ===
+        'none';
   } catch (ex) {}
 
   return result;
 };
 
-const getRtlScrollBehavior = (parentElm: HTMLElement, childElm: HTMLElement): { i: boolean; n: boolean } => {
+const getRtlScrollBehavior = (
+  parentElm: HTMLElement,
+  childElm: HTMLElement
+): { i: boolean; n: boolean } => {
   const strHidden = 'hidden';
   style(parentElm, { overflowX: strHidden, overflowY: strHidden, direction: 'rtl' });
   scrollLeft(parentElm, 0);
@@ -161,7 +171,9 @@ const getWindowDPR = (): number => {
 };
 
 // init function decides for all values
-const getDefaultInitializationStrategy = (nativeScrollbarStyling: boolean): InitializationStrategy => ({
+const getDefaultInitializationStrategy = (
+  nativeScrollbarStyling: boolean
+): InitializationStrategy => ({
   _host: null,
   _viewport: null,
   _padding: null,
@@ -243,7 +255,10 @@ const createEnvironment = (): Environment => {
         const isZoom = deltaIsBigger && difference && dprChanged;
 
         if (isZoom) {
-          const newScrollbarSize = (environmentInstance._nativeScrollbarSize = getNativeScrollbarSize(body, envElm));
+          const newScrollbarSize = (environmentInstance._nativeScrollbarSize = getNativeScrollbarSize(
+            body,
+            envElm
+          ));
           removeElements(envElm);
 
           if (scrollbarSize.x !== newScrollbarSize.x || scrollbarSize.y !== newScrollbarSize.y) {

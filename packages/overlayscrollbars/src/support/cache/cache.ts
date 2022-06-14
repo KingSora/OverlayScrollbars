@@ -34,7 +34,7 @@ export const createCache = <Value, Ctx = undefined>(
   update: UpdateCachePropFunction<Value, Ctx>,
   options: CacheOptions<Value>
 ): Cache<Value, Ctx> => {
-  const { _initialValue, _equal, _alwaysUpdateValues } = options || {};
+  const { _initialValue, _equal, _alwaysUpdateValues } = options;
   let _value: Value = _initialValue;
   let _previous: Value | undefined;
 

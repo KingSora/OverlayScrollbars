@@ -8,7 +8,16 @@ const getDummyStyle = (): CSSStyleDeclaration => createDiv().style;
 // https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix
 
 export const cssPrefixes: ReadonlyArray<string> = ['-webkit-', '-moz-', '-o-', '-ms-'];
-export const jsPrefixes: ReadonlyArray<string> = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
+export const jsPrefixes: ReadonlyArray<string> = [
+  'WebKit',
+  'Moz',
+  'O',
+  'MS',
+  'webkit',
+  'moz',
+  'o',
+  'ms',
+];
 
 export const jsCache: { [key: string]: any } = {};
 export const cssCache: { [key: string]: string } = {};
@@ -35,9 +44,14 @@ export const cssProperty = (name: string): string => {
       prefixWithoutDashes + uppercasedName, // webkitTransition
       firstLetterToUpper(prefixWithoutDashes) + uppercasedName, // WebkitTransition
     ];
-    return !(result = resultPossibilities.find((resultPossibility: string) => elmStyle[resultPossibility] !== undefined));
+
+    // eslint-disable-next-line no-return-assign
+    return !(result = resultPossibilities.find(
+      (resultPossibility: string) => elmStyle[resultPossibility] !== undefined
+    ));
   });
 
+  // eslint-disable-next-line no-return-assign
   return (cssCache[name] = result || '');
 };
 
@@ -72,6 +86,7 @@ export const cssPropertyValue = (property: string, values: string, suffix?: stri
     return !result;
   });
 
+  // eslint-disable-next-line no-return-assign
   return (cssCache[name] = result || '');
 };
 

@@ -26,7 +26,10 @@ export function each<T>(
   arrayLikeObject: ArrayLike<T> | null | undefined,
   callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown
 ): ArrayLike<T> | null | undefined;
-export function each(obj: PlainObject, callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown): PlainObject;
+export function each(
+  obj: PlainObject,
+  callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown
+): PlainObject;
 export function each(
   obj: PlainObject | null | undefined,
   callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown
@@ -53,15 +56,22 @@ export function each<T>(
  * @param item The item.
  * @param fromIndex The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.
  */
-export const indexOf = <T = any>(arr: Array<T>, item: T, fromIndex?: number): number => arr.indexOf(item, fromIndex);
+export const indexOf = <T = any>(arr: Array<T>, item: T, fromIndex?: number): number =>
+  arr.indexOf(item, fromIndex);
 
 /**
  * Pushesh all given items into the given array and returns it.
  * @param array The array the items shall be pushed into.
  * @param items The items which shall be pushed into the array.
  */
-export const push = <T>(array: Array<T>, items: T | ArrayLike<T>, arrayIsSingleItem?: boolean): Array<T> => {
-  !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items as Array<T>) : array.push(items as T);
+export const push = <T>(
+  array: Array<T>,
+  items: T | ArrayLike<T>,
+  arrayIsSingleItem?: boolean
+): Array<T> => {
+  !arrayIsSingleItem && !isString(items) && isArrayLike(items)
+    ? Array.prototype.push.apply(array, items as Array<T>)
+    : array.push(items as T);
   return array;
 };
 
@@ -86,7 +96,8 @@ export const from = <T = any>(arr: ArrayLike<T>) => {
  * Check whether the passed array is empty.
  * @param array The array which shall be checked.
  */
-export const isEmptyArray = (array: Array<any> | null | undefined) => array && array.length === 0;
+export const isEmptyArray = (array: Array<any> | null | undefined): boolean =>
+  !!array && array.length === 0;
 
 /**
  * Calls all functions in the passed array/set of functions.
