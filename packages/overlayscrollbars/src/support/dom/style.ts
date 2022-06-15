@@ -10,19 +10,19 @@ export interface TRBL {
 }
 
 const cssNumber = {
-  //animationiterationcount: 1,
-  //columncount: 1,
-  //fillopacity: 1,
-  //flexgrow: 1,
-  //flexshrink: 1,
-  //fontweight: 1,
-  //lineheight: 1,
+  // animationiterationcount: 1,
+  // columncount: 1,
+  // fillopacity: 1,
+  // flexgrow: 1,
+  // flexshrink: 1,
+  // fontweight: 1,
+  // lineheight: 1,
+  // order: 1,
+  // orphans: 1,
+  // widows: 1,
+  // zoom: 1,
   opacity: 1,
-  //order: 1,
-  //orphans: 1,
-  //widows: 1,
   zindex: 1,
-  //zoom: 1,
 };
 
 const parseToZeroOrNumber = (value: string, toFloat?: boolean): number => {
@@ -31,18 +31,25 @@ const parseToZeroOrNumber = (value: string, toFloat?: boolean): number => {
   /* istanbul ignore next */
   return Number.isNaN(num) ? 0 : num;
 };
-const adaptCSSVal = (prop: string, val: string | number): string | number => (!cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val);
+const adaptCSSVal = (prop: string, val: string | number): string | number =>
+  !cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val;
 const getCSSVal = (elm: HTMLElement, computedStyle: CSSStyleDeclaration, prop: string): string =>
   /* istanbul ignore next */
-  computedStyle != null ? computedStyle[prop] || computedStyle.getPropertyValue(prop) : elm.style[prop];
-const setCSSVal = (elm: HTMLElement | false | null | undefined, prop: string, val: string | number): void => {
+  computedStyle != null
+    ? computedStyle[prop] || computedStyle.getPropertyValue(prop)
+    : elm.style[prop];
+const setCSSVal = (
+  elm: HTMLElement | false | null | undefined,
+  prop: string,
+  val: string | number
+): void => {
   try {
     if (elm) {
-      const { style } = elm;
-      if (!isUndefined(style[prop])) {
-        style[prop] = adaptCSSVal(prop, val);
+      const { style: elmStyle } = elm;
+      if (!isUndefined(elmStyle[prop])) {
+        elmStyle[prop] = adaptCSSVal(prop, val);
       } else {
-        style.setProperty(prop, val as string);
+        elmStyle.setProperty(prop, val as string);
       }
     }
   } catch (e) {}
@@ -53,9 +60,18 @@ const setCSSVal = (elm: HTMLElement | false | null | undefined, prop: string, va
  * @param elm The element to which the styles shall be applied to / be read from.
  * @param styles The styles which shall be set or read.
  */
-export function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: StyleObject<CustomCssProps>): void;
-export function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: string): string;
-export function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: Array<string> | string): { [key: string]: string };
+export function style<CustomCssProps>(
+  elm: HTMLElement | false | null | undefined,
+  styles: StyleObject<CustomCssProps>
+): void;
+export function style<CustomCssProps>(
+  elm: HTMLElement | false | null | undefined,
+  styles: string
+): string;
+export function style<CustomCssProps>(
+  elm: HTMLElement | false | null | undefined,
+  styles: Array<string> | string
+): { [key: string]: string };
 export function style<CustomCssProps>(
   elm: HTMLElement | false | null | undefined,
   styles: StyleObject<CustomCssProps> | Array<string> | string
@@ -101,7 +117,11 @@ export const show = (elm: HTMLElement | false | null | undefined): void => {
  * @param propertyPrefix The css property prefix. (e.g. "border")
  * @param propertySuffix The css property suffix. (e.g. "width")
  */
-export const topRightBottomLeft = (elm?: HTMLElement | false | null | undefined, propertyPrefix?: string, propertySuffix?: string): TRBL => {
+export const topRightBottomLeft = (
+  elm?: HTMLElement | false | null | undefined,
+  propertyPrefix?: string,
+  propertySuffix?: string
+): TRBL => {
   const finalPrefix = propertyPrefix ? `${propertyPrefix}-` : '';
   const finalSuffix = propertySuffix ? `-${propertySuffix}` : '';
   const top = `${finalPrefix}top${finalSuffix}`;

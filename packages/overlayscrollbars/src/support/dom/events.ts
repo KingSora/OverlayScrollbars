@@ -37,7 +37,12 @@ export interface OnOptions {
  * @param listener The listener which shall be removed.
  * @param capture The options of the removed listener.
  */
-export const off = <T extends Event = Event>(target: EventTarget, eventNames: string, listener: (event: T) => any, capture?: boolean): void => {
+export const off = <T extends Event = Event>(
+  target: EventTarget,
+  eventNames: string,
+  listener: (event: T) => any,
+  capture?: boolean
+): void => {
   each(splitEventNames(eventNames), (eventName) => {
     target.removeEventListener(eventName, listener as EventListener, capture);
   });
@@ -99,4 +104,5 @@ export const preventDefault = (evt: Event): void => evt.preventDefault();
  * Shorthand for the stopPropagation and preventDefault event Method.
  * @param evt The event of which the stopPropagation and preventDefault methods shall be called.
  */
-export const stopAndPrevent = (evt: Event): void => (stopPropagation(evt) as undefined) || (preventDefault(evt) as undefined);
+export const stopAndPrevent = (evt: Event): void =>
+  (stopPropagation(evt) as undefined) || (preventDefault(evt) as undefined);

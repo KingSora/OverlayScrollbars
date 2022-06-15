@@ -10,7 +10,11 @@ type NodeCollection = ArrayLike<Node> | Node | false | null | undefined;
  * @param preferredAnchor The element before which the Nodes shall be inserted or null if the elements shall be appended at the end.
  * @param insertedElms The Nodes which shall be inserted.
  */
-const before = (parentElm: Node | false | null | undefined, preferredAnchor: Node | null | undefined, insertedElms: NodeCollection): void => {
+const before = (
+  parentElm: Node | false | null | undefined,
+  preferredAnchor: Node | null | undefined,
+  insertedElms: NodeCollection
+): void => {
   if (insertedElms) {
     let anchor: Node | null | undefined = preferredAnchor;
     let fragment: DocumentFragment | Node | null | undefined;
@@ -68,7 +72,10 @@ export const prependChildren = (node: Node | null | undefined, children: NodeCol
  * @param node The Node before which the given Nodes shall be inserted.
  * @param insertedNodes The Nodes which shall be inserted.
  */
-export const insertBefore = (node: Node | null | undefined, insertedNodes: NodeCollection): void => {
+export const insertBefore = (
+  node: Node | null | undefined,
+  insertedNodes: NodeCollection
+): void => {
   before(parent(node), node, insertedNodes);
 };
 

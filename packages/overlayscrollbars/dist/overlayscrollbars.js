@@ -4,19 +4,17 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.OverlayScrollbars = factory());
 })(this, (function () { 'use strict';
 
-  var createCache = function createCache(update, options) {
-    var _ref = options || {},
-        _initialValue = _ref._initialValue,
-        _equal = _ref._equal,
-        _alwaysUpdateValues = _ref._alwaysUpdateValues;
-
+  function createCache(options, update) {
+    var _initialValue = options._initialValue,
+        _equal = options._equal,
+        _alwaysUpdateValues = options._alwaysUpdateValues;
     var _value = _initialValue;
 
     var _previous;
 
-    var cacheUpdate = function cacheUpdate(force, context) {
+    var cacheUpdateContextual = function cacheUpdateContextual(newValue, force) {
       var curr = _value;
-      var newVal = update ? update(context, _value, _previous) : context;
+      var newVal = newValue;
       var changed = force || (_equal ? !_equal(curr, newVal) : curr !== newVal);
 
       if (changed || _alwaysUpdateValues) {
@@ -27,10 +25,16 @@
       return [_value, changed, _previous];
     };
 
-    return [cacheUpdate, function (force) {
+    var cacheUpdateIsolated = function cacheUpdateIsolated(force) {
+      return cacheUpdateContextual(update(_value, _previous), force);
+    };
+
+    var getCurrentCache = function getCurrentCache(force) {
       return [_value, !!force, _previous];
-    }];
-  };
+    };
+
+    return [update ? cacheUpdateIsolated : cacheUpdateContextual, getCurrentCache];
+  }
 
   var ElementNodeType = Node.ELEMENT_NODE;
   var _Object$prototype = Object.prototype,
@@ -110,7 +114,7 @@
     return source;
   }
   var indexOf = function indexOf(arr, item, fromIndex) {
-    return arr.indexOf(item, fromIndex);
+    return isArray(arr) ? arr.indexOf(item, fromIndex) : -1;
   };
   var push = function push(array, items, arrayIsSingleItem) {
     !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
@@ -128,7 +132,7 @@
     return result;
   };
   var isEmptyArray = function isEmptyArray(array) {
-    return array && array.length === 0;
+    return !!array && array.length === 0;
   };
   var runEach = function runEach(arr, p1) {
     var runFn = function runFn(fn) {
@@ -529,8 +533,6 @@
     });
   };
 
-  var setT = window.setTimeout;
-
   var clearTimeouts = function clearTimeouts(id) {
     id && window.clearTimeout(id);
     id && cAF(id);
@@ -542,9 +544,13 @@
     var maxTimeoutId;
     var prevArguments;
     var latestArguments;
-    var _timeout = options._timeout,
-        _maxDelay = options._maxDelay,
-        _mergeParams = options._mergeParams;
+
+    var _ref = options || {},
+        _timeout = _ref._timeout,
+        _maxDelay = _ref._maxDelay,
+        _mergeParams = _ref._mergeParams;
+
+    var setT = window.setTimeout;
 
     var invokeFunctionToDebounce = function invokeFunctionToDebounce(args) {
       clearTimeouts(timeoutId);
@@ -564,7 +570,7 @@
     };
 
     var debouncedFn = function debouncedFn() {
-      var args = arguments;
+      var args = from(arguments);
       var finalTimeout = isFunction(_timeout) ? _timeout() : _timeout;
       var hasTimeout = isNumber(finalTimeout) && finalTimeout >= 0;
 
@@ -575,11 +581,6 @@
         var mergeParamsResult = mergeParms(args);
         var invokedArgs = mergeParamsResult || args;
         var boundInvoke = invokeFunctionToDebounce.bind(0, invokedArgs);
-
-        if (!mergeParamsResult) {
-          invokeFunctionToDebounce(prevArguments || args);
-        }
-
         clearTimeouts(timeoutId);
         timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
 
@@ -618,12 +619,12 @@
   var setCSSVal = function setCSSVal(elm, prop, val) {
     try {
       if (elm) {
-        var _style = elm.style;
+        var elmStyle = elm.style;
 
-        if (!isUndefined(_style[prop])) {
-          _style[prop] = adaptCSSVal(prop, val);
+        if (!isUndefined(elmStyle[prop])) {
+          elmStyle[prop] = adaptCSSVal(prop, val);
         } else {
-          _style.setProperty(prop, val);
+          elmStyle.setProperty(prop, val);
         }
       }
     } catch (e) {}
@@ -1288,7 +1289,7 @@
     var listenerElement = sizeObserver.firstChild;
     var getIsDirectionRTL = getElmDirectionIsRTL.bind(0, sizeObserver);
 
-    var _createCache = createCache(0, {
+    var _createCache = createCache({
       _initialValue: undefined,
       _alwaysUpdateValues: true,
       _equal: function _equal(currVal, newVal) {
@@ -1305,7 +1306,7 @@
       var doDirectionScroll = true;
 
       if (isResizeObserverCall) {
-        var _updateResizeObserver = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect),
+        var _updateResizeObserver = updateResizeObserverContentRectCache(sizeChangedContext.pop().contentRect),
             currRContentRect = _updateResizeObserver[0],
             prevContentRect = _updateResizeObserver[2];
 
@@ -1402,9 +1403,9 @@
     }
 
     if (observeDirectionChange) {
-      directionIsRTLCache = createCache(getIsDirectionRTL, {
+      directionIsRTLCache = createCache({
         _initialValue: !getIsDirectionRTL()
-      });
+      }, getIsDirectionRTL);
       var _directionIsRTLCache = directionIsRTLCache,
           updateDirectionIsRTLCache = _directionIsRTLCache[0];
       push(offListeners, on(sizeObserver, scrollEventName, function (event) {
@@ -1449,13 +1450,15 @@
     };
   };
 
+  var isHeightIntrinsic = function isHeightIntrinsic(ioEntryOrSize) {
+    return ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
+  };
+
   var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
     var trinsicObserver = createDiv(classNameTrinsicObserver);
     var offListeners = [];
 
-    var _createCache = createCache(function (ioEntryOrSize) {
-      return ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
-    }, {
+    var _createCache = createCache({
       _initialValue: false
     }),
         updateHeightIntrinsicCache = _createCache[0],
@@ -1463,7 +1466,7 @@
 
     var triggerOnTrinsicChangedCallback = function triggerOnTrinsicChangedCallback(updateValue) {
       if (updateValue) {
-        var heightIntrinsic = updateHeightIntrinsicCache(0, updateValue);
+        var heightIntrinsic = updateHeightIntrinsicCache(isHeightIntrinsic(updateValue));
         var heightIntrinsicChanged = heightIntrinsic[1];
 
         if (heightIntrinsicChanged) {
@@ -1889,10 +1892,10 @@
         _padding = _structureSetup$_targ._padding,
         _viewport = _structureSetup$_targ._viewport;
 
-    var _createCache = createCache(topRightBottomLeft.bind(0, _host, 'padding'), {
+    var _createCache = createCache({
       _equal: equalTRBL,
       _initialValue: topRightBottomLeft()
-    }),
+    }, topRightBottomLeft.bind(0, _host, 'padding', '')),
         updatePaddingCache = _createCache[0],
         currentPaddingCache = _createCache[1];
 
@@ -2009,6 +2012,13 @@
     };
   };
 
+  var getOverflowAmount = function getOverflowAmount(viewportScrollSize, viewportClientSize, viewportSizeFraction) {
+    return {
+      w: max(0, round(max(0, viewportScrollSize.w - viewportClientSize.w) - (fractionalPixelRatioTollerance() || max(0, viewportSizeFraction.w)))),
+      h: max(0, round(max(0, viewportScrollSize.h - viewportClientSize.h) - (fractionalPixelRatioTollerance() || max(0, viewportSizeFraction.h))))
+    };
+  };
+
   var createOverflowLifecycle = function createOverflowLifecycle(lifecycleHub) {
     var _structureSetup = lifecycleHub._structureSetup,
         _doViewportArrange = lifecycleHub._doViewportArrange,
@@ -2019,23 +2029,15 @@
         _viewport = _structureSetup$_targ._viewport,
         _viewportArrange = _structureSetup$_targ._viewportArrange;
 
-    var _createCache = createCache(sizeFraction.bind(0, _viewport), whCacheOptions),
+    var _createCache = createCache(whCacheOptions, sizeFraction.bind(0, _viewport)),
         updateViewportSizeFraction = _createCache[0],
         getCurrentViewportSizeFraction = _createCache[1];
 
-    var _createCache2 = createCache(scrollSize.bind(0, _viewport), whCacheOptions),
+    var _createCache2 = createCache(whCacheOptions, scrollSize.bind(0, _viewport)),
         updateViewportScrollSizeCache = _createCache2[0],
         getCurrentViewportScrollSizeCache = _createCache2[1];
 
-    var _createCache3 = createCache(function (_ref) {
-      var _viewportScrollSize = _ref._viewportScrollSize,
-          _viewportClientSize = _ref._viewportClientSize,
-          _viewportSizeFraction = _ref._viewportSizeFraction;
-      return {
-        w: max(0, round(max(0, _viewportScrollSize.w - _viewportClientSize.w) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.w)))),
-        h: max(0, round(max(0, _viewportScrollSize.h - _viewportClientSize.h) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.h))))
-      };
-    }, whCacheOptions),
+    var _createCache3 = createCache(whCacheOptions),
         updateOverflowAmountCache = _createCache3[0],
         getCurrentOverflowAmountCache = _createCache3[1];
 
@@ -2081,9 +2083,13 @@
         x: styleObj.overflowX === 'scroll',
         y: styleObj.overflowY === 'scroll'
       };
+      var nonScrollbarStylingHideOffset = {
+        x: overlaidX ? arrangeHideOffset : _nativeScrollbarSize.x,
+        y: overlaidY ? arrangeHideOffset : _nativeScrollbarSize.y
+      };
       var scrollbarsHideOffset = {
-        x: scroll.x && !_nativeScrollbarStyling ? overlaidX ? arrangeHideOffset : _nativeScrollbarSize.x : 0,
-        y: scroll.y && !_nativeScrollbarStyling ? overlaidY ? arrangeHideOffset : _nativeScrollbarSize.y : 0
+        x: scroll.x && !_nativeScrollbarStyling ? nonScrollbarStylingHideOffset.x : 0,
+        y: scroll.y && !_nativeScrollbarStyling ? nonScrollbarStylingHideOffset.y : 0
       };
       return {
         _overflowScroll: scroll,
@@ -2289,41 +2295,37 @@
             _redoViewportArrange = _undoViewportArrange._redoViewportArrange,
             undoViewportArrangeOverflowState = _undoViewportArrange._viewportOverflowState;
 
-        var _viewportSizeFraction3 = viewportSizeFractionCache = updateViewportSizeFraction(force),
-            _viewportSizeFraction2 = _viewportSizeFraction3[0],
-            viewportSizeFractionCahnged = _viewportSizeFraction3[1];
+        var _viewportSizeFraction2 = viewportSizeFractionCache = updateViewportSizeFraction(force),
+            _viewportSizeFraction = _viewportSizeFraction2[0],
+            viewportSizeFractionCahnged = _viewportSizeFraction2[1];
 
         var _viewportScrollSizeCa = viewportScrollSizeCache = updateViewportScrollSizeCache(force),
-            _viewportScrollSize2 = _viewportScrollSizeCa[0],
+            _viewportScrollSize = _viewportScrollSizeCa[0],
             _viewportScrollSizeChanged = _viewportScrollSizeCa[1];
 
         var viewportContentSize = clientSize(_viewport);
-        var arrangedViewportScrollSize = _viewportScrollSize2;
+        var arrangedViewportScrollSize = _viewportScrollSize;
         var arrangedViewportClientSize = viewportContentSize;
 
         _redoViewportArrange();
 
-        if ((_viewportScrollSizeChanged || viewportSizeFractionCahnged || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize2, _viewportSizeFraction2, directionIsRTL)) {
+        if ((_viewportScrollSizeChanged || viewportSizeFractionCahnged || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize, _viewportSizeFraction, directionIsRTL)) {
           arrangedViewportClientSize = clientSize(_viewport);
           arrangedViewportScrollSize = scrollSize(_viewport);
         }
 
-        overflowAmuntCache = updateOverflowAmountCache(force, {
-          _viewportSizeFraction: _viewportSizeFraction2,
-          _viewportScrollSize: {
-            w: max(_viewportScrollSize2.w, arrangedViewportScrollSize.w),
-            h: max(_viewportScrollSize2.h, arrangedViewportScrollSize.h)
-          },
-          _viewportClientSize: {
-            w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - _viewportScrollSize2.w),
-            h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize2.h)
-          }
-        });
+        overflowAmuntCache = updateOverflowAmountCache(getOverflowAmount({
+          w: max(_viewportScrollSize.w, arrangedViewportScrollSize.w),
+          h: max(_viewportScrollSize.h, arrangedViewportScrollSize.h)
+        }, {
+          w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - _viewportScrollSize.w),
+          h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize.h)
+        }, _viewportSizeFraction), force);
       }
 
-      var _viewportSizeFraction4 = viewportSizeFractionCache,
-          viewportSizeFraction = _viewportSizeFraction4[0],
-          viewportSizeFractionChanged = _viewportSizeFraction4[1];
+      var _viewportSizeFraction3 = viewportSizeFractionCache,
+          viewportSizeFraction = _viewportSizeFraction3[0],
+          viewportSizeFractionChanged = _viewportSizeFraction3[1];
       var _viewportScrollSizeCa2 = viewportScrollSizeCache,
           viewportScrollSize = _viewportScrollSizeCa2[0],
           viewportScrollSizeChanged = _viewportScrollSizeCa2[1];
@@ -2490,10 +2492,10 @@
         destroyObservers = _lifecycleHubOservers._destroy;
 
     var update = function update(changedOptions, force) {
-      return updateLifecycles(null, changedOptions, force);
+      return updateLifecycles({}, changedOptions, force);
     };
 
-    var envUpdateListener = update.bind(null, null, true);
+    var envUpdateListener = update.bind(0, {}, true);
     addEnvironmentListener(envUpdateListener);
     console.log(getEnvironment());
     return {
@@ -2541,7 +2543,7 @@
         return lifecycleHub._state();
       },
       update: function update(force) {
-        lifecycleHub._update(null, force);
+        lifecycleHub._update({}, force);
       },
       destroy: function destroy() {
         return lifecycleHub._destroy();

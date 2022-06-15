@@ -23,7 +23,11 @@ function getSetProp(
  */
 export function attr(elm: HTMLElement | null, attrName: string): string | null;
 export function attr(elm: HTMLElement | null, attrName: string, value: string): void;
-export function attr(elm: HTMLElement | null, attrName: string, value?: string): string | null | void {
+export function attr(
+  elm: HTMLElement | null,
+  attrName: string,
+  value?: string
+): string | null | void {
   if (isUndefined(value)) {
     return elm ? elm.getAttribute(attrName) : null;
   }

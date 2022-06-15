@@ -1,4 +1,4 @@
-import { createCache, topRightBottomLeft, equalTRBL, style, TRBL } from 'support';
+import { createCache, topRightBottomLeft, equalTRBL, style } from 'support';
 import { LifecycleHub, Lifecycle } from 'lifecycles/lifecycleHub';
 import { StyleObject } from 'typings';
 import { getEnvironment } from 'environment';
@@ -11,12 +11,12 @@ import { getEnvironment } from 'environment';
 export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
   const { _structureSetup, _setLifecycleCommunication } = lifecycleHub;
   const { _host, _padding, _viewport } = _structureSetup._targetObj;
-  const [updatePaddingCache, currentPaddingCache] = createCache<TRBL>(
-    topRightBottomLeft.bind(0, _host, 'padding'),
+  const [updatePaddingCache, currentPaddingCache] = createCache(
     {
       _equal: equalTRBL,
       _initialValue: topRightBottomLeft(),
-    }
+    },
+    topRightBottomLeft.bind(0, _host, 'padding', '')
   );
 
   return (updateHints, checkOption, force) => {
@@ -62,7 +62,7 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
       _setLifecycleCommunication({
         _paddingInfo: {
           _absolute: !paddingRelative,
-          _padding: padding!,
+          _padding: padding,
         },
         _viewportPaddingStyle: _padding
           ? viewportStyle

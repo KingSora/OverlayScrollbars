@@ -1,4 +1,4 @@
-import { isArrayLike, isString } from 'support/utils/types';
+import { isArrayLike, isString, isArray } from 'support/utils/types';
 import { PlainObject } from 'typings';
 
 type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
@@ -56,21 +56,17 @@ export function each<T>(
  * @param item The item.
  * @param fromIndex The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.
  */
-export const indexOf = <T = any>(arr: Array<T>, item: T, fromIndex?: number): number =>
-  arr.indexOf(item, fromIndex);
+export const indexOf = <T = any>(arr: T[], item: T, fromIndex?: number): number =>
+  isArray(arr) ? arr.indexOf(item, fromIndex) : -1;
 
 /**
  * Pushesh all given items into the given array and returns it.
  * @param array The array the items shall be pushed into.
  * @param items The items which shall be pushed into the array.
  */
-export const push = <T>(
-  array: Array<T>,
-  items: T | ArrayLike<T>,
-  arrayIsSingleItem?: boolean
-): Array<T> => {
+export const push = <T>(array: T[], items: T | ArrayLike<T>, arrayIsSingleItem?: boolean): T[] => {
   !arrayIsSingleItem && !isString(items) && isArrayLike(items)
-    ? Array.prototype.push.apply(array, items as Array<T>)
+    ? Array.prototype.push.apply(array, items as T[])
     : array.push(items as T);
   return array;
 };
@@ -83,7 +79,7 @@ export const from = <T = any>(arr: ArrayLike<T>) => {
   if (Array.from) {
     return Array.from(arr);
   }
-  const result: Array<T> = [];
+  const result: T[] = [];
 
   each(arr, (elm) => {
     push(result, elm);
@@ -96,7 +92,7 @@ export const from = <T = any>(arr: ArrayLike<T>) => {
  * Check whether the passed array is empty.
  * @param array The array which shall be checked.
  */
-export const isEmptyArray = (array: Array<any> | null | undefined): boolean =>
+export const isEmptyArray = (array: any[] | null | undefined): boolean =>
   !!array && array.length === 0;
 
 /**

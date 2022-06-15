@@ -59,7 +59,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     },
     state: () => lifecycleHub._state(),
     update(force?: boolean) {
-      lifecycleHub._update(null, force);
+      lifecycleHub._update({}, force);
     },
     destroy: () => lifecycleHub._destroy(),
   };

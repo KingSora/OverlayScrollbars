@@ -53,7 +53,10 @@ export const removeClass = (elm: Element | false | null | undefined, className: 
  * @param classNameA ClassName A.
  * @param classNameB ClassName B.
  */
-export const diffClass = (classNameA: string | null | undefined, classNameB: string | null | undefined) => {
+export const diffClass = (
+  classNameA: string | null | undefined,
+  classNameB: string | null | undefined
+) => {
   const classNameASplit = classNameA && classNameA.split(' ');
   const classNameBSplit = classNameB && classNameB.split(' ');
   const tempObj = {};

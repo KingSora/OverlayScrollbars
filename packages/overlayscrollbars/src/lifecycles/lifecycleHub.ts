@@ -58,7 +58,7 @@ export interface LifecycleHubState {
 }
 
 export interface LifecycleHubInstance {
-  _update(changedOptions?: PartialOptions<OSOptions> | null, force?: boolean): void;
+  _update(changedOptions: PartialOptions<OSOptions>, force?: boolean): void;
   _state(): LifecycleHubState;
   _destroy(): void;
 }
@@ -139,8 +139,8 @@ export const createLifecycleHub = (
   ];
 
   const updateLifecycles = (
-    updateHints?: Partial<LifecycleUpdateHints> | null,
-    changedOptions?: Partial<OSOptions> | null,
+    updateHints: Partial<LifecycleUpdateHints>,
+    changedOptions?: Partial<OSOptions>,
     force?: boolean
   ) => {
     let {
@@ -221,9 +221,9 @@ export const createLifecycleHub = (
     _destroy: destroyObservers,
   } = lifecycleHubOservers(instance, updateLifecycles);
 
-  const update = (changedOptions?: Partial<OSOptions> | null, force?: boolean) =>
-    updateLifecycles(null, changedOptions, force);
-  const envUpdateListener = update.bind(null, null, true);
+  const update = (changedOptions: Partial<OSOptions>, force?: boolean) =>
+    updateLifecycles({}, changedOptions, force);
+  const envUpdateListener = update.bind(0, {}, true);
   addEnvironmentListener(envUpdateListener);
 
   console.log(getEnvironment());

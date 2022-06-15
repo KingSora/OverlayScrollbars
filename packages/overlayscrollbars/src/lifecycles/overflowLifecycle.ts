@@ -22,12 +22,6 @@ import { OverflowBehavior } from 'options';
 import { StyleObject } from 'typings';
 import { classNameViewportArrange, classNameViewportScrollbarStyling } from 'classnames';
 
-interface OverflowAmountCacheContext {
-  _viewportScrollSize: WH<number>;
-  _viewportClientSize: WH<number>;
-  _viewportSizeFraction: WH<number>;
-}
-
 interface ViewportOverflowState {
   _scrollbarsHideOffset: XY<number>;
   _scrollbarsHideOffsetArrange: XY<boolean>;
@@ -84,6 +78,27 @@ const setAxisOverflowStyle = (
   };
 };
 
+const getOverflowAmount = (
+  viewportScrollSize: WH<number>,
+  viewportClientSize: WH<number>,
+  viewportSizeFraction: WH<number>
+) => ({
+  w: max(
+    0,
+    round(
+      max(0, viewportScrollSize.w - viewportClientSize.w) -
+        (fractionalPixelRatioTollerance() || max(0, viewportSizeFraction.w))
+    )
+  ),
+  h: max(
+    0,
+    round(
+      max(0, viewportScrollSize.h - viewportClientSize.h) -
+        (fractionalPixelRatioTollerance() || max(0, viewportSizeFraction.h))
+    )
+  ),
+});
+
 /**
  * Lifecycle with the responsibility to set the correct overflow and scrollbar hiding styles of the viewport element.
  * @param lifecycleHub
@@ -100,34 +115,15 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
   const { _host, _viewport, _viewportArrange } = _structureSetup._targetObj;
 
   const [updateViewportSizeFraction, getCurrentViewportSizeFraction] = createCache<WH<number>>(
-    sizeFraction.bind(0, _viewport),
-    whCacheOptions
+    whCacheOptions,
+    sizeFraction.bind(0, _viewport)
   );
 
   const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache<
     WH<number>
-  >(scrollSize.bind(0, _viewport), whCacheOptions);
+  >(whCacheOptions, scrollSize.bind(0, _viewport));
 
-  const [updateOverflowAmountCache, getCurrentOverflowAmountCache] = createCache<
-    WH<number>,
-    OverflowAmountCacheContext
-  >(
-    ({ _viewportScrollSize, _viewportClientSize, _viewportSizeFraction }) => ({
-      w: max(
-        0,
-        round(
-          max(0, _viewportScrollSize.w - _viewportClientSize.w) -
-            (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.w))
-        )
-      ),
-      h: max(
-        0,
-        round(
-          max(0, _viewportScrollSize.h - _viewportClientSize.h) -
-            (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.h))
-        )
-      ),
-    }),
+  const [updateOverflowAmountCache, getCurrentOverflowAmountCache] = createCache<WH<number>>(
     whCacheOptions
   );
 
@@ -195,19 +191,13 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       x: styleObj.overflowX === 'scroll',
       y: styleObj.overflowY === 'scroll',
     };
+    const nonScrollbarStylingHideOffset = {
+      x: overlaidX ? arrangeHideOffset : _nativeScrollbarSize.x,
+      y: overlaidY ? arrangeHideOffset : _nativeScrollbarSize.y,
+    };
     const scrollbarsHideOffset = {
-      x:
-        scroll.x && !_nativeScrollbarStyling
-          ? overlaidX
-            ? arrangeHideOffset
-            : _nativeScrollbarSize.x
-          : 0,
-      y:
-        scroll.y && !_nativeScrollbarStyling
-          ? overlaidY
-            ? arrangeHideOffset
-            : _nativeScrollbarSize.y
-          : 0,
+      x: scroll.x && !_nativeScrollbarStyling ? nonScrollbarStylingHideOffset.x : 0,
+      y: scroll.y && !_nativeScrollbarStyling ? nonScrollbarStylingHideOffset.y : 0,
     };
 
     return {
@@ -486,7 +476,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
         _viewportOverflowState: undoViewportArrangeOverflowState,
       } = undoViewportArrange(
         showNativeOverlaidScrollbars,
-        directionIsRTL!,
+        directionIsRTL,
         preMeasureViewportOverflowState
       );
       const [
@@ -498,7 +488,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
         viewportScrollSizeChanged,
       ] = (viewportScrollSizeCache = updateViewportScrollSizeCache(force));
       const viewportContentSize = clientSize(_viewport);
-      let arrangedViewportScrollSize = viewportScrollSize!;
+      let arrangedViewportScrollSize = viewportScrollSize;
       let arrangedViewportClientSize = viewportContentSize;
 
       _redoViewportArrange();
@@ -512,26 +502,29 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
         !showNativeOverlaidScrollbars &&
         arrangeViewport(
           undoViewportArrangeOverflowState,
-          viewportScrollSize!,
-          viewportSizeFraction!,
-          directionIsRTL!
+          viewportScrollSize,
+          viewportSizeFraction,
+          directionIsRTL
         )
       ) {
         arrangedViewportClientSize = clientSize(_viewport);
         arrangedViewportScrollSize = scrollSize(_viewport);
       }
 
-      overflowAmuntCache = updateOverflowAmountCache(force, {
-        _viewportSizeFraction: viewportSizeFraction!,
-        _viewportScrollSize: {
-          w: max(viewportScrollSize.w, arrangedViewportScrollSize.w),
-          h: max(viewportScrollSize.h, arrangedViewportScrollSize.h),
-        },
-        _viewportClientSize: {
-          w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - viewportScrollSize.w),
-          h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - viewportScrollSize.h),
-        },
-      });
+      overflowAmuntCache = updateOverflowAmountCache(
+        getOverflowAmount(
+          {
+            w: max(viewportScrollSize.w, arrangedViewportScrollSize.w),
+            h: max(viewportScrollSize.h, arrangedViewportScrollSize.h),
+          }, // scroll size
+          {
+            w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - viewportScrollSize.w),
+            h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - viewportScrollSize.h),
+          }, // client size
+          viewportSizeFraction
+        ),
+        force
+      );
     }
 
     const [viewportSizeFraction, viewportSizeFractionChanged] = viewportSizeFractionCache;
@@ -560,17 +553,17 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
 
       const viewportOverflowState = setViewportOverflowState(
         showNativeOverlaidScrollbars,
-        overflowAmount!,
+        overflowAmount,
         overflow,
         viewportStyle
       );
       const viewportArranged = arrangeViewport(
         viewportOverflowState,
-        viewportScrollSize!,
-        viewportSizeFraction!,
-        directionIsRTL!
+        viewportScrollSize,
+        viewportSizeFraction,
+        directionIsRTL
       );
-      hideNativeScrollbars(viewportOverflowState, directionIsRTL!, viewportArranged, viewportStyle);
+      hideNativeScrollbars(viewportOverflowState, directionIsRTL, viewportArranged, viewportStyle);
 
       if (adjustFlexboxGlue) {
         fixFlexboxGlue(viewportOverflowState, !!heightIntrinsic);

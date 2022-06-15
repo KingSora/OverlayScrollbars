@@ -22,6 +22,11 @@ export interface TrinsicObserver {
   };
 }
 
+const isHeightIntrinsic = (ioEntryOrSize: IntersectionObserverEntry | WH<number>): boolean =>
+  (ioEntryOrSize as WH<number>).h === 0 ||
+  (ioEntryOrSize as IntersectionObserverEntry).isIntersecting ||
+  (ioEntryOrSize as IntersectionObserverEntry).intersectionRatio > 0;
+
 /**
  * Creates a trinsic observer which observes changes to intrinsic or extrinsic sizing for the height of the target element.
  * @param target The element which shall be observed.
@@ -34,24 +39,15 @@ export const createTrinsicObserver = (
 ): TrinsicObserver => {
   const trinsicObserver = createDiv(classNameTrinsicObserver);
   const offListeners: (() => void)[] = [];
-  const [updateHeightIntrinsicCache, getCurrentHeightIntrinsicCache] = createCache<
-    boolean,
-    IntersectionObserverEntry | WH<number>
-  >(
-    (ioEntryOrSize: IntersectionObserverEntry | WH<number>) =>
-      (ioEntryOrSize! as WH<number>).h === 0 ||
-      (ioEntryOrSize! as IntersectionObserverEntry).isIntersecting ||
-      (ioEntryOrSize! as IntersectionObserverEntry).intersectionRatio > 0,
-    {
-      _initialValue: false,
-    }
-  );
+  const [updateHeightIntrinsicCache, getCurrentHeightIntrinsicCache] = createCache({
+    _initialValue: false,
+  });
 
   const triggerOnTrinsicChangedCallback = (
     updateValue?: IntersectionObserverEntry | WH<number>
   ) => {
     if (updateValue) {
-      const heightIntrinsic = updateHeightIntrinsicCache(0, updateValue);
+      const heightIntrinsic = updateHeightIntrinsicCache(isHeightIntrinsic(updateValue));
       const [, heightIntrinsicChanged] = heightIntrinsic;
 
       if (heightIntrinsicChanged) {

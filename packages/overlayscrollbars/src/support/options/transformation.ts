@@ -14,7 +14,10 @@ export interface OptionsWithOptionsTemplateTransformation<T> {
   _options: T;
 }
 
-export type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [T, OptionsTemplateValue<T>];
+export type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [
+  T,
+  OptionsTemplateValue<T>
+];
 
 export type OptionsWithOptionsTemplate<T> = {
   [P in keyof T]: T[P] extends OptionsObjectType
@@ -29,14 +32,17 @@ export type OptionsWithOptionsTemplate<T> = {
  * @param optionsWithOptionsTemplate The OptionsWithOptionsTemplate<T> object which shall be converted.
  * @param toTemplate True if the given OptionsWithOptionsTemplate<T> shall be converted to its corresponding Template object.
  */
-export const transformOptions = <T>(optionsWithOptionsTemplate: OptionsWithOptionsTemplate<T>): OptionsWithOptionsTemplateTransformation<T> => {
+export const transformOptions = <T>(
+  optionsWithOptionsTemplate: OptionsWithOptionsTemplate<T>
+): OptionsWithOptionsTemplateTransformation<T> => {
   const result: any = {
     _template: {},
     _options: {},
   };
 
   each(keys(optionsWithOptionsTemplate), (key: Extract<keyof T, string>) => {
-    const val: PlainObject | OptionsTemplateTypes | Array<OptionsTemplateTypes> = optionsWithOptionsTemplate[key];
+    const val: PlainObject | OptionsTemplateTypes | Array<OptionsTemplateTypes> =
+      optionsWithOptionsTemplate[key];
 
     if (isArray(val)) {
       result._template[key] = val[1];

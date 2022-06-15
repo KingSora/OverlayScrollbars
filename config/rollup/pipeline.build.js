@@ -83,11 +83,18 @@ module.exports = (esm, options, declarationFiles = false) => {
       rollupBabelInputPlugin({
         ...(esm ? babelConfigEsm : babelConfigUmd),
         assumptions: {
+          enumerableModuleMeta: false,
+          constantReexports: true,
           iterableIsArray: true,
+          objectRestNoSymbols: true,
           noNewArrows: true,
           noClassCalls: true,
           ignoreToPrimitiveHint: true,
           ignoreFunctionLength: true,
+          // privateFieldsAsProperties: true,
+          // setPublicClassFields: true,
+          setSpreadProperties: true,
+          pureGetters: true,
         },
         plugins: [
           '@babel/plugin-transform-runtime',

@@ -11,14 +11,13 @@ export function isNull(obj: any): obj is null {
   return obj === null;
 }
 
-export const type: (obj: any) => string = (obj) => {
-  return isUndefined(obj) || isNull(obj)
+export const type: (obj: any) => string = (obj) =>
+  isUndefined(obj) || isNull(obj)
     ? `${obj}`
     : toString
         .call(obj)
         .replace(/^\[object (.+)\]$/, '$1')
         .toLowerCase();
-};
 
 export function isNumber(obj: any): obj is number {
   return typeof obj === 'number';
@@ -52,7 +51,11 @@ export function isArrayLike<T extends PlainObject = any>(obj: any): obj is Array
   const length = !!obj && obj.length;
   const lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0; // eslint-disable-line eqeqeq
 
-  return isArray(obj) || (!isFunction(obj) && lengthCorrectFormat) ? (length > 0 && isObject(obj) ? length - 1 in obj : true) : false;
+  return isArray(obj) || (!isFunction(obj) && lengthCorrectFormat)
+    ? length > 0 && isObject(obj)
+      ? length - 1 in obj
+      : true
+    : false;
 }
 
 /**
@@ -88,7 +91,11 @@ export function isPlainObject<T = any>(obj: any): obj is PlainObject<T> {
  */
 export function isHTMLElement(obj: any): obj is HTMLElement {
   const instanceofObj = window.HTMLElement;
-  return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
+  return obj
+    ? instanceofObj
+      ? obj instanceof instanceofObj
+      : obj.nodeType === ElementNodeType
+    : false;
 }
 
 /**
@@ -97,5 +104,9 @@ export function isHTMLElement(obj: any): obj is HTMLElement {
  */
 export function isElement(obj: any): obj is Element {
   const instanceofObj = window.Element;
-  return obj ? (instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType) : false;
+  return obj
+    ? instanceofObj
+      ? obj instanceof instanceofObj
+      : obj.nodeType === ElementNodeType
+    : false;
 }

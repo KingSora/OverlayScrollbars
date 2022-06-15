@@ -1,10 +1,21 @@
 import { each, hasOwnProperty, keys, push, isEmptyObject } from 'support/utils';
-import { type, isArray, isUndefined, isPlainObject, isString, isNumber, isBoolean } from 'support/utils/types';
+import {
+  type,
+  isArray,
+  isUndefined,
+  isPlainObject,
+  isString,
+  isNumber,
+  isBoolean,
+} from 'support/utils/types';
 import { PlainObject } from 'typings';
 
 export type OptionsObjectType = Record<string, unknown>;
 export type OptionsFunctionType = (this: unknown, ...args: unknown[]) => unknown;
-export type OptionsTemplateType<T extends OptionsTemplateNativeTypes> = ExtractPropsKey<OptionsTemplateTypeMap, T>;
+export type OptionsTemplateType<T extends OptionsTemplateNativeTypes> = ExtractPropsKey<
+  OptionsTemplateTypeMap,
+  T
+>;
 export type OptionsTemplateTypes = keyof OptionsTemplateTypeMap;
 export type OptionsTemplateNativeTypes = OptionsTemplateTypeMap[keyof OptionsTemplateTypeMap];
 
@@ -71,13 +82,18 @@ const templateTypePrefixSuffix: readonly [string, string] = ['__TPL_', '_TYPE__'
  * Key   = normal type string
  * value = template type string
  */
-const optionsTemplateTypes: OptionsTemplateTypesDictionary = ['boolean', 'number', 'string', 'array', 'object', 'function', 'null'].reduce(
-  (result, item) => {
-    result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
-    return result;
-  },
-  {} as OptionsTemplateTypesDictionary
-);
+const optionsTemplateTypes: OptionsTemplateTypesDictionary = [
+  'boolean',
+  'number',
+  'string',
+  'array',
+  'object',
+  'function',
+  'null',
+].reduce((result, item) => {
+  result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
+  return result;
+}, {} as OptionsTemplateTypesDictionary);
 
 /**
  * Validates the given options object according to the given template object and returns a object which looks like:
@@ -111,13 +127,20 @@ const validateRecursive = <T extends PlainObject>(
   each(props, (prop: Extract<keyof T, string>) => {
     const optionsDiffValue: any = isUndefined(optionsDiff[prop]) ? {} : optionsDiff[prop];
     const optionsValue: any = options[prop];
-    const templateValue: PlainObject | string | OptionsTemplateTypes | Array<OptionsTemplateTypes> = template[prop];
+    const templateValue: PlainObject | string | OptionsTemplateTypes | Array<OptionsTemplateTypes> =
+      template[prop];
     const templateIsComplex = isPlainObject(templateValue);
     const propPrefix = propPath ? `${propPath}.` : '';
 
     // if the template has a object as value, it means that the options are complex (verschachtelt)
     if (templateIsComplex && isPlainObject(optionsValue)) {
-      const validatedResult = validateRecursive(optionsValue, templateValue as T, optionsDiffValue, doWriteErrors, propPrefix + prop);
+      const validatedResult = validateRecursive(
+        optionsValue,
+        templateValue as T,
+        optionsDiffValue,
+        doWriteErrors,
+        propPrefix + prop
+      );
       validatedOptions[prop] = validatedResult._validated as any;
       optionsCopy[prop] = validatedResult._foreign as any;
 
@@ -163,9 +186,15 @@ const validateRecursive = <T extends PlainObject>(
       });
 
       if (isValid) {
-        const isPrimitiveArr = isArray(optionsValue) && !optionsValue.some((val) => !isNumber(val) && !isString(val) && !isBoolean(val));
+        const isPrimitiveArr =
+          isArray(optionsValue) &&
+          !optionsValue.some((val) => !isNumber(val) && !isString(val) && !isBoolean(val));
         const doStringifyComparison = isPrimitiveArr || isPlainObject(optionsValue);
-        if (doStringifyComparison ? stringify(optionsValue) !== stringify(optionsDiffValue) : optionsValue !== optionsDiffValue) {
+        if (
+          doStringifyComparison
+            ? stringify(optionsValue) !== stringify(optionsDiffValue)
+            : optionsValue !== optionsDiffValue
+        ) {
           validatedOptions[prop] = optionsValue;
         }
       } else if (doWriteErrors) {
@@ -173,7 +202,11 @@ const validateRecursive = <T extends PlainObject>(
           `${
             `The option "${propPrefix}${prop}" wasn't set, because it doesn't accept the type [ ${optionsValueType.toUpperCase()} ] with the value of "${optionsValue}".\r\n` +
             `Accepted types are: [ ${errorPossibleTypes.join(', ').toUpperCase()} ].\r\n`
-          }${errorEnumStrings.length > 0 ? `\r\nValid strings are: [ ${errorEnumStrings.join(', ')} ].` : ''}`
+          }${
+            errorEnumStrings.length > 0
+              ? `\r\nValid strings are: [ ${errorEnumStrings.join(', ')} ].`
+              : ''
+          }`
         );
       }
 
@@ -209,7 +242,7 @@ const validateOptions = <T extends PlainObject>(
   template: OptionsTemplate<T>,
   optionsDiff?: T | null,
   doWriteErrors?: boolean
-): OptionsValidationResult<T> => {
+): OptionsValidationResult<T> =>
   /*
     if (!isEmptyObject(foreign) && doWriteErrors)
         console.warn(`The following options are discarded due to invalidity:\r\n ${window.JSON.stringify(foreign, null, 2)}`);
@@ -219,7 +252,6 @@ const validateOptions = <T extends PlainObject>(
         Object.assign(result.validated, foreign);
     }
     */
-  return validateRecursive<T>(options, template, optionsDiff || ({} as T), doWriteErrors || false);
-};
+  validateRecursive<T>(options, template, optionsDiff || ({} as T), doWriteErrors || false);
 
 export { validateOptions, optionsTemplateTypes };

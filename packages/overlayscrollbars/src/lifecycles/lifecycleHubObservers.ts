@@ -44,7 +44,7 @@ const ignoreTargetChange = (
 
 export const lifecycleHubOservers = (
   instance: LifecycleHub,
-  updateLifecycles: (updateHints?: Partial<LifecycleUpdateHints> | null) => unknown
+  updateLifecycles: (updateHints: Partial<LifecycleUpdateHints>) => unknown
 ) => {
   let debounceTimeout: number | false | undefined;
   let debounceMaxDelay: number | false | undefined;
@@ -57,34 +57,31 @@ export const lifecycleHubOservers = (
   const contentMutationObserverAttr = _isTextarea
     ? baseStyleChangingAttrsTextarea
     : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
-  const updateLifecyclesWithDebouncedAdaptiveUpdateHints = debounce(
-    updateLifecycles as (updateHints: Partial<LifecycleUpdateHints>) => any,
-    {
-      _timeout: () => debounceTimeout,
-      _maxDelay: () => debounceMaxDelay,
-      _mergeParams(prev, curr) {
-        const {
-          _sizeChanged: prevSizeChanged,
-          _hostMutation: prevHostMutation,
-          _contentMutation: prevContentMutation,
-        } = prev[0];
-        const {
-          _sizeChanged: currSizeChanged,
-          _hostMutation: currvHostMutation,
-          _contentMutation: currContentMutation,
-        } = curr[0];
-        const merged: [Partial<LifecycleUpdateHints>] = [
-          {
-            _sizeChanged: prevSizeChanged || currSizeChanged,
-            _hostMutation: prevHostMutation || currvHostMutation,
-            _contentMutation: prevContentMutation || currContentMutation,
-          },
-        ];
+  const updateLifecyclesWithDebouncedAdaptiveUpdateHints = debounce(updateLifecycles, {
+    _timeout: () => debounceTimeout,
+    _maxDelay: () => debounceMaxDelay,
+    _mergeParams(prev, curr) {
+      const {
+        _sizeChanged: prevSizeChanged,
+        _hostMutation: prevHostMutation,
+        _contentMutation: prevContentMutation,
+      } = prev[0];
+      const {
+        _sizeChanged: currSizeChanged,
+        _hostMutation: currvHostMutation,
+        _contentMutation: currContentMutation,
+      } = curr[0];
+      const merged: [Partial<LifecycleUpdateHints>] = [
+        {
+          _sizeChanged: prevSizeChanged || currSizeChanged,
+          _hostMutation: prevHostMutation || currvHostMutation,
+          _contentMutation: prevContentMutation || currContentMutation,
+        },
+      ];
 
-        return merged;
-      },
-    }
-  );
+      return merged;
+    },
+  });
 
   const updateViewportAttrsFromHost = (attributes?: string[]) => {
     each(attributes || viewportAttrsFromTarget, (attribute) => {

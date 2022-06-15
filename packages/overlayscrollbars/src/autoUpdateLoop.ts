@@ -23,7 +23,7 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
   const updateLoopInterval = () => {
     loopInterval = isEmptyArray(intervals) ? defaultLoopInterval : Math.min.apply(null, intervals);
   };
-  const { _update: updateTimeCache } = createCache<number, number | undefined>((ctx) => ctx || performance.now(), {
+  const [updateTimeCache] = createCache<number>({
     _initialValue: performance.now(),
     _equal: (currTime, newTime) => {
       const delta = newTime! - currTime!;
@@ -34,9 +34,9 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
     /* istanbul ignore next */
     if (!isEmptyArray(loopFunctions) && loopIsRunning) {
       loopId = rAF!(loop);
-      const { _changed, _value, _previous } = updateTimeCache(0, newTime);
-      if (_changed) {
-        runEach(loopFunctions, _value! - _previous!);
+      const [value, changed, previous] = updateTimeCache(newTime || performance.now());
+      if (changed) {
+        runEach(loopFunctions, value - previous!);
       }
     }
   };
@@ -60,9 +60,9 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
       push(loopFunctions, fn);
 
       if (!loopIsRunning && !isEmptyArray(loopFunctions)) {
-        //getEnvironment()._autoUpdateLoop = loopIsRunning = true;
+        // getEnvironment()._autoUpdateLoop = loopIsRunning = true;
 
-        updateTimeCache(true);
+        updateTimeCache(performance.now(), true);
         loop();
       }
 
@@ -70,7 +70,7 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
         loopFunctions.splice(indexOf(loopFunctions, fn), 1);
 
         if (isEmptyArray(loopFunctions) && loopIsRunning) {
-          //getEnvironment()._autoUpdateLoop = loopIsRunning = false;
+          // getEnvironment()._autoUpdateLoop = loopIsRunning = false;
 
           cAF!(loopId!);
           loopId = undefined;

@@ -3,7 +3,8 @@ export interface WH<T = number> {
   h: T;
 }
 
-const elementHasDimensions = (elm: HTMLElement): boolean => !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
+const elementHasDimensions = (elm: HTMLElement): boolean =>
+  !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
 const zeroObj: WH = {
   w: 0,
   h: 0,
@@ -63,4 +64,5 @@ export const getBoundingClientRect = (elm: HTMLElement): DOMRect => elm.getBound
  * Determines whether the passed element has any dimensions.
  * @param elm The element.
  */
-export const hasDimensions = (elm: HTMLElement | null | undefined): boolean => (elm ? elementHasDimensions(elm as HTMLElement) : false);
+export const hasDimensions = (elm: HTMLElement | null | undefined): boolean =>
+  elm ? elementHasDimensions(elm as HTMLElement) : false;

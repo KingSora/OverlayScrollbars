@@ -65,7 +65,8 @@ const children = (elm: InputElementType, selector?: string): ReadonlyArray<Eleme
  * Returns the childNodes (incl. text-nodes or comments etc.) of the passed element. An empty array is returned if the passed element is null.
  * @param elm The element of which the childNodes shall be returned.
  */
-const contents = (elm: InputElementType): ReadonlyArray<ChildNode> => (elm ? from(elm.childNodes) : []);
+const contents = (elm: InputElementType): ReadonlyArray<ChildNode> =>
+  elm ? from(elm.childNodes) : [];
 
 /**
  * Returns the parent element of the passed element, or null if the passed element is null.
@@ -97,7 +98,11 @@ const closest = (elm: InputElementType, selector: string): OutputElementType => 
  * @param highBoundarySelector The high boundary selector.
  * @param deepBoundarySelector The deep boundary selector.
  */
-const liesBetween = (elm: InputElementType, highBoundarySelector: string, deepBoundarySelector: string): boolean => {
+const liesBetween = (
+  elm: InputElementType,
+  highBoundarySelector: string,
+  deepBoundarySelector: string
+): boolean => {
   const closestHighBoundaryElm = elm && closest(elm, highBoundarySelector);
   const closestDeepBoundaryElm = elm && findFirst(deepBoundarySelector, closestHighBoundaryElm);
 

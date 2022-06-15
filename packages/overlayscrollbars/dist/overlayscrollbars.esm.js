@@ -1,16 +1,16 @@
-const createCache = (update, options) => {
+function createCache(options, update) {
   const {
     _initialValue,
     _equal,
     _alwaysUpdateValues
-  } = options || {};
+  } = options;
   let _value = _initialValue;
 
   let _previous;
 
-  const cacheUpdate = (force, context) => {
+  const cacheUpdateContextual = (newValue, force) => {
     const curr = _value;
-    const newVal = update ? update(context, _value, _previous) : context;
+    const newVal = newValue;
     const changed = force || (_equal ? !_equal(curr, newVal) : curr !== newVal);
 
     if (changed || _alwaysUpdateValues) {
@@ -21,8 +21,12 @@ const createCache = (update, options) => {
     return [_value, changed, _previous];
   };
 
-  return [cacheUpdate, force => [_value, !!force, _previous]];
-};
+  const cacheUpdateIsolated = force => cacheUpdateContextual(update(_value, _previous), force);
+
+  const getCurrentCache = force => [_value, !!force, _previous];
+
+  return [update ? cacheUpdateIsolated : cacheUpdateContextual, getCurrentCache];
+}
 
 const ElementNodeType = Node.ELEMENT_NODE;
 const {
@@ -35,9 +39,7 @@ function isUndefined(obj) {
 function isNull(obj) {
   return obj === null;
 }
-const type = obj => {
-  return isUndefined(obj) || isNull(obj) ? `${obj}` : toString.call(obj).replace(/^\[object (.+)\]$/, '$1').toLowerCase();
-};
+const type = obj => isUndefined(obj) || isNull(obj) ? `${obj}` : toString.call(obj).replace(/^\[object (.+)\]$/, '$1').toLowerCase();
 function isNumber(obj) {
   return typeof obj === 'number';
 }
@@ -100,7 +102,7 @@ function each(source, callback) {
 
   return source;
 }
-const indexOf = (arr, item, fromIndex) => arr.indexOf(item, fromIndex);
+const indexOf = (arr, item, fromIndex) => isArray(arr) ? arr.indexOf(item, fromIndex) : -1;
 const push = (array, items, arrayIsSingleItem) => {
   !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
   return array;
@@ -116,7 +118,7 @@ const from = arr => {
   });
   return result;
 };
-const isEmptyArray = array => array && array.length === 0;
+const isEmptyArray = array => !!array && array.length === 0;
 const runEach = (arr, p1) => {
   const runFn = fn => fn && fn(p1);
 
@@ -464,8 +466,6 @@ const equalWH = (a, b) => equal(a, b, ['w', 'h']);
 const equalTRBL = (a, b) => equal(a, b, ['t', 'r', 'b', 'l']);
 const equalBCRWH = (a, b, round) => equal(a, b, ['width', 'height'], round && (value => Math.round(value)));
 
-const setT = window.setTimeout;
-
 const clearTimeouts = id => {
   id && window.clearTimeout(id);
   id && cAF(id);
@@ -481,7 +481,8 @@ const debounce = (functionToDebounce, options) => {
     _timeout,
     _maxDelay,
     _mergeParams
-  } = options;
+  } = options || {};
+  const setT = window.setTimeout;
 
   const invokeFunctionToDebounce = function invokeFunctionToDebounce(args) {
     clearTimeouts(timeoutId);
@@ -499,7 +500,7 @@ const debounce = (functionToDebounce, options) => {
   };
 
   const debouncedFn = function debouncedFn() {
-    const args = arguments;
+    const args = from(arguments);
     const finalTimeout = isFunction(_timeout) ? _timeout() : _timeout;
     const hasTimeout = isNumber(finalTimeout) && finalTimeout >= 0;
 
@@ -510,11 +511,6 @@ const debounce = (functionToDebounce, options) => {
       const mergeParamsResult = mergeParms(args);
       const invokedArgs = mergeParamsResult || args;
       const boundInvoke = invokeFunctionToDebounce.bind(0, invokedArgs);
-
-      if (!mergeParamsResult) {
-        invokeFunctionToDebounce(prevArguments || args);
-      }
-
       clearTimeouts(timeoutId);
       timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
 
@@ -550,13 +546,13 @@ const setCSSVal = (elm, prop, val) => {
   try {
     if (elm) {
       const {
-        style
+        style: elmStyle
       } = elm;
 
-      if (!isUndefined(style[prop])) {
-        style[prop] = adaptCSSVal(prop, val);
+      if (!isUndefined(elmStyle[prop])) {
+        elmStyle[prop] = adaptCSSVal(prop, val);
       } else {
-        style.setProperty(prop, val);
+        elmStyle.setProperty(prop, val);
       }
     }
   } catch (e) {}
@@ -717,9 +713,7 @@ const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPa
   };
 };
 
-const validateOptions = (options, template, optionsDiff, doWriteErrors) => {
-  return validateRecursive(options, template, optionsDiff || {}, doWriteErrors || false);
-};
+const validateOptions = (options, template, optionsDiff, doWriteErrors) => validateRecursive(options, template, optionsDiff || {}, doWriteErrors || false);
 
 const transformOptions = optionsWithOptionsTemplate => {
   const result = {
@@ -1224,7 +1218,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   const sizeObserver = baseElements[0];
   const listenerElement = sizeObserver.firstChild;
   const getIsDirectionRTL = getElmDirectionIsRTL.bind(0, sizeObserver);
-  const [updateResizeObserverContentRectCache] = createCache(0, {
+  const [updateResizeObserverContentRectCache] = createCache({
     _initialValue: undefined,
     _alwaysUpdateValues: true,
     _equal: (currVal, newVal) => !(!currVal || !domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
@@ -1238,7 +1232,7 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
     let doDirectionScroll = true;
 
     if (isResizeObserverCall) {
-      const [currRContentRect,, prevContentRect] = updateResizeObserverContentRectCache(0, sizeChangedContext.pop().contentRect);
+      const [currRContentRect,, prevContentRect] = updateResizeObserverContentRectCache(sizeChangedContext.pop().contentRect);
       const hasDimensions = domRectHasDimensions(currRContentRect);
       const hadDimensions = domRectHasDimensions(prevContentRect);
       skip = !prevContentRect || !hasDimensions;
@@ -1332,9 +1326,9 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   }
 
   if (observeDirectionChange) {
-    directionIsRTLCache = createCache(getIsDirectionRTL, {
+    directionIsRTLCache = createCache({
       _initialValue: !getIsDirectionRTL()
-    });
+    }, getIsDirectionRTL);
     const [updateDirectionIsRTLCache] = directionIsRTLCache;
     push(offListeners, on(sizeObserver, scrollEventName, event => {
       const directionIsRTLCacheValues = updateDirectionIsRTLCache();
@@ -1379,16 +1373,18 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   };
 };
 
+const isHeightIntrinsic = ioEntryOrSize => ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
+
 const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
   const trinsicObserver = createDiv(classNameTrinsicObserver);
   const offListeners = [];
-  const [updateHeightIntrinsicCache, getCurrentHeightIntrinsicCache] = createCache(ioEntryOrSize => ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0, {
+  const [updateHeightIntrinsicCache, getCurrentHeightIntrinsicCache] = createCache({
     _initialValue: false
   });
 
   const triggerOnTrinsicChangedCallback = updateValue => {
     if (updateValue) {
-      const heightIntrinsic = updateHeightIntrinsicCache(0, updateValue);
+      const heightIntrinsic = updateHeightIntrinsicCache(isHeightIntrinsic(updateValue));
       const [, heightIntrinsicChanged] = heightIntrinsic;
 
       if (heightIntrinsicChanged) {
@@ -1819,10 +1815,10 @@ const createPaddingLifecycle = lifecycleHub => {
     _padding,
     _viewport
   } = _structureSetup._targetObj;
-  const [updatePaddingCache, currentPaddingCache] = createCache(topRightBottomLeft.bind(0, _host, 'padding'), {
+  const [updatePaddingCache, currentPaddingCache] = createCache({
     _equal: equalTRBL,
     _initialValue: topRightBottomLeft()
-  });
+  }, topRightBottomLeft.bind(0, _host, 'padding', ''));
   return (updateHints, checkOption, force) => {
     let [padding, paddingChanged] = currentPaddingCache(force);
     const {
@@ -1927,6 +1923,11 @@ const setAxisOverflowStyle = (horizontal, overflowAmount, behavior, styleObj) =>
   };
 };
 
+const getOverflowAmount = (viewportScrollSize, viewportClientSize, viewportSizeFraction) => ({
+  w: max(0, round(max(0, viewportScrollSize.w - viewportClientSize.w) - (fractionalPixelRatioTollerance() || max(0, viewportSizeFraction.w)))),
+  h: max(0, round(max(0, viewportScrollSize.h - viewportClientSize.h) - (fractionalPixelRatioTollerance() || max(0, viewportSizeFraction.h))))
+});
+
 const createOverflowLifecycle = lifecycleHub => {
   const {
     _structureSetup,
@@ -1939,16 +1940,9 @@ const createOverflowLifecycle = lifecycleHub => {
     _viewport,
     _viewportArrange
   } = _structureSetup._targetObj;
-  const [updateViewportSizeFraction, getCurrentViewportSizeFraction] = createCache(sizeFraction.bind(0, _viewport), whCacheOptions);
-  const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache(scrollSize.bind(0, _viewport), whCacheOptions);
-  const [updateOverflowAmountCache, getCurrentOverflowAmountCache] = createCache(({
-    _viewportScrollSize,
-    _viewportClientSize,
-    _viewportSizeFraction
-  }) => ({
-    w: max(0, round(max(0, _viewportScrollSize.w - _viewportClientSize.w) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.w)))),
-    h: max(0, round(max(0, _viewportScrollSize.h - _viewportClientSize.h) - (fractionalPixelRatioTollerance() || max(0, _viewportSizeFraction.h))))
-  }), whCacheOptions);
+  const [updateViewportSizeFraction, getCurrentViewportSizeFraction] = createCache(whCacheOptions, sizeFraction.bind(0, _viewport));
+  const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache(whCacheOptions, scrollSize.bind(0, _viewport));
+  const [updateOverflowAmountCache, getCurrentOverflowAmountCache] = createCache(whCacheOptions);
 
   const fixFlexboxGlue = (viewportOverflowState, heightIntrinsic) => {
     style(_viewport, {
@@ -1998,9 +1992,13 @@ const createOverflowLifecycle = lifecycleHub => {
       x: styleObj.overflowX === 'scroll',
       y: styleObj.overflowY === 'scroll'
     };
+    const nonScrollbarStylingHideOffset = {
+      x: overlaidX ? arrangeHideOffset : _nativeScrollbarSize.x,
+      y: overlaidY ? arrangeHideOffset : _nativeScrollbarSize.y
+    };
     const scrollbarsHideOffset = {
-      x: scroll.x && !_nativeScrollbarStyling ? overlaidX ? arrangeHideOffset : _nativeScrollbarSize.x : 0,
-      y: scroll.y && !_nativeScrollbarStyling ? overlaidY ? arrangeHideOffset : _nativeScrollbarSize.y : 0
+      x: scroll.x && !_nativeScrollbarStyling ? nonScrollbarStylingHideOffset.x : 0,
+      y: scroll.y && !_nativeScrollbarStyling ? nonScrollbarStylingHideOffset.y : 0
     };
     return {
       _overflowScroll: scroll,
@@ -2223,30 +2221,26 @@ const createOverflowLifecycle = lifecycleHub => {
         _redoViewportArrange,
         _viewportOverflowState: undoViewportArrangeOverflowState
       } = undoViewportArrange(showNativeOverlaidScrollbars, directionIsRTL, preMeasureViewportOverflowState);
-      const [_viewportSizeFraction2, viewportSizeFractionCahnged] = viewportSizeFractionCache = updateViewportSizeFraction(force);
-      const [_viewportScrollSize2, _viewportScrollSizeChanged] = viewportScrollSizeCache = updateViewportScrollSizeCache(force);
+      const [_viewportSizeFraction, viewportSizeFractionCahnged] = viewportSizeFractionCache = updateViewportSizeFraction(force);
+      const [_viewportScrollSize, _viewportScrollSizeChanged] = viewportScrollSizeCache = updateViewportScrollSizeCache(force);
       const viewportContentSize = clientSize(_viewport);
-      let arrangedViewportScrollSize = _viewportScrollSize2;
+      let arrangedViewportScrollSize = _viewportScrollSize;
       let arrangedViewportClientSize = viewportContentSize;
 
       _redoViewportArrange();
 
-      if ((_viewportScrollSizeChanged || viewportSizeFractionCahnged || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize2, _viewportSizeFraction2, directionIsRTL)) {
+      if ((_viewportScrollSizeChanged || viewportSizeFractionCahnged || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize, _viewportSizeFraction, directionIsRTL)) {
         arrangedViewportClientSize = clientSize(_viewport);
         arrangedViewportScrollSize = scrollSize(_viewport);
       }
 
-      overflowAmuntCache = updateOverflowAmountCache(force, {
-        _viewportSizeFraction: _viewportSizeFraction2,
-        _viewportScrollSize: {
-          w: max(_viewportScrollSize2.w, arrangedViewportScrollSize.w),
-          h: max(_viewportScrollSize2.h, arrangedViewportScrollSize.h)
-        },
-        _viewportClientSize: {
-          w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - _viewportScrollSize2.w),
-          h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize2.h)
-        }
-      });
+      overflowAmuntCache = updateOverflowAmountCache(getOverflowAmount({
+        w: max(_viewportScrollSize.w, arrangedViewportScrollSize.w),
+        h: max(_viewportScrollSize.h, arrangedViewportScrollSize.h)
+      }, {
+        w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - _viewportScrollSize.w),
+        h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize.h)
+      }, _viewportSizeFraction), force);
     }
 
     const [viewportSizeFraction, viewportSizeFractionChanged] = viewportSizeFractionCache;
@@ -2400,9 +2394,9 @@ const createLifecycleHub = (options, structureSetup, scrollbarsSetup) => {
     _destroy: destroyObservers
   } = lifecycleHubOservers(instance, updateLifecycles);
 
-  const update = (changedOptions, force) => updateLifecycles(null, changedOptions, force);
+  const update = (changedOptions, force) => updateLifecycles({}, changedOptions, force);
 
-  const envUpdateListener = update.bind(null, null, true);
+  const envUpdateListener = update.bind(0, {}, true);
   addEnvironmentListener(envUpdateListener);
   console.log(getEnvironment());
   return {
@@ -2451,7 +2445,7 @@ const OverlayScrollbars = (target, options, extensions) => {
     state: () => lifecycleHub._state(),
 
     update(force) {
-      lifecycleHub._update(null, force);
+      lifecycleHub._update({}, force);
     },
 
     destroy: () => lifecycleHub._destroy()

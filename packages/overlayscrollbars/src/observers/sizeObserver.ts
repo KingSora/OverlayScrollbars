@@ -81,10 +81,7 @@ export const createSizeObserver = (
   const sizeObserver = baseElements[0] as HTMLElement;
   const listenerElement = sizeObserver.firstChild as HTMLElement;
   const getIsDirectionRTL = getElmDirectionIsRTL.bind(0, sizeObserver);
-  const [updateResizeObserverContentRectCache] = createCache<
-    DOMRectReadOnly | undefined,
-    DOMRectReadOnly
-  >(0, {
+  const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | undefined>({
     _initialValue: undefined,
     _alwaysUpdateValues: true,
     _equal: (currVal, newVal) =>
@@ -112,7 +109,6 @@ export const createSizeObserver = (
     // if triggered from RO.
     if (isResizeObserverCall) {
       const [currRContentRect, , prevContentRect] = updateResizeObserverContentRectCache(
-        0,
         (sizeChangedContext as ResizeObserverEntry[]).pop()!.contentRect
       );
       const hasDimensions = domRectHasDimensions(currRContentRect);
@@ -234,9 +230,12 @@ export const createSizeObserver = (
   }
 
   if (observeDirectionChange) {
-    directionIsRTLCache = createCache(getIsDirectionRTL, {
-      _initialValue: !getIsDirectionRTL(), // invert current value to trigger initial change
-    });
+    directionIsRTLCache = createCache(
+      {
+        _initialValue: !getIsDirectionRTL(), // invert current value to trigger initial change
+      },
+      getIsDirectionRTL
+    );
     const [updateDirectionIsRTLCache] = directionIsRTLCache;
 
     push(

@@ -1,4 +1,17 @@
-import { each, noop, debounce, indexOf, isString, MutationObserverConstructor, isEmptyArray, on, attr, is, find, push } from 'support';
+import {
+  each,
+  noop,
+  debounce,
+  indexOf,
+  isString,
+  MutationObserverConstructor,
+  isEmptyArray,
+  on,
+  attr,
+  is,
+  find,
+  push,
+} from 'support';
 
 type DOMContentObserverCallback = (contentChangedTroughEvent: boolean) => any;
 
@@ -22,7 +35,11 @@ interface DOMTargetObserverOptions extends DOMObserverOptionsBase {
 
 type ContentChangeArrayItem = [string?, string?] | null | undefined;
 
-export type DOMObserverEventContentChange = Array<ContentChangeArrayItem> | false | null | undefined;
+export type DOMObserverEventContentChange =
+  | Array<ContentChangeArrayItem>
+  | false
+  | null
+  | undefined;
 
 export type DOMObserverIgnoreContentChange = (
   mutation: MutationRecord,
@@ -42,7 +59,9 @@ export type DOMObserverCallback<ContentObserver extends boolean> = ContentObserv
   ? DOMContentObserverCallback
   : DOMTargetObserverCallback;
 
-export type DOMObserverOptions<ContentObserver extends boolean> = ContentObserver extends true ? DOMContentObserverOptions : DOMTargetObserverOptions;
+export type DOMObserverOptions<ContentObserver extends boolean> = ContentObserver extends true
+  ? DOMContentObserverOptions
+  : DOMTargetObserverOptions;
 
 export interface DOMObserver {
   _destroy: () => void;
@@ -56,7 +75,11 @@ export interface DOMObserver {
  * @param callback Callback which is called if one of the elements emits the corresponding event.
  * @returns A object which contains a set of helper functions to destroy and update the observation of elements.
  */
-const createEventContentChange = (target: Element, callback: (...args: any) => any, eventContentChange?: DOMObserverEventContentChange) => {
+const createEventContentChange = (
+  target: Element,
+  callback: (...args: any) => any,
+  eventContentChange?: DOMObserverEventContentChange
+) => {
   let map: WeakMap<Node, [string, () => any]> | undefined; // weak map to prevent memory leak for detached elements
   let destroyed = false;
   const _destroy = () => {
@@ -68,7 +91,10 @@ const createEventContentChange = (target: Element, callback: (...args: any) => a
         if (item) {
           const selector = item[0];
           const eventNames = item[1];
-          const elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
+          const elements =
+            eventNames &&
+            selector &&
+            (getElements ? getElements(selector) : find(selector, target));
 
           if (elements && elements.length && eventNames && isString(eventNames)) {
             push(arr, [elements, eventNames.trim()], true);
@@ -141,7 +167,10 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     _ignoreNestedTargetChange,
     _ignoreContentChange,
   } = (options as DOMContentObserverOptions & DOMTargetObserverOptions) || {};
-  const { _destroy: destroyEventContentChange, _updateElements: updateEventContentChangeElements } = createEventContentChange(
+  const {
+    _destroy: destroyEventContentChange,
+    _updateElements: updateEventContentChangeElements,
+  } = createEventContentChange(
     target,
     debounce(
       () => {
@@ -159,7 +188,8 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   const finalStyleChangingAttributes = _styleChangingAttributes || [];
   const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
   const observerCallback = (mutations: MutationRecord[]) => {
-    const ignoreTargetChange = (isContentObserver ? _ignoreNestedTargetChange : _ignoreTargetChange) || noop;
+    const ignoreTargetChange =
+      (isContentObserver ? _ignoreNestedTargetChange : _ignoreTargetChange) || noop;
     const ignoreContentChange = _ignoreContentChange || noop;
     const targetChangedAttrs: string[] = [];
     const totalAddedNodes: Node[] = [];
@@ -171,19 +201,25 @@ export const createDOMObserver = <ContentObserver extends boolean>(
       const isAttributesType = type === 'attributes';
       const isChildListType = type === 'childList';
       const targetIsMutationTarget = target === mutationTarget;
-      const attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget as HTMLElement, attributeName!) : 0;
+      const attributeValue =
+        isAttributesType && isString(attributeName)
+          ? attr(mutationTarget as HTMLElement, attributeName!)
+          : 0;
       const attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
-      const styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
+      const styleChangingAttrChanged =
+        indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
 
       // if is content observer and something changed in children
       if (isContentObserver && !targetIsMutationTarget) {
         const notOnlyAttrChanged = !isAttributesType;
         const contentAttrChanged = isAttributesType && styleChangingAttrChanged;
-        const isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
+        const isNestedTarget =
+          contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
         const baseAssertion = isNestedTarget
-          ? !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue as string | null)
+          ? !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue)
           : notOnlyAttrChanged || contentAttrChanged;
-        const contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
+        const contentFinalChanged =
+          baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
 
         push(totalAddedNodes, addedNodes);
 
@@ -195,7 +231,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         !isContentObserver &&
         targetIsMutationTarget &&
         attributeChanged &&
-        !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue as string | null)
+        !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue)
       ) {
         push(targetChangedAttrs, attributeName!);
         targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
