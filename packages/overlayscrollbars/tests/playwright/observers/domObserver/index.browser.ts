@@ -42,9 +42,8 @@ const contentElmAttrChange: HTMLElement | null = document.querySelector('#target
 const contentBetweenElmAttrChange: HTMLElement | null = document.querySelector(
   '#content-host .padding-nest-item'
 );
-const contentHostElmAttrChange: HTMLElement | null = document.querySelector(
-  '#content-nest-item-host'
-);
+const contentHostElmAttrChange: HTMLElement | null =
+  document.querySelector('#content-nest-item-host');
 
 const targetElmsSlot = document.querySelector('#target .host-nest-item');
 const targetContentElmsSlot = document.querySelector('#target .content .content-nest');
@@ -52,9 +51,8 @@ const targetContentBetweenElmsSlot = document.querySelector('#content-host');
 const imgElmsSlot = document.querySelector('#target .content-nest');
 const transitionElmsSlot = document.querySelector('#content-host .content');
 
-const addRemoveTargetElms: HTMLButtonElement | null = document.querySelector(
-  '#addRemoveTargetElms'
-);
+const addRemoveTargetElms: HTMLButtonElement | null =
+  document.querySelector('#addRemoveTargetElms');
 const addRemoveTargetContentElms: HTMLButtonElement | null = document.querySelector(
   '#addRemoveTargetContentElms'
 );
@@ -67,22 +65,18 @@ const addRemoveTransitionElms: HTMLButtonElement | null = document.querySelector
 );
 const ignoreTargetChange: HTMLButtonElement | null = document.querySelector('#ignoreTargetChange');
 const setTargetAttr: HTMLSelectElement | null = document.querySelector('#setTargetAttr');
-const setFilteredTargetAttr: HTMLSelectElement | null = document.querySelector(
-  '#setFilteredTargetAttr'
-);
+const setFilteredTargetAttr: HTMLSelectElement | null =
+  document.querySelector('#setFilteredTargetAttr');
 const setContentAttr: HTMLSelectElement | null = document.querySelector('#setContentAttr');
-const setFilteredContentAttr: HTMLSelectElement | null = document.querySelector(
-  '#setFilteredContentAttr'
-);
-const setContentBetweenAttr: HTMLSelectElement | null = document.querySelector(
-  '#setContentBetweenAttr'
-);
+const setFilteredContentAttr: HTMLSelectElement | null =
+  document.querySelector('#setFilteredContentAttr');
+const setContentBetweenAttr: HTMLSelectElement | null =
+  document.querySelector('#setContentBetweenAttr');
 const setFilteredContentBetweenAttr: HTMLSelectElement | null = document.querySelector(
   '#setFilteredContentBetweenAttr'
 );
-const setContentHostElmAttr: HTMLSelectElement | null = document.querySelector(
-  '#setContentHostElmAttr'
-);
+const setContentHostElmAttr: HTMLSelectElement | null =
+  document.querySelector('#setContentHostElmAttr');
 const setFilteredContentHostElmAttr: HTMLSelectElement | null = document.querySelector(
   '#setFilteredContentHostElmAttr'
 );
@@ -415,7 +409,7 @@ const addRemoveTargetContentElmsFn = async () => {
 const addRemoveTargetContentBetweenElmsFn = async () => {
   await addRemoveElementsTest(targetContentBetweenElmsSlot, domContentObserverObservations);
 };
-const addRemoveImgElmsFn = async () => {
+const addRemoveImgElmsFn = async (changeless = false) => {
   const add = async () => {
     const img = new Image(1, 1);
     img.src = 'www.something.com/something/sometest';
@@ -434,21 +428,23 @@ const addRemoveImgElmsFn = async () => {
 
     await waitForOrFailTest(() => {
       after();
-      compare(2);
+      compare(changeless ? 0 : 2);
 
-      const previousContentChanged = getLast(domContentObserverObservations, 1);
-      should.deepEqual(
-        previousContentChanged,
-        { contentChange: true, troughEvent: false },
-        'Adding an content image must result in a content change.'
-      );
+      if (!changeless) {
+        const previousContentChanged = getLast(domContentObserverObservations, 1);
+        should.deepEqual(
+          previousContentChanged,
+          { contentChange: true, troughEvent: false },
+          'Adding an content image must result in a content change.'
+        );
 
-      const lastContentChanged = getLast(domContentObserverObservations);
-      should.deepEqual(
-        lastContentChanged,
-        { contentChange: true, troughEvent: true },
-        'The images load event must result in a content change.'
-      );
+        const lastContentChanged = getLast(domContentObserverObservations);
+        should.deepEqual(
+          lastContentChanged,
+          { contentChange: true, troughEvent: true },
+          'The images load event must result in a content change.'
+        );
+      }
     });
   };
 
@@ -481,21 +477,23 @@ const addRemoveImgElmsFn = async () => {
 
     await waitForOrFailTest(() => {
       after();
-      compare(2);
+      compare(changeless ? 0 : 2);
 
-      const previousContentChanged = getLast(domContentObserverObservations, 1);
-      should.deepEqual(
-        previousContentChanged,
-        { contentChange: true, troughEvent: false },
-        'Adding mutliple content images must result in a single content change. (debounced)'
-      );
+      if (!changeless) {
+        const previousContentChanged = getLast(domContentObserverObservations, 1);
+        should.deepEqual(
+          previousContentChanged,
+          { contentChange: true, troughEvent: false },
+          'Adding mutliple content images must result in a single content change. (debounced)'
+        );
 
-      const lastContentChanged = getLast(domContentObserverObservations);
-      should.deepEqual(
-        lastContentChanged,
-        { contentChange: true, troughEvent: true },
-        'Multiple images load events must result in a single cintent change. (debounced)'
-      );
+        const lastContentChanged = getLast(domContentObserverObservations);
+        should.deepEqual(
+          lastContentChanged,
+          { contentChange: true, troughEvent: true },
+          'Multiple images load events must result in a single cintent change. (debounced)'
+        );
+      }
     });
   };
 
@@ -529,17 +527,19 @@ const addRemoveImgElmsFn = async () => {
     contentDomObserver = createContentDomOserver(contentChange);
   };
 
-  await addChanged([
-    ['img', 'something'],
-    ['img', 'something2'],
-    ['img', ''],
-    ['img', undefined],
-    ['', ''],
-    [undefined, undefined],
-    null,
-    undefined,
-  ]);
-  await addChanged([]);
+  if (!changeless) {
+    await addChanged([
+      ['img', 'something'],
+      ['img', 'something2'],
+      ['img', ''],
+      ['img', undefined],
+      ['', ''],
+      [undefined, undefined],
+      null,
+      undefined,
+    ]);
+    await addChanged([]);
+  }
 
   removeElements(document.querySelectorAll('.img'));
 
@@ -696,7 +696,7 @@ const triggerBetweenSummaryChange = async () => {
 addRemoveTargetElms?.addEventListener('click', addRemoveTargetElmsFn);
 addRemoveTargetContentElms?.addEventListener('click', addRemoveTargetContentElmsFn);
 addRemoveTargetContentBetweenElms?.addEventListener('click', addRemoveTargetContentBetweenElmsFn);
-addRemoveImgElms?.addEventListener('click', addRemoveImgElmsFn);
+addRemoveImgElms?.addEventListener('click', () => addRemoveImgElmsFn());
 addRemoveTransitionElms?.addEventListener('click', addRemoveTransitionElmsFn);
 ignoreTargetChange?.addEventListener('click', ignoreTargetChangeFn);
 setTargetAttr?.addEventListener('change', attrChangeListener(targetElm));
@@ -743,6 +743,8 @@ const start = async () => {
   contentDomObserver._destroy();
   contentDomObserver._destroy();
   contentDomObserver._update();
+
+  await addRemoveImgElmsFn(true); // won't trigger changes after destroy
 
   setTestResult(true);
 };

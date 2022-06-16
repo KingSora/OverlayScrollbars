@@ -10,7 +10,7 @@ export interface CacheOptions<Value> {
 export type CacheValues<T> = [
   T, // value
   boolean, // changed
-  T? // previous
+  T | undefined // previous
 ];
 
 export type EqualCachePropFunction<Value> = (currentVal: Value, newVal: Value) => boolean;

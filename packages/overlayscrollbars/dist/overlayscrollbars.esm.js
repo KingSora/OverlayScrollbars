@@ -2164,19 +2164,14 @@ const createOverflowLifecycle = lifecycleHub => {
       const prevStyle = style(_viewport, keys(finalPaddingStyle));
       removeClass(_viewport, classNameViewportArrange);
       style(_viewport, finalPaddingStyle);
-      return {
-        _redoViewportArrange: () => {
-          hideNativeScrollbars(finalViewportOverflowState, directionIsRTL, _doViewportArrange, prevStyle);
-          style(_viewport, prevStyle);
-          addClass(_viewport, classNameViewportArrange);
-        },
-        _viewportOverflowState: finalViewportOverflowState
-      };
+      return [() => {
+        hideNativeScrollbars(finalViewportOverflowState, directionIsRTL, _doViewportArrange, prevStyle);
+        style(_viewport, prevStyle);
+        addClass(_viewport, classNameViewportArrange);
+      }, finalViewportOverflowState];
     }
 
-    return {
-      _redoViewportArrange: noop
-    };
+    return [noop];
   };
 
   return (updateHints, checkOption, force) => {
@@ -2217,17 +2212,13 @@ const createOverflowLifecycle = lifecycleHub => {
     }
 
     if (_sizeChanged || _paddingStyleChanged || _contentMutation || showNativeOverlaidScrollbarsChanged || directionChanged) {
-      const {
-        _redoViewportArrange,
-        _viewportOverflowState: undoViewportArrangeOverflowState
-      } = undoViewportArrange(showNativeOverlaidScrollbars, directionIsRTL, preMeasureViewportOverflowState);
+      const [redoViewportArrange, undoViewportArrangeOverflowState] = undoViewportArrange(showNativeOverlaidScrollbars, directionIsRTL, preMeasureViewportOverflowState);
       const [_viewportSizeFraction, viewportSizeFractionCahnged] = viewportSizeFractionCache = updateViewportSizeFraction(force);
       const [_viewportScrollSize, _viewportScrollSizeChanged] = viewportScrollSizeCache = updateViewportScrollSizeCache(force);
       const viewportContentSize = clientSize(_viewport);
       let arrangedViewportScrollSize = _viewportScrollSize;
       let arrangedViewportClientSize = viewportContentSize;
-
-      _redoViewportArrange();
+      redoViewportArrange();
 
       if ((_viewportScrollSizeChanged || viewportSizeFractionCahnged || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize, _viewportSizeFraction, directionIsRTL)) {
         arrangedViewportClientSize = clientSize(_viewport);

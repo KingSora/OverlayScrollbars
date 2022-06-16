@@ -183,19 +183,18 @@ export const createLifecycleHub = (
         _hostMutation: adaptiveHostMutation,
         _contentMutation: adaptiveContentMutation,
         _paddingStyleChanged: adaptivePaddingStyleChanged,
-      } =
-        lifecycle(
-          {
-            _directionIsRTL: finalDirectionIsRTL,
-            _heightIntrinsic: finalHeightIntrinsic,
-            _sizeChanged,
-            _hostMutation,
-            _contentMutation,
-            _paddingStyleChanged,
-          },
-          checkOption,
-          !!force
-        ) || {};
+      } = lifecycle(
+        {
+          _directionIsRTL: finalDirectionIsRTL,
+          _heightIntrinsic: finalHeightIntrinsic,
+          _sizeChanged,
+          _hostMutation,
+          _contentMutation,
+          _paddingStyleChanged,
+        },
+        checkOption,
+        !!force
+      ) || {};
 
       _sizeChanged = adaptiveSizeChanged || _sizeChanged;
       _hostMutation = adaptiveHostMutation || _hostMutation;
