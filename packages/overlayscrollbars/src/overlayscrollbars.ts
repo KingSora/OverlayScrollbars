@@ -1,10 +1,18 @@
-import { OSTarget, OSInitializationObject } from 'typings';
-import { PartialOptions, validateOptions, assignDeep, isEmptyObject } from 'support';
+import { OSTarget, OSInitializationObject, PartialOptions } from 'typings';
+import { assignDeep, isEmptyObject, each, isFunction, keys, isHTMLElement } from 'support';
 import { createStructureSetup, StructureSetup } from 'setups/structureSetup';
 import { createScrollbarsSetup, ScrollbarsSetup } from 'setups/scrollbarsSetup';
 import { createLifecycleHub } from 'lifecycles/lifecycleHub';
-import { OSOptions, optionsTemplate } from 'options';
+import { getOptionsDiff, OSOptions } from 'options';
 import { getEnvironment } from 'environment';
+import {
+  getPlugins,
+  addPlugin,
+  optionsValidationPluginName,
+  OSPlugin,
+  OptionsValidationPluginInstance,
+} from 'plugins';
+import { addInstance, getInstance } from 'instances';
 
 export interface OverlayScrollbarsStatic {
   (
@@ -12,6 +20,8 @@ export interface OverlayScrollbarsStatic {
     options?: PartialOptions<OSOptions>,
     extensions?: any
   ): OverlayScrollbars;
+
+  extend(osPlugin: OSPlugin | OSPlugin[]): void;
 }
 
 export interface OverlayScrollbars {
@@ -26,16 +36,24 @@ export interface OverlayScrollbars {
 
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target: OSTarget | OSInitializationObject,
-  options?: PartialOptions<OSOptions>,
-  extensions?: any
+  options?: PartialOptions<OSOptions>
 ): OverlayScrollbars => {
+  const potentialInstance = getInstance(isHTMLElement(target) ? target : target.target);
+  if (potentialInstance) {
+    return potentialInstance;
+  }
+
   const { _getDefaultOptions } = getEnvironment();
-  const currentOptions: OSOptions = assignDeep(
-    {},
-    _getDefaultOptions(),
-    validateOptions(options || ({} as PartialOptions<OSOptions>), optionsTemplate, null, true)
-      ._validated
-  );
+  const plugins = getPlugins();
+  const optionsValidationPlugin = plugins[
+    optionsValidationPluginName
+  ] as OptionsValidationPluginInstance;
+  const validateOptions = (newOptions?: PartialOptions<OSOptions>) => {
+    const opts = newOptions || {};
+    const validate = optionsValidationPlugin && optionsValidationPlugin._;
+    return validate ? validate(opts, true) : opts;
+  };
+  const currentOptions: OSOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
   const structureSetup: StructureSetup = createStructureSetup(target);
   const scrollbarsSetup: ScrollbarsSetup = createScrollbarsSetup(target, structureSetup);
   const lifecycleHub = createLifecycleHub(currentOptions, structureSetup, scrollbarsSetup);
@@ -43,16 +61,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   const instance: OverlayScrollbars = {
     options(newOptions?: PartialOptions<OSOptions>) {
       if (newOptions) {
-        const { _validated: _changedOptions } = validateOptions(
-          newOptions,
-          optionsTemplate,
-          currentOptions,
-          true
-        );
+        const changedOptions = getOptionsDiff(currentOptions, validateOptions(newOptions));
 
-        if (!isEmptyObject(_changedOptions)) {
-          assignDeep(currentOptions, _changedOptions);
-          lifecycleHub._update(_changedOptions);
+        if (!isEmptyObject(changedOptions)) {
+          assignDeep(currentOptions, changedOptions);
+          lifecycleHub._update(changedOptions);
         }
       }
       return currentOptions;
@@ -64,7 +77,18 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     destroy: () => lifecycleHub._destroy(),
   };
 
+  each(keys(plugins), (pluginName) => {
+    const pluginInstance = plugins[pluginName];
+    if (isFunction(pluginInstance)) {
+      pluginInstance(OverlayScrollbars, instance);
+    }
+  });
+
   instance.update(true);
+
+  addInstance(structureSetup._targetObj._target, instance);
 
   return instance;
 };
+
+OverlayScrollbars.extend = addPlugin;

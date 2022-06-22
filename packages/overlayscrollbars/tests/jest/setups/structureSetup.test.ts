@@ -8,11 +8,9 @@ import { createStructureSetup, StructureSetup } from 'setups/structureSetup';
 import { isHTMLElement } from 'support';
 
 const mockGetEnvironment = jest.fn();
-jest.mock('environment', () => {
-  return {
-    getEnvironment: jest.fn().mockImplementation(() => mockGetEnvironment()),
-  };
-});
+jest.mock('environment', () => ({
+  getEnvironment: jest.fn().mockImplementation(() => mockGetEnvironment()),
+}));
 
 interface StructureSetupProxy {
   input: OSTarget | StructureInitialization;
@@ -377,9 +375,11 @@ describe('structureSetup', () => {
           describe('complex', () => {
             describe('single assigned', () => {
               test('padding', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="padding">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="padding">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -394,9 +394,11 @@ describe('structureSetup', () => {
               });
 
               test('viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -411,9 +413,11 @@ describe('structureSetup', () => {
               });
 
               test('content', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="content">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="content">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -430,9 +434,11 @@ describe('structureSetup', () => {
 
             describe('multiple assigned', () => {
               test('padding viewport content', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="padding"><div id="viewport"><div id="content">${content}</div></div></div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="padding"><div id="viewport"><div id="content">${content}</div></div></div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -449,9 +455,11 @@ describe('structureSetup', () => {
               });
 
               test('padding viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -467,9 +475,11 @@ describe('structureSetup', () => {
               });
 
               test('padding content', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="padding"><div id="content">${content}</div></div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="padding"><div id="content">${content}</div></div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -485,9 +495,11 @@ describe('structureSetup', () => {
               });
 
               test('viewport content', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -599,9 +611,11 @@ describe('structureSetup', () => {
 
             describe('mixed', () => {
               test('false: padding & content | assigned: viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -618,9 +632,11 @@ describe('structureSetup', () => {
               });
 
               test('true: padding & content | assigned: viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -637,9 +653,11 @@ describe('structureSetup', () => {
               });
 
               test('true: content | false: padding | assigned: viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -656,9 +674,11 @@ describe('structureSetup', () => {
               });
 
               test('true: padding | false: content | assigned: viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -675,9 +695,11 @@ describe('structureSetup', () => {
               });
 
               test('false: padding | assigned: content', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="content">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="content">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -693,9 +715,11 @@ describe('structureSetup', () => {
               });
 
               test('true: padding | assigned: content', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="content">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="content">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -711,9 +735,11 @@ describe('structureSetup', () => {
               });
 
               test('false: padding | assigned: viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -729,9 +755,11 @@ describe('structureSetup', () => {
               });
 
               test('true: padding | assigned: viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -747,9 +775,11 @@ describe('structureSetup', () => {
               });
 
               test('false: padding | assigned: viewport & content', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -766,9 +796,11 @@ describe('structureSetup', () => {
               });
 
               test('true: padding | assigned: viewport & content', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -785,9 +817,11 @@ describe('structureSetup', () => {
               });
 
               test('false: content | assigned: padding', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="padding">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="padding">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -803,9 +837,11 @@ describe('structureSetup', () => {
               });
 
               test('true: content | assigned: padding', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="padding">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="padding">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -821,9 +857,11 @@ describe('structureSetup', () => {
               });
 
               test('false: content | assigned: viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -839,9 +877,11 @@ describe('structureSetup', () => {
               });
 
               test('true: content | assigned: viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="viewport">${content}</div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewport">${content}</div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -857,9 +897,11 @@ describe('structureSetup', () => {
               });
 
               test('false: content | assigned: padding & viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({
@@ -876,9 +918,11 @@ describe('structureSetup', () => {
               });
 
               test('true: content | assigned: padding & viewport', () => {
-                const snapshot = fillBody(isTextarea, (content, hostId) => {
-                  return `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`;
-                });
+                const snapshot = fillBody(
+                  isTextarea,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`
+                );
                 const setup = assertCorrectSetup(
                   isTextarea,
                   createStructureSetupProxy({

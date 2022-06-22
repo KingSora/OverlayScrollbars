@@ -3,7 +3,6 @@ import {
   WH,
   TRBL,
   CacheValues,
-  PartialOptions,
   each,
   hasOwnProperty,
   isNumber,
@@ -18,7 +17,7 @@ import { lifecycleHubOservers } from 'lifecycles/lifecycleHubObservers';
 import { createTrinsicLifecycle } from 'lifecycles/trinsicLifecycle';
 import { createPaddingLifecycle } from 'lifecycles/paddingLifecycle';
 import { createOverflowLifecycle } from 'lifecycles/overflowLifecycle';
-import { StyleObject } from 'typings';
+import { StyleObject, PartialOptions } from 'typings';
 import { ScrollbarsSetup } from 'setups/scrollbarsSetup';
 
 export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;

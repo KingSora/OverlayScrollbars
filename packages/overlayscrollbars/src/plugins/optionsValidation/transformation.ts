@@ -4,7 +4,7 @@ import {
   OptionsTemplateNativeTypes,
   OptionsTemplateTypes,
   OptionsTemplateValue,
-} from 'support/options/validation';
+} from 'plugins/optionsValidation/validation';
 import { PlainObject } from 'typings';
 import { isArray } from 'support/utils/types';
 import { each, keys } from 'support/utils';
@@ -45,8 +45,8 @@ export const transformOptions = <T>(
       optionsWithOptionsTemplate[key];
 
     if (isArray(val)) {
-      result._template[key] = val[1];
       result._options[key] = val[0];
+      result._template[key] = val[1];
     } else {
       //  if (isObject(val))
       const tmpResult = transformOptions(val as OptionsWithOptionsTemplate<typeof val>);

@@ -1,10 +1,14 @@
-
+export type PartialOptions<T> = {
+  [P in keyof T]?: T[P] extends Record<string, unknown> ? PartialOptions<T[P]> : T[P];
+};
 
 export type PlainObject<T = any> = { [name: string]: T };
 
 export type StyleObject<CustomCssProps = ''> = {
-  [Key in (keyof CSSStyleDeclaration | (CustomCssProps extends string ? CustomCssProps : ''))]?: string | number;
-}
+  [Key in keyof CSSStyleDeclaration | (CustomCssProps extends string ? CustomCssProps : '')]?:
+    | string
+    | number;
+};
 
 export type InternalVersionOf<T> = {
   [K in keyof T as `_${Uncapitalize<string & K>}`]: T[K];
@@ -27,15 +31,15 @@ type StructureInitializationDynamicElement = HTMLElement | boolean;
 
 /**
  * Object for special initialization.
- * 
+ *
  * Target is always required, if element is not provided or undefined it will be generated.
- * 
- * If element is provided, the provided element takes all its responsibilities. 
+ *
+ * If element is provided, the provided element takes all its responsibilities.
  * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
- * 
+ *
  * Undefined means that the environment initialization strategy for the respective element is used.
  */
- export interface StructureInitialization {
+export interface StructureInitialization {
   target: OSTargetElement;
   host?: StructureInitializationStaticElement; // only relevant for textarea
   viewport?: StructureInitializationStaticElement;
@@ -45,15 +49,17 @@ type StructureInitializationDynamicElement = HTMLElement | boolean;
 
 /**
  * Object for special initialization.
- * 
+ *
  * scrollbarsSlot is the element to which the scrollbars are applied to. If null or undefined the plugin decides by itself whats the scrollbars slot.
  */
 export interface ScrollbarsInitialization {
-  scrollbarsSlot?: null | HTMLElement | ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => null | HTMLElement);
+  scrollbarsSlot?:
+    | null
+    | HTMLElement
+    | ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => null | HTMLElement);
 }
 
-export interface OSInitializationObject extends StructureInitialization, ScrollbarsInitialization {
-}
+export interface OSInitializationObject extends StructureInitialization, ScrollbarsInitialization {}
 
 export type OSTarget = OSTargetElement | OSInitializationObject;
 

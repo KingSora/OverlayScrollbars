@@ -102,7 +102,7 @@ function each(source, callback) {
 
   return source;
 }
-const indexOf = (arr, item, fromIndex) => isArray(arr) ? arr.indexOf(item, fromIndex) : -1;
+const indexOf = (arr, item, fromIndex) => arr.indexOf(item, fromIndex);
 const push = (array, items, arrayIsSingleItem) => {
   !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
   return array;
@@ -606,6 +606,28 @@ const absoluteCoordinates = elm => {
   } : zeroObj;
 };
 
+const classNameEnvironment = 'os-environment';
+const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
+const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
+const classNameHost = 'os-host';
+const classNamePadding = 'os-padding';
+const classNameViewport = 'os-viewport';
+const classNameViewportArrange = `${classNameViewport}-arrange`;
+const classNameContent = 'os-content';
+const classNameViewportScrollbarStyling = `${classNameViewport}-scrollbar-styled`;
+const classNameSizeObserver = 'os-size-observer';
+const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
+const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
+const classNameSizeObserverListenerScroll = `${classNameSizeObserverListener}-scroll`;
+const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
+const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
+const classNameTrinsicObserver = 'os-trinsic-observer';
+const classNameScrollbar = 'os-scrollbar';
+const classNameScrollbarHorizontal = `${classNameScrollbar}-horizontal`;
+const classNameScrollbarVertical = `${classNameScrollbar}-vertical`;
+const classNameScrollbarTrack = 'os-scrollbar-track';
+const classNameScrollbarHandle = 'os-scrollbar-handle';
+
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
@@ -635,174 +657,74 @@ var _extends$1 = {exports: {}};
 
 const _extends = getDefaultExportFromCjs(_extends$1.exports);
 
-const {
-  stringify
-} = JSON;
-const templateTypePrefixSuffix = ['__TPL_', '_TYPE__'];
-const optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 'function', 'null'].reduce((result, item) => {
-  result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
-  return result;
-}, {});
+const stringify = value => JSON.stringify(value, (_, val) => {
+  if (isFunction(val)) {
+    throw new Error();
+  }
 
-const validateRecursive = (options, template, optionsDiff, doWriteErrors, propPath) => {
-  const validatedOptions = {};
+  return val;
+});
 
-  const optionsCopy = _extends({}, options);
-
-  const props = keys(template).filter(prop => hasOwnProperty(options, prop));
-  each(props, prop => {
-    const optionsDiffValue = isUndefined(optionsDiff[prop]) ? {} : optionsDiff[prop];
-    const optionsValue = options[prop];
-    const templateValue = template[prop];
-    const templateIsComplex = isPlainObject(templateValue);
-    const propPrefix = propPath ? `${propPath}.` : '';
-
-    if (templateIsComplex && isPlainObject(optionsValue)) {
-      const validatedResult = validateRecursive(optionsValue, templateValue, optionsDiffValue, doWriteErrors, propPrefix + prop);
-      validatedOptions[prop] = validatedResult._validated;
-      optionsCopy[prop] = validatedResult._foreign;
-      each([optionsCopy, validatedOptions], value => {
-        if (isEmptyObject(value[prop])) {
-          delete value[prop];
-        }
-      });
-    } else if (!templateIsComplex) {
-      let isValid = false;
-      const errorEnumStrings = [];
-      const errorPossibleTypes = [];
-      const optionsValueType = type(optionsValue);
-      const templateValueArr = !isArray(templateValue) ? [templateValue] : templateValue;
-      each(templateValueArr, currTemplateType => {
-        let typeString;
-        each(optionsTemplateTypes, (value, key) => {
-          if (value === currTemplateType) {
-            typeString = key;
-          }
-        });
-        const isEnumString = isUndefined(typeString);
-
-        if (isEnumString && isString(optionsValue)) {
-          const enumStringSplit = currTemplateType.split(' ');
-          isValid = !!enumStringSplit.find(possibility => possibility === optionsValue);
-          push(errorEnumStrings, enumStringSplit);
-        } else {
-          isValid = optionsTemplateTypes[optionsValueType] === currTemplateType;
-        }
-
-        push(errorPossibleTypes, isEnumString ? optionsTemplateTypes.string : typeString);
-        return !isValid;
-      });
-
-      if (isValid) {
-        const isPrimitiveArr = isArray(optionsValue) && !optionsValue.some(val => !isNumber(val) && !isString(val) && !isBoolean(val));
-        const doStringifyComparison = isPrimitiveArr || isPlainObject(optionsValue);
-
-        if (doStringifyComparison ? stringify(optionsValue) !== stringify(optionsDiffValue) : optionsValue !== optionsDiffValue) {
-          validatedOptions[prop] = optionsValue;
-        }
-      } else if (doWriteErrors) {
-        console.warn(`${`The option "${propPrefix}${prop}" wasn't set, because it doesn't accept the type [ ${optionsValueType.toUpperCase()} ] with the value of "${optionsValue}".\r\n` + `Accepted types are: [ ${errorPossibleTypes.join(', ').toUpperCase()} ].\r\n`}${errorEnumStrings.length > 0 ? `\r\nValid strings are: [ ${errorEnumStrings.join(', ')} ].` : ''}`);
-      }
-
-      delete optionsCopy[prop];
-    }
-  });
-  return {
-    _foreign: optionsCopy,
-    _validated: validatedOptions
-  };
-};
-
-const validateOptions = (options, template, optionsDiff, doWriteErrors) => validateRecursive(options, template, optionsDiff || {}, doWriteErrors || false);
-
-const transformOptions = optionsWithOptionsTemplate => {
-  const result = {
-    _template: {},
-    _options: {}
-  };
-  each(keys(optionsWithOptionsTemplate), key => {
-    const val = optionsWithOptionsTemplate[key];
-
-    if (isArray(val)) {
-      result._template[key] = val[1];
-      result._options[key] = val[0];
-    } else {
-      const tmpResult = transformOptions(val);
-      result._template[key] = tmpResult._template;
-      result._options[key] = tmpResult._options;
-    }
-  });
-  return result;
-};
-
-const classNameEnvironment = 'os-environment';
-const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
-const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
-const classNameHost = 'os-host';
-const classNamePadding = 'os-padding';
-const classNameViewport = 'os-viewport';
-const classNameViewportArrange = `${classNameViewport}-arrange`;
-const classNameContent = 'os-content';
-const classNameViewportScrollbarStyling = `${classNameViewport}-scrollbar-styled`;
-const classNameSizeObserver = 'os-size-observer';
-const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
-const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
-const classNameSizeObserverListenerScroll = `${classNameSizeObserverListener}-scroll`;
-const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
-const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
-const classNameTrinsicObserver = 'os-trinsic-observer';
-const classNameScrollbar = 'os-scrollbar';
-const classNameScrollbarHorizontal = `${classNameScrollbar}-horizontal`;
-const classNameScrollbarVertical = `${classNameScrollbar}-vertical`;
-const classNameScrollbarTrack = 'os-scrollbar-track';
-const classNameScrollbarHandle = 'os-scrollbar-handle';
-
-const numberAllowedValues = optionsTemplateTypes.number;
-const arrayNullValues = [optionsTemplateTypes.array, optionsTemplateTypes.null];
-const stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
-const booleanTrueTemplate = [true, optionsTemplateTypes.boolean];
-const booleanFalseTemplate = [false, optionsTemplateTypes.boolean];
-const resizeAllowedValues = 'none both horizontal vertical';
-const overflowAllowedValues = 'hidden scroll visible visible-hidden';
-const scrollbarsVisibilityAllowedValues = 'visible hidden auto';
-const scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
-const defaultOptionsWithTemplate = {
-  resize: ['none', resizeAllowedValues],
-  paddingAbsolute: booleanFalseTemplate,
+const defaultOptions = {
+  resize: 'none',
+  paddingAbsolute: false,
   updating: {
-    elementEvents: [[['img', 'load']], arrayNullValues],
-    attributes: [null, arrayNullValues],
-    debounce: [[0, 33], [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null]]
+    elementEvents: [['img', 'load']],
+    attributes: null,
+    debounce: [0, 33]
   },
   overflow: {
-    x: ['scroll', overflowAllowedValues],
-    y: ['scroll', overflowAllowedValues]
+    x: 'scroll',
+    y: 'scroll'
   },
   scrollbars: {
-    visibility: ['auto', scrollbarsVisibilityAllowedValues],
-    autoHide: ['never', scrollbarsAutoHideAllowedValues],
-    autoHideDelay: [800, numberAllowedValues],
-    dragScroll: booleanTrueTemplate,
-    clickScroll: booleanFalseTemplate,
-    touch: booleanTrueTemplate
+    visibility: 'auto',
+    autoHide: 'never',
+    autoHideDelay: 800,
+    dragScroll: true,
+    clickScroll: false,
+    touch: true
   },
   textarea: {
-    dynWidth: booleanFalseTemplate,
-    dynHeight: booleanFalseTemplate,
-    inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues]
+    dynWidth: false,
+    dynHeight: false,
+    inheritedAttrs: ['style', 'class']
   },
   nativeScrollbarsOverlaid: {
-    show: booleanFalseTemplate,
-    initialize: booleanFalseTemplate
+    show: false,
+    initialize: false
   },
   callbacks: {
-    onUpdated: [null, [optionsTemplateTypes.function, optionsTemplateTypes.null]]
+    onUpdated: null
   }
 };
-const {
-  _template: optionsTemplate,
-  _options: defaultOptions
-} = transformOptions(defaultOptionsWithTemplate);
+const getOptionsDiff = (currOptions, newOptions) => {
+  const diff = {};
+  const optionsKeys = keys(newOptions).concat(keys(currOptions));
+  each(optionsKeys, optionKey => {
+    const currOptionValue = currOptions[optionKey];
+    const newOptionValue = newOptions[optionKey];
+
+    if (isObject(currOptionValue) && isObject(newOptionValue)) {
+      assignDeep(diff[optionKey] = {}, getOptionsDiff(currOptionValue, newOptionValue));
+    } else if (hasOwnProperty(newOptions, optionKey) && newOptionValue !== currOptionValue) {
+      let isDiff = true;
+
+      if (isArray(currOptionValue) || isArray(newOptionValue)) {
+        try {
+          if (stringify(currOptionValue) === stringify(newOptionValue)) {
+            isDiff = false;
+          }
+        } catch (_unused) {}
+      }
+
+      if (isDiff) {
+        diff[optionKey] = newOptionValue;
+      }
+    }
+  });
+  return diff;
+};
 
 let environmentInstance;
 const {
@@ -2408,25 +2330,81 @@ const createLifecycleHub = (options, structureSetup, scrollbarsSetup) => {
   };
 };
 
-const OverlayScrollbars = (target, options, extensions) => {
+const pluginRegistry = {};
+const getPlugins = () => assignDeep({}, pluginRegistry);
+const addPlugin = addedPlugin => each(isArray(addedPlugin) ? addedPlugin : [addedPlugin], plugin => {
+  pluginRegistry[plugin[0]] = plugin[1];
+});
+
+const templateTypePrefixSuffix = ['__TPL_', '_TYPE__'];
+const optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 'function', 'null'].reduce((result, item) => {
+  result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
+  return result;
+}, {});
+
+const numberAllowedValues = optionsTemplateTypes.number;
+const booleanAllowedValues = optionsTemplateTypes.boolean;
+const arrayNullValues = [optionsTemplateTypes.array, optionsTemplateTypes.null];
+const stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
+const resizeAllowedValues = 'none both horizontal vertical';
+const overflowAllowedValues = 'hidden scroll visible visible-hidden';
+const scrollbarsVisibilityAllowedValues = 'visible hidden auto';
+const scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
+({
+  resize: resizeAllowedValues,
+  paddingAbsolute: booleanAllowedValues,
+  updating: {
+    elementEvents: arrayNullValues,
+    attributes: arrayNullValues,
+    debounce: [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null]
+  },
+  overflow: {
+    x: overflowAllowedValues,
+    y: overflowAllowedValues
+  },
+  scrollbars: {
+    visibility: scrollbarsVisibilityAllowedValues,
+    autoHide: scrollbarsAutoHideAllowedValues,
+    autoHideDelay: numberAllowedValues,
+    dragScroll: booleanAllowedValues,
+    clickScroll: booleanAllowedValues,
+    touch: booleanAllowedValues
+  },
+  textarea: {
+    dynWidth: booleanAllowedValues,
+    dynHeight: booleanAllowedValues,
+    inheritedAttrs: stringArrayNullAllowedValues
+  },
+  nativeScrollbarsOverlaid: {
+    show: booleanAllowedValues,
+    initialize: booleanAllowedValues
+  },
+  callbacks: {
+    onUpdated: [optionsTemplateTypes.function, optionsTemplateTypes.null]
+  }
+});
+const optionsValidationPluginName = '__osOptionsValidationPlugin';
+
+const OverlayScrollbars = (target, options) => {
   const {
     _getDefaultOptions
   } = getEnvironment();
-  const currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options || {}, optionsTemplate, null, true)._validated);
+  const plugins = getPlugins();
+  const optionsValidationPlugin = plugins[optionsValidationPluginName];
+  const validateOptions = optionsValidationPlugin && optionsValidationPlugin._;
+  const currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions ? validateOptions(options || {}, true) : options);
   const structureSetup = createStructureSetup(target);
   const scrollbarsSetup = createScrollbarsSetup(target, structureSetup);
   const lifecycleHub = createLifecycleHub(currentOptions, structureSetup, scrollbarsSetup);
   const instance = {
     options(newOptions) {
       if (newOptions) {
-        const {
-          _validated: _changedOptions
-        } = validateOptions(newOptions, optionsTemplate, currentOptions, true);
+        const changedOptions = getOptionsDiff(currentOptions, validateOptions ? validateOptions(newOptions, true) : newOptions);
 
-        if (!isEmptyObject(_changedOptions)) {
-          assignDeep(currentOptions, _changedOptions);
+        if (!isEmptyObject(changedOptions)) {
+          assignDeep(currentOptions, changedOptions);
 
-          lifecycleHub._update(_changedOptions);
+          lifecycleHub._update(changedOptions);
         }
       }
 
@@ -2441,9 +2419,17 @@ const OverlayScrollbars = (target, options, extensions) => {
 
     destroy: () => lifecycleHub._destroy()
   };
+  each(keys(plugins), pluginName => {
+    const pluginInstance = plugins[pluginName];
+
+    if (isFunction(pluginInstance)) {
+      pluginInstance(OverlayScrollbars, instance);
+    }
+  });
   instance.update(true);
   return instance;
 };
+OverlayScrollbars.extend = addPlugin;
 
 export { OverlayScrollbars as default };
 //# sourceMappingURL=overlayscrollbars.esm.js.map

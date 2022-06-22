@@ -67,9 +67,13 @@ const unwrap = (elm: HTMLElement | false | null | undefined) => {
 };
 
 const createUniqueViewportArrangeElement = (): HTMLStyleElement | false => {
-  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } = getEnvironment();
+  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } =
+    getEnvironment();
   /* istanbul ignore next */
-  const create = !_cssCustomProperties && !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
+  const create =
+    !_cssCustomProperties &&
+    !_nativeScrollbarStyling &&
+    (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
   const result = create ? document.createElement('style') : false;
 
   if (result) {
@@ -86,8 +90,9 @@ const staticCreationFromStrategy = (
   strategy: StructureInitializationStaticElement,
   elementClass: string
 ): HTMLElement => {
-  const result = initializationValue ? initializationValue : isFunction(strategy) ? strategy(target) : (strategy as null);
-  return result ? result : createDiv(elementClass);
+  const result =
+    initializationValue || (isFunction(strategy) ? strategy(target) : (strategy as null));
+  return result || createDiv(elementClass);
 };
 
 const dynamicCreationFromStrategy = (
@@ -98,7 +103,11 @@ const dynamicCreationFromStrategy = (
   defaultValue: boolean
 ): HTMLElement | false => {
   const takeInitializationValue = isBoolean(initializationValue) || initializationValue;
-  const result = takeInitializationValue ? (initializationValue as boolean | HTMLElement) : isFunction(strategy) ? strategy(target) : strategy;
+  const result = takeInitializationValue
+    ? (initializationValue as boolean | HTMLElement)
+    : isFunction(strategy)
+    ? strategy(target)
+    : strategy;
 
   if (result === null) {
     return defaultValue ? createDiv(elementClass) : false;
@@ -107,7 +116,9 @@ const dynamicCreationFromStrategy = (
   return result === true ? createDiv(elementClass) : result;
 };
 
-export const createStructureSetup = (target: OSTarget | StructureInitialization): StructureSetup => {
+export const createStructureSetup = (
+  target: OSTarget | StructureInitialization
+): StructureSetup => {
   const { _getInitializationStrategy, _nativeScrollbarStyling } = getEnvironment();
   const {
     _host: hostInitializationStrategy,
@@ -117,7 +128,9 @@ export const createStructureSetup = (target: OSTarget | StructureInitialization)
   } = _getInitializationStrategy() as StructureInitializationStrategy;
   const targetIsElm = isHTMLElement(target);
   const targetStructureInitialization = target as StructureInitialization;
-  const targetElement = targetIsElm ? (target as OSTargetElement) : targetStructureInitialization.target;
+  const targetElement = targetIsElm
+    ? (target as OSTargetElement)
+    : targetStructureInitialization.target;
   const isTextarea = is(targetElement, 'textarea');
   const isBody = !isTextarea && is(targetElement, 'body');
   const ownerDocument: HTMLDocument = targetElement!.ownerDocument;
@@ -126,9 +139,19 @@ export const createStructureSetup = (target: OSTarget | StructureInitialization)
   const evaluatedTargetObj: PreparedOSTargetObject = {
     _target: targetElement,
     _host: isTextarea
-      ? staticCreationFromStrategy(targetElement, targetStructureInitialization.host, hostInitializationStrategy, classNameHost)
+      ? staticCreationFromStrategy(
+          targetElement,
+          targetStructureInitialization.host,
+          hostInitializationStrategy,
+          classNameHost
+        )
       : (targetElement as HTMLElement),
-    _viewport: staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy, classNameViewport),
+    _viewport: staticCreationFromStrategy(
+      targetElement,
+      targetStructureInitialization.viewport,
+      viewportInitializationStrategy,
+      classNameViewport
+    ),
     _padding: dynamicCreationFromStrategy(
       targetElement,
       targetStructureInitialization.padding,
@@ -158,13 +181,18 @@ export const createStructureSetup = (target: OSTarget | StructureInitialization)
     const value = evaluatedTargetObj[key];
     return push(arr, value && !parent(value) ? value : false);
   }, [] as HTMLElement[]);
-  const elementIsGenerated = (elm: HTMLElement | false) => (elm ? indexOf(generatedElements, elm) > -1 : null);
+  const elementIsGenerated = (elm: HTMLElement | false) =>
+    elm ? indexOf(generatedElements, elm) > -1 : null;
   const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [];
   const isTextareaHostGenerated = isTextarea && elementIsGenerated(_host);
   const targetContents = isTextarea
     ? _target
-    : contents([_content, _viewport, _padding, _host, _target].find((elm) => elementIsGenerated(elm) === false));
+    : contents(
+        [_content, _viewport, _padding, _host, _target].find(
+          (elm) => elementIsGenerated(elm) === false
+        )
+      );
   const contentSlot = _content || _viewport;
 
   // only insert host for textarea after target if it was generated

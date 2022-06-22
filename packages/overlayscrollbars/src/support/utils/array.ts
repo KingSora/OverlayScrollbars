@@ -1,4 +1,4 @@
-import { isArrayLike, isString, isArray } from 'support/utils/types';
+import { isArrayLike, isString } from 'support/utils/types';
 import { PlainObject } from 'typings';
 
 type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
@@ -57,7 +57,7 @@ export function each<T>(
  * @param fromIndex The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.
  */
 export const indexOf = <T = any>(arr: T[], item: T, fromIndex?: number): number =>
-  isArray(arr) ? arr.indexOf(item, fromIndex) : -1;
+  arr.indexOf(item, fromIndex);
 
 /**
  * Pushesh all given items into the given array and returns it.
@@ -75,7 +75,7 @@ export const push = <T>(array: T[], items: T | ArrayLike<T>, arrayIsSingleItem?:
  * Creates a shallow-copied Array instance from an array-like or iterable object.
  * @param arr The object from which the array instance shall be created.
  */
-export const from = <T = any>(arr: ArrayLike<T>) => {
+export const from = <T = any>(arr: ArrayLike<T> | Set<T>) => {
   if (Array.from) {
     return Array.from(arr);
   }

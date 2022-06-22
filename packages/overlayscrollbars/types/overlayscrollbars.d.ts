@@ -1,3 +1,6 @@
+type PartialOptions<T> = {
+    [P in keyof T]?: T[P] extends Record<string, unknown> ? PartialOptions<T[P]> : T[P];
+};
 type OSTargetElement = HTMLElement | HTMLTextAreaElement;
 /**
  * Static elements MUST be present.
@@ -38,10 +41,6 @@ interface ScrollbarsInitialization {
 interface OSInitializationObject extends StructureInitialization, ScrollbarsInitialization {
 }
 type OSTarget = OSTargetElement | OSInitializationObject;
-type OptionsObjectType = Record<string, unknown>;
-type PartialOptions<T> = {
-    [P in keyof T]?: T[P] extends OptionsObjectType ? PartialOptions<T[P]> : T[P];
-};
 type ResizeBehavior = "none" | "both" | "horizontal" | "vertical";
 type OverflowBehavior = "hidden" | "scroll" | "visible" | "visible-hidden";
 type VisibilityBehavior = "visible" | "hidden" | "auto";
@@ -85,8 +84,14 @@ interface OSOptions {
         onUpdated: (() => any) | null;
     };
 }
+type OSPluginInstance = Record<string, unknown> | ((staticObj: OverlayScrollbarsStatic, instanceObj: OverlayScrollbars) => void);
+type OSPlugin<T extends OSPluginInstance = OSPluginInstance> = [
+    string,
+    T
+];
 interface OverlayScrollbarsStatic {
     (target: OSTarget | OSInitializationObject, options?: PartialOptions<OSOptions>, extensions?: any): OverlayScrollbars;
+    extend(osPlugin: OSPlugin | OSPlugin[]): void;
 }
 interface OverlayScrollbars {
     options(): OSOptions;

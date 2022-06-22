@@ -114,7 +114,7 @@
     return source;
   }
   var indexOf = function indexOf(arr, item, fromIndex) {
-    return isArray(arr) ? arr.indexOf(item, fromIndex) : -1;
+    return arr.indexOf(item, fromIndex);
   };
   var push = function push(array, items, arrayIsSingleItem) {
     !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
@@ -680,6 +680,28 @@
     } : zeroObj;
   };
 
+  var classNameEnvironment = 'os-environment';
+  var classNameEnvironmentFlexboxGlue = classNameEnvironment + "-flexbox-glue";
+  var classNameEnvironmentFlexboxGlueMax = classNameEnvironmentFlexboxGlue + "-max";
+  var classNameHost = 'os-host';
+  var classNamePadding = 'os-padding';
+  var classNameViewport = 'os-viewport';
+  var classNameViewportArrange = classNameViewport + "-arrange";
+  var classNameContent = 'os-content';
+  var classNameViewportScrollbarStyling = classNameViewport + "-scrollbar-styled";
+  var classNameSizeObserver = 'os-size-observer';
+  var classNameSizeObserverAppear = classNameSizeObserver + "-appear";
+  var classNameSizeObserverListener = classNameSizeObserver + "-listener";
+  var classNameSizeObserverListenerScroll = classNameSizeObserverListener + "-scroll";
+  var classNameSizeObserverListenerItem = classNameSizeObserverListener + "-item";
+  var classNameSizeObserverListenerItemFinal = classNameSizeObserverListenerItem + "-final";
+  var classNameTrinsicObserver = 'os-trinsic-observer';
+  var classNameScrollbar = 'os-scrollbar';
+  var classNameScrollbarHorizontal = classNameScrollbar + "-horizontal";
+  var classNameScrollbarVertical = classNameScrollbar + "-vertical";
+  var classNameScrollbarTrack = 'os-scrollbar-track';
+  var classNameScrollbarHandle = 'os-scrollbar-handle';
+
   function getDefaultExportFromCjs (x) {
   	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
   }
@@ -709,180 +731,76 @@
 
   var _extends = getDefaultExportFromCjs(_extends$1.exports);
 
-  var stringify = JSON.stringify;
-  var templateTypePrefixSuffix = ['__TPL_', '_TYPE__'];
-  var optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 'function', 'null'].reduce(function (result, item) {
-    result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
-    return result;
-  }, {});
-
-  var validateRecursive = function validateRecursive(options, template, optionsDiff, doWriteErrors, propPath) {
-    var validatedOptions = {};
-
-    var optionsCopy = _extends({}, options);
-
-    var props = keys(template).filter(function (prop) {
-      return hasOwnProperty(options, prop);
-    });
-    each(props, function (prop) {
-      var optionsDiffValue = isUndefined(optionsDiff[prop]) ? {} : optionsDiff[prop];
-      var optionsValue = options[prop];
-      var templateValue = template[prop];
-      var templateIsComplex = isPlainObject(templateValue);
-      var propPrefix = propPath ? propPath + "." : '';
-
-      if (templateIsComplex && isPlainObject(optionsValue)) {
-        var validatedResult = validateRecursive(optionsValue, templateValue, optionsDiffValue, doWriteErrors, propPrefix + prop);
-        validatedOptions[prop] = validatedResult._validated;
-        optionsCopy[prop] = validatedResult._foreign;
-        each([optionsCopy, validatedOptions], function (value) {
-          if (isEmptyObject(value[prop])) {
-            delete value[prop];
-          }
-        });
-      } else if (!templateIsComplex) {
-        var isValid = false;
-        var errorEnumStrings = [];
-        var errorPossibleTypes = [];
-        var optionsValueType = type(optionsValue);
-        var templateValueArr = !isArray(templateValue) ? [templateValue] : templateValue;
-        each(templateValueArr, function (currTemplateType) {
-          var typeString;
-          each(optionsTemplateTypes, function (value, key) {
-            if (value === currTemplateType) {
-              typeString = key;
-            }
-          });
-          var isEnumString = isUndefined(typeString);
-
-          if (isEnumString && isString(optionsValue)) {
-            var enumStringSplit = currTemplateType.split(' ');
-            isValid = !!enumStringSplit.find(function (possibility) {
-              return possibility === optionsValue;
-            });
-            push(errorEnumStrings, enumStringSplit);
-          } else {
-            isValid = optionsTemplateTypes[optionsValueType] === currTemplateType;
-          }
-
-          push(errorPossibleTypes, isEnumString ? optionsTemplateTypes.string : typeString);
-          return !isValid;
-        });
-
-        if (isValid) {
-          var isPrimitiveArr = isArray(optionsValue) && !optionsValue.some(function (val) {
-            return !isNumber(val) && !isString(val) && !isBoolean(val);
-          });
-          var doStringifyComparison = isPrimitiveArr || isPlainObject(optionsValue);
-
-          if (doStringifyComparison ? stringify(optionsValue) !== stringify(optionsDiffValue) : optionsValue !== optionsDiffValue) {
-            validatedOptions[prop] = optionsValue;
-          }
-        } else if (doWriteErrors) {
-          console.warn("" + ("The option \"" + propPrefix + prop + "\" wasn't set, because it doesn't accept the type [ " + optionsValueType.toUpperCase() + " ] with the value of \"" + optionsValue + "\".\r\n" + ("Accepted types are: [ " + errorPossibleTypes.join(', ').toUpperCase() + " ].\r\n")) + (errorEnumStrings.length > 0 ? "\r\nValid strings are: [ " + errorEnumStrings.join(', ') + " ]." : ''));
-        }
-
-        delete optionsCopy[prop];
+  var stringify = function stringify(value) {
+    return JSON.stringify(value, function (_, val) {
+      if (isFunction(val)) {
+        throw new Error();
       }
+
+      return val;
     });
-    return {
-      _foreign: optionsCopy,
-      _validated: validatedOptions
-    };
   };
 
-  var validateOptions = function validateOptions(options, template, optionsDiff, doWriteErrors) {
-    return validateRecursive(options, template, optionsDiff || {}, doWriteErrors || false);
-  };
-
-  var transformOptions = function transformOptions(optionsWithOptionsTemplate) {
-    var result = {
-      _template: {},
-      _options: {}
-    };
-    each(keys(optionsWithOptionsTemplate), function (key) {
-      var val = optionsWithOptionsTemplate[key];
-
-      if (isArray(val)) {
-        result._template[key] = val[1];
-        result._options[key] = val[0];
-      } else {
-        var tmpResult = transformOptions(val);
-        result._template[key] = tmpResult._template;
-        result._options[key] = tmpResult._options;
-      }
-    });
-    return result;
-  };
-
-  var classNameEnvironment = 'os-environment';
-  var classNameEnvironmentFlexboxGlue = classNameEnvironment + "-flexbox-glue";
-  var classNameEnvironmentFlexboxGlueMax = classNameEnvironmentFlexboxGlue + "-max";
-  var classNameHost = 'os-host';
-  var classNamePadding = 'os-padding';
-  var classNameViewport = 'os-viewport';
-  var classNameViewportArrange = classNameViewport + "-arrange";
-  var classNameContent = 'os-content';
-  var classNameViewportScrollbarStyling = classNameViewport + "-scrollbar-styled";
-  var classNameSizeObserver = 'os-size-observer';
-  var classNameSizeObserverAppear = classNameSizeObserver + "-appear";
-  var classNameSizeObserverListener = classNameSizeObserver + "-listener";
-  var classNameSizeObserverListenerScroll = classNameSizeObserverListener + "-scroll";
-  var classNameSizeObserverListenerItem = classNameSizeObserverListener + "-item";
-  var classNameSizeObserverListenerItemFinal = classNameSizeObserverListenerItem + "-final";
-  var classNameTrinsicObserver = 'os-trinsic-observer';
-  var classNameScrollbar = 'os-scrollbar';
-  var classNameScrollbarHorizontal = classNameScrollbar + "-horizontal";
-  var classNameScrollbarVertical = classNameScrollbar + "-vertical";
-  var classNameScrollbarTrack = 'os-scrollbar-track';
-  var classNameScrollbarHandle = 'os-scrollbar-handle';
-
-  var numberAllowedValues = optionsTemplateTypes.number;
-  var arrayNullValues = [optionsTemplateTypes.array, optionsTemplateTypes.null];
-  var stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
-  var booleanTrueTemplate = [true, optionsTemplateTypes.boolean];
-  var booleanFalseTemplate = [false, optionsTemplateTypes.boolean];
-  var resizeAllowedValues = 'none both horizontal vertical';
-  var overflowAllowedValues = 'hidden scroll visible visible-hidden';
-  var scrollbarsVisibilityAllowedValues = 'visible hidden auto';
-  var scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
-  var defaultOptionsWithTemplate = {
-    resize: ['none', resizeAllowedValues],
-    paddingAbsolute: booleanFalseTemplate,
+  var defaultOptions = {
+    resize: 'none',
+    paddingAbsolute: false,
     updating: {
-      elementEvents: [[['img', 'load']], arrayNullValues],
-      attributes: [null, arrayNullValues],
-      debounce: [[0, 33], [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null]]
+      elementEvents: [['img', 'load']],
+      attributes: null,
+      debounce: [0, 33]
     },
     overflow: {
-      x: ['scroll', overflowAllowedValues],
-      y: ['scroll', overflowAllowedValues]
+      x: 'scroll',
+      y: 'scroll'
     },
     scrollbars: {
-      visibility: ['auto', scrollbarsVisibilityAllowedValues],
-      autoHide: ['never', scrollbarsAutoHideAllowedValues],
-      autoHideDelay: [800, numberAllowedValues],
-      dragScroll: booleanTrueTemplate,
-      clickScroll: booleanFalseTemplate,
-      touch: booleanTrueTemplate
+      visibility: 'auto',
+      autoHide: 'never',
+      autoHideDelay: 800,
+      dragScroll: true,
+      clickScroll: false,
+      touch: true
     },
     textarea: {
-      dynWidth: booleanFalseTemplate,
-      dynHeight: booleanFalseTemplate,
-      inheritedAttrs: [['style', 'class'], stringArrayNullAllowedValues]
+      dynWidth: false,
+      dynHeight: false,
+      inheritedAttrs: ['style', 'class']
     },
     nativeScrollbarsOverlaid: {
-      show: booleanFalseTemplate,
-      initialize: booleanFalseTemplate
+      show: false,
+      initialize: false
     },
     callbacks: {
-      onUpdated: [null, [optionsTemplateTypes.function, optionsTemplateTypes.null]]
+      onUpdated: null
     }
   };
+  var getOptionsDiff = function getOptionsDiff(currOptions, newOptions) {
+    var diff = {};
+    var optionsKeys = keys(newOptions).concat(keys(currOptions));
+    each(optionsKeys, function (optionKey) {
+      var currOptionValue = currOptions[optionKey];
+      var newOptionValue = newOptions[optionKey];
 
-  var _transformOptions = transformOptions(defaultOptionsWithTemplate),
-      optionsTemplate = _transformOptions._template,
-      defaultOptions = _transformOptions._options;
+      if (isObject(currOptionValue) && isObject(newOptionValue)) {
+        assignDeep(diff[optionKey] = {}, getOptionsDiff(currOptionValue, newOptionValue));
+      } else if (hasOwnProperty(newOptions, optionKey) && newOptionValue !== currOptionValue) {
+        var isDiff = true;
+
+        if (isArray(currOptionValue) || isArray(newOptionValue)) {
+          try {
+            if (stringify(currOptionValue) === stringify(newOptionValue)) {
+              isDiff = false;
+            }
+          } catch (_unused) {}
+        }
+
+        if (isDiff) {
+          diff[optionKey] = newOptionValue;
+        }
+      }
+    });
+    return diff;
+  };
 
   var environmentInstance;
   var abs$1 = Math.abs,
@@ -2510,24 +2428,85 @@
     };
   };
 
-  var OverlayScrollbars = function OverlayScrollbars(target, options, extensions) {
+  var pluginRegistry = {};
+  var getPlugins = function getPlugins() {
+    return assignDeep({}, pluginRegistry);
+  };
+  var addPlugin = function addPlugin(addedPlugin) {
+    return each(isArray(addedPlugin) ? addedPlugin : [addedPlugin], function (plugin) {
+      pluginRegistry[plugin[0]] = plugin[1];
+    });
+  };
+
+  var templateTypePrefixSuffix = ['__TPL_', '_TYPE__'];
+  var optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 'function', 'null'].reduce(function (result, item) {
+    result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
+    return result;
+  }, {});
+
+  var numberAllowedValues = optionsTemplateTypes.number;
+  var booleanAllowedValues = optionsTemplateTypes.boolean;
+  var arrayNullValues = [optionsTemplateTypes.array, optionsTemplateTypes.null];
+  var stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
+  var resizeAllowedValues = 'none both horizontal vertical';
+  var overflowAllowedValues = 'hidden scroll visible visible-hidden';
+  var scrollbarsVisibilityAllowedValues = 'visible hidden auto';
+  var scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
+  ({
+    resize: resizeAllowedValues,
+    paddingAbsolute: booleanAllowedValues,
+    updating: {
+      elementEvents: arrayNullValues,
+      attributes: arrayNullValues,
+      debounce: [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null]
+    },
+    overflow: {
+      x: overflowAllowedValues,
+      y: overflowAllowedValues
+    },
+    scrollbars: {
+      visibility: scrollbarsVisibilityAllowedValues,
+      autoHide: scrollbarsAutoHideAllowedValues,
+      autoHideDelay: numberAllowedValues,
+      dragScroll: booleanAllowedValues,
+      clickScroll: booleanAllowedValues,
+      touch: booleanAllowedValues
+    },
+    textarea: {
+      dynWidth: booleanAllowedValues,
+      dynHeight: booleanAllowedValues,
+      inheritedAttrs: stringArrayNullAllowedValues
+    },
+    nativeScrollbarsOverlaid: {
+      show: booleanAllowedValues,
+      initialize: booleanAllowedValues
+    },
+    callbacks: {
+      onUpdated: [optionsTemplateTypes.function, optionsTemplateTypes.null]
+    }
+  });
+  var optionsValidationPluginName = '__osOptionsValidationPlugin';
+
+  var OverlayScrollbars = function OverlayScrollbars(target, options) {
     var _getEnvironment = getEnvironment(),
         _getDefaultOptions = _getEnvironment._getDefaultOptions;
 
-    var currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options || {}, optionsTemplate, null, true)._validated);
+    var plugins = getPlugins();
+    var optionsValidationPlugin = plugins[optionsValidationPluginName];
+    var validateOptions = optionsValidationPlugin && optionsValidationPlugin._;
+    var currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions ? validateOptions(options || {}, true) : options);
     var structureSetup = createStructureSetup(target);
     var scrollbarsSetup = createScrollbarsSetup(target, structureSetup);
     var lifecycleHub = createLifecycleHub(currentOptions, structureSetup, scrollbarsSetup);
     var instance = {
       options: function options(newOptions) {
         if (newOptions) {
-          var _validateOptions = validateOptions(newOptions, optionsTemplate, currentOptions, true),
-              _changedOptions = _validateOptions._validated;
+          var changedOptions = getOptionsDiff(currentOptions, validateOptions ? validateOptions(newOptions, true) : newOptions);
 
-          if (!isEmptyObject(_changedOptions)) {
-            assignDeep(currentOptions, _changedOptions);
+          if (!isEmptyObject(changedOptions)) {
+            assignDeep(currentOptions, changedOptions);
 
-            lifecycleHub._update(_changedOptions);
+            lifecycleHub._update(changedOptions);
           }
         }
 
@@ -2543,9 +2522,17 @@
         return lifecycleHub._destroy();
       }
     };
+    each(keys(plugins), function (pluginName) {
+      var pluginInstance = plugins[pluginName];
+
+      if (isFunction(pluginInstance)) {
+        pluginInstance(OverlayScrollbars, instance);
+      }
+    });
     instance.update(true);
     return instance;
   };
+  OverlayScrollbars.extend = addPlugin;
 
   return OverlayScrollbars;
 

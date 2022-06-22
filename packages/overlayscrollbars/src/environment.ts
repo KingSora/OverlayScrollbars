@@ -16,7 +16,6 @@ import {
   getBoundingClientRect,
   assignDeep,
   cssProperty,
-  PartialOptions,
 } from 'support';
 import {
   classNameEnvironment,
@@ -25,7 +24,7 @@ import {
   classNameViewportScrollbarStyling,
 } from 'classnames';
 import { OSOptions, defaultOptions } from 'options';
-import { OSTargetElement } from 'typings';
+import { OSTargetElement, PartialOptions } from 'typings';
 
 type StructureInitializationElementFn<T> = ((target: OSTargetElement) => HTMLElement | T) | T;
 
@@ -255,10 +254,8 @@ const createEnvironment = (): Environment => {
         const isZoom = deltaIsBigger && difference && dprChanged;
 
         if (isZoom) {
-          const newScrollbarSize = (environmentInstance._nativeScrollbarSize = getNativeScrollbarSize(
-            body,
-            envElm
-          ));
+          const newScrollbarSize = (environmentInstance._nativeScrollbarSize =
+            getNativeScrollbarSize(body, envElm));
           removeElements(envElm);
 
           if (scrollbarSize.x !== newScrollbarSize.x || scrollbarSize.y !== newScrollbarSize.y) {

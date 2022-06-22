@@ -1,5 +1,12 @@
 import { PlainObject } from 'typings';
-import { optionsTemplateTypes as oTypes, transformOptions, OptionsTemplate, OptionsWithOptionsTemplate } from 'support/options';
+import {
+  optionsTemplateTypes as oTypes,
+  OptionsTemplate,
+} from 'plugins/optionsValidation/validation';
+import {
+  transformOptions,
+  OptionsWithOptionsTemplate,
+} from 'plugins/optionsValidation/transformation';
 
 type TestOptionsObj = { propA: 'propA'; null: null };
 type TestOptionsEnum = 'A' | 'B' | 'C';
@@ -36,7 +43,7 @@ const options: DeepRequired<TestOptions> = {
   func: () => {},
 };
 
-const optionsTemplate: OptionsTemplate<Required<TestOptions>> = {
+const optionsTemplate: OptionsTemplate<DeepRequired<TestOptions>> = {
   str: oTypes.string,
   strArrNull: [oTypes.string, oTypes.array, oTypes.null],
   nullbool: [oTypes.boolean, oTypes.null],
@@ -51,7 +58,7 @@ const optionsTemplate: OptionsTemplate<Required<TestOptions>> = {
   func: oTypes.function,
 };
 
-const TestOptionsWithOptionsTemplate: OptionsWithOptionsTemplate<Required<TestOptions>> = {
+const TestOptionsWithOptionsTemplate: OptionsWithOptionsTemplate<DeepRequired<TestOptions>> = {
   str: [options.str, optionsTemplate.str],
   strArrNull: [options.strArrNull, optionsTemplate.strArrNull],
   nullbool: [options.nullbool, optionsTemplate.nullbool],
