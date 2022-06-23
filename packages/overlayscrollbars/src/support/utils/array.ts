@@ -75,15 +75,21 @@ export const push = <T>(array: T[], items: T | ArrayLike<T>, arrayIsSingleItem?:
  * Creates a shallow-copied Array instance from an array-like or iterable object.
  * @param arr The object from which the array instance shall be created.
  */
-export const from = <T = any>(arr: ArrayLike<T> | Set<T>) => {
-  if (Array.from) {
+export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => {
+  if (Array.from && arr) {
     return Array.from(arr);
   }
   const result: T[] = [];
 
-  each(arr, (elm) => {
-    push(result, elm);
-  });
+  if (arr instanceof Set) {
+    arr.forEach((value) => {
+      push(result, value);
+    });
+  } else {
+    each(arr, (elm) => {
+      push(result, elm);
+    });
+  }
 
   return result;
 };

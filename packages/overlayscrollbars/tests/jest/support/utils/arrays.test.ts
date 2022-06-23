@@ -278,6 +278,15 @@ describe('array utilities', () => {
       expect(fromChildNodes).toEqual(Array.from(document.body.childNodes));
       document.body.innerHTML = '';
     });
+
+    test('fallback with Set', () => {
+      const arrFrom = Array.from;
+      // @ts-ignore
+      Array.from = undefined;
+      const fromResult = from(new Set([1, 2, 3]));
+      Array.from = arrFrom;
+      expect(fromResult).toEqual([1, 2, 3]);
+    });
   });
 
   describe('runEach', () => {

@@ -121,14 +121,22 @@
     return array;
   };
   var from = function from(arr) {
-    if (Array.from) {
+    if (Array.from && arr) {
       return Array.from(arr);
     }
 
     var result = [];
-    each(arr, function (elm) {
-      push(result, elm);
-    });
+
+    if (arr instanceof Set) {
+      arr.forEach(function (value) {
+        push(result, value);
+      });
+    } else {
+      each(arr, function (elm) {
+        push(result, elm);
+      });
+    }
+
     return result;
   };
   var isEmptyArray = function isEmptyArray(array) {
@@ -1005,8 +1013,8 @@
   };
 
   var staticCreationFromStrategy = function staticCreationFromStrategy(target, initializationValue, strategy, elementClass) {
-    var result = initializationValue ? initializationValue : isFunction(strategy) ? strategy(target) : strategy;
-    return result ? result : createDiv(elementClass);
+    var result = initializationValue || (isFunction(strategy) ? strategy(target) : strategy);
+    return result || createDiv(elementClass);
   };
 
   var dynamicCreationFromStrategy = function dynamicCreationFromStrategy(target, initializationValue, strategy, elementClass, defaultValue) {
@@ -2311,7 +2319,7 @@
       paddingLeft: 0
     }
   };
-  var createLifecycleHub = function createLifecycleHub(options, structureSetup, scrollbarsSetup) {
+  var createLifecycleHub = function createLifecycleHub(options, triggerEvent, structureSetup, scrollbarsSetup) {
     var lifecycleCommunication = lifecycleCommunicationFallback;
     var _viewport = structureSetup._targetObj._viewport;
 
@@ -2392,9 +2400,17 @@
         scrollTop(_viewport, scrollOffsetY);
       }
 
-      if (options.callbacks.onUpdated) {
-        options.callbacks.onUpdated();
-      }
+      triggerEvent('updated', {
+        updateHints: {
+          sizeChanged: _sizeChanged,
+          contentMutation: _contentMutation,
+          hostMutation: _hostMutation,
+          directionChanged: finalDirectionIsRTL[1],
+          heightIntrinsicChanged: finalHeightIntrinsic[1]
+        },
+        changedOptions: changedOptions || {},
+        force: !!force
+      });
     };
 
     var _lifecycleHubOservers = lifecycleHubOservers(instance, updateLifecycles),
@@ -2487,21 +2503,95 @@
   });
   var optionsValidationPluginName = '__osOptionsValidationPlugin';
 
+  var targets = new Set();
+  var targetInstanceMap = new WeakMap();
+  var addInstance = function addInstance(target, osInstance) {
+    targetInstanceMap.set(target, osInstance);
+    targets.add(target);
+  };
+  var removeInstance = function removeInstance(target) {
+    targetInstanceMap.delete(target);
+    targets.delete(target);
+  };
+  var getInstance = function getInstance(target) {
+    return targetInstanceMap.get(target);
+  };
+
+  var manageListener = function manageListener(callback, listener) {
+    each(isArray(listener) ? listener : [listener], callback);
+  };
+
+  var createEventHub = function createEventHub() {
+    var events = new Map();
+
+    var removeEvent = function removeEvent(name, listener) {
+      if (name) {
+        var eventSet = events.get(name);
+        manageListener(function (currListener) {
+          if (eventSet) {
+            eventSet[currListener ? 'delete' : 'clear'](currListener);
+          }
+        }, listener);
+      } else {
+        events.forEach(function (eventSet) {
+          eventSet.clear();
+        });
+        events.clear();
+      }
+    };
+
+    var addEvent = function addEvent(name, listener) {
+      var eventSet = events.get(name) || new Set();
+      events.set(name, eventSet);
+      manageListener(function (currListener) {
+        eventSet.add(currListener);
+      }, listener);
+      return removeEvent.bind(0, name, listener);
+    };
+
+    var triggerEvent = function triggerEvent(name, args) {
+      var eventSet = events.get(name);
+      each(from(eventSet), function (event) {
+        event(args);
+      });
+    };
+
+    return [addEvent, removeEvent, triggerEvent];
+  };
+
   var OverlayScrollbars = function OverlayScrollbars(target, options) {
+    var instanceTarget = isHTMLElement(target) ? target : target.target;
+    var potentialInstance = getInstance(instanceTarget);
+
+    if (potentialInstance) {
+      return potentialInstance;
+    }
+
     var _getEnvironment = getEnvironment(),
         _getDefaultOptions = _getEnvironment._getDefaultOptions;
 
     var plugins = getPlugins();
     var optionsValidationPlugin = plugins[optionsValidationPluginName];
-    var validateOptions = optionsValidationPlugin && optionsValidationPlugin._;
-    var currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions ? validateOptions(options || {}, true) : options);
+
+    var validateOptions = function validateOptions(newOptions) {
+      var opts = newOptions || {};
+      var validate = optionsValidationPlugin && optionsValidationPlugin._;
+      return validate ? validate(opts, true) : opts;
+    };
+
+    var _createEventHub = createEventHub(),
+        addEvent = _createEventHub[0],
+        removeEvent = _createEventHub[1],
+        triggerEvent = _createEventHub[2];
+
+    var currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
     var structureSetup = createStructureSetup(target);
     var scrollbarsSetup = createScrollbarsSetup(target, structureSetup);
-    var lifecycleHub = createLifecycleHub(currentOptions, structureSetup, scrollbarsSetup);
+    var lifecycleHub = createLifecycleHub(currentOptions, triggerEvent, structureSetup, scrollbarsSetup);
     var instance = {
       options: function options(newOptions) {
         if (newOptions) {
-          var changedOptions = getOptionsDiff(currentOptions, validateOptions ? validateOptions(newOptions, true) : newOptions);
+          var changedOptions = getOptionsDiff(currentOptions, validateOptions(newOptions));
 
           if (!isEmptyObject(changedOptions)) {
             assignDeep(currentOptions, changedOptions);
@@ -2512,6 +2602,8 @@
 
         return currentOptions;
       },
+      on: addEvent,
+      off: removeEvent,
       state: function state() {
         return lifecycleHub._state();
       },
@@ -2519,7 +2611,10 @@
         lifecycleHub._update({}, force);
       },
       destroy: function destroy() {
-        return lifecycleHub._destroy();
+        lifecycleHub._destroy();
+
+        removeInstance(instanceTarget);
+        removeEvent();
       }
     };
     each(keys(plugins), function (pluginName) {
@@ -2530,6 +2625,7 @@
       }
     });
     instance.update(true);
+    addInstance(instanceTarget, instance);
     return instance;
   };
   OverlayScrollbars.extend = addPlugin;

@@ -26,11 +26,12 @@ export const removeInstance = (target: Element): void => {
  * Gets the OverlayScrollbars from the given element or undefined if it doesn't have one.
  * @param target The element of which its OverlayScrollbars instance shall be get.
  */
-export const getInstance = (target: Element): OverlayScrollbars | undefined => targetInstanceMap.get(target);
+export const getInstance = (target: Element): OverlayScrollbars | undefined =>
+  targetInstanceMap.get(target);
 
 /**
  * Gets a Map which represents all active OverayScrollbars instances.
- * The Key is the ekement and the value is the instance.
+ * The Key is the element and the value is the instance.
  */
 export const allInstances = (): ReadonlyMap<Element, OverlayScrollbars> => {
   const validTargetInstanceMap: Map<Element, OverlayScrollbars> = new Map();

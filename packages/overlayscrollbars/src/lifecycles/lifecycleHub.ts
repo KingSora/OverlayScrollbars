@@ -19,6 +19,7 @@ import { createPaddingLifecycle } from 'lifecycles/paddingLifecycle';
 import { createOverflowLifecycle } from 'lifecycles/overflowLifecycle';
 import { StyleObject, PartialOptions } from 'typings';
 import { ScrollbarsSetup } from 'setups/scrollbarsSetup';
+import { TriggerEvent } from '../events';
 
 export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
 
@@ -108,6 +109,7 @@ const lifecycleCommunicationFallback: LifecycleCommunication = {
 
 export const createLifecycleHub = (
   options: OSOptions,
+  triggerEvent: TriggerEvent,
   structureSetup: StructureSetup,
   scrollbarsSetup: ScrollbarsSetup
 ): LifecycleHubInstance => {
@@ -208,9 +210,17 @@ export const createLifecycleHub = (
       scrollTop(_viewport, scrollOffsetY);
     }
 
-    if (options.callbacks.onUpdated) {
-      options.callbacks.onUpdated();
-    }
+    triggerEvent('updated', {
+      updateHints: {
+        sizeChanged: _sizeChanged,
+        contentMutation: _contentMutation,
+        hostMutation: _hostMutation,
+        directionChanged: finalDirectionIsRTL[1],
+        heightIntrinsicChanged: finalHeightIntrinsic[1],
+      },
+      changedOptions: changedOptions || {},
+      force: !!force,
+    });
   };
   const {
     _sizeObserver,

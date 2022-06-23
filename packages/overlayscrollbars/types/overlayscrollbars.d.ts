@@ -85,10 +85,27 @@ interface OSOptions {
     };
 }
 type OSPluginInstance = Record<string, unknown> | ((staticObj: OverlayScrollbarsStatic, instanceObj: OverlayScrollbars) => void);
-type OSPlugin<T extends OSPluginInstance = OSPluginInstance> = [
+type OSPlugin<T extends OSPluginInstance> = [
     string,
     T
 ];
+interface onUpdatedEventArgs {
+    updateHints: {
+        sizeChanged: boolean;
+        hostMutation: boolean;
+        contentMutation: boolean;
+        directionChanged: boolean;
+        heightIntrinsicChanged: boolean;
+    };
+    changedOptions: PartialOptions<OSOptions>;
+    force: boolean;
+}
+interface EventArgsMap {
+    updated: onUpdatedEventArgs;
+}
+type OSEventListener<N extends keyof EventArgsMap> = (args: EventArgsMap[N]) => void;
+type AddEvent = <N extends keyof EventArgsMap>(name: N, listener: OSEventListener<N> | OSEventListener<N>[]) => () => void;
+type RemoveEvent = <N extends keyof EventArgsMap>(name?: N, listener?: OSEventListener<N> | OSEventListener<N>[]) => void;
 interface OverlayScrollbarsStatic {
     (target: OSTarget | OSInitializationObject, options?: PartialOptions<OSOptions>, extensions?: any): OverlayScrollbars;
     extend(osPlugin: OSPlugin | OSPlugin[]): void;
@@ -99,6 +116,8 @@ interface OverlayScrollbars {
     update(force?: boolean): void;
     destroy(): void;
     state(): any;
+    on: AddEvent;
+    off: RemoveEvent;
 }
 declare const OverlayScrollbars: OverlayScrollbarsStatic;
 export { OverlayScrollbars as default };

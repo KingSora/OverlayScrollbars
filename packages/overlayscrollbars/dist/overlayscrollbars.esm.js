@@ -108,14 +108,22 @@ const push = (array, items, arrayIsSingleItem) => {
   return array;
 };
 const from = arr => {
-  if (Array.from) {
+  if (Array.from && arr) {
     return Array.from(arr);
   }
 
   const result = [];
-  each(arr, elm => {
-    push(result, elm);
-  });
+
+  if (arr instanceof Set) {
+    arr.forEach(value => {
+      push(result, value);
+    });
+  } else {
+    each(arr, elm => {
+      push(result, elm);
+    });
+  }
+
   return result;
 };
 const isEmptyArray = array => !!array && array.length === 0;
@@ -933,8 +941,8 @@ const createUniqueViewportArrangeElement = () => {
 };
 
 const staticCreationFromStrategy = (target, initializationValue, strategy, elementClass) => {
-  const result = initializationValue ? initializationValue : isFunction(strategy) ? strategy(target) : strategy;
-  return result ? result : createDiv(elementClass);
+  const result = initializationValue || (isFunction(strategy) ? strategy(target) : strategy);
+  return result || createDiv(elementClass);
 };
 
 const dynamicCreationFromStrategy = (target, initializationValue, strategy, elementClass, defaultValue) => {
@@ -2219,7 +2227,7 @@ const lifecycleCommunicationFallback = {
     paddingLeft: 0
   }
 };
-const createLifecycleHub = (options, structureSetup, scrollbarsSetup) => {
+const createLifecycleHub = (options, triggerEvent, structureSetup, scrollbarsSetup) => {
   let lifecycleCommunication = lifecycleCommunicationFallback;
   const {
     _viewport
@@ -2295,9 +2303,17 @@ const createLifecycleHub = (options, structureSetup, scrollbarsSetup) => {
       scrollTop(_viewport, scrollOffsetY);
     }
 
-    if (options.callbacks.onUpdated) {
-      options.callbacks.onUpdated();
-    }
+    triggerEvent('updated', {
+      updateHints: {
+        sizeChanged: _sizeChanged,
+        contentMutation: _contentMutation,
+        hostMutation: _hostMutation,
+        directionChanged: finalDirectionIsRTL[1],
+        heightIntrinsicChanged: finalHeightIntrinsic[1]
+      },
+      changedOptions: changedOptions || {},
+      force: !!force
+    });
   };
 
   const {
@@ -2385,21 +2401,89 @@ const scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
 });
 const optionsValidationPluginName = '__osOptionsValidationPlugin';
 
+const targets = new Set();
+const targetInstanceMap = new WeakMap();
+const addInstance = (target, osInstance) => {
+  targetInstanceMap.set(target, osInstance);
+  targets.add(target);
+};
+const removeInstance = target => {
+  targetInstanceMap.delete(target);
+  targets.delete(target);
+};
+const getInstance = target => targetInstanceMap.get(target);
+
+const manageListener = (callback, listener) => {
+  each(isArray(listener) ? listener : [listener], callback);
+};
+
+const createEventHub = () => {
+  const events = new Map();
+
+  const removeEvent = (name, listener) => {
+    if (name) {
+      const eventSet = events.get(name);
+      manageListener(currListener => {
+        if (eventSet) {
+          eventSet[currListener ? 'delete' : 'clear'](currListener);
+        }
+      }, listener);
+    } else {
+      events.forEach(eventSet => {
+        eventSet.clear();
+      });
+      events.clear();
+    }
+  };
+
+  const addEvent = (name, listener) => {
+    const eventSet = events.get(name) || new Set();
+    events.set(name, eventSet);
+    manageListener(currListener => {
+      eventSet.add(currListener);
+    }, listener);
+    return removeEvent.bind(0, name, listener);
+  };
+
+  const triggerEvent = (name, args) => {
+    const eventSet = events.get(name);
+    each(from(eventSet), event => {
+      event(args);
+    });
+  };
+
+  return [addEvent, removeEvent, triggerEvent];
+};
+
 const OverlayScrollbars = (target, options) => {
+  const instanceTarget = isHTMLElement(target) ? target : target.target;
+  const potentialInstance = getInstance(instanceTarget);
+
+  if (potentialInstance) {
+    return potentialInstance;
+  }
+
   const {
     _getDefaultOptions
   } = getEnvironment();
   const plugins = getPlugins();
   const optionsValidationPlugin = plugins[optionsValidationPluginName];
-  const validateOptions = optionsValidationPlugin && optionsValidationPlugin._;
-  const currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions ? validateOptions(options || {}, true) : options);
+
+  const validateOptions = newOptions => {
+    const opts = newOptions || {};
+    const validate = optionsValidationPlugin && optionsValidationPlugin._;
+    return validate ? validate(opts, true) : opts;
+  };
+
+  const [addEvent, removeEvent, triggerEvent] = createEventHub();
+  const currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
   const structureSetup = createStructureSetup(target);
   const scrollbarsSetup = createScrollbarsSetup(target, structureSetup);
-  const lifecycleHub = createLifecycleHub(currentOptions, structureSetup, scrollbarsSetup);
+  const lifecycleHub = createLifecycleHub(currentOptions, triggerEvent, structureSetup, scrollbarsSetup);
   const instance = {
     options(newOptions) {
       if (newOptions) {
-        const changedOptions = getOptionsDiff(currentOptions, validateOptions ? validateOptions(newOptions, true) : newOptions);
+        const changedOptions = getOptionsDiff(currentOptions, validateOptions(newOptions));
 
         if (!isEmptyObject(changedOptions)) {
           assignDeep(currentOptions, changedOptions);
@@ -2411,13 +2495,20 @@ const OverlayScrollbars = (target, options) => {
       return currentOptions;
     },
 
+    on: addEvent,
+    off: removeEvent,
     state: () => lifecycleHub._state(),
 
     update(force) {
       lifecycleHub._update({}, force);
     },
 
-    destroy: () => lifecycleHub._destroy()
+    destroy: () => {
+      lifecycleHub._destroy();
+
+      removeInstance(instanceTarget);
+      removeEvent();
+    }
   };
   each(keys(plugins), pluginName => {
     const pluginInstance = plugins[pluginName];
@@ -2427,6 +2518,7 @@ const OverlayScrollbars = (target, options) => {
     }
   });
   instance.update(true);
+  addInstance(instanceTarget, instance);
   return instance;
 };
 OverlayScrollbars.extend = addPlugin;

@@ -12,7 +12,8 @@ import {
   OSPlugin,
   OptionsValidationPluginInstance,
 } from 'plugins';
-import { addInstance, getInstance } from 'instances';
+import { addInstance, getInstance, removeInstance } from 'instances';
+import { createEventHub, AddEvent, RemoveEvent } from './events';
 
 export interface OverlayScrollbarsStatic {
   (
@@ -32,13 +33,17 @@ export interface OverlayScrollbars {
   destroy(): void;
 
   state(): any;
+
+  on: AddEvent;
+  off: RemoveEvent;
 }
 
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target: OSTarget | OSInitializationObject,
   options?: PartialOptions<OSOptions>
 ): OverlayScrollbars => {
-  const potentialInstance = getInstance(isHTMLElement(target) ? target : target.target);
+  const instanceTarget = isHTMLElement(target) ? target : target.target;
+  const potentialInstance = getInstance(instanceTarget);
   if (potentialInstance) {
     return potentialInstance;
   }
@@ -53,10 +58,16 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     const validate = optionsValidationPlugin && optionsValidationPlugin._;
     return validate ? validate(opts, true) : opts;
   };
+  const [addEvent, removeEvent, triggerEvent] = createEventHub();
   const currentOptions: OSOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
   const structureSetup: StructureSetup = createStructureSetup(target);
   const scrollbarsSetup: ScrollbarsSetup = createScrollbarsSetup(target, structureSetup);
-  const lifecycleHub = createLifecycleHub(currentOptions, structureSetup, scrollbarsSetup);
+  const lifecycleHub = createLifecycleHub(
+    currentOptions,
+    triggerEvent,
+    structureSetup,
+    scrollbarsSetup
+  );
 
   const instance: OverlayScrollbars = {
     options(newOptions?: PartialOptions<OSOptions>) {
@@ -70,11 +81,17 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       }
       return currentOptions;
     },
+    on: addEvent,
+    off: removeEvent,
     state: () => lifecycleHub._state(),
     update(force?: boolean) {
       lifecycleHub._update({}, force);
     },
-    destroy: () => lifecycleHub._destroy(),
+    destroy: () => {
+      lifecycleHub._destroy();
+      removeInstance(instanceTarget);
+      removeEvent();
+    },
   };
 
   each(keys(plugins), (pluginName) => {
@@ -86,7 +103,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
   instance.update(true);
 
-  addInstance(structureSetup._targetObj._target, instance);
+  addInstance(instanceTarget, instance);
 
   return instance;
 };
