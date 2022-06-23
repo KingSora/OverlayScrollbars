@@ -1,5 +1,4 @@
 import {
-  CacheValues,
   diffClass,
   debounce,
   isArray,
@@ -9,12 +8,26 @@ import {
   isString,
   attr,
   removeAttr,
+  CacheValues,
 } from 'support';
 import { getEnvironment } from 'environment';
-import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
-import { createTrinsicObserver } from 'observers/trinsicObserver';
+import {
+  createSizeObserver,
+  SizeObserver,
+  SizeObserverCallbackParams,
+} from 'observers/sizeObserver';
+import { createTrinsicObserver, TrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver, DOMObserver } from 'observers/domObserver';
 import { LifecycleHub, LifecycleCheckOption, LifecycleUpdateHints } from 'lifecycles/lifecycleHub';
+
+export type UpdateObserverOptions = (checkOption: LifecycleCheckOption) => void;
+
+export type LifecycleHubObservers = [
+  SizeObserver,
+  TrinsicObserver | false,
+  UpdateObserverOptions,
+  () => void
+];
 
 // const hostSelector = `.${classNameHost}`;
 
@@ -45,7 +58,7 @@ const ignoreTargetChange = (
 export const lifecycleHubOservers = (
   instance: LifecycleHub,
   updateLifecycles: (updateHints: Partial<LifecycleUpdateHints>) => unknown
-) => {
+): LifecycleHubObservers => {
   let debounceTimeout: number | false | undefined;
   let debounceMaxDelay: number | false | undefined;
   let contentMutationObserver: DOMObserver | undefined;
@@ -145,7 +158,7 @@ export const lifecycleHubOservers = (
     _ignoreTargetChange: ignoreTargetChange,
   });
 
-  const updateOptions = (checkOption: LifecycleCheckOption) => {
+  const updateOptions: UpdateObserverOptions = (checkOption) => {
     const [elementEvents, elementEventsChanged] = checkOption<Array<[string, string]> | null>(
       'updating.elementEvents'
     );
@@ -198,15 +211,15 @@ export const lifecycleHubOservers = (
 
   updateViewportAttrsFromHost();
 
-  return {
-    _trinsicObserver: trinsicObserver,
-    _sizeObserver: sizeObserver,
-    _updateObserverOptions: updateOptions,
-    _destroy() {
+  return [
+    sizeObserver,
+    trinsicObserver,
+    updateOptions,
+    () => {
       contentMutationObserver && contentMutationObserver._destroy();
       trinsicObserver && trinsicObserver._destroy();
       sizeObserver._destroy();
       hostMutationObserver._destroy();
     },
-  };
+  ];
 };

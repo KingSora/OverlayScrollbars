@@ -13,13 +13,18 @@ import {
   OptionsValidationPluginInstance,
 } from 'plugins';
 import { addInstance, getInstance, removeInstance } from 'instances';
-import { createEventHub, AddEvent, RemoveEvent } from './events';
+import {
+  createEventListenerHub,
+  EventListenersMap,
+  AddEventListener,
+  RemoveEventListener,
+} from 'eventListeners';
 
 export interface OverlayScrollbarsStatic {
   (
     target: OSTarget | OSInitializationObject,
     options?: PartialOptions<OSOptions>,
-    extensions?: any
+    eventListeners?: EventListenersMap
   ): OverlayScrollbars;
 
   extend(osPlugin: OSPlugin | OSPlugin[]): void;
@@ -34,22 +39,23 @@ export interface OverlayScrollbars {
 
   state(): any;
 
-  on: AddEvent;
-  off: RemoveEvent;
+  on: AddEventListener;
+  off: RemoveEventListener;
 }
 
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
-  target: OSTarget | OSInitializationObject,
-  options?: PartialOptions<OSOptions>
+  target,
+  options?,
+  eventListeners?
 ): OverlayScrollbars => {
+  const { _getDefaultOptions, _nativeScrollbarIsOverlaid } = getEnvironment();
+  const plugins = getPlugins();
   const instanceTarget = isHTMLElement(target) ? target : target.target;
   const potentialInstance = getInstance(instanceTarget);
   if (potentialInstance) {
     return potentialInstance;
   }
 
-  const { _getDefaultOptions } = getEnvironment();
-  const plugins = getPlugins();
   const optionsValidationPlugin = plugins[
     optionsValidationPluginName
   ] as OptionsValidationPluginInstance;
@@ -58,8 +64,17 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     const validate = optionsValidationPlugin && optionsValidationPlugin._;
     return validate ? validate(opts, true) : opts;
   };
-  const [addEvent, removeEvent, triggerEvent] = createEventHub();
   const currentOptions: OSOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
+  const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
+
+  if (
+    _nativeScrollbarIsOverlaid.x &&
+    _nativeScrollbarIsOverlaid.y &&
+    !currentOptions.nativeScrollbarsOverlaid.initialize
+  ) {
+    triggerEvent('initializationWithdrawn', false);
+  }
+
   const structureSetup: StructureSetup = createStructureSetup(target);
   const scrollbarsSetup: ScrollbarsSetup = createScrollbarsSetup(target, structureSetup);
   const lifecycleHub = createLifecycleHub(
@@ -91,6 +106,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       lifecycleHub._destroy();
       removeInstance(instanceTarget);
       removeEvent();
+      triggerEvent('destroyed', false);
     },
   };
 
@@ -104,6 +120,8 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   instance.update(true);
 
   addInstance(instanceTarget, instance);
+
+  triggerEvent('initialized', false);
 
   return instance;
 };

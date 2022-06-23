@@ -47,9 +47,7 @@ export interface SizeObserverCallbackParams {
 
 export interface SizeObserver {
   _destroy(): void;
-  _getCurrentCacheValues(
-    force?: boolean
-  ): {
+  _getCurrentCacheValues(force?: boolean): {
     _directionIsRTL: CacheValues<boolean>;
   };
 }

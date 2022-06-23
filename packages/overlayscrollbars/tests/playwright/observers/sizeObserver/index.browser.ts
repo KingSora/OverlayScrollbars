@@ -2,6 +2,8 @@ import 'styles/overlayscrollbars.scss';
 import './index.scss';
 import './handleEnvironment';
 import should from 'should';
+import { hasDimensions, offsetSize, WH, style } from 'support';
+import { createSizeObserver } from 'observers/sizeObserver';
 import {
   generateClassChangeSelectCallback,
   iterateSelect,
@@ -9,9 +11,6 @@ import {
 } from '@/testing-browser/Select';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { timeout } from '@/testing-browser/timeout';
-import { hasDimensions, offsetSize, WH, style } from 'support';
-
-import { createSizeObserver } from 'observers/sizeObserver';
 
 let sizeIterations = 0;
 let directionIterations = 0;

@@ -15,9 +15,7 @@ import { classNameTrinsicObserver } from 'classnames';
 
 export interface TrinsicObserver {
   _destroy(): void;
-  _getCurrentCacheValues(
-    force?: boolean
-  ): {
+  _getCurrentCacheValues(force?: boolean): {
     _heightIntrinsic: CacheValues<boolean>;
   };
 }

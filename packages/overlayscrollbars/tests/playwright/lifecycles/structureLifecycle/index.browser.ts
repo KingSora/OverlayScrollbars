@@ -2,10 +2,6 @@ import 'styles/overlayscrollbars.scss';
 import './index.scss';
 import './handleEnvironment';
 import should from 'should';
-import { resize } from '@/testing-browser/Resize';
-import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
-import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
-import { timeout } from '@/testing-browser/timeout';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import {
   assignDeep,
@@ -18,6 +14,10 @@ import {
   WH,
   removeAttr,
 } from 'support';
+import { resize } from '@/testing-browser/Resize';
+import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
+import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
+import { timeout } from '@/testing-browser/timeout';
 
 interface Metrics {
   offset: {
@@ -62,12 +62,10 @@ const getMetrics = (elm: HTMLElement): Metrics => {
   const comparisonEndBCR = getBoundingClientRect(elm!.querySelector('.end')!);
   const targetViewport = target!.querySelector<HTMLElement>('.os-viewport');
 
-  const scrollMeasure = (elm: HTMLElement) => {
-    return {
-      width: Math.max(0, elm!.scrollWidth - elm!.clientWidth),
-      height: Math.max(0, elm!.scrollHeight - elm!.clientHeight),
-    };
-  };
+  const scrollMeasure = (elm: HTMLElement) => ({
+    width: Math.max(0, elm!.scrollWidth - elm!.clientWidth),
+    height: Math.max(0, elm!.scrollHeight - elm!.clientHeight),
+  });
 
   const hasOverflow = (elm: HTMLElement) => {
     const measure = scrollMeasure(elm);
@@ -155,11 +153,13 @@ if (!useContentElement) {
 
 let updateCount = 0;
 // @ts-ignore
-const osInstance = (window.os = OverlayScrollbars(
-  { target: target!, content: useContentElement },
-  {
-    callbacks: {
-      onUpdated() {
+const osInstance =
+  // @ts-ignore
+  (window.os = OverlayScrollbars(
+    { target: target!, content: useContentElement },
+    { nativeScrollbarsOverlaid: { initialize: true } },
+    {
+      updated() {
         updateCount++;
         requestAnimationFrame(() => {
           if (targetUpdatesSlot) {
@@ -167,9 +167,8 @@ const osInstance = (window.os = OverlayScrollbars(
           }
         });
       },
-    },
-  }
-));
+    }
+  ));
 
 target!.querySelector('.os-viewport')?.addEventListener('scroll', (e) => {
   const viewport: HTMLElement | null = e.currentTarget as HTMLElement;

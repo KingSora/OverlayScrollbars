@@ -66,7 +66,7 @@ module.exports = {
       },
     ],
     'import/extensions': [
-      'error',
+      'off',
       'ignorePackages',
       {
         js: 'never',

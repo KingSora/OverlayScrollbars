@@ -13,13 +13,15 @@ import {
 import { OSOptions } from 'options';
 import { getEnvironment } from 'environment';
 import { StructureSetup } from 'setups/structureSetup';
-import { lifecycleHubOservers } from 'lifecycles/lifecycleHubObservers';
+import { lifecycleHubOservers, UpdateObserverOptions } from 'lifecycles/lifecycleHubObservers';
 import { createTrinsicLifecycle } from 'lifecycles/trinsicLifecycle';
 import { createPaddingLifecycle } from 'lifecycles/paddingLifecycle';
 import { createOverflowLifecycle } from 'lifecycles/overflowLifecycle';
 import { StyleObject, PartialOptions } from 'typings';
 import { ScrollbarsSetup } from 'setups/scrollbarsSetup';
-import { TriggerEvent } from '../events';
+import { TriggerEventListener } from 'eventListeners';
+import { SizeObserver } from 'observers/sizeObserver';
+import { TrinsicObserver } from 'observers/trinsicObserver';
 
 export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
 
@@ -109,11 +111,15 @@ const lifecycleCommunicationFallback: LifecycleCommunication = {
 
 export const createLifecycleHub = (
   options: OSOptions,
-  triggerEvent: TriggerEvent,
+  triggerListener: TriggerEventListener,
   structureSetup: StructureSetup,
   scrollbarsSetup: ScrollbarsSetup
 ): LifecycleHubInstance => {
   let lifecycleCommunication = lifecycleCommunicationFallback;
+  let sizeObserver: SizeObserver;
+  let trinsicObserver: false | TrinsicObserver;
+  let updateObserverOptions: UpdateObserverOptions;
+  let destroyObservers: () => void;
   const { _viewport } = structureSetup._targetObj;
   const {
     _nativeScrollbarStyling,
@@ -157,13 +163,13 @@ export const createLifecycleHub = (
 
     const finalDirectionIsRTL =
       _directionIsRTL ||
-      (_sizeObserver
-        ? _sizeObserver._getCurrentCacheValues(force)._directionIsRTL
+      (sizeObserver
+        ? sizeObserver._getCurrentCacheValues(force)._directionIsRTL
         : booleanCacheValuesFallback);
     const finalHeightIntrinsic =
       _heightIntrinsic ||
-      (_trinsicObserver
-        ? _trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic
+      (trinsicObserver
+        ? trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic
         : booleanCacheValuesFallback);
     const checkOption: LifecycleCheckOption = (path) => [
       getPropByPath(options, path),
@@ -174,8 +180,8 @@ export const createLifecycleHub = (
     const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
 
     // place before updating lifecycles because of possible flushing of debounce
-    if (_updateObserverOptions) {
-      _updateObserverOptions(checkOption);
+    if (updateObserverOptions) {
+      updateObserverOptions(checkOption);
     }
 
     each(lifecycles, (lifecycle) => {
@@ -210,7 +216,7 @@ export const createLifecycleHub = (
       scrollTop(_viewport, scrollOffsetY);
     }
 
-    triggerEvent('updated', {
+    triggerListener('updated', {
       updateHints: {
         sizeChanged: _sizeChanged,
         contentMutation: _contentMutation,
@@ -222,12 +228,11 @@ export const createLifecycleHub = (
       force: !!force,
     });
   };
-  const {
-    _sizeObserver,
-    _trinsicObserver,
-    _updateObserverOptions,
-    _destroy: destroyObservers,
-  } = lifecycleHubOservers(instance, updateLifecycles);
+  // eslint-disable-next-line prefer-const
+  [sizeObserver, trinsicObserver, updateObserverOptions, destroyObservers] = lifecycleHubOservers(
+    instance,
+    updateLifecycles
+  );
 
   const update = (changedOptions: Partial<OSOptions>, force?: boolean) =>
     updateLifecycles({}, changedOptions, force);
