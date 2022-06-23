@@ -8175,8 +8175,8 @@ __metadata:
 
 "overlayscrollbars@file:./../overlayscrollbars::locator=overlayscrollbars-example%40workspace%3Apackages%2Foverlayscrollbars-example":
   version: 0.0.1
-  resolution: "overlayscrollbars@file:./../overlayscrollbars#./../overlayscrollbars::hash=258e7b&locator=overlayscrollbars-example%40workspace%3Apackages%2Foverlayscrollbars-example"
-  checksum: ae1c5209be185d9b45952b35f0b40edb79b019e6327b8746bd58e0749f1360667c2c4be57dd58a47955daccea7dd5ab41335a5e8b48d6cbd68c823fced6580ad
+  resolution: "overlayscrollbars@file:./../overlayscrollbars#./../overlayscrollbars::hash=53ec9f&locator=overlayscrollbars-example%40workspace%3Apackages%2Foverlayscrollbars-example"
+  checksum: 47ab7e4b0fac6cbc0f2266df129ccbc481d55907b6c632efdf5470f1ef443e7a9fa44b54f15acd7640d117c934b7a7f62f9abd19c148ce4c158405bbb128cc2b
   languageName: node
   linkType: hard
 
