@@ -67,5 +67,6 @@
     "test:playwright": "yarn workspaces run test:playwright",
     "build": "yarn workspaces run build",
     "lint": "npx eslint --fix ."
-  }
+  },
+  "packageManager": "yarn@3.2.1"
 }
