@@ -89,7 +89,21 @@ type OSPlugin<T extends OSPluginInstance> = [
     string,
     T
 ];
-interface onUpdatedEventArgs {
+interface XY<T> {
+    x: T;
+    y: T;
+}
+/*
+onScrollStart               : null,
+onScroll                    : null,
+onScrollStop                : null,
+onOverflowChanged           : null,
+onOverflowAmountChanged     : null, // fusion with onOverflowChanged
+onDirectionChanged          : null, // gone
+onContentSizeChanged        : null, // gone
+onHostSizeChanged           : null, // gone
+*/
+interface OnUpdatedEventListenerArgs {
     updateHints: {
         sizeChanged: boolean;
         hostMutation: boolean;
@@ -100,14 +114,31 @@ interface onUpdatedEventArgs {
     changedOptions: PartialOptions<OSOptions>;
     force: boolean;
 }
-interface EventArgsMap {
-    updated: onUpdatedEventArgs;
+interface OnOverflowChangedEventListenerArgs {
+    overflow: XY<boolean>; // whether there is an overflow
+    scrollableOverflow: XY<boolean>; // whether there is an scrollable overflow
+    amount: XY<number>; // the overflow amount in pixel
+    previous: {
+        overflow: XY<boolean>;
+        scrollableOverflow: XY<boolean>;
+        amount: XY<number>;
+    };
 }
-type OSEventListener<N extends keyof EventArgsMap> = (args: EventArgsMap[N]) => void;
-type AddEvent = <N extends keyof EventArgsMap>(name: N, listener: OSEventListener<N> | OSEventListener<N>[]) => () => void;
-type RemoveEvent = <N extends keyof EventArgsMap>(name?: N, listener?: OSEventListener<N> | OSEventListener<N>[]) => void;
+interface EventListenerArgsMap {
+    initialized: false;
+    initializationWithdrawn: false;
+    overflowChanged: OnOverflowChangedEventListenerArgs;
+    updated: OnUpdatedEventListenerArgs;
+    destroyed: false;
+}
+type OSEventListener<N extends keyof EventListenerArgsMap> = (args: EventListenerArgsMap[N]) => void;
+type AddEventListener = <N extends keyof EventListenerArgsMap>(name: N, listener: OSEventListener<N> | OSEventListener<N>[]) => () => void;
+type RemoveEventListener = <N extends keyof EventListenerArgsMap>(name?: N, listener?: OSEventListener<N> | OSEventListener<N>[]) => void;
+type EventListenersMap = {
+    [K in keyof EventListenerArgsMap]?: OSEventListener<K> | OSEventListener<K>[];
+};
 interface OverlayScrollbarsStatic {
-    (target: OSTarget | OSInitializationObject, options?: PartialOptions<OSOptions>, extensions?: any): OverlayScrollbars;
+    (target: OSTarget | OSInitializationObject, options?: PartialOptions<OSOptions>, eventListeners?: EventListenersMap): OverlayScrollbars;
     extend(osPlugin: OSPlugin | OSPlugin[]): void;
 }
 interface OverlayScrollbars {
@@ -116,8 +147,8 @@ interface OverlayScrollbars {
     update(force?: boolean): void;
     destroy(): void;
     state(): any;
-    on: AddEvent;
-    off: RemoveEvent;
+    on: AddEventListener;
+    off: RemoveEventListener;
 }
 declare const OverlayScrollbars: OverlayScrollbarsStatic;
 export { OverlayScrollbars as default };

@@ -15,6 +15,7 @@ import {
   getBoundingClientRect,
   noop,
   each,
+  equalXY,
 } from 'support';
 import { LifecycleHub, Lifecycle } from 'lifecycles/lifecycleHub';
 import { getEnvironment } from 'environment';
@@ -28,11 +29,6 @@ interface ViewportOverflowState {
   _overflowScroll: XY<boolean>;
 }
 
-interface OverflowOption {
-  x: OverflowBehavior;
-  y: OverflowBehavior;
-}
-
 type UndoViewportArrangeResult = [
   () => void, // redoViewportArrange
   ViewportOverflowState?
@@ -43,6 +39,10 @@ const overlaidScrollbarsHideOffset = 42;
 const whCacheOptions = {
   _equal: equalWH,
   _initialValue: { w: 0, h: 0 },
+};
+const xyCacheOptions = {
+  _equal: equalXY,
+  _initialValue: { x: false, y: false },
 };
 const sizeFraction = (elm: HTMLElement): WH<number> => {
   const viewportOffsetSize = offsetSize(elm);
@@ -125,6 +125,8 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
 
   const [updateOverflowAmountCache, getCurrentOverflowAmountCache] =
     createCache<WH<number>>(whCacheOptions);
+
+  const [updateOverflowScrollCache] = createCache<XY<boolean>>(xyCacheOptions);
 
   /**
    * Applies a fixed height to the viewport so it can't overflow or underflow the host element.
@@ -215,7 +217,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
   const setViewportOverflowState = (
     showNativeOverlaidScrollbars: boolean,
     overflowAmount: WH<number>,
-    overflow: OverflowOption,
+    overflow: XY<OverflowBehavior>,
     viewportStyleObj: StyleObject
   ): ViewportOverflowState => {
     const { _visible: xVisible, _behavior: xVisibleBehavior } = setAxisOverflowStyle(
@@ -514,7 +516,7 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     const [viewportSizeFraction, viewportSizeFractionChanged] = viewportSizeFractionCache;
     const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
     const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
-    const [overflow, overflowChanged] = checkOption<OverflowOption>('overflow');
+    const [overflow, overflowChanged] = checkOption<XY<OverflowBehavior>>('overflow');
 
     if (
       _paddingStyleChanged ||
@@ -561,8 +563,10 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
       style(_viewport, viewportStyle);
 
       _setLifecycleCommunication({
-        _viewportOverflowScroll: viewportOverflowState._overflowScroll,
-        _viewportOverflowAmount: overflowAmount,
+        _viewportOverflowScrollCache: updateOverflowScrollCache(
+          viewportOverflowState._overflowScroll
+        ),
+        _viewportOverflowAmountCache: overflowAmuntCache,
       });
     }
   };

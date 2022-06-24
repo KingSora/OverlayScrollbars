@@ -39,8 +39,8 @@ export interface LifecycleCommunication {
     _padding: TRBL;
   };
   _viewportPaddingStyle: StyleObject;
-  _viewportOverflowScroll: XY<boolean>;
-  _viewportOverflowAmount: WH<number>;
+  _viewportOverflowScrollCache: CacheValues<XY<boolean>>;
+  _viewportOverflowAmountCache: CacheValues<WH<number>>;
 }
 
 export interface LifecycleUpdateHints {
@@ -92,14 +92,20 @@ const lifecycleCommunicationFallback: LifecycleCommunication = {
       l: 0,
     },
   },
-  _viewportOverflowScroll: {
-    x: false,
-    y: false,
-  },
-  _viewportOverflowAmount: {
-    w: 0,
-    h: 0,
-  },
+  _viewportOverflowScrollCache: [
+    {
+      x: false,
+      y: false,
+    },
+    false,
+  ],
+  _viewportOverflowAmountCache: [
+    {
+      w: 0,
+      h: 0,
+    },
+    false,
+  ],
   _viewportPaddingStyle: {
     marginRight: 0,
     marginBottom: 0,
@@ -130,6 +136,18 @@ const prepareUpdateHints = <T extends LifecycleUpdateHints>(
 
   return result as Required<T>;
 };
+
+const createOverflowChangedArgs = (overflowAmount: WH<number>, overflowScroll: XY<boolean>) => ({
+  amount: {
+    x: overflowAmount.w,
+    y: overflowAmount.h,
+  },
+  overflow: {
+    x: overflowAmount.w > 0,
+    y: overflowAmount.h > 0,
+  },
+  scrollableOverflow: assignDeep({}, overflowScroll),
+});
 
 export const createLifecycleHub = (
   options: OSOptions,
@@ -214,6 +232,22 @@ export const createLifecycleHub = (
       scrollTop(_viewport, scrollOffsetY);
     }
 
+    const {
+      _viewportOverflowAmountCache: overflowAmountCache,
+      _viewportOverflowScrollCache: overflowScrollCache,
+    } = lifecycleCommunication;
+    const [overflowAmount, overflowAmountChanged, prevOverflowAmount] = overflowAmountCache;
+    const [overflowScroll, overflowScrollChanged, prevOverflowScroll] = overflowScrollCache;
+
+    if (overflowAmountChanged || overflowScrollChanged) {
+      triggerListener(
+        'overflowChanged',
+        assignDeep({}, createOverflowChangedArgs(overflowAmount, overflowScroll), {
+          previous: createOverflowChangedArgs(prevOverflowAmount!, prevOverflowScroll!),
+        })
+      );
+    }
+
     triggerListener('updated', {
       updateHints: {
         sizeChanged: adaptivedUpdateHints._sizeChanged,
@@ -237,7 +271,7 @@ export const createLifecycleHub = (
   return {
     _update: update,
     _state: () => ({
-      _overflowAmount: lifecycleCommunication._viewportOverflowAmount,
+      _overflowAmount: lifecycleCommunication._viewportOverflowAmountCache[0],
     }),
     _destroy() {
       destroyObservers();

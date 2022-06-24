@@ -1,15 +1,15 @@
 import { OSOptions } from 'options';
-import { each, from, isArray, keys } from 'support';
+import { each, from, isArray, keys, XY } from 'support';
 import { PartialOptions } from 'typings';
 /*
 onScrollStart               : null,
 onScroll                    : null,
 onScrollStop                : null,
 onOverflowChanged           : null,
-onOverflowAmountChanged     : null,
-onDirectionChanged          : null,
-onContentSizeChanged        : null,
-onHostSizeChanged           : null,
+onOverflowAmountChanged     : null, // fusion with onOverflowChanged
+onDirectionChanged          : null, // gone
+onContentSizeChanged        : null, // gone
+onHostSizeChanged           : null, // gone
 */
 
 export interface OnUpdatedEventListenerArgs {
@@ -24,11 +24,23 @@ export interface OnUpdatedEventListenerArgs {
   force: boolean;
 }
 
+export interface OnOverflowChangedEventListenerArgs {
+  overflow: XY<boolean>; // whether there is an overflow
+  scrollableOverflow: XY<boolean>; // whether there is an scrollable overflow
+  amount: XY<number>; // the overflow amount in pixel
+  previous: {
+    overflow: XY<boolean>;
+    scrollableOverflow: XY<boolean>;
+    amount: XY<number>;
+  };
+}
+
 export interface EventListenerArgsMap {
   initialized: false;
   initializationWithdrawn: false;
-  destroyed: false;
+  overflowChanged: OnOverflowChangedEventListenerArgs;
   updated: OnUpdatedEventListenerArgs;
+  destroyed: false;
 }
 
 export type OSEventListener<N extends keyof EventListenerArgsMap> = (
@@ -93,11 +105,15 @@ export const createEventListenerHub = (
 
     return removeEvent.bind(0, name, listener as any);
   };
-  const triggerEvent: TriggerEventListener = (name, args) => {
+  const triggerEvent: TriggerEventListener = (name, args?) => {
     const eventSet = events.get(name);
 
     each(from(eventSet), (event) => {
-      args ? event(args) : (event as () => void)();
+      if (args) {
+        event(args);
+      } else {
+        (event as () => void)();
+      }
     });
   };
 

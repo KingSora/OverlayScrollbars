@@ -91,6 +91,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
       // }
 
       clearTimeouts(timeoutId);
+      // @ts-ignore
       timeoutId = setTimeoutFn(boundInvoke, finalTimeout as number) as number;
 
       if (hasMaxWait && !maxTimeoutId) {

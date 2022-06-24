@@ -471,6 +471,7 @@ const equal = (a, b, props, propMutation) => {
   return false;
 };
 const equalWH = (a, b) => equal(a, b, ['w', 'h']);
+const equalXY = (a, b) => equal(a, b, ['x', 'y']);
 const equalTRBL = (a, b) => equal(a, b, ['t', 'r', 'b', 'l']);
 const equalBCRWH = (a, b, round) => equal(a, b, ['width', 'height'], round && (value => Math.round(value)));
 
@@ -1288,18 +1289,9 @@ const createSizeObserver = (target, onSizeChangedCallback, options) => {
   }
 
   prependChildren(target, sizeObserver);
-  return {
-    _destroy() {
-      runEach(offListeners);
-      removeElements(sizeObserver);
-    },
-
-    _getCurrentCacheValues(force) {
-      return {
-        _directionIsRTL: directionIsRTLCache ? directionIsRTLCache[1](force) : [false, false, false]
-      };
-    }
-
+  return () => {
+    runEach(offListeners);
+    removeElements(sizeObserver);
   };
 };
 
@@ -1308,7 +1300,7 @@ const isHeightIntrinsic = ioEntryOrSize => ioEntryOrSize.h === 0 || ioEntryOrSiz
 const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
   const trinsicObserver = createDiv(classNameTrinsicObserver);
   const offListeners = [];
-  const [updateHeightIntrinsicCache, getCurrentHeightIntrinsicCache] = createCache({
+  const [updateHeightIntrinsicCache] = createCache({
     _initialValue: false
   });
 
@@ -1341,23 +1333,14 @@ const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
       triggerOnTrinsicChangedCallback(newSize);
     };
 
-    push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged)._destroy);
+    push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged));
     onSizeChanged();
   }
 
   prependChildren(target, trinsicObserver);
-  return {
-    _destroy() {
-      runEach(offListeners);
-      removeElements(trinsicObserver);
-    },
-
-    _getCurrentCacheValues(force) {
-      return {
-        _heightIntrinsic: getCurrentHeightIntrinsicCache(force)
-      };
-    }
-
+  return () => {
+    runEach(offListeners);
+    removeElements(trinsicObserver);
   };
 };
 
@@ -1640,8 +1623,8 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
     }
   };
 
-  const trinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
-  const sizeObserver = createSizeObserver(_host, onSizeChanged, {
+  const destroyTrinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
+  const destroySizeObserver = createSizeObserver(_host, onSizeChanged, {
     _appear: true,
     _direction: !_nativeScrollbarStyling
   });
@@ -1691,21 +1674,13 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
   };
 
   updateViewportAttrsFromHost();
-  return {
-    _trinsicObserver: trinsicObserver,
-    _sizeObserver: sizeObserver,
-    _updateObserverOptions: updateOptions,
+  return [updateOptions, () => {
+    contentMutationObserver && contentMutationObserver._destroy();
+    destroyTrinsicObserver && destroyTrinsicObserver();
+    destroySizeObserver();
 
-    _destroy() {
-      contentMutationObserver && contentMutationObserver._destroy();
-      trinsicObserver && trinsicObserver._destroy();
-
-      sizeObserver._destroy();
-
-      hostMutationObserver._destroy();
-    }
-
-  };
+    hostMutationObserver._destroy();
+  }];
 };
 
 const createTrinsicLifecycle = lifecycleHub => {
@@ -1820,6 +1795,13 @@ const whCacheOptions = {
     h: 0
   }
 };
+const xyCacheOptions = {
+  _equal: equalXY,
+  _initialValue: {
+    x: false,
+    y: false
+  }
+};
 
 const sizeFraction = elm => {
   const viewportOffsetSize = offsetSize(elm);
@@ -1873,6 +1855,7 @@ const createOverflowLifecycle = lifecycleHub => {
   const [updateViewportSizeFraction, getCurrentViewportSizeFraction] = createCache(whCacheOptions, sizeFraction.bind(0, _viewport));
   const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache(whCacheOptions, scrollSize.bind(0, _viewport));
   const [updateOverflowAmountCache, getCurrentOverflowAmountCache] = createCache(whCacheOptions);
+  const [updateOverflowScrollCache] = createCache(xyCacheOptions);
 
   const fixFlexboxGlue = (viewportOverflowState, heightIntrinsic) => {
     style(_viewport, {
@@ -2189,14 +2172,16 @@ const createOverflowLifecycle = lifecycleHub => {
       style(_viewport, viewportStyle);
 
       _setLifecycleCommunication({
-        _viewportOverflowScroll: viewportOverflowState._overflowScroll,
-        _viewportOverflowAmount: overflowAmount
+        _viewportOverflowScrollCache: updateOverflowScrollCache(viewportOverflowState._overflowScroll),
+        _viewportOverflowAmountCache: overflowAmuntCache
       });
     }
   };
 };
 
 const getPropByPath = (obj, path) => obj ? path.split('.').reduce((o, prop) => o && hasOwnProperty(o, prop) ? o[prop] : undefined, obj) : undefined;
+
+const applyForceToCache = (cacheValues, force) => [cacheValues[0], force || cacheValues[1], cacheValues[2]];
 
 const booleanCacheValuesFallback = [false, false, false];
 const lifecycleCommunicationFallback = {
@@ -2209,14 +2194,14 @@ const lifecycleCommunicationFallback = {
       l: 0
     }
   },
-  _viewportOverflowScroll: {
+  _viewportOverflowScrollCache: [{
     x: false,
     y: false
-  },
-  _viewportOverflowAmount: {
+  }, false],
+  _viewportOverflowAmountCache: [{
     w: 0,
     h: 0
-  },
+  }, false],
   _viewportPaddingStyle: {
     marginRight: 0,
     marginBottom: 0,
@@ -2227,8 +2212,35 @@ const lifecycleCommunicationFallback = {
     paddingLeft: 0
   }
 };
-const createLifecycleHub = (options, triggerEvent, structureSetup, scrollbarsSetup) => {
+
+const prepareUpdateHints = (leading, adaptive, force) => {
+  const result = {};
+  const finalAdaptive = adaptive || {};
+  const objKeys = keys(leading).concat(keys(finalAdaptive));
+  each(objKeys, key => {
+    const leadingValue = leading[key];
+    const adaptiveValue = finalAdaptive[key];
+    result[key] = isBoolean(leadingValue) ? !!force || !!leadingValue || !!adaptiveValue : applyForceToCache(leadingValue || booleanCacheValuesFallback, force);
+  });
+  return result;
+};
+
+const createOverflowChangedArgs = (overflowAmount, overflowScroll) => ({
+  amount: {
+    x: overflowAmount.w,
+    y: overflowAmount.h
+  },
+  overflow: {
+    x: overflowAmount.w > 0,
+    y: overflowAmount.h > 0
+  },
+  scrollableOverflow: assignDeep({}, overflowScroll)
+});
+
+const createLifecycleHub = (options, triggerListener, structureSetup, scrollbarsSetup) => {
   let lifecycleCommunication = lifecycleCommunicationFallback;
+  let updateObserverOptions;
+  let destroyObservers;
   const {
     _viewport
   } = structureSetup._targetObj;
@@ -2254,16 +2266,14 @@ const createLifecycleHub = (options, triggerEvent, structureSetup, scrollbarsSet
   const lifecycles = [createTrinsicLifecycle(instance), createPaddingLifecycle(instance), createOverflowLifecycle(instance)];
 
   const updateLifecycles = (updateHints, changedOptions, force) => {
-    let {
-      _directionIsRTL,
-      _heightIntrinsic,
-      _sizeChanged = force || false,
-      _hostMutation = force || false,
-      _contentMutation = force || false,
-      _paddingStyleChanged = force || false
-    } = updateHints || {};
-    const finalDirectionIsRTL = _directionIsRTL || (_sizeObserver ? _sizeObserver._getCurrentCacheValues(force)._directionIsRTL : booleanCacheValuesFallback);
-    const finalHeightIntrinsic = _heightIntrinsic || (_trinsicObserver ? _trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic : booleanCacheValuesFallback);
+    const initialUpdateHints = prepareUpdateHints(assignDeep({
+      _sizeChanged: false,
+      _hostMutation: false,
+      _contentMutation: false,
+      _paddingStyleChanged: false,
+      _directionIsRTL: booleanCacheValuesFallback,
+      _heightIntrinsic: booleanCacheValuesFallback
+    }, updateHints), {}, force);
 
     const checkOption = path => [getPropByPath(options, path), force || getPropByPath(changedOptions, path) !== undefined];
 
@@ -2271,28 +2281,13 @@ const createLifecycleHub = (options, triggerEvent, structureSetup, scrollbarsSet
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
     const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
 
-    if (_updateObserverOptions) {
-      _updateObserverOptions(checkOption);
+    if (updateObserverOptions) {
+      updateObserverOptions(checkOption);
     }
 
+    let adaptivedUpdateHints = initialUpdateHints;
     each(lifecycles, lifecycle => {
-      const {
-        _sizeChanged: adaptiveSizeChanged,
-        _hostMutation: adaptiveHostMutation,
-        _contentMutation: adaptiveContentMutation,
-        _paddingStyleChanged: adaptivePaddingStyleChanged
-      } = lifecycle({
-        _directionIsRTL: finalDirectionIsRTL,
-        _heightIntrinsic: finalHeightIntrinsic,
-        _sizeChanged,
-        _hostMutation,
-        _contentMutation,
-        _paddingStyleChanged
-      }, checkOption, !!force) || {};
-      _sizeChanged = adaptiveSizeChanged || _sizeChanged;
-      _hostMutation = adaptiveHostMutation || _hostMutation;
-      _contentMutation = adaptiveContentMutation || _contentMutation;
-      _paddingStyleChanged = adaptivePaddingStyleChanged || _paddingStyleChanged;
+      adaptivedUpdateHints = prepareUpdateHints(adaptivedUpdateHints, lifecycle(adaptivedUpdateHints, checkOption, !!force) || {}, force);
     });
 
     if (isNumber(scrollOffsetX)) {
@@ -2303,35 +2298,42 @@ const createLifecycleHub = (options, triggerEvent, structureSetup, scrollbarsSet
       scrollTop(_viewport, scrollOffsetY);
     }
 
-    triggerEvent('updated', {
+    const {
+      _viewportOverflowAmountCache: overflowAmountCache,
+      _viewportOverflowScrollCache: overflowScrollCache
+    } = lifecycleCommunication;
+    const [overflowAmount, overflowAmountChanged, prevOverflowAmount] = overflowAmountCache;
+    const [overflowScroll, overflowScrollChanged, prevOverflowScroll] = overflowScrollCache;
+
+    if (overflowAmountChanged || overflowScrollChanged) {
+      triggerListener('overflowChanged', assignDeep({}, createOverflowChangedArgs(overflowAmount, overflowScroll), {
+        previous: createOverflowChangedArgs(prevOverflowAmount, prevOverflowScroll)
+      }));
+    }
+
+    triggerListener('updated', {
       updateHints: {
-        sizeChanged: _sizeChanged,
-        contentMutation: _contentMutation,
-        hostMutation: _hostMutation,
-        directionChanged: finalDirectionIsRTL[1],
-        heightIntrinsicChanged: finalHeightIntrinsic[1]
+        sizeChanged: adaptivedUpdateHints._sizeChanged,
+        contentMutation: adaptivedUpdateHints._contentMutation,
+        hostMutation: adaptivedUpdateHints._hostMutation,
+        directionChanged: adaptivedUpdateHints._directionIsRTL[1],
+        heightIntrinsicChanged: adaptivedUpdateHints._heightIntrinsic[1]
       },
       changedOptions: changedOptions || {},
       force: !!force
     });
   };
 
-  const {
-    _sizeObserver,
-    _trinsicObserver,
-    _updateObserverOptions,
-    _destroy: destroyObservers
-  } = lifecycleHubOservers(instance, updateLifecycles);
+  [updateObserverOptions, destroyObservers] = lifecycleHubOservers(instance, updateLifecycles);
 
   const update = (changedOptions, force) => updateLifecycles({}, changedOptions, force);
 
   const envUpdateListener = update.bind(0, {}, true);
   addEnvironmentListener(envUpdateListener);
-  console.log(getEnvironment());
   return {
     _update: update,
     _state: () => ({
-      _overflowAmount: lifecycleCommunication._viewportOverflowAmount
+      _overflowAmount: lifecycleCommunication._viewportOverflowAmountCache[0]
     }),
 
     _destroy() {
@@ -2417,7 +2419,7 @@ const manageListener = (callback, listener) => {
   each(isArray(listener) ? listener : [listener], callback);
 };
 
-const createEventHub = () => {
+const createEventListenerHub = initialEventListeners => {
   const events = new Map();
 
   const removeEvent = (name, listener) => {
@@ -2448,14 +2450,27 @@ const createEventHub = () => {
   const triggerEvent = (name, args) => {
     const eventSet = events.get(name);
     each(from(eventSet), event => {
-      event(args);
+      if (args) {
+        event(args);
+      } else {
+        event();
+      }
     });
   };
 
+  const initialListenerKeys = keys(initialEventListeners);
+  each(initialListenerKeys, key => {
+    addEvent(key, initialEventListeners[key]);
+  });
   return [addEvent, removeEvent, triggerEvent];
 };
 
-const OverlayScrollbars = (target, options) => {
+const OverlayScrollbars = (target, options, eventListeners) => {
+  const {
+    _getDefaultOptions,
+    _nativeScrollbarIsOverlaid
+  } = getEnvironment();
+  const plugins = getPlugins();
   const instanceTarget = isHTMLElement(target) ? target : target.target;
   const potentialInstance = getInstance(instanceTarget);
 
@@ -2463,10 +2478,6 @@ const OverlayScrollbars = (target, options) => {
     return potentialInstance;
   }
 
-  const {
-    _getDefaultOptions
-  } = getEnvironment();
-  const plugins = getPlugins();
   const optionsValidationPlugin = plugins[optionsValidationPluginName];
 
   const validateOptions = newOptions => {
@@ -2475,8 +2486,13 @@ const OverlayScrollbars = (target, options) => {
     return validate ? validate(opts, true) : opts;
   };
 
-  const [addEvent, removeEvent, triggerEvent] = createEventHub();
   const currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
+  const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
+
+  if (_nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y && !currentOptions.nativeScrollbarsOverlaid.initialize) {
+    triggerEvent('initializationWithdrawn', false);
+  }
+
   const structureSetup = createStructureSetup(target);
   const scrollbarsSetup = createScrollbarsSetup(target, structureSetup);
   const lifecycleHub = createLifecycleHub(currentOptions, triggerEvent, structureSetup, scrollbarsSetup);
@@ -2508,6 +2524,7 @@ const OverlayScrollbars = (target, options) => {
 
       removeInstance(instanceTarget);
       removeEvent();
+      triggerEvent('destroyed', false);
     }
   };
   each(keys(plugins), pluginName => {
@@ -2519,6 +2536,7 @@ const OverlayScrollbars = (target, options) => {
   });
   instance.update(true);
   addInstance(instanceTarget, instance);
+  triggerEvent('initialized', false);
   return instance;
 };
 OverlayScrollbars.extend = addPlugin;
