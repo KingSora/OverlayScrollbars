@@ -11,23 +11,14 @@ import {
   CacheValues,
 } from 'support';
 import { getEnvironment } from 'environment';
-import {
-  createSizeObserver,
-  SizeObserver,
-  SizeObserverCallbackParams,
-} from 'observers/sizeObserver';
-import { createTrinsicObserver, TrinsicObserver } from 'observers/trinsicObserver';
+import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
+import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver, DOMObserver } from 'observers/domObserver';
 import { LifecycleHub, LifecycleCheckOption, LifecycleUpdateHints } from 'lifecycles/lifecycleHub';
 
 export type UpdateObserverOptions = (checkOption: LifecycleCheckOption) => void;
 
-export type LifecycleHubObservers = [
-  SizeObserver,
-  TrinsicObserver | false,
-  UpdateObserverOptions,
-  () => void
-];
+export type LifecycleHubObservers = [UpdateObserverOptions, () => void];
 
 // const hostSelector = `.${classNameHost}`;
 
@@ -122,6 +113,7 @@ export const lifecycleHubOservers = (
       !_sizeChanged || _appear
         ? updateLifecycles
         : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
+
     updateFn({
       _sizeChanged,
       _directionIsRTL: _directionIsRTLCache,
@@ -146,9 +138,9 @@ export const lifecycleHubOservers = (
     }
   };
 
-  const trinsicObserver =
+  const destroyTrinsicObserver =
     (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
-  const sizeObserver = createSizeObserver(_host, onSizeChanged, {
+  const destroySizeObserver = createSizeObserver(_host, onSizeChanged, {
     _appear: true,
     _direction: !_nativeScrollbarStyling,
   });
@@ -212,13 +204,11 @@ export const lifecycleHubOservers = (
   updateViewportAttrsFromHost();
 
   return [
-    sizeObserver,
-    trinsicObserver,
     updateOptions,
     () => {
       contentMutationObserver && contentMutationObserver._destroy();
-      trinsicObserver && trinsicObserver._destroy();
-      sizeObserver._destroy();
+      destroyTrinsicObserver && destroyTrinsicObserver();
+      destroySizeObserver();
       hostMutationObserver._destroy();
     },
   ];

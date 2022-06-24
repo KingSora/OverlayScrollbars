@@ -42,7 +42,7 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const resizesSlot: HTMLButtonElement | null = document.querySelector('#resizes');
 const preInitChildren = targetElm?.children.length;
 
-const sizeObserver = createSizeObserver(
+const destroySizeObserver = createSizeObserver(
   targetElm as HTMLElement,
   ({ _directionIsRTLCache, _sizeChanged }) => {
     if (_sizeChanged) {
@@ -129,17 +129,19 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
 
       if (dirChanged) {
         await waitForOrFailTest(() => {
-          const expectedCacheValue = newDir === 'rtl';
+          // const expectedCacheValue = newDir === 'rtl';
           should.equal(
             directionIterations,
             currDirectionIterations + 1,
             'Direction change was detected correctly.'
           );
+          /*
           should.equal(
             sizeObserver._getCurrentCacheValues()._directionIsRTL[0],
             expectedCacheValue,
             'Direction cache value is correct.'
           );
+          */
         });
       }
 
@@ -261,7 +263,7 @@ const start = async () => {
   });
   await cleanBoxSizingChange();
 
-  sizeObserver._destroy();
+  destroySizeObserver();
   should.equal(
     targetElm?.children.length,
     preInitChildren,

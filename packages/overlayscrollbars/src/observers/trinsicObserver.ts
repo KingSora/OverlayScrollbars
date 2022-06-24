@@ -13,12 +13,7 @@ import {
 import { createSizeObserver } from 'observers/sizeObserver';
 import { classNameTrinsicObserver } from 'classnames';
 
-export interface TrinsicObserver {
-  _destroy(): void;
-  _getCurrentCacheValues(force?: boolean): {
-    _heightIntrinsic: CacheValues<boolean>;
-  };
-}
+export type DestroyTrinsicObserver = () => void;
 
 const isHeightIntrinsic = (ioEntryOrSize: IntersectionObserverEntry | WH<number>): boolean =>
   (ioEntryOrSize as WH<number>).h === 0 ||
@@ -34,10 +29,10 @@ const isHeightIntrinsic = (ioEntryOrSize: IntersectionObserverEntry | WH<number>
 export const createTrinsicObserver = (
   target: HTMLElement,
   onTrinsicChangedCallback: (heightIntrinsic: CacheValues<boolean>) => any
-): TrinsicObserver => {
+): DestroyTrinsicObserver => {
   const trinsicObserver = createDiv(classNameTrinsicObserver);
   const offListeners: (() => void)[] = [];
-  const [updateHeightIntrinsicCache, getCurrentHeightIntrinsicCache] = createCache({
+  const [updateHeightIntrinsicCache] = createCache({
     _initialValue: false,
   });
 
@@ -72,21 +67,14 @@ export const createTrinsicObserver = (
       const newSize = offsetSize(trinsicObserver);
       triggerOnTrinsicChangedCallback(newSize);
     };
-    push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged)._destroy);
+    push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged));
     onSizeChanged();
   }
 
   prependChildren(target, trinsicObserver);
 
-  return {
-    _destroy() {
-      runEach(offListeners);
-      removeElements(trinsicObserver);
-    },
-    _getCurrentCacheValues(force?: boolean) {
-      return {
-        _heightIntrinsic: getCurrentHeightIntrinsicCache(force),
-      };
-    },
+  return () => {
+    runEach(offListeners);
+    removeElements(trinsicObserver);
   };
 };

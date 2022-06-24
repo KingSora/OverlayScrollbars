@@ -45,12 +45,7 @@ export interface SizeObserverCallbackParams {
   _appear?: boolean;
 }
 
-export interface SizeObserver {
-  _destroy(): void;
-  _getCurrentCacheValues(force?: boolean): {
-    _directionIsRTL: CacheValues<boolean>;
-  };
-}
+export type DestroySizeObserver = () => void;
 
 const animationStartEventName = 'animationstart';
 const scrollEventName = 'scroll';
@@ -69,7 +64,7 @@ export const createSizeObserver = (
   target: HTMLElement,
   onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
-): SizeObserver => {
+): DestroySizeObserver => {
   const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } =
     options || {};
   const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
@@ -271,17 +266,8 @@ export const createSizeObserver = (
 
   prependChildren(target, sizeObserver);
 
-  return {
-    _destroy() {
-      runEach(offListeners);
-      removeElements(sizeObserver);
-    },
-    _getCurrentCacheValues(force?: boolean) {
-      return {
-        _directionIsRTL: directionIsRTLCache
-          ? directionIsRTLCache[1](force) // get current cache values
-          : [false, false, false],
-      };
-    },
+  return () => {
+    runEach(offListeners);
+    removeElements(sizeObserver);
   };
 };

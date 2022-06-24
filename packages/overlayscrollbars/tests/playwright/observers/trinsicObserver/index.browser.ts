@@ -24,18 +24,21 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const changesSlot: HTMLButtonElement | null = document.querySelector('#changes');
 const preInitChildren = targetElm?.children.length;
 
-const trinsicObserver = createTrinsicObserver(targetElm as HTMLElement, (heightIntrinsicCache) => {
-  const [currentHeightIntrinsic, currentHeightIntrinsicChanged] = heightIntrinsicCache;
-  if (currentHeightIntrinsicChanged) {
-    heightIterations += 1;
-    heightIntrinsic = currentHeightIntrinsic;
-  }
-  requestAnimationFrame(() => {
-    if (changesSlot) {
-      changesSlot.textContent = heightIterations.toString();
+const destroyTrinsicObserver = createTrinsicObserver(
+  targetElm as HTMLElement,
+  (heightIntrinsicCache) => {
+    const [currentHeightIntrinsic, currentHeightIntrinsicChanged] = heightIntrinsicCache;
+    if (currentHeightIntrinsicChanged) {
+      heightIterations += 1;
+      heightIntrinsic = currentHeightIntrinsic;
     }
-  });
-});
+    requestAnimationFrame(() => {
+      if (changesSlot) {
+        changesSlot.textContent = heightIterations.toString();
+      }
+    });
+  }
+);
 
 const envElmSelectCallback = generateClassChangeSelectCallback(envElm as HTMLElement);
 const targetElmSelectCallback = generateClassChangeSelectCallback(targetElm as HTMLElement);
@@ -75,11 +78,13 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
             'Height intrinsic change has been detected correctly.'
           );
         }
+        /*
         should.equal(
           trinsicObserver._getCurrentCacheValues()._heightIntrinsic[0],
           newHeightIntrinsic,
           'Height intrinsic cache value is correct.'
         );
+        */
       });
     },
     afterEach,
@@ -148,7 +153,7 @@ const start = async () => {
   });
   await changeWhileHidden();
 
-  trinsicObserver._destroy();
+  destroyTrinsicObserver();
   should.equal(
     targetElm?.children.length,
     preInitChildren,

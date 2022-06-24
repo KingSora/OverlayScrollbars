@@ -9,6 +9,8 @@ import {
   scrollLeft,
   scrollTop,
   assignDeep,
+  keys,
+  isBoolean,
 } from 'support';
 import { OSOptions } from 'options';
 import { getEnvironment } from 'environment';
@@ -20,8 +22,6 @@ import { createOverflowLifecycle } from 'lifecycles/overflowLifecycle';
 import { StyleObject, PartialOptions } from 'typings';
 import { ScrollbarsSetup } from 'setups/scrollbarsSetup';
 import { TriggerEventListener } from 'eventListeners';
-import { SizeObserver } from 'observers/sizeObserver';
-import { TrinsicObserver } from 'observers/trinsicObserver';
 
 export type LifecycleCheckOption = <T>(path: string) => LifecycleOptionInfo<T>;
 
@@ -29,7 +29,7 @@ export type Lifecycle = (
   updateHints: LifecycleUpdateHints,
   checkOption: LifecycleCheckOption,
   force: boolean
-) => Partial<LifecycleAdaptiveUpdateHints> | void;
+) => Partial<LifecycleUpdateHints> | void;
 
 export type LifecycleOptionInfo<T> = [T, boolean];
 
@@ -43,14 +43,11 @@ export interface LifecycleCommunication {
   _viewportOverflowAmount: WH<number>;
 }
 
-export interface LifecycleAdaptiveUpdateHints {
+export interface LifecycleUpdateHints {
   _sizeChanged: boolean;
   _hostMutation: boolean;
   _contentMutation: boolean;
   _paddingStyleChanged: boolean;
-}
-
-export interface LifecycleUpdateHints extends LifecycleAdaptiveUpdateHints {
   _directionIsRTL: CacheValues<boolean>;
   _heightIntrinsic: CacheValues<boolean>;
 }
@@ -79,6 +76,11 @@ const getPropByPath = <T>(obj: any, path: string): T =>
     ? path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj)
     : undefined;
 
+const applyForceToCache = <T>(cacheValues: CacheValues<T>, force?: boolean): CacheValues<T> => [
+  cacheValues[0],
+  force || cacheValues[1],
+  cacheValues[2],
+];
 const booleanCacheValuesFallback: CacheValues<boolean> = [false, false, false];
 const lifecycleCommunicationFallback: LifecycleCommunication = {
   _paddingInfo: {
@@ -109,6 +111,26 @@ const lifecycleCommunicationFallback: LifecycleCommunication = {
   },
 };
 
+const prepareUpdateHints = <T extends LifecycleUpdateHints>(
+  leading: Required<T>,
+  adaptive?: Partial<T>,
+  force?: boolean
+): Required<T> => {
+  const result = {};
+  const finalAdaptive = adaptive || {};
+  const objKeys = keys(leading).concat(keys(finalAdaptive));
+
+  each(objKeys, (key) => {
+    const leadingValue = leading[key];
+    const adaptiveValue = finalAdaptive[key];
+    result[key] = isBoolean(leadingValue)
+      ? !!force || !!leadingValue || !!adaptiveValue
+      : applyForceToCache(leadingValue || booleanCacheValuesFallback, force);
+  });
+
+  return result as Required<T>;
+};
+
 export const createLifecycleHub = (
   options: OSOptions,
   triggerListener: TriggerEventListener,
@@ -116,8 +138,6 @@ export const createLifecycleHub = (
   scrollbarsSetup: ScrollbarsSetup
 ): LifecycleHubInstance => {
   let lifecycleCommunication = lifecycleCommunicationFallback;
-  let sizeObserver: SizeObserver;
-  let trinsicObserver: false | TrinsicObserver;
   let updateObserverOptions: UpdateObserverOptions;
   let destroyObservers: () => void;
   const { _viewport } = structureSetup._targetObj;
@@ -150,27 +170,21 @@ export const createLifecycleHub = (
     changedOptions?: Partial<OSOptions>,
     force?: boolean
   ) => {
-    let {
-      // eslint-disable-next-line prefer-const
-      _directionIsRTL,
-      // eslint-disable-next-line prefer-const
-      _heightIntrinsic,
-      _sizeChanged = force || false,
-      _hostMutation = force || false,
-      _contentMutation = force || false,
-      _paddingStyleChanged = force || false,
-    } = updateHints || {};
-
-    const finalDirectionIsRTL =
-      _directionIsRTL ||
-      (sizeObserver
-        ? sizeObserver._getCurrentCacheValues(force)._directionIsRTL
-        : booleanCacheValuesFallback);
-    const finalHeightIntrinsic =
-      _heightIntrinsic ||
-      (trinsicObserver
-        ? trinsicObserver._getCurrentCacheValues(force)._heightIntrinsic
-        : booleanCacheValuesFallback);
+    const initialUpdateHints = prepareUpdateHints(
+      assignDeep(
+        {
+          _sizeChanged: false,
+          _hostMutation: false,
+          _contentMutation: false,
+          _paddingStyleChanged: false,
+          _directionIsRTL: booleanCacheValuesFallback,
+          _heightIntrinsic: booleanCacheValuesFallback,
+        },
+        updateHints
+      ),
+      {},
+      force
+    );
     const checkOption: LifecycleCheckOption = (path) => [
       getPropByPath(options, path),
       force || getPropByPath(changedOptions, path) !== undefined,
@@ -184,29 +198,13 @@ export const createLifecycleHub = (
       updateObserverOptions(checkOption);
     }
 
+    let adaptivedUpdateHints: Required<LifecycleUpdateHints> = initialUpdateHints;
     each(lifecycles, (lifecycle) => {
-      const {
-        _sizeChanged: adaptiveSizeChanged,
-        _hostMutation: adaptiveHostMutation,
-        _contentMutation: adaptiveContentMutation,
-        _paddingStyleChanged: adaptivePaddingStyleChanged,
-      } = lifecycle(
-        {
-          _directionIsRTL: finalDirectionIsRTL,
-          _heightIntrinsic: finalHeightIntrinsic,
-          _sizeChanged,
-          _hostMutation,
-          _contentMutation,
-          _paddingStyleChanged,
-        },
-        checkOption,
-        !!force
-      ) || {};
-
-      _sizeChanged = adaptiveSizeChanged || _sizeChanged;
-      _hostMutation = adaptiveHostMutation || _hostMutation;
-      _contentMutation = adaptiveContentMutation || _contentMutation;
-      _paddingStyleChanged = adaptivePaddingStyleChanged || _paddingStyleChanged;
+      adaptivedUpdateHints = prepareUpdateHints<LifecycleUpdateHints>(
+        adaptivedUpdateHints,
+        lifecycle(adaptivedUpdateHints, checkOption, !!force) || {},
+        force
+      );
     });
 
     if (isNumber(scrollOffsetX)) {
@@ -218,28 +216,23 @@ export const createLifecycleHub = (
 
     triggerListener('updated', {
       updateHints: {
-        sizeChanged: _sizeChanged,
-        contentMutation: _contentMutation,
-        hostMutation: _hostMutation,
-        directionChanged: finalDirectionIsRTL[1],
-        heightIntrinsicChanged: finalHeightIntrinsic[1],
+        sizeChanged: adaptivedUpdateHints._sizeChanged,
+        contentMutation: adaptivedUpdateHints._contentMutation,
+        hostMutation: adaptivedUpdateHints._hostMutation,
+        directionChanged: adaptivedUpdateHints._directionIsRTL[1],
+        heightIntrinsicChanged: adaptivedUpdateHints._heightIntrinsic[1],
       },
       changedOptions: changedOptions || {},
       force: !!force,
     });
   };
   // eslint-disable-next-line prefer-const
-  [sizeObserver, trinsicObserver, updateObserverOptions, destroyObservers] = lifecycleHubOservers(
-    instance,
-    updateLifecycles
-  );
+  [updateObserverOptions, destroyObservers] = lifecycleHubOservers(instance, updateLifecycles);
 
   const update = (changedOptions: Partial<OSOptions>, force?: boolean) =>
     updateLifecycles({}, changedOptions, force);
   const envUpdateListener = update.bind(0, {}, true);
   addEnvironmentListener(envUpdateListener);
-
-  console.log(getEnvironment());
 
   return {
     _update: update,
