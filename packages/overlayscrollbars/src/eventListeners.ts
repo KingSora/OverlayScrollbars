@@ -36,16 +36,15 @@ export interface OnOverflowChangedEventListenerArgs {
 }
 
 export interface EventListenerArgsMap {
-  initialized: false;
-  initializationWithdrawn: false;
+  initialized: undefined;
+  initializationWithdrawn: undefined;
   overflowChanged: OnOverflowChangedEventListenerArgs;
   updated: OnUpdatedEventListenerArgs;
-  destroyed: false;
+  destroyed: undefined;
 }
 
-export type OSEventListener<N extends keyof EventListenerArgsMap> = (
-  args: EventListenerArgsMap[N]
-) => void;
+export type OSEventListener<N extends keyof EventListenerArgsMap = keyof EventListenerArgsMap> =
+  undefined extends EventListenerArgsMap[N] ? () => void : (args: EventListenerArgsMap[N]) => void;
 
 export type AddEventListener = <N extends keyof EventListenerArgsMap>(
   name: N,
@@ -59,7 +58,9 @@ export type RemoveEventListener = <N extends keyof EventListenerArgsMap>(
 
 export type TriggerEventListener = <N extends keyof EventListenerArgsMap>(
   name: N,
-  args: EventListenerArgsMap[N]
+  ...args: undefined extends EventListenerArgsMap[N]
+    ? [args?: never]
+    : [args: EventListenerArgsMap[N]]
 ) => void;
 
 export type EventListenersHub = [AddEventListener, RemoveEventListener, TriggerEventListener];
@@ -78,7 +79,7 @@ const manageListener = <N extends keyof EventListenerArgsMap>(
 export const createEventListenerHub = (
   initialEventListeners?: EventListenersMap
 ): EventListenersHub => {
-  const events = new Map<string, Set<OSEventListener<any>>>();
+  const events = new Map<keyof EventListenerArgsMap, Set<OSEventListener>>();
   const removeEvent: RemoveEventListener = (name?, listener?) => {
     if (name) {
       const eventSet = events.get(name);
@@ -110,7 +111,7 @@ export const createEventListenerHub = (
 
     each(from(eventSet), (event) => {
       if (args) {
-        event(args);
+        (event as (args: any) => void)(args);
       } else {
         (event as () => void)();
       }

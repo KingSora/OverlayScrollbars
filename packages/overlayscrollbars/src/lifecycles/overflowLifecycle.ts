@@ -143,14 +143,13 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
 
     if (heightIntrinsic) {
       const { _nativeScrollbarIsOverlaid } = getEnvironment();
-      const { _absolute: paddingAbsolute, _padding: padding } =
-        _getLifecycleCommunication()._paddingInfo;
+      const { _paddingAbsolute, _padding } = _getLifecycleCommunication();
       const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
       const hostSizeFraction = sizeFraction(_host);
       const hostClientSize = clientSize(_host);
       // padding subtraction is only needed if padding is absolute or if viewport is content-box
       const isContentBox = style(_viewport, 'boxSizing') === 'content-box';
-      const paddingVertical = paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
+      const paddingVertical = _paddingAbsolute || isContentBox ? _padding.b + _padding.t : 0;
       const fractionalClientHeight =
         hostClientSize.h + (abs(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
       const subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
@@ -257,17 +256,17 @@ export const createOverflowLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =
     directionIsRTL: boolean
   ) => {
     if (_doViewportArrange) {
+      const { _viewportPaddingStyle } = _getLifecycleCommunication();
       const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
       const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
       const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
-      const { _viewportPaddingStyle: viewportPaddingStyle } = _getLifecycleCommunication();
       const viewportArrangeHorizontalPaddingKey: keyof StyleObject = directionIsRTL
         ? 'paddingRight'
         : 'paddingLeft';
-      const viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[
+      const viewportArrangeHorizontalPaddingValue = _viewportPaddingStyle[
         viewportArrangeHorizontalPaddingKey
       ] as number;
-      const viewportArrangeVerticalPaddingValue = viewportPaddingStyle.paddingTop as number;
+      const viewportArrangeVerticalPaddingValue = _viewportPaddingStyle.paddingTop as number;
       const fractionalContentWidth =
         viewportScrollSize.w + (abs(viewportSizeFraction.w) < 1 ? viewportSizeFraction.w : 0);
       const fractionalContenHeight =

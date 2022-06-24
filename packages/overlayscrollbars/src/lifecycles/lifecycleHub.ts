@@ -34,10 +34,8 @@ export type Lifecycle = (
 export type LifecycleOptionInfo<T> = [T, boolean];
 
 export interface LifecycleCommunication {
-  _paddingInfo: {
-    _absolute: boolean;
-    _padding: TRBL;
-  };
+  _padding: TRBL;
+  _paddingAbsolute: boolean;
   _viewportPaddingStyle: StyleObject;
   _viewportOverflowScrollCache: CacheValues<XY<boolean>>;
   _viewportOverflowAmountCache: CacheValues<WH<number>>;
@@ -82,16 +80,14 @@ const applyForceToCache = <T>(cacheValues: CacheValues<T>, force?: boolean): Cac
   cacheValues[2],
 ];
 const booleanCacheValuesFallback: CacheValues<boolean> = [false, false, false];
-const lifecycleCommunicationFallback: LifecycleCommunication = {
-  _paddingInfo: {
-    _absolute: false,
-    _padding: {
-      t: 0,
-      r: 0,
-      b: 0,
-      l: 0,
-    },
+const initialLifecycleCommunication: LifecycleCommunication = {
+  _padding: {
+    t: 0,
+    r: 0,
+    b: 0,
+    l: 0,
   },
+  _paddingAbsolute: false,
   _viewportOverflowScrollCache: [
     {
       x: false,
@@ -155,7 +151,7 @@ export const createLifecycleHub = (
   structureSetup: StructureSetup,
   scrollbarsSetup: ScrollbarsSetup
 ): LifecycleHubInstance => {
-  let lifecycleCommunication = lifecycleCommunicationFallback;
+  let lifecycleCommunication = initialLifecycleCommunication;
   let updateObserverOptions: UpdateObserverOptions;
   let destroyObservers: () => void;
   const { _viewport } = structureSetup._targetObj;

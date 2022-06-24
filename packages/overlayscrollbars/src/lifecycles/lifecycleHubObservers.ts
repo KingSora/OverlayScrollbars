@@ -18,7 +18,10 @@ import { LifecycleHub, LifecycleCheckOption, LifecycleUpdateHints } from 'lifecy
 
 export type UpdateObserverOptions = (checkOption: LifecycleCheckOption) => void;
 
-export type LifecycleHubObservers = [UpdateObserverOptions, () => void];
+export type LifecycleHubObservers = [
+  updateObserverOptions: UpdateObserverOptions,
+  destroy: () => void
+];
 
 // const hostSelector = `.${classNameHost}`;
 
@@ -144,7 +147,7 @@ export const lifecycleHubOservers = (
     _appear: true,
     _direction: !_nativeScrollbarStyling,
   });
-  const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
+  const [destroyHostMutationObserver] = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: baseStyleChangingAttrs,
     _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
     _ignoreTargetChange: ignoreTargetChange,
@@ -162,8 +165,8 @@ export const lifecycleHubOservers = (
 
     if (updateContentMutationObserver) {
       if (contentMutationObserver) {
-        contentMutationObserver._update();
-        contentMutationObserver._destroy();
+        contentMutationObserver[1](); // update
+        contentMutationObserver[0](); // destroy
       }
       contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
         _styleChangingAttributes: contentMutationObserverAttr.concat(attributes || []),
@@ -206,10 +209,10 @@ export const lifecycleHubOservers = (
   return [
     updateOptions,
     () => {
-      contentMutationObserver && contentMutationObserver._destroy();
+      contentMutationObserver && contentMutationObserver[0](); // destroy
       destroyTrinsicObserver && destroyTrinsicObserver();
       destroySizeObserver();
-      hostMutationObserver._destroy();
+      destroyHostMutationObserver();
     },
   ];
 };

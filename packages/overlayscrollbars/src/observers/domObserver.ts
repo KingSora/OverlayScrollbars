@@ -63,10 +63,10 @@ export type DOMObserverOptions<ContentObserver extends boolean> = ContentObserve
   ? DOMContentObserverOptions
   : DOMTargetObserverOptions;
 
-export interface DOMObserver {
-  _destroy: () => void;
-  _update: () => void;
-}
+export type DOMObserver = [destroy: () => void, update: () => void];
+
+type EventContentChangeUpdateElement = (getElements?: (selector: string) => Node[]) => void;
+type EventContentChange = [destroy: () => void, updateElements: EventContentChangeUpdateElement];
 
 /**
  * Creates a set of helper functions to observe events of elements inside the target element.
@@ -79,13 +79,13 @@ const createEventContentChange = (
   target: Element,
   callback: (...args: any) => any,
   eventContentChange?: DOMObserverEventContentChange
-) => {
+): EventContentChange => {
   let map: WeakMap<Node, [string, () => any]> | undefined; // weak map to prevent memory leak for detached elements
   let destroyed = false;
-  const _destroy = () => {
+  const destroy = () => {
     destroyed = true;
   };
-  const _updateElements = (getElements?: (selector: string) => Node[]) => {
+  const updateElements: EventContentChangeUpdateElement = (getElements?) => {
     if (eventContentChange) {
       const eventElmList = eventContentChange.reduce<Array<[Node[], string]>>((arr, item) => {
         if (item) {
@@ -134,13 +134,10 @@ const createEventContentChange = (
 
   if (eventContentChange) {
     map = new WeakMap();
-    _updateElements();
+    updateElements();
   }
 
-  return {
-    _destroy,
-    _updateElements,
-  };
+  return [destroy, updateElements];
 };
 
 /**
@@ -167,10 +164,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     _ignoreNestedTargetChange,
     _ignoreContentChange,
   } = (options as DOMContentObserverOptions & DOMTargetObserverOptions) || {};
-  const {
-    _destroy: destroyEventContentChange,
-    _updateElements: updateEventContentChangeElements,
-  } = createEventContentChange(
+  const [destroyEventContentChange, updateEventContentChangeElements] = createEventContentChange(
     target,
     debounce(
       () => {
@@ -267,18 +261,18 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   });
   isConnected = true;
 
-  return {
-    _destroy: () => {
+  return [
+    () => {
       if (isConnected) {
         destroyEventContentChange();
         mutationObserver.disconnect();
         isConnected = false;
       }
     },
-    _update: () => {
+    () => {
       if (isConnected) {
         observerCallback(mutationObserver.takeRecords());
       }
     },
-  };
+  ];
 };

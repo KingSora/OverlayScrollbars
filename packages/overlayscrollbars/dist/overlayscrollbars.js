@@ -1429,11 +1429,11 @@
     var map;
     var destroyed = false;
 
-    var _destroy = function _destroy() {
+    var destroy = function destroy() {
       destroyed = true;
     };
 
-    var _updateElements = function _updateElements(getElements) {
+    var updateElements = function updateElements(getElements) {
       if (eventContentChange) {
         var eventElmList = eventContentChange.reduce(function (arr, item) {
           if (item) {
@@ -1478,14 +1478,10 @@
 
     if (eventContentChange) {
       map = new WeakMap();
-
-      _updateElements();
+      updateElements();
     }
 
-    return {
-      _destroy: _destroy,
-      _updateElements: _updateElements
-    };
+    return [destroy, updateElements];
   };
 
   var createDOMObserver = function createDOMObserver(target, isContentObserver, callback, options) {
@@ -1508,8 +1504,8 @@
       _timeout: 33,
       _maxDelay: 99
     }), _eventContentChange),
-        destroyEventContentChange = _createEventContentCh._destroy,
-        updateEventContentChangeElements = _createEventContentCh._updateElements;
+        destroyEventContentChange = _createEventContentCh[0],
+        updateEventContentChangeElements = _createEventContentCh[1];
 
     var finalAttributes = _attributes || [];
     var finalStyleChangingAttributes = _styleChangingAttributes || [];
@@ -1579,20 +1575,17 @@
       characterData: isContentObserver
     });
     isConnected = true;
-    return {
-      _destroy: function _destroy() {
-        if (isConnected) {
-          destroyEventContentChange();
-          mutationObserver.disconnect();
-          isConnected = false;
-        }
-      },
-      _update: function _update() {
-        if (isConnected) {
-          observerCallback(mutationObserver.takeRecords());
-        }
+    return [function () {
+      if (isConnected) {
+        destroyEventContentChange();
+        mutationObserver.disconnect();
+        isConnected = false;
       }
-    };
+    }, function () {
+      if (isConnected) {
+        observerCallback(mutationObserver.takeRecords());
+      }
+    }];
   };
 
   var ignorePrefix = 'os-';
@@ -1706,11 +1699,13 @@
       _appear: true,
       _direction: !_nativeScrollbarStyling
     });
-    var hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
+
+    var _createDOMObserver = createDOMObserver(_host, false, onHostMutation, {
       _styleChangingAttributes: baseStyleChangingAttrs,
       _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
       _ignoreTargetChange: ignoreTargetChange
-    });
+    }),
+        destroyHostMutationObserver = _createDOMObserver[0];
 
     var updateOptions = function updateOptions(checkOption) {
       var _checkOption = checkOption('updating.elementEvents'),
@@ -1729,9 +1724,8 @@
 
       if (updateContentMutationObserver) {
         if (contentMutationObserver) {
-          contentMutationObserver._update();
-
-          contentMutationObserver._destroy();
+          contentMutationObserver[1]();
+          contentMutationObserver[0]();
         }
 
         contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
@@ -1762,11 +1756,10 @@
 
     updateViewportAttrsFromHost();
     return [updateOptions, function () {
-      contentMutationObserver && contentMutationObserver._destroy();
+      contentMutationObserver && contentMutationObserver[0]();
       destroyTrinsicObserver && destroyTrinsicObserver();
       destroySizeObserver();
-
-      hostMutationObserver._destroy();
+      destroyHostMutationObserver();
     }];
   };
 
@@ -1860,11 +1853,9 @@
         style(_viewport, viewportStyle);
 
         _setLifecycleCommunication({
-          _paddingInfo: {
-            _absolute: !paddingRelative,
-            _padding: padding
-          },
-          _viewportPaddingStyle: _padding ? viewportStyle : _extends({}, paddingStyle, viewportStyle)
+          _padding: padding,
+          _paddingAbsolute: !paddingRelative,
+          _viewportPaddingStyle: _padding ? viewportStyle : assignDeep({}, paddingStyle, viewportStyle)
         });
       }
 
@@ -1968,16 +1959,16 @@
         var _getEnvironment = getEnvironment(),
             _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid;
 
-        var _getLifecycleCommunic = _getLifecycleCommunication()._paddingInfo,
-            paddingAbsolute = _getLifecycleCommunic._absolute,
-            padding = _getLifecycleCommunic._padding;
+        var _getLifecycleCommunic = _getLifecycleCommunication(),
+            _paddingAbsolute = _getLifecycleCommunic._paddingAbsolute,
+            _padding = _getLifecycleCommunic._padding;
 
         var _overflowScroll = viewportOverflowState._overflowScroll,
             _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset;
         var hostSizeFraction = sizeFraction(_host);
         var hostClientSize = clientSize(_host);
         var isContentBox = style(_viewport, 'boxSizing') === 'content-box';
-        var paddingVertical = paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
+        var paddingVertical = _paddingAbsolute || isContentBox ? _padding.b + _padding.t : 0;
         var fractionalClientHeight = hostClientSize.h + (abs(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
         var subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
         style(_viewport, {
@@ -2041,19 +2032,18 @@
 
     var arrangeViewport = function arrangeViewport(viewportOverflowState, viewportScrollSize, viewportSizeFraction, directionIsRTL) {
       if (_doViewportArrange) {
+        var _getLifecycleCommunic2 = _getLifecycleCommunication(),
+            _viewportPaddingStyle = _getLifecycleCommunic2._viewportPaddingStyle;
+
         var _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset,
             _scrollbarsHideOffsetArrange = viewportOverflowState._scrollbarsHideOffsetArrange;
         var arrangeX = _scrollbarsHideOffsetArrange.x,
             arrangeY = _scrollbarsHideOffsetArrange.y;
         var hideOffsetX = _scrollbarsHideOffset.x,
             hideOffsetY = _scrollbarsHideOffset.y;
-
-        var _getLifecycleCommunic2 = _getLifecycleCommunication(),
-            viewportPaddingStyle = _getLifecycleCommunic2._viewportPaddingStyle;
-
         var viewportArrangeHorizontalPaddingKey = directionIsRTL ? 'paddingRight' : 'paddingLeft';
-        var viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
-        var viewportArrangeVerticalPaddingValue = viewportPaddingStyle.paddingTop;
+        var viewportArrangeHorizontalPaddingValue = _viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
+        var viewportArrangeVerticalPaddingValue = _viewportPaddingStyle.paddingTop;
         var fractionalContentWidth = viewportScrollSize.w + (abs(viewportSizeFraction.w) < 1 ? viewportSizeFraction.w : 0);
         var fractionalContenHeight = viewportScrollSize.h + (abs(viewportSizeFraction.h) < 1 ? viewportSizeFraction.h : 0);
         var arrangeSize = {
@@ -2287,16 +2277,14 @@
   };
 
   var booleanCacheValuesFallback = [false, false, false];
-  var lifecycleCommunicationFallback = {
-    _paddingInfo: {
-      _absolute: false,
-      _padding: {
-        t: 0,
-        r: 0,
-        b: 0,
-        l: 0
-      }
+  var initialLifecycleCommunication = {
+    _padding: {
+      t: 0,
+      r: 0,
+      b: 0,
+      l: 0
     },
+    _paddingAbsolute: false,
     _viewportOverflowScrollCache: [{
       x: false,
       y: false
@@ -2343,7 +2331,7 @@
   };
 
   var createLifecycleHub = function createLifecycleHub(options, triggerListener, structureSetup, scrollbarsSetup) {
-    var lifecycleCommunication = lifecycleCommunicationFallback;
+    var lifecycleCommunication = initialLifecycleCommunication;
     var updateObserverOptions;
     var destroyObservers;
     var _viewport = structureSetup._targetObj._viewport;
@@ -2614,7 +2602,7 @@
         triggerEvent = _createEventListenerH[2];
 
     if (_nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y && !currentOptions.nativeScrollbarsOverlaid.initialize) {
-      triggerEvent('initializationWithdrawn', false);
+      triggerEvent('initializationWithdrawn');
     }
 
     var structureSetup = createStructureSetup(target);
@@ -2647,7 +2635,7 @@
 
         removeInstance(instanceTarget);
         removeEvent();
-        triggerEvent('destroyed', false);
+        triggerEvent('destroyed');
       }
     };
     each(keys(plugins), function (pluginName) {
@@ -2659,7 +2647,7 @@
     });
     instance.update(true);
     addInstance(instanceTarget, instance);
-    triggerEvent('initialized', false);
+    triggerEvent('initialized');
     return instance;
   };
   OverlayScrollbars.extend = addPlugin;

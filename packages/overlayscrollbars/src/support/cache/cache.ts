@@ -7,11 +7,7 @@ export interface CacheOptions<Value> {
   _alwaysUpdateValues?: boolean;
 }
 
-export type CacheValues<T> = [
-  T, // value
-  boolean, // changed
-  T? // previous
-];
+export type CacheValues<T> = [value: T, changed: boolean, previous?: T];
 
 export type EqualCachePropFunction<Value> = (currentVal: Value, newVal: Value) => boolean;
 

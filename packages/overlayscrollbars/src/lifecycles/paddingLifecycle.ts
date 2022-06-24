@@ -1,4 +1,4 @@
-import { createCache, topRightBottomLeft, equalTRBL, style } from 'support';
+import { createCache, topRightBottomLeft, equalTRBL, style, assignDeep } from 'support';
 import { LifecycleHub, Lifecycle } from 'lifecycles/lifecycleHub';
 import { StyleObject } from 'typings';
 import { getEnvironment } from 'environment';
@@ -60,16 +60,11 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
       style(_viewport, viewportStyle);
 
       _setLifecycleCommunication({
-        _paddingInfo: {
-          _absolute: !paddingRelative,
-          _padding: padding,
-        },
+        _padding: padding,
+        _paddingAbsolute: !paddingRelative,
         _viewportPaddingStyle: _padding
           ? viewportStyle
-          : {
-              ...paddingStyle,
-              ...viewportStyle,
-            },
+          : assignDeep({}, paddingStyle, viewportStyle),
       });
     }
 

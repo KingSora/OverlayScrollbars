@@ -1348,11 +1348,11 @@ const createEventContentChange = (target, callback, eventContentChange) => {
   let map;
   let destroyed = false;
 
-  const _destroy = () => {
+  const destroy = () => {
     destroyed = true;
   };
 
-  const _updateElements = getElements => {
+  const updateElements = getElements => {
     if (eventContentChange) {
       const eventElmList = eventContentChange.reduce((arr, item) => {
         if (item) {
@@ -1395,14 +1395,10 @@ const createEventContentChange = (target, callback, eventContentChange) => {
 
   if (eventContentChange) {
     map = new WeakMap();
-
-    _updateElements();
+    updateElements();
   }
 
-  return {
-    _destroy,
-    _updateElements
-  };
+  return [destroy, updateElements];
 };
 
 const createDOMObserver = (target, isContentObserver, callback, options) => {
@@ -1416,10 +1412,7 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
     _ignoreNestedTargetChange,
     _ignoreContentChange
   } = options || {};
-  const {
-    _destroy: destroyEventContentChange,
-    _updateElements: updateEventContentChangeElements
-  } = createEventContentChange(target, debounce(() => {
+  const [destroyEventContentChange, updateEventContentChangeElements] = createEventContentChange(target, debounce(() => {
     if (isConnected) {
       callback(true);
     }
@@ -1495,20 +1488,17 @@ const createDOMObserver = (target, isContentObserver, callback, options) => {
     characterData: isContentObserver
   });
   isConnected = true;
-  return {
-    _destroy: () => {
-      if (isConnected) {
-        destroyEventContentChange();
-        mutationObserver.disconnect();
-        isConnected = false;
-      }
-    },
-    _update: () => {
-      if (isConnected) {
-        observerCallback(mutationObserver.takeRecords());
-      }
+  return [() => {
+    if (isConnected) {
+      destroyEventContentChange();
+      mutationObserver.disconnect();
+      isConnected = false;
     }
-  };
+  }, () => {
+    if (isConnected) {
+      observerCallback(mutationObserver.takeRecords());
+    }
+  }];
 };
 
 const ignorePrefix = 'os-';
@@ -1628,7 +1618,7 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
     _appear: true,
     _direction: !_nativeScrollbarStyling
   });
-  const hostMutationObserver = createDOMObserver(_host, false, onHostMutation, {
+  const [destroyHostMutationObserver] = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: baseStyleChangingAttrs,
     _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
     _ignoreTargetChange: ignoreTargetChange
@@ -1642,9 +1632,8 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
 
     if (updateContentMutationObserver) {
       if (contentMutationObserver) {
-        contentMutationObserver._update();
-
-        contentMutationObserver._destroy();
+        contentMutationObserver[1]();
+        contentMutationObserver[0]();
       }
 
       contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
@@ -1675,11 +1664,10 @@ const lifecycleHubOservers = (instance, updateLifecycles) => {
 
   updateViewportAttrsFromHost();
   return [updateOptions, () => {
-    contentMutationObserver && contentMutationObserver._destroy();
+    contentMutationObserver && contentMutationObserver[0]();
     destroyTrinsicObserver && destroyTrinsicObserver();
     destroySizeObserver();
-
-    hostMutationObserver._destroy();
+    destroyHostMutationObserver();
   }];
 };
 
@@ -1768,11 +1756,9 @@ const createPaddingLifecycle = lifecycleHub => {
       style(_viewport, viewportStyle);
 
       _setLifecycleCommunication({
-        _paddingInfo: {
-          _absolute: !paddingRelative,
-          _padding: padding
-        },
-        _viewportPaddingStyle: _padding ? viewportStyle : _extends({}, paddingStyle, viewportStyle)
+        _padding: padding,
+        _paddingAbsolute: !paddingRelative,
+        _viewportPaddingStyle: _padding ? viewportStyle : assignDeep({}, paddingStyle, viewportStyle)
       });
     }
 
@@ -1868,9 +1854,9 @@ const createOverflowLifecycle = lifecycleHub => {
       } = getEnvironment();
 
       const {
-        _absolute: paddingAbsolute,
-        _padding: padding
-      } = _getLifecycleCommunication()._paddingInfo;
+        _paddingAbsolute,
+        _padding
+      } = _getLifecycleCommunication();
 
       const {
         _overflowScroll,
@@ -1879,7 +1865,7 @@ const createOverflowLifecycle = lifecycleHub => {
       const hostSizeFraction = sizeFraction(_host);
       const hostClientSize = clientSize(_host);
       const isContentBox = style(_viewport, 'boxSizing') === 'content-box';
-      const paddingVertical = paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
+      const paddingVertical = _paddingAbsolute || isContentBox ? _padding.b + _padding.t : 0;
       const fractionalClientHeight = hostClientSize.h + (abs(hostSizeFraction.h) < 1 ? hostSizeFraction.h : 0);
       const subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
       style(_viewport, {
@@ -1947,6 +1933,10 @@ const createOverflowLifecycle = lifecycleHub => {
   const arrangeViewport = (viewportOverflowState, viewportScrollSize, viewportSizeFraction, directionIsRTL) => {
     if (_doViewportArrange) {
       const {
+        _viewportPaddingStyle
+      } = _getLifecycleCommunication();
+
+      const {
         _scrollbarsHideOffset,
         _scrollbarsHideOffsetArrange
       } = viewportOverflowState;
@@ -1958,14 +1948,9 @@ const createOverflowLifecycle = lifecycleHub => {
         x: hideOffsetX,
         y: hideOffsetY
       } = _scrollbarsHideOffset;
-
-      const {
-        _viewportPaddingStyle: viewportPaddingStyle
-      } = _getLifecycleCommunication();
-
       const viewportArrangeHorizontalPaddingKey = directionIsRTL ? 'paddingRight' : 'paddingLeft';
-      const viewportArrangeHorizontalPaddingValue = viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
-      const viewportArrangeVerticalPaddingValue = viewportPaddingStyle.paddingTop;
+      const viewportArrangeHorizontalPaddingValue = _viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
+      const viewportArrangeVerticalPaddingValue = _viewportPaddingStyle.paddingTop;
       const fractionalContentWidth = viewportScrollSize.w + (abs(viewportSizeFraction.w) < 1 ? viewportSizeFraction.w : 0);
       const fractionalContenHeight = viewportScrollSize.h + (abs(viewportSizeFraction.h) < 1 ? viewportSizeFraction.h : 0);
       const arrangeSize = {
@@ -2184,16 +2169,14 @@ const getPropByPath = (obj, path) => obj ? path.split('.').reduce((o, prop) => o
 const applyForceToCache = (cacheValues, force) => [cacheValues[0], force || cacheValues[1], cacheValues[2]];
 
 const booleanCacheValuesFallback = [false, false, false];
-const lifecycleCommunicationFallback = {
-  _paddingInfo: {
-    _absolute: false,
-    _padding: {
-      t: 0,
-      r: 0,
-      b: 0,
-      l: 0
-    }
+const initialLifecycleCommunication = {
+  _padding: {
+    t: 0,
+    r: 0,
+    b: 0,
+    l: 0
   },
+  _paddingAbsolute: false,
   _viewportOverflowScrollCache: [{
     x: false,
     y: false
@@ -2238,7 +2221,7 @@ const createOverflowChangedArgs = (overflowAmount, overflowScroll) => ({
 });
 
 const createLifecycleHub = (options, triggerListener, structureSetup, scrollbarsSetup) => {
-  let lifecycleCommunication = lifecycleCommunicationFallback;
+  let lifecycleCommunication = initialLifecycleCommunication;
   let updateObserverOptions;
   let destroyObservers;
   const {
@@ -2490,7 +2473,7 @@ const OverlayScrollbars = (target, options, eventListeners) => {
   const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
 
   if (_nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y && !currentOptions.nativeScrollbarsOverlaid.initialize) {
-    triggerEvent('initializationWithdrawn', false);
+    triggerEvent('initializationWithdrawn');
   }
 
   const structureSetup = createStructureSetup(target);
@@ -2524,7 +2507,7 @@ const OverlayScrollbars = (target, options, eventListeners) => {
 
       removeInstance(instanceTarget);
       removeEvent();
-      triggerEvent('destroyed', false);
+      triggerEvent('destroyed');
     }
   };
   each(keys(plugins), pluginName => {
@@ -2536,7 +2519,7 @@ const OverlayScrollbars = (target, options, eventListeners) => {
   });
   instance.update(true);
   addInstance(instanceTarget, instance);
-  triggerEvent('initialized', false);
+  triggerEvent('initialized');
   return instance;
 };
 OverlayScrollbars.extend = addPlugin;

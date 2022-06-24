@@ -72,7 +72,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     _nativeScrollbarIsOverlaid.y &&
     !currentOptions.nativeScrollbarsOverlaid.initialize
   ) {
-    triggerEvent('initializationWithdrawn', false);
+    triggerEvent('initializationWithdrawn');
   }
 
   const structureSetup: StructureSetup = createStructureSetup(target);
@@ -106,7 +106,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       lifecycleHub._destroy();
       removeInstance(instanceTarget);
       removeEvent();
-      triggerEvent('destroyed', false);
+      triggerEvent('destroyed');
     },
   };
 
@@ -121,7 +121,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
   addInstance(instanceTarget, instance);
 
-  triggerEvent('initialized', false);
+  triggerEvent('initialized');
 
   return instance;
 };

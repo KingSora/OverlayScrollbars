@@ -125,13 +125,13 @@ interface OnOverflowChangedEventListenerArgs {
     };
 }
 interface EventListenerArgsMap {
-    initialized: false;
-    initializationWithdrawn: false;
+    initialized: undefined;
+    initializationWithdrawn: undefined;
     overflowChanged: OnOverflowChangedEventListenerArgs;
     updated: OnUpdatedEventListenerArgs;
-    destroyed: false;
+    destroyed: undefined;
 }
-type OSEventListener<N extends keyof EventListenerArgsMap> = (args: EventListenerArgsMap[N]) => void;
+type OSEventListener<N extends keyof EventListenerArgsMap> = undefined extends EventListenerArgsMap[N] ? () => void : (args: EventListenerArgsMap[N]) => void;
 type AddEventListener = <N extends keyof EventListenerArgsMap>(name: N, listener: OSEventListener<N> | OSEventListener<N>[]) => () => void;
 type RemoveEventListener = <N extends keyof EventListenerArgsMap>(name?: N, listener?: OSEventListener<N> | OSEventListener<N>[]) => void;
 type EventListenersMap = {
