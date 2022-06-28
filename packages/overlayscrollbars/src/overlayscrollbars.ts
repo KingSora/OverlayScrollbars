@@ -1,8 +1,6 @@
 import { OSTarget, OSInitializationObject, PartialOptions } from 'typings';
-import { assignDeep, isEmptyObject, each, isFunction, keys, isHTMLElement } from 'support';
-import { createStructureSetup, StructureSetup } from 'setups/structureSetup';
-import { createScrollbarsSetup, ScrollbarsSetup } from 'setups/scrollbarsSetup';
-import { createLifecycleHub } from 'lifecycles/lifecycleHub';
+import { assignDeep, isEmptyObject, each, isFunction, keys, isHTMLElement, WH, XY } from 'support';
+import { createStructureSetup, createScrollbarsSetup } from 'setups';
 import { getOptionsDiff, OSOptions } from 'options';
 import { getEnvironment } from 'environment';
 import {
@@ -14,17 +12,17 @@ import {
 } from 'plugins';
 import { addInstance, getInstance, removeInstance } from 'instances';
 import {
-  createEventListenerHub,
-  EventListenersMap,
-  AddEventListener,
-  RemoveEventListener,
+  createOSEventListenerHub,
+  InitialOSEventListeners,
+  AddOSEventListener,
+  RemoveOSEventListener,
 } from 'eventListeners';
 
 export interface OverlayScrollbarsStatic {
   (
     target: OSTarget | OSInitializationObject,
     options?: PartialOptions<OSOptions>,
-    eventListeners?: EventListenersMap
+    eventListeners?: InitialOSEventListeners
   ): OverlayScrollbars;
 
   extend(osPlugin: OSPlugin | OSPlugin[]): void;
@@ -39,9 +37,21 @@ export interface OverlayScrollbars {
 
   state(): any;
 
-  on: AddEventListener;
-  off: RemoveEventListener;
+  on: AddOSEventListener;
+  off: RemoveOSEventListener;
 }
+
+const createOverflowChangedArgs = (overflowAmount: WH<number>, overflowScroll: XY<boolean>) => ({
+  amount: {
+    x: overflowAmount.w,
+    y: overflowAmount.h,
+  },
+  overflow: {
+    x: overflowAmount.w > 0,
+    y: overflowAmount.h > 0,
+  },
+  scrollableOverflow: assignDeep({}, overflowScroll),
+});
 
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target,
@@ -65,7 +75,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     return validate ? validate(opts, true) : opts;
   };
   const currentOptions: OSOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
-  const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
+  const [addEvent, removeEvent, triggerEvent] = createOSEventListenerHub(eventListeners);
 
   if (
     _nativeScrollbarIsOverlaid.x &&
@@ -75,14 +85,50 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     triggerEvent('initializationWithdrawn');
   }
 
-  const structureSetup: StructureSetup = createStructureSetup(target);
-  const scrollbarsSetup: ScrollbarsSetup = createScrollbarsSetup(target, structureSetup);
-  const lifecycleHub = createLifecycleHub(
-    currentOptions,
-    triggerEvent,
-    structureSetup,
-    scrollbarsSetup
+  const [updateStructure, structureState, destroyStructure] = createStructureSetup(
+    target,
+    currentOptions
   );
+  const [updateScrollbars, , destroyScrollbars] = createScrollbarsSetup(
+    target,
+    currentOptions,
+    structureState._elements
+  );
+
+  const update = (changedOptions: PartialOptions<OSOptions>, force?: boolean) => {
+    updateStructure(changedOptions, force);
+    updateScrollbars(changedOptions, force);
+  };
+
+  structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
+    const {
+      _viewportOverflowAmountCache: overflowAmountCache,
+      _viewportOverflowScrollCache: overflowScrollCache,
+    } = structureState();
+    const [overflowAmount, overflowAmountChanged, prevOverflowAmount] = overflowAmountCache;
+    const [overflowScroll, overflowScrollChanged, prevOverflowScroll] = overflowScrollCache;
+
+    if (overflowAmountChanged || overflowScrollChanged) {
+      triggerEvent(
+        'overflowChanged',
+        assignDeep({}, createOverflowChangedArgs(overflowAmount, overflowScroll), {
+          previous: createOverflowChangedArgs(prevOverflowAmount!, prevOverflowScroll!),
+        })
+      );
+    }
+
+    triggerEvent('updated', {
+      updateHints: {
+        sizeChanged: updateHints._sizeChanged,
+        contentMutation: updateHints._contentMutation,
+        hostMutation: updateHints._hostMutation,
+        directionChanged: updateHints._directionIsRTL[1],
+        heightIntrinsicChanged: updateHints._heightIntrinsic[1],
+      },
+      changedOptions,
+      force,
+    });
+  });
 
   const instance: OverlayScrollbars = {
     options(newOptions?: PartialOptions<OSOptions>) {
@@ -91,21 +137,26 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
         if (!isEmptyObject(changedOptions)) {
           assignDeep(currentOptions, changedOptions);
-          lifecycleHub._update(changedOptions);
+          update(changedOptions);
         }
       }
       return currentOptions;
     },
     on: addEvent,
     off: removeEvent,
-    state: () => lifecycleHub._state(),
+    state: () => ({
+      _overflowAmount: structureState()._viewportOverflowAmountCache[0],
+    }),
     update(force?: boolean) {
-      lifecycleHub._update({}, force);
+      update({}, force);
     },
     destroy: () => {
-      lifecycleHub._destroy();
       removeInstance(instanceTarget);
       removeEvent();
+
+      destroyScrollbars();
+      destroyStructure();
+
       triggerEvent('destroyed');
     },
   };

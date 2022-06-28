@@ -1,16 +1,19 @@
 import { createCache, topRightBottomLeft, equalTRBL, style, assignDeep } from 'support';
-import { LifecycleHub, Lifecycle } from 'lifecycles/lifecycleHub';
 import { StyleObject } from 'typings';
 import { getEnvironment } from 'environment';
+import type { CreateStructureUpdateSegment } from 'setups/structureSetup/structureSetup.update';
 
 /**
  * Lifecycle with the responsibility to adjust the padding styling of the padding and viewport element.
- * @param lifecycleHub
+ * @param structureUpdateHub
  * @returns
  */
-export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
-  const { _structureSetup, _setLifecycleCommunication } = lifecycleHub;
-  const { _host, _padding, _viewport } = _structureSetup._targetObj;
+export const createPaddingUpdate: CreateStructureUpdateSegment = (
+  structureSetupElements,
+  state
+) => {
+  const [, setState] = state;
+  const { _host, _padding, _viewport } = structureSetupElements;
   const [updatePaddingCache, currentPaddingCache] = createCache(
     {
       _equal: equalTRBL,
@@ -59,7 +62,7 @@ export const createPaddingLifecycle = (lifecycleHub: LifecycleHub): Lifecycle =>
       style(_padding || _viewport, paddingStyle);
       style(_viewport, viewportStyle);
 
-      _setLifecycleCommunication({
+      setState({
         _padding: padding,
         _paddingAbsolute: !paddingRelative,
         _viewportPaddingStyle: _padding

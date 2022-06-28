@@ -1,14 +1,13 @@
 import { style } from 'support';
-import { LifecycleHub, Lifecycle } from 'lifecycles/lifecycleHub';
+import type { CreateStructureUpdateSegment } from 'setups/structureSetup/structureSetup.update';
 
 /**
  * Lifecycle with the responsibility to adjust the trinsic behavior of the content element.
- * @param lifecycleHub
+ * @param structureUpdateHub
  * @returns
  */
-export const createTrinsicLifecycle = (lifecycleHub: LifecycleHub): Lifecycle => {
-  const { _structureSetup } = lifecycleHub;
-  const { _content } = _structureSetup._targetObj;
+export const createTrinsicUpdate: CreateStructureUpdateSegment = (structureSetupElements) => {
+  const { _content } = structureSetupElements;
 
   return (updateHints) => {
     const { _heightIntrinsic } = updateHints;

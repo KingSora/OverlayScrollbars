@@ -1,6 +1,13 @@
 import { OSOptions } from 'options';
-import { each, from, isArray, keys, XY } from 'support';
+import { createEventListenerHub, XY } from 'support';
 import { PartialOptions } from 'typings';
+import type {
+  InitialEventListeners,
+  AddEventListener,
+  RemoveEventListener,
+  TriggerEventListener,
+  EventListener,
+} from 'support/eventListeners';
 /*
 onScrollStart               : null,
 onScroll                    : null,
@@ -35,7 +42,7 @@ export interface OnOverflowChangedEventListenerArgs {
   };
 }
 
-export interface EventListenerArgsMap {
+export interface OSEventListenersNameArgsMap {
   initialized: undefined;
   initializationWithdrawn: undefined;
   overflowChanged: OnOverflowChangedEventListenerArgs;
@@ -43,85 +50,20 @@ export interface EventListenerArgsMap {
   destroyed: undefined;
 }
 
-export type OSEventListener<N extends keyof EventListenerArgsMap = keyof EventListenerArgsMap> =
-  undefined extends EventListenerArgsMap[N] ? () => void : (args: EventListenerArgsMap[N]) => void;
+export type OSEventListener<
+  N extends Extract<keyof OSEventListenersNameArgsMap, string> = Extract<
+    keyof OSEventListenersNameArgsMap,
+    string
+  >
+> = EventListener<OSEventListenersNameArgsMap, N>;
 
-export type AddEventListener = <N extends keyof EventListenerArgsMap>(
-  name: N,
-  listener: OSEventListener<N> | OSEventListener<N>[]
-) => () => void;
+export type AddOSEventListener = AddEventListener<OSEventListenersNameArgsMap>;
 
-export type RemoveEventListener = <N extends keyof EventListenerArgsMap>(
-  name?: N,
-  listener?: OSEventListener<N> | OSEventListener<N>[]
-) => void;
+export type RemoveOSEventListener = RemoveEventListener<OSEventListenersNameArgsMap>;
 
-export type TriggerEventListener = <N extends keyof EventListenerArgsMap>(
-  name: N,
-  ...args: undefined extends EventListenerArgsMap[N]
-    ? [args?: never]
-    : [args: EventListenerArgsMap[N]]
-) => void;
+export type TriggerOSEventListener = TriggerEventListener<OSEventListenersNameArgsMap>;
 
-export type EventListenersHub = [AddEventListener, RemoveEventListener, TriggerEventListener];
+export type InitialOSEventListeners = InitialEventListeners<OSEventListenersNameArgsMap>;
 
-export type EventListenersMap = {
-  [K in keyof EventListenerArgsMap]?: OSEventListener<K> | OSEventListener<K>[];
-};
-
-const manageListener = <N extends keyof EventListenerArgsMap>(
-  callback: (listener?: OSEventListener<any>) => void,
-  listener?: OSEventListener<N> | OSEventListener<N>[]
-) => {
-  each(isArray(listener) ? listener : [listener], callback);
-};
-
-export const createEventListenerHub = (
-  initialEventListeners?: EventListenersMap
-): EventListenersHub => {
-  const events = new Map<keyof EventListenerArgsMap, Set<OSEventListener>>();
-  const removeEvent: RemoveEventListener = (name?, listener?) => {
-    if (name) {
-      const eventSet = events.get(name);
-
-      manageListener((currListener) => {
-        if (eventSet) {
-          eventSet[currListener ? 'delete' : 'clear'](currListener!);
-        }
-      }, listener);
-    } else {
-      events.forEach((eventSet) => {
-        eventSet.clear();
-      });
-      events.clear();
-    }
-  };
-  const addEvent: AddEventListener = (name, listener) => {
-    const eventSet = events.get(name) || new Set();
-    events.set(name, eventSet);
-
-    manageListener((currListener) => {
-      eventSet.add(currListener!);
-    }, listener);
-
-    return removeEvent.bind(0, name, listener as any);
-  };
-  const triggerEvent: TriggerEventListener = (name, args?) => {
-    const eventSet = events.get(name);
-
-    each(from(eventSet), (event) => {
-      if (args) {
-        (event as (args: any) => void)(args);
-      } else {
-        (event as () => void)();
-      }
-    });
-  };
-
-  const initialListenerKeys = keys(initialEventListeners) as (keyof EventListenerArgsMap)[];
-  each(initialListenerKeys, (key) => {
-    addEvent(key, initialEventListeners![key] as any);
-  });
-
-  return [addEvent, removeEvent, triggerEvent];
-};
+export const createOSEventListenerHub = (initialEventListeners?: InitialOSEventListeners) =>
+  createEventListenerHub(initialEventListeners);

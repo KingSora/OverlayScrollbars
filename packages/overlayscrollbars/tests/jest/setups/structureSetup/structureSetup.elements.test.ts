@@ -4,7 +4,10 @@ import {
   StructureInitializationDynamicElement,
 } from 'environment';
 import { OSTarget, StructureInitialization } from 'typings';
-import { createStructureSetup, StructureSetup } from 'setups/structureSetup';
+import {
+  createStructureSetupElements,
+  StructureSetupElementsObj,
+} from 'setups/structureSetup/structureSetup.elements';
 import { isHTMLElement } from 'support';
 
 const mockGetEnvironment = jest.fn();
@@ -12,9 +15,10 @@ jest.mock('environment', () => ({
   getEnvironment: jest.fn().mockImplementation(() => mockGetEnvironment()),
 }));
 
-interface StructureSetupProxy {
-  input: OSTarget | StructureInitialization;
-  setup: StructureSetup;
+interface StructureSetupElementsProxy {
+  input: OSTarget;
+  elements: StructureSetupElementsObj;
+  destroy: () => void;
 }
 
 const textareaId = 'textarea';
@@ -92,19 +96,22 @@ const assertCorrectDOMStructure = (textarea?: boolean) => {
 
 const createStructureSetupProxy = (
   target: OSTarget | StructureInitialization
-): StructureSetupProxy => ({
-  input: target,
-  setup: createStructureSetup(target),
-});
+): StructureSetupElementsProxy => {
+  const [elements, destroy] = createStructureSetupElements(target);
+  return {
+    input: target,
+    elements,
+    destroy,
+  };
+};
 
-const assertCorrectSetup = (
+const assertCorrectSetupElements = (
   textarea: boolean,
-  setupProxy: StructureSetupProxy,
+  setupElementsProxy: StructureSetupElementsProxy,
   environment: Environment
-): StructureSetup => {
-  const { input, setup } = setupProxy;
-  const { _targetObj, _targetCtx, _destroy } = setup;
-  const { _target, _host, _padding, _viewport, _content } = _targetObj;
+): [StructureSetupElementsObj, () => void] => {
+  const { input, elements, destroy } = setupElementsProxy;
+  const { _target, _host, _padding, _viewport, _content } = elements;
   const { target, host, padding, viewport, content } = getElements(textarea);
   const isTextarea = target.matches('textarea');
   const isBody = target.matches('body');
@@ -135,7 +142,7 @@ const assertCorrectSetup = (
     expect(_content).toBeFalsy();
   }
 
-  const { _isTextarea, _isBody, _bodyElm, _htmlElm, _documentElm, _windowElm } = _targetCtx;
+  const { _isTextarea, _isBody, _bodyElm, _htmlElm, _documentElm, _windowElm } = elements;
 
   expect(_isTextarea).toBe(isTextarea);
   expect(_isBody).toBe(isBody);
@@ -144,7 +151,7 @@ const assertCorrectSetup = (
   expect(_htmlElm).toBe(document.body.parentElement);
   expect(_bodyElm).toBe(document.body);
 
-  expect(typeof _destroy).toBe('function');
+  expect(typeof destroy).toBe('function');
 
   const { _nativeScrollbarStyling, _cssCustomProperties, _getInitializationStrategy } = environment;
   const {
@@ -250,13 +257,11 @@ const assertCorrectSetup = (
     checkStrategyDependendElements(host, inputHost, true, hostInitStrategy, 'host');
   }
 
-  return setup;
+  return [elements, destroy];
 };
 
-const assertCorrectDestroy = (snapshot: string, setup: StructureSetup) => {
-  const { _destroy } = setup;
-
-  _destroy();
+const assertCorrectDestroy = (snapshot: string, destroy: () => void) => {
+  destroy();
 
   // remove empty class attr
   const elms = document.querySelectorAll('*');
@@ -351,24 +356,24 @@ describe('structureSetup', () => {
           describe('basic', () => {
             test('Element', () => {
               const snapshot = fillBody(isTextarea);
-              const setup = assertCorrectSetup(
+              const [, destroy] = assertCorrectSetupElements(
                 isTextarea,
                 createStructureSetupProxy(getTarget(isTextarea)),
                 currEnv
               );
               assertCorrectDOMStructure(isTextarea);
-              assertCorrectDestroy(snapshot, setup);
+              assertCorrectDestroy(snapshot, destroy);
             });
 
             test('Object', () => {
               const snapshot = fillBody(isTextarea);
-              const setup = assertCorrectSetup(
+              const [, destroy] = assertCorrectSetupElements(
                 isTextarea,
                 createStructureSetupProxy({ target: getTarget(isTextarea) }),
                 currEnv
               );
               assertCorrectDOMStructure(isTextarea);
-              assertCorrectDestroy(snapshot, setup);
+              assertCorrectDestroy(snapshot, destroy);
             });
           });
 
@@ -380,7 +385,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -390,7 +395,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('viewport', () => {
@@ -399,7 +404,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -409,7 +414,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('content', () => {
@@ -418,7 +423,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="content">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -428,7 +433,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
             });
 
@@ -439,7 +444,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="viewport"><div id="content">${content}</div></div></div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -451,7 +456,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('padding viewport', () => {
@@ -460,7 +465,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -471,7 +476,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('padding content', () => {
@@ -480,7 +485,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="content">${content}</div></div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -491,7 +496,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('viewport content', () => {
@@ -500,7 +505,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -511,14 +516,14 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
             });
 
             describe('single false', () => {
               test('padding', () => {
                 const snapshot = fillBody(isTextarea);
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     target: getTarget(isTextarea),
@@ -527,12 +532,12 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('content', () => {
                 const snapshot = fillBody(isTextarea);
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     target: getTarget(isTextarea),
@@ -541,14 +546,14 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
             });
 
             describe('single true', () => {
               test('padding', () => {
                 const snapshot = fillBody(isTextarea);
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     target: getTarget(isTextarea),
@@ -557,12 +562,12 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('content', () => {
                 const snapshot = fillBody(isTextarea);
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     target: getTarget(isTextarea),
@@ -571,14 +576,14 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
             });
 
             describe('multiple false', () => {
               test('padding & content', () => {
                 const snapshot = fillBody(isTextarea);
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     target: getTarget(isTextarea),
@@ -588,14 +593,14 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
             });
 
             describe('multiple true', () => {
               test('padding & content', () => {
                 const snapshot = fillBody(isTextarea);
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     target: getTarget(isTextarea),
@@ -605,7 +610,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
             });
 
@@ -616,7 +621,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -628,7 +633,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding & content | assigned: viewport', () => {
@@ -637,7 +642,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -649,7 +654,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: content | false: padding | assigned: viewport', () => {
@@ -658,7 +663,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -670,7 +675,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding | false: content | assigned: viewport', () => {
@@ -679,7 +684,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -691,7 +696,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: padding | assigned: content', () => {
@@ -700,7 +705,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="content">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -711,7 +716,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding | assigned: content', () => {
@@ -720,7 +725,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="content">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -731,7 +736,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: padding | assigned: viewport', () => {
@@ -740,7 +745,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -751,7 +756,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding | assigned: viewport', () => {
@@ -760,7 +765,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -771,7 +776,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: padding | assigned: viewport & content', () => {
@@ -780,7 +785,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -792,7 +797,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding | assigned: viewport & content', () => {
@@ -801,7 +806,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -813,7 +818,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: content | assigned: padding', () => {
@@ -822,7 +827,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -833,7 +838,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: content | assigned: padding', () => {
@@ -842,7 +847,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -853,7 +858,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: content | assigned: viewport', () => {
@@ -862,7 +867,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -873,7 +878,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: content | assigned: viewport', () => {
@@ -882,7 +887,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -893,7 +898,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: content | assigned: padding & viewport', () => {
@@ -902,7 +907,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -914,7 +919,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: content | assigned: padding & viewport', () => {
@@ -923,7 +928,7 @@ describe('structureSetup', () => {
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`
                 );
-                const setup = assertCorrectSetup(
+                const [, destroy] = assertCorrectSetupElements(
                   isTextarea,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
@@ -935,7 +940,7 @@ describe('structureSetup', () => {
                   currEnv
                 );
                 assertCorrectDOMStructure(isTextarea);
-                assertCorrectDestroy(snapshot, setup);
+                assertCorrectDestroy(snapshot, destroy);
               });
             });
           });

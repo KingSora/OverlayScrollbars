@@ -106,8 +106,9 @@ export const isEmptyArray = (array: any[] | null | undefined): boolean =>
  * @param arr The array filled with function which shall be called.
  * @param p1 The first param.
  */
-export const runEach = (arr: ArrayLike<RunEachItem> | Set<RunEachItem>, p1?: unknown): void => {
-  const runFn = (fn: RunEachItem) => fn && fn(p1);
+export const runEach = (arr: ArrayLike<RunEachItem> | Set<RunEachItem>, args?: any[]): void => {
+  // eslint-disable-next-line prefer-spread
+  const runFn = (fn: RunEachItem) => fn && fn.apply(undefined, args || []);
   if (arr instanceof Set) {
     arr.forEach(runFn);
   } else {

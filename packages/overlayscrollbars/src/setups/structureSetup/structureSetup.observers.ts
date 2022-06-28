@@ -14,12 +14,17 @@ import { getEnvironment } from 'environment';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver, DOMObserver } from 'observers/domObserver';
-import { LifecycleHub, LifecycleCheckOption, LifecycleUpdateHints } from 'lifecycles/lifecycleHub';
+import type { SetupUpdateCheckOption } from 'setups';
+import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
+import type {
+  StructureSetupUpdate,
+  StructureSetupUpdateHints,
+} from 'setups/structureSetup/structureSetup.update';
 
-export type UpdateObserverOptions = (checkOption: LifecycleCheckOption) => void;
+export type StructureSetupObserversUpdate = (checkOption: SetupUpdateCheckOption) => void;
 
-export type LifecycleHubObservers = [
-  updateObserverOptions: UpdateObserverOptions,
+export type StructureSetupObservers = [
+  updateObserverOptions: StructureSetupObserversUpdate,
   destroy: () => void
 ];
 
@@ -49,22 +54,27 @@ const ignoreTargetChange = (
   return false;
 };
 
-export const lifecycleHubOservers = (
-  instance: LifecycleHub,
-  updateLifecycles: (updateHints: Partial<LifecycleUpdateHints>) => unknown
-): LifecycleHubObservers => {
+type ExcludeFromTuple<T extends readonly any[], E> = T extends [infer F, ...infer R]
+  ? [F] extends [E]
+    ? ExcludeFromTuple<R, E>
+    : [F, ...ExcludeFromTuple<R, E>]
+  : [];
+
+export const createStructureSetupObservers = (
+  structureSetupElements: StructureSetupElementsObj,
+  structureSetupUpdate: (
+    ...args: ExcludeFromTuple<Parameters<StructureSetupUpdate>, Parameters<StructureSetupUpdate>[0]>
+  ) => any
+): StructureSetupObservers => {
   let debounceTimeout: number | false | undefined;
   let debounceMaxDelay: number | false | undefined;
   let contentMutationObserver: DOMObserver | undefined;
-  const { _structureSetup } = instance;
-  const { _targetObj, _targetCtx } = _structureSetup;
-  const { _host, _viewport, _content } = _targetObj;
-  const { _isTextarea } = _targetCtx;
+  const { _host, _viewport, _content, _isTextarea } = structureSetupElements;
   const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
   const contentMutationObserverAttr = _isTextarea
     ? baseStyleChangingAttrsTextarea
     : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
-  const updateLifecyclesWithDebouncedAdaptiveUpdateHints = debounce(updateLifecycles, {
+  const structureSetupUpdateWithDebouncedAdaptiveUpdateHints = debounce(structureSetupUpdate, {
     _timeout: () => debounceTimeout,
     _maxDelay: () => debounceMaxDelay,
     _mergeParams(prev, curr) {
@@ -78,7 +88,7 @@ export const lifecycleHubOservers = (
         _hostMutation: currvHostMutation,
         _contentMutation: currContentMutation,
       } = curr[0];
-      const merged: [Partial<LifecycleUpdateHints>] = [
+      const merged: [Partial<StructureSetupUpdateHints>] = [
         {
           _sizeChanged: prevSizeChanged || currSizeChanged,
           _hostMutation: prevHostMutation || currvHostMutation,
@@ -103,7 +113,7 @@ export const lifecycleHubOservers = (
     });
   };
   const onTrinsicChanged = (heightIntrinsic: CacheValues<boolean>) => {
-    updateLifecycles({
+    structureSetupUpdate({
       _heightIntrinsic: heightIntrinsic,
     });
   };
@@ -114,8 +124,8 @@ export const lifecycleHubOservers = (
   }: SizeObserverCallbackParams) => {
     const updateFn =
       !_sizeChanged || _appear
-        ? updateLifecycles
-        : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
+        ? structureSetupUpdate
+        : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
 
     updateFn({
       _sizeChanged,
@@ -125,15 +135,15 @@ export const lifecycleHubOservers = (
   const onContentMutation = (contentChangedTroughEvent: boolean) => {
     // if contentChangedTroughEvent is true its already debounced
     const updateFn = contentChangedTroughEvent
-      ? updateLifecycles
-      : updateLifecyclesWithDebouncedAdaptiveUpdateHints;
+      ? structureSetupUpdate
+      : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
     updateFn({
       _contentMutation: true,
     });
   };
   const onHostMutation = (targetChangedAttrs: string[], targetStyleChanged: boolean) => {
     if (targetStyleChanged) {
-      updateLifecyclesWithDebouncedAdaptiveUpdateHints({
+      structureSetupUpdateWithDebouncedAdaptiveUpdateHints({
         _hostMutation: true,
       });
     } else {
@@ -153,61 +163,64 @@ export const lifecycleHubOservers = (
     _ignoreTargetChange: ignoreTargetChange,
   });
 
-  const updateOptions: UpdateObserverOptions = (checkOption) => {
-    const [elementEvents, elementEventsChanged] = checkOption<Array<[string, string]> | null>(
-      'updating.elementEvents'
-    );
-    const [attributes, attributesChanged] = checkOption<string[] | null>('updating.attributes');
-    const [debounceValue, debounceChanged] = checkOption<Array<number> | number | null>(
-      'updating.debounce'
-    );
-    const updateContentMutationObserver = elementEventsChanged || attributesChanged;
-
-    if (updateContentMutationObserver) {
-      if (contentMutationObserver) {
-        contentMutationObserver[1](); // update
-        contentMutationObserver[0](); // destroy
-      }
-      contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
-        _styleChangingAttributes: contentMutationObserverAttr.concat(attributes || []),
-        _attributes: contentMutationObserverAttr.concat(attributes || []),
-        _eventContentChange: elementEvents,
-        _ignoreNestedTargetChange: ignoreTargetChange,
-        // _nestedTargetSelector: hostSelector,
-        /*
-        _ignoreContentChange: (mutation, isNestedTarget) => {
-          const { target, attributeName } = mutation;
-          return isNestedTarget
-            ? false
-            : attributeName
-            ? liesBetween(target as Element, hostSelector, viewportSelector) || liesBetween(target as Element, hostSelector, contentSelector)
-            : false;
-        },
-        */
-      });
-    }
-
-    if (debounceChanged) {
-      updateLifecyclesWithDebouncedAdaptiveUpdateHints._flush();
-      if (isArray(debounceValue)) {
-        const timeout = debounceValue[0];
-        const maxWait = debounceValue[1];
-        debounceTimeout = isNumber(timeout) ? timeout : false;
-        debounceMaxDelay = isNumber(maxWait) ? maxWait : false;
-      } else if (isNumber(debounceValue)) {
-        debounceTimeout = debounceValue;
-        debounceMaxDelay = false;
-      } else {
-        debounceTimeout = false;
-        debounceMaxDelay = false;
-      }
-    }
-  };
-
   updateViewportAttrsFromHost();
 
   return [
-    updateOptions,
+    (checkOption) => {
+      const [elementEvents, elementEventsChanged] = checkOption<Array<[string, string]> | null>(
+        'updating.elementEvents'
+      );
+      const [attributes, attributesChanged] = checkOption<string[] | null>('updating.attributes');
+      const [debounceValue, debounceChanged] = checkOption<Array<number> | number | null>(
+        'updating.debounce'
+      );
+      const updateContentMutationObserver = elementEventsChanged || attributesChanged;
+
+      if (updateContentMutationObserver) {
+        if (contentMutationObserver) {
+          contentMutationObserver[1](); // update
+          contentMutationObserver[0](); // destroy
+        }
+        contentMutationObserver = createDOMObserver(
+          _content || _viewport,
+          true,
+          onContentMutation,
+          {
+            _styleChangingAttributes: contentMutationObserverAttr.concat(attributes || []),
+            _attributes: contentMutationObserverAttr.concat(attributes || []),
+            _eventContentChange: elementEvents,
+            _ignoreNestedTargetChange: ignoreTargetChange,
+            // _nestedTargetSelector: hostSelector,
+            /*
+          _ignoreContentChange: (mutation, isNestedTarget) => {
+            const { target, attributeName } = mutation;
+            return isNestedTarget
+              ? false
+              : attributeName
+              ? liesBetween(target as Element, hostSelector, viewportSelector) || liesBetween(target as Element, hostSelector, contentSelector)
+              : false;
+          },
+          */
+          }
+        );
+      }
+
+      if (debounceChanged) {
+        structureSetupUpdateWithDebouncedAdaptiveUpdateHints._flush();
+        if (isArray(debounceValue)) {
+          const timeout = debounceValue[0];
+          const maxWait = debounceValue[1];
+          debounceTimeout = isNumber(timeout) ? timeout : false;
+          debounceMaxDelay = isNumber(maxWait) ? maxWait : false;
+        } else if (isNumber(debounceValue)) {
+          debounceTimeout = debounceValue;
+          debounceMaxDelay = false;
+        } else {
+          debounceTimeout = false;
+          debounceMaxDelay = false;
+        }
+      }
+    },
     () => {
       contentMutationObserver && contentMutationObserver[0](); // destroy
       destroyTrinsicObserver && destroyTrinsicObserver();

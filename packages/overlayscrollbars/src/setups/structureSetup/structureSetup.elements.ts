@@ -34,29 +34,23 @@ import {
 } from 'environment';
 import { OSTarget, OSTargetElement, StructureInitialization } from 'typings';
 
-export interface OSTargetContext {
-  _isTextarea: boolean;
-  _isBody: boolean;
-  _htmlElm: HTMLHtmlElement;
-  _bodyElm: HTMLBodyElement;
-  _windowElm: Window;
-  _documentElm: HTMLDocument;
-  _targetIsElm: boolean;
-}
+export type StructureSetupElements = [targetObj: StructureSetupElementsObj, destroy: () => void];
 
-export interface PreparedOSTargetObject {
+export interface StructureSetupElementsObj {
   _target: OSTargetElement;
   _host: HTMLElement;
   _viewport: HTMLElement;
   _padding: HTMLElement | false;
   _content: HTMLElement | false;
   _viewportArrange: HTMLStyleElement | false;
-}
-
-export interface StructureSetup {
-  _targetObj: PreparedOSTargetObject;
-  _targetCtx: OSTargetContext;
-  _destroy: () => void;
+  // ctx ----
+  _isTextarea: boolean;
+  _isBody: boolean;
+  _htmlElm: HTMLHtmlElement;
+  _bodyElm: HTMLBodyElement;
+  _windowElm: Window;
+  _documentElm: Document;
+  _targetIsElm: boolean;
 }
 
 let contentArrangeCounter = 0;
@@ -116,9 +110,7 @@ const dynamicCreationFromStrategy = (
   return result === true ? createDiv(elementClass) : result;
 };
 
-export const createStructureSetup = (
-  target: OSTarget | StructureInitialization
-): StructureSetup => {
+export const createStructureSetupElements = (target: OSTarget): StructureSetupElements => {
   const { _getInitializationStrategy, _nativeScrollbarStyling } = getEnvironment();
   const {
     _host: hostInitializationStrategy,
@@ -136,7 +128,7 @@ export const createStructureSetup = (
   const ownerDocument: HTMLDocument = targetElement!.ownerDocument;
   const bodyElm = ownerDocument.body as HTMLBodyElement;
   const wnd = ownerDocument.defaultView as Window;
-  const evaluatedTargetObj: PreparedOSTargetObject = {
+  const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: isTextarea
       ? staticCreationFromStrategy(
@@ -167,8 +159,6 @@ export const createStructureSetup = (
       false // default value for content
     ),
     _viewportArrange: createUniqueViewportArrangeElement(),
-  };
-  const ctx: OSTargetContext = {
     _windowElm: wnd,
     _documentElm: ownerDocument,
     _htmlElm: parent(bodyElm) as HTMLHtmlElement,
@@ -245,11 +235,5 @@ export const createStructureSetup = (
     push(destroyFns, removeElements.bind(0, _viewportArrange));
   }
 
-  return {
-    _targetObj: evaluatedTargetObj,
-    _targetCtx: ctx,
-    _destroy: () => {
-      runEach(destroyFns);
-    },
-  };
+  return [evaluatedTargetObj, runEach.bind(0, destroyFns)];
 };

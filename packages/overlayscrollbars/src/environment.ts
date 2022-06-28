@@ -72,8 +72,7 @@ export interface Environment {
   _rtlScrollBehavior: { n: boolean; i: boolean };
   _flexboxGlue: boolean;
   _cssCustomProperties: boolean;
-  _addListener(listener: OnEnvironmentChanged): void;
-  _removeListener(listener: OnEnvironmentChanged): void;
+  _addListener(listener: OnEnvironmentChanged): () => void;
   _getInitializationStrategy(): InitializationStrategy;
   _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
   _getDefaultOptions(): OSOptions;
@@ -203,11 +202,9 @@ const createEnvironment = (): Environment => {
     _cssCustomProperties: style(envElm, 'zIndex') === '-1',
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
-    _addListener(listener: OnEnvironmentChanged): void {
+    _addListener(listener) {
       onChangedListener.add(listener);
-    },
-    _removeListener(listener: OnEnvironmentChanged): void {
-      onChangedListener.delete(listener);
+      return () => onChangedListener.delete(listener);
     },
     _getInitializationStrategy: () => ({ ...initializationStrategy }),
     _setInitializationStrategy(newInitializationStrategy) {
@@ -254,8 +251,11 @@ const createEnvironment = (): Environment => {
         const isZoom = deltaIsBigger && difference && dprChanged;
 
         if (isZoom) {
-          const newScrollbarSize = (environmentInstance._nativeScrollbarSize =
-            getNativeScrollbarSize(body, envElm));
+          const newScrollbarSize = getNativeScrollbarSize(body, envElm);
+          // keep the object same!
+          environmentInstance._nativeScrollbarSize.x = newScrollbarSize.x;
+          environmentInstance._nativeScrollbarSize.y = newScrollbarSize.y;
+
           removeElements(envElm);
 
           if (scrollbarSize.x !== newScrollbarSize.x || scrollbarSize.y !== newScrollbarSize.y) {
