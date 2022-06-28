@@ -292,20 +292,20 @@ describe('array utilities', () => {
   describe('runEach', () => {
     test('array', () => {
       const arr = [jest.fn(), null, jest.fn(), undefined, jest.fn()];
-      runEach(arr);
+      runEach(arr, ['a', 'b', 'c', 'd']);
       arr.forEach((fn) => {
         if (fn) {
-          expect(fn).toHaveBeenCalled();
+          expect(fn).toHaveBeenCalledWith('a', 'b', 'c', 'd');
         }
       });
     });
 
     test('set', () => {
       const set = new Set([jest.fn(), null, jest.fn(), undefined, jest.fn()]);
-      runEach(set);
+      runEach(set, [1, 2, 3, 4]);
       set.forEach((fn) => {
         if (fn) {
-          expect(fn).toHaveBeenCalled();
+          expect(fn).toHaveBeenCalledWith(1, 2, 3, 4);
         }
       });
     });

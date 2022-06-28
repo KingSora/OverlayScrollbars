@@ -58,7 +58,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   options?,
   eventListeners?
 ): OverlayScrollbars => {
-  const { _getDefaultOptions, _nativeScrollbarIsOverlaid } = getEnvironment();
+  const {
+    _getDefaultOptions,
+    _nativeScrollbarIsOverlaid,
+    _addListener: addEnvListener,
+  } = getEnvironment();
   const plugins = getPlugins();
   const instanceTarget = isHTMLElement(target) ? target : target.target;
   const potentialInstance = getInstance(instanceTarget);
@@ -130,6 +134,8 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     });
   });
 
+  const removeEnvListener = addEnvListener(update.bind(0, {}, true));
+
   const instance: OverlayScrollbars = {
     options(newOptions?: PartialOptions<OSOptions>) {
       if (newOptions) {
@@ -152,6 +158,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     },
     destroy: () => {
       removeInstance(instanceTarget);
+      removeEnvListener();
       removeEvent();
 
       destroyScrollbars();

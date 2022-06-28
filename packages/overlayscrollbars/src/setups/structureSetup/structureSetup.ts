@@ -1,12 +1,9 @@
 import { runEach } from 'support';
-import { getEnvironment } from 'environment';
 import { createState, createOptionCheck } from 'setups/setups';
 import { createStructureSetupElements } from 'setups/structureSetup/structureSetup.elements';
-import {
-  createStructureSetupUpdate,
-  StructureSetupUpdateHints,
-} from 'setups/structureSetup/structureSetup.update';
+import { createStructureSetupUpdate } from 'setups/structureSetup/structureSetup.update';
 import { createStructureSetupObservers } from 'setups/structureSetup/structureSetup.observers';
+import type { StructureSetupUpdateHints } from 'setups/structureSetup/structureSetup.update';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type { TRBL, CacheValues, XY, WH } from 'support';
 import type { OSOptions } from 'options';
@@ -91,10 +88,6 @@ export const createStructureSetup = (
     }
   );
 
-  const removeEnvListener = getEnvironment()._addListener(
-    updateStructure.bind(0, checkOptionsFallback, {}, true)
-  );
-
   const structureSetupState = getUpdateState.bind(0) as (() => StructureSetupState) &
     StructureSetupStaticState;
   structureSetupState._addOnUpdatedListener = (listener) => {
@@ -111,7 +104,6 @@ export const createStructureSetup = (
     structureSetupState,
     () => {
       onUpdatedListeners.clear();
-      removeEnvListener();
       destroyObservers();
       destroyElements();
     },
