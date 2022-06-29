@@ -54,7 +54,7 @@ interface CheckComparisonObj {
 const isFractionalPixelRatio = () => window.devicePixelRatio % 1 !== 0;
 
 const getMetrics = (elm: HTMLElement): Metrics => {
-  const rounding = isFractionalPixelRatio() ? Math.round : (num: number) => num;
+  // const rounding = isFractionalPixelRatio() ? Math.round : (num: number) => num;
   const elmIsTarget = elm === target;
   const comparisonEnvBCR = getBoundingClientRect(parent(elm!) as HTMLElement);
   const comparisonBCR = getBoundingClientRect(elm!);
@@ -80,30 +80,38 @@ const getMetrics = (elm: HTMLElement): Metrics => {
         };
   };
 
-  return {
+  const results = {
     offset: {
-      left: rounding(comparisonBCR.left - comparisonEnvBCR.left).toFixed(
+      left: (comparisonBCR.left - comparisonEnvBCR.left).toFixed(
         Math.min(fixedDigitsOffset, fixedDigits)
       ),
-      top: rounding(comparisonBCR.top - comparisonEnvBCR.top).toFixed(
+      top: (comparisonBCR.top - comparisonEnvBCR.top).toFixed(
         Math.min(fixedDigitsOffset, fixedDigits)
       ),
     },
     size: {
-      width: rounding(comparisonBCR.width).toFixed(fixedDigits),
-      height: rounding(comparisonBCR.height).toFixed(fixedDigits),
+      width: comparisonBCR.width.toFixed(fixedDigits),
+      height: comparisonBCR.height.toFixed(fixedDigits),
     },
     scroll: elmIsTarget ? scrollMeasure(targetViewport!) : scrollMeasure(comparison!),
     hasOverflow: elmIsTarget ? hasOverflow(targetViewport!) : hasOverflow(comparison!),
     percentElm: {
-      width: rounding(comparisonPercentBCR.width).toFixed(fixedDigits),
-      height: rounding(comparisonPercentBCR.height).toFixed(fixedDigits),
+      width: comparisonPercentBCR.width.toFixed(fixedDigits),
+      height: comparisonPercentBCR.height.toFixed(fixedDigits),
     },
     endElm: {
-      width: rounding(comparisonEndBCR.width).toFixed(fixedDigits),
-      height: rounding(comparisonEndBCR.height).toFixed(fixedDigits),
+      width: comparisonEndBCR.width.toFixed(fixedDigits),
+      height: comparisonEndBCR.height.toFixed(fixedDigits),
     },
   };
+
+  if (elmIsTarget) {
+    targetMetrics!.textContent = JSON.stringify(results, null, 2);
+  } else {
+    comparisonMetrics!.textContent = JSON.stringify(results, null, 2);
+  }
+
+  return results;
 };
 
 const metricsDimensionsEqual = (a: Metrics, b: Metrics) => {
@@ -134,7 +142,9 @@ const fractionalPixelRatioTollerance = 2; // nss=true && any overlaid ? 2 : 1;
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const target: HTMLElement | null = document.querySelector('#target');
+const targetMetrics: HTMLElement | null = document.querySelector('#targetMetrics');
 const comparison: HTMLElement | null = document.querySelector('#comparison');
+const comparisonMetrics: HTMLElement | null = document.querySelector('#comparisonMetrics');
 const targetResize: HTMLElement | null = document.querySelector('#target .resize');
 const comparisonResize: HTMLElement | null = document.querySelector('#comparison .resize');
 const targetPercent: HTMLElement | null = document.querySelector('#target .percent');

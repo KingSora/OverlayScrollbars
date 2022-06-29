@@ -39,6 +39,24 @@ body {
   font-size: 0;
   line-height: 0;
   flex: none;
+  position: relative;
+}
+
+.metrics {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: initial;
+  line-height: initial;
+
+  &:hover {
+    background: #fff;
+  }
+}
+
+#comparisonMetrics {
+  left: 0;
+  right: auto;
 }
 
 .env {
