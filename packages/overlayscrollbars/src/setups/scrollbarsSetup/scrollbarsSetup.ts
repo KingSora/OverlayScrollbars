@@ -4,7 +4,7 @@ import {
   ScrollbarsSetupElementsObj,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
-import type { OSOptions } from 'options';
+import type { ReadonlyOSOptions } from 'options';
 import type { Setup } from 'setups';
 import type { OSTarget } from 'typings';
 
@@ -17,7 +17,7 @@ export interface ScrollbarsSetupStaticState {
 
 export const createScrollbarsSetup = (
   target: OSTarget,
-  options: OSOptions,
+  options: ReadonlyOSOptions,
   structureSetupElements: StructureSetupElementsObj
 ): Setup<ScrollbarsSetupState, ScrollbarsSetupStaticState> => {
   const state = createState({});

@@ -1,7 +1,7 @@
 import {
   Environment,
-  StructureInitializationStaticElement,
-  StructureInitializationDynamicElement,
+  StructureInitializationStrategyStaticElement,
+  StructureInitializationStrategyDynamicElement,
 } from 'environment';
 import { OSTarget, StructureInitialization } from 'typings';
 import {
@@ -167,8 +167,9 @@ const assertCorrectSetupElements = (
     elm: Element | null,
     input: HTMLElement | boolean | undefined,
     isStaticStrategy: boolean,
-    strategy: StructureInitializationStaticElement | StructureInitializationDynamicElement,
-    id: string
+    strategy:
+      | StructureInitializationStrategyStaticElement
+      | StructureInitializationStrategyDynamicElement
   ) => {
     if (input) {
       expect(elm).toBeTruthy();
@@ -178,7 +179,7 @@ const assertCorrectSetupElements = (
       }
       if (input === undefined) {
         if (isStaticStrategy) {
-          strategy = strategy as StructureInitializationStaticElement;
+          strategy = strategy as StructureInitializationStrategyStaticElement;
           if (typeof strategy === 'function') {
             const result = strategy(target);
             if (result) {
@@ -190,21 +191,14 @@ const assertCorrectSetupElements = (
             expect(elm).toBeTruthy();
           }
         } else {
-          strategy = strategy as StructureInitializationDynamicElement;
-          const expectDefaultValue = () => {
-            if (id === 'padding') {
-              if (_nativeScrollbarStyling) {
-                expect(elm).toBeFalsy();
-              } else {
-                expect(elm).toBeTruthy();
-              }
-            } else if (id === 'content') {
-              expect(elm).toBeFalsy();
-            }
-          };
+          strategy = strategy as StructureInitializationStrategyDynamicElement;
+          expect(strategy).not.toBe(null);
+          expect(strategy).not.toBe(undefined);
           if (typeof strategy === 'function') {
             const result = strategy(target);
             const resultIsBoolean = typeof result === 'boolean';
+            expect(result).not.toBe(null);
+            expect(result).not.toBe(undefined);
             if (resultIsBoolean) {
               if (result) {
                 expect(elm).toBeTruthy();
@@ -213,8 +207,6 @@ const assertCorrectSetupElements = (
               }
             } else if (result) {
               expect(elm).toBe(result);
-            } else {
-              expectDefaultValue();
             }
           } else {
             const strategyIsBoolean = typeof strategy === 'boolean';
@@ -224,8 +216,6 @@ const assertCorrectSetupElements = (
               } else {
                 expect(elm).toBeFalsy();
               }
-            } else {
-              expectDefaultValue();
             }
           }
         }
@@ -240,10 +230,10 @@ const assertCorrectSetupElements = (
   }
 
   if (inputIsElement) {
-    checkStrategyDependendElements(padding, undefined, false, paddingInitStrategy, 'padding');
-    checkStrategyDependendElements(content, undefined, false, contentInitStrategy, 'content');
-    checkStrategyDependendElements(viewport, undefined, true, viewportInitStrategy, 'viewport');
-    checkStrategyDependendElements(host, undefined, true, hostInitStrategy, 'host');
+    checkStrategyDependendElements(padding, undefined, false, paddingInitStrategy);
+    checkStrategyDependendElements(content, undefined, false, contentInitStrategy);
+    checkStrategyDependendElements(viewport, undefined, true, viewportInitStrategy);
+    checkStrategyDependendElements(host, undefined, true, hostInitStrategy);
   } else {
     const {
       padding: inputPadding,
@@ -251,10 +241,10 @@ const assertCorrectSetupElements = (
       viewport: inputViewport,
       host: inputHost,
     } = inputAsObj;
-    checkStrategyDependendElements(padding, inputPadding, false, paddingInitStrategy, 'padding');
-    checkStrategyDependendElements(content, inputContent, false, contentInitStrategy, 'content');
-    checkStrategyDependendElements(viewport, inputViewport, true, viewportInitStrategy, 'viewport');
-    checkStrategyDependendElements(host, inputHost, true, hostInitStrategy, 'host');
+    checkStrategyDependendElements(padding, inputPadding, false, paddingInitStrategy);
+    checkStrategyDependendElements(content, inputContent, false, contentInitStrategy);
+    checkStrategyDependendElements(viewport, inputViewport, true, viewportInitStrategy);
+    checkStrategyDependendElements(host, inputHost, true, hostInitStrategy);
   }
 
   return [elements, destroy];
@@ -327,8 +317,12 @@ const envInitStrategyAssigned = {
     _getInitializationStrategy: () => ({
       _host: () => document.querySelector('#host1') as HTMLElement,
       _viewport: (target: HTMLElement) => target.querySelector('#viewport') as HTMLElement,
-      _content: (target: HTMLElement) => target.querySelector('#content') as HTMLElement,
-      _padding: (target: HTMLElement) => target.querySelector('#padding') as HTMLElement,
+      _content: (target: HTMLElement) =>
+        target.querySelector<HTMLElement>('#content') ||
+        env._defaultInitializationStrategy._content,
+      _padding: (target: HTMLElement) =>
+        target.querySelector<HTMLElement>('#padding') ||
+        env._defaultInitializationStrategy._padding,
       _scrollbarsSlot: null,
     }),
   },

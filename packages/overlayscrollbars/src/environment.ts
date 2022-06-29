@@ -16,6 +16,8 @@ import {
   getBoundingClientRect,
   assignDeep,
   cssProperty,
+  createCache,
+  equalXY,
 } from 'support';
 import {
   classNameEnvironment,
@@ -26,59 +28,72 @@ import {
 import { OSOptions, defaultOptions } from 'options';
 import { OSTargetElement, PartialOptions } from 'typings';
 
-type StructureInitializationElementFn<T> = ((target: OSTargetElement) => HTMLElement | T) | T;
+type StructureInitializationStrategyElementFn<T> =
+  | ((target: OSTargetElement) => HTMLElement | T)
+  | T;
 
-type ScrollbarsInitializationElementFn<T> =
+type ScrollbarsInitializationStrategyElementFn<T> =
   | ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => HTMLElement | T)
   | T;
 
 /**
  * A Static element is an element which MUST be generated.
- * If null (or the returned result is null), the initialization function is generatig the element, otherwise
+ * If null or undefined (or the returned result is null or undefined), the initialization function is generatig the element, otherwise
  * the element returned by the function acts as the generated element.
  */
-export type StructureInitializationStaticElement = StructureInitializationElementFn<null>;
+export type StructureInitializationStrategyStaticElement = StructureInitializationStrategyElementFn<
+  null | undefined
+>;
 
 /**
  * A Dynamic element is an element which CAN be generated.
- * If null (or the returned result is null), then the default behavior is used.
  * If boolean (or the returned result is boolean), the generation of the element is forced (or not).
  * If the function returns and element, the element returned by the function acts as the generated element.
  */
-export type StructureInitializationDynamicElement = StructureInitializationElementFn<
-  boolean | null
->;
+export type StructureInitializationStrategyDynamicElement =
+  StructureInitializationStrategyElementFn<boolean>;
 
 export interface StructureInitializationStrategy {
-  _host: StructureInitializationStaticElement;
-  _viewport: StructureInitializationStaticElement;
-  _padding: StructureInitializationDynamicElement;
-  _content: StructureInitializationDynamicElement;
+  _host: StructureInitializationStrategyStaticElement;
+  _viewport: StructureInitializationStrategyStaticElement;
+  _padding: StructureInitializationStrategyDynamicElement;
+  _content: StructureInitializationStrategyDynamicElement;
 }
 
 export interface ScrollbarsInitializationStrategy {
-  _scrollbarsSlot: ScrollbarsInitializationElementFn<null | undefined>;
+  /**
+   * The scrollbars slot.  If null or undefined (or the returned result is null or undefined), the initialization function is deciding the element, otherwise
+   * the element returned by the function acts as the scrollbars slot.
+   */
+  _scrollbarsSlot: ScrollbarsInitializationStrategyElementFn<null | undefined>;
 }
 
 export interface InitializationStrategy
   extends StructureInitializationStrategy,
     ScrollbarsInitializationStrategy {}
 
+export type DefaultInitializationStrategy = {
+  [K in keyof InitializationStrategy]: Extract<
+    InitializationStrategy[K],
+    boolean | null | undefined
+  >;
+};
+
 export type OnEnvironmentChanged = (env: Environment) => void;
 export interface Environment {
-  _nativeScrollbarSize: XY;
-  _nativeScrollbarIsOverlaid: XY<boolean>;
-  _nativeScrollbarStyling: boolean;
-  _rtlScrollBehavior: { n: boolean; i: boolean };
-  _flexboxGlue: boolean;
-  _cssCustomProperties: boolean;
+  readonly _nativeScrollbarSize: XY;
+  readonly _nativeScrollbarIsOverlaid: XY<boolean>;
+  readonly _nativeScrollbarStyling: boolean;
+  readonly _rtlScrollBehavior: { n: boolean; i: boolean };
+  readonly _flexboxGlue: boolean;
+  readonly _cssCustomProperties: boolean;
+  readonly _defaultInitializationStrategy: DefaultInitializationStrategy;
+  readonly _defaultDefaultOptions: OSOptions;
   _addListener(listener: OnEnvironmentChanged): () => void;
   _getInitializationStrategy(): InitializationStrategy;
   _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
   _getDefaultOptions(): OSOptions;
   _setDefaultOptions(newDefaultOptions: PartialOptions<OSOptions>): void;
-  _defaultInitializationStrategy: InitializationStrategy;
-  _defaultDefaultOptions: OSOptions;
 }
 
 let environmentInstance: Environment;
@@ -168,14 +183,13 @@ const getWindowDPR = (): number => {
   return window.devicePixelRatio || dDPI / sDPI;
 };
 
-// init function decides for all values
 const getDefaultInitializationStrategy = (
   nativeScrollbarStyling: boolean
-): InitializationStrategy => ({
+): DefaultInitializationStrategy => ({
   _host: null,
   _viewport: null,
-  _padding: null,
-  _content: null,
+  _padding: !nativeScrollbarStyling,
+  _content: false,
   _scrollbarsSlot: null,
 });
 
@@ -185,15 +199,18 @@ const createEnvironment = (): Environment => {
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
   const onChangedListener: Set<OnEnvironmentChanged> = new Set();
-  const nativeScrollbarSize = getNativeScrollbarSize(body, envElm);
+  const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache({
+    _initialValue: getNativeScrollbarSize(body, envElm),
+    _equal: equalXY,
+  });
+  const [nativeScrollbarSize] = getNativeScrollbarSizeCache();
   const nativeScrollbarStyling = getNativeScrollbarStyling(envElm);
   const nativeScrollbarIsOverlaid = {
     x: nativeScrollbarSize.x === 0,
     y: nativeScrollbarSize.y === 0,
   };
-  const defaultInitializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
-  let initializationStrategy = defaultInitializationStrategy;
-  let defaultDefaultOptions = defaultOptions;
+  const initializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
+  const defaultDefaultOptions = assignDeep({}, defaultOptions);
 
   const env: Environment = {
     _nativeScrollbarSize: nativeScrollbarSize,
@@ -206,16 +223,24 @@ const createEnvironment = (): Environment => {
       onChangedListener.add(listener);
       return () => onChangedListener.delete(listener);
     },
-    _getInitializationStrategy: () => ({ ...initializationStrategy }),
+    _getInitializationStrategy: assignDeep<InitializationStrategy, InitializationStrategy>.bind(
+      0,
+      {} as InitializationStrategy,
+      initializationStrategy
+    ),
     _setInitializationStrategy(newInitializationStrategy) {
-      initializationStrategy = assignDeep({}, initializationStrategy, newInitializationStrategy);
+      assignDeep(initializationStrategy, newInitializationStrategy);
     },
-    _getDefaultOptions: () => ({ ...defaultDefaultOptions }),
+    _getDefaultOptions: assignDeep<OSOptions, OSOptions>.bind(
+      0,
+      {} as OSOptions,
+      defaultDefaultOptions
+    ),
     _setDefaultOptions(newDefaultOptions) {
-      defaultDefaultOptions = assignDeep({}, defaultDefaultOptions, newDefaultOptions);
+      assignDeep(defaultDefaultOptions, newDefaultOptions);
     },
-    _defaultInitializationStrategy: defaultInitializationStrategy,
-    _defaultDefaultOptions: defaultDefaultOptions,
+    _defaultInitializationStrategy: assignDeep({}, initializationStrategy),
+    _defaultDefaultOptions: assignDeep({}, defaultDefaultOptions),
   };
 
   removeAttr(envElm, 'style');
@@ -224,7 +249,6 @@ const createEnvironment = (): Environment => {
   if (!nativeScrollbarStyling && (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y)) {
     let size = windowSize();
     let dpr = getWindowDPR();
-    let scrollbarSize = nativeScrollbarSize;
 
     window.addEventListener('resize', () => {
       if (onChangedListener.size) {
@@ -251,18 +275,16 @@ const createEnvironment = (): Environment => {
         const isZoom = deltaIsBigger && difference && dprChanged;
 
         if (isZoom) {
-          const newScrollbarSize = getNativeScrollbarSize(body, envElm);
-          // keep the object same!
-          environmentInstance._nativeScrollbarSize.x = newScrollbarSize.x;
-          environmentInstance._nativeScrollbarSize.y = newScrollbarSize.y;
+          const [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache(
+            getNativeScrollbarSize(body, envElm)
+          );
 
+          assignDeep(environmentInstance._nativeScrollbarSize, scrollbarSize); // keep the object same!
           removeElements(envElm);
 
-          if (scrollbarSize.x !== newScrollbarSize.x || scrollbarSize.y !== newScrollbarSize.y) {
+          if (scrollbarSizeChanged) {
             runEach(onChangedListener);
           }
-
-          scrollbarSize = newScrollbarSize;
         }
 
         size = sizeNew;

@@ -28,9 +28,8 @@ import {
 } from 'classnames';
 import {
   getEnvironment,
-  StructureInitializationStaticElement,
-  StructureInitializationDynamicElement,
-  StructureInitializationStrategy,
+  StructureInitializationStrategyStaticElement,
+  StructureInitializationStrategyDynamicElement,
 } from 'environment';
 import { OSTarget, OSTargetElement, StructureInitialization } from 'typings';
 
@@ -81,20 +80,20 @@ const createUniqueViewportArrangeElement = (): HTMLStyleElement | false => {
 const staticCreationFromStrategy = (
   target: OSTargetElement,
   initializationValue: HTMLElement | undefined,
-  strategy: StructureInitializationStaticElement,
+  strategy: StructureInitializationStrategyStaticElement,
   elementClass: string
 ): HTMLElement => {
   const result =
-    initializationValue || (isFunction(strategy) ? strategy(target) : (strategy as null));
+    initializationValue ||
+    (isFunction(strategy) ? strategy(target) : (strategy as null | undefined));
   return result || createDiv(elementClass);
 };
 
 const dynamicCreationFromStrategy = (
   target: OSTargetElement,
   initializationValue: HTMLElement | boolean | undefined,
-  strategy: StructureInitializationDynamicElement,
-  elementClass: string,
-  defaultValue: boolean
+  strategy: StructureInitializationStrategyDynamicElement,
+  elementClass: string
 ): HTMLElement | false => {
   const takeInitializationValue = isBoolean(initializationValue) || initializationValue;
   const result = takeInitializationValue
@@ -102,10 +101,6 @@ const dynamicCreationFromStrategy = (
     : isFunction(strategy)
     ? strategy(target)
     : strategy;
-
-  if (result === null) {
-    return defaultValue ? createDiv(elementClass) : false;
-  }
 
   return result === true ? createDiv(elementClass) : result;
 };
@@ -117,7 +112,7 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
     _viewport: viewportInitializationStrategy,
     _padding: paddingInitializationStrategy,
     _content: contentInitializationStrategy,
-  } = _getInitializationStrategy() as StructureInitializationStrategy;
+  } = _getInitializationStrategy();
   const targetIsElm = isHTMLElement(target);
   const targetStructureInitialization = target as StructureInitialization;
   const targetElement = targetIsElm
@@ -125,7 +120,7 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
     : targetStructureInitialization.target;
   const isTextarea = is(targetElement, 'textarea');
   const isBody = !isTextarea && is(targetElement, 'body');
-  const ownerDocument: HTMLDocument = targetElement!.ownerDocument;
+  const ownerDocument = targetElement!.ownerDocument;
   const bodyElm = ownerDocument.body as HTMLBodyElement;
   const wnd = ownerDocument.defaultView as Window;
   const evaluatedTargetObj: StructureSetupElementsObj = {
@@ -148,15 +143,13 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
       targetElement,
       targetStructureInitialization.padding,
       paddingInitializationStrategy,
-      classNamePadding,
-      !_nativeScrollbarStyling // default value for padding
+      classNamePadding
     ),
     _content: dynamicCreationFromStrategy(
       targetElement,
       targetStructureInitialization.content,
       contentInitializationStrategy,
-      classNameContent,
-      false // default value for content
+      classNameContent
     ),
     _viewportArrange: createUniqueViewportArrangeElement(),
     _windowElm: wnd,

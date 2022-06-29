@@ -2,6 +2,10 @@ export type PartialOptions<T> = {
   [P in keyof T]?: T[P] extends Record<string, unknown> ? PartialOptions<T[P]> : T[P];
 };
 
+export type ReadonlyOptions<T> = {
+  readonly [P in keyof T]: T[P] extends Record<string, unknown> ? ReadonlyOptions<T[P]> : T[P];
+};
+
 export type PlainObject<T = any> = { [name: string]: T };
 
 export type StyleObject<CustomCssProps = ''> = {

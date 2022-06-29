@@ -1,5 +1,5 @@
 import { assignDeep, each, isObject, keys, isArray, hasOwnProperty, isFunction } from 'support';
-import { PartialOptions } from 'typings';
+import { PartialOptions, ReadonlyOptions } from 'typings';
 
 const stringify = (value: any) =>
   JSON.stringify(value, (_, val) => {
@@ -82,6 +82,8 @@ export interface OSOptions {
   };
   */
 }
+
+export type ReadonlyOSOptions = ReadonlyOptions<OSOptions>;
 
 export interface OverflowChangedArgs {
   x: boolean;

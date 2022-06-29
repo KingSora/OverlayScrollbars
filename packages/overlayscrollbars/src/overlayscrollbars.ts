@@ -1,7 +1,7 @@
 import { OSTarget, OSInitializationObject, PartialOptions } from 'typings';
 import { assignDeep, isEmptyObject, each, isFunction, keys, isHTMLElement, WH, XY } from 'support';
 import { createStructureSetup, createScrollbarsSetup } from 'setups';
-import { getOptionsDiff, OSOptions } from 'options';
+import { getOptionsDiff, OSOptions, ReadonlyOSOptions } from 'options';
 import { getEnvironment } from 'environment';
 import {
   getPlugins,
@@ -78,7 +78,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     const validate = optionsValidationPlugin && optionsValidationPlugin._;
     return validate ? validate(opts, true) : opts;
   };
-  const currentOptions: OSOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
+  const currentOptions: ReadonlyOSOptions = assignDeep(
+    {},
+    _getDefaultOptions(),
+    validateOptions(options)
+  );
   const [addEvent, removeEvent, triggerEvent] = createOSEventListenerHub(eventListeners);
 
   if (

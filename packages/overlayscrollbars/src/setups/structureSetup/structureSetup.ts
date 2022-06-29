@@ -6,7 +6,7 @@ import { createStructureSetupObservers } from 'setups/structureSetup/structureSe
 import type { StructureSetupUpdateHints } from 'setups/structureSetup/structureSetup.update';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type { TRBL, CacheValues, XY, WH } from 'support';
-import type { OSOptions } from 'options';
+import type { OSOptions, ReadonlyOSOptions } from 'options';
 import type { Setup } from 'setups';
 import type { OSTarget, PartialOptions, StyleObject } from 'typings';
 
@@ -64,7 +64,7 @@ const initialStructureSetupUpdateState: StructureSetupState = {
 
 export const createStructureSetup = (
   target: OSTarget,
-  options: OSOptions
+  options: ReadonlyOSOptions
 ): Setup<StructureSetupState, StructureSetupStaticState> => {
   const checkOptionsFallback = createOptionCheck(options, {});
   const state = createState(initialStructureSetupUpdateState);
