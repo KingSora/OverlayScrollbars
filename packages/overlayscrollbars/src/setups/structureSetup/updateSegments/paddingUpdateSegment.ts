@@ -12,7 +12,7 @@ export const createPaddingUpdate: CreateStructureUpdateSegment = (
   structureSetupElements,
   state
 ) => {
-  const [, setState] = state;
+  const [getState, setState] = state;
   const { _host, _padding, _viewport } = structureSetupElements;
   const [updatePaddingCache, currentPaddingCache] = createCache(
     {
@@ -25,8 +25,8 @@ export const createPaddingUpdate: CreateStructureUpdateSegment = (
   return (updateHints, checkOption, force) => {
     let [padding, paddingChanged] = currentPaddingCache(force);
     const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
-    const { _sizeChanged, _directionIsRTL, _contentMutation } = updateHints;
-    const [directionIsRTL, directionChanged] = _directionIsRTL;
+    const { _directionIsRTL } = getState();
+    const { _sizeChanged, _contentMutation, _directionChanged } = updateHints;
     const [paddingAbsolute, paddingAbsoluteChanged] = checkOption('paddingAbsolute');
     const contentMutation = !_flexboxGlue && _contentMutation;
 
@@ -34,7 +34,7 @@ export const createPaddingUpdate: CreateStructureUpdateSegment = (
       [padding, paddingChanged] = updatePaddingCache(force);
     }
 
-    const paddingStyleChanged = paddingAbsoluteChanged || directionChanged || paddingChanged;
+    const paddingStyleChanged = paddingAbsoluteChanged || _directionChanged || paddingChanged;
 
     if (paddingStyleChanged) {
       // if there is no padding element and no scrollbar styling, paddingAbsolute isn't supported
@@ -43,12 +43,12 @@ export const createPaddingUpdate: CreateStructureUpdateSegment = (
       const paddingVertical = padding.t + padding.b;
 
       const paddingStyle: StyleObject = {
-        marginRight: paddingRelative && !directionIsRTL ? -paddingHorizontal : 0,
+        marginRight: paddingRelative && !_directionIsRTL ? -paddingHorizontal : 0,
         marginBottom: paddingRelative ? -paddingVertical : 0,
-        marginLeft: paddingRelative && directionIsRTL ? -paddingHorizontal : 0,
+        marginLeft: paddingRelative && _directionIsRTL ? -paddingHorizontal : 0,
         top: paddingRelative ? -padding.t : 0,
-        right: paddingRelative ? (directionIsRTL ? -padding.r : 'auto') : 0,
-        left: paddingRelative ? (directionIsRTL ? 'auto' : -padding.l) : 0,
+        right: paddingRelative ? (_directionIsRTL ? -padding.r : 'auto') : 0,
+        left: paddingRelative ? (_directionIsRTL ? 'auto' : -padding.l) : 0,
         width: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
       };
       const viewportStyle: StyleObject = {

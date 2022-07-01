@@ -7,6 +7,7 @@ import {
   assignDeep,
   keys,
   isBoolean,
+  isUndefined,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -36,11 +37,11 @@ export interface StructureSetupUpdateHints {
   _hostMutation: boolean;
   _contentMutation: boolean;
   _paddingStyleChanged: boolean;
-  _directionIsRTL: CacheValues<boolean>;
-  _heightIntrinsic: CacheValues<boolean>;
+  _directionChanged: boolean;
+  _heightIntrinsicChanged: boolean;
+  _overflowScrollChanged: boolean;
+  _overflowAmountChanged: boolean;
 }
-
-const booleanCacheValuesFallback: CacheValues<boolean> = [false, false, false];
 
 const applyForceToCache = <T>(cacheValues: CacheValues<T>, force?: boolean): CacheValues<T> => [
   cacheValues[0],
@@ -62,7 +63,7 @@ const prepareUpdateHints = <T extends StructureSetupUpdateHints>(
     const adaptiveValue = finalAdaptive[key];
     result[key] = isBoolean(leadingValue)
       ? !!force || !!leadingValue || !!adaptiveValue
-      : applyForceToCache(leadingValue || booleanCacheValuesFallback, force);
+      : applyForceToCache(leadingValue, force);
   });
 
   return result as Required<T>;
@@ -95,10 +96,17 @@ export const createStructureSetupUpdate = (
           _hostMutation: false,
           _contentMutation: false,
           _paddingStyleChanged: false,
-          _directionIsRTL: booleanCacheValuesFallback,
-          _heightIntrinsic: booleanCacheValuesFallback,
+          _directionChanged: false,
+          _heightIntrinsicChanged: false,
+          _overflowScrollChanged: false,
+          _overflowAmountChanged: false,
         },
-        updateHints
+        Object.keys(updateHints).reduce((acc, key) => {
+          if (!isUndefined(updateHints[key])) {
+            acc[key] = updateHints[key];
+          }
+          return acc;
+        }, {})
       ),
       {},
       force

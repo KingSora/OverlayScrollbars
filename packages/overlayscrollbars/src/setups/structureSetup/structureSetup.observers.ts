@@ -14,7 +14,8 @@ import { getEnvironment } from 'environment';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver, DOMObserver } from 'observers/domObserver';
-import type { SetupUpdateCheckOption } from 'setups';
+import type { SetupState, SetupUpdateCheckOption } from 'setups';
+import type { StructureSetupState } from 'setups/structureSetup';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type {
   StructureSetupUpdate,
@@ -62,6 +63,7 @@ type ExcludeFromTuple<T extends readonly any[], E> = T extends [infer F, ...infe
 
 export const createStructureSetupObservers = (
   structureSetupElements: StructureSetupElementsObj,
+  state: SetupState<StructureSetupState>,
   structureSetupUpdate: (
     ...args: ExcludeFromTuple<Parameters<StructureSetupUpdate>, Parameters<StructureSetupUpdate>[0]>
   ) => any
@@ -69,6 +71,7 @@ export const createStructureSetupObservers = (
   let debounceTimeout: number | false | undefined;
   let debounceMaxDelay: number | false | undefined;
   let contentMutationObserver: DOMObserver | undefined;
+  const [, setState] = state;
   const { _host, _viewport, _content, _isTextarea } = structureSetupElements;
   const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
   const contentMutationObserverAttr = _isTextarea
@@ -112,10 +115,10 @@ export const createStructureSetupObservers = (
       }
     });
   };
-  const onTrinsicChanged = (heightIntrinsic: CacheValues<boolean>) => {
-    structureSetupUpdate({
-      _heightIntrinsic: heightIntrinsic,
-    });
+  const onTrinsicChanged = (heightIntrinsicCache: CacheValues<boolean>) => {
+    const [heightIntrinsic, heightIntrinsicChanged] = heightIntrinsicCache;
+    setState({ _heightIntrinsic: heightIntrinsic });
+    structureSetupUpdate({ _heightIntrinsicChanged: heightIntrinsicChanged });
   };
   const onSizeChanged = ({
     _sizeChanged,
@@ -127,10 +130,14 @@ export const createStructureSetupObservers = (
         ? structureSetupUpdate
         : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
 
-    updateFn({
-      _sizeChanged,
-      _directionIsRTL: _directionIsRTLCache,
-    });
+    let directionChanged = false;
+    if (_directionIsRTLCache) {
+      const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache;
+      directionChanged = directionIsRTLChanged;
+      setState({ _directionIsRTL: directionIsRTL });
+    }
+
+    updateFn({ _sizeChanged, _directionChanged: directionChanged });
   };
   const onContentMutation = (contentChangedTroughEvent: boolean) => {
     // if contentChangedTroughEvent is true its already debounced

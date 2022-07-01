@@ -5,7 +5,7 @@ import { createStructureSetupUpdate } from 'setups/structureSetup/structureSetup
 import { createStructureSetupObservers } from 'setups/structureSetup/structureSetup.observers';
 import type { StructureSetupUpdateHints } from 'setups/structureSetup/structureSetup.update';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
-import type { TRBL, CacheValues, XY, WH } from 'support';
+import type { TRBL, XY, WH } from 'support';
 import type { OSOptions, ReadonlyOSOptions } from 'options';
 import type { Setup } from 'setups';
 import type { OSTarget, PartialOptions, StyleObject } from 'typings';
@@ -14,8 +14,10 @@ export interface StructureSetupState {
   _padding: TRBL;
   _paddingAbsolute: boolean;
   _viewportPaddingStyle: StyleObject;
-  _viewportOverflowScrollCache: CacheValues<XY<boolean>>;
-  _viewportOverflowAmountCache: CacheValues<WH<number>>;
+  _viewportOverflowScroll: XY<boolean>;
+  _viewportOverflowAmount: WH<number>;
+  _heightIntrinsic: boolean;
+  _directionIsRTL: boolean;
 }
 
 export interface StructureSetupStaticState {
@@ -37,20 +39,6 @@ const initialStructureSetupUpdateState: StructureSetupState = {
     l: 0,
   },
   _paddingAbsolute: false,
-  _viewportOverflowScrollCache: [
-    {
-      x: false,
-      y: false,
-    },
-    false,
-  ],
-  _viewportOverflowAmountCache: [
-    {
-      w: 0,
-      h: 0,
-    },
-    false,
-  ],
   _viewportPaddingStyle: {
     marginRight: 0,
     marginBottom: 0,
@@ -60,6 +48,16 @@ const initialStructureSetupUpdateState: StructureSetupState = {
     paddingBottom: 0,
     paddingLeft: 0,
   },
+  _viewportOverflowAmount: {
+    w: 0,
+    h: 0,
+  },
+  _viewportOverflowScroll: {
+    x: false,
+    y: false,
+  },
+  _heightIntrinsic: false,
+  _directionIsRTL: false,
 };
 
 export const createStructureSetup = (
@@ -83,6 +81,7 @@ export const createStructureSetup = (
   const updateStructure = createStructureSetupUpdate(elements, state);
   const [updateObservers, destroyObservers] = createStructureSetupObservers(
     elements,
+    state,
     (updateHints) => {
       runOnUpdatedListeners(updateStructure(checkOptionsFallback, updateHints));
     }

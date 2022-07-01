@@ -110,28 +110,36 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
   structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
     const {
-      _viewportOverflowAmountCache: overflowAmountCache,
-      _viewportOverflowScrollCache: overflowScrollCache,
-    } = structureState();
-    const [overflowAmount, overflowAmountChanged, prevOverflowAmount] = overflowAmountCache;
-    const [overflowScroll, overflowScrollChanged, prevOverflowScroll] = overflowScrollCache;
+      _sizeChanged,
+      _contentMutation,
+      _hostMutation,
+      _directionChanged,
+      _heightIntrinsicChanged,
+      _overflowAmountChanged,
+      _overflowScrollChanged,
+    } = updateHints;
+    const { _viewportOverflowAmount, _viewportOverflowScroll } = structureState();
 
-    if (overflowAmountChanged || overflowScrollChanged) {
+    if (_overflowAmountChanged || _overflowScrollChanged) {
       triggerEvent(
         'overflowChanged',
-        assignDeep({}, createOverflowChangedArgs(overflowAmount, overflowScroll), {
-          previous: createOverflowChangedArgs(prevOverflowAmount!, prevOverflowScroll!),
-        })
+        assignDeep(
+          {},
+          createOverflowChangedArgs(_viewportOverflowAmount, _viewportOverflowScroll),
+          {
+            previous: createOverflowChangedArgs(_viewportOverflowAmount!, _viewportOverflowScroll!),
+          }
+        )
       );
     }
 
     triggerEvent('updated', {
       updateHints: {
-        sizeChanged: updateHints._sizeChanged,
-        contentMutation: updateHints._contentMutation,
-        hostMutation: updateHints._hostMutation,
-        directionChanged: updateHints._directionIsRTL[1],
-        heightIntrinsicChanged: updateHints._heightIntrinsic[1],
+        sizeChanged: _sizeChanged,
+        contentMutation: _contentMutation,
+        hostMutation: _hostMutation,
+        directionChanged: _directionChanged,
+        heightIntrinsicChanged: _heightIntrinsicChanged,
       },
       changedOptions,
       force,
@@ -155,7 +163,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     on: addEvent,
     off: removeEvent,
     state: () => ({
-      _overflowAmount: structureState()._viewportOverflowAmountCache[0],
+      _overflowAmount: structureState()._viewportOverflowAmount,
     }),
     update(force?: boolean) {
       update({}, force);

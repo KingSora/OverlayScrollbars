@@ -6,23 +6,27 @@ import type { CreateStructureUpdateSegment } from 'setups/structureSetup/structu
  * @param structureUpdateHub
  * @returns
  */
-export const createTrinsicUpdate: CreateStructureUpdateSegment = (structureSetupElements) => {
+export const createTrinsicUpdate: CreateStructureUpdateSegment = (
+  structureSetupElements,
+  state
+) => {
   const { _content } = structureSetupElements;
+  const [getState] = state;
 
   return (updateHints) => {
-    const { _heightIntrinsic } = updateHints;
-    const [heightIntrinsic, heightIntrinsicChanged] = _heightIntrinsic;
+    const { _heightIntrinsic } = getState();
+    const { _heightIntrinsicChanged } = updateHints;
 
-    if (heightIntrinsicChanged) {
+    if (_heightIntrinsicChanged) {
       style(_content, {
-        height: heightIntrinsic ? '' : '100%',
-        display: heightIntrinsic ? '' : 'inline',
+        height: _heightIntrinsic ? '' : '100%',
+        display: _heightIntrinsic ? '' : 'inline',
       });
     }
 
     return {
-      _sizeChanged: heightIntrinsicChanged,
-      _contentMutation: heightIntrinsicChanged,
+      _sizeChanged: _heightIntrinsicChanged,
+      _contentMutation: _heightIntrinsicChanged,
     };
   };
 };
