@@ -45,7 +45,7 @@ describe('dom class names', () => {
     });
 
     test('null', () => {
-      expect(addClass(null, 'abc')).toBe(undefined);
+      expect(typeof addClass(null, 'abc')).toBe('function');
     });
   });
 
