@@ -9,6 +9,7 @@ import {
   attr,
   removeAttr,
   CacheValues,
+  keys,
 } from 'support';
 import { getEnvironment } from 'environment';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
@@ -28,6 +29,12 @@ export type StructureSetupObservers = [
   updateObserverOptions: StructureSetupObserversUpdate,
   destroy: () => void
 ];
+
+type ExcludeFromTuple<T extends readonly any[], E> = T extends [infer F, ...infer R]
+  ? [F] extends [E]
+    ? ExcludeFromTuple<R, E>
+    : [F, ...ExcludeFromTuple<R, E>]
+  : [];
 
 // const hostSelector = `.${classNameHost}`;
 
@@ -55,12 +62,6 @@ const ignoreTargetChange = (
   return false;
 };
 
-type ExcludeFromTuple<T extends readonly any[], E> = T extends [infer F, ...infer R]
-  ? [F] extends [E]
-    ? ExcludeFromTuple<R, E>
-    : [F, ...ExcludeFromTuple<R, E>]
-  : [];
-
 export const createStructureSetupObservers = (
   structureSetupElements: StructureSetupElementsObj,
   state: SetupState<StructureSetupState>,
@@ -81,25 +82,16 @@ export const createStructureSetupObservers = (
     _timeout: () => debounceTimeout,
     _maxDelay: () => debounceMaxDelay,
     _mergeParams(prev, curr) {
-      const {
-        _sizeChanged: prevSizeChanged,
-        _hostMutation: prevHostMutation,
-        _contentMutation: prevContentMutation,
-      } = prev[0];
-      const {
-        _sizeChanged: currSizeChanged,
-        _hostMutation: currvHostMutation,
-        _contentMutation: currContentMutation,
-      } = curr[0];
-      const merged: [Partial<StructureSetupUpdateHints>] = [
-        {
-          _sizeChanged: prevSizeChanged || currSizeChanged,
-          _hostMutation: prevHostMutation || currvHostMutation,
-          _contentMutation: prevContentMutation || currContentMutation,
-        },
-      ];
-
-      return merged;
+      const [prevObj] = prev;
+      const [currObj] = curr;
+      return [
+        keys(prevObj)
+          .concat(keys(currObj))
+          .reduce((obj, key) => {
+            obj[key] = prevObj[key] || currObj[key];
+            return obj;
+          }, {}),
+      ] as [Partial<StructureSetupUpdateHints>];
     },
   });
 

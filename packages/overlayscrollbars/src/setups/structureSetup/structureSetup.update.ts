@@ -1,14 +1,4 @@
-import {
-  CacheValues,
-  each,
-  isNumber,
-  scrollLeft,
-  scrollTop,
-  assignDeep,
-  keys,
-  isBoolean,
-  isUndefined,
-} from 'support';
+import { each, isNumber, scrollLeft, scrollTop, assignDeep, keys } from 'support';
 import { getEnvironment } from 'environment';
 import {
   createTrinsicUpdate,
@@ -34,20 +24,14 @@ export type StructureSetupUpdate = (
 
 export interface StructureSetupUpdateHints {
   _sizeChanged: boolean;
-  _hostMutation: boolean;
-  _contentMutation: boolean;
-  _paddingStyleChanged: boolean;
   _directionChanged: boolean;
   _heightIntrinsicChanged: boolean;
   _overflowScrollChanged: boolean;
   _overflowAmountChanged: boolean;
+  _paddingStyleChanged: boolean;
+  _hostMutation: boolean;
+  _contentMutation: boolean;
 }
-
-const applyForceToCache = <T>(cacheValues: CacheValues<T>, force?: boolean): CacheValues<T> => [
-  cacheValues[0],
-  force || cacheValues[1],
-  cacheValues[2],
-];
 
 const prepareUpdateHints = <T extends StructureSetupUpdateHints>(
   leading: Required<T>,
@@ -61,9 +45,7 @@ const prepareUpdateHints = <T extends StructureSetupUpdateHints>(
   each(objKeys, (key) => {
     const leadingValue = leading[key];
     const adaptiveValue = finalAdaptive[key];
-    result[key] = isBoolean(leadingValue)
-      ? !!force || !!leadingValue || !!adaptiveValue
-      : applyForceToCache(leadingValue, force);
+    result[key] = !!(force || leadingValue || adaptiveValue);
   });
 
   return result as Required<T>;
@@ -93,20 +75,15 @@ export const createStructureSetupUpdate = (
       assignDeep(
         {
           _sizeChanged: false,
-          _hostMutation: false,
-          _contentMutation: false,
           _paddingStyleChanged: false,
           _directionChanged: false,
           _heightIntrinsicChanged: false,
           _overflowScrollChanged: false,
           _overflowAmountChanged: false,
+          _hostMutation: false,
+          _contentMutation: false,
         },
-        Object.keys(updateHints).reduce((acc, key) => {
-          if (!isUndefined(updateHints[key])) {
-            acc[key] = updateHints[key];
-          }
-          return acc;
-        }, {})
+        updateHints
       ),
       {},
       force

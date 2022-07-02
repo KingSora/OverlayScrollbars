@@ -61,7 +61,7 @@ const getMetrics = (elm: HTMLElement): Metrics => {
   const comparisonPercentBCR = getBoundingClientRect(elm!.querySelector('.percent')!);
   const comparisonEndBCR = getBoundingClientRect(elm!.querySelector('.end')!);
   const scrollMeasure = () => {
-    const condition = (raw: number) => (window.devicePixelRatio % 2 !== 0 ? raw > 1 : raw > 0);
+    const condition = (raw: number) => (window.devicePixelRatio % 1 !== 0 ? raw > 1 : raw > 0);
     const amount = {
       width: Math.max(0, comparison!.scrollWidth - comparison!.clientWidth),
       height: Math.max(0, comparison!.scrollHeight - comparison!.clientHeight),

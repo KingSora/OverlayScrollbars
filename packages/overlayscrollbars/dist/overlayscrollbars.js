@@ -865,7 +865,7 @@
 
   var environmentInstance;
   var abs = Math.abs,
-      round$1 = Math.round;
+      round = Math.round;
 
   var diffBiggerThanOne = function diffBiggerThanOne(valOne, valTwo) {
     var absValOne = abs(valOne);
@@ -1012,8 +1012,8 @@
             h: abs(deltaSize.h)
           };
           var deltaAbsRatio = {
-            w: abs(round$1(sizeNew.w / (size.w / 100.0))),
-            h: abs(round$1(sizeNew.h / (size.h / 100.0)))
+            w: abs(round(sizeNew.w / (size.w / 100.0))),
+            h: abs(round(sizeNew.h / (size.h / 100.0)))
           };
           var dprNew = getWindowDPR();
           var deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
@@ -1297,8 +1297,7 @@
     };
   };
 
-  var max = Math.max,
-      round = Math.round;
+  var max = Math.max;
   var overlaidScrollbarsHideOffset = 42;
   var whCacheOptions = {
     _equal: equalWH,
@@ -1330,24 +1329,18 @@
       styleObj[overflowKey] = behavior;
     }
 
-    return {
-      _visible: behaviorIsVisible,
-      _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll'
-    };
+    return [behaviorIsVisible, behaviorIsVisibleHidden ? 'hidden' : 'scroll'];
   };
 
   var getOverflowAmount = function getOverflowAmount(viewportScrollSize, viewportClientSize, sizeFraction) {
-    var condition = function condition(raw) {
-      return window.devicePixelRatio % 2 !== 0 ? raw > 1 : raw > 0;
-    };
-
+    var tollerance = window.devicePixelRatio % 2 !== 0 ? 1 : 0;
     var amount = {
       w: max(0, viewportScrollSize.w - viewportClientSize.w - max(0, sizeFraction.w)),
       h: max(0, viewportScrollSize.h - viewportClientSize.h - max(0, sizeFraction.h))
     };
     return {
-      w: condition(amount.w) ? amount.w : 0,
-      h: condition(amount.h) ? amount.h : 0
+      w: amount.w >= tollerance ? amount.w : 0,
+      h: amount.h >= tollerance ? amount.h : 0
     };
   };
 
@@ -1393,14 +1386,13 @@
 
         var _overflowScroll = viewportOverflowState._overflowScroll,
             _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset;
-        var hostCssHeight = parseFloat(style(_host, 'height'));
+        var fSize = fractionalSize(_host);
         var hostClientSize = clientSize(_host);
         var isContentBox = style(_viewport, 'boxSizing') === 'content-box';
         var paddingVertical = _paddingAbsolute || isContentBox ? _padding.b + _padding.t : 0;
-        var fractionalClientHeight = hostClientSize.h + (hostCssHeight - round(hostCssHeight));
         var subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
         style(_viewport, {
-          height: fractionalClientHeight + (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) - paddingVertical
+          height: hostClientSize.h + fSize.h + (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) - paddingVertical
         });
       }
     };
@@ -1435,12 +1427,12 @@
 
     var setViewportOverflowState = function setViewportOverflowState(showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyleObj) {
       var _setAxisOverflowStyle = setAxisOverflowStyle(true, overflowAmount.w, overflow.x, viewportStyleObj),
-          xVisible = _setAxisOverflowStyle._visible,
-          xVisibleBehavior = _setAxisOverflowStyle._behavior;
+          xVisible = _setAxisOverflowStyle[0],
+          xVisibleBehavior = _setAxisOverflowStyle[1];
 
       var _setAxisOverflowStyle2 = setAxisOverflowStyle(false, overflowAmount.h, overflow.y, viewportStyleObj),
-          yVisible = _setAxisOverflowStyle2._visible,
-          yVisibleBehavior = _setAxisOverflowStyle2._behavior;
+          yVisible = _setAxisOverflowStyle2[0],
+          yVisibleBehavior = _setAxisOverflowStyle2[1];
 
       if (xVisible && !yVisible) {
         viewportStyleObj.overflowX = xVisibleBehavior;
@@ -1588,6 +1580,10 @@
           showNativeOverlaidScrollbarsOption = _checkOption[0],
           showNativeOverlaidScrollbarsChanged = _checkOption[1];
 
+      var _checkOption2 = checkOption('overflow'),
+          overflow = _checkOption2[0],
+          overflowChanged = _checkOption2[1];
+
       var showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
       var adjustFlexboxGlue = !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || _heightIntrinsicChanged);
       var sizeFractionCache = getCurrentSizeFraction(force);
@@ -1640,19 +1636,15 @@
         }, _sizeFraction), force);
       }
 
-      var _sizeFractionCache2 = sizeFractionCache,
-          sizeFraction = _sizeFractionCache2[0],
-          sizeFractionChanged = _sizeFractionCache2[1];
-      var _viewportScrollSizeCa2 = viewportScrollSizeCache,
-          viewportScrollSize = _viewportScrollSizeCa2[0],
-          viewportScrollSizeChanged = _viewportScrollSizeCa2[1];
       var _overflowAmuntCache = overflowAmuntCache,
           overflowAmount = _overflowAmuntCache[0],
           overflowAmountChanged = _overflowAmuntCache[1];
-
-      var _checkOption2 = checkOption('overflow'),
-          overflow = _checkOption2[0],
-          overflowChanged = _checkOption2[1];
+      var _viewportScrollSizeCa2 = viewportScrollSizeCache,
+          viewportScrollSize = _viewportScrollSizeCa2[0],
+          viewportScrollSizeChanged = _viewportScrollSizeCa2[1];
+      var _sizeFractionCache2 = sizeFractionCache,
+          sizeFraction = _sizeFractionCache2[0],
+          sizeFractionChanged = _sizeFractionCache2[1];
 
       if (_paddingStyleChanged || _directionChanged || sizeFractionChanged || viewportScrollSizeChanged || overflowAmountChanged || overflowChanged || showNativeOverlaidScrollbarsChanged || adjustFlexboxGlue) {
         var viewportStyle = {
@@ -1678,8 +1670,8 @@
 
         style(_viewport, viewportStyle);
         setState({
-          _viewportOverflowScroll: overflowScroll,
-          _viewportOverflowAmount: overflowAmount
+          _overflowScroll: overflowScroll,
+          _overflowAmount: overflowAmount
         });
         return {
           _overflowAmountChanged: overflowAmountChanged,
@@ -1689,10 +1681,6 @@
     };
   };
 
-  var applyForceToCache = function applyForceToCache(cacheValues, force) {
-    return [cacheValues[0], force || cacheValues[1], cacheValues[2]];
-  };
-
   var prepareUpdateHints = function prepareUpdateHints(leading, adaptive, force) {
     var result = {};
     var finalAdaptive = adaptive || {};
@@ -1700,7 +1688,7 @@
     each(objKeys, function (key) {
       var leadingValue = leading[key];
       var adaptiveValue = finalAdaptive[key];
-      result[key] = isBoolean(leadingValue) ? !!force || !!leadingValue || !!adaptiveValue : applyForceToCache(leadingValue, force);
+      result[key] = !!(force || leadingValue || adaptiveValue);
     });
     return result;
   };
@@ -1718,20 +1706,14 @@
     return function (checkOption, updateHints, force) {
       var initialUpdateHints = prepareUpdateHints(assignDeep({
         _sizeChanged: false,
-        _hostMutation: false,
-        _contentMutation: false,
         _paddingStyleChanged: false,
         _directionChanged: false,
         _heightIntrinsicChanged: false,
         _overflowScrollChanged: false,
-        _overflowAmountChanged: false
-      }, Object.keys(updateHints).reduce(function (acc, key) {
-        if (!isUndefined(updateHints[key])) {
-          acc[key] = updateHints[key];
-        }
-
-        return acc;
-      }, {})), {}, force);
+        _overflowAmountChanged: false,
+        _hostMutation: false,
+        _contentMutation: false
+      }, updateHints), {}, force);
       var adjustScrollOffset = doViewportArrange || !_flexboxGlue;
       var scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
       var scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
@@ -2188,20 +2170,12 @@
         return debounceMaxDelay;
       },
       _mergeParams: function _mergeParams(prev, curr) {
-        var _prev$ = prev[0],
-            prevSizeChanged = _prev$._sizeChanged,
-            prevHostMutation = _prev$._hostMutation,
-            prevContentMutation = _prev$._contentMutation;
-        var _curr$ = curr[0],
-            currSizeChanged = _curr$._sizeChanged,
-            currvHostMutation = _curr$._hostMutation,
-            currContentMutation = _curr$._contentMutation;
-        var merged = [{
-          _sizeChanged: prevSizeChanged || currSizeChanged,
-          _hostMutation: prevHostMutation || currvHostMutation,
-          _contentMutation: prevContentMutation || currContentMutation
-        }];
-        return merged;
+        var prevObj = prev[0];
+        var currObj = curr[0];
+        return [keys(prevObj).concat(keys(currObj)).reduce(function (obj, key) {
+          obj[key] = prevObj[key] || currObj[key];
+          return obj;
+        }, {})];
       }
     });
 
@@ -2353,11 +2327,11 @@
       paddingBottom: 0,
       paddingLeft: 0
     },
-    _viewportOverflowAmount: {
+    _overflowAmount: {
       w: 0,
       h: 0
     },
-    _viewportOverflowScroll: {
+    _overflowScroll: {
       x: false,
       y: false
     },
@@ -2368,7 +2342,7 @@
     var checkOptionsFallback = createOptionCheck(options, {});
     var state = createState(initialStructureSetupUpdateState);
     var onUpdatedListeners = new Set();
-    var getUpdateState = state[0];
+    var getState = state[0];
 
     var runOnUpdatedListeners = function runOnUpdatedListeners(updateHints, changedOptions, force) {
       runEach(onUpdatedListeners, [updateHints, changedOptions || {}, !!force]);
@@ -2386,7 +2360,7 @@
         updateObservers = _createStructureSetup2[0],
         destroyObservers = _createStructureSetup2[1];
 
-    var structureSetupState = getUpdateState.bind(0);
+    var structureSetupState = getState.bind(0);
 
     structureSetupState._addOnUpdatedListener = function (listener) {
       onUpdatedListeners.add(listener);
@@ -2630,30 +2604,32 @@
 
     structureState._addOnUpdatedListener(function (updateHints, changedOptions, force) {
       var _sizeChanged = updateHints._sizeChanged,
-          _contentMutation = updateHints._contentMutation,
-          _hostMutation = updateHints._hostMutation,
           _directionChanged = updateHints._directionChanged,
           _heightIntrinsicChanged = updateHints._heightIntrinsicChanged,
           _overflowAmountChanged = updateHints._overflowAmountChanged,
-          _overflowScrollChanged = updateHints._overflowScrollChanged;
+          _overflowScrollChanged = updateHints._overflowScrollChanged,
+          _contentMutation = updateHints._contentMutation,
+          _hostMutation = updateHints._hostMutation;
 
       var _structureState = structureState(),
-          _viewportOverflowAmount = _structureState._viewportOverflowAmount,
-          _viewportOverflowScroll = _structureState._viewportOverflowScroll;
+          _overflowAmount = _structureState._overflowAmount,
+          _overflowScroll = _structureState._overflowScroll;
 
       if (_overflowAmountChanged || _overflowScrollChanged) {
-        triggerEvent('overflowChanged', assignDeep({}, createOverflowChangedArgs(_viewportOverflowAmount, _viewportOverflowScroll), {
-          previous: createOverflowChangedArgs(_viewportOverflowAmount, _viewportOverflowScroll)
+        triggerEvent('overflowChanged', assignDeep({}, createOverflowChangedArgs(_overflowAmount, _overflowScroll), {
+          previous: createOverflowChangedArgs(_overflowAmount, _overflowScroll)
         }));
       }
 
       triggerEvent('updated', {
         updateHints: {
           sizeChanged: _sizeChanged,
-          contentMutation: _contentMutation,
-          hostMutation: _hostMutation,
           directionChanged: _directionChanged,
-          heightIntrinsicChanged: _heightIntrinsicChanged
+          heightIntrinsicChanged: _heightIntrinsicChanged,
+          overflowAmountChanged: _overflowAmountChanged,
+          overflowScrollChanged: _overflowScrollChanged,
+          contentMutation: _contentMutation,
+          hostMutation: _hostMutation
         },
         changedOptions: changedOptions,
         force: force
@@ -2679,7 +2655,7 @@
       off: removeEvent,
       state: function state() {
         return {
-          _overflowAmount: structureState()._viewportOverflowAmount
+          _overflowAmount: structureState()._overflowAmount
         };
       },
       update: function update(force) {

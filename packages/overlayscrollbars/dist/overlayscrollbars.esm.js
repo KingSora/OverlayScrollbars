@@ -778,7 +778,7 @@ const getOptionsDiff = (currOptions, newOptions) => {
 let environmentInstance;
 const {
   abs,
-  round: round$1
+  round
 } = Math;
 
 const diffBiggerThanOne = (valOne, valTwo) => {
@@ -923,8 +923,8 @@ const createEnvironment = () => {
           h: abs(deltaSize.h)
         };
         const deltaAbsRatio = {
-          w: abs(round$1(sizeNew.w / (size.w / 100.0))),
-          h: abs(round$1(sizeNew.h / (size.h / 100.0)))
+          w: abs(round(sizeNew.w / (size.w / 100.0))),
+          h: abs(round(sizeNew.h / (size.h / 100.0)))
         };
         const dprNew = getWindowDPR();
         const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
@@ -1199,8 +1199,7 @@ const createPaddingUpdate = (structureSetupElements, state) => {
 };
 
 const {
-  max,
-  round
+  max
 } = Math;
 const overlaidScrollbarsHideOffset = 42;
 const whCacheOptions = {
@@ -1233,22 +1232,18 @@ const setAxisOverflowStyle = (horizontal, overflowAmount, behavior, styleObj) =>
     styleObj[overflowKey] = behavior;
   }
 
-  return {
-    _visible: behaviorIsVisible,
-    _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll'
-  };
+  return [behaviorIsVisible, behaviorIsVisibleHidden ? 'hidden' : 'scroll'];
 };
 
 const getOverflowAmount = (viewportScrollSize, viewportClientSize, sizeFraction) => {
-  const condition = raw => window.devicePixelRatio % 2 !== 0 ? raw > 1 : raw > 0;
-
+  const tollerance = window.devicePixelRatio % 2 !== 0 ? 1 : 0;
   const amount = {
     w: max(0, viewportScrollSize.w - viewportClientSize.w - max(0, sizeFraction.w)),
     h: max(0, viewportScrollSize.h - viewportClientSize.h - max(0, sizeFraction.h))
   };
   return {
-    w: condition(amount.w) ? amount.w : 0,
-    h: condition(amount.h) ? amount.h : 0
+    w: amount.w >= tollerance ? amount.w : 0,
+    h: amount.h >= tollerance ? amount.h : 0
   };
 };
 
@@ -1285,14 +1280,13 @@ const createOverflowUpdate = (structureSetupElements, state) => {
         _overflowScroll,
         _scrollbarsHideOffset
       } = viewportOverflowState;
-      const hostCssHeight = parseFloat(style(_host, 'height'));
+      const fSize = fractionalSize(_host);
       const hostClientSize = clientSize(_host);
       const isContentBox = style(_viewport, 'boxSizing') === 'content-box';
       const paddingVertical = _paddingAbsolute || isContentBox ? _padding.b + _padding.t : 0;
-      const fractionalClientHeight = hostClientSize.h + (hostCssHeight - round(hostCssHeight));
       const subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
       style(_viewport, {
-        height: fractionalClientHeight + (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) - paddingVertical
+        height: hostClientSize.h + fSize.h + (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) - paddingVertical
       });
     }
   };
@@ -1328,14 +1322,8 @@ const createOverflowUpdate = (structureSetupElements, state) => {
   };
 
   const setViewportOverflowState = (showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyleObj) => {
-    const {
-      _visible: xVisible,
-      _behavior: xVisibleBehavior
-    } = setAxisOverflowStyle(true, overflowAmount.w, overflow.x, viewportStyleObj);
-    const {
-      _visible: yVisible,
-      _behavior: yVisibleBehavior
-    } = setAxisOverflowStyle(false, overflowAmount.h, overflow.y, viewportStyleObj);
+    const [xVisible, xVisibleBehavior] = setAxisOverflowStyle(true, overflowAmount.w, overflow.x, viewportStyleObj);
+    const [yVisible, yVisibleBehavior] = setAxisOverflowStyle(false, overflowAmount.h, overflow.y, viewportStyleObj);
 
     if (xVisible && !yVisible) {
       viewportStyleObj.overflowX = xVisibleBehavior;
@@ -1497,6 +1485,7 @@ const createOverflowUpdate = (structureSetupElements, state) => {
       _directionIsRTL
     } = getState();
     const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = checkOption('nativeScrollbarsOverlaid.show');
+    const [overflow, overflowChanged] = checkOption('overflow');
     const showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
     const adjustFlexboxGlue = !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || _heightIntrinsicChanged);
     let sizeFractionCache = getCurrentSizeFraction(force);
@@ -1540,10 +1529,9 @@ const createOverflowUpdate = (structureSetupElements, state) => {
       }, _sizeFraction), force);
     }
 
-    const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
-    const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
     const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
-    const [overflow, overflowChanged] = checkOption('overflow');
+    const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
+    const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
 
     if (_paddingStyleChanged || _directionChanged || sizeFractionChanged || viewportScrollSizeChanged || overflowAmountChanged || overflowChanged || showNativeOverlaidScrollbarsChanged || adjustFlexboxGlue) {
       const viewportStyle = {
@@ -1565,8 +1553,8 @@ const createOverflowUpdate = (structureSetupElements, state) => {
 
       style(_viewport, viewportStyle);
       setState({
-        _viewportOverflowScroll: overflowScroll,
-        _viewportOverflowAmount: overflowAmount
+        _overflowScroll: overflowScroll,
+        _overflowAmount: overflowAmount
       });
       return {
         _overflowAmountChanged: overflowAmountChanged,
@@ -1576,8 +1564,6 @@ const createOverflowUpdate = (structureSetupElements, state) => {
   };
 };
 
-const applyForceToCache = (cacheValues, force) => [cacheValues[0], force || cacheValues[1], cacheValues[2]];
-
 const prepareUpdateHints = (leading, adaptive, force) => {
   const result = {};
   const finalAdaptive = adaptive || {};
@@ -1585,7 +1571,7 @@ const prepareUpdateHints = (leading, adaptive, force) => {
   each(objKeys, key => {
     const leadingValue = leading[key];
     const adaptiveValue = finalAdaptive[key];
-    result[key] = isBoolean(leadingValue) ? !!force || !!leadingValue || !!adaptiveValue : applyForceToCache(leadingValue, force);
+    result[key] = !!(force || leadingValue || adaptiveValue);
   });
   return result;
 };
@@ -1604,20 +1590,14 @@ const createStructureSetupUpdate = (structureSetupElements, state) => {
   return (checkOption, updateHints, force) => {
     const initialUpdateHints = prepareUpdateHints(assignDeep({
       _sizeChanged: false,
-      _hostMutation: false,
-      _contentMutation: false,
       _paddingStyleChanged: false,
       _directionChanged: false,
       _heightIntrinsicChanged: false,
       _overflowScrollChanged: false,
-      _overflowAmountChanged: false
-    }, Object.keys(updateHints).reduce((acc, key) => {
-      if (!isUndefined(updateHints[key])) {
-        acc[key] = updateHints[key];
-      }
-
-      return acc;
-    }, {})), {}, force);
+      _overflowAmountChanged: false,
+      _hostMutation: false,
+      _contentMutation: false
+    }, updateHints), {}, force);
     const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
     const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
@@ -2045,22 +2025,12 @@ const createStructureSetupObservers = (structureSetupElements, state, structureS
     _maxDelay: () => debounceMaxDelay,
 
     _mergeParams(prev, curr) {
-      const {
-        _sizeChanged: prevSizeChanged,
-        _hostMutation: prevHostMutation,
-        _contentMutation: prevContentMutation
-      } = prev[0];
-      const {
-        _sizeChanged: currSizeChanged,
-        _hostMutation: currvHostMutation,
-        _contentMutation: currContentMutation
-      } = curr[0];
-      const merged = [{
-        _sizeChanged: prevSizeChanged || currSizeChanged,
-        _hostMutation: prevHostMutation || currvHostMutation,
-        _contentMutation: prevContentMutation || currContentMutation
-      }];
-      return merged;
+      const [prevObj] = prev;
+      const [currObj] = curr;
+      return [keys(prevObj).concat(keys(currObj)).reduce((obj, key) => {
+        obj[key] = prevObj[key] || currObj[key];
+        return obj;
+      }, {})];
     }
 
   });
@@ -2200,11 +2170,11 @@ const initialStructureSetupUpdateState = {
     paddingBottom: 0,
     paddingLeft: 0
   },
-  _viewportOverflowAmount: {
+  _overflowAmount: {
     w: 0,
     h: 0
   },
-  _viewportOverflowScroll: {
+  _overflowScroll: {
     x: false,
     y: false
   },
@@ -2215,7 +2185,7 @@ const createStructureSetup = (target, options) => {
   const checkOptionsFallback = createOptionCheck(options, {});
   const state = createState(initialStructureSetupUpdateState);
   const onUpdatedListeners = new Set();
-  const [getUpdateState] = state;
+  const [getState] = state;
 
   const runOnUpdatedListeners = (updateHints, changedOptions, force) => {
     runEach(onUpdatedListeners, [updateHints, changedOptions || {}, !!force]);
@@ -2226,7 +2196,7 @@ const createStructureSetup = (target, options) => {
   const [updateObservers, destroyObservers] = createStructureSetupObservers(elements, state, updateHints => {
     runOnUpdatedListeners(updateStructure(checkOptionsFallback, updateHints));
   });
-  const structureSetupState = getUpdateState.bind(0);
+  const structureSetupState = getState.bind(0);
 
   structureSetupState._addOnUpdatedListener = listener => {
     onUpdatedListeners.add(listener);
@@ -2455,31 +2425,33 @@ const OverlayScrollbars = (target, options, eventListeners) => {
   structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
     const {
       _sizeChanged,
-      _contentMutation,
-      _hostMutation,
       _directionChanged,
       _heightIntrinsicChanged,
       _overflowAmountChanged,
-      _overflowScrollChanged
+      _overflowScrollChanged,
+      _contentMutation,
+      _hostMutation
     } = updateHints;
     const {
-      _viewportOverflowAmount,
-      _viewportOverflowScroll
+      _overflowAmount,
+      _overflowScroll
     } = structureState();
 
     if (_overflowAmountChanged || _overflowScrollChanged) {
-      triggerEvent('overflowChanged', assignDeep({}, createOverflowChangedArgs(_viewportOverflowAmount, _viewportOverflowScroll), {
-        previous: createOverflowChangedArgs(_viewportOverflowAmount, _viewportOverflowScroll)
+      triggerEvent('overflowChanged', assignDeep({}, createOverflowChangedArgs(_overflowAmount, _overflowScroll), {
+        previous: createOverflowChangedArgs(_overflowAmount, _overflowScroll)
       }));
     }
 
     triggerEvent('updated', {
       updateHints: {
         sizeChanged: _sizeChanged,
-        contentMutation: _contentMutation,
-        hostMutation: _hostMutation,
         directionChanged: _directionChanged,
-        heightIntrinsicChanged: _heightIntrinsicChanged
+        heightIntrinsicChanged: _heightIntrinsicChanged,
+        overflowAmountChanged: _overflowAmountChanged,
+        overflowScrollChanged: _overflowScrollChanged,
+        contentMutation: _contentMutation,
+        hostMutation: _hostMutation
       },
       changedOptions,
       force
@@ -2504,7 +2476,7 @@ const OverlayScrollbars = (target, options, eventListeners) => {
     on: addEvent,
     off: removeEvent,
     state: () => ({
-      _overflowAmount: structureState()._viewportOverflowAmount
+      _overflowAmount: structureState()._overflowAmount
     }),
 
     update(force) {

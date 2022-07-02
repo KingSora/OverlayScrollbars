@@ -116,10 +116,12 @@ onHostSizeChanged           : null, // gone
 interface OnUpdatedEventListenerArgs {
     updateHints: {
         sizeChanged: boolean;
-        hostMutation: boolean;
-        contentMutation: boolean;
         directionChanged: boolean;
         heightIntrinsicChanged: boolean;
+        overflowAmountChanged: boolean;
+        overflowScrollChanged: boolean;
+        hostMutation: boolean;
+        contentMutation: boolean;
     };
     changedOptions: PartialOptions<OSOptions>;
     force: boolean;

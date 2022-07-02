@@ -7,7 +7,6 @@ import {
   style,
   scrollSize,
   fractionalSize,
-  CacheValues,
   equalWH,
   addClass,
   removeClass,
@@ -29,11 +28,11 @@ interface ViewportOverflowState {
 }
 
 type UndoViewportArrangeResult = [
-  () => void, // redoViewportArrange
-  ViewportOverflowState?
+  redoViewportArrange: () => void,
+  overflowState?: ViewportOverflowState
 ];
 
-const { max, round } = Math;
+const { max } = Math;
 const overlaidScrollbarsHideOffset = 42;
 const whCacheOptions = {
   _equal: equalWH,
@@ -62,10 +61,10 @@ const setAxisOverflowStyle = (
     styleObj[overflowKey] = behavior;
   }
 
-  return {
-    _visible: behaviorIsVisible,
-    _behavior: behaviorIsVisibleHidden ? 'hidden' : 'scroll',
-  };
+  return [behaviorIsVisible, behaviorIsVisibleHidden ? 'hidden' : 'scroll'] as [
+    visible: boolean,
+    behavior: string
+  ];
 };
 
 const getOverflowAmount = (
@@ -73,15 +72,15 @@ const getOverflowAmount = (
   viewportClientSize: WH<number>,
   sizeFraction: WH<number>
 ) => {
-  const condition = (raw: number) => (window.devicePixelRatio % 2 !== 0 ? raw > 1 : raw > 0);
+  const tollerance = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
   const amount = {
     w: max(0, viewportScrollSize.w - viewportClientSize.w - max(0, sizeFraction.w)),
     h: max(0, viewportScrollSize.h - viewportClientSize.h - max(0, sizeFraction.h)),
   };
 
   return {
-    w: condition(amount.w) ? amount.w : 0,
-    h: condition(amount.h) ? amount.h : 0,
+    w: amount.w >= tollerance ? amount.w : 0,
+    h: amount.h >= tollerance ? amount.h : 0,
   };
 };
 
@@ -135,19 +134,18 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
     if (heightIntrinsic) {
       const { _paddingAbsolute, _padding } = getState();
       const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
-      const hostCssHeight = parseFloat(style(_host, 'height'));
+      const fSize = fractionalSize(_host);
       const hostClientSize = clientSize(_host);
-      // const hostOffsetSize = offsetSize(_host);
+
       // padding subtraction is only needed if padding is absolute or if viewport is content-box
       const isContentBox = style(_viewport, 'boxSizing') === 'content-box';
       const paddingVertical = _paddingAbsolute || isContentBox ? _padding.b + _padding.t : 0;
-      const fractionalClientHeight = hostClientSize.h + (hostCssHeight - round(hostCssHeight));
-
       const subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
 
       style(_viewport, {
         height:
-          fractionalClientHeight +
+          hostClientSize.h +
+          fSize.h +
           (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) -
           paddingVertical,
       });
@@ -208,13 +206,13 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
     overflow: XY<OverflowBehavior>,
     viewportStyleObj: StyleObject
   ): ViewportOverflowState => {
-    const { _visible: xVisible, _behavior: xVisibleBehavior } = setAxisOverflowStyle(
+    const [xVisible, xVisibleBehavior] = setAxisOverflowStyle(
       true,
       overflowAmount.w,
       overflow.x,
       viewportStyleObj
     );
-    const { _visible: yVisible, _behavior: yVisibleBehavior } = setAxisOverflowStyle(
+    const [yVisible, yVisibleBehavior] = setAxisOverflowStyle(
       false,
       overflowAmount.h,
       overflow.y,
@@ -412,6 +410,7 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
     const { _heightIntrinsic, _directionIsRTL } = getState();
     const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
       checkOption<boolean>('nativeScrollbarsOverlaid.show');
+    const [overflow, overflowChanged] = checkOption<XY<OverflowBehavior>>('overflow');
     const showNativeOverlaidScrollbars =
       showNativeOverlaidScrollbarsOption &&
       _nativeScrollbarIsOverlaid.x &&
@@ -424,9 +423,9 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
         showNativeOverlaidScrollbarsChanged ||
         _heightIntrinsicChanged);
 
-    let sizeFractionCache: CacheValues<WH<number>> = getCurrentSizeFraction(force);
-    let viewportScrollSizeCache: CacheValues<WH<number>> = getCurrentViewportScrollSizeCache(force);
-    let overflowAmuntCache: CacheValues<WH<number>> = getCurrentOverflowAmountCache(force);
+    let sizeFractionCache = getCurrentSizeFraction(force);
+    let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
+    let overflowAmuntCache = getCurrentOverflowAmountCache(force);
     let preMeasureViewportOverflowState: ViewportOverflowState | undefined;
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
@@ -495,10 +494,9 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
       );
     }
 
-    const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
-    const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
     const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
-    const [overflow, overflowChanged] = checkOption<XY<OverflowBehavior>>('overflow');
+    const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
+    const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
 
     if (
       _paddingStyleChanged ||
@@ -548,8 +546,8 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
       style(_viewport, viewportStyle);
 
       setState({
-        _viewportOverflowScroll: overflowScroll,
-        _viewportOverflowAmount: overflowAmount,
+        _overflowScroll: overflowScroll,
+        _overflowAmount: overflowAmount,
       });
 
       return {

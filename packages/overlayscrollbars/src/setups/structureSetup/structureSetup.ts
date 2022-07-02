@@ -14,8 +14,8 @@ export interface StructureSetupState {
   _padding: TRBL;
   _paddingAbsolute: boolean;
   _viewportPaddingStyle: StyleObject;
-  _viewportOverflowScroll: XY<boolean>;
-  _viewportOverflowAmount: WH<number>;
+  _overflowScroll: XY<boolean>;
+  _overflowAmount: WH<number>;
   _heightIntrinsic: boolean;
   _directionIsRTL: boolean;
 }
@@ -48,11 +48,11 @@ const initialStructureSetupUpdateState: StructureSetupState = {
     paddingBottom: 0,
     paddingLeft: 0,
   },
-  _viewportOverflowAmount: {
+  _overflowAmount: {
     w: 0,
     h: 0,
   },
-  _viewportOverflowScroll: {
+  _overflowScroll: {
     x: false,
     y: false,
   },
@@ -67,8 +67,7 @@ export const createStructureSetup = (
   const checkOptionsFallback = createOptionCheck(options, {});
   const state = createState(initialStructureSetupUpdateState);
   const onUpdatedListeners = new Set<OnUpdatedListener>();
-  const [getUpdateState] = state;
-
+  const [getState] = state;
   const runOnUpdatedListeners = (
     updateHints: StructureSetupUpdateHints,
     changedOptions?: PartialOptions<OSOptions>,
@@ -87,7 +86,7 @@ export const createStructureSetup = (
     }
   );
 
-  const structureSetupState = getUpdateState.bind(0) as (() => StructureSetupState) &
+  const structureSetupState = getState.bind(0) as (() => StructureSetupState) &
     StructureSetupStaticState;
   structureSetupState._addOnUpdatedListener = (listener) => {
     onUpdatedListeners.add(listener);

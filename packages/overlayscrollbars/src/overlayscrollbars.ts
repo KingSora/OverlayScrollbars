@@ -111,35 +111,33 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
     const {
       _sizeChanged,
-      _contentMutation,
-      _hostMutation,
       _directionChanged,
       _heightIntrinsicChanged,
       _overflowAmountChanged,
       _overflowScrollChanged,
+      _contentMutation,
+      _hostMutation,
     } = updateHints;
-    const { _viewportOverflowAmount, _viewportOverflowScroll } = structureState();
+    const { _overflowAmount, _overflowScroll } = structureState();
 
     if (_overflowAmountChanged || _overflowScrollChanged) {
       triggerEvent(
         'overflowChanged',
-        assignDeep(
-          {},
-          createOverflowChangedArgs(_viewportOverflowAmount, _viewportOverflowScroll),
-          {
-            previous: createOverflowChangedArgs(_viewportOverflowAmount!, _viewportOverflowScroll!),
-          }
-        )
+        assignDeep({}, createOverflowChangedArgs(_overflowAmount, _overflowScroll), {
+          previous: createOverflowChangedArgs(_overflowAmount!, _overflowScroll!),
+        })
       );
     }
 
     triggerEvent('updated', {
       updateHints: {
         sizeChanged: _sizeChanged,
-        contentMutation: _contentMutation,
-        hostMutation: _hostMutation,
         directionChanged: _directionChanged,
         heightIntrinsicChanged: _heightIntrinsicChanged,
+        overflowAmountChanged: _overflowAmountChanged,
+        overflowScrollChanged: _overflowScrollChanged,
+        contentMutation: _contentMutation,
+        hostMutation: _hostMutation,
       },
       changedOptions,
       force,
@@ -163,7 +161,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     on: addEvent,
     off: removeEvent,
     state: () => ({
-      _overflowAmount: structureState()._viewportOverflowAmount,
+      _overflowAmount: structureState()._overflowAmount,
     }),
     update(force?: boolean) {
       update({}, force);
