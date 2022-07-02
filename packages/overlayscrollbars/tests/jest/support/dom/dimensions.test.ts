@@ -1,6 +1,14 @@
 import { isNumber, isPlainObject } from 'support/utils/types';
 import { createDiv } from 'support/dom/create';
-import { windowSize, offsetSize, clientSize, scrollSize, getBoundingClientRect, hasDimensions } from 'support/dom/dimensions';
+import {
+  windowSize,
+  offsetSize,
+  clientSize,
+  scrollSize,
+  fractionalSize,
+  getBoundingClientRect,
+  hasDimensions,
+} from 'support/dom/dimensions';
 
 describe('dom dimensions', () => {
   describe('offsetSize', () => {
@@ -45,6 +53,22 @@ describe('dom dimensions', () => {
 
     test('null', () => {
       const result = scrollSize(null);
+      expect(isPlainObject(result)).toBe(true);
+      expect(isNumber(result.w)).toBe(true);
+      expect(isNumber(result.h)).toBe(true);
+    });
+  });
+
+  describe('fractionalSize', () => {
+    test('DOM element', () => {
+      const result = fractionalSize(document.body);
+      expect(isPlainObject(result)).toBe(true);
+      expect(isNumber(result.w)).toBe(true);
+      expect(isNumber(result.h)).toBe(true);
+    });
+
+    test('null', () => {
+      const result = fractionalSize(null);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.w)).toBe(true);
       expect(isNumber(result.h)).toBe(true);

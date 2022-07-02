@@ -14,7 +14,7 @@ test.describe('StructureLifecycle', () => {
       }
     };
 
-    test.describe(`structureLifecycles ${withText} native scrollbar styling`, () => {
+    test.describe(`${withText} native scrollbar styling`, () => {
       test.describe.configure({ mode: 'parallel' });
 
       test('default', async ({ page }) => {

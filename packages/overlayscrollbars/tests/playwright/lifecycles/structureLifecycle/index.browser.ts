@@ -21,12 +21,12 @@ import { timeout } from '@/testing-browser/timeout';
 
 interface Metrics {
   offset: {
-    left: string | number;
-    top: string | number;
+    left: number;
+    top: number;
   };
   size: {
-    width: string | number;
-    height: string | number;
+    width: number;
+    height: number;
   };
   scroll: {
     width: number;
@@ -37,12 +37,12 @@ interface Metrics {
     y: boolean;
   };
   percentElm: {
-    width: string | number;
-    height: string | number;
+    width: number;
+    height: number;
   };
   endElm: {
-    width: string | number;
-    height: string | number;
+    width: number;
+    height: number;
   };
 }
 
@@ -60,48 +60,55 @@ const getMetrics = (elm: HTMLElement): Metrics => {
   const comparisonBCR = getBoundingClientRect(elm!);
   const comparisonPercentBCR = getBoundingClientRect(elm!.querySelector('.percent')!);
   const comparisonEndBCR = getBoundingClientRect(elm!.querySelector('.end')!);
-  const targetViewport = target!.querySelector<HTMLElement>('.os-viewport');
+  const scrollMeasure = () => {
+    const condition = (raw: number) => (window.devicePixelRatio % 2 !== 0 ? raw > 1 : raw > 0);
+    const amount = {
+      width: Math.max(0, comparison!.scrollWidth - comparison!.clientWidth),
+      height: Math.max(0, comparison!.scrollHeight - comparison!.clientHeight),
+    };
+    return {
+      width: condition(amount.width) ? amount.width : 0,
+      height: condition(amount.height) ? amount.height : 0,
+    };
+  };
 
-  const scrollMeasure = (elm: HTMLElement) => ({
-    width: Math.max(0, elm!.scrollWidth - elm!.clientWidth),
-    height: Math.max(0, elm!.scrollHeight - elm!.clientHeight),
-  });
-
-  const hasOverflow = (elm: HTMLElement) => {
-    const measure = scrollMeasure(elm);
-    return elmIsTarget
+  const results = {
+    offset: {
+      left: parseFloat(
+        (comparisonBCR.left - comparisonEnvBCR.left).toFixed(
+          Math.min(fixedDigitsOffset, fixedDigits)
+        )
+      ),
+      top: parseFloat(
+        (comparisonBCR.top - comparisonEnvBCR.top).toFixed(Math.min(fixedDigitsOffset, fixedDigits))
+      ),
+    },
+    size: {
+      width: parseFloat(comparisonBCR.width.toFixed(fixedDigits)),
+      height: parseFloat(comparisonBCR.height.toFixed(fixedDigits)),
+    },
+    scroll: elmIsTarget
+      ? {
+          width: Math.round(osInstance.state()._overflowAmount.w),
+          height: Math.round(osInstance.state()._overflowAmount.h),
+        }
+      : scrollMeasure(),
+    hasOverflow: elmIsTarget
       ? {
           x: osInstance.state()._overflowAmount.w > 0,
           y: osInstance.state()._overflowAmount.h > 0,
         }
       : {
-          x: measure.width > 0,
-          y: measure.height > 0,
-        };
-  };
-
-  const results = {
-    offset: {
-      left: (comparisonBCR.left - comparisonEnvBCR.left).toFixed(
-        Math.min(fixedDigitsOffset, fixedDigits)
-      ),
-      top: (comparisonBCR.top - comparisonEnvBCR.top).toFixed(
-        Math.min(fixedDigitsOffset, fixedDigits)
-      ),
-    },
-    size: {
-      width: comparisonBCR.width.toFixed(fixedDigits),
-      height: comparisonBCR.height.toFixed(fixedDigits),
-    },
-    scroll: elmIsTarget ? scrollMeasure(targetViewport!) : scrollMeasure(comparison!),
-    hasOverflow: elmIsTarget ? hasOverflow(targetViewport!) : hasOverflow(comparison!),
+          x: scrollMeasure().width > 0,
+          y: scrollMeasure().height > 0,
+        },
     percentElm: {
-      width: comparisonPercentBCR.width.toFixed(fixedDigits),
-      height: comparisonPercentBCR.height.toFixed(fixedDigits),
+      width: parseFloat(comparisonPercentBCR.width.toFixed(fixedDigits)),
+      height: parseFloat(comparisonPercentBCR.height.toFixed(fixedDigits)),
     },
     endElm: {
-      width: comparisonEndBCR.width.toFixed(fixedDigits),
-      height: comparisonEndBCR.height.toFixed(fixedDigits),
+      width: parseFloat(comparisonEndBCR.width.toFixed(fixedDigits)),
+      height: parseFloat(comparisonEndBCR.height.toFixed(fixedDigits)),
     },
   };
 
@@ -121,14 +128,6 @@ const metricsDimensionsEqual = (a: Metrics, b: Metrics) => {
   return JSON.stringify(aDimensions) === JSON.stringify(bDimensions);
 };
 
-const plusMinusArr = (original: number, plusMinus: number) => {
-  const arr = Array.from(Array(plusMinus).keys())
-    .map((_, index) => original + (index + 1))
-    .concat(Array.from(Array(plusMinus).keys()).map((_, index) => original - (index + 1)));
-  arr.push(original);
-  return arr;
-};
-
 // @ts-ignore
 const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
 const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
@@ -138,7 +137,6 @@ msie11 && addClass(document.body, 'msie11');
 const useContentElement = false;
 const fixedDigits = msie11 ? 1 : 3;
 const fixedDigitsOffset = 3;
-const fractionalPixelRatioTollerance = 2; // nss=true && any overlaid ? 2 : 1;
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const target: HTMLElement | null = document.querySelector('#target');
@@ -245,79 +243,27 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     const targetMetrics = getMetrics(target!);
     const targetViewport = target!.querySelector<HTMLElement>('.os-viewport');
 
-    should.equal(targetMetrics.offset.left, comparisonMetrics.offset.left, 'Offset left equality.');
-    should.equal(targetMetrics.offset.top, comparisonMetrics.offset.top, 'Offset top equality.');
+    should.equal(
+      targetMetrics.scroll.width,
+      comparisonMetrics.scroll.width,
+      `Scroll width equality. (${osInstance.state()._overflowAmount.w})`
+    );
+    should.equal(
+      targetMetrics.scroll.height,
+      comparisonMetrics.scroll.height,
+      `Scroll height equality. (${osInstance.state()._overflowAmount.h})`
+    );
 
-    should.equal(targetMetrics.size.width, comparisonMetrics.size.width, 'Size width equality.');
-    should.equal(targetMetrics.size.height, comparisonMetrics.size.height, 'Size height equality.');
-
-    console.log(comparisonMetrics, osInstance.state()._overflowAmount.h);
-
-    if (isFractionalPixelRatio()) {
-      should.ok(
-        plusMinusArr(targetMetrics.scroll.width, fractionalPixelRatioTollerance).indexOf(
-          comparisonMetrics.scroll.width
-        ) > -1,
-        `Scroll width equality. (+-${fractionalPixelRatioTollerance}) | Target: ${targetMetrics.scroll.width} | Comparison: ${comparisonMetrics.scroll.width}`
-      );
-      should.ok(
-        plusMinusArr(targetMetrics.scroll.height, fractionalPixelRatioTollerance).indexOf(
-          comparisonMetrics.scroll.height
-        ) > -1,
-        `Scroll height equality. (+-${fractionalPixelRatioTollerance}) | Target: ${targetMetrics.scroll.height} | Comparison: ${comparisonMetrics.scroll.height}`
-      );
-
-      should.ok(
-        plusMinusArr(osInstance.state()._overflowAmount.w, fractionalPixelRatioTollerance).indexOf(
-          comparisonMetrics.scroll.width
-        ) > -1,
-        `Overflow amount width equality. (+-${fractionalPixelRatioTollerance}) | Amount: ${
-          osInstance.state()._overflowAmount.w
-        } | Comparison: ${comparisonMetrics.scroll.width}`
-      );
-      should.ok(
-        plusMinusArr(osInstance.state()._overflowAmount.h, fractionalPixelRatioTollerance).indexOf(
-          comparisonMetrics.scroll.height
-        ) > -1,
-        `Overflow amount height equality. (+-${fractionalPixelRatioTollerance}) | Amount: ${
-          osInstance.state()._overflowAmount.h
-        } | Comparison: ${comparisonMetrics.scroll.height}`
-      );
-    } else {
-      /*
-      should.equal(
-        targetMetrics.scroll.width,
-        comparisonMetrics.scroll.width,
-        'Scroll width equality.'
-      );
-      should.equal(
-        targetMetrics.scroll.height,
-        comparisonMetrics.scroll.height,
-        'Scroll height equality.'
-      );
-      */
-      should.equal(
-        osInstance.state()._overflowAmount.w,
-        comparisonMetrics.scroll.width,
-        'Overflow amount width equality.'
-      );
-      should.equal(
-        osInstance.state()._overflowAmount.h,
-        comparisonMetrics.scroll.height,
-        'Overflow amount height equality.'
-      );
-
-      should.equal(
-        targetMetrics.hasOverflow.x,
-        comparisonMetrics.hasOverflow.x,
-        'Has overflow x equality.'
-      );
-      should.equal(
-        targetMetrics.hasOverflow.y,
-        comparisonMetrics.hasOverflow.y,
-        'Has overflow y equality.'
-      );
-    }
+    should.equal(
+      targetMetrics.hasOverflow.x,
+      comparisonMetrics.hasOverflow.x,
+      'Has overflow x equality.'
+    );
+    should.equal(
+      targetMetrics.hasOverflow.y,
+      comparisonMetrics.hasOverflow.y,
+      'Has overflow y equality.'
+    );
 
     if (targetMetrics.hasOverflow.x) {
       should.equal(
@@ -364,6 +310,12 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
         'Overflow amount height should be 0 without overflow.'
       );
     }
+
+    should.equal(targetMetrics.offset.left, comparisonMetrics.offset.left, 'Offset left equality.');
+    should.equal(targetMetrics.offset.top, comparisonMetrics.offset.top, 'Offset top equality.');
+
+    should.equal(targetMetrics.size.width, comparisonMetrics.size.width, 'Size width equality.');
+    should.equal(targetMetrics.size.height, comparisonMetrics.size.height, 'Size height equality.');
 
     should.equal(
       targetMetrics.percentElm.width,

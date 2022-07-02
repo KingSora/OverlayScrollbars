@@ -31,21 +31,26 @@ export const hasClass = (elm: Element | false | null | undefined, className: str
   classListAction(elm, className, (classList, clazz) => classList.contains(clazz));
 
 /**
- * Adds the given class name(s) to the given element.
- * @param elm The element.
- * @param className The class name(s) which shall be added. (separated by spaces)
- */
-export const addClass = (elm: Element | false | null | undefined, className: string): void => {
-  classListAction(elm, className, (classList, clazz) => classList.add(clazz));
-};
-
-/**
  * Removes the given class name(s) from the given element.
  * @param elm The element.
  * @param className The class name(s) which shall be removed. (separated by spaces)
  */
 export const removeClass = (elm: Element | false | null | undefined, className: string): void => {
   classListAction(elm, className, (classList, clazz) => classList.remove(clazz));
+};
+
+/**
+ * Adds the given class name(s) to the given element.
+ * @param elm The element.
+ * @param className The class name(s) which shall be added. (separated by spaces)
+ * @returns A function which removes the added class name(s).
+ */
+export const addClass = (
+  elm: Element | false | null | undefined,
+  className: string
+): (() => void) => {
+  classListAction(elm, className, (classList, clazz) => classList.add(clazz));
+  return removeClass.bind(0, elm, className);
 };
 
 /**

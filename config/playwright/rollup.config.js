@@ -60,11 +60,13 @@ module.exports = (testDir, onListening = null) => {
                 port,
                 onListening,
               }),
+              /*
               rollupPluginLivereload({
                 watch: dist,
                 port: port - 1,
                 verbose: false,
               }),
+              */
             ]
           : []),
       ],

@@ -94,6 +94,7 @@ module.exports = {
         'no-void': 'off',
         'no-empty-function': 'off',
         'no-new-func': 'off',
+        'import/order': 'off',
       },
     },
     {

@@ -6,6 +6,7 @@ import {
   XY,
   style,
   scrollSize,
+  fractionalSize,
   CacheValues,
   equalWH,
   addClass,
@@ -42,16 +43,6 @@ const xyCacheOptions = {
   _equal: equalXY,
   _initialValue: { x: false, y: false },
 };
-const getSizeFraction = (elm: HTMLElement): WH<number> => {
-  const cssHeight = parseFloat(style(elm, 'height'));
-  const cssWidth = parseFloat(style(elm, 'height'));
-
-  return {
-    w: cssWidth - round(cssWidth),
-    h: cssHeight - round(cssHeight),
-  };
-};
-const fractionalPixelRatioTollerance = () => (window.devicePixelRatio % 1 === 0 ? 0 : 1);
 const setAxisOverflowStyle = (
   horizontal: boolean,
   overflowAmount: number,
@@ -80,23 +71,19 @@ const setAxisOverflowStyle = (
 const getOverflowAmount = (
   viewportScrollSize: WH<number>,
   viewportClientSize: WH<number>,
-  viewportSizeFraction: WH<number>
-) => ({
-  w: max(
-    0,
-    round(
-      max(0, viewportScrollSize.w - viewportClientSize.w) -
-        (fractionalPixelRatioTollerance() || max(0, viewportSizeFraction.w))
-    )
-  ),
-  h: max(
-    0,
-    round(
-      max(0, viewportScrollSize.h - viewportClientSize.h) -
-        (fractionalPixelRatioTollerance() || max(0, viewportSizeFraction.h))
-    )
-  ),
-});
+  sizeFraction: WH<number>
+) => {
+  const condition = (raw: number) => (window.devicePixelRatio % 2 !== 0 ? raw > 1 : raw > 0);
+  const amount = {
+    w: max(0, viewportScrollSize.w - viewportClientSize.w - max(0, sizeFraction.w)),
+    h: max(0, viewportScrollSize.h - viewportClientSize.h - max(0, sizeFraction.h)),
+  };
+
+  return {
+    w: condition(amount.w) ? amount.w : 0,
+    h: condition(amount.h) ? amount.h : 0,
+  };
+};
 
 /**
  * Lifecycle with the responsibility to set the correct overflow and scrollbar hiding styles of the viewport element.
@@ -120,7 +107,7 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
-    getSizeFraction.bind(0, _host)
+    fractionalSize.bind(0, _host)
   );
 
   const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache<

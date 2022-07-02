@@ -27,14 +27,21 @@ describe('dom class names', () => {
     });
 
     test('single', () => {
-      addClass(testElm, 'test-class');
+      const remove = addClass(testElm, 'test-class');
       expect(hasClassName('test-class')).toBe(true);
+
+      remove();
+      expect(hasClassName('test-class')).toBe(false);
     });
 
     test('multiple', () => {
-      addClass(testElm, 'test-class test-class2');
+      const remove = addClass(testElm, 'test-class test-class2');
       expect(hasClassName('test-class')).toBe(true);
       expect(hasClassName('test-class2')).toBe(true);
+
+      remove();
+      expect(hasClassName('test-class')).toBe(false);
+      expect(hasClassName('test-class2')).toBe(false);
     });
 
     test('null', () => {

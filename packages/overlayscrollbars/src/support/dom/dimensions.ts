@@ -1,3 +1,5 @@
+import { style } from 'support/dom/style';
+
 export interface WH<T = number> {
   w: T;
   h: T;
@@ -53,6 +55,19 @@ export const scrollSize = (elm: HTMLElement | null | undefined): WH =>
         h: elm.scrollHeight,
       }
     : zeroObj;
+
+/**
+ * Returns the fractional- width and height of the passed element. If the element is null the width and height values are 0.
+ * @param elm The element of which the fractional- width and height shall be returned.
+ */
+export const fractionalSize = (elm: HTMLElement | null | undefined): WH => {
+  const cssHeight = parseFloat(style(elm, 'height')) || 0;
+  const cssWidth = parseFloat(style(elm, 'height')) || 0;
+  return {
+    w: cssWidth - Math.round(cssWidth),
+    h: cssHeight - Math.round(cssHeight),
+  };
+};
 
 /**
  * Returns the BoundingClientRect of the passed element.

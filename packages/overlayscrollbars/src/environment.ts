@@ -3,6 +3,7 @@ import {
   addClass,
   style,
   appendChildren,
+  fractionalSize,
   clientSize,
   absoluteCoordinates,
   offsetSize,
@@ -105,27 +106,33 @@ const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
   return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
 };
 
-const getNativeScrollbarSize = (body: HTMLElement, measureElm: HTMLElement): XY => {
+const getNativeScrollbarSize = (
+  body: HTMLElement,
+  measureElm: HTMLElement,
+  measureElmChild: HTMLElement
+): XY => {
   appendChildren(body, measureElm);
+
   const cSize = clientSize(measureElm);
   const oSize = offsetSize(measureElm);
+  const fSize = fractionalSize(measureElmChild);
 
   return {
-    x: oSize.h - cSize.h,
-    y: oSize.w - cSize.w,
+    x: oSize.h - cSize.h + fSize.h,
+    y: oSize.w - cSize.w + fSize.w,
   };
 };
 
 const getNativeScrollbarStyling = (testElm: HTMLElement): boolean => {
   let result = false;
-  addClass(testElm, classNameViewportScrollbarStyling);
+  const revertClass = addClass(testElm, classNameViewportScrollbarStyling);
   try {
     result =
       style(testElm, cssProperty('scrollbar-width')) === 'none' ||
       window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') ===
         'none';
   } catch (ex) {}
-
+  revertClass();
   return result;
 };
 
@@ -160,15 +167,18 @@ const getRtlScrollBehavior = (
 };
 
 const getFlexboxGlue = (parentElm: HTMLElement, childElm: HTMLElement): boolean => {
-  addClass(parentElm, classNameEnvironmentFlexboxGlue);
+  const revertFbxGlue = addClass(parentElm, classNameEnvironmentFlexboxGlue);
   const minOffsetsizeParent = getBoundingClientRect(parentElm);
   const minOffsetsize = getBoundingClientRect(childElm);
   const supportsMin = equalBCRWH(minOffsetsize, minOffsetsizeParent, true);
 
-  addClass(parentElm, classNameEnvironmentFlexboxGlueMax);
+  const revertFbxGlueMax = addClass(parentElm, classNameEnvironmentFlexboxGlueMax);
   const maxOffsetsizeParent = getBoundingClientRect(parentElm);
   const maxOffsetsize = getBoundingClientRect(childElm);
   const supportsMax = equalBCRWH(maxOffsetsize, maxOffsetsizeParent, true);
+
+  revertFbxGlue();
+  revertFbxGlueMax();
 
   return supportsMin && supportsMax;
 };
@@ -200,7 +210,7 @@ const createEnvironment = (): Environment => {
   const envChildElm = envElm.firstChild as HTMLElement;
   const onChangedListener: Set<OnEnvironmentChanged> = new Set();
   const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache({
-    _initialValue: getNativeScrollbarSize(body, envElm),
+    _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
     _equal: equalXY,
   });
   const [nativeScrollbarSize] = getNativeScrollbarSizeCache();
@@ -276,7 +286,7 @@ const createEnvironment = (): Environment => {
 
         if (isZoom) {
           const [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache(
-            getNativeScrollbarSize(body, envElm)
+            getNativeScrollbarSize(body, envElm, envChildElm)
           );
 
           assignDeep(environmentInstance._nativeScrollbarSize, scrollbarSize); // keep the object same!
