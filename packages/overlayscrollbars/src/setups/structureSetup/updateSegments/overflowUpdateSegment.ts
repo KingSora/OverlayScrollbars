@@ -79,8 +79,8 @@ const getOverflowAmount = (
   };
 
   return {
-    w: amount.w >= tollerance ? amount.w : 0,
-    h: amount.h >= tollerance ? amount.h : 0,
+    w: amount.w > tollerance ? amount.w : 0,
+    h: amount.h > tollerance ? amount.h : 0,
   };
 };
 
