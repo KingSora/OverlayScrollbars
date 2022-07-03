@@ -11,7 +11,12 @@ const stringify = (value: any) =>
 
 export type ResizeBehavior = 'none' | 'both' | 'horizontal' | 'vertical';
 
-export type OverflowBehavior = 'hidden' | 'scroll' | 'visible' | 'visible-hidden';
+export type OverflowBehavior =
+  | 'hidden'
+  | 'scroll'
+  | 'visible'
+  | 'visible-hidden'
+  | 'visible-scroll';
 
 export type VisibilityBehavior = 'visible' | 'hidden' | 'auto';
 

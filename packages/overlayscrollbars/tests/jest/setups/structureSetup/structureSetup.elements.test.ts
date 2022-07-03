@@ -52,7 +52,7 @@ const clearBody = () => {
 
 const getElements = (textarea?: boolean) => {
   const target = getTarget(textarea);
-  const host = document.querySelector('.os-host')!;
+  const host = document.querySelector('[data-overlayscrollbars]')!;
   const padding = document.querySelector('.os-padding')!;
   const viewport = document.querySelector('.os-viewport')!;
   const content = document.querySelector('.os-content')!;

@@ -266,11 +266,13 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     );
 
     if (targetMetrics.hasOverflow.x) {
+      /*
       should.equal(
         style(targetViewport!, 'overflowX'),
         'scroll',
         'Overflow-X should result in scroll.'
       );
+      */
       should.ok(
         osInstance.state()._overflowAmount.w > 0,
         'Overflow amount width should be > 0 with overflow.'
@@ -289,11 +291,13 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     }
 
     if (targetMetrics.hasOverflow.y) {
+      /*
       should.equal(
         style(targetViewport!, 'overflowY'),
         'scroll',
         'Overflow-Y should result in scroll.'
       );
+      */
       should.ok(
         osInstance.state()._overflowAmount.h > 0,
         'Overflow amount height should be > 0 with overflow.'

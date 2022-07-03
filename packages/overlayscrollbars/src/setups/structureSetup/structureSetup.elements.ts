@@ -17,9 +17,10 @@ import {
   isBoolean,
   isFunction,
   keys,
+  removeAttr,
 } from 'support';
 import {
-  classNameHost,
+  dataAttributeHost,
   classNamePadding,
   classNameViewport,
   classNameViewportArrange,
@@ -80,20 +81,18 @@ const createUniqueViewportArrangeElement = (): HTMLStyleElement | false => {
 const staticCreationFromStrategy = (
   target: OSTargetElement,
   initializationValue: HTMLElement | undefined,
-  strategy: StructureInitializationStrategyStaticElement,
-  elementClass: string
+  strategy: StructureInitializationStrategyStaticElement
 ): HTMLElement => {
   const result =
     initializationValue ||
     (isFunction(strategy) ? strategy(target) : (strategy as null | undefined));
-  return result || createDiv(elementClass);
+  return result || createDiv();
 };
 
 const dynamicCreationFromStrategy = (
   target: OSTargetElement,
   initializationValue: HTMLElement | boolean | undefined,
-  strategy: StructureInitializationStrategyDynamicElement,
-  elementClass: string
+  strategy: StructureInitializationStrategyDynamicElement
 ): HTMLElement | false => {
   const takeInitializationValue = isBoolean(initializationValue) || initializationValue;
   const result = takeInitializationValue
@@ -102,7 +101,12 @@ const dynamicCreationFromStrategy = (
     ? strategy(target)
     : strategy;
 
-  return result === true ? createDiv(elementClass) : result;
+  return result === true ? createDiv() : result;
+};
+
+const addDataAttrHost = (elm: HTMLElement) => {
+  attr(elm, dataAttributeHost, '');
+  return removeAttr.bind(0, elm, dataAttributeHost);
 };
 
 export const createStructureSetupElements = (target: OSTarget): StructureSetupElements => {
@@ -129,27 +133,23 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
       ? staticCreationFromStrategy(
           targetElement,
           targetStructureInitialization.host,
-          hostInitializationStrategy,
-          classNameHost
+          hostInitializationStrategy
         )
       : (targetElement as HTMLElement),
     _viewport: staticCreationFromStrategy(
       targetElement,
       targetStructureInitialization.viewport,
-      viewportInitializationStrategy,
-      classNameViewport
+      viewportInitializationStrategy
     ),
     _padding: dynamicCreationFromStrategy(
       targetElement,
       targetStructureInitialization.padding,
-      paddingInitializationStrategy,
-      classNamePadding
+      paddingInitializationStrategy
     ),
     _content: dynamicCreationFromStrategy(
       targetElement,
       targetStructureInitialization.content,
-      contentInitializationStrategy,
-      classNameContent
+      contentInitializationStrategy
     ),
     _viewportArrange: createUniqueViewportArrangeElement(),
     _windowElm: wnd,
@@ -177,6 +177,10 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
         )
       );
   const contentSlot = _content || _viewport;
+  const removeHostDataAttr = addDataAttrHost(_host);
+  const removePaddingClass = addClass(_padding, classNamePadding);
+  const removeViewportClass = addClass(_viewport, classNameViewport);
+  const removeContentClass = addClass(_content, classNameContent);
 
   // only insert host for textarea after target if it was generated
   if (isTextareaHostGenerated) {
@@ -193,16 +197,11 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
   appendChildren(_padding || _host, _viewport);
   appendChildren(_viewport, _content);
 
-  addClass(_host, classNameHost);
-  addClass(_padding, classNamePadding);
-  addClass(_viewport, classNameViewport);
-  addClass(_content, classNameContent);
-
   push(destroyFns, () => {
     if (targetIsElm) {
       appendChildren(_host, contents(contentSlot));
       removeElements(_padding || _viewport);
-      removeClass(_host, classNameHost);
+      removeHostDataAttr();
     } else {
       if (elementIsGenerated(_content)) {
         unwrap(_content);
@@ -213,10 +212,10 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
       if (elementIsGenerated(_padding)) {
         unwrap(_padding);
       }
-      removeClass(_host, classNameHost);
-      removeClass(_padding, classNamePadding);
-      removeClass(_viewport, classNameViewport);
-      removeClass(_content, classNameContent);
+      removeHostDataAttr();
+      removePaddingClass();
+      removeViewportClass();
+      removeContentClass();
     }
   });
 

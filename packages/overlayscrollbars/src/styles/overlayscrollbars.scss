@@ -72,7 +72,7 @@
   background: transparent !important;
 }
 
-.os-host,
+[data-overlayscrollbars],
 .os-padding {
   position: relative;
   display: flex;
@@ -109,10 +109,15 @@
   }
 }
 
-.os-host,
+[data-overlayscrollbars],
 .os-padding,
 .os-viewport {
   overflow: hidden;
+}
+
+[data-overlayscrollbars~='overflowVisible'],
+.os-overflow-visible {
+  overflow: visible;
 }
 
 .os-content {

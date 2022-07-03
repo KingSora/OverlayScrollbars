@@ -42,7 +42,7 @@ interface OSInitializationObject extends StructureInitialization, ScrollbarsInit
 }
 type OSTarget = OSTargetElement | OSInitializationObject;
 type ResizeBehavior = "none" | "both" | "horizontal" | "vertical";
-type OverflowBehavior = "hidden" | "scroll" | "visible" | "visible-hidden";
+type OverflowBehavior = "hidden" | "scroll" | "visible" | "visible-hidden" | "visible-scroll";
 type VisibilityBehavior = "visible" | "hidden" | "auto";
 type AutoHideBehavior = "never" | "scroll" | "leave" | "move";
 interface OSOptions {

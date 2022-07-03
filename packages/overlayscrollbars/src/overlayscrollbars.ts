@@ -41,15 +41,16 @@ export interface OverlayScrollbars {
   off: RemoveOSEventListener;
 }
 
-const createOverflowChangedArgs = (overflowAmount: WH<number>, overflowScroll: XY<boolean>) => ({
+const createOverflowChangedArgs = (
+  overflowAmount: WH<number>,
+  hasOverflow: XY<boolean>,
+  overflowScroll: XY<boolean>
+) => ({
   amount: {
     x: overflowAmount.w,
     y: overflowAmount.h,
   },
-  overflow: {
-    x: overflowAmount.w > 0,
-    y: overflowAmount.h > 0,
-  },
+  overflow: hasOverflow,
   scrollableOverflow: assignDeep({}, overflowScroll),
 });
 
@@ -118,13 +119,13 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       _contentMutation,
       _hostMutation,
     } = updateHints;
-    const { _overflowAmount, _overflowScroll } = structureState();
+    const { _overflowAmount, _overflowScroll, _hasOverflow } = structureState();
 
     if (_overflowAmountChanged || _overflowScrollChanged) {
       triggerEvent(
         'overflowChanged',
-        assignDeep({}, createOverflowChangedArgs(_overflowAmount, _overflowScroll), {
-          previous: createOverflowChangedArgs(_overflowAmount!, _overflowScroll!),
+        assignDeep({}, createOverflowChangedArgs(_overflowAmount, _hasOverflow, _overflowScroll), {
+          previous: createOverflowChangedArgs(_overflowAmount!, _hasOverflow, _overflowScroll!),
         })
       );
     }

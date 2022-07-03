@@ -16,6 +16,7 @@ export interface StructureSetupState {
   _viewportPaddingStyle: StyleObject;
   _overflowScroll: XY<boolean>;
   _overflowAmount: WH<number>;
+  _hasOverflow: XY<boolean>;
   _heightIntrinsic: boolean;
   _directionIsRTL: boolean;
 }
@@ -53,6 +54,10 @@ const initialStructureSetupUpdateState: StructureSetupState = {
     h: 0,
   },
   _overflowScroll: {
+    x: false,
+    y: false,
+  },
+  _hasOverflow: {
     x: false,
     y: false,
   },

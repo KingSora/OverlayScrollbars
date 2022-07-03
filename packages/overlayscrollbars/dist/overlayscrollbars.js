@@ -773,12 +773,13 @@
   var classNameEnvironment = 'os-environment';
   var classNameEnvironmentFlexboxGlue = classNameEnvironment + "-flexbox-glue";
   var classNameEnvironmentFlexboxGlueMax = classNameEnvironmentFlexboxGlue + "-max";
-  var classNameHost = 'os-host';
+  var dataAttributeHost = 'data-overlayscrollbars';
   var classNamePadding = 'os-padding';
   var classNameViewport = 'os-viewport';
   var classNameViewportArrange = classNameViewport + "-arrange";
   var classNameContent = 'os-content';
   var classNameViewportScrollbarStyling = classNameViewport + "-scrollbar-styled";
+  var classNameOverflowVisible = "os-overflow-visible";
   var classNameSizeObserver = 'os-size-observer';
   var classNameSizeObserverAppear = classNameSizeObserver + "-appear";
   var classNameSizeObserverListener = classNameSizeObserver + "-listener";
@@ -1075,15 +1076,20 @@
     return result;
   };
 
-  var staticCreationFromStrategy = function staticCreationFromStrategy(target, initializationValue, strategy, elementClass) {
+  var staticCreationFromStrategy = function staticCreationFromStrategy(target, initializationValue, strategy) {
     var result = initializationValue || (isFunction(strategy) ? strategy(target) : strategy);
-    return result || createDiv(elementClass);
+    return result || createDiv();
   };
 
-  var dynamicCreationFromStrategy = function dynamicCreationFromStrategy(target, initializationValue, strategy, elementClass) {
+  var dynamicCreationFromStrategy = function dynamicCreationFromStrategy(target, initializationValue, strategy) {
     var takeInitializationValue = isBoolean(initializationValue) || initializationValue;
     var result = takeInitializationValue ? initializationValue : isFunction(strategy) ? strategy(target) : strategy;
-    return result === true ? createDiv(elementClass) : result;
+    return result === true ? createDiv() : result;
+  };
+
+  var addDataAttrHost = function addDataAttrHost(elm) {
+    attr(elm, dataAttributeHost, '');
+    return removeAttr.bind(0, elm, dataAttributeHost);
   };
 
   var createStructureSetupElements = function createStructureSetupElements(target) {
@@ -1107,10 +1113,10 @@
     var wnd = ownerDocument.defaultView;
     var evaluatedTargetObj = {
       _target: targetElement,
-      _host: isTextarea ? staticCreationFromStrategy(targetElement, targetStructureInitialization.host, hostInitializationStrategy, classNameHost) : targetElement,
-      _viewport: staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy, classNameViewport),
-      _padding: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.padding, paddingInitializationStrategy, classNamePadding),
-      _content: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.content, contentInitializationStrategy, classNameContent),
+      _host: isTextarea ? staticCreationFromStrategy(targetElement, targetStructureInitialization.host, hostInitializationStrategy) : targetElement,
+      _viewport: staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy),
+      _padding: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.padding, paddingInitializationStrategy),
+      _content: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.content, contentInitializationStrategy),
       _viewportArrange: createUniqueViewportArrangeElement(),
       _windowElm: wnd,
       _documentElm: ownerDocument,
@@ -1141,6 +1147,10 @@
       return elementIsGenerated(elm) === false;
     }));
     var contentSlot = _content || _viewport;
+    var removeHostDataAttr = addDataAttrHost(_host);
+    var removePaddingClass = addClass(_padding, classNamePadding);
+    var removeViewportClass = addClass(_viewport, classNameViewport);
+    var removeContentClass = addClass(_content, classNameContent);
 
     if (isTextareaHostGenerated) {
       insertAfter(_target, _host);
@@ -1154,15 +1164,11 @@
     appendChildren(_host, _padding);
     appendChildren(_padding || _host, _viewport);
     appendChildren(_viewport, _content);
-    addClass(_host, classNameHost);
-    addClass(_padding, classNamePadding);
-    addClass(_viewport, classNameViewport);
-    addClass(_content, classNameContent);
     push(destroyFns, function () {
       if (targetIsElm) {
         appendChildren(_host, contents(contentSlot));
         removeElements(_padding || _viewport);
-        removeClass(_host, classNameHost);
+        removeHostDataAttr();
       } else {
         if (elementIsGenerated(_content)) {
           unwrap(_content);
@@ -1176,10 +1182,10 @@
           unwrap(_padding);
         }
 
-        removeClass(_host, classNameHost);
-        removeClass(_padding, classNamePadding);
-        removeClass(_viewport, classNameViewport);
-        removeClass(_content, classNameContent);
+        removeHostDataAttr();
+        removePaddingClass();
+        removeViewportClass();
+        removeContentClass();
       }
     });
 
@@ -1298,6 +1304,7 @@
   };
 
   var max = Math.max;
+  var strVisible = 'visible';
   var overlaidScrollbarsHideOffset = 42;
   var whCacheOptions = {
     _equal: equalWH,
@@ -1314,40 +1321,31 @@
     }
   };
 
-  var setAxisOverflowStyle = function setAxisOverflowStyle(horizontal, overflowAmount, behavior, styleObj) {
-    var overflowKey = horizontal ? 'overflowX' : 'overflowY';
-    var behaviorIsVisible = behavior.indexOf('visible') === 0;
-    var behaviorIsVisibleHidden = behavior === 'visible-hidden';
-    var behaviorIsScroll = behavior === 'scroll';
-    var hasOverflow = overflowAmount > 0;
-
-    if (behaviorIsVisible) {
-      styleObj[overflowKey] = 'visible';
-    }
-
-    if (behaviorIsScroll && hasOverflow) {
-      styleObj[overflowKey] = behavior;
-    }
-
-    return [behaviorIsVisible, behaviorIsVisibleHidden ? 'hidden' : 'scroll'];
-  };
-
   var getOverflowAmount = function getOverflowAmount(viewportScrollSize, viewportClientSize, sizeFraction) {
-    var tollerance = window.devicePixelRatio % 2 !== 0 ? 1 : 0;
+    var tollerance = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
     var amount = {
       w: max(0, viewportScrollSize.w - viewportClientSize.w - max(0, sizeFraction.w)),
       h: max(0, viewportScrollSize.h - viewportClientSize.h - max(0, sizeFraction.h))
     };
     return {
-      w: amount.w >= tollerance ? amount.w : 0,
-      h: amount.h >= tollerance ? amount.h : 0
+      w: amount.w > tollerance ? amount.w : 0,
+      h: amount.h > tollerance ? amount.h : 0
     };
+  };
+
+  var conditionalClass = function conditionalClass(elm, classNames, condition) {
+    return condition ? addClass(elm, classNames) : removeClass(elm, classNames);
+  };
+
+  var overflowIsVisible = function overflowIsVisible(overflowBehavior) {
+    return overflowBehavior.indexOf(strVisible) === 0;
   };
 
   var createOverflowUpdate = function createOverflowUpdate(structureSetupElements, state) {
     var getState = state[0],
         setState = state[1];
     var _host = structureSetupElements._host,
+        _padding = structureSetupElements._padding,
         _viewport = structureSetupElements._viewport,
         _viewportArrange = structureSetupElements._viewportArrange;
 
@@ -1382,14 +1380,14 @@
       if (heightIntrinsic) {
         var _getState = getState(),
             _paddingAbsolute = _getState._paddingAbsolute,
-            _padding = _getState._padding;
+            padding = _getState._padding;
 
         var _overflowScroll = viewportOverflowState._overflowScroll,
             _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset;
         var fSize = fractionalSize(_host);
         var hostClientSize = clientSize(_host);
         var isContentBox = style(_viewport, 'boxSizing') === 'content-box';
-        var paddingVertical = _paddingAbsolute || isContentBox ? _padding.b + _padding.t : 0;
+        var paddingVertical = _paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
         var subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
         style(_viewport, {
           height: hostClientSize.h + fSize.h + (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) - paddingVertical
@@ -1425,23 +1423,22 @@
       };
     };
 
-    var setViewportOverflowState = function setViewportOverflowState(showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyleObj) {
-      var _setAxisOverflowStyle = setAxisOverflowStyle(true, overflowAmount.w, overflow.x, viewportStyleObj),
-          xVisible = _setAxisOverflowStyle[0],
-          xVisibleBehavior = _setAxisOverflowStyle[1];
+    var setViewportOverflowState = function setViewportOverflowState(showNativeOverlaidScrollbars, hasOverflow, overflowOption, viewportStyleObj) {
+      var setAxisOverflowStyle = function setAxisOverflowStyle(behavior, hasOverflowAxis) {
+        var overflowVisible = overflowIsVisible(behavior);
+        return [hasOverflowAxis && !overflowVisible ? behavior : '', hasOverflowAxis && overflowVisible && behavior.replace(strVisible + "-", '') || ''];
+      };
 
-      var _setAxisOverflowStyle2 = setAxisOverflowStyle(false, overflowAmount.h, overflow.y, viewportStyleObj),
-          yVisible = _setAxisOverflowStyle2[0],
-          yVisibleBehavior = _setAxisOverflowStyle2[1];
+      var _setAxisOverflowStyle = setAxisOverflowStyle(overflowOption.x, hasOverflow.x),
+          overflowX = _setAxisOverflowStyle[0],
+          visibleBehaviorX = _setAxisOverflowStyle[1];
 
-      if (xVisible && !yVisible) {
-        viewportStyleObj.overflowX = xVisibleBehavior;
-      }
+      var _setAxisOverflowStyle2 = setAxisOverflowStyle(overflowOption.y, hasOverflow.y),
+          overflowY = _setAxisOverflowStyle2[0],
+          visibleBehaviorY = _setAxisOverflowStyle2[1];
 
-      if (yVisible && !xVisible) {
-        viewportStyleObj.overflowY = yVisibleBehavior;
-      }
-
+      viewportStyleObj.overflowX = visibleBehaviorX && overflowY ? visibleBehaviorX : overflowX;
+      viewportStyleObj.overflowY = visibleBehaviorY && overflowX ? visibleBehaviorY : overflowY;
       return getViewportOverflowState(showNativeOverlaidScrollbars, viewportStyleObj);
     };
 
@@ -1586,22 +1583,26 @@
 
       var showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
       var adjustFlexboxGlue = !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || _heightIntrinsicChanged);
+      var overflowXVisible = overflowIsVisible(overflow.x);
+      var overflowYVisible = overflowIsVisible(overflow.y);
+      var overflowVisible = overflowXVisible || overflowYVisible;
       var sizeFractionCache = getCurrentSizeFraction(force);
       var viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
       var overflowAmuntCache = getCurrentOverflowAmountCache(force);
       var preMeasureViewportOverflowState;
+      var updateHintsReturn;
 
       if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
-        if (showNativeOverlaidScrollbars) {
-          removeClass(_viewport, classNameViewportScrollbarStyling);
-        } else {
-          addClass(_viewport, classNameViewportScrollbarStyling);
-        }
+        conditionalClass(_viewport, classNameViewportScrollbarStyling, !showNativeOverlaidScrollbars);
       }
 
       if (adjustFlexboxGlue) {
         preMeasureViewportOverflowState = getViewportOverflowState(showNativeOverlaidScrollbars);
         fixFlexboxGlue(preMeasureViewportOverflowState, _heightIntrinsic);
+      }
+
+      if (overflowVisible) {
+        removeClass(_viewport, classNameOverflowVisible);
       }
 
       if (_sizeChanged || _paddingStyleChanged || _contentMutation || _directionChanged || showNativeOverlaidScrollbarsChanged) {
@@ -1645,6 +1646,11 @@
       var _sizeFractionCache2 = sizeFractionCache,
           sizeFraction = _sizeFractionCache2[0],
           sizeFractionChanged = _sizeFractionCache2[1];
+      var hasOverflow = {
+        x: overflowAmount.w > 0,
+        y: overflowAmount.h > 0
+      };
+      var removeClipping = overflowXVisible && overflowYVisible && (hasOverflow.x || hasOverflow.y) || overflowXVisible && hasOverflow.x && !hasOverflow.y || overflowYVisible && hasOverflow.y && !hasOverflow.x;
 
       if (_paddingStyleChanged || _directionChanged || sizeFractionChanged || viewportScrollSizeChanged || overflowAmountChanged || overflowChanged || showNativeOverlaidScrollbarsChanged || adjustFlexboxGlue) {
         var viewportStyle = {
@@ -1655,7 +1661,7 @@
           overflowY: '',
           overflowX: ''
         };
-        var viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyle);
+        var viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, hasOverflow, overflow, viewportStyle);
         var viewportArranged = arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction, _directionIsRTL);
 
         var _updateOverflowScroll = updateOverflowScrollCache(viewportOverflowState._overflowScroll),
@@ -1671,13 +1677,19 @@
         style(_viewport, viewportStyle);
         setState({
           _overflowScroll: overflowScroll,
-          _overflowAmount: overflowAmount
+          _overflowAmount: overflowAmount,
+          _hasOverflow: hasOverflow
         });
-        return {
+        updateHintsReturn = {
           _overflowAmountChanged: overflowAmountChanged,
           _overflowScrollChanged: overflowScrollChanged
         };
       }
+
+      attr(_host, dataAttributeHost, removeClipping ? 'overflowVisible' : '');
+      conditionalClass(_padding, classNameOverflowVisible, removeClipping);
+      conditionalClass(_viewport, classNameOverflowVisible, overflowVisible);
+      return updateHintsReturn;
     };
   };
 
@@ -2335,6 +2347,10 @@
       x: false,
       y: false
     },
+    _hasOverflow: {
+      x: false,
+      y: false
+    },
     _heightIntrinsic: false,
     _directionIsRTL: false
   };
@@ -2541,16 +2557,13 @@
     return createEventListenerHub(initialEventListeners);
   };
 
-  var createOverflowChangedArgs = function createOverflowChangedArgs(overflowAmount, overflowScroll) {
+  var createOverflowChangedArgs = function createOverflowChangedArgs(overflowAmount, hasOverflow, overflowScroll) {
     return {
       amount: {
         x: overflowAmount.w,
         y: overflowAmount.h
       },
-      overflow: {
-        x: overflowAmount.w > 0,
-        y: overflowAmount.h > 0
-      },
+      overflow: hasOverflow,
       scrollableOverflow: assignDeep({}, overflowScroll)
     };
   };
@@ -2613,11 +2626,12 @@
 
       var _structureState = structureState(),
           _overflowAmount = _structureState._overflowAmount,
-          _overflowScroll = _structureState._overflowScroll;
+          _overflowScroll = _structureState._overflowScroll,
+          _hasOverflow = _structureState._hasOverflow;
 
       if (_overflowAmountChanged || _overflowScrollChanged) {
-        triggerEvent('overflowChanged', assignDeep({}, createOverflowChangedArgs(_overflowAmount, _overflowScroll), {
-          previous: createOverflowChangedArgs(_overflowAmount, _overflowScroll)
+        triggerEvent('overflowChanged', assignDeep({}, createOverflowChangedArgs(_overflowAmount, _hasOverflow, _overflowScroll), {
+          previous: createOverflowChangedArgs(_overflowAmount, _hasOverflow, _overflowScroll)
         }));
       }
 

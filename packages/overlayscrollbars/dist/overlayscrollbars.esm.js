@@ -687,12 +687,13 @@ const createState = initialState => {
 const classNameEnvironment = 'os-environment';
 const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
 const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
-const classNameHost = 'os-host';
+const dataAttributeHost = 'data-overlayscrollbars';
 const classNamePadding = 'os-padding';
 const classNameViewport = 'os-viewport';
 const classNameViewportArrange = `${classNameViewport}-arrange`;
 const classNameContent = 'os-content';
 const classNameViewportScrollbarStyling = `${classNameViewport}-scrollbar-styled`;
+const classNameOverflowVisible = `os-overflow-visible`;
 const classNameSizeObserver = 'os-size-observer';
 const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
 const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
@@ -983,15 +984,20 @@ const createUniqueViewportArrangeElement = () => {
   return result;
 };
 
-const staticCreationFromStrategy = (target, initializationValue, strategy, elementClass) => {
+const staticCreationFromStrategy = (target, initializationValue, strategy) => {
   const result = initializationValue || (isFunction(strategy) ? strategy(target) : strategy);
-  return result || createDiv(elementClass);
+  return result || createDiv();
 };
 
-const dynamicCreationFromStrategy = (target, initializationValue, strategy, elementClass) => {
+const dynamicCreationFromStrategy = (target, initializationValue, strategy) => {
   const takeInitializationValue = isBoolean(initializationValue) || initializationValue;
   const result = takeInitializationValue ? initializationValue : isFunction(strategy) ? strategy(target) : strategy;
-  return result === true ? createDiv(elementClass) : result;
+  return result === true ? createDiv() : result;
+};
+
+const addDataAttrHost = elm => {
+  attr(elm, dataAttributeHost, '');
+  return removeAttr.bind(0, elm, dataAttributeHost);
 };
 
 const createStructureSetupElements = target => {
@@ -1017,10 +1023,10 @@ const createStructureSetupElements = target => {
   const wnd = ownerDocument.defaultView;
   const evaluatedTargetObj = {
     _target: targetElement,
-    _host: isTextarea ? staticCreationFromStrategy(targetElement, targetStructureInitialization.host, hostInitializationStrategy, classNameHost) : targetElement,
-    _viewport: staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy, classNameViewport),
-    _padding: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.padding, paddingInitializationStrategy, classNamePadding),
-    _content: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.content, contentInitializationStrategy, classNameContent),
+    _host: isTextarea ? staticCreationFromStrategy(targetElement, targetStructureInitialization.host, hostInitializationStrategy) : targetElement,
+    _viewport: staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy),
+    _padding: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.padding, paddingInitializationStrategy),
+    _content: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.content, contentInitializationStrategy),
     _viewportArrange: createUniqueViewportArrangeElement(),
     _windowElm: wnd,
     _documentElm: ownerDocument,
@@ -1049,6 +1055,10 @@ const createStructureSetupElements = target => {
   const isTextareaHostGenerated = isTextarea && elementIsGenerated(_host);
   const targetContents = isTextarea ? _target : contents([_content, _viewport, _padding, _host, _target].find(elm => elementIsGenerated(elm) === false));
   const contentSlot = _content || _viewport;
+  const removeHostDataAttr = addDataAttrHost(_host);
+  const removePaddingClass = addClass(_padding, classNamePadding);
+  const removeViewportClass = addClass(_viewport, classNameViewport);
+  const removeContentClass = addClass(_content, classNameContent);
 
   if (isTextareaHostGenerated) {
     insertAfter(_target, _host);
@@ -1062,15 +1072,11 @@ const createStructureSetupElements = target => {
   appendChildren(_host, _padding);
   appendChildren(_padding || _host, _viewport);
   appendChildren(_viewport, _content);
-  addClass(_host, classNameHost);
-  addClass(_padding, classNamePadding);
-  addClass(_viewport, classNameViewport);
-  addClass(_content, classNameContent);
   push(destroyFns, () => {
     if (targetIsElm) {
       appendChildren(_host, contents(contentSlot));
       removeElements(_padding || _viewport);
-      removeClass(_host, classNameHost);
+      removeHostDataAttr();
     } else {
       if (elementIsGenerated(_content)) {
         unwrap(_content);
@@ -1084,10 +1090,10 @@ const createStructureSetupElements = target => {
         unwrap(_padding);
       }
 
-      removeClass(_host, classNameHost);
-      removeClass(_padding, classNamePadding);
-      removeClass(_viewport, classNameViewport);
-      removeClass(_content, classNameContent);
+      removeHostDataAttr();
+      removePaddingClass();
+      removeViewportClass();
+      removeContentClass();
     }
   });
 
@@ -1201,6 +1207,7 @@ const createPaddingUpdate = (structureSetupElements, state) => {
 const {
   max
 } = Math;
+const strVisible = 'visible';
 const overlaidScrollbarsHideOffset = 42;
 const whCacheOptions = {
   _equal: equalWH,
@@ -1217,40 +1224,27 @@ const xyCacheOptions = {
   }
 };
 
-const setAxisOverflowStyle = (horizontal, overflowAmount, behavior, styleObj) => {
-  const overflowKey = horizontal ? 'overflowX' : 'overflowY';
-  const behaviorIsVisible = behavior.indexOf('visible') === 0;
-  const behaviorIsVisibleHidden = behavior === 'visible-hidden';
-  const behaviorIsScroll = behavior === 'scroll';
-  const hasOverflow = overflowAmount > 0;
-
-  if (behaviorIsVisible) {
-    styleObj[overflowKey] = 'visible';
-  }
-
-  if (behaviorIsScroll && hasOverflow) {
-    styleObj[overflowKey] = behavior;
-  }
-
-  return [behaviorIsVisible, behaviorIsVisibleHidden ? 'hidden' : 'scroll'];
-};
-
 const getOverflowAmount = (viewportScrollSize, viewportClientSize, sizeFraction) => {
-  const tollerance = window.devicePixelRatio % 2 !== 0 ? 1 : 0;
+  const tollerance = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
   const amount = {
     w: max(0, viewportScrollSize.w - viewportClientSize.w - max(0, sizeFraction.w)),
     h: max(0, viewportScrollSize.h - viewportClientSize.h - max(0, sizeFraction.h))
   };
   return {
-    w: amount.w >= tollerance ? amount.w : 0,
-    h: amount.h >= tollerance ? amount.h : 0
+    w: amount.w > tollerance ? amount.w : 0,
+    h: amount.h > tollerance ? amount.h : 0
   };
 };
+
+const conditionalClass = (elm, classNames, condition) => condition ? addClass(elm, classNames) : removeClass(elm, classNames);
+
+const overflowIsVisible = overflowBehavior => overflowBehavior.indexOf(strVisible) === 0;
 
 const createOverflowUpdate = (structureSetupElements, state) => {
   const [getState, setState] = state;
   const {
     _host,
+    _padding,
     _viewport,
     _viewportArrange
   } = structureSetupElements;
@@ -1274,7 +1268,7 @@ const createOverflowUpdate = (structureSetupElements, state) => {
     if (heightIntrinsic) {
       const {
         _paddingAbsolute,
-        _padding
+        _padding: padding
       } = getState();
       const {
         _overflowScroll,
@@ -1283,7 +1277,7 @@ const createOverflowUpdate = (structureSetupElements, state) => {
       const fSize = fractionalSize(_host);
       const hostClientSize = clientSize(_host);
       const isContentBox = style(_viewport, 'boxSizing') === 'content-box';
-      const paddingVertical = _paddingAbsolute || isContentBox ? _padding.b + _padding.t : 0;
+      const paddingVertical = _paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
       const subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
       style(_viewport, {
         height: hostClientSize.h + fSize.h + (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) - paddingVertical
@@ -1321,18 +1315,16 @@ const createOverflowUpdate = (structureSetupElements, state) => {
     };
   };
 
-  const setViewportOverflowState = (showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyleObj) => {
-    const [xVisible, xVisibleBehavior] = setAxisOverflowStyle(true, overflowAmount.w, overflow.x, viewportStyleObj);
-    const [yVisible, yVisibleBehavior] = setAxisOverflowStyle(false, overflowAmount.h, overflow.y, viewportStyleObj);
+  const setViewportOverflowState = (showNativeOverlaidScrollbars, hasOverflow, overflowOption, viewportStyleObj) => {
+    const setAxisOverflowStyle = (behavior, hasOverflowAxis) => {
+      const overflowVisible = overflowIsVisible(behavior);
+      return [hasOverflowAxis && !overflowVisible ? behavior : '', hasOverflowAxis && overflowVisible && behavior.replace(`${strVisible}-`, '') || ''];
+    };
 
-    if (xVisible && !yVisible) {
-      viewportStyleObj.overflowX = xVisibleBehavior;
-    }
-
-    if (yVisible && !xVisible) {
-      viewportStyleObj.overflowY = yVisibleBehavior;
-    }
-
+    const [overflowX, visibleBehaviorX] = setAxisOverflowStyle(overflowOption.x, hasOverflow.x);
+    const [overflowY, visibleBehaviorY] = setAxisOverflowStyle(overflowOption.y, hasOverflow.y);
+    viewportStyleObj.overflowX = visibleBehaviorX && overflowY ? visibleBehaviorX : overflowX;
+    viewportStyleObj.overflowY = visibleBehaviorY && overflowX ? visibleBehaviorY : overflowY;
     return getViewportOverflowState(showNativeOverlaidScrollbars, viewportStyleObj);
   };
 
@@ -1488,22 +1480,26 @@ const createOverflowUpdate = (structureSetupElements, state) => {
     const [overflow, overflowChanged] = checkOption('overflow');
     const showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
     const adjustFlexboxGlue = !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || _heightIntrinsicChanged);
+    const overflowXVisible = overflowIsVisible(overflow.x);
+    const overflowYVisible = overflowIsVisible(overflow.y);
+    const overflowVisible = overflowXVisible || overflowYVisible;
     let sizeFractionCache = getCurrentSizeFraction(force);
     let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
     let overflowAmuntCache = getCurrentOverflowAmountCache(force);
     let preMeasureViewportOverflowState;
+    let updateHintsReturn;
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
-      if (showNativeOverlaidScrollbars) {
-        removeClass(_viewport, classNameViewportScrollbarStyling);
-      } else {
-        addClass(_viewport, classNameViewportScrollbarStyling);
-      }
+      conditionalClass(_viewport, classNameViewportScrollbarStyling, !showNativeOverlaidScrollbars);
     }
 
     if (adjustFlexboxGlue) {
       preMeasureViewportOverflowState = getViewportOverflowState(showNativeOverlaidScrollbars);
       fixFlexboxGlue(preMeasureViewportOverflowState, _heightIntrinsic);
+    }
+
+    if (overflowVisible) {
+      removeClass(_viewport, classNameOverflowVisible);
     }
 
     if (_sizeChanged || _paddingStyleChanged || _contentMutation || _directionChanged || showNativeOverlaidScrollbarsChanged) {
@@ -1532,6 +1528,11 @@ const createOverflowUpdate = (structureSetupElements, state) => {
     const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
     const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
     const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
+    const hasOverflow = {
+      x: overflowAmount.w > 0,
+      y: overflowAmount.h > 0
+    };
+    const removeClipping = overflowXVisible && overflowYVisible && (hasOverflow.x || hasOverflow.y) || overflowXVisible && hasOverflow.x && !hasOverflow.y || overflowYVisible && hasOverflow.y && !hasOverflow.x;
 
     if (_paddingStyleChanged || _directionChanged || sizeFractionChanged || viewportScrollSizeChanged || overflowAmountChanged || overflowChanged || showNativeOverlaidScrollbarsChanged || adjustFlexboxGlue) {
       const viewportStyle = {
@@ -1542,7 +1543,7 @@ const createOverflowUpdate = (structureSetupElements, state) => {
         overflowY: '',
         overflowX: ''
       };
-      const viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, overflowAmount, overflow, viewportStyle);
+      const viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, hasOverflow, overflow, viewportStyle);
       const viewportArranged = arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction, _directionIsRTL);
       const [overflowScroll, overflowScrollChanged] = updateOverflowScrollCache(viewportOverflowState._overflowScroll);
       hideNativeScrollbars(viewportOverflowState, _directionIsRTL, viewportArranged, viewportStyle);
@@ -1554,13 +1555,19 @@ const createOverflowUpdate = (structureSetupElements, state) => {
       style(_viewport, viewportStyle);
       setState({
         _overflowScroll: overflowScroll,
-        _overflowAmount: overflowAmount
+        _overflowAmount: overflowAmount,
+        _hasOverflow: hasOverflow
       });
-      return {
+      updateHintsReturn = {
         _overflowAmountChanged: overflowAmountChanged,
         _overflowScrollChanged: overflowScrollChanged
       };
     }
+
+    attr(_host, dataAttributeHost, removeClipping ? 'overflowVisible' : '');
+    conditionalClass(_padding, classNameOverflowVisible, removeClipping);
+    conditionalClass(_viewport, classNameOverflowVisible, overflowVisible);
+    return updateHintsReturn;
   };
 };
 
@@ -2178,6 +2185,10 @@ const initialStructureSetupUpdateState = {
     x: false,
     y: false
   },
+  _hasOverflow: {
+    x: false,
+    y: false
+  },
   _heightIntrinsic: false,
   _directionIsRTL: false
 };
@@ -2373,15 +2384,12 @@ const getInstance = target => targetInstanceMap.get(target);
 
 const createOSEventListenerHub = initialEventListeners => createEventListenerHub(initialEventListeners);
 
-const createOverflowChangedArgs = (overflowAmount, overflowScroll) => ({
+const createOverflowChangedArgs = (overflowAmount, hasOverflow, overflowScroll) => ({
   amount: {
     x: overflowAmount.w,
     y: overflowAmount.h
   },
-  overflow: {
-    x: overflowAmount.w > 0,
-    y: overflowAmount.h > 0
-  },
+  overflow: hasOverflow,
   scrollableOverflow: assignDeep({}, overflowScroll)
 });
 
@@ -2434,12 +2442,13 @@ const OverlayScrollbars = (target, options, eventListeners) => {
     } = updateHints;
     const {
       _overflowAmount,
-      _overflowScroll
+      _overflowScroll,
+      _hasOverflow
     } = structureState();
 
     if (_overflowAmountChanged || _overflowScrollChanged) {
-      triggerEvent('overflowChanged', assignDeep({}, createOverflowChangedArgs(_overflowAmount, _overflowScroll), {
-        previous: createOverflowChangedArgs(_overflowAmount, _overflowScroll)
+      triggerEvent('overflowChanged', assignDeep({}, createOverflowChangedArgs(_overflowAmount, _hasOverflow, _overflowScroll), {
+        previous: createOverflowChangedArgs(_overflowAmount, _hasOverflow, _overflowScroll)
       }));
     }
 
