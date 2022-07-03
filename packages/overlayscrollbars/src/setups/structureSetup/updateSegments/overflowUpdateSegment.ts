@@ -48,6 +48,7 @@ const xyCacheOptions = {
   _equal: equalXY,
   _initialValue: { x: false, y: false },
 };
+
 const getOverflowAmount = (
   viewportScrollSize: WH<number>,
   viewportClientSize: WH<number>,
@@ -444,9 +445,9 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
       const [sizeFraction, sizeFractionChanged] = (sizeFractionCache = updateSizeFraction(force));
       const [viewportScrollSize, viewportScrollSizeChanged] = (viewportScrollSizeCache =
         updateViewportScrollSizeCache(force));
-      const viewportContentSize = clientSize(_viewport);
+      const viewportclientSize = clientSize(_viewport);
       let arrangedViewportScrollSize = viewportScrollSize;
-      let arrangedViewportClientSize = viewportContentSize;
+      let arrangedViewportClientSize = viewportclientSize;
 
       redoViewportArrange();
 
@@ -473,8 +474,8 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
             h: max(viewportScrollSize.h, arrangedViewportScrollSize.h),
           }, // scroll size
           {
-            w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - viewportScrollSize.w),
-            h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - viewportScrollSize.h),
+            w: arrangedViewportClientSize.w + max(0, viewportclientSize.w - viewportScrollSize.w),
+            h: arrangedViewportClientSize.h + max(0, viewportclientSize.h - viewportScrollSize.h),
           }, // client size
           sizeFraction
         ),

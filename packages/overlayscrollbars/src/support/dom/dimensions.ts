@@ -36,7 +36,7 @@ export const offsetSize = (elm: HTMLElement | null | undefined): WH =>
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const clientSize = (elm: HTMLElement | null | undefined): WH =>
+export const clientSize = (elm: HTMLElement | false | null | undefined): WH =>
   elm
     ? {
         w: elm.clientWidth,
@@ -48,7 +48,7 @@ export const clientSize = (elm: HTMLElement | null | undefined): WH =>
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const scrollSize = (elm: HTMLElement | null | undefined): WH =>
+export const scrollSize = (elm: HTMLElement | false | null | undefined): WH =>
   elm
     ? {
         w: elm.scrollWidth,
@@ -60,7 +60,7 @@ export const scrollSize = (elm: HTMLElement | null | undefined): WH =>
  * Returns the fractional- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the fractional- width and height shall be returned.
  */
-export const fractionalSize = (elm: HTMLElement | null | undefined): WH => {
+export const fractionalSize = (elm: HTMLElement | false | null | undefined): WH => {
   const cssHeight = parseFloat(style(elm, 'height')) || 0;
   const cssWidth = parseFloat(style(elm, 'height')) || 0;
   return {
@@ -79,5 +79,5 @@ export const getBoundingClientRect = (elm: HTMLElement): DOMRect => elm.getBound
  * Determines whether the passed element has any dimensions.
  * @param elm The element.
  */
-export const hasDimensions = (elm: HTMLElement | null | undefined): boolean =>
+export const hasDimensions = (elm: HTMLElement | false | null | undefined): boolean =>
   elm ? elementHasDimensions(elm as HTMLElement) : false;

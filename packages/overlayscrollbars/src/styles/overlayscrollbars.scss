@@ -109,13 +109,18 @@
   }
 }
 
-[data-overlayscrollbars],
+[data-overlayscrollbars] {
+  overflow: hidden !important;
+}
+[data-overlayscrollbars~='overflowVisible'] {
+  overflow: visible !important;
+}
+
 .os-padding,
 .os-viewport {
   overflow: hidden;
 }
 
-[data-overlayscrollbars~='overflowVisible'],
 .os-overflow-visible {
   overflow: visible;
 }
