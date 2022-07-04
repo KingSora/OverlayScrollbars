@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const rollupPluginStyles = require('rollup-plugin-styles');
 const rollupPluginServe = require('rollup-plugin-serve');
-const rollupPluginLivereload = require('rollup-plugin-livereload');
+// const rollupPluginLivereload = require('rollup-plugin-livereload');
 
 const createRollupConfig = require('../rollup/rollup.config');
 const rollupPluginHtml = require('./rollup.pluginHtml');

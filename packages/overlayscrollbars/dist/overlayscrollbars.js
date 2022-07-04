@@ -1589,8 +1589,8 @@
       var sizeFractionCache = getCurrentSizeFraction(force);
       var viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
       var overflowAmuntCache = getCurrentOverflowAmountCache(force);
-      var preMeasureViewportOverflowState;
       var updateHintsReturn;
+      var preMeasureViewportOverflowState;
 
       if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
         conditionalClass(_viewport, classNameViewportScrollbarStyling, !showNativeOverlaidScrollbars);
@@ -1618,9 +1618,9 @@
             _viewportScrollSize = _viewportScrollSizeCa[0],
             _viewportScrollSizeChanged = _viewportScrollSizeCa[1];
 
-        var viewportContentSize = clientSize(_viewport);
+        var viewportclientSize = clientSize(_viewport);
         var arrangedViewportScrollSize = _viewportScrollSize;
-        var arrangedViewportClientSize = viewportContentSize;
+        var arrangedViewportClientSize = viewportclientSize;
         redoViewportArrange();
 
         if ((_viewportScrollSizeChanged || _sizeFractionChanged || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize, _sizeFraction, _directionIsRTL)) {
@@ -1632,8 +1632,8 @@
           w: max(_viewportScrollSize.w, arrangedViewportScrollSize.w),
           h: max(_viewportScrollSize.h, arrangedViewportScrollSize.h)
         }, {
-          w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - _viewportScrollSize.w),
-          h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize.h)
+          w: arrangedViewportClientSize.w + max(0, viewportclientSize.w - _viewportScrollSize.w),
+          h: arrangedViewportClientSize.h + max(0, viewportclientSize.h - _viewportScrollSize.h)
         }, _sizeFraction), force);
       }
 

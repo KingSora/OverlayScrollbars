@@ -72,8 +72,7 @@ const conditionalClass = (
   condition: boolean
 ) => (condition ? addClass(elm, classNames) : removeClass(elm, classNames));
 
-const overflowIsVisible = (overflowBehavior: OverflowBehavior) =>
-  overflowBehavior.indexOf(strVisible) === 0;
+const overflowIsVisible = (overflowBehavior: string) => overflowBehavior.indexOf(strVisible) === 0;
 
 /**
  * Lifecycle with the responsibility to set the correct overflow and scrollbar hiding styles of the viewport element.
@@ -199,9 +198,11 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
   ): ViewportOverflowState => {
     const setAxisOverflowStyle = (behavior: OverflowBehavior, hasOverflowAxis: boolean) => {
       const overflowVisible = overflowIsVisible(behavior);
+      const overflowVisibleBehavior =
+        (hasOverflowAxis && overflowVisible && behavior.replace(`${strVisible}-`, '')) || '';
       return [
         hasOverflowAxis && !overflowVisible ? behavior : '',
-        (hasOverflowAxis && overflowVisible && behavior.replace(`${strVisible}-`, '')) || '',
+        overflowIsVisible(overflowVisibleBehavior) ? 'hidden' : overflowVisibleBehavior,
       ];
     };
 

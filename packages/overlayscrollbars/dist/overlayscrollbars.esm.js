@@ -1486,8 +1486,8 @@ const createOverflowUpdate = (structureSetupElements, state) => {
     let sizeFractionCache = getCurrentSizeFraction(force);
     let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
     let overflowAmuntCache = getCurrentOverflowAmountCache(force);
-    let preMeasureViewportOverflowState;
     let updateHintsReturn;
+    let preMeasureViewportOverflowState;
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
       conditionalClass(_viewport, classNameViewportScrollbarStyling, !showNativeOverlaidScrollbars);
@@ -1506,9 +1506,9 @@ const createOverflowUpdate = (structureSetupElements, state) => {
       const [redoViewportArrange, undoViewportArrangeOverflowState] = undoViewportArrange(showNativeOverlaidScrollbars, _directionIsRTL, preMeasureViewportOverflowState);
       const [_sizeFraction, _sizeFractionChanged] = sizeFractionCache = updateSizeFraction(force);
       const [_viewportScrollSize, _viewportScrollSizeChanged] = viewportScrollSizeCache = updateViewportScrollSizeCache(force);
-      const viewportContentSize = clientSize(_viewport);
+      const viewportclientSize = clientSize(_viewport);
       let arrangedViewportScrollSize = _viewportScrollSize;
-      let arrangedViewportClientSize = viewportContentSize;
+      let arrangedViewportClientSize = viewportclientSize;
       redoViewportArrange();
 
       if ((_viewportScrollSizeChanged || _sizeFractionChanged || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize, _sizeFraction, _directionIsRTL)) {
@@ -1520,8 +1520,8 @@ const createOverflowUpdate = (structureSetupElements, state) => {
         w: max(_viewportScrollSize.w, arrangedViewportScrollSize.w),
         h: max(_viewportScrollSize.h, arrangedViewportScrollSize.h)
       }, {
-        w: arrangedViewportClientSize.w + max(0, viewportContentSize.w - _viewportScrollSize.w),
-        h: arrangedViewportClientSize.h + max(0, viewportContentSize.h - _viewportScrollSize.h)
+        w: arrangedViewportClientSize.w + max(0, viewportclientSize.w - _viewportScrollSize.w),
+        h: arrangedViewportClientSize.h + max(0, viewportclientSize.h - _viewportScrollSize.h)
       }, _sizeFraction), force);
     }
 

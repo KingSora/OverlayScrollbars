@@ -128,13 +128,23 @@ const metricsDimensionsEqual = (a: Metrics, b: Metrics) => {
   return JSON.stringify(aDimensions) === JSON.stringify(bDimensions);
 };
 
+const isVisibleOverflow = (val: string) => val.indexOf('visible') === 0;
+
+const expectedOverflowVisibleBehavior = (
+  overflowOptionAxis: string,
+  hasOverflowOtherAxis: boolean
+) => {
+  const overflowVisibleBehavior = overflowOptionAxis.replace('visible', '').slice(1);
+  return hasOverflowOtherAxis ? overflowVisibleBehavior || 'hidden' : 'visible';
+};
+
 // @ts-ignore
 const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
 const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
 
-const useContentElement = true;
+const useContentElement = false;
 const fixedDigits = msie11 ? 1 : 3;
 const fixedDigitsOffset = 3;
 
@@ -242,6 +252,18 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     const comparisonMetrics = getMetrics(comparison!);
     const targetMetrics = getMetrics(target!);
     const targetViewport = target!.querySelector<HTMLElement>('.os-viewport');
+    const targetPadding = target!.querySelector<HTMLElement>('.os-padding');
+    const { x: overflowOptionX, y: overflowOptionY } = osInstance.options().overflow;
+    const overflowOptionXVisible = isVisibleOverflow(overflowOptionX);
+    const overflowOptionYVisible = isVisibleOverflow(overflowOptionY);
+    const hostOverflowStyle = style(target, 'overflow');
+    const paddingOverflowStyle = targetPadding
+      ? style(targetPadding, 'overflow')
+      : hostOverflowStyle;
+    const viewportOverflowXStyle = style(targetViewport!, 'overflowX');
+    const viewportOverflowYStyle = style(targetViewport!, 'overflowY');
+
+    // ==== check scroll values:
 
     should.equal(
       targetMetrics.scroll.width,
@@ -266,48 +288,23 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     );
 
     if (targetMetrics.hasOverflow.x) {
-      /*
-      should.equal(
-        style(targetViewport!, 'overflowX'),
-        'scroll',
-        'Overflow-X should result in scroll.'
-      );
-      */
       should.ok(
         osInstance.state()._overflowAmount.w > 0,
         'Overflow amount width should be > 0 with overflow.'
       );
     } else {
-      should.notEqual(
-        style(targetViewport!, 'overflowX'),
-        'scroll',
-        'No Overflow-X shouldnt result in scroll.'
-      );
       should.equal(
         osInstance.state()._overflowAmount.w,
         0,
         'Overflow amount width should be 0 without overflow.'
       );
     }
-
     if (targetMetrics.hasOverflow.y) {
-      /*
-      should.equal(
-        style(targetViewport!, 'overflowY'),
-        'scroll',
-        'Overflow-Y should result in scroll.'
-      );
-      */
       should.ok(
         osInstance.state()._overflowAmount.h > 0,
         'Overflow amount height should be > 0 with overflow.'
       );
     } else {
-      should.notEqual(
-        style(targetViewport!, 'overflowY'),
-        'scroll',
-        'No Overflow-Y shouldnt result in scroll.'
-      );
       should.equal(
         osInstance.state()._overflowAmount.h,
         0,
@@ -315,12 +312,17 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
       );
     }
 
+    // ==== check elements offset and dimensions:
+
+    // host offset
     should.equal(targetMetrics.offset.left, comparisonMetrics.offset.left, 'Offset left equality.');
     should.equal(targetMetrics.offset.top, comparisonMetrics.offset.top, 'Offset top equality.');
 
+    // host dimensions
     should.equal(targetMetrics.size.width, comparisonMetrics.size.width, 'Size width equality.');
     should.equal(targetMetrics.size.height, comparisonMetrics.size.height, 'Size height equality.');
 
+    // percent element dimensions
     should.equal(
       targetMetrics.percentElm.width,
       comparisonMetrics.percentElm.width,
@@ -332,6 +334,7 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
       'Percent Elements height equality.'
     );
 
+    // end element dimensions
     should.equal(
       targetMetrics.endElm.width,
       comparisonMetrics.endElm.width,
@@ -341,6 +344,96 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
       targetMetrics.endElm.height,
       comparisonMetrics.endElm.height,
       'End Elements height equality.'
+    );
+
+    // ==== check viewport overflow style:
+
+    if (targetMetrics.hasOverflow.x) {
+      if (overflowOptionXVisible && !overflowOptionYVisible) {
+        const expectedStyle = expectedOverflowVisibleBehavior(
+          overflowOptionX,
+          targetMetrics.hasOverflow.y
+        );
+        should.equal(
+          viewportOverflowXStyle,
+          expectedStyle,
+          `Overflow-X visible behavior should result in ${expectedStyle}.`
+        );
+      } else if (overflowOptionXVisible && overflowOptionYVisible) {
+        should.equal(
+          viewportOverflowXStyle,
+          'visible',
+          `Overflow-X full visible behavior should result in visible.`
+        );
+      } else {
+        should.equal(
+          viewportOverflowXStyle,
+          overflowOptionX,
+          `Overflow-X should result in ${overflowOptionX}.`
+        );
+      }
+
+      should.notEqual(viewportOverflowXStyle, 'auto', `Overflow-X should never be auto.`);
+    } else {
+      should.notEqual(viewportOverflowXStyle, 'scroll', 'No Overflow-X shouldnt result in scroll.');
+    }
+
+    if (targetMetrics.hasOverflow.y) {
+      if (!overflowOptionXVisible && overflowOptionYVisible) {
+        const expectedStyle = expectedOverflowVisibleBehavior(
+          overflowOptionY,
+          targetMetrics.hasOverflow.x
+        );
+        should.equal(
+          viewportOverflowYStyle,
+          expectedStyle,
+          `Overflow-Y visible behavior should result in ${expectedStyle}.`
+        );
+      } else if (overflowOptionXVisible && overflowOptionYVisible) {
+        should.equal(
+          viewportOverflowYStyle,
+          'visible',
+          `Overflow-Y full visible behavior should result in visible.`
+        );
+      } else {
+        should.equal(
+          viewportOverflowYStyle,
+          overflowOptionY,
+          `Overflow-Y should result in ${overflowOptionY}.`
+        );
+      }
+
+      should.notEqual(viewportOverflowYStyle, 'auto', `Overflow-Y should never be auto.`);
+    } else {
+      should.notEqual(viewportOverflowYStyle, 'scroll', 'No Overflow-Y shouldnt result in scroll.');
+    }
+
+    // ==== check host & padding overflow style:
+
+    if (!targetMetrics.hasOverflow.x && !targetMetrics.hasOverflow.y) {
+      should.equal(hostOverflowStyle, 'hidden', 'Host Overflow should be hidden without overflow.');
+    }
+    if (
+      isVisibleOverflow(viewportOverflowXStyle) &&
+      isVisibleOverflow(viewportOverflowXStyle) &&
+      (targetMetrics.hasOverflow.x || targetMetrics.hasOverflow.y)
+    ) {
+      should.equal(
+        hostOverflowStyle,
+        'visible',
+        'Host Overflow should be visible with visible overflowing content.'
+      );
+    } else {
+      should.equal(
+        hostOverflowStyle,
+        'hidden',
+        'Host Overflow should be hidden without visible overflowing content.'
+      );
+    }
+    should.equal(
+      paddingOverflowStyle,
+      hostOverflowStyle,
+      'Padding Overflow should equal Host overflow.'
     );
 
     await timeout(1);
