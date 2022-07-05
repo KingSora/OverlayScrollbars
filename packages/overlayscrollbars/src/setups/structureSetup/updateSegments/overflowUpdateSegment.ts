@@ -397,6 +397,7 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
     const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
       checkOption<boolean>('nativeScrollbarsOverlaid.show');
     const [overflow, overflowChanged] = checkOption<XY<OverflowBehavior>>('overflow');
+
     const showNativeOverlaidScrollbars =
       showNativeOverlaidScrollbarsOption &&
       _nativeScrollbarIsOverlaid.x &&
@@ -427,10 +428,6 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
       fixFlexboxGlue(preMeasureViewportOverflowState, _heightIntrinsic);
     }
 
-    if (overflowVisible) {
-      removeClass(_viewport, classNameOverflowVisible);
-    }
-
     if (
       _sizeChanged ||
       _paddingStyleChanged ||
@@ -438,6 +435,10 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
       _directionChanged ||
       showNativeOverlaidScrollbarsChanged
     ) {
+      if (overflowVisible) {
+        removeClass(_viewport, classNameOverflowVisible);
+      }
+
       const [redoViewportArrange, undoViewportArrangeOverflowState] = undoViewportArrange(
         showNativeOverlaidScrollbars,
         _directionIsRTL,

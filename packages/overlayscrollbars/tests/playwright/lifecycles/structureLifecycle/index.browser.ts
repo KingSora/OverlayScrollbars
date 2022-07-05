@@ -18,6 +18,8 @@ import { resize } from '@/testing-browser/Resize';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
+import { OSOptions } from 'options';
+import { PartialOptions } from 'typings';
 
 interface Metrics {
   offset: {
@@ -52,6 +54,70 @@ interface CheckComparisonObj {
 }
 
 const isFractionalPixelRatio = () => window.devicePixelRatio % 1 !== 0;
+
+const isVisibleOverflow = (val: string) => val.indexOf('visible') === 0;
+
+const expectedOverflowVisibleBehavior = (
+  overflowOptionAxis: string,
+  hasOverflowOtherAxis: boolean
+) => {
+  const overflowVisibleBehavior = overflowOptionAxis.replace('visible', '').slice(1);
+  return hasOverflowOtherAxis ? overflowVisibleBehavior || 'hidden' : 'visible';
+};
+
+// @ts-ignore
+const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
+const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
+
+msie11 && addClass(document.body, 'msie11');
+
+const useContentElement = false;
+const fixedDigits = msie11 ? 1 : 3;
+const fixedDigitsOffset = 3;
+
+const startBtn: HTMLButtonElement | null = document.querySelector('#start');
+const target: HTMLElement | null = document.querySelector('#target');
+const targetMetrics: HTMLElement | null = document.querySelector('#targetMetrics');
+const comparison: HTMLElement | null = document.querySelector('#comparison');
+const comparisonMetrics: HTMLElement | null = document.querySelector('#comparisonMetrics');
+const targetResize: HTMLElement | null = document.querySelector('#target .resize');
+const comparisonResize: HTMLElement | null = document.querySelector('#comparison .resize');
+const targetPercent: HTMLElement | null = document.querySelector('#target .percent');
+const comparisonPercent: HTMLElement | null = document.querySelector('#comparison .percent');
+const targetEnd: HTMLElement | null = document.querySelector('#target .end');
+const comparisonEnd: HTMLElement | null = document.querySelector('#comparison .end');
+const targetOptionsSlot: HTMLElement | null = document.querySelector('#options');
+const targetUpdatesSlot: HTMLElement | null = document.querySelector('#updates');
+
+const envElms = document.querySelectorAll<HTMLElement>('.env');
+
+if (!useContentElement) {
+  envElms.forEach((elm) => {
+    addClass(elm, 'intrinsic-hack');
+  });
+}
+
+let updateCount = 0;
+// @ts-ignore
+const osInstance =
+  // @ts-ignore
+  (window.os = OverlayScrollbars(
+    { target: target!, content: useContentElement },
+    { nativeScrollbarsOverlaid: { initialize: true } },
+    {
+      updated() {
+        updateCount++;
+        requestAnimationFrame(() => {
+          if (targetUpdatesSlot) {
+            targetUpdatesSlot.textContent = `${updateCount}`;
+          }
+          if (targetOptionsSlot) {
+            targetOptionsSlot.textContent = JSON.stringify(osInstance.options().overflow, null, 2);
+          }
+        });
+      },
+    }
+  ));
 
 const getMetrics = (elm: HTMLElement): Metrics => {
   // const rounding = isFractionalPixelRatio() ? Math.round : (num: number) => num;
@@ -127,66 +193,6 @@ const metricsDimensionsEqual = (a: Metrics, b: Metrics) => {
 
   return JSON.stringify(aDimensions) === JSON.stringify(bDimensions);
 };
-
-const isVisibleOverflow = (val: string) => val.indexOf('visible') === 0;
-
-const expectedOverflowVisibleBehavior = (
-  overflowOptionAxis: string,
-  hasOverflowOtherAxis: boolean
-) => {
-  const overflowVisibleBehavior = overflowOptionAxis.replace('visible', '').slice(1);
-  return hasOverflowOtherAxis ? overflowVisibleBehavior || 'hidden' : 'visible';
-};
-
-// @ts-ignore
-const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
-const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
-
-msie11 && addClass(document.body, 'msie11');
-
-const useContentElement = false;
-const fixedDigits = msie11 ? 1 : 3;
-const fixedDigitsOffset = 3;
-
-const startBtn: HTMLButtonElement | null = document.querySelector('#start');
-const target: HTMLElement | null = document.querySelector('#target');
-const targetMetrics: HTMLElement | null = document.querySelector('#targetMetrics');
-const comparison: HTMLElement | null = document.querySelector('#comparison');
-const comparisonMetrics: HTMLElement | null = document.querySelector('#comparisonMetrics');
-const targetResize: HTMLElement | null = document.querySelector('#target .resize');
-const comparisonResize: HTMLElement | null = document.querySelector('#comparison .resize');
-const targetPercent: HTMLElement | null = document.querySelector('#target .percent');
-const comparisonPercent: HTMLElement | null = document.querySelector('#comparison .percent');
-const targetEnd: HTMLElement | null = document.querySelector('#target .end');
-const comparisonEnd: HTMLElement | null = document.querySelector('#comparison .end');
-const targetUpdatesSlot: HTMLElement | null = document.querySelector('#updates');
-
-const envElms = document.querySelectorAll<HTMLElement>('.env');
-
-if (!useContentElement) {
-  envElms.forEach((elm) => {
-    addClass(elm, 'intrinsic-hack');
-  });
-}
-
-let updateCount = 0;
-// @ts-ignore
-const osInstance =
-  // @ts-ignore
-  (window.os = OverlayScrollbars(
-    { target: target!, content: useContentElement },
-    { nativeScrollbarsOverlaid: { initialize: true } },
-    {
-      updated() {
-        updateCount++;
-        requestAnimationFrame(() => {
-          if (targetUpdatesSlot) {
-            targetUpdatesSlot.textContent = `${updateCount}`;
-          }
-        });
-      },
-    }
-  ));
 
 target!.querySelector('.os-viewport')?.addEventListener('scroll', (e) => {
   const viewport: HTMLElement | null = e.currentTarget as HTMLElement;
@@ -445,8 +451,13 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
   });
 };
 
-const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) => {
+const iterate = async (
+  select: HTMLSelectElement | null,
+  afterEach?: () => any,
+  skippedItems?: string[]
+) => {
   await iterateSelect<CheckComparisonObj>(select, {
+    filter: (item: string) => !skippedItems?.includes(item),
     beforeEach() {
       const metrics = getMetrics(comparison!);
       return {
@@ -468,22 +479,22 @@ const iterateEnvHeight = async (afterEach?: () => any) => {
   await iterate(envHeightSelect, afterEach);
 };
 */
-const iterateHeight = async (afterEach?: () => any) => {
-  await iterate(containerHeightSelect, afterEach);
+const iterateHeight = async (afterEach?: () => any, skippedItems?: string[]) => {
+  await iterate(containerHeightSelect, afterEach, skippedItems);
 };
-const iterateWidth = async (afterEach?: () => any) => {
-  await iterate(containerWidthSelect, afterEach);
+const iterateWidth = async (afterEach?: () => any, skippedItems?: string[]) => {
+  await iterate(containerWidthSelect, afterEach, skippedItems);
 };
 /*
 const iterateFloat = async (afterEach?: () => any) => {
   await iterate(containerFloatSelect, afterEach);
 };
 */
-const iteratePadding = async (afterEach?: () => any) => {
-  await iterate(containerPaddingSelect, afterEach);
+const iteratePadding = async (afterEach?: () => any, skippedItems?: string[]) => {
+  await iterate(containerPaddingSelect, afterEach, skippedItems);
 };
-const iterateBorder = async (afterEach?: () => any) => {
-  await iterate(containerBorderSelect, afterEach);
+const iterateBorder = async (afterEach?: () => any, skippedItems?: string[]) => {
+  await iterate(containerBorderSelect, afterEach, skippedItems);
 };
 /*
 const iterateMargin = async (afterEach?: () => any) => {
@@ -500,7 +511,7 @@ const iterateMinMax = async (afterEach?: () => any) => {
   await iterate(containerMinMaxSelect, afterEach);
 };
 
-const overflowTest = async () => {
+const overflowTest = async (osOptions?: PartialOptions<OSOptions>) => {
   const additiveOverflow = () => {
     if (isFractionalPixelRatio()) {
       return 1;
@@ -630,7 +641,7 @@ const overflowTest = async () => {
 
     await checkMetrics(before);
   };
-  const overflowTest = async () => {
+  const iterateOverflow = async () => {
     style(targetResize, { boxSizing: 'border-box' });
     style(comparisonResize, { boxSizing: 'border-box' });
     style(targetPercent, { display: 'none' });
@@ -656,27 +667,45 @@ const overflowTest = async () => {
     removeAttr(comparisonEnd, 'style');
   };
 
-  await iterateMinMax(async () => {
-    await iterateBoxSizing(async () => {
-      await iterateHeight(async () => {
-        await iterateWidth(async () => {
-          await iterateBorder(async () => {
-            // assume this part isn't critical
-            /*
+  if (osOptions) {
+    osInstance.options(osOptions);
+
+    await iterateMinMax(async () => {
+      await iterateBoxSizing(async () => {
+        await iterateHeight(async () => {
+          await iterateWidth(async () => {
+            await iterateBorder(async () => {
+              await iteratePadding(async () => {
+                await iterateOverflow();
+              }, ['paddingLarge']);
+            }, ['borderSmall']);
+          }, ['widthHundred']);
+        }, ['heightHundred']);
+      });
+    });
+  } else {
+    await iterateMinMax(async () => {
+      await iterateBoxSizing(async () => {
+        await iterateHeight(async () => {
+          await iterateWidth(async () => {
+            await iterateBorder(async () => {
+              // assume this part isn't critical
+              /*
             await iterateFloat(async () => {
               await iterateMargin();
             });
             */
 
-            await iteratePadding(async () => {
-              await overflowTest();
+              await iteratePadding(async () => {
+                await iterateOverflow();
+              });
+              await iterateDirection();
             });
-            await iterateDirection();
           });
         });
       });
     });
-  });
+  }
 };
 
 const start = async () => {
@@ -684,6 +713,16 @@ const start = async () => {
 
   target?.removeAttribute('style');
   await overflowTest();
+
+  await overflowTest({ overflow: { x: 'hidden', y: 'scroll' } });
+  await overflowTest({ overflow: { x: 'scroll', y: 'hidden' } });
+  await overflowTest({ overflow: { x: 'visible', y: 'scroll' } });
+  await overflowTest({ overflow: { x: 'scroll', y: 'visible' } });
+  await overflowTest({ overflow: { x: 'visible', y: 'visible' } });
+  await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
+  await overflowTest({ overflow: { x: 'visible-hidden', y: 'hidden' } });
+  await overflowTest({ overflow: { x: 'visible', y: 'visible-scroll' } });
+  await overflowTest({ overflow: { x: 'scroll', y: 'visible-scroll' } });
 
   setTestResult(true);
 };
