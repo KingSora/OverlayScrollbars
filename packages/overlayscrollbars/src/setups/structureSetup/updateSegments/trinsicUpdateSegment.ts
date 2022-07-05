@@ -1,4 +1,5 @@
 import { style } from 'support';
+import { getEnvironment } from 'environment';
 import type { CreateStructureUpdateSegment } from 'setups/structureSetup/structureSetup.update';
 
 /**
@@ -14,10 +15,12 @@ export const createTrinsicUpdate: CreateStructureUpdateSegment = (
   const [getState] = state;
 
   return (updateHints) => {
+    const { _flexboxGlue } = getEnvironment();
     const { _heightIntrinsic } = getState();
     const { _heightIntrinsicChanged } = updateHints;
+    const heightIntrinsicChanged = (_content || !_flexboxGlue) && _heightIntrinsicChanged;
 
-    if (_heightIntrinsicChanged) {
+    if (heightIntrinsicChanged) {
       style(_content, {
         height: _heightIntrinsic ? '' : '100%',
         display: _heightIntrinsic ? '' : 'inline',
@@ -25,8 +28,8 @@ export const createTrinsicUpdate: CreateStructureUpdateSegment = (
     }
 
     return {
-      _sizeChanged: _heightIntrinsicChanged,
-      _contentMutation: _heightIntrinsicChanged,
+      _sizeChanged: heightIntrinsicChanged,
+      _contentMutation: heightIntrinsicChanged,
     };
   };
 };

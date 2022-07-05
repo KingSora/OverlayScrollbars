@@ -1,8 +1,17 @@
-import { OSTarget, OSInitializationObject, PartialOptions } from 'typings';
-import { assignDeep, isEmptyObject, each, isFunction, keys, isHTMLElement, WH, XY } from 'support';
+import { OSTarget, OSInitializationObject, PartialOptions, OverflowStyle } from 'typings';
+import {
+  assignDeep,
+  isEmptyObject,
+  each,
+  isFunction,
+  keys,
+  isHTMLElement,
+  XY,
+  TRBL,
+} from 'support';
 import { createStructureSetup, createScrollbarsSetup } from 'setups';
 import { getOptionsDiff, OSOptions, ReadonlyOSOptions } from 'options';
-import { getEnvironment } from 'environment';
+import { DefaultInitializationStrategy, getEnvironment, InitializationStrategy } from 'environment';
 import {
   getPlugins,
   addPlugin,
@@ -25,7 +34,32 @@ export interface OverlayScrollbarsStatic {
     eventListeners?: InitialOSEventListeners
   ): OverlayScrollbars;
 
-  extend(osPlugin: OSPlugin | OSPlugin[]): void;
+  plugin(osPlugin: OSPlugin | OSPlugin[]): void;
+  env(): OverlayScrollbarsEnv;
+}
+
+export interface OverlayScrollbarsEnv {
+  scrollbarSize: XY<number>;
+  scrollbarIsOverlaid: XY<boolean>;
+  scrollbarStyling: boolean;
+  rtlScrollBehavior: { n: boolean; i: boolean };
+  flexboxGlue: boolean;
+  cssCustomProperties: boolean;
+  defaultInitializationStrategy: DefaultInitializationStrategy;
+  defaultDefaultOptions: OSOptions;
+
+  getInitializationStrategy(): InitializationStrategy;
+  setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
+  getDefaultOptions(): OSOptions;
+  setDefaultOptions(newDefaultOptions: PartialOptions<OSOptions>): void;
+}
+
+export interface OverlayScrollbarsState {
+  padding: TRBL;
+  paddingAbsolute: boolean;
+  overflowAmount: XY<number>;
+  overflowStyle: XY<OverflowStyle>;
+  hasOverflow: XY<boolean>;
 }
 
 export interface OverlayScrollbars {
@@ -35,24 +69,16 @@ export interface OverlayScrollbars {
   update(force?: boolean): void;
   destroy(): void;
 
-  state(): any;
+  state(): OverlayScrollbarsState;
 
   on: AddOSEventListener;
   off: RemoveOSEventListener;
 }
 
-const createOverflowChangedArgs = (
-  overflowAmount: WH<number>,
-  hasOverflow: XY<boolean>,
-  overflowScroll: XY<boolean>
-) => ({
-  amount: {
-    x: overflowAmount.w,
-    y: overflowAmount.h,
-  },
-  overflow: hasOverflow,
-  scrollableOverflow: assignDeep({}, overflowScroll),
-});
+/**
+ * Notes:
+ * Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
+ */
 
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target,
@@ -109,26 +135,18 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     updateScrollbars(changedOptions, force);
   };
 
+  const removeEnvListener = addEnvListener(update.bind(0, {}, true));
+
   structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
     const {
       _sizeChanged,
       _directionChanged,
       _heightIntrinsicChanged,
       _overflowAmountChanged,
-      _overflowScrollChanged,
+      _overflowStyleChanged,
       _contentMutation,
       _hostMutation,
     } = updateHints;
-    const { _overflowAmount, _overflowScroll, _hasOverflow } = structureState();
-
-    if (_overflowAmountChanged || _overflowScrollChanged) {
-      triggerEvent(
-        'overflowChanged',
-        assignDeep({}, createOverflowChangedArgs(_overflowAmount, _hasOverflow, _overflowScroll), {
-          previous: createOverflowChangedArgs(_overflowAmount!, _hasOverflow, _overflowScroll!),
-        })
-      );
-    }
 
     triggerEvent('updated', {
       updateHints: {
@@ -136,7 +154,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
         directionChanged: _directionChanged,
         heightIntrinsicChanged: _heightIntrinsicChanged,
         overflowAmountChanged: _overflowAmountChanged,
-        overflowScrollChanged: _overflowScrollChanged,
+        overflowStyleChanged: _overflowStyleChanged,
         contentMutation: _contentMutation,
         hostMutation: _hostMutation,
       },
@@ -144,8 +162,6 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       force,
     });
   });
-
-  const removeEnvListener = addEnvListener(update.bind(0, {}, true));
 
   const instance: OverlayScrollbars = {
     options(newOptions?: PartialOptions<OSOptions>) {
@@ -157,13 +173,24 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           update(changedOptions);
         }
       }
-      return currentOptions;
+      return assignDeep({}, currentOptions);
     },
     on: addEvent,
     off: removeEvent,
-    state: () => ({
-      _overflowAmount: structureState()._overflowAmount,
-    }),
+    state: () => {
+      const { _overflowAmount, _overflowStyle, _hasOverflow, _padding, _paddingAbsolute } =
+        structureState();
+      return assignDeep(
+        {},
+        {
+          overflowAmount: _overflowAmount,
+          overflowStyle: _overflowStyle,
+          hasOverflow: _hasOverflow,
+          padding: _padding,
+          paddingAbsolute: _paddingAbsolute,
+        }
+      );
+    },
     update(force?: boolean) {
       update({}, force);
     },
@@ -195,4 +222,38 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   return instance;
 };
 
-OverlayScrollbars.extend = addPlugin;
+OverlayScrollbars.plugin = addPlugin;
+OverlayScrollbars.env = () => {
+  const {
+    _nativeScrollbarSize,
+    _nativeScrollbarIsOverlaid,
+    _nativeScrollbarStyling,
+    _rtlScrollBehavior,
+    _flexboxGlue,
+    _cssCustomProperties,
+    _defaultInitializationStrategy,
+    _defaultDefaultOptions,
+    _getInitializationStrategy,
+    _setInitializationStrategy,
+    _getDefaultOptions,
+    _setDefaultOptions,
+  } = getEnvironment();
+  return assignDeep(
+    {},
+    {
+      scrollbarSize: _nativeScrollbarSize,
+      scrollbarIsOverlaid: _nativeScrollbarIsOverlaid,
+      scrollbarStyling: _nativeScrollbarStyling,
+      rtlScrollBehavior: _rtlScrollBehavior,
+      flexboxGlue: _flexboxGlue,
+      cssCustomProperties: _cssCustomProperties,
+      defaultInitializationStrategy: _defaultInitializationStrategy,
+      defaultDefaultOptions: _defaultDefaultOptions,
+
+      getInitializationStrategy: _getInitializationStrategy,
+      setInitializationStrategy: _setInitializationStrategy,
+      getDefaultOptions: _getDefaultOptions,
+      setDefaultOptions: _setDefaultOptions,
+    }
+  );
+};

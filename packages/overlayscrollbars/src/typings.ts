@@ -67,6 +67,8 @@ export interface OSInitializationObject extends StructureInitialization, Scrollb
 
 export type OSTarget = OSTargetElement | OSInitializationObject;
 
+export type OverflowStyle = 'scroll' | 'hidden' | 'visible';
+
 /*
 export namespace OverlayScrollbars {
   export type ResizeBehavior = 'none' | 'both' | 'horizontal' | 'vertical';

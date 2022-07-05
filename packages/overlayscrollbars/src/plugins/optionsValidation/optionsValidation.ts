@@ -1,11 +1,5 @@
 import { OSPlugin } from 'plugins';
-import {
-  OSOptions,
-  ResizeBehavior,
-  OverflowBehavior,
-  VisibilityBehavior,
-  AutoHideBehavior,
-} from 'options';
+import { OSOptions, OverflowBehavior, VisibilityBehavior, AutoHideBehavior } from 'options';
 import {
   validateOptions,
   OptionsTemplate,
@@ -17,12 +11,6 @@ import { PartialOptions } from 'typings';
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
 const booleanAllowedValues: OptionsTemplateValue<boolean> = oTypes.boolean;
 const arrayNullValues: OptionsTemplateValue<Array<unknown> | null> = [oTypes.array, oTypes.null];
-const stringArrayNullAllowedValues: OptionsTemplateValue<string | ReadonlyArray<string> | null> = [
-  oTypes.string,
-  oTypes.array,
-  oTypes.null,
-];
-const resizeAllowedValues: OptionsTemplateValue<ResizeBehavior> = 'none both horizontal vertical';
 const overflowAllowedValues: OptionsTemplateValue<OverflowBehavior> =
   'hidden scroll visible visible-hidden';
 const scrollbarsVisibilityAllowedValues: OptionsTemplateValue<VisibilityBehavior> =
@@ -31,7 +19,7 @@ const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<AutoHideBehavior> =
   'never scroll leavemove';
 
 const optionsTemplate: OptionsTemplate<OSOptions> = {
-  resize: resizeAllowedValues, // none || both  || horizontal || vertical || n || b ||
+  // resize: resizeAllowedValues, // none || both  || horizontal || vertical || n || b ||
   paddingAbsolute: booleanAllowedValues, // true || false
   updating: {
     elementEvents: arrayNullValues, // array of tuples || null
@@ -50,17 +38,16 @@ const optionsTemplate: OptionsTemplate<OSOptions> = {
     clickScroll: booleanAllowedValues, // true || false
     touch: booleanAllowedValues, // true || false
   },
+  /*
   textarea: {
     dynWidth: booleanAllowedValues, // true || false
     dynHeight: booleanAllowedValues, // true || false
     inheritedAttrs: stringArrayNullAllowedValues, // string || array || nul
   },
+  */
   nativeScrollbarsOverlaid: {
     show: booleanAllowedValues, // true || false
     initialize: booleanAllowedValues, // true || false
-  },
-  callbacks: {
-    onUpdated: [oTypes.function, oTypes.null],
   },
 };
 

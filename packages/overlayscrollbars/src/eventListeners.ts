@@ -1,5 +1,5 @@
 import { OSOptions } from 'options';
-import { createEventListenerHub, XY } from 'support';
+import { createEventListenerHub } from 'support';
 import { PartialOptions } from 'typings';
 import type {
   InitialEventListeners,
@@ -25,7 +25,7 @@ export interface OnUpdatedEventListenerArgs {
     directionChanged: boolean;
     heightIntrinsicChanged: boolean;
     overflowAmountChanged: boolean;
-    overflowScrollChanged: boolean;
+    overflowStyleChanged: boolean;
     hostMutation: boolean;
     contentMutation: boolean;
   };
@@ -33,21 +33,9 @@ export interface OnUpdatedEventListenerArgs {
   force: boolean;
 }
 
-export interface OnOverflowChangedEventListenerArgs {
-  overflow: XY<boolean>; // whether there is an overflow
-  scrollableOverflow: XY<boolean>; // whether there is an scrollable overflow
-  amount: XY<number>; // the overflow amount in pixel
-  previous: {
-    overflow: XY<boolean>;
-    scrollableOverflow: XY<boolean>;
-    amount: XY<number>;
-  };
-}
-
 export interface OSEventListenersNameArgsMap {
   initialized: undefined;
   initializationWithdrawn: undefined;
-  overflowChanged: OnOverflowChangedEventListenerArgs;
   updated: OnUpdatedEventListenerArgs;
   destroyed: undefined;
 }

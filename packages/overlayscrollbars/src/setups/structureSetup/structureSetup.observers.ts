@@ -10,8 +10,23 @@ import {
   removeAttr,
   CacheValues,
   keys,
+  liesBetween,
+  scrollSize,
+  equalWH,
+  createCache,
+  WH,
+  fractionalSize,
+  removeClass,
+  addClass,
+  hasClass,
 } from 'support';
 import { getEnvironment } from 'environment';
+import {
+  dataAttributeHost,
+  classNameViewport,
+  classNameContent,
+  classNameOverflowVisible,
+} from 'classnames';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver, DOMObserver } from 'observers/domObserver';
@@ -36,14 +51,14 @@ type ExcludeFromTuple<T extends readonly any[], E> = T extends [infer F, ...infe
     : [F, ...ExcludeFromTuple<R, E>]
   : [];
 
-// const hostSelector = `.${classNameHost}`;
+const hostSelector = `[${dataAttributeHost}]`;
 
 // TODO: observer textarea attrs if textarea
 // TODO: test _ignoreContentChange & _ignoreNestedTargetChange for content dom observer
 // TODO: test _ignoreTargetChange for target dom observer
 
-// const viewportSelector = `.${classNameViewport}`;
-// const contentSelector = `.${classNameContent}`;
+const viewportSelector = `.${classNameViewport}`;
+const contentSelector = `.${classNameContent}`;
 const ignorePrefix = 'os-';
 const viewportAttrsFromTarget = ['tabindex'];
 const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
@@ -75,6 +90,25 @@ export const createStructureSetupObservers = (
   const [, setState] = state;
   const { _host, _viewport, _content, _isTextarea } = structureSetupElements;
   const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+  const [updateContentSizeCache] = createCache<WH<number>>(
+    {
+      _equal: equalWH,
+      _initialValue: { w: 0, h: 0 },
+    },
+    () => {
+      const has = hasClass(_viewport, classNameOverflowVisible);
+      has && removeClass(_viewport, classNameOverflowVisible);
+
+      const scroll = scrollSize(_viewport);
+      const fractional = fractionalSize(_viewport);
+
+      has && addClass(_viewport, classNameOverflowVisible);
+      return {
+        w: scroll.w + fractional.w,
+        h: scroll.h + fractional.h,
+      };
+    }
+  );
   const contentMutationObserverAttr = _isTextarea
     ? baseStyleChangingAttrsTextarea
     : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
@@ -132,13 +166,17 @@ export const createStructureSetupObservers = (
     updateFn({ _sizeChanged, _directionChanged: directionChanged });
   };
   const onContentMutation = (contentChangedTroughEvent: boolean) => {
+    const [, contentSizeChanged] = updateContentSizeCache();
     // if contentChangedTroughEvent is true its already debounced
     const updateFn = contentChangedTroughEvent
       ? structureSetupUpdate
       : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
-    updateFn({
-      _contentMutation: true,
-    });
+
+    if (contentSizeChanged) {
+      updateFn({
+        _contentMutation: true,
+      });
+    }
   };
   const onHostMutation = (targetChangedAttrs: string[], targetStyleChanged: boolean) => {
     if (targetStyleChanged) {
@@ -189,17 +227,17 @@ export const createStructureSetupObservers = (
             _attributes: contentMutationObserverAttr.concat(attributes || []),
             _eventContentChange: elementEvents,
             _ignoreNestedTargetChange: ignoreTargetChange,
-            // _nestedTargetSelector: hostSelector,
-            /*
-          _ignoreContentChange: (mutation, isNestedTarget) => {
-            const { target, attributeName } = mutation;
-            return isNestedTarget
-              ? false
-              : attributeName
-              ? liesBetween(target as Element, hostSelector, viewportSelector) || liesBetween(target as Element, hostSelector, contentSelector)
-              : false;
-          },
-          */
+            _nestedTargetSelector: hostSelector,
+            _ignoreContentChange: (mutation, isNestedTarget) => {
+              const { target, attributeName } = mutation;
+              return !isNestedTarget && attributeName
+                ? liesBetween(
+                    target as Element,
+                    hostSelector,
+                    _content ? contentSelector : viewportSelector
+                  )
+                : false;
+            },
           }
         );
       }

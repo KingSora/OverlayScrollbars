@@ -155,14 +155,14 @@ const getMetrics = (elm: HTMLElement): Metrics => {
     },
     scroll: elmIsTarget
       ? {
-          width: Math.round(osInstance.state()._overflowAmount.w),
-          height: Math.round(osInstance.state()._overflowAmount.h),
+          width: Math.round(osInstance.state().overflowAmount.x),
+          height: Math.round(osInstance.state().overflowAmount.y),
         }
       : scrollMeasure(),
     hasOverflow: elmIsTarget
       ? {
-          x: osInstance.state()._overflowAmount.w > 0,
-          y: osInstance.state()._overflowAmount.h > 0,
+          x: osInstance.state().hasOverflow.x,
+          y: osInstance.state().hasOverflow.y,
         }
       : {
           x: scrollMeasure().width > 0,
@@ -274,12 +274,12 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     should.equal(
       targetMetrics.scroll.width,
       comparisonMetrics.scroll.width,
-      `Scroll width equality. (${osInstance.state()._overflowAmount.w})`
+      `Scroll width equality. (${osInstance.state().overflowAmount.x})`
     );
     should.equal(
       targetMetrics.scroll.height,
       comparisonMetrics.scroll.height,
-      `Scroll height equality. (${osInstance.state()._overflowAmount.h})`
+      `Scroll height equality. (${osInstance.state().overflowAmount.y})`
     );
 
     should.equal(
@@ -295,24 +295,24 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
 
     if (targetMetrics.hasOverflow.x) {
       should.ok(
-        osInstance.state()._overflowAmount.w > 0,
+        osInstance.state().overflowAmount.x > 0,
         'Overflow amount width should be > 0 with overflow.'
       );
     } else {
       should.equal(
-        osInstance.state()._overflowAmount.w,
+        osInstance.state().overflowAmount.x,
         0,
         'Overflow amount width should be 0 without overflow.'
       );
     }
     if (targetMetrics.hasOverflow.y) {
       should.ok(
-        osInstance.state()._overflowAmount.h > 0,
+        osInstance.state().overflowAmount.y > 0,
         'Overflow amount height should be > 0 with overflow.'
       );
     } else {
       should.equal(
-        osInstance.state()._overflowAmount.h,
+        osInstance.state().overflowAmount.y,
         0,
         'Overflow amount height should be 0 without overflow.'
       );
@@ -413,6 +413,17 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     } else {
       should.notEqual(viewportOverflowYStyle, 'scroll', 'No Overflow-Y shouldnt result in scroll.');
     }
+
+    should.equal(
+      osInstance.state().overflowStyle.x,
+      viewportOverflowXStyle,
+      'Overflow-X Style: State and style should match.'
+    );
+    should.equal(
+      osInstance.state().overflowStyle.y,
+      viewportOverflowYStyle,
+      'Overflow-Y Style: State and style should match.'
+    );
 
     // ==== check host & padding overflow style:
 
@@ -712,18 +723,23 @@ const start = async () => {
   setTestResult(null);
 
   target?.removeAttribute('style');
-  await overflowTest();
 
-  await overflowTest({ overflow: { x: 'hidden', y: 'scroll' } });
-  await overflowTest({ overflow: { x: 'scroll', y: 'hidden' } });
-  await overflowTest({ overflow: { x: 'visible', y: 'scroll' } });
-  await overflowTest({ overflow: { x: 'scroll', y: 'visible' } });
+  const start = performance.now();
+  console.log(start);
+  await overflowTest();
   await overflowTest({ overflow: { x: 'visible', y: 'visible' } });
   await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
   await overflowTest({ overflow: { x: 'visible-hidden', y: 'hidden' } });
   await overflowTest({ overflow: { x: 'visible', y: 'visible-scroll' } });
   await overflowTest({ overflow: { x: 'scroll', y: 'visible-scroll' } });
-
+  await overflowTest({ overflow: { x: 'hidden', y: 'scroll' } });
+  await overflowTest({ overflow: { x: 'scroll', y: 'hidden' } });
+  await overflowTest({ overflow: { x: 'visible', y: 'scroll' } });
+  await overflowTest({ overflow: { x: 'scroll', y: 'visible' } });
+  await overflowTest({ overflow: { x: 'visible', y: 'hidden' } });
+  await overflowTest({ overflow: { x: 'hidden', y: 'visible' } });
+  const end = performance.now();
+  console.log(start - end);
   setTestResult(true);
 };
 

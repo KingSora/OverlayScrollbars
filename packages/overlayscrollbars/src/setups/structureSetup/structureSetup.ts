@@ -5,17 +5,17 @@ import { createStructureSetupUpdate } from 'setups/structureSetup/structureSetup
 import { createStructureSetupObservers } from 'setups/structureSetup/structureSetup.observers';
 import type { StructureSetupUpdateHints } from 'setups/structureSetup/structureSetup.update';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
-import type { TRBL, XY, WH } from 'support';
+import type { TRBL, XY } from 'support';
 import type { OSOptions, ReadonlyOSOptions } from 'options';
 import type { Setup } from 'setups';
-import type { OSTarget, PartialOptions, StyleObject } from 'typings';
+import type { OSTarget, PartialOptions, StyleObject, OverflowStyle } from 'typings';
 
 export interface StructureSetupState {
   _padding: TRBL;
   _paddingAbsolute: boolean;
   _viewportPaddingStyle: StyleObject;
-  _overflowScroll: XY<boolean>;
-  _overflowAmount: WH<number>;
+  _overflowAmount: XY<number>;
+  _overflowStyle: XY<OverflowStyle>;
   _hasOverflow: XY<boolean>;
   _heightIntrinsic: boolean;
   _directionIsRTL: boolean;
@@ -50,12 +50,12 @@ const initialStructureSetupUpdateState: StructureSetupState = {
     paddingLeft: 0,
   },
   _overflowAmount: {
-    w: 0,
-    h: 0,
+    x: 0,
+    y: 0,
   },
-  _overflowScroll: {
-    x: false,
-    y: false,
+  _overflowStyle: {
+    x: 'hidden',
+    y: 'hidden',
   },
   _hasOverflow: {
     x: false,

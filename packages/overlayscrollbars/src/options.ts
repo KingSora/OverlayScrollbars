@@ -39,7 +39,6 @@ export type SizeChangedCallback = (this: any, args?: SizeChangedArgs) => void;
 export type UpdatedCallback = (this: any, args?: UpdatedArgs) => void;
 
 export interface OSOptions {
-  resize: ResizeBehavior;
   paddingAbsolute: boolean;
   updating: {
     elementEvents: Array<[string, string]> | null;
@@ -58,34 +57,10 @@ export interface OSOptions {
     clickScroll: boolean;
     touch: boolean;
   };
-  textarea: {
-    dynWidth: boolean;
-    dynHeight: boolean;
-    inheritedAttrs: string | Array<string> | null;
-  };
   nativeScrollbarsOverlaid: {
     show: boolean;
     initialize: boolean;
   };
-  callbacks: {
-    onUpdated: (() => any) | null;
-  };
-  /*
-  callbacks?: {
-    onInitialized?: BasicEventCallback | null;
-    onInitializationWithdrawn?: BasicEventCallback | null;
-    onDestroyed?: BasicEventCallback | null;
-    onScrollStart?: ScrollEventCallback | null;
-    onScroll?: ScrollEventCallback | null;
-    onScrollStop?: ScrollEventCallback | null;
-    onOverflowChanged?: OverflowChangedCallback | null;
-    onOverflowAmountChanged?: OverflowAmountChangedCallback | null;
-    onDirectionChanged?: DirectionChangedCallback | null;
-    onContentSizeChanged?: SizeChangedCallback | null;
-    onHostSizeChanged?: SizeChangedCallback | null;
-    onUpdated?: UpdatedCallback | null;
-  };
-  */
 }
 
 export type ReadonlyOSOptions = ReadonlyOptions<OSOptions>;
@@ -118,7 +93,7 @@ export interface UpdatedArgs {
 }
 
 export const defaultOptions: OSOptions = {
-  resize: 'none', // none || both  || horizontal || vertical || n || b || h || v
+  // resize: 'none', // none || both  || horizontal || vertical || n || b || h || v
   paddingAbsolute: false, // true || false
   updating: {
     elementEvents: [['img', 'load']], // array of tuples || null
@@ -129,6 +104,10 @@ export const defaultOptions: OSOptions = {
     x: 'scroll', // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
     y: 'scroll', // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
   },
+  nativeScrollbarsOverlaid: {
+    show: false, // true || false
+    initialize: false, // true || false
+  },
   scrollbars: {
     visibility: 'auto', // visible || hidden || auto || v || h || a
     autoHide: 'never', // never || scroll || leave || move || n || s || l || m
@@ -137,18 +116,13 @@ export const defaultOptions: OSOptions = {
     clickScroll: false, // true || false
     touch: true, // true || false
   },
+  /*
   textarea: {
     dynWidth: false, // true || false
     dynHeight: false, // true || false
     inheritedAttrs: ['style', 'class'], // string || array || null
   },
-  nativeScrollbarsOverlaid: {
-    show: false, // true || false
-    initialize: false, // true || false
-  },
-  callbacks: {
-    onUpdated: null,
-  },
+  */
 };
 
 export const getOptionsDiff = <T>(

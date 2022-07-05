@@ -4,7 +4,7 @@ import { test, Page } from '@playwright/test';
 
 playwrightRollup();
 
-test.describe('StructureLifecycle', () => {
+test.describe('StructureSetup.update', () => {
   [false, true].forEach(async (nativeScrollbarStyling) => {
     const withText = nativeScrollbarStyling ? 'with' : 'without';
     const nss = async (page: Page) => {

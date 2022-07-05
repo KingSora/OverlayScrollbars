@@ -12,13 +12,14 @@ import {
   removeAttr,
   removeElements,
   windowSize,
-  runEach,
   equalBCRWH,
   getBoundingClientRect,
   assignDeep,
   cssProperty,
   createCache,
   equalXY,
+  createEventListenerHub,
+  EventListener,
 } from 'support';
 import {
   classNameEnvironment,
@@ -80,7 +81,10 @@ export type DefaultInitializationStrategy = {
   >;
 };
 
-export type OnEnvironmentChanged = (env: Environment) => void;
+export interface EnvironmentListenersNameArgsMap {
+  _: undefined;
+}
+
 export interface Environment {
   readonly _nativeScrollbarSize: XY;
   readonly _nativeScrollbarIsOverlaid: XY<boolean>;
@@ -90,7 +94,7 @@ export interface Environment {
   readonly _cssCustomProperties: boolean;
   readonly _defaultInitializationStrategy: DefaultInitializationStrategy;
   readonly _defaultDefaultOptions: OSOptions;
-  _addListener(listener: OnEnvironmentChanged): () => void;
+  _addListener(listener: EventListener<EnvironmentListenersNameArgsMap, '_'>): () => void;
   _getInitializationStrategy(): InitializationStrategy;
   _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
   _getDefaultOptions(): OSOptions;
@@ -208,7 +212,7 @@ const createEnvironment = (): Environment => {
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
-  const onChangedListener: Set<OnEnvironmentChanged> = new Set();
+  const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentListenersNameArgsMap>();
   const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache({
     _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
     _equal: equalXY,
@@ -229,10 +233,7 @@ const createEnvironment = (): Environment => {
     _cssCustomProperties: style(envElm, 'zIndex') === '-1',
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
-    _addListener(listener) {
-      onChangedListener.add(listener);
-      return () => onChangedListener.delete(listener);
-    },
+    _addListener: (listener) => addEvent('_', listener),
     _getInitializationStrategy: assignDeep<InitializationStrategy, InitializationStrategy>.bind(
       0,
       {} as InitializationStrategy,
@@ -261,45 +262,43 @@ const createEnvironment = (): Environment => {
     let dpr = getWindowDPR();
 
     window.addEventListener('resize', () => {
-      if (onChangedListener.size) {
-        const sizeNew = windowSize();
-        const deltaSize = {
-          w: sizeNew.w - size.w,
-          h: sizeNew.h - size.h,
-        };
+      const sizeNew = windowSize();
+      const deltaSize = {
+        w: sizeNew.w - size.w,
+        h: sizeNew.h - size.h,
+      };
 
-        if (deltaSize.w === 0 && deltaSize.h === 0) return;
+      if (deltaSize.w === 0 && deltaSize.h === 0) return;
 
-        const deltaAbsSize = {
-          w: abs(deltaSize.w),
-          h: abs(deltaSize.h),
-        };
-        const deltaAbsRatio = {
-          w: abs(round(sizeNew.w / (size.w / 100.0))),
-          h: abs(round(sizeNew.h / (size.h / 100.0))),
-        };
-        const dprNew = getWindowDPR();
-        const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
-        const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
-        const dprChanged = dprNew !== dpr && dpr > 0;
-        const isZoom = deltaIsBigger && difference && dprChanged;
+      const deltaAbsSize = {
+        w: abs(deltaSize.w),
+        h: abs(deltaSize.h),
+      };
+      const deltaAbsRatio = {
+        w: abs(round(sizeNew.w / (size.w / 100.0))),
+        h: abs(round(sizeNew.h / (size.h / 100.0))),
+      };
+      const dprNew = getWindowDPR();
+      const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
+      const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
+      const dprChanged = dprNew !== dpr && dpr > 0;
+      const isZoom = deltaIsBigger && difference && dprChanged;
 
-        if (isZoom) {
-          const [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache(
-            getNativeScrollbarSize(body, envElm, envChildElm)
-          );
+      if (isZoom) {
+        const [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache(
+          getNativeScrollbarSize(body, envElm, envChildElm)
+        );
 
-          assignDeep(environmentInstance._nativeScrollbarSize, scrollbarSize); // keep the object same!
-          removeElements(envElm);
+        assignDeep(environmentInstance._nativeScrollbarSize, scrollbarSize); // keep the object same!
+        removeElements(envElm);
 
-          if (scrollbarSizeChanged) {
-            runEach(onChangedListener);
-          }
+        if (scrollbarSizeChanged) {
+          triggerEvent('_');
         }
-
-        size = sizeNew;
-        dpr = dprNew;
       }
+
+      size = sizeNew;
+      dpr = dprNew;
     });
   }
 
