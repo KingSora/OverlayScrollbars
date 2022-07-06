@@ -25,6 +25,7 @@ body {
   width: 60%;
   height: 60%;
   padding: 10px;
+  margin: 10px;
 }
 
 .resize {
@@ -42,7 +43,7 @@ body {
   background: tomato;
   position: absolute;
   bottom: 0;
-  right: 0;
+  left: 0;
 }
 
 .resizeBtn {
@@ -57,4 +58,12 @@ body {
 
 #targetRoot {
   height: 80%;
+}
+
+#targetA {
+  box-sizing: border-box;
+}
+
+.flex {
+  display: flex;
 }

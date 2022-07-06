@@ -1,5 +1,5 @@
-import 'styles/overlayscrollbars.scss';
 import './index.scss';
+import 'styles/overlayscrollbars.scss';
 import should from 'should';
 import { OverlayScrollbars } from 'overlayscrollbars';
 
@@ -28,11 +28,12 @@ const resizeBetweenB: HTMLElement | null = document.createElement('div');
 let rootUpdateCount = 0;
 let aUpdateCount = 0;
 let bUpdateCount = 0;
-const osInstanceRoot = OverlayScrollbars(
+OverlayScrollbars(
   targetRoot!,
   {},
   {
     initialized() {
+      addClass(targetRoot!.querySelector('.os-viewport'), 'flex');
       addClass(resizeBetweenRoot, 'resize resizeBetween');
       targetRoot!.append(resizeBetweenRoot);
     },
@@ -46,11 +47,12 @@ const osInstanceRoot = OverlayScrollbars(
     },
   }
 );
-const osInstanceA = OverlayScrollbars(
+OverlayScrollbars(
   targetA!,
   {},
   {
     initialized() {
+      addClass(targetA!.querySelector('.os-viewport'), 'flex');
       addClass(resizeBetweenA, 'resize resizeBetween');
       targetA!.append(resizeBetweenA);
     },
@@ -65,7 +67,7 @@ const osInstanceA = OverlayScrollbars(
     },
   }
 );
-const osInstanceB = OverlayScrollbars(
+OverlayScrollbars(
   targetB!,
   {},
   {
@@ -93,8 +95,6 @@ resize(resizeBetweenB!);
 
 const start = async () => {
   setTestResult(null);
-
-  // target?.removeAttribute('style');
 
   setTestResult(true);
 };
