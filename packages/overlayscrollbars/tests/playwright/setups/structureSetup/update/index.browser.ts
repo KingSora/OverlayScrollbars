@@ -73,7 +73,7 @@ const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
 
-const useContentElement = true;
+const useContentElement = false;
 const fixedDigits = msie11 ? 1 : 3;
 const fixedDigitsOffset = 3;
 
