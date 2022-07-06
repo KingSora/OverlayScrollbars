@@ -2,7 +2,7 @@ const { devices } = require('@playwright/test');
 
 module.exports = {
   testMatch: /.*\/tests\/playwright\/.*\.test\.[jt]sx?/,
-  timeout: 8 * 60 * 1000,
+  timeout: 10 * 60 * 1000,
   actionTimeout: 300,
   navigationTimeout: 1000,
   retries: 0,

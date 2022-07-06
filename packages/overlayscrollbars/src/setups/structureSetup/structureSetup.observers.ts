@@ -99,13 +99,14 @@ export const createStructureSetupObservers = (
       const has = hasClass(_viewport, classNameOverflowVisible);
       has && removeClass(_viewport, classNameOverflowVisible);
 
-      const scroll = scrollSize(_viewport);
+      const contentScroll = scrollSize(_content);
+      const viewportScroll = scrollSize(_viewport);
       const fractional = fractionalSize(_viewport);
 
       has && addClass(_viewport, classNameOverflowVisible);
       return {
-        w: scroll.w + fractional.w,
-        h: scroll.h + fractional.h,
+        w: viewportScroll.w + contentScroll.w + fractional.w,
+        h: viewportScroll.h + contentScroll.h + fractional.h,
       };
     }
   );

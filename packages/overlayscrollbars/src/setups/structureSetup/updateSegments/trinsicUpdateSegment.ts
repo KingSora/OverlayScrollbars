@@ -23,7 +23,6 @@ export const createTrinsicUpdate: CreateStructureUpdateSegment = (
     if (heightIntrinsicChanged) {
       style(_content, {
         height: _heightIntrinsic ? '' : '100%',
-        display: _heightIntrinsic ? '' : 'inline',
       });
     }
 

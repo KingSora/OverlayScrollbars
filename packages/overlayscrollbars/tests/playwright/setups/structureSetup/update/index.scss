@@ -276,12 +276,22 @@ body {
   }
 }
 
-.intrinsic-hack {
+.intrinsicHack {
   &.heightAuto,
   &.envHeightAuto {
     .percent {
       height: auto;
     }
+  }
+}
+
+.comparisonContent {
+  height: 100%;
+}
+
+.heightAuto {
+  .comparisonContent {
+    height: auto;
   }
 }
 

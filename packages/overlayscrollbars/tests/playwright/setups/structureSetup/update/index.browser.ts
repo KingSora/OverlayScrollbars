@@ -13,6 +13,8 @@ import {
   addClass,
   WH,
   removeAttr,
+  contents,
+  appendChildren,
 } from 'support';
 import { resize } from '@/testing-browser/Resize';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
@@ -71,7 +73,7 @@ const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
 
-const useContentElement = false;
+const useContentElement = true;
 const fixedDigits = msie11 ? 1 : 3;
 const fixedDigitsOffset = 3;
 
@@ -88,13 +90,19 @@ const targetEnd: HTMLElement | null = document.querySelector('#target .end');
 const comparisonEnd: HTMLElement | null = document.querySelector('#comparison .end');
 const targetOptionsSlot: HTMLElement | null = document.querySelector('#options');
 const targetUpdatesSlot: HTMLElement | null = document.querySelector('#updates');
+const comparisonContentElm: HTMLElement = document.createElement('div');
 
 const envElms = document.querySelectorAll<HTMLElement>('.env');
 
 if (!useContentElement) {
   envElms.forEach((elm) => {
-    addClass(elm, 'intrinsic-hack');
+    addClass(elm, 'intrinsicHack');
   });
+} else {
+  const elms = contents(comparison);
+  addClass(comparisonContentElm, 'comparisonContent');
+  appendChildren(comparison, comparisonContentElm);
+  appendChildren(comparisonContentElm, elms);
 }
 
 let updateCount = 0;
@@ -724,8 +732,6 @@ const start = async () => {
 
   target?.removeAttribute('style');
 
-  const start = performance.now();
-  console.log(start);
   await overflowTest();
   await overflowTest({ overflow: { x: 'visible', y: 'visible' } });
   await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
@@ -738,8 +744,7 @@ const start = async () => {
   await overflowTest({ overflow: { x: 'scroll', y: 'visible' } });
   await overflowTest({ overflow: { x: 'visible', y: 'hidden' } });
   await overflowTest({ overflow: { x: 'hidden', y: 'visible' } });
-  const end = performance.now();
-  console.log(start - end);
+
   setTestResult(true);
 };
 

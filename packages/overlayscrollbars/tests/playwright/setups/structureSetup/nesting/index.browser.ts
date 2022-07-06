@@ -2,10 +2,10 @@ import './index.scss';
 import 'styles/overlayscrollbars.scss';
 import should from 'should';
 import { OverlayScrollbars } from 'overlayscrollbars';
-
 import { resize } from '@/testing-browser/Resize';
+import { timeout } from '@/testing-browser/timeout';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
-import { addClass } from 'support';
+import { addClass, removeAttr, style } from 'support';
 
 OverlayScrollbars.env().setDefaultOptions({
   nativeScrollbarsOverlaid: { initialize: true },
@@ -48,11 +48,11 @@ OverlayScrollbars(
   }
 );
 OverlayScrollbars(
-  targetA!,
+  { target: targetA!, content: true },
   {},
   {
     initialized() {
-      addClass(targetA!.querySelector('.os-viewport'), 'flex');
+      addClass(targetA!.querySelector('.os-content'), 'flex');
       addClass(resizeBetweenA, 'resize resizeBetween');
       targetA!.append(resizeBetweenA);
     },
@@ -93,8 +93,65 @@ resize(resizeBetweenRoot!);
 resize(resizeBetweenA!);
 resize(resizeBetweenB!);
 
+const resizeBetween = async (betweenElm: HTMLElement) => {
+  const styleObj = {
+    width: parseInt(style(betweenElm, 'width'), 10) + 50,
+    height: parseInt(style(betweenElm, 'height'), 10) + 50,
+  };
+  const updateCountsBefore = [rootUpdateCount, aUpdateCount, bUpdateCount];
+  style(betweenElm, styleObj);
+
+  await timeout(250);
+  const updateCountsAfter = [rootUpdateCount, aUpdateCount, bUpdateCount];
+
+  should.equal(
+    JSON.stringify(updateCountsBefore),
+    JSON.stringify(updateCountsAfter),
+    `Resizing a between element shouldn't trigger any updates.`
+  );
+  removeAttr(betweenElm, 'style');
+};
+
+const resizeResize = async (resizeElm: HTMLElement) => {
+  const styleObj = {
+    width: parseInt(style(resizeElm, 'width'), 10) - 10,
+    height: parseInt(style(resizeElm, 'height'), 10) - 10,
+  };
+  const updateCountsBefore = [rootUpdateCount, aUpdateCount, bUpdateCount];
+  style(resizeElm, styleObj);
+
+  await timeout(250);
+  const updateCountsAfter = [rootUpdateCount, aUpdateCount, bUpdateCount];
+
+  should.equal(
+    JSON.stringify(updateCountsBefore),
+    JSON.stringify(updateCountsAfter),
+    `Non size changing mutations shouldn't trigger any updates.`
+  );
+  removeAttr(resizeElm, 'style');
+};
+
+const testBetweenElements = async () => {
+  await waitForOrFailTest(async () => {
+    await resizeBetween(resizeBetweenRoot);
+    await resizeBetween(resizeBetweenA);
+    await resizeBetween(resizeBetweenB);
+  });
+};
+
+const testResizeElements = async () => {
+  await waitForOrFailTest(async () => {
+    await resizeResize(resizeRoot!);
+    await resizeResize(resizeA!);
+    await resizeResize(resizeB!);
+  });
+};
+
 const start = async () => {
   setTestResult(null);
+
+  await testBetweenElements();
+  await testResizeElements();
 
   setTestResult(true);
 };
