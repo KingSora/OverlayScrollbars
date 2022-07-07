@@ -20,20 +20,23 @@ type DOMTargetObserverCallback = (targetChangedAttrs: string[], targetStyleChang
 interface DOMObserverOptionsBase {
   _attributes?: string[];
   _styleChangingAttributes?: string[];
+  /**
+   * A function which can ignore a changed attribute if it returns true.
+   * for DOMTargetObserver this applies to the changes to the observed target
+   * for DOMContentObserver this applies to changes to nested targets -> nested targets are elements which match the "_nestedTargetSelector" selector
+   */
+  _ignoreTargetChange?: DOMObserverIgnoreTargetChange;
 }
 
 interface DOMContentObserverOptions extends DOMObserverOptionsBase {
   _eventContentChange?: DOMObserverEventContentChange; // [selector, eventname(s) | function returning eventname(s)] -> eventnames divided by whitespaces
   _nestedTargetSelector?: string;
   _ignoreContentChange?: DOMObserverIgnoreContentChange; // function which will prevent marking certain dom changes as content change if it returns true
-  _ignoreNestedTargetChange?: DOMObserverIgnoreTargetChange; // a function which will prevent marking certain attributes as changed on nested targets if it returns true
 }
 
-interface DOMTargetObserverOptions extends DOMObserverOptionsBase {
-  _ignoreTargetChange?: DOMObserverIgnoreTargetChange; // a function which will prevent marking certain attributes as changed if it returns true
-}
+type DOMTargetObserverOptions = DOMObserverOptionsBase;
 
-type ContentChangeArrayItem = [string?, string?] | null | undefined;
+type ContentChangeArrayItem = [selector?: string, eventNames?: string] | null | undefined;
 
 export type DOMObserverEventContentChange =
   | Array<ContentChangeArrayItem>
@@ -161,7 +164,6 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     _eventContentChange,
     _nestedTargetSelector,
     _ignoreTargetChange,
-    _ignoreNestedTargetChange,
     _ignoreContentChange,
   } = (options as DOMContentObserverOptions & DOMTargetObserverOptions) || {};
   const [destroyEventContentChange, updateEventContentChangeElements] = createEventContentChange(
@@ -182,8 +184,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   const finalStyleChangingAttributes = _styleChangingAttributes || [];
   const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
   const observerCallback = (mutations: MutationRecord[]) => {
-    const ignoreTargetChange =
-      (isContentObserver ? _ignoreNestedTargetChange : _ignoreTargetChange) || noop;
+    const ignoreTargetChange = _ignoreTargetChange || noop;
     const ignoreContentChange = _ignoreContentChange || noop;
     const targetChangedAttrs: string[] = [];
     const totalAddedNodes: Node[] = [];

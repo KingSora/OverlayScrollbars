@@ -5,7 +5,7 @@ import { OverlayScrollbars } from 'overlayscrollbars';
 import { resize } from '@/testing-browser/Resize';
 import { timeout } from '@/testing-browser/timeout';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
-import { addClass, removeAttr, style } from 'support';
+import { addClass, each, isArray, removeAttr, style } from 'support';
 
 OverlayScrollbars.env().setDefaultOptions({
   nativeScrollbarsOverlaid: { initialize: true },
@@ -28,14 +28,16 @@ const resizeBetweenB: HTMLElement | null = document.createElement('div');
 let rootUpdateCount = 0;
 let aUpdateCount = 0;
 let bUpdateCount = 0;
-OverlayScrollbars(
-  targetRoot!,
+const rootInstance = OverlayScrollbars(
+  { target: targetRoot!, padding: true },
   {},
   {
     initialized() {
-      addClass(targetRoot!.querySelector('.os-viewport'), 'flex');
-      addClass(resizeBetweenRoot, 'resize resizeBetween');
-      targetRoot!.append(resizeBetweenRoot);
+      requestAnimationFrame(() => {
+        addClass(rootInstance.elements().content, 'flex');
+        addClass(resizeBetweenRoot, 'resize resizeBetween');
+        targetRoot!.append(resizeBetweenRoot);
+      });
     },
     updated() {
       rootUpdateCount++;
@@ -47,17 +49,18 @@ OverlayScrollbars(
     },
   }
 );
-OverlayScrollbars(
+const aInstance = OverlayScrollbars(
   { target: targetA!, content: true },
   {},
   {
     initialized() {
-      addClass(targetA!.querySelector('.os-content'), 'flex');
-      addClass(resizeBetweenA, 'resize resizeBetween');
-      targetA!.append(resizeBetweenA);
+      requestAnimationFrame(() => {
+        addClass(aInstance.elements().content, 'flex');
+        addClass(resizeBetweenA, 'resize resizeBetween');
+        targetA!.append(resizeBetweenA);
+      });
     },
-    updated(args) {
-      console.log(args);
+    updated() {
       aUpdateCount++;
       requestAnimationFrame(() => {
         if (updatesASlot) {
@@ -67,7 +70,7 @@ OverlayScrollbars(
     },
   }
 );
-OverlayScrollbars(
+const bInstance = OverlayScrollbars(
   targetB!,
   {},
   {
@@ -131,7 +134,26 @@ const resizeResize = async (resizeElm: HTMLElement) => {
   removeAttr(resizeElm, 'style');
 };
 
+const overwriteScrollHeight = (elm: HTMLElement | HTMLElement[]) => {
+  const elements = isArray(elm) ? elm : [elm];
+
+  each(elements, (currElm) => {
+    Object.defineProperty(currElm, 'scrollHeight', {
+      configurable: true,
+      get() {
+        setTestResult(false);
+        throw new Error('accessed scrollHeight');
+      },
+    });
+  });
+};
+
 const testBetweenElements = async () => {
+  overwriteScrollHeight([
+    rootInstance.elements().viewport,
+    aInstance.elements().viewport,
+    bInstance.elements().viewport,
+  ]);
   await waitForOrFailTest(async () => {
     await resizeBetween(resizeBetweenRoot);
     await resizeBetween(resizeBetweenA);
@@ -150,8 +172,8 @@ const testResizeElements = async () => {
 const start = async () => {
   setTestResult(null);
 
-  await testBetweenElements();
   await testResizeElements();
+  await testBetweenElements(); // has to be last
 
   setTestResult(true);
 };

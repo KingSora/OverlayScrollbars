@@ -202,7 +202,7 @@ const metricsDimensionsEqual = (a: Metrics, b: Metrics) => {
   return JSON.stringify(aDimensions) === JSON.stringify(bDimensions);
 };
 
-target!.querySelector('.os-viewport')?.addEventListener('scroll', (e) => {
+osInstance.elements().viewport.addEventListener('scroll', (e) => {
   const viewport: HTMLElement | null = e.currentTarget as HTMLElement;
   comparison!.scrollLeft = viewport.scrollLeft;
   comparison!.scrollTop = viewport.scrollTop;
@@ -265,15 +265,13 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
   await waitForOrFailTest(async () => {
     const comparisonMetrics = getMetrics(comparison!);
     const targetMetrics = getMetrics(target!);
-    const targetViewport = target!.querySelector<HTMLElement>('.os-viewport');
-    const targetPadding = target!.querySelector<HTMLElement>('.os-padding');
+    const targetViewport = osInstance.elements().viewport;
+    const targetPadding = osInstance.elements().padding;
     const { x: overflowOptionX, y: overflowOptionY } = osInstance.options().overflow;
     const overflowOptionXVisible = isVisibleOverflow(overflowOptionX);
     const overflowOptionYVisible = isVisibleOverflow(overflowOptionY);
     const hostOverflowStyle = style(target, 'overflow');
-    const paddingOverflowStyle = targetPadding
-      ? style(targetPadding, 'overflow')
-      : hostOverflowStyle;
+    const paddingOverflowStyle = style(targetPadding, 'overflow');
     const viewportOverflowXStyle = style(targetViewport!, 'overflowX');
     const viewportOverflowYStyle = style(targetViewport!, 'overflowY');
 

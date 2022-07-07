@@ -1,5 +1,4 @@
 import {
-  diffClass,
   debounce,
   isArray,
   isNumber,
@@ -19,14 +18,10 @@ import {
   removeClass,
   addClass,
   hasClass,
+  isFunction,
 } from 'support';
 import { getEnvironment } from 'environment';
-import {
-  dataAttributeHost,
-  classNameViewport,
-  classNameContent,
-  classNameOverflowVisible,
-} from 'classnames';
+import { dataAttributeHost, classNameViewport, classNameOverflowVisible } from 'classnames';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver, DOMObserver } from 'observers/domObserver';
@@ -54,28 +49,11 @@ type ExcludeFromTuple<T extends readonly any[], E> = T extends [infer F, ...infe
 const hostSelector = `[${dataAttributeHost}]`;
 
 // TODO: observer textarea attrs if textarea
-// TODO: test _ignoreContentChange & _ignoreNestedTargetChange for content dom observer
-// TODO: test _ignoreTargetChange for target dom observer
 
 const viewportSelector = `.${classNameViewport}`;
-const contentSelector = `.${classNameContent}`;
-const ignorePrefix = 'os-';
 const viewportAttrsFromTarget = ['tabindex'];
 const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
 const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
-
-const ignoreTargetChange = (
-  target: Node,
-  attrName: string,
-  oldValue: string | null,
-  newValue: string | null
-) => {
-  if (attrName === 'class' && oldValue && newValue) {
-    const diff = diffClass(oldValue, newValue);
-    return !!diff.find((addedOrRemovedClass) => addedOrRemovedClass.indexOf(ignorePrefix) !== 0);
-  }
-  return false;
-};
 
 export const createStructureSetupObservers = (
   structureSetupElements: StructureSetupElementsObj,
@@ -198,21 +176,23 @@ export const createStructureSetupObservers = (
   const [destroyHostMutationObserver] = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: baseStyleChangingAttrs,
     _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
-    _ignoreTargetChange: ignoreTargetChange,
   });
 
   updateViewportAttrsFromHost();
 
   return [
     (checkOption) => {
+      const [ignoreMutation] = checkOption<string[] | null>('updating.ignoreMutation');
+      const [attributes, attributesChanged] = checkOption<string[] | null>('updating.attributes');
       const [elementEvents, elementEventsChanged] = checkOption<Array<[string, string]> | null>(
         'updating.elementEvents'
       );
-      const [attributes, attributesChanged] = checkOption<string[] | null>('updating.attributes');
       const [debounceValue, debounceChanged] = checkOption<Array<number> | number | null>(
         'updating.debounce'
       );
       const updateContentMutationObserver = elementEventsChanged || attributesChanged;
+      const ignoreMutationFromOptions = (mutation: MutationRecord) =>
+        isFunction(ignoreMutation) && ignoreMutation(mutation);
 
       if (updateContentMutationObserver) {
         if (contentMutationObserver) {
@@ -227,17 +207,14 @@ export const createStructureSetupObservers = (
             _styleChangingAttributes: contentMutationObserverAttr.concat(attributes || []),
             _attributes: contentMutationObserverAttr.concat(attributes || []),
             _eventContentChange: elementEvents,
-            _ignoreNestedTargetChange: ignoreTargetChange,
             _nestedTargetSelector: hostSelector,
             _ignoreContentChange: (mutation, isNestedTarget) => {
               const { target, attributeName } = mutation;
-              return !isNestedTarget && attributeName
-                ? liesBetween(
-                    target as Element,
-                    hostSelector,
-                    _content ? contentSelector : viewportSelector
-                  )
-                : false;
+              const ignore =
+                !isNestedTarget && attributeName
+                  ? liesBetween(target as Element, hostSelector, viewportSelector)
+                  : false;
+              return ignore || !!ignoreMutationFromOptions(mutation);
             },
           }
         );

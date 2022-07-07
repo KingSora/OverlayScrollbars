@@ -137,12 +137,6 @@ const targetDomObserver = createDOMObserver(
       should.ok(false, 'A target dom observer must not call the _ignoreContentChange method.');
       return true;
     },
-    // @ts-ignore
-    _ignoreNestedTargetChange: () => {
-      // if param: isContentObserver = false, this function should never be called.
-      should.ok(false, 'A target dom observer must not call the _ignoreNestedTargetChange method.');
-      return true;
-    },
   }
 );
 
@@ -182,19 +176,13 @@ const createContentDomOserver = (
           ? liesBetween(target as Element, hostSelector, '.content')
           : false;
       },
-      _ignoreNestedTargetChange: (_target, attrName, oldValue, newValue) => {
+      _ignoreTargetChange: (_target, attrName, oldValue, newValue) => {
         if (attrName === 'class' && oldValue && newValue) {
           const diff = diffClass(oldValue, newValue);
           const ignore = diff.length === 1 && diff[0].startsWith(ignorePrefix);
           return ignore;
         }
         return false;
-      },
-      // @ts-ignore
-      _ignoreTargetChange: () => {
-        // if param: isContentObserver = true, this function should never be called.
-        should.ok(false, 'A content dom observer must not call the _ignoreTargetChange method.');
-        return true;
       },
     }
   );
@@ -503,7 +491,8 @@ const addRemoveImgElmsFn = async (changeless = false) => {
   const addChanged = async (
     newEventContentChange: Array<[string?, string?] | null | undefined>
   ) => {
-    contentDomObserver._destroy();
+    const [destroyA] = contentDomObserver;
+    destroyA();
     contentDomObserver = createContentDomOserver(newEventContentChange);
 
     const img = new Image(1, 1);
@@ -523,7 +512,8 @@ const addRemoveImgElmsFn = async (changeless = false) => {
       compare(1);
     });
 
-    contentDomObserver._destroy();
+    const [destroyB] = contentDomObserver;
+    destroyB();
     contentDomObserver = createContentDomOserver(contentChange);
   };
 
@@ -604,7 +594,8 @@ const addRemoveTransitionElmsFn = async () => {
     });
 
     await startTransition(elm, expectTransitionEndContentChange && true);
-    contentDomObserver._destroy();
+    const [destroy] = contentDomObserver;
+    destroy();
     contentDomObserver = createContentDomOserver(contentChange);
     await startTransition(elm, expectTransitionEndContentChange && false);
 
@@ -615,7 +606,8 @@ const addRemoveTransitionElmsFn = async () => {
 
   await add(false);
 
-  contentDomObserver._destroy();
+  const [destroy] = contentDomObserver;
+  destroy();
   contentDomObserver = createContentDomOserver(
     contentChange.concat([['.transition', 'transitionend']])
   );
@@ -734,15 +726,17 @@ const start = async () => {
 
   await addRemoveImgElmsFn();
 
-  targetDomObserver._update();
-  targetDomObserver._destroy();
-  targetDomObserver._destroy();
-  targetDomObserver._update();
+  const [destroyTarget, updateTarget] = targetDomObserver;
+  updateTarget();
+  destroyTarget();
+  destroyTarget();
+  updateTarget();
 
-  contentDomObserver._update();
-  contentDomObserver._destroy();
-  contentDomObserver._destroy();
-  contentDomObserver._update();
+  const [destroyContent, updateContent] = contentDomObserver;
+  updateContent();
+  destroyContent();
+  destroyContent();
+  updateContent();
 
   await addRemoveImgElmsFn(true); // won't trigger changes after destroy
 

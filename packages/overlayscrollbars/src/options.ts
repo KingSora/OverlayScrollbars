@@ -41,9 +41,10 @@ export type UpdatedCallback = (this: any, args?: UpdatedArgs) => void;
 export interface OSOptions {
   paddingAbsolute: boolean;
   updating: {
-    elementEvents: Array<[string, string]> | null;
+    elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
     attributes: string[] | null;
-    debounce: number | [number, number] | null;
+    debounce: [timeout: number, maxWait: number] | number | null; // (if tuple: [timeout: 0, maxWait: 33], if number: [timeout: number, maxWait: false]) debounce for content Changes
+    ignoreMutation: ((mutation: MutationRecord) => any) | null;
   };
   overflow: {
     x: OverflowBehavior;
@@ -97,8 +98,9 @@ export const defaultOptions: OSOptions = {
   paddingAbsolute: false, // true || false
   updating: {
     elementEvents: [['img', 'load']], // array of tuples || null
-    attributes: null,
     debounce: [0, 33], // number || number array || null
+    attributes: null, // string array || null
+    ignoreMutation: null, // () => any || null
   },
   overflow: {
     x: 'scroll', // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s

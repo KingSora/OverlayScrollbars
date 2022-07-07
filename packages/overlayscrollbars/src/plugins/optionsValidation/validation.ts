@@ -3,7 +3,7 @@ import { type, isArray, isUndefined, isPlainObject, isString } from 'support/uti
 import { PlainObject, PartialOptions } from 'typings';
 
 export type OptionsObjectType = Record<string, unknown>;
-export type OptionsFunctionType = (this: unknown, ...args: unknown[]) => unknown;
+export type OptionsFunctionType = (this: any, ...args: any[]) => any;
 export type OptionsTemplateType<T extends OptionsTemplateNativeTypes> = ExtractPropsKey<
   OptionsTemplateTypeMap,
   T

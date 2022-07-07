@@ -62,6 +62,14 @@ export interface OverlayScrollbarsState {
   hasOverflow: XY<boolean>;
 }
 
+export interface OverlayScrollbarsElements {
+  target: HTMLElement;
+  host: HTMLElement;
+  padding: HTMLElement;
+  viewport: HTMLElement;
+  content: HTMLElement;
+}
+
 export interface OverlayScrollbars {
   options(): OSOptions;
   options(newOptions?: PartialOptions<OSOptions>): OSOptions;
@@ -70,6 +78,7 @@ export interface OverlayScrollbars {
   destroy(): void;
 
   state(): OverlayScrollbarsState;
+  elements(): OverlayScrollbarsElements;
 
   on: AddOSEventListener;
   off: RemoveOSEventListener;
@@ -177,7 +186,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     },
     on: addEvent,
     off: removeEvent,
-    state: () => {
+    state() {
       const { _overflowAmount, _overflowStyle, _hasOverflow, _padding, _paddingAbsolute } =
         structureState();
       return assignDeep(
@@ -188,6 +197,19 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           hasOverflow: _hasOverflow,
           padding: _padding,
           paddingAbsolute: _paddingAbsolute,
+        }
+      );
+    },
+    elements() {
+      const { _target, _host, _padding, _viewport, _content } = structureState._elements;
+      return assignDeep(
+        {},
+        {
+          target: _target,
+          host: _host,
+          padding: _padding || _viewport,
+          viewport: _viewport,
+          content: _content || _viewport,
         }
       );
     },

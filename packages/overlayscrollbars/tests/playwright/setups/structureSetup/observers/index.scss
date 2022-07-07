@@ -1,0 +1,57 @@
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+.container {
+  border: 1px solid red;
+  width: 60%;
+  height: 60%;
+  padding: 10px;
+  margin: 10px;
+}
+
+.resize {
+  overflow: hidden;
+  background: lime;
+  border: 1px solid green;
+  padding: 10px;
+}
+
+.resizer {
+  position: relative;
+}
+
+.resizeBetween {
+  background: tomato;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.resizeBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 20px;
+  width: 20px;
+  background: blue;
+  opacity: 0.3;
+}

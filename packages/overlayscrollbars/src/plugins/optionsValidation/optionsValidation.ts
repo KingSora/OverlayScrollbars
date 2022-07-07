@@ -25,6 +25,7 @@ const optionsTemplate: OptionsTemplate<OSOptions> = {
     elementEvents: arrayNullValues, // array of tuples || null
     attributes: arrayNullValues,
     debounce: [oTypes.number, oTypes.array, oTypes.null], // number || number array || null
+    ignoreMutation: [oTypes.function, oTypes.null], // function || null
   },
   overflow: {
     x: overflowAllowedValues, // visible-hidden  || visible-scroll || hidden || scrol
