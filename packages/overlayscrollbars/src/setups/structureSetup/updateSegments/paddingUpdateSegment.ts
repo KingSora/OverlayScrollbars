@@ -13,7 +13,7 @@ export const createPaddingUpdate: CreateStructureUpdateSegment = (
   state
 ) => {
   const [getState, setState] = state;
-  const { _host, _padding, _viewport } = structureSetupElements;
+  const { _host, _padding, _viewport, _viewportIsTarget: _isSingleElm } = structureSetupElements;
   const [updatePaddingCache, currentPaddingCache] = createCache(
     {
       _equal: equalTRBL,
@@ -34,7 +34,8 @@ export const createPaddingUpdate: CreateStructureUpdateSegment = (
       [padding, paddingChanged] = updatePaddingCache(force);
     }
 
-    const paddingStyleChanged = paddingAbsoluteChanged || _directionChanged || paddingChanged;
+    const paddingStyleChanged =
+      !_isSingleElm && (paddingAbsoluteChanged || _directionChanged || paddingChanged);
 
     if (paddingStyleChanged) {
       // if there is no padding element and no scrollbar styling, paddingAbsolute isn't supported

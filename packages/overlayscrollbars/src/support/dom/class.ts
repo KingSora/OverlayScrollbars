@@ -5,14 +5,14 @@ import { keys } from 'support/utils/object';
 const rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
 const classListAction = (
   elm: Element | false | null | undefined,
-  className: string,
+  className: string | false | null | undefined,
   action: (elmClassList: DOMTokenList, clazz: string) => boolean | void
 ): boolean => {
   let clazz: string;
   let i = 0;
   let result = false;
 
-  if (elm && isString(className)) {
+  if (elm && className && isString(className)) {
     const classes: Array<string> = className.match(rnothtmlwhite) || [];
     result = classes.length > 0;
     while ((clazz = classes[i++])) {
@@ -27,15 +27,20 @@ const classListAction = (
  * @param elm The element.
  * @param className The class name(s).
  */
-export const hasClass = (elm: Element | false | null | undefined, className: string): boolean =>
-  classListAction(elm, className, (classList, clazz) => classList.contains(clazz));
+export const hasClass = (
+  elm: Element | false | null | undefined,
+  className: string | false | null | undefined
+): boolean => classListAction(elm, className, (classList, clazz) => classList.contains(clazz));
 
 /**
  * Removes the given class name(s) from the given element.
  * @param elm The element.
  * @param className The class name(s) which shall be removed. (separated by spaces)
  */
-export const removeClass = (elm: Element | false | null | undefined, className: string): void => {
+export const removeClass = (
+  elm: Element | false | null | undefined,
+  className: string | false | null | undefined
+): void => {
   classListAction(elm, className, (classList, clazz) => classList.remove(clazz));
 };
 
@@ -47,7 +52,7 @@ export const removeClass = (elm: Element | false | null | undefined, className: 
  */
 export const addClass = (
   elm: Element | false | null | undefined,
-  className: string
+  className: string | false | null | undefined
 ): (() => void) => {
   classListAction(elm, className, (classList, clazz) => classList.add(clazz));
   return removeClass.bind(0, elm, className);

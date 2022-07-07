@@ -1,3 +1,4 @@
+import { from } from 'support/utils/array';
 import { isUndefined } from 'support/utils/types';
 
 type GetSetPropName = 'scrollLeft' | 'scrollTop' | 'value';
@@ -5,7 +6,7 @@ type GetSetPropName = 'scrollLeft' | 'scrollTop' | 'value';
 function getSetProp(
   topLeft: GetSetPropName,
   fallback: number | string,
-  elm: HTMLElement | HTMLInputElement | null,
+  elm: HTMLElement | HTMLInputElement | false | null | undefined,
   value?: number | string
 ): number | string | void {
   if (isUndefined(value)) {
@@ -21,10 +22,14 @@ function getSetProp(
  * @param attrName The attribute name which shall be get or set.
  * @param value The value of the attribute which shall be set.
  */
-export function attr(elm: HTMLElement | null, attrName: string): string | null;
-export function attr(elm: HTMLElement | null, attrName: string, value: string): void;
+export function attr(elm: HTMLElement | false | null | undefined, attrName: string): string | null;
 export function attr(
-  elm: HTMLElement | null,
+  elm: HTMLElement | false | null | undefined,
+  attrName: string,
+  value: string
+): void;
+export function attr(
+  elm: HTMLElement | false | null | undefined,
   attrName: string,
   value?: string
 ): string | null | void {
@@ -34,12 +39,35 @@ export function attr(
   elm && elm.setAttribute(attrName, value);
 }
 
+export const attrClass = (
+  elm: HTMLElement | false | null | undefined,
+  attrName: string,
+  value: string,
+  add?: boolean
+) => {
+  const currValues = attr(elm, attrName) || '';
+  const currValuesSet = new Set(currValues.split(' '));
+  currValuesSet[add ? 'add' : 'delete'](value);
+
+  attr(elm, attrName, from(currValuesSet).join(' ').trim());
+};
+
+export const hasAttrClass = (
+  elm: HTMLElement | false | null | undefined,
+  attrName: string,
+  value: string
+) => {
+  const currValues = attr(elm, attrName) || '';
+  const currValuesSet = new Set(currValues.split(' '));
+  return currValuesSet.has(value);
+};
+
 /**
  * Removes the given attribute from the given element.
  * @param elm The element of which the attribute shall be removed.
  * @param attrName The attribute name.
  */
-export const removeAttr = (elm: Element | null, attrName: string): void => {
+export const removeAttr = (elm: Element | false | null | undefined, attrName: string): void => {
   elm && elm.removeAttribute(attrName);
 };
 
@@ -48,9 +76,12 @@ export const removeAttr = (elm: Element | null, attrName: string): void => {
  * @param elm The element of which the scrollLeft value shall be get or set.
  * @param value The scrollLeft value which shall be set.
  */
-export function scrollLeft(elm: HTMLElement | null): number;
-export function scrollLeft(elm: HTMLElement | null, value: number): void;
-export function scrollLeft(elm: HTMLElement | null, value?: number): number | void {
+export function scrollLeft(elm: HTMLElement | false | null | undefined): number;
+export function scrollLeft(elm: HTMLElement | false | null | undefined, value: number): void;
+export function scrollLeft(
+  elm: HTMLElement | false | null | undefined,
+  value?: number
+): number | void {
   return getSetProp('scrollLeft', 0, elm, value) as number;
 }
 
@@ -59,9 +90,12 @@ export function scrollLeft(elm: HTMLElement | null, value?: number): number | vo
  * @param elm The element of which the scrollTop value shall be get or set.
  * @param value The scrollTop value which shall be set.
  */
-export function scrollTop(elm: HTMLElement | null): number;
-export function scrollTop(elm: HTMLElement | null, value: number): void;
-export function scrollTop(elm: HTMLElement | null, value?: number): number | void {
+export function scrollTop(elm: HTMLElement | false | null | undefined): number;
+export function scrollTop(elm: HTMLElement | false | null | undefined, value: number): void;
+export function scrollTop(
+  elm: HTMLElement | false | null | undefined,
+  value?: number
+): number | void {
   return getSetProp('scrollTop', 0, elm, value) as number;
 }
 
@@ -70,8 +104,11 @@ export function scrollTop(elm: HTMLElement | null, value?: number): number | voi
  * @param elm The input element of which the value shall be get or set.
  * @param value The value which shall be set.
  */
-export function val(elm: HTMLInputElement | null): string;
-export function val(elm: HTMLInputElement | null, value: string): void;
-export function val(elm: HTMLInputElement | null, value?: string): string | void {
+export function val(elm: HTMLInputElement | false | null | undefined): string;
+export function val(elm: HTMLInputElement | false | null | undefined, value: string): void;
+export function val(
+  elm: HTMLInputElement | false | null | undefined,
+  value?: string
+): string | void {
   return getSetProp('value', '', elm, value) as string;
 }

@@ -10,6 +10,7 @@ import {
   indexOf,
   removeElements,
   removeClass,
+  hasClass,
   push,
   runEach,
   insertBefore,
@@ -18,9 +19,14 @@ import {
   isFunction,
   keys,
   removeAttr,
+  attrClass,
+  hasAttrClass,
+  ResizeObserverConstructor,
 } from 'support';
 import {
   dataAttributeHost,
+  dataAttributeHostOverflowX,
+  dataAttributeHostOverflowY,
   classNamePadding,
   classNameViewport,
   classNameViewportArrange,
@@ -51,6 +57,9 @@ export interface StructureSetupElementsObj {
   _windowElm: Window;
   _documentElm: Document;
   _targetIsElm: boolean;
+  _viewportIsTarget: boolean;
+  _viewportHasClass: (className: string, attributeClassName: string) => boolean;
+  _viewportAddRemoveClass: (className: string, attributeClassName: string, add?: boolean) => void;
 }
 
 let contentArrangeCounter = 0;
@@ -80,8 +89,8 @@ const createUniqueViewportArrangeElement = (): HTMLStyleElement | false => {
 
 const staticCreationFromStrategy = (
   target: OSTargetElement,
-  initializationValue: HTMLElement | undefined,
-  strategy: StructureInitializationStrategyStaticElement
+  initializationValue?: HTMLElement | undefined,
+  strategy?: StructureInitializationStrategyStaticElement
 ): HTMLElement => {
   const result =
     initializationValue ||
@@ -104,8 +113,8 @@ const dynamicCreationFromStrategy = (
   return result === true ? createDiv() : result;
 };
 
-const addDataAttrHost = (elm: HTMLElement) => {
-  attr(elm, dataAttributeHost, '');
+const addDataAttrHost = (elm: HTMLElement, value?: string | false | null | undefined) => {
+  attr(elm, dataAttributeHost, value || '');
   return removeAttr.bind(0, elm, dataAttributeHost);
 };
 
@@ -127,6 +136,18 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
   const ownerDocument = targetElement!.ownerDocument;
   const bodyElm = ownerDocument.body as HTMLBodyElement;
   const wnd = ownerDocument.defaultView as Window;
+  const singleElmSupport = !!ResizeObserverConstructor && _nativeScrollbarStyling;
+  const potentialViewportElement = staticCreationFromStrategy(
+    targetElement,
+    targetStructureInitialization.viewport,
+    viewportInitializationStrategy
+  );
+  const potentiallySingleElm = potentialViewportElement === targetElement;
+  const viewportIsTarget = singleElmSupport && potentiallySingleElm;
+  const viewportElement =
+    potentiallySingleElm && !viewportIsTarget
+      ? staticCreationFromStrategy(targetElement)
+      : potentialViewportElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: isTextarea
@@ -136,11 +157,7 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
           hostInitializationStrategy
         )
       : (targetElement as HTMLElement),
-    _viewport: staticCreationFromStrategy(
-      targetElement,
-      targetStructureInitialization.viewport,
-      viewportInitializationStrategy
-    ),
+    _viewport: viewportElement,
     _padding: dynamicCreationFromStrategy(
       targetElement,
       targetStructureInitialization.padding,
@@ -151,7 +168,7 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
       targetStructureInitialization.content,
       contentInitializationStrategy
     ),
-    _viewportArrange: createUniqueViewportArrangeElement(),
+    _viewportArrange: !viewportIsTarget && createUniqueViewportArrangeElement(),
     _windowElm: wnd,
     _documentElm: ownerDocument,
     _htmlElm: parent(bodyElm) as HTMLHtmlElement,
@@ -159,6 +176,15 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
     _isTextarea: isTextarea,
     _isBody: isBody,
     _targetIsElm: targetIsElm,
+    _viewportIsTarget: viewportIsTarget,
+    _viewportHasClass: (className: string, attributeClassName: string) =>
+      viewportIsTarget
+        ? hasAttrClass(viewportElement, dataAttributeHost, attributeClassName)
+        : hasClass(viewportElement, className),
+    _viewportAddRemoveClass: (className: string, attributeClassName: string, add?: boolean) =>
+      viewportIsTarget
+        ? attrClass(viewportElement, dataAttributeHost, attributeClassName, add)
+        : (add ? addClass : removeClass)(viewportElement, className),
   };
   const generatedElements = keys(evaluatedTargetObj).reduce((arr, key: string) => {
     const value = evaluatedTargetObj[key];
@@ -177,9 +203,9 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
         )
       );
   const contentSlot = _content || _viewport;
-  const removeHostDataAttr = addDataAttrHost(_host);
+  const removeHostDataAttr = addDataAttrHost(_host, viewportIsTarget ? 'viewport' : 'host');
   const removePaddingClass = addClass(_padding, classNamePadding);
-  const removeViewportClass = addClass(_viewport, classNameViewport);
+  const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
   const removeContentClass = addClass(_content, classNameContent);
 
   // only insert host for textarea after target if it was generated
@@ -194,32 +220,29 @@ export const createStructureSetupElements = (target: OSTarget): StructureSetupEl
 
   appendChildren(contentSlot, targetContents);
   appendChildren(_host, _padding);
-  appendChildren(_padding || _host, _viewport);
+  appendChildren(_padding || _host, !viewportIsTarget && _viewport);
   appendChildren(_viewport, _content);
 
   push(destroyFns, () => {
-    if (targetIsElm) {
-      appendChildren(_host, contents(contentSlot));
-      removeElements(_padding || _viewport);
-      removeHostDataAttr();
-    } else {
-      if (elementIsGenerated(_content)) {
-        unwrap(_content);
-      }
-      if (elementIsGenerated(_viewport)) {
-        unwrap(_viewport);
-      }
-      if (elementIsGenerated(_padding)) {
-        unwrap(_padding);
-      }
-      removeHostDataAttr();
-      removePaddingClass();
-      removeViewportClass();
-      removeContentClass();
+    removeHostDataAttr();
+    removeAttr(_viewport, dataAttributeHostOverflowX);
+    removeAttr(_viewport, dataAttributeHostOverflowY);
+
+    if (elementIsGenerated(_content)) {
+      unwrap(_content);
     }
+    if (elementIsGenerated(_viewport)) {
+      unwrap(_viewport);
+    }
+    if (elementIsGenerated(_padding)) {
+      unwrap(_padding);
+    }
+    removePaddingClass();
+    removeViewportClass();
+    removeContentClass();
   });
 
-  if (_nativeScrollbarStyling) {
+  if (_nativeScrollbarStyling && !viewportIsTarget) {
     push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
   }
   if (_viewportArrange) {

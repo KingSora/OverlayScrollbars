@@ -110,7 +110,7 @@ let updateCount = 0;
 const osInstance =
   // @ts-ignore
   (window.os = OverlayScrollbars(
-    { target: target!, content: useContentElement },
+    { target: target!, viewport: target!, content: useContentElement },
     { nativeScrollbarsOverlaid: { initialize: true } },
     {
       updated() {
@@ -255,18 +255,23 @@ selectCallbackEnv(containerDirectionSelect);
 selectCallbackEnv(containerMinMaxSelect);
 
 const checkMetrics = async (checkComparison: CheckComparisonObj) => {
+  const {
+    host: targetHost,
+    viewport: targetViewport,
+    padding: targetPadding,
+  } = osInstance.elements();
+  const viewportIsTarget = targetHost === targetViewport;
   const { metrics: oldMetrics, updCount: oldUpdCount } = checkComparison;
   const currMetrics = getMetrics(comparison!);
   await waitForOrFailTest(async () => {
-    if (!metricsDimensionsEqual(oldMetrics, currMetrics)) {
+    if (!viewportIsTarget && !metricsDimensionsEqual(oldMetrics, currMetrics)) {
       should.ok(updateCount > oldUpdCount, 'Update should have been triggered.');
     }
   });
   await waitForOrFailTest(async () => {
     const comparisonMetrics = getMetrics(comparison!);
     const targetMetrics = getMetrics(target!);
-    const targetViewport = osInstance.elements().viewport;
-    const targetPadding = osInstance.elements().padding;
+
     const { x: overflowOptionX, y: overflowOptionY } = osInstance.options().overflow;
     const overflowOptionXVisible = isVisibleOverflow(overflowOptionX);
     const overflowOptionYVisible = isVisibleOverflow(overflowOptionY);
@@ -446,7 +451,7 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
         'visible',
         'Host Overflow should be visible with visible overflowing content.'
       );
-    } else {
+    } else if (!viewportIsTarget) {
       should.equal(
         hostOverflowStyle,
         'hidden',

@@ -57,10 +57,13 @@
 .os-viewport {
   -ms-overflow-style: scrollbar !important;
 }
+[data-overlayscrollbars~='viewportStyled'],
 .os-viewport-scrollbar-styled.os-environment,
 .os-viewport-scrollbar-styled.os-viewport {
   scrollbar-width: none !important;
 }
+[data-overlayscrollbars~='viewportStyled']::-webkit-scrollbar,
+[data-overlayscrollbars~='viewportStyled']::-webkit-scrollbar-corner,
 .os-viewport-scrollbar-styled.os-environment::-webkit-scrollbar,
 .os-viewport-scrollbar-styled.os-viewport::-webkit-scrollbar,
 .os-viewport-scrollbar-styled.os-environment::-webkit-scrollbar-corner,
@@ -72,7 +75,7 @@
   background: transparent !important;
 }
 
-[data-overlayscrollbars],
+[data-overlayscrollbars~='host'],
 .os-padding {
   position: relative;
   display: flex;
@@ -114,6 +117,18 @@
 }
 [data-overlayscrollbars~='overflowVisible'] {
   overflow: visible !important;
+}
+[data-overlayscrollbars-overflow-x='hidden'] {
+  overflow-x: hidden !important;
+}
+[data-overlayscrollbars-overflow-x='scroll'] {
+  overflow-x: scroll !important;
+}
+[data-overlayscrollbars-overflow-x='hidden'] {
+  overflow-y: hidden !important;
+}
+[data-overlayscrollbars-overflow-y='scroll'] {
+  overflow-y: scroll !important;
 }
 
 .os-padding,

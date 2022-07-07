@@ -3,6 +3,10 @@ export const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-
 export const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
 
 export const dataAttributeHost = 'data-overlayscrollbars';
+export const dataAttributeHostOverflowX = `${dataAttributeHost}-overflow-x`;
+export const dataAttributeHostOverflowY = `${dataAttributeHost}-overflow-y`;
+export const dataValueHostOverflowVisible = 'overflowVisible';
+export const dataValueHostViewportScrollbarStyling = 'viewportStyled';
 export const classNamePadding = 'os-padding';
 export const classNameViewport = 'os-viewport';
 export const classNameViewportArrange = `${classNameViewport}-arrange`;

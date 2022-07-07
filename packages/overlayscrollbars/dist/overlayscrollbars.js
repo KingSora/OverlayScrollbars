@@ -218,6 +218,17 @@
 
     elm && elm.setAttribute(attrName, value);
   }
+  var attrClass = function attrClass(elm, attrName, value, add) {
+    var currValues = attr(elm, attrName) || '';
+    var currValuesSet = new Set(currValues.split(' '));
+    currValuesSet[add ? 'add' : 'delete'](value);
+    attr(elm, attrName, from(currValuesSet).join(' ').trim());
+  };
+  var hasAttrClass = function hasAttrClass(elm, attrName, value) {
+    var currValues = attr(elm, attrName) || '';
+    var currValuesSet = new Set(currValues.split(' '));
+    return currValuesSet.has(value);
+  };
   var removeAttr = function removeAttr(elm, attrName) {
     elm && elm.removeAttribute(attrName);
   };
@@ -236,6 +247,11 @@
     return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
   };
 
+  var findFirst = function findFirst(selector, elm) {
+    var rootElm = elm ? isElement(elm) ? elm : null : document;
+    return rootElm ? rootElm.querySelector(selector) : null;
+  };
+
   var is = function is(elm, selector) {
     if (isElement(elm)) {
       var fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
@@ -251,6 +267,32 @@
 
   var parent = function parent(elm) {
     return elm ? elm.parentElement : null;
+  };
+
+  var closest = function closest(elm, selector) {
+    if (isElement(elm)) {
+      var closestFn = elmPrototype.closest;
+
+      if (closestFn) {
+        return closestFn.call(elm, selector);
+      }
+
+      do {
+        if (is(elm, selector)) {
+          return elm;
+        }
+
+        elm = parent(elm);
+      } while (elm);
+    }
+
+    return null;
+  };
+
+  var liesBetween = function liesBetween(elm, highBoundarySelector, deepBoundarySelector) {
+    var closestHighBoundaryElm = elm && closest(elm, highBoundarySelector);
+    var closestDeepBoundaryElm = elm && findFirst(deepBoundarySelector, closestHighBoundaryElm);
+    return closestHighBoundaryElm && closestDeepBoundaryElm ? closestHighBoundaryElm === elm || closestDeepBoundaryElm === elm || closest(closest(elm, deepBoundarySelector), highBoundarySelector) !== closestHighBoundaryElm : false;
   };
 
   var before = function before(parentElm, preferredAnchor, insertedElms) {
@@ -386,7 +428,7 @@
     var i = 0;
     var result = false;
 
-    if (elm && isString(className)) {
+    if (elm && className && isString(className)) {
       var classes = className.match(rnothtmlwhite) || [];
       result = classes.length > 0;
 
@@ -396,6 +438,12 @@
     }
 
     return result;
+  };
+
+  var hasClass = function hasClass(elm, className) {
+    return classListAction(elm, className, function (classList, clazz) {
+      return classList.contains(clazz);
+    });
   };
   var removeClass = function removeClass(elm, className) {
     classListAction(elm, className, function (classList, clazz) {
@@ -407,22 +455,6 @@
       return classList.add(clazz);
     });
     return removeClass.bind(0, elm, className);
-  };
-  var diffClass = function diffClass(classNameA, classNameB) {
-    var classNameASplit = classNameA && classNameA.split(' ');
-    var classNameBSplit = classNameB && classNameB.split(' ');
-    var tempObj = {};
-    each(classNameASplit, function (className) {
-      tempObj[className] = 1;
-    });
-    each(classNameBSplit, function (className) {
-      if (tempObj[className]) {
-        delete tempObj[className];
-      } else {
-        tempObj[className] = 1;
-      }
-    });
-    return keys(tempObj);
   };
 
   var equal = function equal(a, b, props, propMutation) {
@@ -774,6 +806,10 @@
   var classNameEnvironmentFlexboxGlue = classNameEnvironment + "-flexbox-glue";
   var classNameEnvironmentFlexboxGlueMax = classNameEnvironmentFlexboxGlue + "-max";
   var dataAttributeHost = 'data-overlayscrollbars';
+  var dataAttributeHostOverflowX = dataAttributeHost + "-overflow-x";
+  var dataAttributeHostOverflowY = dataAttributeHost + "-overflow-y";
+  var dataValueHostOverflowVisible = 'overflowVisible';
+  var dataValueHostViewportScrollbarStyling = 'viewportStyled';
   var classNamePadding = 'os-padding';
   var classNameViewport = 'os-viewport';
   var classNameViewportArrange = classNameViewport + "-arrange";
@@ -804,16 +840,20 @@
   };
 
   var defaultOptions = {
-    resize: 'none',
     paddingAbsolute: false,
     updating: {
       elementEvents: [['img', 'load']],
+      debounce: [0, 33],
       attributes: null,
-      debounce: [0, 33]
+      ignoreMutation: null
     },
     overflow: {
       x: 'scroll',
       y: 'scroll'
+    },
+    nativeScrollbarsOverlaid: {
+      show: false,
+      initialize: false
     },
     scrollbars: {
       visibility: 'auto',
@@ -822,18 +862,6 @@
       dragScroll: true,
       clickScroll: false,
       touch: true
-    },
-    textarea: {
-      dynWidth: false,
-      dynHeight: false,
-      inheritedAttrs: ['style', 'class']
-    },
-    nativeScrollbarsOverlaid: {
-      show: false,
-      initialize: false
-    },
-    callbacks: {
-      onUpdated: null
     }
   };
   var getOptionsDiff = function getOptionsDiff(currOptions, newOptions) {
@@ -1085,8 +1113,8 @@
     return result === true ? createDiv() : result;
   };
 
-  var addDataAttrHost = function addDataAttrHost(elm) {
-    attr(elm, dataAttributeHost, '');
+  var addDataAttrHost = function addDataAttrHost(elm, value) {
+    attr(elm, dataAttributeHost, value || '');
     return removeAttr.bind(0, elm, dataAttributeHost);
   };
 
@@ -1109,20 +1137,32 @@
     var ownerDocument = targetElement.ownerDocument;
     var bodyElm = ownerDocument.body;
     var wnd = ownerDocument.defaultView;
+    var singleElmSupport = !!ResizeObserverConstructor && _nativeScrollbarStyling;
+    var potentialViewportElement = staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy);
+    var potentiallySingleElm = potentialViewportElement === targetElement;
+    var viewportIsTarget = singleElmSupport && potentiallySingleElm;
+    var viewportElement = potentiallySingleElm && !viewportIsTarget ? staticCreationFromStrategy(targetElement) : potentialViewportElement;
     var evaluatedTargetObj = {
       _target: targetElement,
       _host: isTextarea ? staticCreationFromStrategy(targetElement, targetStructureInitialization.host, hostInitializationStrategy) : targetElement,
-      _viewport: staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy),
+      _viewport: viewportElement,
       _padding: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.padding, paddingInitializationStrategy),
       _content: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.content, contentInitializationStrategy),
-      _viewportArrange: createUniqueViewportArrangeElement(),
+      _viewportArrange: !viewportIsTarget && createUniqueViewportArrangeElement(),
       _windowElm: wnd,
       _documentElm: ownerDocument,
       _htmlElm: parent(bodyElm),
       _bodyElm: bodyElm,
       _isTextarea: isTextarea,
       _isBody: isBody,
-      _targetIsElm: targetIsElm
+      _targetIsElm: targetIsElm,
+      _viewportIsTarget: viewportIsTarget,
+      _viewportHasClass: function _viewportHasClass(className, attributeClassName) {
+        return viewportIsTarget ? hasAttrClass(viewportElement, dataAttributeHost, attributeClassName) : hasClass(viewportElement, className);
+      },
+      _viewportAddRemoveClass: function _viewportAddRemoveClass(className, attributeClassName, add) {
+        return viewportIsTarget ? attrClass(viewportElement, dataAttributeHost, attributeClassName, add) : (add ? addClass : removeClass)(viewportElement, className);
+      }
     };
     var generatedElements = keys(evaluatedTargetObj).reduce(function (arr, key) {
       var value = evaluatedTargetObj[key];
@@ -1145,9 +1185,9 @@
       return elementIsGenerated(elm) === false;
     }));
     var contentSlot = _content || _viewport;
-    var removeHostDataAttr = addDataAttrHost(_host);
+    var removeHostDataAttr = addDataAttrHost(_host, viewportIsTarget ? 'viewport' : 'host');
     var removePaddingClass = addClass(_padding, classNamePadding);
-    var removeViewportClass = addClass(_viewport, classNameViewport);
+    var removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
     var removeContentClass = addClass(_content, classNameContent);
 
     if (isTextareaHostGenerated) {
@@ -1160,34 +1200,31 @@
 
     appendChildren(contentSlot, targetContents);
     appendChildren(_host, _padding);
-    appendChildren(_padding || _host, _viewport);
+    appendChildren(_padding || _host, !viewportIsTarget && _viewport);
     appendChildren(_viewport, _content);
     push(destroyFns, function () {
-      if (targetIsElm) {
-        appendChildren(_host, contents(contentSlot));
-        removeElements(_padding || _viewport);
-        removeHostDataAttr();
-      } else {
-        if (elementIsGenerated(_content)) {
-          unwrap(_content);
-        }
+      removeHostDataAttr();
+      removeAttr(_viewport, dataAttributeHostOverflowX);
+      removeAttr(_viewport, dataAttributeHostOverflowY);
 
-        if (elementIsGenerated(_viewport)) {
-          unwrap(_viewport);
-        }
-
-        if (elementIsGenerated(_padding)) {
-          unwrap(_padding);
-        }
-
-        removeHostDataAttr();
-        removePaddingClass();
-        removeViewportClass();
-        removeContentClass();
+      if (elementIsGenerated(_content)) {
+        unwrap(_content);
       }
+
+      if (elementIsGenerated(_viewport)) {
+        unwrap(_viewport);
+      }
+
+      if (elementIsGenerated(_padding)) {
+        unwrap(_padding);
+      }
+
+      removePaddingClass();
+      removeViewportClass();
+      removeContentClass();
     });
 
-    if (_nativeScrollbarStyling) {
+    if (_nativeScrollbarStyling && !viewportIsTarget) {
       push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
     }
 
@@ -1214,8 +1251,7 @@
 
       if (heightIntrinsicChanged) {
         style(_content, {
-          height: _heightIntrinsic ? '' : '100%',
-          display: _heightIntrinsic ? '' : 'inline'
+          height: _heightIntrinsic ? '' : '100%'
         });
       }
 
@@ -1231,7 +1267,8 @@
         setState = state[1];
     var _host = structureSetupElements._host,
         _padding = structureSetupElements._padding,
-        _viewport = structureSetupElements._viewport;
+        _viewport = structureSetupElements._viewport,
+        _isSingleElm = structureSetupElements._viewportIsTarget;
 
     var _createCache = createCache({
       _equal: equalTRBL,
@@ -1269,7 +1306,7 @@
         paddingChanged = _updatePaddingCache[1];
       }
 
-      var paddingStyleChanged = paddingAbsoluteChanged || _directionChanged || paddingChanged;
+      var paddingStyleChanged = !_isSingleElm && (paddingAbsoluteChanged || _directionChanged || paddingChanged);
 
       if (paddingStyleChanged) {
         var paddingRelative = !paddingAbsolute || !_padding && !_nativeScrollbarStyling;
@@ -1336,8 +1373,8 @@
     };
   };
 
-  var conditionalClass = function conditionalClass(elm, classNames, condition) {
-    return condition ? addClass(elm, classNames) : removeClass(elm, classNames);
+  var conditionalClass = function conditionalClass(elm, classNames, add) {
+    return add ? addClass(elm, classNames) : removeClass(elm, classNames);
   };
 
   var overflowIsVisible = function overflowIsVisible(overflowBehavior) {
@@ -1350,7 +1387,9 @@
     var _host = structureSetupElements._host,
         _padding = structureSetupElements._padding,
         _viewport = structureSetupElements._viewport,
-        _viewportArrange = structureSetupElements._viewportArrange;
+        _viewportArrange = structureSetupElements._viewportArrange,
+        _viewportIsTarget = structureSetupElements._viewportIsTarget,
+        _viewportAddRemoveClass = structureSetupElements._viewportAddRemoveClass;
 
     var _getEnvironment = getEnvironment(),
         _nativeScrollbarSize = _getEnvironment._nativeScrollbarSize,
@@ -1358,7 +1397,7 @@
         _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
         _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid;
 
-    var doViewportArrange = !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
+    var doViewportArrange = !_viewportIsTarget && !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
 
     var _createCache = createCache(whCacheOptions, fractionalSize.bind(0, _host)),
         updateSizeFraction = _createCache[0],
@@ -1603,7 +1642,7 @@
           overflowChanged = _checkOption2[1];
 
       var showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
-      var adjustFlexboxGlue = !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || _heightIntrinsicChanged);
+      var adjustFlexboxGlue = !_viewportIsTarget && !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || _heightIntrinsicChanged);
       var overflowXVisible = overflowIsVisible(overflow.x);
       var overflowYVisible = overflowIsVisible(overflow.y);
       var overflowVisible = overflowXVisible || overflowYVisible;
@@ -1613,7 +1652,7 @@
       var preMeasureViewportOverflowState;
 
       if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
-        conditionalClass(_viewport, classNameViewportScrollbarStyling, !showNativeOverlaidScrollbars);
+        _viewportAddRemoveClass(classNameViewportScrollbarStyling, dataValueHostViewportScrollbarStyling, !showNativeOverlaidScrollbars);
       }
 
       if (adjustFlexboxGlue) {
@@ -1623,7 +1662,7 @@
 
       if (_sizeChanged || _paddingStyleChanged || _contentMutation || _directionChanged || showNativeOverlaidScrollbarsChanged) {
         if (overflowVisible) {
-          removeClass(_viewport, classNameOverflowVisible);
+          _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, false);
         }
 
         var _undoViewportArrange = undoViewportArrange(showNativeOverlaidScrollbars, _directionIsRTL, preMeasureViewportOverflowState),
@@ -1683,18 +1722,26 @@
         };
         var viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, hasOverflow, overflow, viewportStyle);
         var viewportArranged = arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction, _directionIsRTL);
-        hideNativeScrollbars(viewportOverflowState, _directionIsRTL, viewportArranged, viewportStyle);
+
+        if (!_viewportIsTarget) {
+          hideNativeScrollbars(viewportOverflowState, _directionIsRTL, viewportArranged, viewportStyle);
+        }
 
         if (adjustFlexboxGlue) {
           fixFlexboxGlue(viewportOverflowState, _heightIntrinsic);
         }
 
-        style(_viewport, viewportStyle);
+        if (_viewportIsTarget) {
+          attr(_host, dataAttributeHostOverflowX, viewportStyle.overflowX);
+          attr(_host, dataAttributeHostOverflowY, viewportStyle.overflowY);
+        } else {
+          style(_viewport, viewportStyle);
+        }
       }
 
-      attr(_host, dataAttributeHost, removeClipping ? 'overflowVisible' : '');
+      attrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
       conditionalClass(_padding, classNameOverflowVisible, removeClipping);
-      conditionalClass(_viewport, classNameOverflowVisible, overflowVisible);
+      !_viewportIsTarget && conditionalClass(_viewport, classNameOverflowVisible, overflowVisible);
 
       var _updateOverflowStyleC = updateOverflowStyleCache(getViewportOverflowState(showNativeOverlaidScrollbars)._overflowStyle),
           overflowStyle = _updateOverflowStyleC[0],
@@ -2070,7 +2117,6 @@
         _eventContentChange = _ref._eventContentChange,
         _nestedTargetSelector = _ref._nestedTargetSelector,
         _ignoreTargetChange = _ref._ignoreTargetChange,
-        _ignoreNestedTargetChange = _ref._ignoreNestedTargetChange,
         _ignoreContentChange = _ref._ignoreContentChange;
 
     var _createEventContentCh = createEventContentChange(target, debounce(function () {
@@ -2089,7 +2135,7 @@
     var observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
 
     var observerCallback = function observerCallback(mutations) {
-      var ignoreTargetChange = (isContentObserver ? _ignoreNestedTargetChange : _ignoreTargetChange) || noop;
+      var ignoreTargetChange = _ignoreTargetChange || noop;
       var ignoreContentChange = _ignoreContentChange || noop;
       var targetChangedAttrs = [];
       var totalAddedNodes = [];
@@ -2165,22 +2211,11 @@
     }];
   };
 
-  var ignorePrefix = 'os-';
+  var hostSelector = "[" + dataAttributeHost + "]";
+  var viewportSelector = "." + classNameViewport;
   var viewportAttrsFromTarget = ['tabindex'];
   var baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
   var baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
-
-  var ignoreTargetChange = function ignoreTargetChange(target, attrName, oldValue, newValue) {
-    if (attrName === 'class' && oldValue && newValue) {
-      var diff = diffClass(oldValue, newValue);
-      return !!diff.find(function (addedOrRemovedClass) {
-        return addedOrRemovedClass.indexOf(ignorePrefix) !== 0;
-      });
-    }
-
-    return false;
-  };
-
   var createStructureSetupObservers = function createStructureSetupObservers(structureSetupElements, state, structureSetupUpdate) {
     var debounceTimeout;
     var debounceMaxDelay;
@@ -2189,11 +2224,35 @@
     var _host = structureSetupElements._host,
         _viewport = structureSetupElements._viewport,
         _content = structureSetupElements._content,
-        _isTextarea = structureSetupElements._isTextarea;
+        _isTextarea = structureSetupElements._isTextarea,
+        _viewportIsTarget = structureSetupElements._viewportIsTarget,
+        _viewportHasClass = structureSetupElements._viewportHasClass,
+        _viewportAddRemoveClass = structureSetupElements._viewportAddRemoveClass;
 
     var _getEnvironment = getEnvironment(),
         _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
         _flexboxGlue = _getEnvironment._flexboxGlue;
+
+    var _createCache = createCache({
+      _equal: equalWH,
+      _initialValue: {
+        w: 0,
+        h: 0
+      }
+    }, function () {
+      var has = _viewportHasClass(classNameOverflowVisible, dataValueHostOverflowVisible);
+
+      has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible);
+      var contentScroll = scrollSize(_content);
+      var viewportScroll = scrollSize(_viewport);
+      var fractional = fractionalSize(_viewport);
+      has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, true);
+      return {
+        w: viewportScroll.w + contentScroll.w + fractional.w,
+        h: viewportScroll.h + contentScroll.h + fractional.h
+      };
+    }),
+        updateContentSizeCache = _createCache[0];
 
     var contentMutationObserverAttr = _isTextarea ? baseStyleChangingAttrsTextarea : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
     var structureSetupUpdateWithDebouncedAdaptiveUpdateHints = debounce(structureSetupUpdate, {
@@ -2261,10 +2320,16 @@
     };
 
     var onContentMutation = function onContentMutation(contentChangedTroughEvent) {
+      var _updateContentSizeCac = updateContentSizeCache(),
+          contentSizeChanged = _updateContentSizeCac[1];
+
       var updateFn = contentChangedTroughEvent ? structureSetupUpdate : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
-      updateFn({
-        _contentMutation: true
-      });
+
+      if (contentSizeChanged) {
+        updateFn({
+          _contentMutation: true
+        });
+      }
     };
 
     var onHostMutation = function onHostMutation(targetChangedAttrs, targetStyleChanged) {
@@ -2272,39 +2337,49 @@
         structureSetupUpdateWithDebouncedAdaptiveUpdateHints({
           _hostMutation: true
         });
-      } else {
+      } else if (!_viewportIsTarget) {
         updateViewportAttrsFromHost(targetChangedAttrs);
       }
     };
 
     var destroyTrinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
-    var destroySizeObserver = createSizeObserver(_host, onSizeChanged, {
+    var destroySizeObserver = !_viewportIsTarget && createSizeObserver(_host, onSizeChanged, {
       _appear: true,
       _direction: !_nativeScrollbarStyling
     });
 
     var _createDOMObserver = createDOMObserver(_host, false, onHostMutation, {
       _styleChangingAttributes: baseStyleChangingAttrs,
-      _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
-      _ignoreTargetChange: ignoreTargetChange
+      _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget)
     }),
         destroyHostMutationObserver = _createDOMObserver[0];
 
+    var viewportIsTargetResizeObserver = _viewportIsTarget && new ResizeObserverConstructor(onSizeChanged.bind(0, {
+      _sizeChanged: true
+    }));
+    viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
     updateViewportAttrsFromHost();
     return [function (checkOption) {
-      var _checkOption = checkOption('updating.elementEvents'),
-          elementEvents = _checkOption[0],
-          elementEventsChanged = _checkOption[1];
+      var _checkOption = checkOption('updating.ignoreMutation'),
+          ignoreMutation = _checkOption[0];
 
       var _checkOption2 = checkOption('updating.attributes'),
           attributes = _checkOption2[0],
           attributesChanged = _checkOption2[1];
 
-      var _checkOption3 = checkOption('updating.debounce'),
-          debounceValue = _checkOption3[0],
-          debounceChanged = _checkOption3[1];
+      var _checkOption3 = checkOption('updating.elementEvents'),
+          elementEvents = _checkOption3[0],
+          elementEventsChanged = _checkOption3[1];
+
+      var _checkOption4 = checkOption('updating.debounce'),
+          debounceValue = _checkOption4[0],
+          debounceChanged = _checkOption4[1];
 
       var updateContentMutationObserver = elementEventsChanged || attributesChanged;
+
+      var ignoreMutationFromOptions = function ignoreMutationFromOptions(mutation) {
+        return isFunction(ignoreMutation) && ignoreMutation(mutation);
+      };
 
       if (updateContentMutationObserver) {
         if (contentMutationObserver) {
@@ -2316,7 +2391,13 @@
           _styleChangingAttributes: contentMutationObserverAttr.concat(attributes || []),
           _attributes: contentMutationObserverAttr.concat(attributes || []),
           _eventContentChange: elementEvents,
-          _ignoreNestedTargetChange: ignoreTargetChange
+          _nestedTargetSelector: hostSelector,
+          _ignoreContentChange: function _ignoreContentChange(mutation, isNestedTarget) {
+            var target = mutation.target,
+                attributeName = mutation.attributeName;
+            var ignore = !isNestedTarget && attributeName ? liesBetween(target, hostSelector, viewportSelector) : false;
+            return ignore || !!ignoreMutationFromOptions(mutation);
+          }
         });
       }
 
@@ -2339,7 +2420,8 @@
     }, function () {
       contentMutationObserver && contentMutationObserver[0]();
       destroyTrinsicObserver && destroyTrinsicObserver();
-      destroySizeObserver();
+      destroySizeObserver && destroySizeObserver();
+      viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
       destroyHostMutationObserver();
     }];
   };
@@ -2521,18 +2603,16 @@
   var numberAllowedValues = optionsTemplateTypes.number;
   var booleanAllowedValues = optionsTemplateTypes.boolean;
   var arrayNullValues = [optionsTemplateTypes.array, optionsTemplateTypes.null];
-  var stringArrayNullAllowedValues = [optionsTemplateTypes.string, optionsTemplateTypes.array, optionsTemplateTypes.null];
-  var resizeAllowedValues = 'none both horizontal vertical';
   var overflowAllowedValues = 'hidden scroll visible visible-hidden';
   var scrollbarsVisibilityAllowedValues = 'visible hidden auto';
   var scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
   ({
-    resize: resizeAllowedValues,
     paddingAbsolute: booleanAllowedValues,
     updating: {
       elementEvents: arrayNullValues,
       attributes: arrayNullValues,
-      debounce: [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null]
+      debounce: [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null],
+      ignoreMutation: [optionsTemplateTypes.function, optionsTemplateTypes.null]
     },
     overflow: {
       x: overflowAllowedValues,
@@ -2546,17 +2626,9 @@
       clickScroll: booleanAllowedValues,
       touch: booleanAllowedValues
     },
-    textarea: {
-      dynWidth: booleanAllowedValues,
-      dynHeight: booleanAllowedValues,
-      inheritedAttrs: stringArrayNullAllowedValues
-    },
     nativeScrollbarsOverlaid: {
       show: booleanAllowedValues,
       initialize: booleanAllowedValues
-    },
-    callbacks: {
-      onUpdated: [optionsTemplateTypes.function, optionsTemplateTypes.null]
     }
   });
   var optionsValidationPluginName = '__osOptionsValidationPlugin';
@@ -2681,6 +2753,21 @@
           hasOverflow: _hasOverflow,
           padding: _padding,
           paddingAbsolute: _paddingAbsolute
+        });
+      },
+      elements: function elements() {
+        var _structureState$_elem = structureState._elements,
+            _target = _structureState$_elem._target,
+            _host = _structureState$_elem._host,
+            _padding = _structureState$_elem._padding,
+            _viewport = _structureState$_elem._viewport,
+            _content = _structureState$_elem._content;
+        return assignDeep({}, {
+          target: _target,
+          host: _host,
+          padding: _padding || _viewport,
+          viewport: _viewport,
+          content: _content || _viewport
         });
       },
       update: function update(force) {

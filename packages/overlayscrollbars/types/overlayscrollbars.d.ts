@@ -62,23 +62,22 @@ type RemoveEventListener<NameArgsMap extends Record<string, any>> = <Name extend
 type InitialEventListeners<NameArgsMap extends Record<string, any>> = {
     [K in Extract<keyof NameArgsMap, string>]?: EventListenerGroup<NameArgsMap, K>;
 };
-type ResizeBehavior = "none" | "both" | "horizontal" | "vertical";
 type OverflowBehavior = "hidden" | "scroll" | "visible" | "visible-hidden" | "visible-scroll";
 type VisibilityBehavior = "visible" | "hidden" | "auto";
 type AutoHideBehavior = "never" | "scroll" | "leave" | "move";
 interface OSOptions {
-    resize: ResizeBehavior;
     paddingAbsolute: boolean;
     updating: {
         elementEvents: Array<[
-            string,
-            string
+            elementSelector: string,
+            eventNames: string
         ]> | null;
         attributes: string[] | null;
-        debounce: number | [
-            number,
-            number
-        ] | null;
+        debounce: [
+            timeout: number,
+            maxWait: number
+        ] | number | null; // (if tuple: [timeout: 0, maxWait: 33], if number: [timeout: number, maxWait: false]) debounce for content Changes
+        ignoreMutation: ((mutation: MutationRecord) => any) | null;
     };
     overflow: {
         x: OverflowBehavior;
@@ -92,17 +91,9 @@ interface OSOptions {
         clickScroll: boolean;
         touch: boolean;
     };
-    textarea: {
-        dynWidth: boolean;
-        dynHeight: boolean;
-        inheritedAttrs: string | Array<string> | null;
-    };
     nativeScrollbarsOverlaid: {
         show: boolean;
         initialize: boolean;
-    };
-    callbacks: {
-        onUpdated: (() => any) | null;
     };
 }
 type StructureInitializationStrategyElementFn<T> = ((target: OSTargetElement) => HTMLElement | T) | T;
@@ -203,12 +194,20 @@ interface OverlayScrollbarsState {
     overflowStyle: XY<OverflowStyle>;
     hasOverflow: XY<boolean>;
 }
+interface OverlayScrollbarsElements {
+    target: HTMLElement;
+    host: HTMLElement;
+    padding: HTMLElement;
+    viewport: HTMLElement;
+    content: HTMLElement;
+}
 interface OverlayScrollbars {
     options(): OSOptions;
     options(newOptions?: PartialOptions<OSOptions>): OSOptions;
     update(force?: boolean): void;
     destroy(): void;
     state(): OverlayScrollbarsState;
+    elements(): OverlayScrollbarsElements;
     on: AddOSEventListener;
     off: RemoveOSEventListener;
 }

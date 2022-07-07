@@ -89,13 +89,14 @@ body {
   }
 }
 
-#target::after {
+#target[data-overlayscrollbars~='host']::after {
   display: none;
 }
 
+#target[data-overlayscrollbars~='viewport'],
 #comparison {
-  overflow: hidden;
   z-index: 0;
+  overflow: hidden;
 }
 
 .resize {
@@ -152,7 +153,7 @@ body {
   width: auto;
   display: inline-block;
 }
-.widthAuto > #target {
+.widthAuto > #target[data-overlayscrollbars~='host'] {
   display: inline-flex;
 }
 .widthHundred > .container,

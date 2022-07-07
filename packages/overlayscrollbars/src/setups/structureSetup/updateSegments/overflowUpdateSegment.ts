@@ -14,6 +14,7 @@ import {
   noop,
   each,
   equalXY,
+  attrClass,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -21,6 +22,10 @@ import {
   classNameViewportScrollbarStyling,
   classNameOverflowVisible,
   dataAttributeHost,
+  dataAttributeHostOverflowX,
+  dataAttributeHostOverflowY,
+  dataValueHostViewportScrollbarStyling,
+  dataValueHostOverflowVisible,
 } from 'classnames';
 import type { StyleObject, OverflowStyle } from 'typings';
 import type { OverflowBehavior } from 'options';
@@ -71,8 +76,8 @@ const getOverflowAmount = (
 const conditionalClass = (
   elm: Element | false | null | undefined,
   classNames: string,
-  condition: boolean
-) => (condition ? addClass(elm, classNames) : removeClass(elm, classNames));
+  add: boolean
+) => (add ? addClass(elm, classNames) : removeClass(elm, classNames));
 
 const overflowIsVisible = (overflowBehavior: string) => overflowBehavior.indexOf(strVisible) === 0;
 
@@ -86,7 +91,14 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
   state
 ) => {
   const [getState, setState] = state;
-  const { _host, _padding, _viewport, _viewportArrange } = structureSetupElements;
+  const {
+    _host,
+    _padding,
+    _viewport,
+    _viewportArrange,
+    _viewportIsTarget,
+    _viewportAddRemoveClass,
+  } = structureSetupElements;
   const {
     _nativeScrollbarSize,
     _flexboxGlue,
@@ -94,7 +106,9 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
     _nativeScrollbarIsOverlaid,
   } = getEnvironment();
   const doViewportArrange =
-    !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
+    !_viewportIsTarget &&
+    !_nativeScrollbarStyling &&
+    (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
@@ -426,6 +440,7 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
       _nativeScrollbarIsOverlaid.x &&
       _nativeScrollbarIsOverlaid.y;
     const adjustFlexboxGlue =
+      !_viewportIsTarget &&
       !_flexboxGlue &&
       (_sizeChanged ||
         _contentMutation ||
@@ -443,7 +458,11 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
     let preMeasureViewportOverflowState: ViewportOverflowState | undefined;
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
-      conditionalClass(_viewport, classNameViewportScrollbarStyling, !showNativeOverlaidScrollbars);
+      _viewportAddRemoveClass(
+        classNameViewportScrollbarStyling,
+        dataValueHostViewportScrollbarStyling,
+        !showNativeOverlaidScrollbars
+      );
     }
 
     if (adjustFlexboxGlue) {
@@ -459,7 +478,7 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
       showNativeOverlaidScrollbarsChanged
     ) {
       if (overflowVisible) {
-        removeClass(_viewport, classNameOverflowVisible);
+        _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, false);
       }
 
       const [redoViewportArrange, undoViewportArrangeOverflowState] = undoViewportArrange(
@@ -550,18 +569,31 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
         sizeFraction,
         _directionIsRTL
       );
-      hideNativeScrollbars(viewportOverflowState, _directionIsRTL, viewportArranged, viewportStyle);
+
+      if (!_viewportIsTarget) {
+        hideNativeScrollbars(
+          viewportOverflowState,
+          _directionIsRTL,
+          viewportArranged,
+          viewportStyle
+        );
+      }
 
       if (adjustFlexboxGlue) {
         fixFlexboxGlue(viewportOverflowState, _heightIntrinsic);
       }
 
-      style(_viewport, viewportStyle);
+      if (_viewportIsTarget) {
+        attr(_host, dataAttributeHostOverflowX, viewportStyle.overflowX as string);
+        attr(_host, dataAttributeHostOverflowY, viewportStyle.overflowY as string);
+      } else {
+        style(_viewport, viewportStyle);
+      }
     }
 
-    attr(_host, dataAttributeHost, removeClipping ? 'overflowVisible' : '');
+    attrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
     conditionalClass(_padding, classNameOverflowVisible, removeClipping);
-    conditionalClass(_viewport, classNameOverflowVisible, overflowVisible);
+    !_viewportIsTarget && conditionalClass(_viewport, classNameOverflowVisible, overflowVisible);
 
     const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
       getViewportOverflowState(showNativeOverlaidScrollbars)._overflowStyle

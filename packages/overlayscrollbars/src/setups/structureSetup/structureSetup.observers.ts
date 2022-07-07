@@ -15,13 +15,16 @@ import {
   createCache,
   WH,
   fractionalSize,
-  removeClass,
-  addClass,
-  hasClass,
   isFunction,
+  ResizeObserverConstructor,
 } from 'support';
 import { getEnvironment } from 'environment';
-import { dataAttributeHost, classNameViewport, classNameOverflowVisible } from 'classnames';
+import {
+  dataAttributeHost,
+  dataValueHostOverflowVisible,
+  classNameViewport,
+  classNameOverflowVisible,
+} from 'classnames';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
 import { createDOMObserver, DOMObserver } from 'observers/domObserver';
@@ -66,22 +69,31 @@ export const createStructureSetupObservers = (
   let debounceMaxDelay: number | false | undefined;
   let contentMutationObserver: DOMObserver | undefined;
   const [, setState] = state;
-  const { _host, _viewport, _content, _isTextarea } = structureSetupElements;
+  const {
+    _host,
+    _viewport,
+    _content,
+    _isTextarea,
+    _viewportIsTarget,
+    _viewportHasClass,
+    _viewportAddRemoveClass,
+  } = structureSetupElements;
   const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+
   const [updateContentSizeCache] = createCache<WH<number>>(
     {
       _equal: equalWH,
       _initialValue: { w: 0, h: 0 },
     },
     () => {
-      const has = hasClass(_viewport, classNameOverflowVisible);
-      has && removeClass(_viewport, classNameOverflowVisible);
+      const has = _viewportHasClass(classNameOverflowVisible, dataValueHostOverflowVisible);
+      has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible);
 
       const contentScroll = scrollSize(_content);
       const viewportScroll = scrollSize(_viewport);
       const fractional = fractionalSize(_viewport);
 
-      has && addClass(_viewport, classNameOverflowVisible);
+      has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, true);
       return {
         w: viewportScroll.w + contentScroll.w + fractional.w,
         h: viewportScroll.h + contentScroll.h + fractional.h,
@@ -162,22 +174,29 @@ export const createStructureSetupObservers = (
       structureSetupUpdateWithDebouncedAdaptiveUpdateHints({
         _hostMutation: true,
       });
-    } else {
+    } else if (!_viewportIsTarget) {
       updateViewportAttrsFromHost(targetChangedAttrs);
     }
   };
 
   const destroyTrinsicObserver =
     (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
-  const destroySizeObserver = createSizeObserver(_host, onSizeChanged, {
-    _appear: true,
-    _direction: !_nativeScrollbarStyling,
-  });
+  const destroySizeObserver =
+    !_viewportIsTarget &&
+    createSizeObserver(_host, onSizeChanged, {
+      _appear: true,
+      _direction: !_nativeScrollbarStyling,
+    });
   const [destroyHostMutationObserver] = createDOMObserver(_host, false, onHostMutation, {
     _styleChangingAttributes: baseStyleChangingAttrs,
     _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
   });
 
+  const viewportIsTargetResizeObserver =
+    _viewportIsTarget &&
+    new ResizeObserverConstructor!(onSizeChanged.bind(0, { _sizeChanged: true }));
+
+  viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
   updateViewportAttrsFromHost();
 
   return [
@@ -239,7 +258,8 @@ export const createStructureSetupObservers = (
     () => {
       contentMutationObserver && contentMutationObserver[0](); // destroy
       destroyTrinsicObserver && destroyTrinsicObserver();
-      destroySizeObserver();
+      destroySizeObserver && destroySizeObserver();
+      viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
       destroyHostMutationObserver();
     },
   ];
