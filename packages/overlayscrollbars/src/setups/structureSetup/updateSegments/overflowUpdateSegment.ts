@@ -112,7 +112,7 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
-    fractionalSize.bind(0, _host)
+    fractionalSize.bind(0, _viewport)
   );
 
   const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache<

@@ -15,6 +15,7 @@ import {
   removeAttr,
   contents,
   appendChildren,
+  createDOM,
 } from 'support';
 import { resize } from '@/testing-browser/Resize';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
@@ -69,6 +70,7 @@ const expectedOverflowVisibleBehavior = (
 
 // @ts-ignore
 const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
+const ff = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
@@ -282,16 +284,42 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
 
     // ==== check scroll values:
 
-    should.equal(
-      targetMetrics.scroll.width,
-      comparisonMetrics.scroll.width,
-      `Scroll width equality. (${osInstance.state().overflowAmount.x})`
-    );
-    should.equal(
-      targetMetrics.scroll.height,
-      comparisonMetrics.scroll.height,
-      `Scroll height equality. (${osInstance.state().overflowAmount.y})`
-    );
+    if (ff && isFractionalPixelRatio()) {
+      should.ok(
+        Math.abs(targetMetrics.scroll.width - comparisonMetrics.scroll.width) <= 1,
+        `Scroll width equality. +-1 (${osInstance.state().overflowAmount.x})`
+      );
+      should.ok(
+        Math.abs(targetMetrics.scroll.height - comparisonMetrics.scroll.height) <= 1,
+        `Scroll height equality. +-1 (${osInstance.state().overflowAmount.y})`
+      );
+
+      if (!document.querySelector('#rounding')) {
+        appendChildren(
+          targetUpdatesSlot!.parentElement!.parentElement,
+          createDOM('<span>Rounding issues: <span id="rounding">0</span></span>')
+        );
+      }
+      const roundingElm = document.querySelector('#rounding');
+      const scrollWidth = targetMetrics.scroll.width - comparisonMetrics.scroll.width;
+      const scrollHeight = targetMetrics.scroll.height - comparisonMetrics.scroll.height;
+      if (scrollWidth !== 0 || scrollHeight !== 0) {
+        console.log(scrollWidth);
+        console.log(scrollHeight);
+        roundingElm!.textContent = `${(parseInt(roundingElm!.textContent || '0', 10) || 0) + 1}`;
+      }
+    } else {
+      should.equal(
+        targetMetrics.scroll.width,
+        comparisonMetrics.scroll.width,
+        `Scroll width equality. (${osInstance.state().overflowAmount.x})`
+      );
+      should.equal(
+        targetMetrics.scroll.height,
+        comparisonMetrics.scroll.height,
+        `Scroll height equality. (${osInstance.state().overflowAmount.y})`
+      );
+    }
 
     should.equal(
       targetMetrics.hasOverflow.x,
