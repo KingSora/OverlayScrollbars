@@ -5,7 +5,7 @@ import { addClass } from 'support';
   const url = new URL(window.location.toString());
   const params = url.searchParams;
 
-  ['nss', 'fbg', 'ccp', 'po', 'fo'].forEach((param) => {
+  ['nss', 'fbg', 'ccp', 'po', 'fo', 'tvp'].forEach((param) => {
     const paramValue = Boolean(params.get(param));
 
     if (paramValue) {

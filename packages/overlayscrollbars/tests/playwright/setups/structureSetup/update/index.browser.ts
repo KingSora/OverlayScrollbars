@@ -16,6 +16,7 @@ import {
   contents,
   appendChildren,
   createDOM,
+  hasClass,
 } from 'support';
 import { resize } from '@/testing-browser/Resize';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
@@ -107,12 +108,20 @@ if (!useContentElement) {
   appendChildren(comparisonContentElm, elms);
 }
 
+const initObj = hasClass(document.body, 'tvp')
+  ? {
+      target: target!,
+      viewport: target!,
+      content: useContentElement,
+    }
+  : { target: target!, content: useContentElement };
+
 let updateCount = 0;
 // @ts-ignore
 const osInstance =
   // @ts-ignore
   (window.os = OverlayScrollbars(
-    { target: target!, viewport: target!, content: useContentElement },
+    initObj,
     { nativeScrollbarsOverlaid: { initialize: true } },
     {
       updated() {
@@ -284,7 +293,7 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
 
     // ==== check scroll values:
 
-    if (ff && isFractionalPixelRatio()) {
+    if (ff && isFractionalPixelRatio() && viewportIsTarget) {
       should.ok(
         Math.abs(targetMetrics.scroll.width - comparisonMetrics.scroll.width) <= 1,
         `Scroll width equality. +-1 (${osInstance.state().overflowAmount.x})`
@@ -486,11 +495,13 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
         'Host Overflow should be hidden without visible overflowing content.'
       );
     }
-    should.equal(
-      paddingOverflowStyle,
-      hostOverflowStyle,
-      'Padding Overflow should equal Host overflow.'
-    );
+    if (targetPadding !== targetViewport) {
+      should.equal(
+        paddingOverflowStyle,
+        hostOverflowStyle,
+        'Padding Overflow should equal Host overflow.'
+      );
+    }
 
     await timeout(1);
 
