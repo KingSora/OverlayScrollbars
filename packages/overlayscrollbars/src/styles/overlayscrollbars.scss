@@ -75,9 +75,13 @@
   background: transparent !important;
 }
 
-[data-overlayscrollbars~='host'],
+[data-overlayscrollbars],
 .os-padding {
   position: relative;
+}
+
+[data-overlayscrollbars~='host'],
+.os-padding {
   display: flex;
   flex-direction: row !important;
   flex-wrap: nowrap !important;

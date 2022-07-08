@@ -22,7 +22,7 @@ body {
 
 .container {
   border: 1px solid red;
-  width: 60%;
+  width: 75%;
   height: 60%;
   padding: 10px;
   margin: 10px;
@@ -64,6 +64,14 @@ body {
   box-sizing: border-box;
 }
 
+#targetC {
+  height: auto;
+}
+
 .flex {
   display: flex;
+
+  & > .resize {
+    width: 80px;
+  }
 }

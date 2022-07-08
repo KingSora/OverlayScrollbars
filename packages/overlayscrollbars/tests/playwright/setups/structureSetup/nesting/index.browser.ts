@@ -15,19 +15,24 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const targetRoot: HTMLElement | null = document.querySelector('#targetRoot');
 const targetA: HTMLElement | null = document.querySelector('#targetA');
 const targetB: HTMLElement | null = document.querySelector('#targetB');
+const targetC: HTMLElement | null = document.querySelector('#targetC');
 const updatesRootSlot: HTMLElement | null = document.querySelector('#updatesRoot');
 const updatesASlot: HTMLElement | null = document.querySelector('#updatesA');
 const updatesBSlot: HTMLElement | null = document.querySelector('#updatesB');
+const updatesCSlot: HTMLElement | null = document.querySelector('#updatesC');
 const resizeRoot: HTMLElement | null = document.querySelector('#resizeRoot');
 const resizeA: HTMLElement | null = document.querySelector('#resizeA');
 const resizeB: HTMLElement | null = document.querySelector('#resizeB');
+const resizeC: HTMLElement | null = document.querySelector('#resizeC');
 const resizeBetweenRoot: HTMLElement | null = document.createElement('div');
 const resizeBetweenA: HTMLElement | null = document.createElement('div');
 const resizeBetweenB: HTMLElement | null = document.createElement('div');
+const resizeBetweenC: HTMLElement | null = document.createElement('div');
 
 let rootUpdateCount = 0;
 let aUpdateCount = 0;
 let bUpdateCount = 0;
+let cUpdateCount = 0;
 const rootInstance = OverlayScrollbars(
   { target: targetRoot!, padding: true },
   {},
@@ -75,8 +80,11 @@ const bInstance = OverlayScrollbars(
   {},
   {
     initialized() {
-      addClass(resizeBetweenB, 'resize resizeBetween');
-      targetB!.append(resizeBetweenB);
+      requestAnimationFrame(() => {
+        addClass(bInstance.elements().content, 'flex');
+        addClass(resizeBetweenB, 'resize resizeBetween');
+        targetB!.append(resizeBetweenB);
+      });
     },
     updated() {
       bUpdateCount++;
@@ -88,24 +96,44 @@ const bInstance = OverlayScrollbars(
     },
   }
 );
+OverlayScrollbars(
+  { target: targetC!, viewport: targetC! },
+  {},
+  {
+    initialized() {
+      addClass(resizeBetweenC, 'resize resizeBetween');
+      targetC!.append(resizeBetweenC);
+    },
+    updated() {
+      cUpdateCount++;
+      requestAnimationFrame(() => {
+        if (updatesCSlot) {
+          updatesCSlot.textContent = `${cUpdateCount}`;
+        }
+      });
+    },
+  }
+);
 
 resize(resizeRoot!);
 resize(resizeA!);
 resize(resizeB!);
+resize(resizeC!);
 resize(resizeBetweenRoot!);
 resize(resizeBetweenA!);
 resize(resizeBetweenB!);
+resize(resizeBetweenC!);
 
 const resizeBetween = async (betweenElm: HTMLElement) => {
   const styleObj = {
     width: parseInt(style(betweenElm, 'width'), 10) + 50,
     height: parseInt(style(betweenElm, 'height'), 10) + 50,
   };
-  const updateCountsBefore = [rootUpdateCount, aUpdateCount, bUpdateCount];
+  const updateCountsBefore = [rootUpdateCount, aUpdateCount, bUpdateCount, cUpdateCount];
   style(betweenElm, styleObj);
 
   await timeout(250);
-  const updateCountsAfter = [rootUpdateCount, aUpdateCount, bUpdateCount];
+  const updateCountsAfter = [rootUpdateCount, aUpdateCount, bUpdateCount, cUpdateCount];
 
   should.equal(
     JSON.stringify(updateCountsBefore),
@@ -120,11 +148,11 @@ const resizeResize = async (resizeElm: HTMLElement) => {
     width: parseInt(style(resizeElm, 'width'), 10) - 10,
     height: parseInt(style(resizeElm, 'height'), 10) - 10,
   };
-  const updateCountsBefore = [rootUpdateCount, aUpdateCount, bUpdateCount];
+  const updateCountsBefore = [rootUpdateCount, aUpdateCount, bUpdateCount, cUpdateCount];
   style(resizeElm, styleObj);
 
   await timeout(250);
-  const updateCountsAfter = [rootUpdateCount, aUpdateCount, bUpdateCount];
+  const updateCountsAfter = [rootUpdateCount, aUpdateCount, bUpdateCount, cUpdateCount];
 
   should.equal(
     JSON.stringify(updateCountsBefore),
@@ -162,11 +190,15 @@ const testBetweenElements = async () => {
 };
 
 const testResizeElements = async () => {
-  await waitForOrFailTest(async () => {
-    await resizeResize(resizeRoot!);
-    await resizeResize(resizeA!);
-    await resizeResize(resizeB!);
-  });
+  await waitForOrFailTest(
+    async () => {
+      await resizeResize(resizeRoot!);
+      await resizeResize(resizeA!);
+      await resizeResize(resizeB!);
+      await resizeResize(resizeC!);
+    },
+    { timeout: 5000 }
+  );
 };
 
 const start = async () => {
