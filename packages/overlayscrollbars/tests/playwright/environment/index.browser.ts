@@ -1,4 +1,4 @@
-import 'styles/overlayscrollbars.scss';
+import 'index.scss';
 import { createDOM, appendChildren } from 'support';
 import { getEnvironment } from 'environment';
 

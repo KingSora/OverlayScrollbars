@@ -11,12 +11,19 @@ const pipelineDev = require('./pipeline.dev');
 const repoRoot = path.resolve(__dirname, '../../');
 
 const appendExtension = (file) =>
-  path.extname(file) === '' ? file + resolve.extensions.find((ext) => fs.existsSync(path.resolve(`${file}${ext}`))) : file;
+  path.extname(file) === ''
+    ? file + resolve.extensions.find((ext) => fs.existsSync(path.resolve(`${file}${ext}`)))
+    : file;
 
-const normalizePath = (pathName) => (pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName);
+const normalizePath = (pathName) =>
+  pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName;
 
 const resolvePath = (basePath, pathToResolve, appendExt) => {
-  const result = pathToResolve ? (path.isAbsolute(pathToResolve) ? pathToResolve : path.resolve(basePath, pathToResolve)) : null;
+  const result = pathToResolve
+    ? path.isAbsolute(pathToResolve)
+      ? pathToResolve
+      : path.resolve(basePath, pathToResolve)
+    : null;
   return normalizePath(result && appendExt ? appendExtension(result) : result);
 };
 
@@ -32,19 +39,38 @@ const getWorkspaceAliases = () =>
       } catch {}
 
       obj[`@/${path.basename(absolutePath)}`] = `${normalizePath(
-        path.resolve(absolutePath, projTsConfig?.compilerOptions?.baseUrl || defaultOptions.paths.src)
+        path.resolve(
+          absolutePath,
+          projTsConfig?.compilerOptions?.baseUrl || defaultOptions.paths.src
+        )
       )}`;
       return obj;
     }, {});
 
 const mergeAndResolveOptions = (userOptions) => {
-  const { mode: defaultMode, paths: defaultPaths, versions: defaultVersions, alias: defaultAlias, rollup: defaultRollup } = defaultOptions;
-  const { project, mode: rawMode, paths: rawPaths = {}, versions: rawVersions = {}, alias: rawAlias = {}, rollup: rawRollup = {} } = userOptions;
+  const {
+    mode: defaultMode,
+    paths: defaultPaths,
+    versions: defaultVersions,
+    alias: defaultAlias,
+    rollup: defaultRollup,
+    extractStyle: defaultExtractStyle,
+  } = defaultOptions;
+  const {
+    project,
+    mode: rawMode,
+    paths: rawPaths = {},
+    versions: rawVersions = {},
+    alias: rawAlias = {},
+    rollup: rawRollup = {},
+    extractStyle: rawExtractStyle,
+  } = userOptions;
   const projectPath = process.cwd();
   const mergedOptions = {
     project: project || path.basename(projectPath),
     mode: rawMode || defaultMode,
     repoRoot,
+    extractStyle: rawExtractStyle ?? defaultExtractStyle,
     paths: {
       ...defaultPaths,
       ...rawPaths,
@@ -67,12 +93,11 @@ const mergeAndResolveOptions = (userOptions) => {
       },
     },
   };
-  const { src, dist, types, tests } = mergedOptions.paths;
+  const { src, dist, types } = mergedOptions.paths;
 
   mergedOptions.paths.src = resolvePath(projectPath, src);
   mergedOptions.paths.dist = resolvePath(projectPath, dist);
   mergedOptions.paths.types = resolvePath(projectPath, types);
-  mergedOptions.paths.tests = resolvePath(projectPath, tests);
 
   mergedOptions.rollup.input = resolvePath(projectPath, mergedOptions.rollup.input, true);
   mergedOptions.rollup.output = {
@@ -95,13 +120,13 @@ const createConfig = (userOptions = {}) => {
     console.log('PROJECT : ', project);
     console.log('OPTIONS : ', options);
 
-    const umd = pipelineBuild(false, options, true);
+    const umd = pipelineBuild(false, options, { declarationFiles: true, outputStyle: true });
     const esm = buildModuleVersion ? pipelineBuild(true, options) : null;
 
     return [umd, esm].filter((build) => !!build);
   }
 
-  return pipelineDev(options);
+  return [pipelineDev(options)];
 };
 
 module.exports = createConfig;

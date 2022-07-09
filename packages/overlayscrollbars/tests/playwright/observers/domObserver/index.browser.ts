@@ -1,4 +1,4 @@
-import 'styles/overlayscrollbars.scss';
+import 'index.scss';
 import './index.scss';
 import should from 'should';
 import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select';

@@ -1,5 +1,5 @@
 import './index.scss';
-import 'styles/overlayscrollbars.scss';
+import 'index.scss';
 import should from 'should';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { resize } from '@/testing-browser/Resize';

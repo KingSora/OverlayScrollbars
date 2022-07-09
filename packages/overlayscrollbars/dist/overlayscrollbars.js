@@ -1,2412 +1,1870 @@
-(function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.OverlayScrollbars = factory());
-})(this, (function () { 'use strict';
-
-  function createCache(options, update) {
-    var _initialValue = options._initialValue,
-        _equal = options._equal,
-        _alwaysUpdateValues = options._alwaysUpdateValues;
-    var _value = _initialValue;
-
-    var _previous;
-
-    var cacheUpdateContextual = function cacheUpdateContextual(newValue, force) {
-      var curr = _value;
-      var newVal = newValue;
-      var changed = force || (_equal ? !_equal(curr, newVal) : curr !== newVal);
-
-      if (changed || _alwaysUpdateValues) {
-        _value = newVal;
-        _previous = curr;
-      }
-
-      return [_value, changed, _previous];
-    };
-
-    var cacheUpdateIsolated = function cacheUpdateIsolated(force) {
-      return cacheUpdateContextual(update(_value, _previous), force);
-    };
-
-    var getCurrentCache = function getCurrentCache(force) {
-      return [_value, !!force, _previous];
-    };
-
-    return [update ? cacheUpdateIsolated : cacheUpdateContextual, getCurrentCache];
-  }
-
-  var ElementNodeType = Node.ELEMENT_NODE;
-  var _Object$prototype = Object.prototype,
-      toString = _Object$prototype.toString,
-      hasOwnProperty$1 = _Object$prototype.hasOwnProperty;
-  function isUndefined(obj) {
-    return obj === undefined;
-  }
-  function isNull(obj) {
-    return obj === null;
-  }
-  var type = function type(obj) {
-    return isUndefined(obj) || isNull(obj) ? "" + obj : toString.call(obj).replace(/^\[object (.+)\]$/, '$1').toLowerCase();
-  };
-  function isNumber(obj) {
-    return typeof obj === 'number';
-  }
-  function isString(obj) {
-    return typeof obj === 'string';
-  }
-  function isBoolean(obj) {
-    return typeof obj === 'boolean';
-  }
-  function isFunction(obj) {
-    return typeof obj === 'function';
-  }
-  function isArray(obj) {
-    return Array.isArray(obj);
-  }
-  function isObject(obj) {
-    return typeof obj === 'object' && !isArray(obj) && !isNull(obj);
-  }
-  function isArrayLike(obj) {
-    var length = !!obj && obj.length;
-    var lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0;
-    return isArray(obj) || !isFunction(obj) && lengthCorrectFormat ? length > 0 && isObject(obj) ? length - 1 in obj : true : false;
-  }
-  function isPlainObject(obj) {
-    if (!obj || !isObject(obj) || type(obj) !== 'object') return false;
-    var key;
-    var cstr = 'constructor';
-    var ctor = obj[cstr];
-    var ctorProto = ctor && ctor.prototype;
-    var hasOwnConstructor = hasOwnProperty$1.call(obj, cstr);
-    var hasIsPrototypeOf = ctorProto && hasOwnProperty$1.call(ctorProto, 'isPrototypeOf');
-
-    if (ctor && !hasOwnConstructor && !hasIsPrototypeOf) {
-      return false;
+function createCache(options, update) {
+  const { _initialValue, _equal, _alwaysUpdateValues } = options;
+  let _value = _initialValue;
+  let _previous;
+  const cacheUpdateContextual = (newValue, force) => {
+    const curr = _value;
+    const newVal = newValue;
+    const changed = force || (_equal ? !_equal(curr, newVal) : curr !== newVal);
+    if (changed || _alwaysUpdateValues) {
+      _value = newVal;
+      _previous = curr;
     }
-
-    for (key in obj) {}
-
-    return isUndefined(key) || hasOwnProperty$1.call(obj, key);
-  }
-  function isHTMLElement(obj) {
-    var instanceofObj = window.HTMLElement;
-    return obj ? instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType : false;
-  }
-  function isElement(obj) {
-    var instanceofObj = window.Element;
-    return obj ? instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType : false;
-  }
-
-  function each(source, callback) {
-    if (isArrayLike(source)) {
-      for (var i = 0; i < source.length; i++) {
-        if (callback(source[i], i, source) === false) {
-          break;
-        }
-      }
-    } else if (source) {
-      each(Object.keys(source), function (key) {
-        return callback(source[key], key, source);
-      });
-    }
-
-    return source;
-  }
-  var indexOf = function indexOf(arr, item, fromIndex) {
-    return arr.indexOf(item, fromIndex);
+    return [_value, changed, _previous];
   };
-  var push = function push(array, items, arrayIsSingleItem) {
-    !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
-    return array;
-  };
-  var from = function from(arr) {
-    if (Array.from && arr) {
-      return Array.from(arr);
-    }
+  const cacheUpdateIsolated = (force) => cacheUpdateContextual(update(_value, _previous), force);
+  const getCurrentCache = (force) => [
+    _value,
+    !!force,
+    _previous
+  ];
+  return [update ? cacheUpdateIsolated : cacheUpdateContextual, getCurrentCache];
+}
 
-    var result = [];
-
-    if (arr instanceof Set) {
-      arr.forEach(function (value) {
-        push(result, value);
-      });
-    } else {
-      each(arr, function (elm) {
-        push(result, elm);
-      });
-    }
-
-    return result;
-  };
-  var isEmptyArray = function isEmptyArray(array) {
-    return !!array && array.length === 0;
-  };
-  var runEach = function runEach(arr, args) {
-    var runFn = function runFn(fn) {
-      return fn && fn.apply(undefined, args || []);
-    };
-
-    if (arr instanceof Set) {
-      arr.forEach(runFn);
-    } else {
-      each(arr, runFn);
-    }
-  };
-
-  var hasOwnProperty = function hasOwnProperty(obj, prop) {
-    return Object.prototype.hasOwnProperty.call(obj, prop);
-  };
-  var keys = function keys(obj) {
-    return obj ? Object.keys(obj) : [];
-  };
-  function assignDeep(target, object1, object2, object3, object4, object5, object6) {
-    var sources = [object1, object2, object3, object4, object5, object6];
-
-    if ((typeof target !== 'object' || isNull(target)) && !isFunction(target)) {
-      target = {};
-    }
-
-    each(sources, function (source) {
-      each(keys(source), function (key) {
-        var copy = source[key];
-
-        if (target === copy) {
-          return true;
-        }
-
-        var copyIsArray = isArray(copy);
-
-        if (copy && (isPlainObject(copy) || copyIsArray)) {
-          var src = target[key];
-          var clone = src;
-
-          if (copyIsArray && !isArray(src)) {
-            clone = [];
-          } else if (!copyIsArray && !isPlainObject(src)) {
-            clone = {};
-          }
-
-          target[key] = assignDeep(clone, copy);
-        } else {
-          target[key] = copy;
-        }
-      });
-    });
-    return target;
-  }
-  function isEmptyObject(obj) {
-    for (var name in obj) {
-      return false;
-    }
-
-    return true;
-  }
-
-  function getSetProp(topLeft, fallback, elm, value) {
-    if (isUndefined(value)) {
-      return elm ? elm[topLeft] : fallback;
-    }
-
-    elm && (elm[topLeft] = value);
-  }
-
-  function attr(elm, attrName, value) {
-    if (isUndefined(value)) {
-      return elm ? elm.getAttribute(attrName) : null;
-    }
-
-    elm && elm.setAttribute(attrName, value);
-  }
-  var attrClass = function attrClass(elm, attrName, value, add) {
-    var currValues = attr(elm, attrName) || '';
-    var currValuesSet = new Set(currValues.split(' '));
-    currValuesSet[add ? 'add' : 'delete'](value);
-    attr(elm, attrName, from(currValuesSet).join(' ').trim());
-  };
-  var hasAttrClass = function hasAttrClass(elm, attrName, value) {
-    var currValues = attr(elm, attrName) || '';
-    var currValuesSet = new Set(currValues.split(' '));
-    return currValuesSet.has(value);
-  };
-  var removeAttr = function removeAttr(elm, attrName) {
-    elm && elm.removeAttribute(attrName);
-  };
-  function scrollLeft(elm, value) {
-    return getSetProp('scrollLeft', 0, elm, value);
-  }
-  function scrollTop(elm, value) {
-    return getSetProp('scrollTop', 0, elm, value);
-  }
-
-  var elmPrototype = Element.prototype;
-
-  var find = function find(selector, elm) {
-    var arr = [];
-    var rootElm = elm ? isElement(elm) ? elm : null : document;
-    return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
-  };
-
-  var findFirst = function findFirst(selector, elm) {
-    var rootElm = elm ? isElement(elm) ? elm : null : document;
-    return rootElm ? rootElm.querySelector(selector) : null;
-  };
-
-  var is = function is(elm, selector) {
-    if (isElement(elm)) {
-      var fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
-      return fn.call(elm, selector);
-    }
-
+const ElementNodeType = Node.ELEMENT_NODE;
+const { toString, hasOwnProperty: hasOwnProperty$1 } = Object.prototype;
+function isUndefined(obj) {
+  return obj === void 0;
+}
+function isNull(obj) {
+  return obj === null;
+}
+const type = (obj) => isUndefined(obj) || isNull(obj) ? `${obj}` : toString.call(obj).replace(/^\[object (.+)\]$/, "$1").toLowerCase();
+function isNumber(obj) {
+  return typeof obj === "number";
+}
+function isString(obj) {
+  return typeof obj === "string";
+}
+function isBoolean(obj) {
+  return typeof obj === "boolean";
+}
+function isFunction(obj) {
+  return typeof obj === "function";
+}
+function isArray(obj) {
+  return Array.isArray(obj);
+}
+function isObject(obj) {
+  return typeof obj === "object" && !isArray(obj) && !isNull(obj);
+}
+function isArrayLike(obj) {
+  const length = !!obj && obj.length;
+  const lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0;
+  return isArray(obj) || !isFunction(obj) && lengthCorrectFormat ? length > 0 && isObject(obj) ? length - 1 in obj : true : false;
+}
+function isPlainObject(obj) {
+  if (!obj || !isObject(obj) || type(obj) !== "object")
     return false;
-  };
-
-  var contents = function contents(elm) {
-    return elm ? from(elm.childNodes) : [];
-  };
-
-  var parent = function parent(elm) {
-    return elm ? elm.parentElement : null;
-  };
-
-  var closest = function closest(elm, selector) {
-    if (isElement(elm)) {
-      var closestFn = elmPrototype.closest;
-
-      if (closestFn) {
-        return closestFn.call(elm, selector);
-      }
-
-      do {
-        if (is(elm, selector)) {
-          return elm;
-        }
-
-        elm = parent(elm);
-      } while (elm);
-    }
-
-    return null;
-  };
-
-  var liesBetween = function liesBetween(elm, highBoundarySelector, deepBoundarySelector) {
-    var closestHighBoundaryElm = elm && closest(elm, highBoundarySelector);
-    var closestDeepBoundaryElm = elm && findFirst(deepBoundarySelector, closestHighBoundaryElm);
-    return closestHighBoundaryElm && closestDeepBoundaryElm ? closestHighBoundaryElm === elm || closestDeepBoundaryElm === elm || closest(closest(elm, deepBoundarySelector), highBoundarySelector) !== closestHighBoundaryElm : false;
-  };
-
-  var before = function before(parentElm, preferredAnchor, insertedElms) {
-    if (insertedElms) {
-      var anchor = preferredAnchor;
-      var fragment;
-
-      if (parentElm) {
-        if (isArrayLike(insertedElms)) {
-          fragment = document.createDocumentFragment();
-          each(insertedElms, function (insertedElm) {
-            if (insertedElm === anchor) {
-              anchor = insertedElm.previousSibling;
-            }
-
-            fragment.appendChild(insertedElm);
-          });
-        } else {
-          fragment = insertedElms;
-        }
-
-        if (preferredAnchor) {
-          if (!anchor) {
-            anchor = parentElm.firstChild;
-          } else if (anchor !== preferredAnchor) {
-            anchor = anchor.nextSibling;
-          }
-        }
-
-        parentElm.insertBefore(fragment, anchor || null);
-      }
-    }
-  };
-
-  var appendChildren = function appendChildren(node, children) {
-    before(node, null, children);
-  };
-  var prependChildren = function prependChildren(node, children) {
-    before(node, node && node.firstChild, children);
-  };
-  var insertBefore = function insertBefore(node, insertedNodes) {
-    before(parent(node), node, insertedNodes);
-  };
-  var insertAfter = function insertAfter(node, insertedNodes) {
-    before(parent(node), node && node.nextSibling, insertedNodes);
-  };
-  var removeElements = function removeElements(nodes) {
-    if (isArrayLike(nodes)) {
-      each(from(nodes), function (e) {
-        return removeElements(e);
-      });
-    } else if (nodes) {
-      var parentElm = parent(nodes);
-
-      if (parentElm) {
-        parentElm.removeChild(nodes);
-      }
-    }
-  };
-
-  var createDiv = function createDiv(classNames) {
-    var div = document.createElement('div');
-
-    if (classNames) {
-      attr(div, 'class', classNames);
-    }
-
-    return div;
-  };
-  var createDOM = function createDOM(html) {
-    var createdDiv = createDiv();
-    createdDiv.innerHTML = html.trim();
-    return each(contents(createdDiv), function (elm) {
-      return removeElements(elm);
-    });
-  };
-
-  var firstLetterToUpper = function firstLetterToUpper(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
-
-  var getDummyStyle = function getDummyStyle() {
-    return createDiv().style;
-  };
-
-  var cssPrefixes = ['-webkit-', '-moz-', '-o-', '-ms-'];
-  var jsPrefixes = ['WebKit', 'Moz', 'O', 'MS', 'webkit', 'moz', 'o', 'ms'];
-  var jsCache = {};
-  var cssCache = {};
-  var cssProperty = function cssProperty(name) {
-    var result = cssCache[name];
-
-    if (hasOwnProperty(cssCache, name)) {
-      return result;
-    }
-
-    var uppercasedName = firstLetterToUpper(name);
-    var elmStyle = getDummyStyle();
-    each(cssPrefixes, function (prefix) {
-      var prefixWithoutDashes = prefix.replace(/-/g, '');
-      var resultPossibilities = [name, prefix + name, prefixWithoutDashes + uppercasedName, firstLetterToUpper(prefixWithoutDashes) + uppercasedName];
-      return !(result = resultPossibilities.find(function (resultPossibility) {
-        return elmStyle[resultPossibility] !== undefined;
-      }));
-    });
-    return cssCache[name] = result || '';
-  };
-  var jsAPI = function jsAPI(name) {
-    var result = jsCache[name] || window[name];
-
-    if (hasOwnProperty(jsCache, name)) {
-      return result;
-    }
-
-    each(jsPrefixes, function (prefix) {
-      result = result || window[prefix + firstLetterToUpper(name)];
-      return !result;
-    });
-    jsCache[name] = result;
-    return result;
-  };
-
-  var MutationObserverConstructor = jsAPI('MutationObserver');
-  var IntersectionObserverConstructor = jsAPI('IntersectionObserver');
-  var ResizeObserverConstructor = jsAPI('ResizeObserver');
-  var cAF = jsAPI('cancelAnimationFrame');
-  var rAF = jsAPI('requestAnimationFrame');
-
-  var rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
-
-  var classListAction = function classListAction(elm, className, action) {
-    var clazz;
-    var i = 0;
-    var result = false;
-
-    if (elm && className && isString(className)) {
-      var classes = className.match(rnothtmlwhite) || [];
-      result = classes.length > 0;
-
-      while (clazz = classes[i++]) {
-        result = !!action(elm.classList, clazz) && result;
-      }
-    }
-
-    return result;
-  };
-
-  var hasClass = function hasClass(elm, className) {
-    return classListAction(elm, className, function (classList, clazz) {
-      return classList.contains(clazz);
-    });
-  };
-  var removeClass = function removeClass(elm, className) {
-    classListAction(elm, className, function (classList, clazz) {
-      return classList.remove(clazz);
-    });
-  };
-  var addClass = function addClass(elm, className) {
-    classListAction(elm, className, function (classList, clazz) {
-      return classList.add(clazz);
-    });
-    return removeClass.bind(0, elm, className);
-  };
-
-  var equal = function equal(a, b, props, propMutation) {
-    if (a && b) {
-      var result = true;
-      each(props, function (prop) {
-        var compareA = propMutation ? propMutation(a[prop]) : a[prop];
-        var compareB = propMutation ? propMutation(b[prop]) : b[prop];
-
-        if (compareA !== compareB) {
-          result = false;
-        }
-      });
-      return result;
-    }
-
+  let key;
+  const cstr = "constructor";
+  const ctor = obj[cstr];
+  const ctorProto = ctor && ctor.prototype;
+  const hasOwnConstructor = hasOwnProperty$1.call(obj, cstr);
+  const hasIsPrototypeOf = ctorProto && hasOwnProperty$1.call(ctorProto, "isPrototypeOf");
+  if (ctor && !hasOwnConstructor && !hasIsPrototypeOf) {
     return false;
-  };
-  var equalWH = function equalWH(a, b) {
-    return equal(a, b, ['w', 'h']);
-  };
-  var equalXY = function equalXY(a, b) {
-    return equal(a, b, ['x', 'y']);
-  };
-  var equalTRBL = function equalTRBL(a, b) {
-    return equal(a, b, ['t', 'r', 'b', 'l']);
-  };
-  var equalBCRWH = function equalBCRWH(a, b, round) {
-    return equal(a, b, ['width', 'height'], round && function (value) {
-      return Math.round(value);
+  }
+  for (key in obj) {
+  }
+  return isUndefined(key) || hasOwnProperty$1.call(obj, key);
+}
+function isHTMLElement(obj) {
+  const instanceofObj = window.HTMLElement;
+  return obj ? instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType : false;
+}
+function isElement(obj) {
+  const instanceofObj = window.Element;
+  return obj ? instanceofObj ? obj instanceof instanceofObj : obj.nodeType === ElementNodeType : false;
+}
+
+function each(source, callback) {
+  if (isArrayLike(source)) {
+    for (let i = 0; i < source.length; i++) {
+      if (callback(source[i], i, source) === false) {
+        break;
+      }
+    }
+  } else if (source) {
+    each(Object.keys(source), (key) => callback(source[key], key, source));
+  }
+  return source;
+}
+const indexOf = (arr, item, fromIndex) => arr.indexOf(item, fromIndex);
+const push = (array, items, arrayIsSingleItem) => {
+  !arrayIsSingleItem && !isString(items) && isArrayLike(items) ? Array.prototype.push.apply(array, items) : array.push(items);
+  return array;
+};
+const from = (arr) => {
+  if (Array.from && arr) {
+    return Array.from(arr);
+  }
+  const result = [];
+  if (arr instanceof Set) {
+    arr.forEach((value) => {
+      push(result, value);
     });
+  } else {
+    each(arr, (elm) => {
+      push(result, elm);
+    });
+  }
+  return result;
+};
+const isEmptyArray = (array) => !!array && array.length === 0;
+const runEach = (arr, args) => {
+  const runFn = (fn) => fn && fn.apply(void 0, args || []);
+  if (arr instanceof Set) {
+    arr.forEach(runFn);
+  } else {
+    each(arr, runFn);
+  }
+};
+
+const hasOwnProperty = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+const keys = (obj) => obj ? Object.keys(obj) : [];
+function assignDeep(target, object1, object2, object3, object4, object5, object6) {
+  const sources = [object1, object2, object3, object4, object5, object6];
+  if ((typeof target !== "object" || isNull(target)) && !isFunction(target)) {
+    target = {};
+  }
+  each(sources, (source) => {
+    each(keys(source), (key) => {
+      const copy = source[key];
+      if (target === copy) {
+        return true;
+      }
+      const copyIsArray = isArray(copy);
+      if (copy && (isPlainObject(copy) || copyIsArray)) {
+        const src = target[key];
+        let clone = src;
+        if (copyIsArray && !isArray(src)) {
+          clone = [];
+        } else if (!copyIsArray && !isPlainObject(src)) {
+          clone = {};
+        }
+        target[key] = assignDeep(clone, copy);
+      } else {
+        target[key] = copy;
+      }
+    });
+  });
+  return target;
+}
+function isEmptyObject(obj) {
+  for (const name in obj)
+    return false;
+  return true;
+}
+
+function getSetProp(topLeft, fallback, elm, value) {
+  if (isUndefined(value)) {
+    return elm ? elm[topLeft] : fallback;
+  }
+  elm && (elm[topLeft] = value);
+}
+function attr(elm, attrName, value) {
+  if (isUndefined(value)) {
+    return elm ? elm.getAttribute(attrName) : null;
+  }
+  elm && elm.setAttribute(attrName, value);
+}
+const attrClass = (elm, attrName, value, add) => {
+  const currValues = attr(elm, attrName) || "";
+  const currValuesSet = new Set(currValues.split(" "));
+  currValuesSet[add ? "add" : "delete"](value);
+  attr(elm, attrName, from(currValuesSet).join(" ").trim());
+};
+const hasAttrClass = (elm, attrName, value) => {
+  const currValues = attr(elm, attrName) || "";
+  const currValuesSet = new Set(currValues.split(" "));
+  return currValuesSet.has(value);
+};
+const removeAttr = (elm, attrName) => {
+  elm && elm.removeAttribute(attrName);
+};
+function scrollLeft(elm, value) {
+  return getSetProp("scrollLeft", 0, elm, value);
+}
+function scrollTop(elm, value) {
+  return getSetProp("scrollTop", 0, elm, value);
+}
+
+const elmPrototype = Element.prototype;
+const find = (selector, elm) => {
+  const arr = [];
+  const rootElm = elm ? isElement(elm) ? elm : null : document;
+  return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
+};
+const findFirst = (selector, elm) => {
+  const rootElm = elm ? isElement(elm) ? elm : null : document;
+  return rootElm ? rootElm.querySelector(selector) : null;
+};
+const is = (elm, selector) => {
+  if (isElement(elm)) {
+    const fn = elmPrototype.matches || elmPrototype.msMatchesSelector;
+    return fn.call(elm, selector);
+  }
+  return false;
+};
+const contents = (elm) => elm ? from(elm.childNodes) : [];
+const parent = (elm) => elm ? elm.parentElement : null;
+const closest = (elm, selector) => {
+  if (isElement(elm)) {
+    const closestFn = elmPrototype.closest;
+    if (closestFn) {
+      return closestFn.call(elm, selector);
+    }
+    do {
+      if (is(elm, selector)) {
+        return elm;
+      }
+      elm = parent(elm);
+    } while (elm);
+  }
+  return null;
+};
+const liesBetween = (elm, highBoundarySelector, deepBoundarySelector) => {
+  const closestHighBoundaryElm = elm && closest(elm, highBoundarySelector);
+  const closestDeepBoundaryElm = elm && findFirst(deepBoundarySelector, closestHighBoundaryElm);
+  return closestHighBoundaryElm && closestDeepBoundaryElm ? closestHighBoundaryElm === elm || closestDeepBoundaryElm === elm || closest(closest(elm, deepBoundarySelector), highBoundarySelector) !== closestHighBoundaryElm : false;
+};
+
+const before = (parentElm, preferredAnchor, insertedElms) => {
+  if (insertedElms) {
+    let anchor = preferredAnchor;
+    let fragment;
+    if (parentElm) {
+      if (isArrayLike(insertedElms)) {
+        fragment = document.createDocumentFragment();
+        each(insertedElms, (insertedElm) => {
+          if (insertedElm === anchor) {
+            anchor = insertedElm.previousSibling;
+          }
+          fragment.appendChild(insertedElm);
+        });
+      } else {
+        fragment = insertedElms;
+      }
+      if (preferredAnchor) {
+        if (!anchor) {
+          anchor = parentElm.firstChild;
+        } else if (anchor !== preferredAnchor) {
+          anchor = anchor.nextSibling;
+        }
+      }
+      parentElm.insertBefore(fragment, anchor || null);
+    }
+  }
+};
+const appendChildren = (node, children) => {
+  before(node, null, children);
+};
+const prependChildren = (node, children) => {
+  before(node, node && node.firstChild, children);
+};
+const insertBefore = (node, insertedNodes) => {
+  before(parent(node), node, insertedNodes);
+};
+const insertAfter = (node, insertedNodes) => {
+  before(parent(node), node && node.nextSibling, insertedNodes);
+};
+const removeElements = (nodes) => {
+  if (isArrayLike(nodes)) {
+    each(from(nodes), (e) => removeElements(e));
+  } else if (nodes) {
+    const parentElm = parent(nodes);
+    if (parentElm) {
+      parentElm.removeChild(nodes);
+    }
+  }
+};
+
+const createDiv = (classNames) => {
+  const div = document.createElement("div");
+  if (classNames) {
+    attr(div, "class", classNames);
+  }
+  return div;
+};
+const createDOM = (html) => {
+  const createdDiv = createDiv();
+  createdDiv.innerHTML = html.trim();
+  return each(contents(createdDiv), (elm) => removeElements(elm));
+};
+
+const firstLetterToUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+const getDummyStyle = () => createDiv().style;
+const cssPrefixes = ["-webkit-", "-moz-", "-o-", "-ms-"];
+const jsPrefixes = [
+  "WebKit",
+  "Moz",
+  "O",
+  "MS",
+  "webkit",
+  "moz",
+  "o",
+  "ms"
+];
+const jsCache = {};
+const cssCache = {};
+const cssProperty = (name) => {
+  let result = cssCache[name];
+  if (hasOwnProperty(cssCache, name)) {
+    return result;
+  }
+  const uppercasedName = firstLetterToUpper(name);
+  const elmStyle = getDummyStyle();
+  each(cssPrefixes, (prefix) => {
+    const prefixWithoutDashes = prefix.replace(/-/g, "");
+    const resultPossibilities = [
+      name,
+      prefix + name,
+      prefixWithoutDashes + uppercasedName,
+      firstLetterToUpper(prefixWithoutDashes) + uppercasedName
+    ];
+    return !(result = resultPossibilities.find((resultPossibility) => elmStyle[resultPossibility] !== void 0));
+  });
+  return cssCache[name] = result || "";
+};
+const jsAPI = (name) => {
+  let result = jsCache[name] || window[name];
+  if (hasOwnProperty(jsCache, name)) {
+    return result;
+  }
+  each(jsPrefixes, (prefix) => {
+    result = result || window[prefix + firstLetterToUpper(name)];
+    return !result;
+  });
+  jsCache[name] = result;
+  return result;
+};
+
+const MutationObserverConstructor = jsAPI("MutationObserver");
+const IntersectionObserverConstructor = jsAPI("IntersectionObserver");
+const ResizeObserverConstructor = jsAPI("ResizeObserver");
+const cAF = jsAPI("cancelAnimationFrame");
+const rAF = jsAPI("requestAnimationFrame");
+
+const rnothtmlwhite = /[^\x20\t\r\n\f]+/g;
+const classListAction = (elm, className, action) => {
+  let clazz;
+  let i = 0;
+  let result = false;
+  if (elm && className && isString(className)) {
+    const classes = className.match(rnothtmlwhite) || [];
+    result = classes.length > 0;
+    while (clazz = classes[i++]) {
+      result = !!action(elm.classList, clazz) && result;
+    }
+  }
+  return result;
+};
+const hasClass = (elm, className) => classListAction(elm, className, (classList, clazz) => classList.contains(clazz));
+const removeClass = (elm, className) => {
+  classListAction(elm, className, (classList, clazz) => classList.remove(clazz));
+};
+const addClass = (elm, className) => {
+  classListAction(elm, className, (classList, clazz) => classList.add(clazz));
+  return removeClass.bind(0, elm, className);
+};
+
+const equal = (a, b, props, propMutation) => {
+  if (a && b) {
+    let result = true;
+    each(props, (prop) => {
+      const compareA = propMutation ? propMutation(a[prop]) : a[prop];
+      const compareB = propMutation ? propMutation(b[prop]) : b[prop];
+      if (compareA !== compareB) {
+        result = false;
+      }
+    });
+    return result;
+  }
+  return false;
+};
+const equalWH = (a, b) => equal(a, b, ["w", "h"]);
+const equalXY = (a, b) => equal(a, b, ["x", "y"]);
+const equalTRBL = (a, b) => equal(a, b, ["t", "r", "b", "l"]);
+const equalBCRWH = (a, b, round) => equal(a, b, ["width", "height"], round && ((value) => Math.round(value)));
+
+const clearTimeouts = (id) => {
+  id && window.clearTimeout(id);
+  id && cAF(id);
+};
+const noop = () => {
+};
+const debounce = (functionToDebounce, options) => {
+  let timeoutId;
+  let maxTimeoutId;
+  let prevArguments;
+  let latestArguments;
+  const { _timeout, _maxDelay, _mergeParams } = options || {};
+  const setT = window.setTimeout;
+  const invokeFunctionToDebounce = function(args) {
+    clearTimeouts(timeoutId);
+    clearTimeouts(maxTimeoutId);
+    maxTimeoutId = timeoutId = prevArguments = void 0;
+    functionToDebounce.apply(this, args);
   };
-
-  var clearTimeouts = function clearTimeouts(id) {
-    id && window.clearTimeout(id);
-    id && cAF(id);
+  const mergeParms = (curr) => _mergeParams && prevArguments ? _mergeParams(prevArguments, curr) : curr;
+  const flush = () => {
+    if (timeoutId) {
+      invokeFunctionToDebounce(mergeParms(latestArguments) || latestArguments);
+    }
   };
-
-  var noop = function noop() {};
-  var debounce = function debounce(functionToDebounce, options) {
-    var timeoutId;
-    var maxTimeoutId;
-    var prevArguments;
-    var latestArguments;
-
-    var _ref = options || {},
-        _timeout = _ref._timeout,
-        _maxDelay = _ref._maxDelay,
-        _mergeParams = _ref._mergeParams;
-
-    var setT = window.setTimeout;
-
-    var invokeFunctionToDebounce = function invokeFunctionToDebounce(args) {
+  const debouncedFn = function() {
+    const args = from(arguments);
+    const finalTimeout = isFunction(_timeout) ? _timeout() : _timeout;
+    const hasTimeout = isNumber(finalTimeout) && finalTimeout >= 0;
+    if (hasTimeout) {
+      const finalMaxWait = isFunction(_maxDelay) ? _maxDelay() : _maxDelay;
+      const hasMaxWait = isNumber(finalMaxWait) && finalMaxWait >= 0;
+      const setTimeoutFn = finalTimeout > 0 ? setT : rAF;
+      const mergeParamsResult = mergeParms(args);
+      const invokedArgs = mergeParamsResult || args;
+      const boundInvoke = invokeFunctionToDebounce.bind(0, invokedArgs);
       clearTimeouts(timeoutId);
-      clearTimeouts(maxTimeoutId);
-      maxTimeoutId = timeoutId = prevArguments = undefined;
-      functionToDebounce.apply(this, args);
-    };
-
-    var mergeParms = function mergeParms(curr) {
-      return _mergeParams && prevArguments ? _mergeParams(prevArguments, curr) : curr;
-    };
-
-    var flush = function flush() {
-      if (timeoutId) {
-        invokeFunctionToDebounce(mergeParms(latestArguments) || latestArguments);
+      timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
+      if (hasMaxWait && !maxTimeoutId) {
+        maxTimeoutId = setT(flush, finalMaxWait);
       }
-    };
-
-    var debouncedFn = function debouncedFn() {
-      var args = from(arguments);
-      var finalTimeout = isFunction(_timeout) ? _timeout() : _timeout;
-      var hasTimeout = isNumber(finalTimeout) && finalTimeout >= 0;
-
-      if (hasTimeout) {
-        var finalMaxWait = isFunction(_maxDelay) ? _maxDelay() : _maxDelay;
-        var hasMaxWait = isNumber(finalMaxWait) && finalMaxWait >= 0;
-        var setTimeoutFn = finalTimeout > 0 ? setT : rAF;
-        var mergeParamsResult = mergeParms(args);
-        var invokedArgs = mergeParamsResult || args;
-        var boundInvoke = invokeFunctionToDebounce.bind(0, invokedArgs);
-        clearTimeouts(timeoutId);
-        timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
-
-        if (hasMaxWait && !maxTimeoutId) {
-          maxTimeoutId = setT(flush, finalMaxWait);
-        }
-
-        prevArguments = latestArguments = invokedArgs;
-      } else {
-        invokeFunctionToDebounce(args);
-      }
-    };
-
-    debouncedFn._flush = flush;
-    return debouncedFn;
-  };
-
-  var cssNumber = {
-    opacity: 1,
-    zindex: 1
-  };
-
-  var parseToZeroOrNumber = function parseToZeroOrNumber(value, toFloat) {
-    var num = toFloat ? parseFloat(value) : parseInt(value, 10);
-    return Number.isNaN(num) ? 0 : num;
-  };
-
-  var adaptCSSVal = function adaptCSSVal(prop, val) {
-    return !cssNumber[prop.toLowerCase()] && isNumber(val) ? val + "px" : val;
-  };
-
-  var getCSSVal = function getCSSVal(elm, computedStyle, prop) {
-    return computedStyle != null ? computedStyle[prop] || computedStyle.getPropertyValue(prop) : elm.style[prop];
-  };
-
-  var setCSSVal = function setCSSVal(elm, prop, val) {
-    try {
-      if (elm) {
-        var elmStyle = elm.style;
-
-        if (!isUndefined(elmStyle[prop])) {
-          elmStyle[prop] = adaptCSSVal(prop, val);
-        } else {
-          elmStyle.setProperty(prop, val);
-        }
-      }
-    } catch (e) {}
-  };
-
-  function style(elm, styles) {
-    var getSingleStyle = isString(styles);
-    var getStyles = isArray(styles) || getSingleStyle;
-
-    if (getStyles) {
-      var getStylesResult = getSingleStyle ? '' : {};
-
-      if (elm) {
-        var computedStyle = window.getComputedStyle(elm, null);
-        getStylesResult = getSingleStyle ? getCSSVal(elm, computedStyle, styles) : styles.reduce(function (result, key) {
-          result[key] = getCSSVal(elm, computedStyle, key);
-          return result;
-        }, getStylesResult);
-      }
-
-      return getStylesResult;
+      prevArguments = latestArguments = invokedArgs;
+    } else {
+      invokeFunctionToDebounce(args);
     }
+  };
+  debouncedFn._flush = flush;
+  return debouncedFn;
+};
 
-    each(keys(styles), function (key) {
-      return setCSSVal(elm, key, styles[key]);
+const cssNumber = {
+  opacity: 1,
+  zindex: 1
+};
+const parseToZeroOrNumber = (value, toFloat) => {
+  const num = toFloat ? parseFloat(value) : parseInt(value, 10);
+  return Number.isNaN(num) ? 0 : num;
+};
+const adaptCSSVal = (prop, val) => !cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val;
+const getCSSVal = (elm, computedStyle, prop) => computedStyle != null ? computedStyle[prop] || computedStyle.getPropertyValue(prop) : elm.style[prop];
+const setCSSVal = (elm, prop, val) => {
+  try {
+    if (elm) {
+      const { style: elmStyle } = elm;
+      if (!isUndefined(elmStyle[prop])) {
+        elmStyle[prop] = adaptCSSVal(prop, val);
+      } else {
+        elmStyle.setProperty(prop, val);
+      }
+    }
+  } catch (e) {
+  }
+};
+function style(elm, styles) {
+  const getSingleStyle = isString(styles);
+  const getStyles = isArray(styles) || getSingleStyle;
+  if (getStyles) {
+    let getStylesResult = getSingleStyle ? "" : {};
+    if (elm) {
+      const computedStyle = window.getComputedStyle(elm, null);
+      getStylesResult = getSingleStyle ? getCSSVal(elm, computedStyle, styles) : styles.reduce((result, key) => {
+        result[key] = getCSSVal(elm, computedStyle, key);
+        return result;
+      }, getStylesResult);
+    }
+    return getStylesResult;
+  }
+  each(keys(styles), (key) => setCSSVal(elm, key, styles[key]));
+}
+const topRightBottomLeft = (elm, propertyPrefix, propertySuffix) => {
+  const finalPrefix = propertyPrefix ? `${propertyPrefix}-` : "";
+  const finalSuffix = propertySuffix ? `-${propertySuffix}` : "";
+  const top = `${finalPrefix}top${finalSuffix}`;
+  const right = `${finalPrefix}right${finalSuffix}`;
+  const bottom = `${finalPrefix}bottom${finalSuffix}`;
+  const left = `${finalPrefix}left${finalSuffix}`;
+  const result = style(elm, [top, right, bottom, left]);
+  return {
+    t: parseToZeroOrNumber(result[top]),
+    r: parseToZeroOrNumber(result[right]),
+    b: parseToZeroOrNumber(result[bottom]),
+    l: parseToZeroOrNumber(result[left])
+  };
+};
+
+const zeroObj$1 = {
+  w: 0,
+  h: 0
+};
+const windowSize = () => ({
+  w: window.innerWidth,
+  h: window.innerHeight
+});
+const offsetSize = (elm) => elm ? {
+  w: elm.offsetWidth,
+  h: elm.offsetHeight
+} : zeroObj$1;
+const clientSize = (elm) => elm ? {
+  w: elm.clientWidth,
+  h: elm.clientHeight
+} : zeroObj$1;
+const scrollSize = (elm) => elm ? {
+  w: elm.scrollWidth,
+  h: elm.scrollHeight
+} : zeroObj$1;
+const fractionalSize = (elm) => {
+  const cssHeight = parseFloat(style(elm, "height")) || 0;
+  const cssWidth = parseFloat(style(elm, "height")) || 0;
+  return {
+    w: cssWidth - Math.round(cssWidth),
+    h: cssHeight - Math.round(cssHeight)
+  };
+};
+const getBoundingClientRect = (elm) => elm.getBoundingClientRect();
+
+let passiveEventsSupport;
+const supportPassiveEvents = () => {
+  if (isUndefined(passiveEventsSupport)) {
+    passiveEventsSupport = false;
+    try {
+      window.addEventListener("test", null, Object.defineProperty({}, "passive", {
+        get: function() {
+          passiveEventsSupport = true;
+        }
+      }));
+    } catch (e) {
+    }
+  }
+  return passiveEventsSupport;
+};
+const splitEventNames = (eventNames) => eventNames.split(" ");
+const off = (target, eventNames, listener, capture) => {
+  each(splitEventNames(eventNames), (eventName) => {
+    target.removeEventListener(eventName, listener, capture);
+  });
+};
+const on = (target, eventNames, listener, options) => {
+  const doSupportPassiveEvents = supportPassiveEvents();
+  const passive = doSupportPassiveEvents && options && options._passive || false;
+  const capture = options && options._capture || false;
+  const once = options && options._once || false;
+  const offListeners = [];
+  const nativeOptions = doSupportPassiveEvents ? {
+    passive,
+    capture
+  } : capture;
+  each(splitEventNames(eventNames), (eventName) => {
+    const finalListener = once ? (evt) => {
+      target.removeEventListener(eventName, finalListener, capture);
+      listener && listener(evt);
+    } : listener;
+    push(offListeners, off.bind(null, target, eventName, finalListener, capture));
+    target.addEventListener(eventName, finalListener, nativeOptions);
+  });
+  return runEach.bind(0, offListeners);
+};
+const stopPropagation = (evt) => evt.stopPropagation();
+const preventDefault = (evt) => evt.preventDefault();
+const stopAndPrevent = (evt) => stopPropagation(evt) || preventDefault(evt);
+
+const zeroObj = {
+  x: 0,
+  y: 0
+};
+const absoluteCoordinates = (elm) => {
+  const rect = elm ? getBoundingClientRect(elm) : 0;
+  return rect ? {
+    x: rect.left + window.pageYOffset,
+    y: rect.top + window.pageXOffset
+  } : zeroObj;
+};
+
+const manageListener = (callback, listener) => {
+  each(isArray(listener) ? listener : [listener], callback);
+};
+const createEventListenerHub = (initialEventListeners) => {
+  const events = /* @__PURE__ */ new Map();
+  const removeEvent = (name, listener) => {
+    if (name) {
+      const eventSet = events.get(name);
+      manageListener((currListener) => {
+        if (eventSet) {
+          eventSet[currListener ? "delete" : "clear"](currListener);
+        }
+      }, listener);
+    } else {
+      events.forEach((eventSet) => {
+        eventSet.clear();
+      });
+      events.clear();
+    }
+  };
+  const addEvent = (name, listener) => {
+    const eventSet = events.get(name) || /* @__PURE__ */ new Set();
+    events.set(name, eventSet);
+    manageListener((currListener) => {
+      currListener && eventSet.add(currListener);
+    }, listener);
+    return removeEvent.bind(0, name, listener);
+  };
+  const triggerEvent = (name, args) => {
+    const eventSet = events.get(name);
+    each(from(eventSet), (event) => {
+      if (args) {
+        event(args);
+      } else {
+        event();
+      }
+    });
+  };
+  const initialListenerKeys = keys(initialEventListeners);
+  each(initialListenerKeys, (key) => {
+    addEvent(key, initialEventListeners[key]);
+  });
+  return [addEvent, removeEvent, triggerEvent];
+};
+
+const getPropByPath = (obj, path) => obj ? path.split(".").reduce((o, prop) => o && hasOwnProperty(o, prop) ? o[prop] : void 0, obj) : void 0;
+const createOptionCheck = (options, changedOptions, force) => (path) => [getPropByPath(options, path), force || getPropByPath(changedOptions, path) !== void 0];
+const createState = (initialState) => {
+  let state = initialState;
+  return [
+    () => state,
+    (newState) => {
+      state = assignDeep({}, state, newState);
+    }
+  ];
+};
+
+const classNameEnvironment = "os-environment";
+const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
+const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
+const dataAttributeHost = "data-overlayscrollbars";
+const dataAttributeHostOverflowX = `${dataAttributeHost}-overflow-x`;
+const dataAttributeHostOverflowY = `${dataAttributeHost}-overflow-y`;
+const dataValueHostOverflowVisible = "overflowVisible";
+const dataValueHostViewportScrollbarStyling = "viewportStyled";
+const classNamePadding = "os-padding";
+const classNameViewport = "os-viewport";
+const classNameViewportArrange = `${classNameViewport}-arrange`;
+const classNameContent = "os-content";
+const classNameViewportScrollbarStyling = `${classNameViewport}-scrollbar-styled`;
+const classNameOverflowVisible = `os-overflow-visible`;
+const classNameSizeObserver = "os-size-observer";
+const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
+const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
+const classNameSizeObserverListenerScroll = `${classNameSizeObserverListener}-scroll`;
+const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
+const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
+const classNameTrinsicObserver = "os-trinsic-observer";
+const classNameScrollbar = "os-scrollbar";
+const classNameScrollbarHorizontal = `${classNameScrollbar}-horizontal`;
+const classNameScrollbarVertical = `${classNameScrollbar}-vertical`;
+const classNameScrollbarTrack = "os-scrollbar-track";
+const classNameScrollbarHandle = "os-scrollbar-handle";
+
+const stringify = (value) => JSON.stringify(value, (_, val) => {
+  if (isFunction(val)) {
+    throw new Error();
+  }
+  return val;
+});
+const defaultOptions = {
+  paddingAbsolute: false,
+  updating: {
+    elementEvents: [["img", "load"]],
+    debounce: [0, 33],
+    attributes: null,
+    ignoreMutation: null
+  },
+  overflow: {
+    x: "scroll",
+    y: "scroll"
+  },
+  nativeScrollbarsOverlaid: {
+    show: false,
+    initialize: false
+  },
+  scrollbars: {
+    visibility: "auto",
+    autoHide: "never",
+    autoHideDelay: 800,
+    dragScroll: true,
+    clickScroll: false,
+    touch: true
+  }
+};
+const getOptionsDiff = (currOptions, newOptions) => {
+  const diff = {};
+  const optionsKeys = keys(newOptions).concat(keys(currOptions));
+  each(optionsKeys, (optionKey) => {
+    const currOptionValue = currOptions[optionKey];
+    const newOptionValue = newOptions[optionKey];
+    if (isObject(currOptionValue) && isObject(newOptionValue)) {
+      assignDeep(diff[optionKey] = {}, getOptionsDiff(currOptionValue, newOptionValue));
+    } else if (hasOwnProperty(newOptions, optionKey) && newOptionValue !== currOptionValue) {
+      let isDiff = true;
+      if (isArray(currOptionValue) || isArray(newOptionValue)) {
+        try {
+          if (stringify(currOptionValue) === stringify(newOptionValue)) {
+            isDiff = false;
+          }
+        } catch (e) {
+        }
+      }
+      if (isDiff) {
+        diff[optionKey] = newOptionValue;
+      }
+    }
+  });
+  return diff;
+};
+
+let environmentInstance;
+const { abs, round } = Math;
+const diffBiggerThanOne = (valOne, valTwo) => {
+  const absValOne = abs(valOne);
+  const absValTwo = abs(valTwo);
+  return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
+};
+const getNativeScrollbarSize = (body, measureElm, measureElmChild) => {
+  appendChildren(body, measureElm);
+  const cSize = clientSize(measureElm);
+  const oSize = offsetSize(measureElm);
+  const fSize = fractionalSize(measureElmChild);
+  return {
+    x: oSize.h - cSize.h + fSize.h,
+    y: oSize.w - cSize.w + fSize.w
+  };
+};
+const getNativeScrollbarStyling = (testElm) => {
+  let result = false;
+  const revertClass = addClass(testElm, classNameViewportScrollbarStyling);
+  try {
+    result = style(testElm, cssProperty("scrollbar-width")) === "none" || window.getComputedStyle(testElm, "::-webkit-scrollbar").getPropertyValue("display") === "none";
+  } catch (ex) {
+  }
+  revertClass();
+  return result;
+};
+const getRtlScrollBehavior = (parentElm, childElm) => {
+  const strHidden = "hidden";
+  style(parentElm, { overflowX: strHidden, overflowY: strHidden, direction: "rtl" });
+  scrollLeft(parentElm, 0);
+  const parentOffset = absoluteCoordinates(parentElm);
+  const childOffset = absoluteCoordinates(childElm);
+  scrollLeft(parentElm, -999);
+  const childOffsetAfterScroll = absoluteCoordinates(childElm);
+  return {
+    i: parentOffset.x === childOffset.x,
+    n: childOffset.x !== childOffsetAfterScroll.x
+  };
+};
+const getFlexboxGlue = (parentElm, childElm) => {
+  const revertFbxGlue = addClass(parentElm, classNameEnvironmentFlexboxGlue);
+  const minOffsetsizeParent = getBoundingClientRect(parentElm);
+  const minOffsetsize = getBoundingClientRect(childElm);
+  const supportsMin = equalBCRWH(minOffsetsize, minOffsetsizeParent, true);
+  const revertFbxGlueMax = addClass(parentElm, classNameEnvironmentFlexboxGlueMax);
+  const maxOffsetsizeParent = getBoundingClientRect(parentElm);
+  const maxOffsetsize = getBoundingClientRect(childElm);
+  const supportsMax = equalBCRWH(maxOffsetsize, maxOffsetsizeParent, true);
+  revertFbxGlue();
+  revertFbxGlueMax();
+  return supportsMin && supportsMax;
+};
+const getWindowDPR = () => {
+  const dDPI = window.screen.deviceXDPI || 0;
+  const sDPI = window.screen.logicalXDPI || 1;
+  return window.devicePixelRatio || dDPI / sDPI;
+};
+const getDefaultInitializationStrategy = (nativeScrollbarStyling) => ({
+  _host: null,
+  _viewport: null,
+  _padding: !nativeScrollbarStyling,
+  _content: false,
+  _scrollbarsSlot: null
+});
+const createEnvironment = () => {
+  const { body } = document;
+  const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
+  const envElm = envDOM[0];
+  const envChildElm = envElm.firstChild;
+  const [addEvent, , triggerEvent] = createEventListenerHub();
+  const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache({
+    _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
+    _equal: equalXY
+  });
+  const [nativeScrollbarSize] = getNativeScrollbarSizeCache();
+  const nativeScrollbarStyling = getNativeScrollbarStyling(envElm);
+  const nativeScrollbarIsOverlaid = {
+    x: nativeScrollbarSize.x === 0,
+    y: nativeScrollbarSize.y === 0
+  };
+  const initializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
+  const defaultDefaultOptions = assignDeep({}, defaultOptions);
+  const env = {
+    _nativeScrollbarSize: nativeScrollbarSize,
+    _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
+    _nativeScrollbarStyling: nativeScrollbarStyling,
+    _cssCustomProperties: style(envElm, "zIndex") === "-1",
+    _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
+    _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
+    _addListener: (listener) => addEvent("_", listener),
+    _getInitializationStrategy: assignDeep.bind(0, {}, initializationStrategy),
+    _setInitializationStrategy(newInitializationStrategy) {
+      assignDeep(initializationStrategy, newInitializationStrategy);
+    },
+    _getDefaultOptions: assignDeep.bind(0, {}, defaultDefaultOptions),
+    _setDefaultOptions(newDefaultOptions) {
+      assignDeep(defaultDefaultOptions, newDefaultOptions);
+    },
+    _defaultInitializationStrategy: assignDeep({}, initializationStrategy),
+    _defaultDefaultOptions: assignDeep({}, defaultDefaultOptions)
+  };
+  removeAttr(envElm, "style");
+  removeElements(envElm);
+  if (!nativeScrollbarStyling && (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y)) {
+    let size = windowSize();
+    let dpr = getWindowDPR();
+    window.addEventListener("resize", () => {
+      const sizeNew = windowSize();
+      const deltaSize = {
+        w: sizeNew.w - size.w,
+        h: sizeNew.h - size.h
+      };
+      if (deltaSize.w === 0 && deltaSize.h === 0)
+        return;
+      const deltaAbsSize = {
+        w: abs(deltaSize.w),
+        h: abs(deltaSize.h)
+      };
+      const deltaAbsRatio = {
+        w: abs(round(sizeNew.w / (size.w / 100))),
+        h: abs(round(sizeNew.h / (size.h / 100)))
+      };
+      const dprNew = getWindowDPR();
+      const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
+      const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
+      const dprChanged = dprNew !== dpr && dpr > 0;
+      const isZoom = deltaIsBigger && difference && dprChanged;
+      if (isZoom) {
+        const [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache(getNativeScrollbarSize(body, envElm, envChildElm));
+        assignDeep(environmentInstance._nativeScrollbarSize, scrollbarSize);
+        removeElements(envElm);
+        if (scrollbarSizeChanged) {
+          triggerEvent("_");
+        }
+      }
+      size = sizeNew;
+      dpr = dprNew;
     });
   }
-  var topRightBottomLeft = function topRightBottomLeft(elm, propertyPrefix, propertySuffix) {
-    var finalPrefix = propertyPrefix ? propertyPrefix + "-" : '';
-    var finalSuffix = propertySuffix ? "-" + propertySuffix : '';
-    var top = finalPrefix + "top" + finalSuffix;
-    var right = finalPrefix + "right" + finalSuffix;
-    var bottom = finalPrefix + "bottom" + finalSuffix;
-    var left = finalPrefix + "left" + finalSuffix;
-    var result = style(elm, [top, right, bottom, left]);
-    return {
-      t: parseToZeroOrNumber(result[top]),
-      r: parseToZeroOrNumber(result[right]),
-      b: parseToZeroOrNumber(result[bottom]),
-      l: parseToZeroOrNumber(result[left])
-    };
-  };
+  return env;
+};
+const getEnvironment = () => {
+  if (!environmentInstance) {
+    environmentInstance = createEnvironment();
+  }
+  return environmentInstance;
+};
 
-  var zeroObj$1 = {
-    w: 0,
-    h: 0
+let contentArrangeCounter = 0;
+const unwrap = (elm) => {
+  appendChildren(parent(elm), contents(elm));
+  removeElements(elm);
+};
+const createUniqueViewportArrangeElement = () => {
+  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } = getEnvironment();
+  const create = !_cssCustomProperties && !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
+  const result = create ? document.createElement("style") : false;
+  if (result) {
+    attr(result, "id", `${classNameViewportArrange}-${contentArrangeCounter}`);
+    contentArrangeCounter++;
+  }
+  return result;
+};
+const staticCreationFromStrategy = (target, initializationValue, strategy) => {
+  const result = initializationValue || (isFunction(strategy) ? strategy(target) : strategy);
+  return result || createDiv();
+};
+const dynamicCreationFromStrategy = (target, initializationValue, strategy) => {
+  const takeInitializationValue = isBoolean(initializationValue) || initializationValue;
+  const result = takeInitializationValue ? initializationValue : isFunction(strategy) ? strategy(target) : strategy;
+  return result === true ? createDiv() : result;
+};
+const addDataAttrHost = (elm, value) => {
+  attr(elm, dataAttributeHost, value || "");
+  return removeAttr.bind(0, elm, dataAttributeHost);
+};
+const createStructureSetupElements = (target) => {
+  const { _getInitializationStrategy, _nativeScrollbarStyling } = getEnvironment();
+  const {
+    _host: hostInitializationStrategy,
+    _viewport: viewportInitializationStrategy,
+    _padding: paddingInitializationStrategy,
+    _content: contentInitializationStrategy
+  } = _getInitializationStrategy();
+  const targetIsElm = isHTMLElement(target);
+  const targetStructureInitialization = target;
+  const targetElement = targetIsElm ? target : targetStructureInitialization.target;
+  const isTextarea = is(targetElement, "textarea");
+  const isBody = !isTextarea && is(targetElement, "body");
+  const ownerDocument = targetElement.ownerDocument;
+  const bodyElm = ownerDocument.body;
+  const wnd = ownerDocument.defaultView;
+  const singleElmSupport = !!ResizeObserverConstructor && _nativeScrollbarStyling;
+  const potentialViewportElement = staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy);
+  const potentiallySingleElm = potentialViewportElement === targetElement;
+  const viewportIsTarget = singleElmSupport && potentiallySingleElm;
+  const viewportElement = potentiallySingleElm && !viewportIsTarget ? staticCreationFromStrategy(targetElement) : potentialViewportElement;
+  const evaluatedTargetObj = {
+    _target: targetElement,
+    _host: isTextarea ? staticCreationFromStrategy(targetElement, targetStructureInitialization.host, hostInitializationStrategy) : targetElement,
+    _viewport: viewportElement,
+    _padding: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.padding, paddingInitializationStrategy),
+    _content: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.content, contentInitializationStrategy),
+    _viewportArrange: !viewportIsTarget && createUniqueViewportArrangeElement(),
+    _windowElm: wnd,
+    _documentElm: ownerDocument,
+    _htmlElm: parent(bodyElm),
+    _bodyElm: bodyElm,
+    _isTextarea: isTextarea,
+    _isBody: isBody,
+    _targetIsElm: targetIsElm,
+    _viewportIsTarget: viewportIsTarget,
+    _viewportHasClass: (className, attributeClassName) => viewportIsTarget ? hasAttrClass(viewportElement, dataAttributeHost, attributeClassName) : hasClass(viewportElement, className),
+    _viewportAddRemoveClass: (className, attributeClassName, add) => viewportIsTarget ? attrClass(viewportElement, dataAttributeHost, attributeClassName, add) : (add ? addClass : removeClass)(viewportElement, className)
   };
-  var windowSize = function windowSize() {
-    return {
-      w: window.innerWidth,
-      h: window.innerHeight
-    };
-  };
-  var offsetSize = function offsetSize(elm) {
-    return elm ? {
-      w: elm.offsetWidth,
-      h: elm.offsetHeight
-    } : zeroObj$1;
-  };
-  var clientSize = function clientSize(elm) {
-    return elm ? {
-      w: elm.clientWidth,
-      h: elm.clientHeight
-    } : zeroObj$1;
-  };
-  var scrollSize = function scrollSize(elm) {
-    return elm ? {
-      w: elm.scrollWidth,
-      h: elm.scrollHeight
-    } : zeroObj$1;
-  };
-  var fractionalSize = function fractionalSize(elm) {
-    var cssHeight = parseFloat(style(elm, 'height')) || 0;
-    var cssWidth = parseFloat(style(elm, 'height')) || 0;
-    return {
-      w: cssWidth - Math.round(cssWidth),
-      h: cssHeight - Math.round(cssHeight)
-    };
-  };
-  var getBoundingClientRect = function getBoundingClientRect(elm) {
-    return elm.getBoundingClientRect();
-  };
-
-  var passiveEventsSupport;
-
-  var supportPassiveEvents = function supportPassiveEvents() {
-    if (isUndefined(passiveEventsSupport)) {
-      passiveEventsSupport = false;
-
-      try {
-        window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
-          get: function get() {
-            passiveEventsSupport = true;
-          }
-        }));
-      } catch (e) {}
+  const generatedElements = keys(evaluatedTargetObj).reduce((arr, key) => {
+    const value = evaluatedTargetObj[key];
+    return push(arr, value && !parent(value) ? value : false);
+  }, []);
+  const elementIsGenerated = (elm) => elm ? indexOf(generatedElements, elm) > -1 : null;
+  const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
+  const destroyFns = [];
+  const isTextareaHostGenerated = isTextarea && elementIsGenerated(_host);
+  const targetContents = isTextarea ? _target : contents([_content, _viewport, _padding, _host, _target].find((elm) => elementIsGenerated(elm) === false));
+  const contentSlot = _content || _viewport;
+  const removeHostDataAttr = addDataAttrHost(_host, viewportIsTarget ? "viewport" : "host");
+  const removePaddingClass = addClass(_padding, classNamePadding);
+  const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
+  const removeContentClass = addClass(_content, classNameContent);
+  if (isTextareaHostGenerated) {
+    insertAfter(_target, _host);
+    push(destroyFns, () => {
+      insertAfter(_host, _target);
+      removeElements(_host);
+    });
+  }
+  appendChildren(contentSlot, targetContents);
+  appendChildren(_host, _padding);
+  appendChildren(_padding || _host, !viewportIsTarget && _viewport);
+  appendChildren(_viewport, _content);
+  push(destroyFns, () => {
+    removeHostDataAttr();
+    removeAttr(_viewport, dataAttributeHostOverflowX);
+    removeAttr(_viewport, dataAttributeHostOverflowY);
+    if (elementIsGenerated(_content)) {
+      unwrap(_content);
     }
-
-    return passiveEventsSupport;
-  };
-
-  var splitEventNames = function splitEventNames(eventNames) {
-    return eventNames.split(' ');
-  };
-
-  var off = function off(target, eventNames, listener, capture) {
-    each(splitEventNames(eventNames), function (eventName) {
-      target.removeEventListener(eventName, listener, capture);
-    });
-  };
-  var on = function on(target, eventNames, listener, options) {
-    var doSupportPassiveEvents = supportPassiveEvents();
-    var passive = doSupportPassiveEvents && options && options._passive || false;
-    var capture = options && options._capture || false;
-    var once = options && options._once || false;
-    var offListeners = [];
-    var nativeOptions = doSupportPassiveEvents ? {
-      passive: passive,
-      capture: capture
-    } : capture;
-    each(splitEventNames(eventNames), function (eventName) {
-      var finalListener = once ? function (evt) {
-        target.removeEventListener(eventName, finalListener, capture);
-        listener && listener(evt);
-      } : listener;
-      push(offListeners, off.bind(null, target, eventName, finalListener, capture));
-      target.addEventListener(eventName, finalListener, nativeOptions);
-    });
-    return runEach.bind(0, offListeners);
-  };
-  var stopPropagation = function stopPropagation(evt) {
-    return evt.stopPropagation();
-  };
-  var preventDefault = function preventDefault(evt) {
-    return evt.preventDefault();
-  };
-  var stopAndPrevent = function stopAndPrevent(evt) {
-    return stopPropagation(evt) || preventDefault(evt);
-  };
-
-  var zeroObj = {
-    x: 0,
-    y: 0
-  };
-  var absoluteCoordinates = function absoluteCoordinates(elm) {
-    var rect = elm ? getBoundingClientRect(elm) : 0;
-    return rect ? {
-      x: rect.left + window.pageYOffset,
-      y: rect.top + window.pageXOffset
-    } : zeroObj;
-  };
-
-  var manageListener = function manageListener(callback, listener) {
-    each(isArray(listener) ? listener : [listener], callback);
-  };
-
-  var createEventListenerHub = function createEventListenerHub(initialEventListeners) {
-    var events = new Map();
-
-    var removeEvent = function removeEvent(name, listener) {
-      if (name) {
-        var eventSet = events.get(name);
-        manageListener(function (currListener) {
-          if (eventSet) {
-            eventSet[currListener ? 'delete' : 'clear'](currListener);
-          }
-        }, listener);
-      } else {
-        events.forEach(function (eventSet) {
-          eventSet.clear();
-        });
-        events.clear();
-      }
-    };
-
-    var addEvent = function addEvent(name, listener) {
-      var eventSet = events.get(name) || new Set();
-      events.set(name, eventSet);
-      manageListener(function (currListener) {
-        currListener && eventSet.add(currListener);
-      }, listener);
-      return removeEvent.bind(0, name, listener);
-    };
-
-    var triggerEvent = function triggerEvent(name, args) {
-      var eventSet = events.get(name);
-      each(from(eventSet), function (event) {
-        if (args) {
-          event(args);
-        } else {
-          event();
-        }
-      });
-    };
-
-    var initialListenerKeys = keys(initialEventListeners);
-    each(initialListenerKeys, function (key) {
-      addEvent(key, initialEventListeners[key]);
-    });
-    return [addEvent, removeEvent, triggerEvent];
-  };
-
-  var getPropByPath = function getPropByPath(obj, path) {
-    return obj ? path.split('.').reduce(function (o, prop) {
-      return o && hasOwnProperty(o, prop) ? o[prop] : undefined;
-    }, obj) : undefined;
-  };
-
-  var createOptionCheck = function createOptionCheck(options, changedOptions, force) {
-    return function (path) {
-      return [getPropByPath(options, path), force || getPropByPath(changedOptions, path) !== undefined];
-    };
-  };
-  var createState = function createState(initialState) {
-    var state = initialState;
-    return [function () {
-      return state;
-    }, function (newState) {
-      state = assignDeep({}, state, newState);
-    }];
-  };
-
-  var classNameEnvironment = 'os-environment';
-  var classNameEnvironmentFlexboxGlue = classNameEnvironment + "-flexbox-glue";
-  var classNameEnvironmentFlexboxGlueMax = classNameEnvironmentFlexboxGlue + "-max";
-  var dataAttributeHost = 'data-overlayscrollbars';
-  var dataAttributeHostOverflowX = dataAttributeHost + "-overflow-x";
-  var dataAttributeHostOverflowY = dataAttributeHost + "-overflow-y";
-  var dataValueHostOverflowVisible = 'overflowVisible';
-  var dataValueHostViewportScrollbarStyling = 'viewportStyled';
-  var classNamePadding = 'os-padding';
-  var classNameViewport = 'os-viewport';
-  var classNameViewportArrange = classNameViewport + "-arrange";
-  var classNameContent = 'os-content';
-  var classNameViewportScrollbarStyling = classNameViewport + "-scrollbar-styled";
-  var classNameOverflowVisible = "os-overflow-visible";
-  var classNameSizeObserver = 'os-size-observer';
-  var classNameSizeObserverAppear = classNameSizeObserver + "-appear";
-  var classNameSizeObserverListener = classNameSizeObserver + "-listener";
-  var classNameSizeObserverListenerScroll = classNameSizeObserverListener + "-scroll";
-  var classNameSizeObserverListenerItem = classNameSizeObserverListener + "-item";
-  var classNameSizeObserverListenerItemFinal = classNameSizeObserverListenerItem + "-final";
-  var classNameTrinsicObserver = 'os-trinsic-observer';
-  var classNameScrollbar = 'os-scrollbar';
-  var classNameScrollbarHorizontal = classNameScrollbar + "-horizontal";
-  var classNameScrollbarVertical = classNameScrollbar + "-vertical";
-  var classNameScrollbarTrack = 'os-scrollbar-track';
-  var classNameScrollbarHandle = 'os-scrollbar-handle';
-
-  var stringify = function stringify(value) {
-    return JSON.stringify(value, function (_, val) {
-      if (isFunction(val)) {
-        throw new Error();
-      }
-
-      return val;
-    });
-  };
-
-  var defaultOptions = {
-    paddingAbsolute: false,
-    updating: {
-      elementEvents: [['img', 'load']],
-      debounce: [0, 33],
-      attributes: null,
-      ignoreMutation: null
-    },
-    overflow: {
-      x: 'scroll',
-      y: 'scroll'
-    },
-    nativeScrollbarsOverlaid: {
-      show: false,
-      initialize: false
-    },
-    scrollbars: {
-      visibility: 'auto',
-      autoHide: 'never',
-      autoHideDelay: 800,
-      dragScroll: true,
-      clickScroll: false,
-      touch: true
+    if (elementIsGenerated(_viewport)) {
+      unwrap(_viewport);
     }
-  };
-  var getOptionsDiff = function getOptionsDiff(currOptions, newOptions) {
-    var diff = {};
-    var optionsKeys = keys(newOptions).concat(keys(currOptions));
-    each(optionsKeys, function (optionKey) {
-      var currOptionValue = currOptions[optionKey];
-      var newOptionValue = newOptions[optionKey];
+    if (elementIsGenerated(_padding)) {
+      unwrap(_padding);
+    }
+    removePaddingClass();
+    removeViewportClass();
+    removeContentClass();
+  });
+  if (_nativeScrollbarStyling && !viewportIsTarget) {
+    push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
+  }
+  if (_viewportArrange) {
+    insertBefore(_viewport, _viewportArrange);
+    push(destroyFns, removeElements.bind(0, _viewportArrange));
+  }
+  return [evaluatedTargetObj, runEach.bind(0, destroyFns)];
+};
 
-      if (isObject(currOptionValue) && isObject(newOptionValue)) {
-        assignDeep(diff[optionKey] = {}, getOptionsDiff(currOptionValue, newOptionValue));
-      } else if (hasOwnProperty(newOptions, optionKey) && newOptionValue !== currOptionValue) {
-        var isDiff = true;
-
-        if (isArray(currOptionValue) || isArray(newOptionValue)) {
-          try {
-            if (stringify(currOptionValue) === stringify(newOptionValue)) {
-              isDiff = false;
-            }
-          } catch (_unused) {}
-        }
-
-        if (isDiff) {
-          diff[optionKey] = newOptionValue;
-        }
-      }
-    });
-    return diff;
-  };
-
-  var environmentInstance;
-  var abs = Math.abs,
-      round = Math.round;
-
-  var diffBiggerThanOne = function diffBiggerThanOne(valOne, valTwo) {
-    var absValOne = abs(valOne);
-    var absValTwo = abs(valTwo);
-    return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
-  };
-
-  var getNativeScrollbarSize = function getNativeScrollbarSize(body, measureElm, measureElmChild) {
-    appendChildren(body, measureElm);
-    var cSize = clientSize(measureElm);
-    var oSize = offsetSize(measureElm);
-    var fSize = fractionalSize(measureElmChild);
-    return {
-      x: oSize.h - cSize.h + fSize.h,
-      y: oSize.w - cSize.w + fSize.w
-    };
-  };
-
-  var getNativeScrollbarStyling = function getNativeScrollbarStyling(testElm) {
-    var result = false;
-    var revertClass = addClass(testElm, classNameViewportScrollbarStyling);
-
-    try {
-      result = style(testElm, cssProperty('scrollbar-width')) === 'none' || window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
-    } catch (ex) {}
-
-    revertClass();
-    return result;
-  };
-
-  var getRtlScrollBehavior = function getRtlScrollBehavior(parentElm, childElm) {
-    var strHidden = 'hidden';
-    style(parentElm, {
-      overflowX: strHidden,
-      overflowY: strHidden,
-      direction: 'rtl'
-    });
-    scrollLeft(parentElm, 0);
-    var parentOffset = absoluteCoordinates(parentElm);
-    var childOffset = absoluteCoordinates(childElm);
-    scrollLeft(parentElm, -999);
-    var childOffsetAfterScroll = absoluteCoordinates(childElm);
-    return {
-      i: parentOffset.x === childOffset.x,
-      n: childOffset.x !== childOffsetAfterScroll.x
-    };
-  };
-
-  var getFlexboxGlue = function getFlexboxGlue(parentElm, childElm) {
-    var revertFbxGlue = addClass(parentElm, classNameEnvironmentFlexboxGlue);
-    var minOffsetsizeParent = getBoundingClientRect(parentElm);
-    var minOffsetsize = getBoundingClientRect(childElm);
-    var supportsMin = equalBCRWH(minOffsetsize, minOffsetsizeParent, true);
-    var revertFbxGlueMax = addClass(parentElm, classNameEnvironmentFlexboxGlueMax);
-    var maxOffsetsizeParent = getBoundingClientRect(parentElm);
-    var maxOffsetsize = getBoundingClientRect(childElm);
-    var supportsMax = equalBCRWH(maxOffsetsize, maxOffsetsizeParent, true);
-    revertFbxGlue();
-    revertFbxGlueMax();
-    return supportsMin && supportsMax;
-  };
-
-  var getWindowDPR = function getWindowDPR() {
-    var dDPI = window.screen.deviceXDPI || 0;
-    var sDPI = window.screen.logicalXDPI || 1;
-    return window.devicePixelRatio || dDPI / sDPI;
-  };
-
-  var getDefaultInitializationStrategy = function getDefaultInitializationStrategy(nativeScrollbarStyling) {
-    return {
-      _host: null,
-      _viewport: null,
-      _padding: !nativeScrollbarStyling,
-      _content: false,
-      _scrollbarsSlot: null
-    };
-  };
-
-  var createEnvironment = function createEnvironment() {
-    var _document = document,
-        body = _document.body;
-    var envDOM = createDOM("<div class=\"" + classNameEnvironment + "\"><div></div></div>");
-    var envElm = envDOM[0];
-    var envChildElm = envElm.firstChild;
-
-    var _createEventListenerH = createEventListenerHub(),
-        addEvent = _createEventListenerH[0],
-        triggerEvent = _createEventListenerH[2];
-
-    var _createCache = createCache({
-      _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
-      _equal: equalXY
-    }),
-        updateNativeScrollbarSizeCache = _createCache[0],
-        getNativeScrollbarSizeCache = _createCache[1];
-
-    var _getNativeScrollbarSi = getNativeScrollbarSizeCache(),
-        nativeScrollbarSize = _getNativeScrollbarSi[0];
-
-    var nativeScrollbarStyling = getNativeScrollbarStyling(envElm);
-    var nativeScrollbarIsOverlaid = {
-      x: nativeScrollbarSize.x === 0,
-      y: nativeScrollbarSize.y === 0
-    };
-    var initializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
-    var defaultDefaultOptions = assignDeep({}, defaultOptions);
-    var env = {
-      _nativeScrollbarSize: nativeScrollbarSize,
-      _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
-      _nativeScrollbarStyling: nativeScrollbarStyling,
-      _cssCustomProperties: style(envElm, 'zIndex') === '-1',
-      _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
-      _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
-      _addListener: function _addListener(listener) {
-        return addEvent('_', listener);
-      },
-      _getInitializationStrategy: assignDeep.bind(0, {}, initializationStrategy),
-      _setInitializationStrategy: function _setInitializationStrategy(newInitializationStrategy) {
-        assignDeep(initializationStrategy, newInitializationStrategy);
-      },
-      _getDefaultOptions: assignDeep.bind(0, {}, defaultDefaultOptions),
-      _setDefaultOptions: function _setDefaultOptions(newDefaultOptions) {
-        assignDeep(defaultDefaultOptions, newDefaultOptions);
-      },
-      _defaultInitializationStrategy: assignDeep({}, initializationStrategy),
-      _defaultDefaultOptions: assignDeep({}, defaultDefaultOptions)
-    };
-    removeAttr(envElm, 'style');
-    removeElements(envElm);
-
-    if (!nativeScrollbarStyling && (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y)) {
-      var size = windowSize();
-      var dpr = getWindowDPR();
-      window.addEventListener('resize', function () {
-        var sizeNew = windowSize();
-        var deltaSize = {
-          w: sizeNew.w - size.w,
-          h: sizeNew.h - size.h
-        };
-        if (deltaSize.w === 0 && deltaSize.h === 0) return;
-        var deltaAbsSize = {
-          w: abs(deltaSize.w),
-          h: abs(deltaSize.h)
-        };
-        var deltaAbsRatio = {
-          w: abs(round(sizeNew.w / (size.w / 100.0))),
-          h: abs(round(sizeNew.h / (size.h / 100.0)))
-        };
-        var dprNew = getWindowDPR();
-        var deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
-        var difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
-        var dprChanged = dprNew !== dpr && dpr > 0;
-        var isZoom = deltaIsBigger && difference && dprChanged;
-
-        if (isZoom) {
-          var _updateNativeScrollba = updateNativeScrollbarSizeCache(getNativeScrollbarSize(body, envElm, envChildElm)),
-              scrollbarSize = _updateNativeScrollba[0],
-              scrollbarSizeChanged = _updateNativeScrollba[1];
-
-          assignDeep(environmentInstance._nativeScrollbarSize, scrollbarSize);
-          removeElements(envElm);
-
-          if (scrollbarSizeChanged) {
-            triggerEvent('_');
-          }
-        }
-
-        size = sizeNew;
-        dpr = dprNew;
+const createTrinsicUpdate = (structureSetupElements, state) => {
+  const { _content } = structureSetupElements;
+  const [getState] = state;
+  return (updateHints) => {
+    const { _flexboxGlue } = getEnvironment();
+    const { _heightIntrinsic } = getState();
+    const { _heightIntrinsicChanged } = updateHints;
+    const heightIntrinsicChanged = (_content || !_flexboxGlue) && _heightIntrinsicChanged;
+    if (heightIntrinsicChanged) {
+      style(_content, {
+        height: _heightIntrinsic ? "" : "100%"
       });
     }
-
-    return env;
-  };
-
-  var getEnvironment = function getEnvironment() {
-    if (!environmentInstance) {
-      environmentInstance = createEnvironment();
-    }
-
-    return environmentInstance;
-  };
-
-  var contentArrangeCounter = 0;
-
-  var unwrap = function unwrap(elm) {
-    appendChildren(parent(elm), contents(elm));
-    removeElements(elm);
-  };
-
-  var createUniqueViewportArrangeElement = function createUniqueViewportArrangeElement() {
-    var _getEnvironment = getEnvironment(),
-        _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
-        _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid,
-        _cssCustomProperties = _getEnvironment._cssCustomProperties;
-
-    var create = !_cssCustomProperties && !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
-    var result = create ? document.createElement('style') : false;
-
-    if (result) {
-      attr(result, 'id', classNameViewportArrange + "-" + contentArrangeCounter);
-      contentArrangeCounter++;
-    }
-
-    return result;
-  };
-
-  var staticCreationFromStrategy = function staticCreationFromStrategy(target, initializationValue, strategy) {
-    var result = initializationValue || (isFunction(strategy) ? strategy(target) : strategy);
-    return result || createDiv();
-  };
-
-  var dynamicCreationFromStrategy = function dynamicCreationFromStrategy(target, initializationValue, strategy) {
-    var takeInitializationValue = isBoolean(initializationValue) || initializationValue;
-    var result = takeInitializationValue ? initializationValue : isFunction(strategy) ? strategy(target) : strategy;
-    return result === true ? createDiv() : result;
-  };
-
-  var addDataAttrHost = function addDataAttrHost(elm, value) {
-    attr(elm, dataAttributeHost, value || '');
-    return removeAttr.bind(0, elm, dataAttributeHost);
-  };
-
-  var createStructureSetupElements = function createStructureSetupElements(target) {
-    var _getEnvironment2 = getEnvironment(),
-        _getInitializationStrategy = _getEnvironment2._getInitializationStrategy,
-        _nativeScrollbarStyling = _getEnvironment2._nativeScrollbarStyling;
-
-    var _getInitializationStr = _getInitializationStrategy(),
-        hostInitializationStrategy = _getInitializationStr._host,
-        viewportInitializationStrategy = _getInitializationStr._viewport,
-        paddingInitializationStrategy = _getInitializationStr._padding,
-        contentInitializationStrategy = _getInitializationStr._content;
-
-    var targetIsElm = isHTMLElement(target);
-    var targetStructureInitialization = target;
-    var targetElement = targetIsElm ? target : targetStructureInitialization.target;
-    var isTextarea = is(targetElement, 'textarea');
-    var isBody = !isTextarea && is(targetElement, 'body');
-    var ownerDocument = targetElement.ownerDocument;
-    var bodyElm = ownerDocument.body;
-    var wnd = ownerDocument.defaultView;
-    var singleElmSupport = !!ResizeObserverConstructor && _nativeScrollbarStyling;
-    var potentialViewportElement = staticCreationFromStrategy(targetElement, targetStructureInitialization.viewport, viewportInitializationStrategy);
-    var potentiallySingleElm = potentialViewportElement === targetElement;
-    var viewportIsTarget = singleElmSupport && potentiallySingleElm;
-    var viewportElement = potentiallySingleElm && !viewportIsTarget ? staticCreationFromStrategy(targetElement) : potentialViewportElement;
-    var evaluatedTargetObj = {
-      _target: targetElement,
-      _host: isTextarea ? staticCreationFromStrategy(targetElement, targetStructureInitialization.host, hostInitializationStrategy) : targetElement,
-      _viewport: viewportElement,
-      _padding: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.padding, paddingInitializationStrategy),
-      _content: dynamicCreationFromStrategy(targetElement, targetStructureInitialization.content, contentInitializationStrategy),
-      _viewportArrange: !viewportIsTarget && createUniqueViewportArrangeElement(),
-      _windowElm: wnd,
-      _documentElm: ownerDocument,
-      _htmlElm: parent(bodyElm),
-      _bodyElm: bodyElm,
-      _isTextarea: isTextarea,
-      _isBody: isBody,
-      _targetIsElm: targetIsElm,
-      _viewportIsTarget: viewportIsTarget,
-      _viewportHasClass: function _viewportHasClass(className, attributeClassName) {
-        return viewportIsTarget ? hasAttrClass(viewportElement, dataAttributeHost, attributeClassName) : hasClass(viewportElement, className);
-      },
-      _viewportAddRemoveClass: function _viewportAddRemoveClass(className, attributeClassName, add) {
-        return viewportIsTarget ? attrClass(viewportElement, dataAttributeHost, attributeClassName, add) : (add ? addClass : removeClass)(viewportElement, className);
-      }
+    return {
+      _sizeChanged: heightIntrinsicChanged,
+      _contentMutation: heightIntrinsicChanged
     };
-    var generatedElements = keys(evaluatedTargetObj).reduce(function (arr, key) {
-      var value = evaluatedTargetObj[key];
-      return push(arr, value && !parent(value) ? value : false);
-    }, []);
-
-    var elementIsGenerated = function elementIsGenerated(elm) {
-      return elm ? indexOf(generatedElements, elm) > -1 : null;
-    };
-
-    var _target = evaluatedTargetObj._target,
-        _host = evaluatedTargetObj._host,
-        _padding = evaluatedTargetObj._padding,
-        _viewport = evaluatedTargetObj._viewport,
-        _content = evaluatedTargetObj._content,
-        _viewportArrange = evaluatedTargetObj._viewportArrange;
-    var destroyFns = [];
-    var isTextareaHostGenerated = isTextarea && elementIsGenerated(_host);
-    var targetContents = isTextarea ? _target : contents([_content, _viewport, _padding, _host, _target].find(function (elm) {
-      return elementIsGenerated(elm) === false;
-    }));
-    var contentSlot = _content || _viewport;
-    var removeHostDataAttr = addDataAttrHost(_host, viewportIsTarget ? 'viewport' : 'host');
-    var removePaddingClass = addClass(_padding, classNamePadding);
-    var removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
-    var removeContentClass = addClass(_content, classNameContent);
-
-    if (isTextareaHostGenerated) {
-      insertAfter(_target, _host);
-      push(destroyFns, function () {
-        insertAfter(_host, _target);
-        removeElements(_host);
-      });
-    }
-
-    appendChildren(contentSlot, targetContents);
-    appendChildren(_host, _padding);
-    appendChildren(_padding || _host, !viewportIsTarget && _viewport);
-    appendChildren(_viewport, _content);
-    push(destroyFns, function () {
-      removeHostDataAttr();
-      removeAttr(_viewport, dataAttributeHostOverflowX);
-      removeAttr(_viewport, dataAttributeHostOverflowY);
-
-      if (elementIsGenerated(_content)) {
-        unwrap(_content);
-      }
-
-      if (elementIsGenerated(_viewport)) {
-        unwrap(_viewport);
-      }
-
-      if (elementIsGenerated(_padding)) {
-        unwrap(_padding);
-      }
-
-      removePaddingClass();
-      removeViewportClass();
-      removeContentClass();
-    });
-
-    if (_nativeScrollbarStyling && !viewportIsTarget) {
-      push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
-    }
-
-    if (_viewportArrange) {
-      insertBefore(_viewport, _viewportArrange);
-      push(destroyFns, removeElements.bind(0, _viewportArrange));
-    }
-
-    return [evaluatedTargetObj, runEach.bind(0, destroyFns)];
   };
+};
 
-  var createTrinsicUpdate = function createTrinsicUpdate(structureSetupElements, state) {
-    var _content = structureSetupElements._content;
-    var getState = state[0];
-    return function (updateHints) {
-      var _getEnvironment = getEnvironment(),
-          _flexboxGlue = _getEnvironment._flexboxGlue;
-
-      var _getState = getState(),
-          _heightIntrinsic = _getState._heightIntrinsic;
-
-      var _heightIntrinsicChanged = updateHints._heightIntrinsicChanged;
-      var heightIntrinsicChanged = (_content || !_flexboxGlue) && _heightIntrinsicChanged;
-
-      if (heightIntrinsicChanged) {
-        style(_content, {
-          height: _heightIntrinsic ? '' : '100%'
-        });
-      }
-
-      return {
-        _sizeChanged: heightIntrinsicChanged,
-        _contentMutation: heightIntrinsicChanged
+const createPaddingUpdate = (structureSetupElements, state) => {
+  const [getState, setState] = state;
+  const { _host, _padding, _viewport, _viewportIsTarget: _isSingleElm } = structureSetupElements;
+  const [updatePaddingCache, currentPaddingCache] = createCache({
+    _equal: equalTRBL,
+    _initialValue: topRightBottomLeft()
+  }, topRightBottomLeft.bind(0, _host, "padding", ""));
+  return (updateHints, checkOption, force) => {
+    let [padding, paddingChanged] = currentPaddingCache(force);
+    const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+    const { _directionIsRTL } = getState();
+    const { _sizeChanged, _contentMutation, _directionChanged } = updateHints;
+    const [paddingAbsolute, paddingAbsoluteChanged] = checkOption("paddingAbsolute");
+    const contentMutation = !_flexboxGlue && _contentMutation;
+    if (_sizeChanged || paddingChanged || contentMutation) {
+      [padding, paddingChanged] = updatePaddingCache(force);
+    }
+    const paddingStyleChanged = !_isSingleElm && (paddingAbsoluteChanged || _directionChanged || paddingChanged);
+    if (paddingStyleChanged) {
+      const paddingRelative = !paddingAbsolute || !_padding && !_nativeScrollbarStyling;
+      const paddingHorizontal = padding.r + padding.l;
+      const paddingVertical = padding.t + padding.b;
+      const paddingStyle = {
+        marginRight: paddingRelative && !_directionIsRTL ? -paddingHorizontal : 0,
+        marginBottom: paddingRelative ? -paddingVertical : 0,
+        marginLeft: paddingRelative && _directionIsRTL ? -paddingHorizontal : 0,
+        top: paddingRelative ? -padding.t : 0,
+        right: paddingRelative ? _directionIsRTL ? -padding.r : "auto" : 0,
+        left: paddingRelative ? _directionIsRTL ? "auto" : -padding.l : 0,
+        width: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : ""
       };
-    };
-  };
-
-  var createPaddingUpdate = function createPaddingUpdate(structureSetupElements, state) {
-    var getState = state[0],
-        setState = state[1];
-    var _host = structureSetupElements._host,
-        _padding = structureSetupElements._padding,
-        _viewport = structureSetupElements._viewport,
-        _isSingleElm = structureSetupElements._viewportIsTarget;
-
-    var _createCache = createCache({
-      _equal: equalTRBL,
-      _initialValue: topRightBottomLeft()
-    }, topRightBottomLeft.bind(0, _host, 'padding', '')),
-        updatePaddingCache = _createCache[0],
-        currentPaddingCache = _createCache[1];
-
-    return function (updateHints, checkOption, force) {
-      var _currentPaddingCache = currentPaddingCache(force),
-          padding = _currentPaddingCache[0],
-          paddingChanged = _currentPaddingCache[1];
-
-      var _getEnvironment = getEnvironment(),
-          _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
-          _flexboxGlue = _getEnvironment._flexboxGlue;
-
-      var _getState = getState(),
-          _directionIsRTL = _getState._directionIsRTL;
-
-      var _sizeChanged = updateHints._sizeChanged,
-          _contentMutation = updateHints._contentMutation,
-          _directionChanged = updateHints._directionChanged;
-
-      var _checkOption = checkOption('paddingAbsolute'),
-          paddingAbsolute = _checkOption[0],
-          paddingAbsoluteChanged = _checkOption[1];
-
-      var contentMutation = !_flexboxGlue && _contentMutation;
-
-      if (_sizeChanged || paddingChanged || contentMutation) {
-        var _updatePaddingCache = updatePaddingCache(force);
-
-        padding = _updatePaddingCache[0];
-        paddingChanged = _updatePaddingCache[1];
-      }
-
-      var paddingStyleChanged = !_isSingleElm && (paddingAbsoluteChanged || _directionChanged || paddingChanged);
-
-      if (paddingStyleChanged) {
-        var paddingRelative = !paddingAbsolute || !_padding && !_nativeScrollbarStyling;
-        var paddingHorizontal = padding.r + padding.l;
-        var paddingVertical = padding.t + padding.b;
-        var paddingStyle = {
-          marginRight: paddingRelative && !_directionIsRTL ? -paddingHorizontal : 0,
-          marginBottom: paddingRelative ? -paddingVertical : 0,
-          marginLeft: paddingRelative && _directionIsRTL ? -paddingHorizontal : 0,
-          top: paddingRelative ? -padding.t : 0,
-          right: paddingRelative ? _directionIsRTL ? -padding.r : 'auto' : 0,
-          left: paddingRelative ? _directionIsRTL ? 'auto' : -padding.l : 0,
-          width: paddingRelative ? "calc(100% + " + paddingHorizontal + "px)" : ''
-        };
-        var viewportStyle = {
-          paddingTop: paddingRelative ? padding.t : 0,
-          paddingRight: paddingRelative ? padding.r : 0,
-          paddingBottom: paddingRelative ? padding.b : 0,
-          paddingLeft: paddingRelative ? padding.l : 0
-        };
-        style(_padding || _viewport, paddingStyle);
-        style(_viewport, viewportStyle);
-        setState({
-          _padding: padding,
-          _paddingAbsolute: !paddingRelative,
-          _viewportPaddingStyle: _padding ? viewportStyle : assignDeep({}, paddingStyle, viewportStyle)
-        });
-      }
-
-      return {
-        _paddingStyleChanged: paddingStyleChanged
+      const viewportStyle = {
+        paddingTop: paddingRelative ? padding.t : 0,
+        paddingRight: paddingRelative ? padding.r : 0,
+        paddingBottom: paddingRelative ? padding.b : 0,
+        paddingLeft: paddingRelative ? padding.l : 0
       };
-    };
-  };
-
-  var max = Math.max;
-  var strVisible = 'visible';
-  var strHidden = 'hidden';
-  var overlaidScrollbarsHideOffset = 42;
-  var whCacheOptions = {
-    _equal: equalWH,
-    _initialValue: {
-      w: 0,
-      h: 0
+      style(_padding || _viewport, paddingStyle);
+      style(_viewport, viewportStyle);
+      setState({
+        _padding: padding,
+        _paddingAbsolute: !paddingRelative,
+        _viewportPaddingStyle: _padding ? viewportStyle : assignDeep({}, paddingStyle, viewportStyle)
+      });
     }
-  };
-  var xyCacheOptions = {
-    _equal: equalXY,
-    _initialValue: {
-      x: strHidden,
-      y: strHidden
-    }
-  };
-
-  var getOverflowAmount = function getOverflowAmount(viewportScrollSize, viewportClientSize, sizeFraction) {
-    var tollerance = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
-    var amount = {
-      w: max(0, viewportScrollSize.w - viewportClientSize.w - max(0, sizeFraction.w)),
-      h: max(0, viewportScrollSize.h - viewportClientSize.h - max(0, sizeFraction.h))
-    };
     return {
-      w: amount.w > tollerance ? amount.w : 0,
-      h: amount.h > tollerance ? amount.h : 0
+      _paddingStyleChanged: paddingStyleChanged
     };
   };
+};
 
-  var conditionalClass = function conditionalClass(elm, classNames, add) {
-    return add ? addClass(elm, classNames) : removeClass(elm, classNames);
+const { max } = Math;
+const strVisible = "visible";
+const strHidden = "hidden";
+const overlaidScrollbarsHideOffset = 42;
+const whCacheOptions = {
+  _equal: equalWH,
+  _initialValue: { w: 0, h: 0 }
+};
+const xyCacheOptions = {
+  _equal: equalXY,
+  _initialValue: { x: strHidden, y: strHidden }
+};
+const getOverflowAmount = (viewportScrollSize, viewportClientSize, sizeFraction) => {
+  const tollerance = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
+  const amount = {
+    w: max(0, viewportScrollSize.w - viewportClientSize.w - max(0, sizeFraction.w)),
+    h: max(0, viewportScrollSize.h - viewportClientSize.h - max(0, sizeFraction.h))
   };
-
-  var overflowIsVisible = function overflowIsVisible(overflowBehavior) {
-    return overflowBehavior.indexOf(strVisible) === 0;
+  return {
+    w: amount.w > tollerance ? amount.w : 0,
+    h: amount.h > tollerance ? amount.h : 0
   };
-
-  var createOverflowUpdate = function createOverflowUpdate(structureSetupElements, state) {
-    var getState = state[0],
-        setState = state[1];
-    var _host = structureSetupElements._host,
-        _padding = structureSetupElements._padding,
-        _viewport = structureSetupElements._viewport,
-        _viewportArrange = structureSetupElements._viewportArrange,
-        _viewportIsTarget = structureSetupElements._viewportIsTarget,
-        _viewportAddRemoveClass = structureSetupElements._viewportAddRemoveClass;
-
-    var _getEnvironment = getEnvironment(),
-        _nativeScrollbarSize = _getEnvironment._nativeScrollbarSize,
-        _flexboxGlue = _getEnvironment._flexboxGlue,
-        _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
-        _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid;
-
-    var doViewportArrange = !_viewportIsTarget && !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
-
-    var _createCache = createCache(whCacheOptions, fractionalSize.bind(0, _host)),
-        updateSizeFraction = _createCache[0],
-        getCurrentSizeFraction = _createCache[1];
-
-    var _createCache2 = createCache(whCacheOptions, scrollSize.bind(0, _viewport)),
-        updateViewportScrollSizeCache = _createCache2[0],
-        getCurrentViewportScrollSizeCache = _createCache2[1];
-
-    var _createCache3 = createCache(whCacheOptions),
-        updateOverflowAmountCache = _createCache3[0],
-        getCurrentOverflowAmountCache = _createCache3[1];
-
-    var _createCache4 = createCache(xyCacheOptions),
-        updateOverflowStyleCache = _createCache4[0];
-
-    var fixFlexboxGlue = function fixFlexboxGlue(viewportOverflowState, heightIntrinsic) {
+};
+const conditionalClass = (elm, classNames, add) => add ? addClass(elm, classNames) : removeClass(elm, classNames);
+const overflowIsVisible = (overflowBehavior) => overflowBehavior.indexOf(strVisible) === 0;
+const createOverflowUpdate = (structureSetupElements, state) => {
+  const [getState, setState] = state;
+  const {
+    _host,
+    _padding,
+    _viewport,
+    _viewportArrange,
+    _viewportIsTarget,
+    _viewportAddRemoveClass
+  } = structureSetupElements;
+  const {
+    _nativeScrollbarSize,
+    _flexboxGlue,
+    _nativeScrollbarStyling,
+    _nativeScrollbarIsOverlaid
+  } = getEnvironment();
+  const doViewportArrange = !_viewportIsTarget && !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
+  const [updateSizeFraction, getCurrentSizeFraction] = createCache(whCacheOptions, fractionalSize.bind(0, _viewport));
+  const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache(whCacheOptions, scrollSize.bind(0, _viewport));
+  const [updateOverflowAmountCache, getCurrentOverflowAmountCache] = createCache(whCacheOptions);
+  const [updateOverflowStyleCache] = createCache(xyCacheOptions);
+  const fixFlexboxGlue = (viewportOverflowState, heightIntrinsic) => {
+    style(_viewport, {
+      height: ""
+    });
+    if (heightIntrinsic) {
+      const { _paddingAbsolute, _padding: padding } = getState();
+      const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
+      const fSize = fractionalSize(_host);
+      const hostClientSize = clientSize(_host);
+      const isContentBox = style(_viewport, "boxSizing") === "content-box";
+      const paddingVertical = _paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
+      const subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
       style(_viewport, {
-        height: ''
+        height: hostClientSize.h + fSize.h + (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) - paddingVertical
       });
-
-      if (heightIntrinsic) {
-        var _getState = getState(),
-            _paddingAbsolute = _getState._paddingAbsolute,
-            padding = _getState._padding;
-
-        var _overflowScroll = viewportOverflowState._overflowScroll,
-            _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset;
-        var fSize = fractionalSize(_host);
-        var hostClientSize = clientSize(_host);
-        var isContentBox = style(_viewport, 'boxSizing') === 'content-box';
-        var paddingVertical = _paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
-        var subtractXScrollbar = !(_nativeScrollbarIsOverlaid.x && isContentBox);
+    }
+  };
+  const getViewportOverflowState = (showNativeOverlaidScrollbars, viewportStyleObj) => {
+    const arrangeHideOffset = !_nativeScrollbarStyling && !showNativeOverlaidScrollbars ? overlaidScrollbarsHideOffset : 0;
+    const getStatePerAxis = (styleKey, isOverlaid, nativeScrollbarSize) => {
+      const overflowStyle = style(_viewport, styleKey);
+      const objectPrefferedOverflowStyle = viewportStyleObj ? viewportStyleObj[styleKey] : overflowStyle;
+      const overflowScroll = objectPrefferedOverflowStyle === "scroll";
+      const nonScrollbarStylingHideOffset = isOverlaid ? arrangeHideOffset : nativeScrollbarSize;
+      const scrollbarsHideOffset = overflowScroll && !_nativeScrollbarStyling ? nonScrollbarStylingHideOffset : 0;
+      const scrollbarsHideOffsetArrange = isOverlaid && !!arrangeHideOffset;
+      return [overflowStyle, overflowScroll, scrollbarsHideOffset, scrollbarsHideOffsetArrange];
+    };
+    const [xOverflowStyle, xOverflowScroll, xScrollbarsHideOffset, xScrollbarsHideOffsetArrange] = getStatePerAxis("overflowX", _nativeScrollbarIsOverlaid.x, _nativeScrollbarSize.x);
+    const [yOverflowStyle, yOverflowScroll, yScrollbarsHideOffset, yScrollbarsHideOffsetArrange] = getStatePerAxis("overflowY", _nativeScrollbarIsOverlaid.y, _nativeScrollbarSize.y);
+    return {
+      _overflowStyle: {
+        x: xOverflowStyle,
+        y: yOverflowStyle
+      },
+      _overflowScroll: {
+        x: xOverflowScroll,
+        y: yOverflowScroll
+      },
+      _scrollbarsHideOffset: {
+        x: xScrollbarsHideOffset,
+        y: yScrollbarsHideOffset
+      },
+      _scrollbarsHideOffsetArrange: {
+        x: xScrollbarsHideOffsetArrange,
+        y: yScrollbarsHideOffsetArrange
+      }
+    };
+  };
+  const setViewportOverflowState = (showNativeOverlaidScrollbars, hasOverflow, overflowOption, viewportStyleObj) => {
+    const setAxisOverflowStyle = (behavior, hasOverflowAxis) => {
+      const overflowVisible = overflowIsVisible(behavior);
+      const overflowVisibleBehavior = hasOverflowAxis && overflowVisible && behavior.replace(`${strVisible}-`, "") || "";
+      return [
+        hasOverflowAxis && !overflowVisible ? behavior : "",
+        overflowIsVisible(overflowVisibleBehavior) ? "hidden" : overflowVisibleBehavior
+      ];
+    };
+    const [overflowX, visibleBehaviorX] = setAxisOverflowStyle(overflowOption.x, hasOverflow.x);
+    const [overflowY, visibleBehaviorY] = setAxisOverflowStyle(overflowOption.y, hasOverflow.y);
+    viewportStyleObj.overflowX = visibleBehaviorX && overflowY ? visibleBehaviorX : overflowX;
+    viewportStyleObj.overflowY = visibleBehaviorY && overflowX ? visibleBehaviorY : overflowY;
+    return getViewportOverflowState(showNativeOverlaidScrollbars, viewportStyleObj);
+  };
+  const arrangeViewport = (viewportOverflowState, viewportScrollSize, sizeFraction, directionIsRTL) => {
+    if (doViewportArrange) {
+      const { _viewportPaddingStyle } = getState();
+      const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
+      const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
+      const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
+      const viewportArrangeHorizontalPaddingKey = directionIsRTL ? "paddingRight" : "paddingLeft";
+      const viewportArrangeHorizontalPaddingValue = _viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
+      const viewportArrangeVerticalPaddingValue = _viewportPaddingStyle.paddingTop;
+      const fractionalContentWidth = viewportScrollSize.w + sizeFraction.w;
+      const fractionalContenHeight = viewportScrollSize.h + sizeFraction.h;
+      const arrangeSize = {
+        w: hideOffsetY && arrangeY ? `${hideOffsetY + fractionalContentWidth - viewportArrangeHorizontalPaddingValue}px` : "",
+        h: hideOffsetX && arrangeX ? `${hideOffsetX + fractionalContenHeight - viewportArrangeVerticalPaddingValue}px` : ""
+      };
+      if (_viewportArrange) {
+        const { sheet } = _viewportArrange;
+        if (sheet) {
+          const { cssRules } = sheet;
+          if (cssRules) {
+            if (!cssRules.length) {
+              sheet.insertRule(`#${attr(_viewportArrange, "id")} + .${classNameViewportArrange}::before {}`, 0);
+            }
+            const ruleStyle = cssRules[0].style;
+            ruleStyle.width = arrangeSize.w;
+            ruleStyle.height = arrangeSize.h;
+          }
+        }
+      } else {
         style(_viewport, {
-          height: hostClientSize.h + fSize.h + (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) - paddingVertical
+          "--os-vaw": arrangeSize.w,
+          "--os-vah": arrangeSize.h
         });
       }
-    };
-
-    var getViewportOverflowState = function getViewportOverflowState(showNativeOverlaidScrollbars, viewportStyleObj) {
-      var arrangeHideOffset = !_nativeScrollbarStyling && !showNativeOverlaidScrollbars ? overlaidScrollbarsHideOffset : 0;
-
-      var getStatePerAxis = function getStatePerAxis(styleKey, isOverlaid, nativeScrollbarSize) {
-        var overflowStyle = style(_viewport, styleKey);
-        var objectPrefferedOverflowStyle = viewportStyleObj ? viewportStyleObj[styleKey] : overflowStyle;
-        var overflowScroll = objectPrefferedOverflowStyle === 'scroll';
-        var nonScrollbarStylingHideOffset = isOverlaid ? arrangeHideOffset : nativeScrollbarSize;
-        var scrollbarsHideOffset = overflowScroll && !_nativeScrollbarStyling ? nonScrollbarStylingHideOffset : 0;
-        var scrollbarsHideOffsetArrange = isOverlaid && !!arrangeHideOffset;
-        return [overflowStyle, overflowScroll, scrollbarsHideOffset, scrollbarsHideOffsetArrange];
-      };
-
-      var _getStatePerAxis = getStatePerAxis('overflowX', _nativeScrollbarIsOverlaid.x, _nativeScrollbarSize.x),
-          xOverflowStyle = _getStatePerAxis[0],
-          xOverflowScroll = _getStatePerAxis[1],
-          xScrollbarsHideOffset = _getStatePerAxis[2],
-          xScrollbarsHideOffsetArrange = _getStatePerAxis[3];
-
-      var _getStatePerAxis2 = getStatePerAxis('overflowY', _nativeScrollbarIsOverlaid.y, _nativeScrollbarSize.y),
-          yOverflowStyle = _getStatePerAxis2[0],
-          yOverflowScroll = _getStatePerAxis2[1],
-          yScrollbarsHideOffset = _getStatePerAxis2[2],
-          yScrollbarsHideOffsetArrange = _getStatePerAxis2[3];
-
-      return {
-        _overflowStyle: {
-          x: xOverflowStyle,
-          y: yOverflowStyle
-        },
-        _overflowScroll: {
-          x: xOverflowScroll,
-          y: yOverflowScroll
-        },
-        _scrollbarsHideOffset: {
-          x: xScrollbarsHideOffset,
-          y: yScrollbarsHideOffset
-        },
-        _scrollbarsHideOffsetArrange: {
-          x: xScrollbarsHideOffsetArrange,
-          y: yScrollbarsHideOffsetArrange
-        }
-      };
-    };
-
-    var setViewportOverflowState = function setViewportOverflowState(showNativeOverlaidScrollbars, hasOverflow, overflowOption, viewportStyleObj) {
-      var setAxisOverflowStyle = function setAxisOverflowStyle(behavior, hasOverflowAxis) {
-        var overflowVisible = overflowIsVisible(behavior);
-        var overflowVisibleBehavior = hasOverflowAxis && overflowVisible && behavior.replace(strVisible + "-", '') || '';
-        return [hasOverflowAxis && !overflowVisible ? behavior : '', overflowIsVisible(overflowVisibleBehavior) ? 'hidden' : overflowVisibleBehavior];
-      };
-
-      var _setAxisOverflowStyle = setAxisOverflowStyle(overflowOption.x, hasOverflow.x),
-          overflowX = _setAxisOverflowStyle[0],
-          visibleBehaviorX = _setAxisOverflowStyle[1];
-
-      var _setAxisOverflowStyle2 = setAxisOverflowStyle(overflowOption.y, hasOverflow.y),
-          overflowY = _setAxisOverflowStyle2[0],
-          visibleBehaviorY = _setAxisOverflowStyle2[1];
-
-      viewportStyleObj.overflowX = visibleBehaviorX && overflowY ? visibleBehaviorX : overflowX;
-      viewportStyleObj.overflowY = visibleBehaviorY && overflowX ? visibleBehaviorY : overflowY;
-      return getViewportOverflowState(showNativeOverlaidScrollbars, viewportStyleObj);
-    };
-
-    var arrangeViewport = function arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction, directionIsRTL) {
-      if (doViewportArrange) {
-        var _getState2 = getState(),
-            _viewportPaddingStyle = _getState2._viewportPaddingStyle;
-
-        var _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset,
-            _scrollbarsHideOffsetArrange = viewportOverflowState._scrollbarsHideOffsetArrange;
-        var arrangeX = _scrollbarsHideOffsetArrange.x,
-            arrangeY = _scrollbarsHideOffsetArrange.y;
-        var hideOffsetX = _scrollbarsHideOffset.x,
-            hideOffsetY = _scrollbarsHideOffset.y;
-        var viewportArrangeHorizontalPaddingKey = directionIsRTL ? 'paddingRight' : 'paddingLeft';
-        var viewportArrangeHorizontalPaddingValue = _viewportPaddingStyle[viewportArrangeHorizontalPaddingKey];
-        var viewportArrangeVerticalPaddingValue = _viewportPaddingStyle.paddingTop;
-        var fractionalContentWidth = viewportScrollSize.w + sizeFraction.w;
-        var fractionalContenHeight = viewportScrollSize.h + sizeFraction.h;
-        var arrangeSize = {
-          w: hideOffsetY && arrangeY ? hideOffsetY + fractionalContentWidth - viewportArrangeHorizontalPaddingValue + "px" : '',
-          h: hideOffsetX && arrangeX ? hideOffsetX + fractionalContenHeight - viewportArrangeVerticalPaddingValue + "px" : ''
-        };
-
-        if (_viewportArrange) {
-          var sheet = _viewportArrange.sheet;
-
-          if (sheet) {
-            var cssRules = sheet.cssRules;
-
-            if (cssRules) {
-              if (!cssRules.length) {
-                sheet.insertRule("#" + attr(_viewportArrange, 'id') + " + ." + classNameViewportArrange + "::before {}", 0);
-              }
-
-              var ruleStyle = cssRules[0].style;
-              ruleStyle.width = arrangeSize.w;
-              ruleStyle.height = arrangeSize.h;
-            }
-          }
-        } else {
-          style(_viewport, {
-            '--os-vaw': arrangeSize.w,
-            '--os-vah': arrangeSize.h
-          });
-        }
+    }
+    return doViewportArrange;
+  };
+  const hideNativeScrollbars = (viewportOverflowState, directionIsRTL, viewportArrange, viewportStyleObj) => {
+    const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
+    const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
+    const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
+    const { _viewportPaddingStyle: viewportPaddingStyle } = getState();
+    const horizontalMarginKey = directionIsRTL ? "marginLeft" : "marginRight";
+    const viewportHorizontalPaddingKey = directionIsRTL ? "paddingLeft" : "paddingRight";
+    const horizontalMarginValue = viewportPaddingStyle[horizontalMarginKey];
+    const verticalMarginValue = viewportPaddingStyle.marginBottom;
+    const horizontalPaddingValue = viewportPaddingStyle[viewportHorizontalPaddingKey];
+    const verticalPaddingValue = viewportPaddingStyle.paddingBottom;
+    viewportStyleObj.width = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
+    viewportStyleObj[horizontalMarginKey] = -hideOffsetY + horizontalMarginValue;
+    viewportStyleObj.marginBottom = -hideOffsetX + verticalMarginValue;
+    if (viewportArrange) {
+      viewportStyleObj[viewportHorizontalPaddingKey] = horizontalPaddingValue + (arrangeY ? hideOffsetY : 0);
+      viewportStyleObj.paddingBottom = verticalPaddingValue + (arrangeX ? hideOffsetX : 0);
+    }
+  };
+  const undoViewportArrange = (showNativeOverlaidScrollbars, directionIsRTL, viewportOverflowState) => {
+    if (doViewportArrange) {
+      const finalViewportOverflowState = viewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars);
+      const { _viewportPaddingStyle: viewportPaddingStyle } = getState();
+      const { _scrollbarsHideOffsetArrange } = finalViewportOverflowState;
+      const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
+      const finalPaddingStyle = {};
+      const assignProps = (props) => each(props.split(" "), (prop) => {
+        finalPaddingStyle[prop] = viewportPaddingStyle[prop];
+      });
+      if (arrangeX) {
+        assignProps("marginBottom paddingTop paddingBottom");
       }
-
-      return doViewportArrange;
-    };
-
-    var hideNativeScrollbars = function hideNativeScrollbars(viewportOverflowState, directionIsRTL, viewportArrange, viewportStyleObj) {
-      var _scrollbarsHideOffset = viewportOverflowState._scrollbarsHideOffset,
-          _scrollbarsHideOffsetArrange = viewportOverflowState._scrollbarsHideOffsetArrange;
-      var arrangeX = _scrollbarsHideOffsetArrange.x,
-          arrangeY = _scrollbarsHideOffsetArrange.y;
-      var hideOffsetX = _scrollbarsHideOffset.x,
-          hideOffsetY = _scrollbarsHideOffset.y;
-
-      var _getState3 = getState(),
-          viewportPaddingStyle = _getState3._viewportPaddingStyle;
-
-      var horizontalMarginKey = directionIsRTL ? 'marginLeft' : 'marginRight';
-      var viewportHorizontalPaddingKey = directionIsRTL ? 'paddingLeft' : 'paddingRight';
-      var horizontalMarginValue = viewportPaddingStyle[horizontalMarginKey];
-      var verticalMarginValue = viewportPaddingStyle.marginBottom;
-      var horizontalPaddingValue = viewportPaddingStyle[viewportHorizontalPaddingKey];
-      var verticalPaddingValue = viewportPaddingStyle.paddingBottom;
-      viewportStyleObj.width = "calc(100% + " + (hideOffsetY + horizontalMarginValue * -1) + "px)";
-      viewportStyleObj[horizontalMarginKey] = -hideOffsetY + horizontalMarginValue;
-      viewportStyleObj.marginBottom = -hideOffsetX + verticalMarginValue;
-
-      if (viewportArrange) {
-        viewportStyleObj[viewportHorizontalPaddingKey] = horizontalPaddingValue + (arrangeY ? hideOffsetY : 0);
-        viewportStyleObj.paddingBottom = verticalPaddingValue + (arrangeX ? hideOffsetX : 0);
+      if (arrangeY) {
+        assignProps("marginLeft marginRight paddingLeft paddingRight");
       }
-    };
-
-    var undoViewportArrange = function undoViewportArrange(showNativeOverlaidScrollbars, directionIsRTL, viewportOverflowState) {
-      if (doViewportArrange) {
-        var finalViewportOverflowState = viewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars);
-
-        var _getState4 = getState(),
-            viewportPaddingStyle = _getState4._viewportPaddingStyle;
-
-        var _scrollbarsHideOffsetArrange = finalViewportOverflowState._scrollbarsHideOffsetArrange;
-        var arrangeX = _scrollbarsHideOffsetArrange.x,
-            arrangeY = _scrollbarsHideOffsetArrange.y;
-        var finalPaddingStyle = {};
-
-        var assignProps = function assignProps(props) {
-          return each(props.split(' '), function (prop) {
-            finalPaddingStyle[prop] = viewportPaddingStyle[prop];
-          });
-        };
-
-        if (arrangeX) {
-          assignProps('marginBottom paddingTop paddingBottom');
-        }
-
-        if (arrangeY) {
-          assignProps('marginLeft marginRight paddingLeft paddingRight');
-        }
-
-        var prevStyle = style(_viewport, keys(finalPaddingStyle));
-        removeClass(_viewport, classNameViewportArrange);
-
-        if (!_flexboxGlue) {
-          finalPaddingStyle.height = '';
-        }
-
-        style(_viewport, finalPaddingStyle);
-        return [function () {
+      const prevStyle = style(_viewport, keys(finalPaddingStyle));
+      removeClass(_viewport, classNameViewportArrange);
+      if (!_flexboxGlue) {
+        finalPaddingStyle.height = "";
+      }
+      style(_viewport, finalPaddingStyle);
+      return [
+        () => {
           hideNativeScrollbars(finalViewportOverflowState, directionIsRTL, doViewportArrange, prevStyle);
           style(_viewport, prevStyle);
           addClass(_viewport, classNameViewportArrange);
-        }, finalViewportOverflowState];
-      }
-
-      return [noop];
-    };
-
-    return function (updateHints, checkOption, force) {
-      var _sizeChanged = updateHints._sizeChanged,
-          _hostMutation = updateHints._hostMutation,
-          _contentMutation = updateHints._contentMutation,
-          _paddingStyleChanged = updateHints._paddingStyleChanged,
-          _heightIntrinsicChanged = updateHints._heightIntrinsicChanged,
-          _directionChanged = updateHints._directionChanged;
-
-      var _getState5 = getState(),
-          _heightIntrinsic = _getState5._heightIntrinsic,
-          _directionIsRTL = _getState5._directionIsRTL;
-
-      var _checkOption = checkOption('nativeScrollbarsOverlaid.show'),
-          showNativeOverlaidScrollbarsOption = _checkOption[0],
-          showNativeOverlaidScrollbarsChanged = _checkOption[1];
-
-      var _checkOption2 = checkOption('overflow'),
-          overflow = _checkOption2[0],
-          overflowChanged = _checkOption2[1];
-
-      var showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
-      var adjustFlexboxGlue = !_viewportIsTarget && !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || _heightIntrinsicChanged);
-      var overflowXVisible = overflowIsVisible(overflow.x);
-      var overflowYVisible = overflowIsVisible(overflow.y);
-      var overflowVisible = overflowXVisible || overflowYVisible;
-      var sizeFractionCache = getCurrentSizeFraction(force);
-      var viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
-      var overflowAmuntCache = getCurrentOverflowAmountCache(force);
-      var preMeasureViewportOverflowState;
-
-      if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
-        _viewportAddRemoveClass(classNameViewportScrollbarStyling, dataValueHostViewportScrollbarStyling, !showNativeOverlaidScrollbars);
-      }
-
-      if (adjustFlexboxGlue) {
-        preMeasureViewportOverflowState = getViewportOverflowState(showNativeOverlaidScrollbars);
-        fixFlexboxGlue(preMeasureViewportOverflowState, _heightIntrinsic);
-      }
-
-      if (_sizeChanged || _paddingStyleChanged || _contentMutation || _directionChanged || showNativeOverlaidScrollbarsChanged) {
-        if (overflowVisible) {
-          _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, false);
-        }
-
-        var _undoViewportArrange = undoViewportArrange(showNativeOverlaidScrollbars, _directionIsRTL, preMeasureViewportOverflowState),
-            redoViewportArrange = _undoViewportArrange[0],
-            undoViewportArrangeOverflowState = _undoViewportArrange[1];
-
-        var _sizeFractionCache = sizeFractionCache = updateSizeFraction(force),
-            _sizeFraction = _sizeFractionCache[0],
-            _sizeFractionChanged = _sizeFractionCache[1];
-
-        var _viewportScrollSizeCa = viewportScrollSizeCache = updateViewportScrollSizeCache(force),
-            _viewportScrollSize = _viewportScrollSizeCa[0],
-            _viewportScrollSizeChanged = _viewportScrollSizeCa[1];
-
-        var viewportclientSize = clientSize(_viewport);
-        var arrangedViewportScrollSize = _viewportScrollSize;
-        var arrangedViewportClientSize = viewportclientSize;
-        redoViewportArrange();
-
-        if ((_viewportScrollSizeChanged || _sizeFractionChanged || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, _viewportScrollSize, _sizeFraction, _directionIsRTL)) {
-          arrangedViewportClientSize = clientSize(_viewport);
-          arrangedViewportScrollSize = scrollSize(_viewport);
-        }
-
-        overflowAmuntCache = updateOverflowAmountCache(getOverflowAmount({
-          w: max(_viewportScrollSize.w, arrangedViewportScrollSize.w),
-          h: max(_viewportScrollSize.h, arrangedViewportScrollSize.h)
-        }, {
-          w: arrangedViewportClientSize.w + max(0, viewportclientSize.w - _viewportScrollSize.w),
-          h: arrangedViewportClientSize.h + max(0, viewportclientSize.h - _viewportScrollSize.h)
-        }, _sizeFraction), force);
-      }
-
-      var _overflowAmuntCache = overflowAmuntCache,
-          overflowAmount = _overflowAmuntCache[0],
-          overflowAmountChanged = _overflowAmuntCache[1];
-      var _viewportScrollSizeCa2 = viewportScrollSizeCache,
-          viewportScrollSize = _viewportScrollSizeCa2[0],
-          viewportScrollSizeChanged = _viewportScrollSizeCa2[1];
-      var _sizeFractionCache2 = sizeFractionCache,
-          sizeFraction = _sizeFractionCache2[0],
-          sizeFractionChanged = _sizeFractionCache2[1];
-      var hasOverflow = {
-        x: overflowAmount.w > 0,
-        y: overflowAmount.h > 0
-      };
-      var removeClipping = overflowXVisible && overflowYVisible && (hasOverflow.x || hasOverflow.y) || overflowXVisible && hasOverflow.x && !hasOverflow.y || overflowYVisible && hasOverflow.y && !hasOverflow.x;
-
-      if (_paddingStyleChanged || _directionChanged || sizeFractionChanged || viewportScrollSizeChanged || overflowAmountChanged || overflowChanged || showNativeOverlaidScrollbarsChanged || adjustFlexboxGlue) {
-        var viewportStyle = {
-          marginRight: 0,
-          marginBottom: 0,
-          marginLeft: 0,
-          width: '',
-          overflowY: '',
-          overflowX: ''
-        };
-        var viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, hasOverflow, overflow, viewportStyle);
-        var viewportArranged = arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction, _directionIsRTL);
-
-        if (!_viewportIsTarget) {
-          hideNativeScrollbars(viewportOverflowState, _directionIsRTL, viewportArranged, viewportStyle);
-        }
-
-        if (adjustFlexboxGlue) {
-          fixFlexboxGlue(viewportOverflowState, _heightIntrinsic);
-        }
-
-        if (_viewportIsTarget) {
-          attr(_host, dataAttributeHostOverflowX, viewportStyle.overflowX);
-          attr(_host, dataAttributeHostOverflowY, viewportStyle.overflowY);
-        } else {
-          style(_viewport, viewportStyle);
-        }
-      }
-
-      attrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
-      conditionalClass(_padding, classNameOverflowVisible, removeClipping);
-      !_viewportIsTarget && conditionalClass(_viewport, classNameOverflowVisible, overflowVisible);
-
-      var _updateOverflowStyleC = updateOverflowStyleCache(getViewportOverflowState(showNativeOverlaidScrollbars)._overflowStyle),
-          overflowStyle = _updateOverflowStyleC[0],
-          overflowStyleChanged = _updateOverflowStyleC[1];
-
-      setState({
-        _overflowStyle: overflowStyle,
-        _overflowAmount: {
-          x: overflowAmount.w,
-          y: overflowAmount.h
         },
-        _hasOverflow: hasOverflow
-      });
-      return {
-        _overflowStyleChanged: overflowStyleChanged,
-        _overflowAmountChanged: overflowAmountChanged
-      };
-    };
-  };
-
-  var prepareUpdateHints = function prepareUpdateHints(leading, adaptive, force) {
-    var result = {};
-    var finalAdaptive = adaptive || {};
-    var objKeys = keys(leading).concat(keys(finalAdaptive));
-    each(objKeys, function (key) {
-      var leadingValue = leading[key];
-      var adaptiveValue = finalAdaptive[key];
-      result[key] = !!(force || leadingValue || adaptiveValue);
-    });
-    return result;
-  };
-
-  var createStructureSetupUpdate = function createStructureSetupUpdate(structureSetupElements, state) {
-    var _viewport = structureSetupElements._viewport;
-
-    var _getEnvironment = getEnvironment(),
-        _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
-        _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid,
-        _flexboxGlue = _getEnvironment._flexboxGlue;
-
-    var doViewportArrange = !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
-    var updateSegments = [createTrinsicUpdate(structureSetupElements, state), createPaddingUpdate(structureSetupElements, state), createOverflowUpdate(structureSetupElements, state)];
-    return function (checkOption, updateHints, force) {
-      var initialUpdateHints = prepareUpdateHints(assignDeep({
-        _sizeChanged: false,
-        _paddingStyleChanged: false,
-        _directionChanged: false,
-        _heightIntrinsicChanged: false,
-        _overflowAmountChanged: false,
-        _overflowStyleChanged: false,
-        _hostMutation: false,
-        _contentMutation: false
-      }, updateHints), {}, force);
-      var adjustScrollOffset = doViewportArrange || !_flexboxGlue;
-      var scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
-      var scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
-      var adaptivedUpdateHints = initialUpdateHints;
-      each(updateSegments, function (updateSegment) {
-        adaptivedUpdateHints = prepareUpdateHints(adaptivedUpdateHints, updateSegment(adaptivedUpdateHints, checkOption, !!force) || {}, force);
-      });
-
-      if (isNumber(scrollOffsetX)) {
-        scrollLeft(_viewport, scrollOffsetX);
-      }
-
-      if (isNumber(scrollOffsetY)) {
-        scrollTop(_viewport, scrollOffsetY);
-      }
-
-      return adaptivedUpdateHints;
-    };
-  };
-
-  var animationStartEventName = 'animationstart';
-  var scrollEventName = 'scroll';
-  var scrollAmount = 3333333;
-
-  var getElmDirectionIsRTL = function getElmDirectionIsRTL(elm) {
-    return style(elm, 'direction') === 'rtl';
-  };
-
-  var domRectHasDimensions = function domRectHasDimensions(rect) {
-    return rect && (rect.height || rect.width);
-  };
-
-  var createSizeObserver = function createSizeObserver(target, onSizeChangedCallback, options) {
-    var _ref = options || {},
-        _ref$_direction = _ref._direction,
-        observeDirectionChange = _ref$_direction === void 0 ? false : _ref$_direction,
-        _ref$_appear = _ref._appear,
-        observeAppearChange = _ref$_appear === void 0 ? false : _ref$_appear;
-
-    var _getEnvironment = getEnvironment(),
-        rtlScrollBehavior = _getEnvironment._rtlScrollBehavior;
-
-    var baseElements = createDOM("<div class=\"" + classNameSizeObserver + "\"><div class=\"" + classNameSizeObserverListener + "\"></div></div>");
-    var sizeObserver = baseElements[0];
-    var listenerElement = sizeObserver.firstChild;
-    var getIsDirectionRTL = getElmDirectionIsRTL.bind(0, sizeObserver);
-
-    var _createCache = createCache({
-      _initialValue: undefined,
-      _alwaysUpdateValues: true,
-      _equal: function _equal(currVal, newVal) {
-        return !(!currVal || !domRectHasDimensions(currVal) && domRectHasDimensions(newVal));
-      }
-    }),
-        updateResizeObserverContentRectCache = _createCache[0];
-
-    var onSizeChangedCallbackProxy = function onSizeChangedCallbackProxy(sizeChangedContext) {
-      var isResizeObserverCall = isArray(sizeChangedContext) && sizeChangedContext.length > 0 && isObject(sizeChangedContext[0]);
-      var hasDirectionCache = !isResizeObserverCall && isBoolean(sizeChangedContext[0]);
-      var skip = false;
-      var appear = false;
-      var doDirectionScroll = true;
-
-      if (isResizeObserverCall) {
-        var _updateResizeObserver = updateResizeObserverContentRectCache(sizeChangedContext.pop().contentRect),
-            currRContentRect = _updateResizeObserver[0],
-            prevContentRect = _updateResizeObserver[2];
-
-        var hasDimensions = domRectHasDimensions(currRContentRect);
-        var hadDimensions = domRectHasDimensions(prevContentRect);
-        skip = !prevContentRect || !hasDimensions;
-        appear = !hadDimensions && hasDimensions;
-        doDirectionScroll = !skip;
-      } else if (hasDirectionCache) {
-        doDirectionScroll = sizeChangedContext[1];
-      } else {
-        appear = sizeChangedContext === true;
-      }
-
-      if (observeDirectionChange && doDirectionScroll) {
-        var rtl = hasDirectionCache ? sizeChangedContext[0] : getElmDirectionIsRTL(sizeObserver);
-        scrollLeft(sizeObserver, rtl ? rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount : scrollAmount);
-        scrollTop(sizeObserver, scrollAmount);
-      }
-
-      if (!skip) {
-        onSizeChangedCallback({
-          _sizeChanged: !hasDirectionCache,
-          _directionIsRTLCache: hasDirectionCache ? sizeChangedContext : undefined,
-          _appear: !!appear
-        });
-      }
-    };
-
-    var offListeners = [];
-    var appearCallback = observeAppearChange ? onSizeChangedCallbackProxy : false;
-    var directionIsRTLCache;
-
-    if (ResizeObserverConstructor) {
-      var resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
-      resizeObserverInstance.observe(listenerElement);
-      push(offListeners, function () {
-        resizeObserverInstance.disconnect();
-      });
-    } else {
-      var observerElementChildren = createDOM("<div class=\"" + classNameSizeObserverListenerItem + "\" dir=\"ltr\"><div class=\"" + classNameSizeObserverListenerItem + "\"><div class=\"" + classNameSizeObserverListenerItemFinal + "\"></div></div><div class=\"" + classNameSizeObserverListenerItem + "\"><div class=\"" + classNameSizeObserverListenerItemFinal + "\" style=\"width: 200%; height: 200%\"></div></div></div>");
-      appendChildren(listenerElement, observerElementChildren);
-      addClass(listenerElement, classNameSizeObserverListenerScroll);
-      var observerElementChildrenRoot = observerElementChildren[0];
-      var shrinkElement = observerElementChildrenRoot.lastChild;
-      var expandElement = observerElementChildrenRoot.firstChild;
-      var expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
-      var cacheSize = offsetSize(observerElementChildrenRoot);
-      var currSize = cacheSize;
-      var isDirty = false;
-      var rAFId;
-
-      var reset = function reset() {
-        scrollLeft(expandElement, scrollAmount);
-        scrollTop(expandElement, scrollAmount);
-        scrollLeft(shrinkElement, scrollAmount);
-        scrollTop(shrinkElement, scrollAmount);
-      };
-
-      var onResized = function onResized(appear) {
-        rAFId = 0;
-
-        if (isDirty) {
-          cacheSize = currSize;
-          onSizeChangedCallbackProxy(appear === true);
-        }
-      };
-
-      var onScroll = function onScroll(scrollEvent) {
-        currSize = offsetSize(observerElementChildrenRoot);
-        isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
-
-        if (scrollEvent) {
-          stopAndPrevent(scrollEvent);
-
-          if (isDirty && !rAFId) {
-            cAF(rAFId);
-            rAFId = rAF(onResized);
-          }
-        } else {
-          onResized(scrollEvent === false);
-        }
-
-        reset();
-      };
-
-      push(offListeners, [on(expandElement, scrollEventName, onScroll), on(shrinkElement, scrollEventName, onScroll)]);
-      style(expandElementChild, {
-        width: scrollAmount,
-        height: scrollAmount
-      });
-      reset();
-      appearCallback = observeAppearChange ? onScroll.bind(0, false) : reset;
+        finalViewportOverflowState
+      ];
     }
-
-    if (observeDirectionChange) {
-      directionIsRTLCache = createCache({
-        _initialValue: !getIsDirectionRTL()
-      }, getIsDirectionRTL);
-      var _directionIsRTLCache = directionIsRTLCache,
-          updateDirectionIsRTLCache = _directionIsRTLCache[0];
-      push(offListeners, on(sizeObserver, scrollEventName, function (event) {
-        var directionIsRTLCacheValues = updateDirectionIsRTLCache();
-        var directionIsRTL = directionIsRTLCacheValues[0],
-            directionIsRTLChanged = directionIsRTLCacheValues[1];
-
-        if (directionIsRTLChanged) {
-          removeClass(listenerElement, 'ltr rtl');
-
-          if (directionIsRTL) {
-            addClass(listenerElement, 'rtl');
-          } else {
-            addClass(listenerElement, 'ltr');
-          }
-
-          onSizeChangedCallbackProxy(directionIsRTLCacheValues);
-        }
-
-        stopAndPrevent(event);
-      }));
-    }
-
-    if (appearCallback) {
-      addClass(sizeObserver, classNameSizeObserverAppear);
-      push(offListeners, on(sizeObserver, animationStartEventName, appearCallback, {
-        _once: !!ResizeObserverConstructor
-      }));
-    }
-
-    prependChildren(target, sizeObserver);
-    return function () {
-      runEach(offListeners);
-      removeElements(sizeObserver);
-    };
+    return [noop];
   };
-
-  var isHeightIntrinsic = function isHeightIntrinsic(ioEntryOrSize) {
-    return ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
-  };
-
-  var createTrinsicObserver = function createTrinsicObserver(target, onTrinsicChangedCallback) {
-    var trinsicObserver = createDiv(classNameTrinsicObserver);
-    var offListeners = [];
-
-    var _createCache = createCache({
-      _initialValue: false
-    }),
-        updateHeightIntrinsicCache = _createCache[0];
-
-    var triggerOnTrinsicChangedCallback = function triggerOnTrinsicChangedCallback(updateValue) {
-      if (updateValue) {
-        var heightIntrinsic = updateHeightIntrinsicCache(isHeightIntrinsic(updateValue));
-        var heightIntrinsicChanged = heightIntrinsic[1];
-
-        if (heightIntrinsicChanged) {
-          onTrinsicChangedCallback(heightIntrinsic);
-        }
+  return (updateHints, checkOption, force) => {
+    const {
+      _sizeChanged,
+      _hostMutation,
+      _contentMutation,
+      _paddingStyleChanged,
+      _heightIntrinsicChanged,
+      _directionChanged
+    } = updateHints;
+    const { _heightIntrinsic, _directionIsRTL } = getState();
+    const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = checkOption("nativeScrollbarsOverlaid.show");
+    const [overflow, overflowChanged] = checkOption("overflow");
+    const showNativeOverlaidScrollbars = showNativeOverlaidScrollbarsOption && _nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y;
+    const adjustFlexboxGlue = !_viewportIsTarget && !_flexboxGlue && (_sizeChanged || _contentMutation || _hostMutation || showNativeOverlaidScrollbarsChanged || _heightIntrinsicChanged);
+    const overflowXVisible = overflowIsVisible(overflow.x);
+    const overflowYVisible = overflowIsVisible(overflow.y);
+    const overflowVisible = overflowXVisible || overflowYVisible;
+    let sizeFractionCache = getCurrentSizeFraction(force);
+    let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
+    let overflowAmuntCache = getCurrentOverflowAmountCache(force);
+    let preMeasureViewportOverflowState;
+    if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarStyling) {
+      _viewportAddRemoveClass(classNameViewportScrollbarStyling, dataValueHostViewportScrollbarStyling, !showNativeOverlaidScrollbars);
+    }
+    if (adjustFlexboxGlue) {
+      preMeasureViewportOverflowState = getViewportOverflowState(showNativeOverlaidScrollbars);
+      fixFlexboxGlue(preMeasureViewportOverflowState, _heightIntrinsic);
+    }
+    if (_sizeChanged || _paddingStyleChanged || _contentMutation || _directionChanged || showNativeOverlaidScrollbarsChanged) {
+      if (overflowVisible) {
+        _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, false);
       }
-    };
-
-    if (IntersectionObserverConstructor) {
-      var intersectionObserverInstance = new IntersectionObserverConstructor(function (entries) {
-        if (entries && entries.length > 0) {
-          triggerOnTrinsicChangedCallback(entries.pop());
-        }
+      const [redoViewportArrange, undoViewportArrangeOverflowState] = undoViewportArrange(showNativeOverlaidScrollbars, _directionIsRTL, preMeasureViewportOverflowState);
+      const [sizeFraction2, sizeFractionChanged2] = sizeFractionCache = updateSizeFraction(force);
+      const [viewportScrollSize2, viewportScrollSizeChanged2] = viewportScrollSizeCache = updateViewportScrollSizeCache(force);
+      const viewportclientSize = clientSize(_viewport);
+      let arrangedViewportScrollSize = viewportScrollSize2;
+      let arrangedViewportClientSize = viewportclientSize;
+      redoViewportArrange();
+      if ((viewportScrollSizeChanged2 || sizeFractionChanged2 || showNativeOverlaidScrollbarsChanged) && undoViewportArrangeOverflowState && !showNativeOverlaidScrollbars && arrangeViewport(undoViewportArrangeOverflowState, viewportScrollSize2, sizeFraction2, _directionIsRTL)) {
+        arrangedViewportClientSize = clientSize(_viewport);
+        arrangedViewportScrollSize = scrollSize(_viewport);
+      }
+      overflowAmuntCache = updateOverflowAmountCache(getOverflowAmount({
+        w: max(viewportScrollSize2.w, arrangedViewportScrollSize.w),
+        h: max(viewportScrollSize2.h, arrangedViewportScrollSize.h)
       }, {
-        root: target
-      });
-      intersectionObserverInstance.observe(trinsicObserver);
-      push(offListeners, function () {
-        intersectionObserverInstance.disconnect();
-      });
-    } else {
-      var onSizeChanged = function onSizeChanged() {
-        var newSize = offsetSize(trinsicObserver);
-        triggerOnTrinsicChangedCallback(newSize);
+        w: arrangedViewportClientSize.w + max(0, viewportclientSize.w - viewportScrollSize2.w),
+        h: arrangedViewportClientSize.h + max(0, viewportclientSize.h - viewportScrollSize2.h)
+      }, sizeFraction2), force);
+    }
+    const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
+    const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
+    const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
+    const hasOverflow = {
+      x: overflowAmount.w > 0,
+      y: overflowAmount.h > 0
+    };
+    const removeClipping = overflowXVisible && overflowYVisible && (hasOverflow.x || hasOverflow.y) || overflowXVisible && hasOverflow.x && !hasOverflow.y || overflowYVisible && hasOverflow.y && !hasOverflow.x;
+    if (_paddingStyleChanged || _directionChanged || sizeFractionChanged || viewportScrollSizeChanged || overflowAmountChanged || overflowChanged || showNativeOverlaidScrollbarsChanged || adjustFlexboxGlue) {
+      const viewportStyle = {
+        marginRight: 0,
+        marginBottom: 0,
+        marginLeft: 0,
+        width: "",
+        overflowY: "",
+        overflowX: ""
       };
-
-      push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged));
-      onSizeChanged();
+      const viewportOverflowState = setViewportOverflowState(showNativeOverlaidScrollbars, hasOverflow, overflow, viewportStyle);
+      const viewportArranged = arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction, _directionIsRTL);
+      if (!_viewportIsTarget) {
+        hideNativeScrollbars(viewportOverflowState, _directionIsRTL, viewportArranged, viewportStyle);
+      }
+      if (adjustFlexboxGlue) {
+        fixFlexboxGlue(viewportOverflowState, _heightIntrinsic);
+      }
+      if (_viewportIsTarget) {
+        attr(_host, dataAttributeHostOverflowX, viewportStyle.overflowX);
+        attr(_host, dataAttributeHostOverflowY, viewportStyle.overflowY);
+      } else {
+        style(_viewport, viewportStyle);
+      }
     }
-
-    prependChildren(target, trinsicObserver);
-    return function () {
-      runEach(offListeners);
-      removeElements(trinsicObserver);
-    };
-  };
-
-  var createEventContentChange = function createEventContentChange(target, callback, eventContentChange) {
-    var map;
-    var destroyed = false;
-
-    var destroy = function destroy() {
-      destroyed = true;
-    };
-
-    var updateElements = function updateElements(getElements) {
-      if (eventContentChange) {
-        var eventElmList = eventContentChange.reduce(function (arr, item) {
-          if (item) {
-            var selector = item[0];
-            var eventNames = item[1];
-            var elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
-
-            if (elements && elements.length && eventNames && isString(eventNames)) {
-              push(arr, [elements, eventNames.trim()], true);
-            }
-          }
-
-          return arr;
-        }, []);
-        each(eventElmList, function (item) {
-          return each(item[0], function (elm) {
-            var eventNames = item[1];
-            var entry = map.get(elm);
-
-            if (entry) {
-              var entryEventNames = entry[0];
-              var entryOff = entry[1];
-
-              if (entryEventNames === eventNames) {
-                entryOff();
-              }
-            }
-
-            var off = on(elm, eventNames, function (event) {
-              if (destroyed) {
-                off();
-                map.delete(elm);
-              } else {
-                callback(event);
-              }
-            });
-            map.set(elm, [eventNames, off]);
-          });
-        });
-      }
-    };
-
-    if (eventContentChange) {
-      map = new WeakMap();
-      updateElements();
-    }
-
-    return [destroy, updateElements];
-  };
-
-  var createDOMObserver = function createDOMObserver(target, isContentObserver, callback, options) {
-    var isConnected = false;
-
-    var _ref = options || {},
-        _attributes = _ref._attributes,
-        _styleChangingAttributes = _ref._styleChangingAttributes,
-        _eventContentChange = _ref._eventContentChange,
-        _nestedTargetSelector = _ref._nestedTargetSelector,
-        _ignoreTargetChange = _ref._ignoreTargetChange,
-        _ignoreContentChange = _ref._ignoreContentChange;
-
-    var _createEventContentCh = createEventContentChange(target, debounce(function () {
-      if (isConnected) {
-        callback(true);
-      }
-    }, {
-      _timeout: 33,
-      _maxDelay: 99
-    }), _eventContentChange),
-        destroyEventContentChange = _createEventContentCh[0],
-        updateEventContentChangeElements = _createEventContentCh[1];
-
-    var finalAttributes = _attributes || [];
-    var finalStyleChangingAttributes = _styleChangingAttributes || [];
-    var observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
-
-    var observerCallback = function observerCallback(mutations) {
-      var ignoreTargetChange = _ignoreTargetChange || noop;
-      var ignoreContentChange = _ignoreContentChange || noop;
-      var targetChangedAttrs = [];
-      var totalAddedNodes = [];
-      var targetStyleChanged = false;
-      var contentChanged = false;
-      var childListChanged = false;
-      each(mutations, function (mutation) {
-        var attributeName = mutation.attributeName,
-            mutationTarget = mutation.target,
-            type = mutation.type,
-            oldValue = mutation.oldValue,
-            addedNodes = mutation.addedNodes;
-        var isAttributesType = type === 'attributes';
-        var isChildListType = type === 'childList';
-        var targetIsMutationTarget = target === mutationTarget;
-        var attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
-        var attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
-        var styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
-
-        if (isContentObserver && !targetIsMutationTarget) {
-          var notOnlyAttrChanged = !isAttributesType;
-          var contentAttrChanged = isAttributesType && styleChangingAttrChanged;
-          var isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
-          var baseAssertion = isNestedTarget ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue) : notOnlyAttrChanged || contentAttrChanged;
-          var contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
-          push(totalAddedNodes, addedNodes);
-          contentChanged = contentChanged || contentFinalChanged;
-          childListChanged = childListChanged || isChildListType;
-        }
-
-        if (!isContentObserver && targetIsMutationTarget && attributeChanged && !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)) {
-          push(targetChangedAttrs, attributeName);
-          targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
-        }
-      });
-
-      if (childListChanged && !isEmptyArray(totalAddedNodes)) {
-        updateEventContentChangeElements(function (selector) {
-          return totalAddedNodes.reduce(function (arr, node) {
-            push(arr, find(selector, node));
-            return is(node, selector) ? push(arr, node) : arr;
-          }, []);
-        });
-      }
-
-      if (isContentObserver) {
-        contentChanged && callback(false);
-      } else if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
-        callback(targetChangedAttrs, targetStyleChanged);
-      }
-    };
-
-    var mutationObserver = new MutationObserverConstructor(observerCallback);
-    mutationObserver.observe(target, {
-      attributes: true,
-      attributeOldValue: true,
-      attributeFilter: observedAttributes,
-      subtree: isContentObserver,
-      childList: isContentObserver,
-      characterData: isContentObserver
+    attrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
+    conditionalClass(_padding, classNameOverflowVisible, removeClipping);
+    !_viewportIsTarget && conditionalClass(_viewport, classNameOverflowVisible, overflowVisible);
+    const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(getViewportOverflowState(showNativeOverlaidScrollbars)._overflowStyle);
+    setState({
+      _overflowStyle: overflowStyle,
+      _overflowAmount: {
+        x: overflowAmount.w,
+        y: overflowAmount.h
+      },
+      _hasOverflow: hasOverflow
     });
-    isConnected = true;
-    return [function () {
+    return {
+      _overflowStyleChanged: overflowStyleChanged,
+      _overflowAmountChanged: overflowAmountChanged
+    };
+  };
+};
+
+const prepareUpdateHints = (leading, adaptive, force) => {
+  const result = {};
+  const finalAdaptive = adaptive || {};
+  const objKeys = keys(leading).concat(keys(finalAdaptive));
+  each(objKeys, (key) => {
+    const leadingValue = leading[key];
+    const adaptiveValue = finalAdaptive[key];
+    result[key] = !!(force || leadingValue || adaptiveValue);
+  });
+  return result;
+};
+const createStructureSetupUpdate = (structureSetupElements, state) => {
+  const { _viewport } = structureSetupElements;
+  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _flexboxGlue } = getEnvironment();
+  const doViewportArrange = !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
+  const updateSegments = [
+    createTrinsicUpdate(structureSetupElements, state),
+    createPaddingUpdate(structureSetupElements, state),
+    createOverflowUpdate(structureSetupElements, state)
+  ];
+  return (checkOption, updateHints, force) => {
+    const initialUpdateHints = prepareUpdateHints(assignDeep({
+      _sizeChanged: false,
+      _paddingStyleChanged: false,
+      _directionChanged: false,
+      _heightIntrinsicChanged: false,
+      _overflowAmountChanged: false,
+      _overflowStyleChanged: false,
+      _hostMutation: false,
+      _contentMutation: false
+    }, updateHints), {}, force);
+    const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
+    const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
+    const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
+    let adaptivedUpdateHints = initialUpdateHints;
+    each(updateSegments, (updateSegment) => {
+      adaptivedUpdateHints = prepareUpdateHints(adaptivedUpdateHints, updateSegment(adaptivedUpdateHints, checkOption, !!force) || {}, force);
+    });
+    if (isNumber(scrollOffsetX)) {
+      scrollLeft(_viewport, scrollOffsetX);
+    }
+    if (isNumber(scrollOffsetY)) {
+      scrollTop(_viewport, scrollOffsetY);
+    }
+    return adaptivedUpdateHints;
+  };
+};
+
+const animationStartEventName = "animationstart";
+const scrollEventName = "scroll";
+const scrollAmount = 3333333;
+const getElmDirectionIsRTL = (elm) => style(elm, "direction") === "rtl";
+const domRectHasDimensions = (rect) => rect && (rect.height || rect.width);
+const createSizeObserver = (target, onSizeChangedCallback, options) => {
+  const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } = options || {};
+  const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
+  const baseElements = createDOM(`<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`);
+  const sizeObserver = baseElements[0];
+  const listenerElement = sizeObserver.firstChild;
+  const getIsDirectionRTL = getElmDirectionIsRTL.bind(0, sizeObserver);
+  const [updateResizeObserverContentRectCache] = createCache({
+    _initialValue: void 0,
+    _alwaysUpdateValues: true,
+    _equal: (currVal, newVal) => !(!currVal || !domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
+  });
+  const onSizeChangedCallbackProxy = (sizeChangedContext) => {
+    const isResizeObserverCall = isArray(sizeChangedContext) && sizeChangedContext.length > 0 && isObject(sizeChangedContext[0]);
+    const hasDirectionCache = !isResizeObserverCall && isBoolean(sizeChangedContext[0]);
+    let skip = false;
+    let appear = false;
+    let doDirectionScroll = true;
+    if (isResizeObserverCall) {
+      const [currRContentRect, , prevContentRect] = updateResizeObserverContentRectCache(sizeChangedContext.pop().contentRect);
+      const hasDimensions = domRectHasDimensions(currRContentRect);
+      const hadDimensions = domRectHasDimensions(prevContentRect);
+      skip = !prevContentRect || !hasDimensions;
+      appear = !hadDimensions && hasDimensions;
+      doDirectionScroll = !skip;
+    } else if (hasDirectionCache) {
+      [, doDirectionScroll] = sizeChangedContext;
+    } else {
+      appear = sizeChangedContext === true;
+    }
+    if (observeDirectionChange && doDirectionScroll) {
+      const rtl = hasDirectionCache ? sizeChangedContext[0] : getElmDirectionIsRTL(sizeObserver);
+      scrollLeft(sizeObserver, rtl ? rtlScrollBehavior.n ? -scrollAmount : rtlScrollBehavior.i ? 0 : scrollAmount : scrollAmount);
+      scrollTop(sizeObserver, scrollAmount);
+    }
+    if (!skip) {
+      onSizeChangedCallback({
+        _sizeChanged: !hasDirectionCache,
+        _directionIsRTLCache: hasDirectionCache ? sizeChangedContext : void 0,
+        _appear: !!appear
+      });
+    }
+  };
+  const offListeners = [];
+  let appearCallback = observeAppearChange ? onSizeChangedCallbackProxy : false;
+  let directionIsRTLCache;
+  if (ResizeObserverConstructor) {
+    const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
+    resizeObserverInstance.observe(listenerElement);
+    push(offListeners, () => {
+      resizeObserverInstance.disconnect();
+    });
+  } else {
+    const observerElementChildren = createDOM(`<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`);
+    appendChildren(listenerElement, observerElementChildren);
+    addClass(listenerElement, classNameSizeObserverListenerScroll);
+    const observerElementChildrenRoot = observerElementChildren[0];
+    const shrinkElement = observerElementChildrenRoot.lastChild;
+    const expandElement = observerElementChildrenRoot.firstChild;
+    const expandElementChild = expandElement == null ? void 0 : expandElement.firstChild;
+    let cacheSize = offsetSize(observerElementChildrenRoot);
+    let currSize = cacheSize;
+    let isDirty = false;
+    let rAFId;
+    const reset = () => {
+      scrollLeft(expandElement, scrollAmount);
+      scrollTop(expandElement, scrollAmount);
+      scrollLeft(shrinkElement, scrollAmount);
+      scrollTop(shrinkElement, scrollAmount);
+    };
+    const onResized = (appear) => {
+      rAFId = 0;
+      if (isDirty) {
+        cacheSize = currSize;
+        onSizeChangedCallbackProxy(appear === true);
+      }
+    };
+    const onScroll = (scrollEvent) => {
+      currSize = offsetSize(observerElementChildrenRoot);
+      isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
+      if (scrollEvent) {
+        stopAndPrevent(scrollEvent);
+        if (isDirty && !rAFId) {
+          cAF(rAFId);
+          rAFId = rAF(onResized);
+        }
+      } else {
+        onResized(scrollEvent === false);
+      }
+      reset();
+    };
+    push(offListeners, [
+      on(expandElement, scrollEventName, onScroll),
+      on(shrinkElement, scrollEventName, onScroll)
+    ]);
+    style(expandElementChild, {
+      width: scrollAmount,
+      height: scrollAmount
+    });
+    reset();
+    appearCallback = observeAppearChange ? onScroll.bind(0, false) : reset;
+  }
+  if (observeDirectionChange) {
+    directionIsRTLCache = createCache({
+      _initialValue: !getIsDirectionRTL()
+    }, getIsDirectionRTL);
+    const [updateDirectionIsRTLCache] = directionIsRTLCache;
+    push(offListeners, on(sizeObserver, scrollEventName, (event) => {
+      const directionIsRTLCacheValues = updateDirectionIsRTLCache();
+      const [directionIsRTL, directionIsRTLChanged] = directionIsRTLCacheValues;
+      if (directionIsRTLChanged) {
+        removeClass(listenerElement, "ltr rtl");
+        if (directionIsRTL) {
+          addClass(listenerElement, "rtl");
+        } else {
+          addClass(listenerElement, "ltr");
+        }
+        onSizeChangedCallbackProxy(directionIsRTLCacheValues);
+      }
+      stopAndPrevent(event);
+    }));
+  }
+  if (appearCallback) {
+    addClass(sizeObserver, classNameSizeObserverAppear);
+    push(offListeners, on(sizeObserver, animationStartEventName, appearCallback, {
+      _once: !!ResizeObserverConstructor
+    }));
+  }
+  prependChildren(target, sizeObserver);
+  return () => {
+    runEach(offListeners);
+    removeElements(sizeObserver);
+  };
+};
+
+const isHeightIntrinsic = (ioEntryOrSize) => ioEntryOrSize.h === 0 || ioEntryOrSize.isIntersecting || ioEntryOrSize.intersectionRatio > 0;
+const createTrinsicObserver = (target, onTrinsicChangedCallback) => {
+  const trinsicObserver = createDiv(classNameTrinsicObserver);
+  const offListeners = [];
+  const [updateHeightIntrinsicCache] = createCache({
+    _initialValue: false
+  });
+  const triggerOnTrinsicChangedCallback = (updateValue) => {
+    if (updateValue) {
+      const heightIntrinsic = updateHeightIntrinsicCache(isHeightIntrinsic(updateValue));
+      const [, heightIntrinsicChanged] = heightIntrinsic;
+      if (heightIntrinsicChanged) {
+        onTrinsicChangedCallback(heightIntrinsic);
+      }
+    }
+  };
+  if (IntersectionObserverConstructor) {
+    const intersectionObserverInstance = new IntersectionObserverConstructor((entries) => {
+      if (entries && entries.length > 0) {
+        triggerOnTrinsicChangedCallback(entries.pop());
+      }
+    }, { root: target });
+    intersectionObserverInstance.observe(trinsicObserver);
+    push(offListeners, () => {
+      intersectionObserverInstance.disconnect();
+    });
+  } else {
+    const onSizeChanged = () => {
+      const newSize = offsetSize(trinsicObserver);
+      triggerOnTrinsicChangedCallback(newSize);
+    };
+    push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged));
+    onSizeChanged();
+  }
+  prependChildren(target, trinsicObserver);
+  return () => {
+    runEach(offListeners);
+    removeElements(trinsicObserver);
+  };
+};
+
+const createEventContentChange = (target, callback, eventContentChange) => {
+  let map;
+  let destroyed = false;
+  const destroy = () => {
+    destroyed = true;
+  };
+  const updateElements = (getElements) => {
+    if (eventContentChange) {
+      const eventElmList = eventContentChange.reduce((arr, item) => {
+        if (item) {
+          const selector = item[0];
+          const eventNames = item[1];
+          const elements = eventNames && selector && (getElements ? getElements(selector) : find(selector, target));
+          if (elements && elements.length && eventNames && isString(eventNames)) {
+            push(arr, [elements, eventNames.trim()], true);
+          }
+        }
+        return arr;
+      }, []);
+      each(eventElmList, (item) => each(item[0], (elm) => {
+        const eventNames = item[1];
+        const entry = map.get(elm);
+        if (entry) {
+          const entryEventNames = entry[0];
+          const entryOff = entry[1];
+          if (entryEventNames === eventNames) {
+            entryOff();
+          }
+        }
+        const off = on(elm, eventNames, (event) => {
+          if (destroyed) {
+            off();
+            map.delete(elm);
+          } else {
+            callback(event);
+          }
+        });
+        map.set(elm, [eventNames, off]);
+      }));
+    }
+  };
+  if (eventContentChange) {
+    map = /* @__PURE__ */ new WeakMap();
+    updateElements();
+  }
+  return [destroy, updateElements];
+};
+const createDOMObserver = (target, isContentObserver, callback, options) => {
+  let isConnected = false;
+  const {
+    _attributes,
+    _styleChangingAttributes,
+    _eventContentChange,
+    _nestedTargetSelector,
+    _ignoreTargetChange,
+    _ignoreContentChange
+  } = options || {};
+  const [destroyEventContentChange, updateEventContentChangeElements] = createEventContentChange(target, debounce(() => {
+    if (isConnected) {
+      callback(true);
+    }
+  }, { _timeout: 33, _maxDelay: 99 }), _eventContentChange);
+  const finalAttributes = _attributes || [];
+  const finalStyleChangingAttributes = _styleChangingAttributes || [];
+  const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
+  const observerCallback = (mutations) => {
+    const ignoreTargetChange = _ignoreTargetChange || noop;
+    const ignoreContentChange = _ignoreContentChange || noop;
+    const targetChangedAttrs = [];
+    const totalAddedNodes = [];
+    let targetStyleChanged = false;
+    let contentChanged = false;
+    let childListChanged = false;
+    each(mutations, (mutation) => {
+      const { attributeName, target: mutationTarget, type, oldValue, addedNodes } = mutation;
+      const isAttributesType = type === "attributes";
+      const isChildListType = type === "childList";
+      const targetIsMutationTarget = target === mutationTarget;
+      const attributeValue = isAttributesType && isString(attributeName) ? attr(mutationTarget, attributeName) : 0;
+      const attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
+      const styleChangingAttrChanged = indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
+      if (isContentObserver && !targetIsMutationTarget) {
+        const notOnlyAttrChanged = !isAttributesType;
+        const contentAttrChanged = isAttributesType && styleChangingAttrChanged;
+        const isNestedTarget = contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
+        const baseAssertion = isNestedTarget ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue) : notOnlyAttrChanged || contentAttrChanged;
+        const contentFinalChanged = baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
+        push(totalAddedNodes, addedNodes);
+        contentChanged = contentChanged || contentFinalChanged;
+        childListChanged = childListChanged || isChildListType;
+      }
+      if (!isContentObserver && targetIsMutationTarget && attributeChanged && !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)) {
+        push(targetChangedAttrs, attributeName);
+        targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
+      }
+    });
+    if (childListChanged && !isEmptyArray(totalAddedNodes)) {
+      updateEventContentChangeElements((selector) => totalAddedNodes.reduce((arr, node) => {
+        push(arr, find(selector, node));
+        return is(node, selector) ? push(arr, node) : arr;
+      }, []));
+    }
+    if (isContentObserver) {
+      contentChanged && callback(false);
+    } else if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
+      callback(targetChangedAttrs, targetStyleChanged);
+    }
+  };
+  const mutationObserver = new MutationObserverConstructor(observerCallback);
+  mutationObserver.observe(target, {
+    attributes: true,
+    attributeOldValue: true,
+    attributeFilter: observedAttributes,
+    subtree: isContentObserver,
+    childList: isContentObserver,
+    characterData: isContentObserver
+  });
+  isConnected = true;
+  return [
+    () => {
       if (isConnected) {
         destroyEventContentChange();
         mutationObserver.disconnect();
         isConnected = false;
       }
-    }, function () {
+    },
+    () => {
       if (isConnected) {
         observerCallback(mutationObserver.takeRecords());
       }
-    }];
-  };
+    }
+  ];
+};
 
-  var hostSelector = "[" + dataAttributeHost + "]";
-  var viewportSelector = "." + classNameViewport;
-  var viewportAttrsFromTarget = ['tabindex'];
-  var baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
-  var baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
-  var createStructureSetupObservers = function createStructureSetupObservers(structureSetupElements, state, structureSetupUpdate) {
-    var debounceTimeout;
-    var debounceMaxDelay;
-    var contentMutationObserver;
-    var setState = state[1];
-    var _host = structureSetupElements._host,
-        _viewport = structureSetupElements._viewport,
-        _content = structureSetupElements._content,
-        _isTextarea = structureSetupElements._isTextarea,
-        _viewportIsTarget = structureSetupElements._viewportIsTarget,
-        _viewportHasClass = structureSetupElements._viewportHasClass,
-        _viewportAddRemoveClass = structureSetupElements._viewportAddRemoveClass;
-
-    var _getEnvironment = getEnvironment(),
-        _nativeScrollbarStyling = _getEnvironment._nativeScrollbarStyling,
-        _flexboxGlue = _getEnvironment._flexboxGlue;
-
-    var _createCache = createCache({
-      _equal: equalWH,
-      _initialValue: {
-        w: 0,
-        h: 0
-      }
-    }, function () {
-      var has = _viewportHasClass(classNameOverflowVisible, dataValueHostOverflowVisible);
-
-      has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible);
-      var contentScroll = scrollSize(_content);
-      var viewportScroll = scrollSize(_viewport);
-      var fractional = fractionalSize(_viewport);
-      has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, true);
-      return {
-        w: viewportScroll.w + contentScroll.w + fractional.w,
-        h: viewportScroll.h + contentScroll.h + fractional.h
-      };
-    }),
-        updateContentSizeCache = _createCache[0];
-
-    var contentMutationObserverAttr = _isTextarea ? baseStyleChangingAttrsTextarea : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
-    var structureSetupUpdateWithDebouncedAdaptiveUpdateHints = debounce(structureSetupUpdate, {
-      _timeout: function _timeout() {
-        return debounceTimeout;
-      },
-      _maxDelay: function _maxDelay() {
-        return debounceMaxDelay;
-      },
-      _mergeParams: function _mergeParams(prev, curr) {
-        var prevObj = prev[0];
-        var currObj = curr[0];
-        return [keys(prevObj).concat(keys(currObj)).reduce(function (obj, key) {
+const hostSelector = `[${dataAttributeHost}]`;
+const viewportSelector = `.${classNameViewport}`;
+const viewportAttrsFromTarget = ["tabindex"];
+const baseStyleChangingAttrsTextarea = ["wrap", "cols", "rows"];
+const baseStyleChangingAttrs = ["id", "class", "style", "open"];
+const createStructureSetupObservers = (structureSetupElements, state, structureSetupUpdate) => {
+  let debounceTimeout;
+  let debounceMaxDelay;
+  let contentMutationObserver;
+  const [, setState] = state;
+  const {
+    _host,
+    _viewport,
+    _content,
+    _isTextarea,
+    _viewportIsTarget,
+    _viewportHasClass,
+    _viewportAddRemoveClass
+  } = structureSetupElements;
+  const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+  const [updateContentSizeCache] = createCache({
+    _equal: equalWH,
+    _initialValue: { w: 0, h: 0 }
+  }, () => {
+    const has = _viewportHasClass(classNameOverflowVisible, dataValueHostOverflowVisible);
+    has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible);
+    const contentScroll = scrollSize(_content);
+    const viewportScroll = scrollSize(_viewport);
+    const fractional = fractionalSize(_viewport);
+    has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, true);
+    return {
+      w: viewportScroll.w + contentScroll.w + fractional.w,
+      h: viewportScroll.h + contentScroll.h + fractional.h
+    };
+  });
+  const contentMutationObserverAttr = _isTextarea ? baseStyleChangingAttrsTextarea : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
+  const structureSetupUpdateWithDebouncedAdaptiveUpdateHints = debounce(structureSetupUpdate, {
+    _timeout: () => debounceTimeout,
+    _maxDelay: () => debounceMaxDelay,
+    _mergeParams(prev, curr) {
+      const [prevObj] = prev;
+      const [currObj] = curr;
+      return [
+        keys(prevObj).concat(keys(currObj)).reduce((obj, key) => {
           obj[key] = prevObj[key] || currObj[key];
           return obj;
-        }, {})];
-      }
-    });
-
-    var updateViewportAttrsFromHost = function updateViewportAttrsFromHost(attributes) {
-      each(attributes || viewportAttrsFromTarget, function (attribute) {
-        if (indexOf(viewportAttrsFromTarget, attribute) > -1) {
-          var hostAttr = attr(_host, attribute);
-
-          if (isString(hostAttr)) {
-            attr(_viewport, attribute, hostAttr);
-          } else {
-            removeAttr(_viewport, attribute);
-          }
+        }, {})
+      ];
+    }
+  });
+  const updateViewportAttrsFromHost = (attributes) => {
+    each(attributes || viewportAttrsFromTarget, (attribute) => {
+      if (indexOf(viewportAttrsFromTarget, attribute) > -1) {
+        const hostAttr = attr(_host, attribute);
+        if (isString(hostAttr)) {
+          attr(_viewport, attribute, hostAttr);
+        } else {
+          removeAttr(_viewport, attribute);
         }
-      });
-    };
-
-    var onTrinsicChanged = function onTrinsicChanged(heightIntrinsicCache) {
-      var heightIntrinsic = heightIntrinsicCache[0],
-          heightIntrinsicChanged = heightIntrinsicCache[1];
-      setState({
-        _heightIntrinsic: heightIntrinsic
-      });
-      structureSetupUpdate({
-        _heightIntrinsicChanged: heightIntrinsicChanged
-      });
-    };
-
-    var onSizeChanged = function onSizeChanged(_ref) {
-      var _sizeChanged = _ref._sizeChanged,
-          _directionIsRTLCache = _ref._directionIsRTLCache,
-          _appear = _ref._appear;
-      var updateFn = !_sizeChanged || _appear ? structureSetupUpdate : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
-      var directionChanged = false;
-
-      if (_directionIsRTLCache) {
-        var directionIsRTL = _directionIsRTLCache[0],
-            directionIsRTLChanged = _directionIsRTLCache[1];
-        directionChanged = directionIsRTLChanged;
-        setState({
-          _directionIsRTL: directionIsRTL
-        });
       }
-
-      updateFn({
-        _sizeChanged: _sizeChanged,
-        _directionChanged: directionChanged
-      });
-    };
-
-    var onContentMutation = function onContentMutation(contentChangedTroughEvent) {
-      var _updateContentSizeCac = updateContentSizeCache(),
-          contentSizeChanged = _updateContentSizeCac[1];
-
-      var updateFn = contentChangedTroughEvent ? structureSetupUpdate : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
-
-      if (contentSizeChanged) {
-        updateFn({
-          _contentMutation: true
-        });
-      }
-    };
-
-    var onHostMutation = function onHostMutation(targetChangedAttrs, targetStyleChanged) {
-      if (targetStyleChanged) {
-        structureSetupUpdateWithDebouncedAdaptiveUpdateHints({
-          _hostMutation: true
-        });
-      } else if (!_viewportIsTarget) {
-        updateViewportAttrsFromHost(targetChangedAttrs);
-      }
-    };
-
-    var destroyTrinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
-    var destroySizeObserver = !_viewportIsTarget && createSizeObserver(_host, onSizeChanged, {
-      _appear: true,
-      _direction: !_nativeScrollbarStyling
     });
-
-    var _createDOMObserver = createDOMObserver(_host, false, onHostMutation, {
-      _styleChangingAttributes: baseStyleChangingAttrs,
-      _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget)
-    }),
-        destroyHostMutationObserver = _createDOMObserver[0];
-
-    var viewportIsTargetResizeObserver = _viewportIsTarget && new ResizeObserverConstructor(onSizeChanged.bind(0, {
-      _sizeChanged: true
-    }));
-    viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
-    updateViewportAttrsFromHost();
-    return [function (checkOption) {
-      var _checkOption = checkOption('updating.ignoreMutation'),
-          ignoreMutation = _checkOption[0];
-
-      var _checkOption2 = checkOption('updating.attributes'),
-          attributes = _checkOption2[0],
-          attributesChanged = _checkOption2[1];
-
-      var _checkOption3 = checkOption('updating.elementEvents'),
-          elementEvents = _checkOption3[0],
-          elementEventsChanged = _checkOption3[1];
-
-      var _checkOption4 = checkOption('updating.debounce'),
-          debounceValue = _checkOption4[0],
-          debounceChanged = _checkOption4[1];
-
-      var updateContentMutationObserver = elementEventsChanged || attributesChanged;
-
-      var ignoreMutationFromOptions = function ignoreMutationFromOptions(mutation) {
-        return isFunction(ignoreMutation) && ignoreMutation(mutation);
-      };
-
+  };
+  const onTrinsicChanged = (heightIntrinsicCache) => {
+    const [heightIntrinsic, heightIntrinsicChanged] = heightIntrinsicCache;
+    setState({ _heightIntrinsic: heightIntrinsic });
+    structureSetupUpdate({ _heightIntrinsicChanged: heightIntrinsicChanged });
+  };
+  const onSizeChanged = ({
+    _sizeChanged,
+    _directionIsRTLCache,
+    _appear
+  }) => {
+    const updateFn = !_sizeChanged || _appear ? structureSetupUpdate : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
+    let directionChanged = false;
+    if (_directionIsRTLCache) {
+      const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache;
+      directionChanged = directionIsRTLChanged;
+      setState({ _directionIsRTL: directionIsRTL });
+    }
+    updateFn({ _sizeChanged, _directionChanged: directionChanged });
+  };
+  const onContentMutation = (contentChangedTroughEvent) => {
+    const [, contentSizeChanged] = updateContentSizeCache();
+    const updateFn = contentChangedTroughEvent ? structureSetupUpdate : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
+    if (contentSizeChanged) {
+      updateFn({
+        _contentMutation: true
+      });
+    }
+  };
+  const onHostMutation = (targetChangedAttrs, targetStyleChanged) => {
+    if (targetStyleChanged) {
+      structureSetupUpdateWithDebouncedAdaptiveUpdateHints({
+        _hostMutation: true
+      });
+    } else if (!_viewportIsTarget) {
+      updateViewportAttrsFromHost(targetChangedAttrs);
+    }
+  };
+  const destroyTrinsicObserver = (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
+  const destroySizeObserver = !_viewportIsTarget && createSizeObserver(_host, onSizeChanged, {
+    _appear: true,
+    _direction: !_nativeScrollbarStyling
+  });
+  const [destroyHostMutationObserver] = createDOMObserver(_host, false, onHostMutation, {
+    _styleChangingAttributes: baseStyleChangingAttrs,
+    _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget)
+  });
+  const viewportIsTargetResizeObserver = _viewportIsTarget && new ResizeObserverConstructor(onSizeChanged.bind(0, { _sizeChanged: true }));
+  viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
+  updateViewportAttrsFromHost();
+  return [
+    (checkOption) => {
+      const [ignoreMutation] = checkOption("updating.ignoreMutation");
+      const [attributes, attributesChanged] = checkOption("updating.attributes");
+      const [elementEvents, elementEventsChanged] = checkOption("updating.elementEvents");
+      const [debounceValue, debounceChanged] = checkOption("updating.debounce");
+      const updateContentMutationObserver = elementEventsChanged || attributesChanged;
+      const ignoreMutationFromOptions = (mutation) => isFunction(ignoreMutation) && ignoreMutation(mutation);
       if (updateContentMutationObserver) {
         if (contentMutationObserver) {
           contentMutationObserver[1]();
           contentMutationObserver[0]();
         }
-
         contentMutationObserver = createDOMObserver(_content || _viewport, true, onContentMutation, {
           _styleChangingAttributes: contentMutationObserverAttr.concat(attributes || []),
           _attributes: contentMutationObserverAttr.concat(attributes || []),
           _eventContentChange: elementEvents,
           _nestedTargetSelector: hostSelector,
-          _ignoreContentChange: function _ignoreContentChange(mutation, isNestedTarget) {
-            var target = mutation.target,
-                attributeName = mutation.attributeName;
-            var ignore = !isNestedTarget && attributeName ? liesBetween(target, hostSelector, viewportSelector) : false;
+          _ignoreContentChange: (mutation, isNestedTarget) => {
+            const { target, attributeName } = mutation;
+            const ignore = !isNestedTarget && attributeName ? liesBetween(target, hostSelector, viewportSelector) : false;
             return ignore || !!ignoreMutationFromOptions(mutation);
           }
         });
       }
-
       if (debounceChanged) {
         structureSetupUpdateWithDebouncedAdaptiveUpdateHints._flush();
-
         if (isArray(debounceValue)) {
-          var timeout = debounceValue[0];
-          var maxWait = debounceValue[1];
+          const timeout = debounceValue[0];
+          const maxWait = debounceValue[1];
           debounceTimeout = isNumber(timeout) ? timeout : false;
           debounceMaxDelay = isNumber(maxWait) ? maxWait : false;
         } else if (isNumber(debounceValue)) {
@@ -2417,417 +1875,297 @@
           debounceMaxDelay = false;
         }
       }
-    }, function () {
+    },
+    () => {
       contentMutationObserver && contentMutationObserver[0]();
       destroyTrinsicObserver && destroyTrinsicObserver();
       destroySizeObserver && destroySizeObserver();
       viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
       destroyHostMutationObserver();
-    }];
+    }
+  ];
+};
+
+const initialStructureSetupUpdateState = {
+  _padding: {
+    t: 0,
+    r: 0,
+    b: 0,
+    l: 0
+  },
+  _paddingAbsolute: false,
+  _viewportPaddingStyle: {
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0
+  },
+  _overflowAmount: {
+    x: 0,
+    y: 0
+  },
+  _overflowStyle: {
+    x: "hidden",
+    y: "hidden"
+  },
+  _hasOverflow: {
+    x: false,
+    y: false
+  },
+  _heightIntrinsic: false,
+  _directionIsRTL: false
+};
+const createStructureSetup = (target, options) => {
+  const checkOptionsFallback = createOptionCheck(options, {});
+  const state = createState(initialStructureSetupUpdateState);
+  const onUpdatedListeners = /* @__PURE__ */ new Set();
+  const [getState] = state;
+  const runOnUpdatedListeners = (updateHints, changedOptions, force) => {
+    runEach(onUpdatedListeners, [updateHints, changedOptions || {}, !!force]);
   };
-
-  var initialStructureSetupUpdateState = {
-    _padding: {
-      t: 0,
-      r: 0,
-      b: 0,
-      l: 0
-    },
-    _paddingAbsolute: false,
-    _viewportPaddingStyle: {
-      marginRight: 0,
-      marginBottom: 0,
-      marginLeft: 0,
-      paddingTop: 0,
-      paddingRight: 0,
-      paddingBottom: 0,
-      paddingLeft: 0
-    },
-    _overflowAmount: {
-      x: 0,
-      y: 0
-    },
-    _overflowStyle: {
-      x: 'hidden',
-      y: 'hidden'
-    },
-    _hasOverflow: {
-      x: false,
-      y: false
-    },
-    _heightIntrinsic: false,
-    _directionIsRTL: false
+  const [elements, destroyElements] = createStructureSetupElements(target);
+  const updateStructure = createStructureSetupUpdate(elements, state);
+  const [updateObservers, destroyObservers] = createStructureSetupObservers(elements, state, (updateHints) => {
+    runOnUpdatedListeners(updateStructure(checkOptionsFallback, updateHints));
+  });
+  const structureSetupState = getState.bind(0);
+  structureSetupState._addOnUpdatedListener = (listener) => {
+    onUpdatedListeners.add(listener);
   };
-  var createStructureSetup = function createStructureSetup(target, options) {
-    var checkOptionsFallback = createOptionCheck(options, {});
-    var state = createState(initialStructureSetupUpdateState);
-    var onUpdatedListeners = new Set();
-    var getState = state[0];
-
-    var runOnUpdatedListeners = function runOnUpdatedListeners(updateHints, changedOptions, force) {
-      runEach(onUpdatedListeners, [updateHints, changedOptions || {}, !!force]);
-    };
-
-    var _createStructureSetup = createStructureSetupElements(target),
-        elements = _createStructureSetup[0],
-        destroyElements = _createStructureSetup[1];
-
-    var updateStructure = createStructureSetupUpdate(elements, state);
-
-    var _createStructureSetup2 = createStructureSetupObservers(elements, state, function (updateHints) {
-      runOnUpdatedListeners(updateStructure(checkOptionsFallback, updateHints));
-    }),
-        updateObservers = _createStructureSetup2[0],
-        destroyObservers = _createStructureSetup2[1];
-
-    var structureSetupState = getState.bind(0);
-
-    structureSetupState._addOnUpdatedListener = function (listener) {
-      onUpdatedListeners.add(listener);
-    };
-
-    structureSetupState._elements = elements;
-    return [function (changedOptions, force) {
-      var checkOption = createOptionCheck(options, changedOptions, force);
+  structureSetupState._elements = elements;
+  return [
+    (changedOptions, force) => {
+      const checkOption = createOptionCheck(options, changedOptions, force);
       updateObservers(checkOption);
       runOnUpdatedListeners(updateStructure(checkOption, {}, force));
-    }, structureSetupState, function () {
+    },
+    structureSetupState,
+    () => {
       onUpdatedListeners.clear();
       destroyObservers();
       destroyElements();
-    }];
+    }
+  ];
+};
+
+const generateScrollbarDOM = (scrollbarClassName) => {
+  const scrollbar = createDiv(`${classNameScrollbar} ${scrollbarClassName}`);
+  const track = createDiv(classNameScrollbarTrack);
+  const handle = createDiv(classNameScrollbarHandle);
+  appendChildren(scrollbar, track);
+  appendChildren(track, handle);
+  return {
+    _scrollbar: scrollbar,
+    _track: track,
+    _handle: handle
   };
-
-  var generateScrollbarDOM = function generateScrollbarDOM(scrollbarClassName) {
-    var scrollbar = createDiv(classNameScrollbar + " " + scrollbarClassName);
-    var track = createDiv(classNameScrollbarTrack);
-    var handle = createDiv(classNameScrollbarHandle);
-    appendChildren(scrollbar, track);
-    appendChildren(track, handle);
-    return {
-      _scrollbar: scrollbar,
-      _track: track,
-      _handle: handle
-    };
-  };
-
-  var createScrollbarsSetupElements = function createScrollbarsSetupElements(target, structureSetupElements) {
-    var _getEnvironment = getEnvironment(),
-        _getInitializationStrategy = _getEnvironment._getInitializationStrategy;
-
-    var _getInitializationStr = _getInitializationStrategy(),
-        environmentScrollbarSlot = _getInitializationStr._scrollbarsSlot;
-
-    var _target = structureSetupElements._target,
-        _host = structureSetupElements._host,
-        _viewport = structureSetupElements._viewport,
-        _targetIsElm = structureSetupElements._targetIsElm;
-    var initializationScrollbarSlot = !_targetIsElm && target.scrollbarsSlot;
-    var initializationScrollbarSlotResult = isFunction(initializationScrollbarSlot) ? initializationScrollbarSlot(_target, _host, _viewport) : initializationScrollbarSlot;
-    var evaluatedScrollbarSlot = initializationScrollbarSlotResult || (isFunction(environmentScrollbarSlot) ? environmentScrollbarSlot(_target, _host, _viewport) : environmentScrollbarSlot) || _host;
-    var horizontalScrollbarStructure = generateScrollbarDOM(classNameScrollbarHorizontal);
-    var verticalScrollbarStructure = generateScrollbarDOM(classNameScrollbarVertical);
-    var horizontalScrollbar = horizontalScrollbarStructure._scrollbar;
-    var verticalScrollbar = verticalScrollbarStructure._scrollbar;
-    appendChildren(evaluatedScrollbarSlot, horizontalScrollbar);
-    appendChildren(evaluatedScrollbarSlot, verticalScrollbar);
-    return [{
+};
+const createScrollbarsSetupElements = (target, structureSetupElements) => {
+  const { _getInitializationStrategy } = getEnvironment();
+  const { _scrollbarsSlot: environmentScrollbarSlot } = _getInitializationStrategy();
+  const { _target, _host, _viewport, _targetIsElm } = structureSetupElements;
+  const initializationScrollbarSlot = !_targetIsElm && target.scrollbarsSlot;
+  const initializationScrollbarSlotResult = isFunction(initializationScrollbarSlot) ? initializationScrollbarSlot(_target, _host, _viewport) : initializationScrollbarSlot;
+  const evaluatedScrollbarSlot = initializationScrollbarSlotResult || (isFunction(environmentScrollbarSlot) ? environmentScrollbarSlot(_target, _host, _viewport) : environmentScrollbarSlot) || _host;
+  const horizontalScrollbarStructure = generateScrollbarDOM(classNameScrollbarHorizontal);
+  const verticalScrollbarStructure = generateScrollbarDOM(classNameScrollbarVertical);
+  const { _scrollbar: horizontalScrollbar } = horizontalScrollbarStructure;
+  const { _scrollbar: verticalScrollbar } = verticalScrollbarStructure;
+  appendChildren(evaluatedScrollbarSlot, horizontalScrollbar);
+  appendChildren(evaluatedScrollbarSlot, verticalScrollbar);
+  return [
+    {
       _horizontalScrollbarStructure: horizontalScrollbarStructure,
       _verticalScrollbarStructure: verticalScrollbarStructure
-    }, removeElements.bind(0, [horizontalScrollbar, verticalScrollbar])];
-  };
+    },
+    removeElements.bind(0, [horizontalScrollbar, verticalScrollbar])
+  ];
+};
 
-  var createScrollbarsSetup = function createScrollbarsSetup(target, options, structureSetupElements) {
-    var state = createState({});
-    var getState = state[0];
-
-    var _createScrollbarsSetu = createScrollbarsSetupElements(target, structureSetupElements),
-        elements = _createScrollbarsSetu[0],
-        destroyElements = _createScrollbarsSetu[1];
-
-    var scrollbarsSetupState = getState.bind(0);
-    scrollbarsSetupState._elements = elements;
-    return [function (changedOptions, force) {
-      var checkOption = createOptionCheck(options, changedOptions, force);
+const createScrollbarsSetup = (target, options, structureSetupElements) => {
+  const state = createState({});
+  const [getState] = state;
+  const [elements, destroyElements] = createScrollbarsSetupElements(target, structureSetupElements);
+  const scrollbarsSetupState = getState.bind(0);
+  scrollbarsSetupState._elements = elements;
+  return [
+    (changedOptions, force) => {
+      const checkOption = createOptionCheck(options, changedOptions, force);
       console.log(checkOption);
-    }, scrollbarsSetupState, function () {
+    },
+    scrollbarsSetupState,
+    () => {
       destroyElements();
-    }];
-  };
-
-  var pluginRegistry = {};
-  var getPlugins = function getPlugins() {
-    return assignDeep({}, pluginRegistry);
-  };
-  var addPlugin = function addPlugin(addedPlugin) {
-    return each(isArray(addedPlugin) ? addedPlugin : [addedPlugin], function (plugin) {
-      pluginRegistry[plugin[0]] = plugin[1];
-    });
-  };
-
-  function getDefaultExportFromCjs (x) {
-  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-  }
-
-  var _extends = {exports: {}};
-
-  (function (module) {
-    function _extends() {
-      module.exports = _extends = Object.assign ? Object.assign.bind() : function (target) {
-        for (var i = 1; i < arguments.length; i++) {
-          var source = arguments[i];
-
-          for (var key in source) {
-            if (Object.prototype.hasOwnProperty.call(source, key)) {
-              target[key] = source[key];
-            }
-          }
-        }
-
-        return target;
-      }, module.exports.__esModule = true, module.exports["default"] = module.exports;
-      return _extends.apply(this, arguments);
     }
+  ];
+};
 
-    module.exports = _extends, module.exports.__esModule = true, module.exports["default"] = module.exports;
-  })(_extends);
+const pluginRegistry = {};
+const getPlugins = () => assignDeep({}, pluginRegistry);
+const addPlugin = (addedPlugin) => each(isArray(addedPlugin) ? addedPlugin : [addedPlugin], (plugin) => {
+  pluginRegistry[plugin[0]] = plugin[1];
+});
 
-  getDefaultExportFromCjs(_extends.exports);
+const optionsValidationPluginName = "__osOptionsValidationPlugin";
 
-  var templateTypePrefixSuffix = ['__TPL_', '_TYPE__'];
-  var optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 'function', 'null'].reduce(function (result, item) {
-    result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
-    return result;
-  }, {});
+const targets = /* @__PURE__ */ new Set();
+const targetInstanceMap = /* @__PURE__ */ new WeakMap();
+const addInstance = (target, osInstance) => {
+  targetInstanceMap.set(target, osInstance);
+  targets.add(target);
+};
+const removeInstance = (target) => {
+  targetInstanceMap.delete(target);
+  targets.delete(target);
+};
+const getInstance = (target) => targetInstanceMap.get(target);
 
-  var numberAllowedValues = optionsTemplateTypes.number;
-  var booleanAllowedValues = optionsTemplateTypes.boolean;
-  var arrayNullValues = [optionsTemplateTypes.array, optionsTemplateTypes.null];
-  var overflowAllowedValues = 'hidden scroll visible visible-hidden';
-  var scrollbarsVisibilityAllowedValues = 'visible hidden auto';
-  var scrollbarsAutoHideAllowedValues = 'never scroll leavemove';
-  ({
-    paddingAbsolute: booleanAllowedValues,
-    updating: {
-      elementEvents: arrayNullValues,
-      attributes: arrayNullValues,
-      debounce: [optionsTemplateTypes.number, optionsTemplateTypes.array, optionsTemplateTypes.null],
-      ignoreMutation: [optionsTemplateTypes.function, optionsTemplateTypes.null]
+const createOSEventListenerHub = (initialEventListeners) => createEventListenerHub(initialEventListeners);
+
+const OverlayScrollbars = (target, options, eventListeners) => {
+  const {
+    _getDefaultOptions,
+    _nativeScrollbarIsOverlaid,
+    _addListener: addEnvListener
+  } = getEnvironment();
+  const plugins = getPlugins();
+  const instanceTarget = isHTMLElement(target) ? target : target.target;
+  const potentialInstance = getInstance(instanceTarget);
+  if (potentialInstance) {
+    return potentialInstance;
+  }
+  const optionsValidationPlugin = plugins[optionsValidationPluginName];
+  const validateOptions = (newOptions) => {
+    const opts = newOptions || {};
+    const validate = optionsValidationPlugin && optionsValidationPlugin._;
+    return validate ? validate(opts, true) : opts;
+  };
+  const currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
+  const [addEvent, removeEvent, triggerEvent] = createOSEventListenerHub(eventListeners);
+  if (_nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y && !currentOptions.nativeScrollbarsOverlaid.initialize) {
+    triggerEvent("initializationWithdrawn");
+  }
+  const [updateStructure, structureState, destroyStructure] = createStructureSetup(target, currentOptions);
+  const [updateScrollbars, , destroyScrollbars] = createScrollbarsSetup(target, currentOptions, structureState._elements);
+  const update = (changedOptions, force) => {
+    updateStructure(changedOptions, force);
+    updateScrollbars(changedOptions, force);
+  };
+  const removeEnvListener = addEnvListener(update.bind(0, {}, true));
+  structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
+    const {
+      _sizeChanged,
+      _directionChanged,
+      _heightIntrinsicChanged,
+      _overflowAmountChanged,
+      _overflowStyleChanged,
+      _contentMutation,
+      _hostMutation
+    } = updateHints;
+    triggerEvent("updated", {
+      updateHints: {
+        sizeChanged: _sizeChanged,
+        directionChanged: _directionChanged,
+        heightIntrinsicChanged: _heightIntrinsicChanged,
+        overflowAmountChanged: _overflowAmountChanged,
+        overflowStyleChanged: _overflowStyleChanged,
+        contentMutation: _contentMutation,
+        hostMutation: _hostMutation
+      },
+      changedOptions,
+      force
+    });
+  });
+  const instance = {
+    options(newOptions) {
+      if (newOptions) {
+        const changedOptions = getOptionsDiff(currentOptions, validateOptions(newOptions));
+        if (!isEmptyObject(changedOptions)) {
+          assignDeep(currentOptions, changedOptions);
+          update(changedOptions);
+        }
+      }
+      return assignDeep({}, currentOptions);
     },
-    overflow: {
-      x: overflowAllowedValues,
-      y: overflowAllowedValues
+    on: addEvent,
+    off: removeEvent,
+    state() {
+      const { _overflowAmount, _overflowStyle, _hasOverflow, _padding, _paddingAbsolute } = structureState();
+      return assignDeep({}, {
+        overflowAmount: _overflowAmount,
+        overflowStyle: _overflowStyle,
+        hasOverflow: _hasOverflow,
+        padding: _padding,
+        paddingAbsolute: _paddingAbsolute
+      });
     },
-    scrollbars: {
-      visibility: scrollbarsVisibilityAllowedValues,
-      autoHide: scrollbarsAutoHideAllowedValues,
-      autoHideDelay: numberAllowedValues,
-      dragScroll: booleanAllowedValues,
-      clickScroll: booleanAllowedValues,
-      touch: booleanAllowedValues
+    elements() {
+      const { _target, _host, _padding, _viewport, _content } = structureState._elements;
+      return assignDeep({}, {
+        target: _target,
+        host: _host,
+        padding: _padding || _viewport,
+        viewport: _viewport,
+        content: _content || _viewport
+      });
     },
-    nativeScrollbarsOverlaid: {
-      show: booleanAllowedValues,
-      initialize: booleanAllowedValues
+    update(force) {
+      update({}, force);
+    },
+    destroy: () => {
+      removeInstance(instanceTarget);
+      removeEnvListener();
+      removeEvent();
+      destroyScrollbars();
+      destroyStructure();
+      triggerEvent("destroyed");
+    }
+  };
+  each(keys(plugins), (pluginName) => {
+    const pluginInstance = plugins[pluginName];
+    if (isFunction(pluginInstance)) {
+      pluginInstance(OverlayScrollbars, instance);
     }
   });
-  var optionsValidationPluginName = '__osOptionsValidationPlugin';
+  instance.update(true);
+  addInstance(instanceTarget, instance);
+  triggerEvent("initialized");
+  return instance;
+};
+OverlayScrollbars.plugin = addPlugin;
+OverlayScrollbars.env = () => {
+  const {
+    _nativeScrollbarSize,
+    _nativeScrollbarIsOverlaid,
+    _nativeScrollbarStyling,
+    _rtlScrollBehavior,
+    _flexboxGlue,
+    _cssCustomProperties,
+    _defaultInitializationStrategy,
+    _defaultDefaultOptions,
+    _getInitializationStrategy,
+    _setInitializationStrategy,
+    _getDefaultOptions,
+    _setDefaultOptions
+  } = getEnvironment();
+  return assignDeep({}, {
+    scrollbarSize: _nativeScrollbarSize,
+    scrollbarIsOverlaid: _nativeScrollbarIsOverlaid,
+    scrollbarStyling: _nativeScrollbarStyling,
+    rtlScrollBehavior: _rtlScrollBehavior,
+    flexboxGlue: _flexboxGlue,
+    cssCustomProperties: _cssCustomProperties,
+    defaultInitializationStrategy: _defaultInitializationStrategy,
+    defaultDefaultOptions: _defaultDefaultOptions,
+    getInitializationStrategy: _getInitializationStrategy,
+    setInitializationStrategy: _setInitializationStrategy,
+    getDefaultOptions: _getDefaultOptions,
+    setDefaultOptions: _setDefaultOptions
+  });
+};
 
-  var targets = new Set();
-  var targetInstanceMap = new WeakMap();
-  var addInstance = function addInstance(target, osInstance) {
-    targetInstanceMap.set(target, osInstance);
-    targets.add(target);
-  };
-  var removeInstance = function removeInstance(target) {
-    targetInstanceMap.delete(target);
-    targets.delete(target);
-  };
-  var getInstance = function getInstance(target) {
-    return targetInstanceMap.get(target);
-  };
-
-  var createOSEventListenerHub = function createOSEventListenerHub(initialEventListeners) {
-    return createEventListenerHub(initialEventListeners);
-  };
-
-  var OverlayScrollbars = function OverlayScrollbars(target, options, eventListeners) {
-    var _getEnvironment = getEnvironment(),
-        _getDefaultOptions = _getEnvironment._getDefaultOptions,
-        _nativeScrollbarIsOverlaid = _getEnvironment._nativeScrollbarIsOverlaid,
-        addEnvListener = _getEnvironment._addListener;
-
-    var plugins = getPlugins();
-    var instanceTarget = isHTMLElement(target) ? target : target.target;
-    var potentialInstance = getInstance(instanceTarget);
-
-    if (potentialInstance) {
-      return potentialInstance;
-    }
-
-    var optionsValidationPlugin = plugins[optionsValidationPluginName];
-
-    var validateOptions = function validateOptions(newOptions) {
-      var opts = newOptions || {};
-      var validate = optionsValidationPlugin && optionsValidationPlugin._;
-      return validate ? validate(opts, true) : opts;
-    };
-
-    var currentOptions = assignDeep({}, _getDefaultOptions(), validateOptions(options));
-
-    var _createOSEventListene = createOSEventListenerHub(eventListeners),
-        addEvent = _createOSEventListene[0],
-        removeEvent = _createOSEventListene[1],
-        triggerEvent = _createOSEventListene[2];
-
-    if (_nativeScrollbarIsOverlaid.x && _nativeScrollbarIsOverlaid.y && !currentOptions.nativeScrollbarsOverlaid.initialize) {
-      triggerEvent('initializationWithdrawn');
-    }
-
-    var _createStructureSetup = createStructureSetup(target, currentOptions),
-        updateStructure = _createStructureSetup[0],
-        structureState = _createStructureSetup[1],
-        destroyStructure = _createStructureSetup[2];
-
-    var _createScrollbarsSetu = createScrollbarsSetup(target, currentOptions, structureState._elements),
-        updateScrollbars = _createScrollbarsSetu[0],
-        destroyScrollbars = _createScrollbarsSetu[2];
-
-    var _update = function update(changedOptions, force) {
-      updateStructure(changedOptions, force);
-      updateScrollbars(changedOptions, force);
-    };
-
-    var removeEnvListener = addEnvListener(_update.bind(0, {}, true));
-
-    structureState._addOnUpdatedListener(function (updateHints, changedOptions, force) {
-      var _sizeChanged = updateHints._sizeChanged,
-          _directionChanged = updateHints._directionChanged,
-          _heightIntrinsicChanged = updateHints._heightIntrinsicChanged,
-          _overflowAmountChanged = updateHints._overflowAmountChanged,
-          _overflowStyleChanged = updateHints._overflowStyleChanged,
-          _contentMutation = updateHints._contentMutation,
-          _hostMutation = updateHints._hostMutation;
-      triggerEvent('updated', {
-        updateHints: {
-          sizeChanged: _sizeChanged,
-          directionChanged: _directionChanged,
-          heightIntrinsicChanged: _heightIntrinsicChanged,
-          overflowAmountChanged: _overflowAmountChanged,
-          overflowStyleChanged: _overflowStyleChanged,
-          contentMutation: _contentMutation,
-          hostMutation: _hostMutation
-        },
-        changedOptions: changedOptions,
-        force: force
-      });
-    });
-
-    var instance = {
-      options: function options(newOptions) {
-        if (newOptions) {
-          var changedOptions = getOptionsDiff(currentOptions, validateOptions(newOptions));
-
-          if (!isEmptyObject(changedOptions)) {
-            assignDeep(currentOptions, changedOptions);
-
-            _update(changedOptions);
-          }
-        }
-
-        return assignDeep({}, currentOptions);
-      },
-      on: addEvent,
-      off: removeEvent,
-      state: function state() {
-        var _structureState = structureState(),
-            _overflowAmount = _structureState._overflowAmount,
-            _overflowStyle = _structureState._overflowStyle,
-            _hasOverflow = _structureState._hasOverflow,
-            _padding = _structureState._padding,
-            _paddingAbsolute = _structureState._paddingAbsolute;
-
-        return assignDeep({}, {
-          overflowAmount: _overflowAmount,
-          overflowStyle: _overflowStyle,
-          hasOverflow: _hasOverflow,
-          padding: _padding,
-          paddingAbsolute: _paddingAbsolute
-        });
-      },
-      elements: function elements() {
-        var _structureState$_elem = structureState._elements,
-            _target = _structureState$_elem._target,
-            _host = _structureState$_elem._host,
-            _padding = _structureState$_elem._padding,
-            _viewport = _structureState$_elem._viewport,
-            _content = _structureState$_elem._content;
-        return assignDeep({}, {
-          target: _target,
-          host: _host,
-          padding: _padding || _viewport,
-          viewport: _viewport,
-          content: _content || _viewport
-        });
-      },
-      update: function update(force) {
-        _update({}, force);
-      },
-      destroy: function destroy() {
-        removeInstance(instanceTarget);
-        removeEnvListener();
-        removeEvent();
-        destroyScrollbars();
-        destroyStructure();
-        triggerEvent('destroyed');
-      }
-    };
-    each(keys(plugins), function (pluginName) {
-      var pluginInstance = plugins[pluginName];
-
-      if (isFunction(pluginInstance)) {
-        pluginInstance(OverlayScrollbars, instance);
-      }
-    });
-    instance.update(true);
-    addInstance(instanceTarget, instance);
-    triggerEvent('initialized');
-    return instance;
-  };
-  OverlayScrollbars.plugin = addPlugin;
-
-  OverlayScrollbars.env = function () {
-    var _getEnvironment2 = getEnvironment(),
-        _nativeScrollbarSize = _getEnvironment2._nativeScrollbarSize,
-        _nativeScrollbarIsOverlaid = _getEnvironment2._nativeScrollbarIsOverlaid,
-        _nativeScrollbarStyling = _getEnvironment2._nativeScrollbarStyling,
-        _rtlScrollBehavior = _getEnvironment2._rtlScrollBehavior,
-        _flexboxGlue = _getEnvironment2._flexboxGlue,
-        _cssCustomProperties = _getEnvironment2._cssCustomProperties,
-        _defaultInitializationStrategy = _getEnvironment2._defaultInitializationStrategy,
-        _defaultDefaultOptions = _getEnvironment2._defaultDefaultOptions,
-        _getInitializationStrategy = _getEnvironment2._getInitializationStrategy,
-        _setInitializationStrategy = _getEnvironment2._setInitializationStrategy,
-        _getDefaultOptions = _getEnvironment2._getDefaultOptions,
-        _setDefaultOptions = _getEnvironment2._setDefaultOptions;
-
-    return assignDeep({}, {
-      scrollbarSize: _nativeScrollbarSize,
-      scrollbarIsOverlaid: _nativeScrollbarIsOverlaid,
-      scrollbarStyling: _nativeScrollbarStyling,
-      rtlScrollBehavior: _rtlScrollBehavior,
-      flexboxGlue: _flexboxGlue,
-      cssCustomProperties: _cssCustomProperties,
-      defaultInitializationStrategy: _defaultInitializationStrategy,
-      defaultDefaultOptions: _defaultDefaultOptions,
-      getInitializationStrategy: _getInitializationStrategy,
-      setInitializationStrategy: _setInitializationStrategy,
-      getDefaultOptions: _getDefaultOptions,
-      setDefaultOptions: _setDefaultOptions
-    });
-  };
-
-  return OverlayScrollbars;
-
-}));
+export { OverlayScrollbars as default };
 //# sourceMappingURL=overlayscrollbars.js.map

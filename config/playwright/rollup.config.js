@@ -6,7 +6,7 @@ const rollupPluginServe = require('rollup-plugin-serve');
 
 const createRollupConfig = require('../rollup/rollup.config');
 const rollupPluginHtml = require('./rollup.pluginHtml');
-const rollupAdditionalWatchFiles = require('./rollup.pluginAdditionalWatchFiles');
+// const rollupAdditionalWatchFiles = require('./rollup.pluginAdditionalWatchFiles');
 
 const portRange = {
   min: 20000,
@@ -38,6 +38,7 @@ module.exports = (testDir, onListening = null) => {
       minified: false,
       module: false,
     },
+    extractStyle: false,
     rollup: {
       input: path.resolve(testDir, meta.input),
       context: 'this',
@@ -52,7 +53,7 @@ module.exports = (testDir, onListening = null) => {
         ),
         ...(onListening
           ? [
-              rollupAdditionalWatchFiles([htmlFilePath]),
+              // rollupAdditionalWatchFiles([htmlFilePath]),
               rollupPluginServe({
                 contentBase: dist,
                 historyApiFallback: `/${htmlName}`,

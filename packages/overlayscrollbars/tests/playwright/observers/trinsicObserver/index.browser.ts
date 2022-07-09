@@ -1,4 +1,4 @@
-import 'styles/overlayscrollbars.scss';
+import 'index.scss';
 import './index.scss';
 import './handleEnvironment';
 import should from 'should';

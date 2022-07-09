@@ -1,8 +1,8 @@
-import 'styles/overlayscrollbars.scss';
+import 'index.scss';
 import './index.scss';
 import './handleEnvironment';
-import should from 'should';
 import { OverlayScrollbars } from 'overlayscrollbars';
+import should from 'should';
 import {
   assignDeep,
   clientSize,

@@ -1,9 +1,14 @@
 const path = require('path');
 const { default: rollupEsBuild } = require('rollup-plugin-esbuild');
-const { rollupCommonjs, rollupResolve, rollupAlias } = require('./pipeline.common.plugins');
+const {
+  rollupCommonjs,
+  rollupResolve,
+  rollupAlias,
+  rollupScss,
+} = require('./pipeline.common.plugins');
 
 module.exports = (options) => {
-  const { rollup, paths, alias } = options;
+  const { rollup, paths, alias, extractStyle } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { file, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
   const { src: srcPath, dist: distPath } = paths;
@@ -22,6 +27,7 @@ module.exports = (options) => {
     output,
     ...rollupOptions,
     plugins: [
+      rollupScss(extractStyle),
       rollupAlias(alias),
       rollupResolve(srcPath),
       rollupEsBuild({
@@ -32,6 +38,6 @@ module.exports = (options) => {
       }),
       rollupCommonjs(sourcemap),
       ...plugins,
-    ],
+    ].filter(Boolean),
   };
 };

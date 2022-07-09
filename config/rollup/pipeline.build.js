@@ -5,7 +5,12 @@ const rollupTs = require('rollup-plugin-ts');
 
 const babelConfigUmd = require('./babel.config.umd');
 const babelConfigEsm = require('./babel.config.esm');
-const { rollupCommonjs, rollupResolve, rollupAlias } = require('./pipeline.common.plugins');
+const {
+  rollupCommonjs,
+  rollupResolve,
+  rollupAlias,
+  rollupScss,
+} = require('./pipeline.common.plugins');
 const { extensions } = require('../../resolve.config.json');
 
 const createOutputWithMinifiedVersion = (output, esm, buildMinifiedVersion) =>
@@ -38,8 +43,8 @@ const createOutputWithMinifiedVersion = (output, esm, buildMinifiedVersion) =>
       : []
   );
 
-module.exports = (esm, options, declarationFiles = false) => {
-  const { rollup, paths, versions, alias } = options;
+module.exports = (esm, options, { declarationFiles = false, outputStyle = false } = {}) => {
+  const { rollup, paths, versions, alias, extractStyle } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { name, file, globals, exports, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
   const { minified: buildMinifiedVersion } = versions;
@@ -66,9 +71,14 @@ module.exports = (esm, options, declarationFiles = false) => {
   return {
     input,
     output,
+    treeshake: {
+      propertyReadSideEffects: false,
+      moduleSideEffects: false,
+    },
     ...rollupOptions,
     plugins: [
       rollupAlias(alias),
+      rollupScss(extractStyle, outputStyle),
       rollupTs({
         tsconfig: (resolvedConfig) => ({
           ...resolvedConfig,
@@ -109,6 +119,6 @@ module.exports = (esm, options, declarationFiles = false) => {
         extensions,
       }),
       ...plugins,
-    ],
+    ].filter(Boolean),
   };
 };

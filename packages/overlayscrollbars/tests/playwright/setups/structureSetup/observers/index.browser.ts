@@ -1,5 +1,5 @@
 import './index.scss';
-import 'styles/overlayscrollbars.scss';
+import 'index.scss';
 
 // test viewport inheritted attrs (tabindex) for multiple and single element init
 // test appear & resize for multiple and single element init

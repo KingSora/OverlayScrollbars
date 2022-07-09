@@ -1284,7 +1284,7 @@ const createOverflowUpdate = (structureSetupElements, state) => {
     _nativeScrollbarIsOverlaid
   } = getEnvironment();
   const doViewportArrange = !_viewportIsTarget && !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
-  const [updateSizeFraction, getCurrentSizeFraction] = createCache(whCacheOptions, fractionalSize.bind(0, _host));
+  const [updateSizeFraction, getCurrentSizeFraction] = createCache(whCacheOptions, fractionalSize.bind(0, _viewport));
   const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache(whCacheOptions, scrollSize.bind(0, _viewport));
   const [updateOverflowAmountCache, getCurrentOverflowAmountCache] = createCache(whCacheOptions);
   const [updateOverflowStyleCache] = createCache(xyCacheOptions);
@@ -2367,40 +2367,15 @@ const addPlugin = addedPlugin => each(isArray(addedPlugin) ? addedPlugin : [adde
   pluginRegistry[plugin[0]] = plugin[1];
 });
 
-function getDefaultExportFromCjs (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-var _extends = {exports: {}};
-
-(function (module) {
-  function _extends() {
-    module.exports = _extends = Object.assign ? Object.assign.bind() : function (target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-
-        for (var key in source) {
-          if (Object.prototype.hasOwnProperty.call(source, key)) {
-            target[key] = source[key];
-          }
-        }
-      }
-
-      return target;
-    }, module.exports.__esModule = true, module.exports["default"] = module.exports;
-    return _extends.apply(this, arguments);
-  }
-
-  module.exports = _extends, module.exports.__esModule = true, module.exports["default"] = module.exports;
-})(_extends);
-
-getDefaultExportFromCjs(_extends.exports);
-
-const templateTypePrefixSuffix = ['__TPL_', '_TYPE__'];
-const optionsTemplateTypes = ['boolean', 'number', 'string', 'array', 'object', 'function', 'null'].reduce((result, item) => {
-  result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
-  return result;
-}, {});
+const optionsTemplateTypes = {
+  boolean: '__TPL_boolean_TYPE__',
+  number: '__TPL_number_TYPE__',
+  string: '__TPL_string_TYPE__',
+  array: '__TPL_array_TYPE__',
+  object: '__TPL_object_TYPE__',
+  function: '__TPL_function_TYPE__',
+  null: '__TPL_null_TYPE__'
+};
 
 const numberAllowedValues = optionsTemplateTypes.number;
 const booleanAllowedValues = optionsTemplateTypes.boolean;

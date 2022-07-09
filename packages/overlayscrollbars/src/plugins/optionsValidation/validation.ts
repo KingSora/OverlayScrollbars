@@ -58,28 +58,15 @@ type OptionsTemplateTypesDictionary = {
   readonly null: OptionsTemplateType<null>;
 };
 
-/**
- * A prefix and suffix tuple which serves as recognition pattern for template types.
- */
-const templateTypePrefixSuffix: readonly [string, string] = ['__TPL_', '_TYPE__'];
-
-/**
- * A object which serves as a mapping for "normal" types and template types.
- * Key   = normal type string
- * value = template type string
- */
-const optionsTemplateTypes: OptionsTemplateTypesDictionary = [
-  'boolean',
-  'number',
-  'string',
-  'array',
-  'object',
-  'function',
-  'null',
-].reduce((result, item) => {
-  result[item] = templateTypePrefixSuffix[0] + item + templateTypePrefixSuffix[1];
-  return result;
-}, {} as OptionsTemplateTypesDictionary);
+const optionsTemplateTypes: OptionsTemplateTypesDictionary = {
+  boolean: '__TPL_boolean_TYPE__',
+  number: '__TPL_number_TYPE__',
+  string: '__TPL_string_TYPE__',
+  array: '__TPL_array_TYPE__',
+  object: '__TPL_object_TYPE__',
+  function: '__TPL_function_TYPE__',
+  null: '__TPL_null_TYPE__',
+};
 
 /**
  * Validates the given options object according to the given template object and returns a object which looks like:

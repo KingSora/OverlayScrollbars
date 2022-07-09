@@ -10,6 +10,7 @@ module.exports = {
     minified: true,
     module: true,
   },
+  extractStyle: false,
   alias: {},
   rollup: {
     input: './src/index',
