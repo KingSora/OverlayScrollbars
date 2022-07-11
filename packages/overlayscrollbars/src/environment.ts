@@ -31,9 +31,9 @@ import { Options, defaultOptions } from 'options';
 import { PartialOptions } from 'typings';
 import { InitializationStrategy } from 'initialization';
 
-export interface EnvironmentListenersNameArgsMap {
-  _: undefined;
-}
+type EnvironmentEventMap = {
+  _: [];
+};
 
 export interface InternalEnvironment {
   readonly _nativeScrollbarSize: XY;
@@ -44,7 +44,7 @@ export interface InternalEnvironment {
   readonly _cssCustomProperties: boolean;
   readonly _defaultInitializationStrategy: InitializationStrategy;
   readonly _defaultDefaultOptions: Options;
-  _addListener(listener: EventListener<EnvironmentListenersNameArgsMap, '_'>): () => void;
+  _addListener(listener: EventListener<EnvironmentEventMap, '_'>): () => void;
   _getInitializationStrategy(): InitializationStrategy;
   _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
   _getDefaultOptions(): Options;
@@ -152,7 +152,7 @@ const createEnvironment = (): InternalEnvironment => {
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
-  const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentListenersNameArgsMap>();
+  const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventMap>();
   const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache({
     _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
     _equal: equalXY,

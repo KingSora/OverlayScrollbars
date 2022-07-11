@@ -99,12 +99,12 @@ export interface OnUpdatedEventListenerArgs {
   force: boolean;
 }
 
-export interface EventListenerMap {
-  initialized: undefined;
-  initializationWithdrawn: undefined;
-  updated: OnUpdatedEventListenerArgs;
-  destroyed: undefined;
-}
+export type EventListenerMap = {
+  initialized: [];
+  initializationWithdrawn: [];
+  updated: [OnUpdatedEventListenerArgs];
+  destroyed: [];
+};
 
 export type InitialEventListeners = GeneralInitialEventListeners<EventListenerMap>;
 
@@ -128,8 +128,8 @@ export interface OverlayScrollbars {
   on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>): () => void;
   on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>[]): () => void;
 
-  off<Name extends keyof EventListenerMap>(name: Name, listener?: EventListener<Name>): void;
-  off<Name extends keyof EventListenerMap>(name: Name, listener?: EventListener<Name>[]): void;
+  off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>): void;
+  off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>[]): void;
 }
 
 /**
@@ -205,19 +205,21 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       _hostMutation,
     } = updateHints;
 
-    triggerEvent('updated', {
-      updateHints: {
-        sizeChanged: _sizeChanged,
-        directionChanged: _directionChanged,
-        heightIntrinsicChanged: _heightIntrinsicChanged,
-        overflowAmountChanged: _overflowAmountChanged,
-        overflowStyleChanged: _overflowStyleChanged,
-        contentMutation: _contentMutation,
-        hostMutation: _hostMutation,
+    triggerEvent('updated', [
+      {
+        updateHints: {
+          sizeChanged: _sizeChanged,
+          directionChanged: _directionChanged,
+          heightIntrinsicChanged: _heightIntrinsicChanged,
+          overflowAmountChanged: _overflowAmountChanged,
+          overflowStyleChanged: _overflowStyleChanged,
+          contentMutation: _contentMutation,
+          hostMutation: _hostMutation,
+        },
+        changedOptions,
+        force,
       },
-      changedOptions,
-      force,
-    });
+    ]);
   });
 
   const instance: OverlayScrollbars = {
