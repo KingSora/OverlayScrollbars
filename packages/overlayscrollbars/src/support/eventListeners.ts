@@ -3,96 +3,102 @@ import { keys } from 'support/utils/object';
 import { each, from } from 'support/utils/array';
 
 export type EventListener<
-  NameArgsMap extends Record<string, any>,
-  Name extends Extract<keyof NameArgsMap, string> = Extract<keyof NameArgsMap, string>
-> = (...args: NameArgsMap[Name] extends undefined ? [] : [args: NameArgsMap[Name]]) => void;
+  EventMap extends Record<string, any>,
+  Name extends keyof EventMap = keyof EventMap
+> = (...args: EventMap[Name] extends undefined ? [] : [args: EventMap[Name]]) => void;
 
-export type EventListenerGroup<
-  NameArgsMap extends Record<string, any>,
-  Name extends Extract<keyof NameArgsMap, string> = Extract<keyof NameArgsMap, string>
-> = EventListener<NameArgsMap, Name> | EventListener<NameArgsMap, Name>[];
-
-export type AddEventListener<NameArgsMap extends Record<string, any>> = <
-  Name extends Extract<keyof NameArgsMap, string>
->(
-  name: Name,
-  listener: EventListenerGroup<NameArgsMap, Name>
-) => () => void;
-
-export type RemoveEventListener<NameArgsMap extends Record<string, any>> = <
-  Name extends Extract<keyof NameArgsMap, string>
->(
-  name?: Name,
-  listener?: EventListenerGroup<NameArgsMap, Name>
-) => void;
-
-export type TriggerEventListener<NameArgsMap extends Record<string, any>> = <
-  Name extends Extract<keyof NameArgsMap, string>
->(
-  name: Name,
-  ...args: NameArgsMap[Name] extends undefined ? [] : [args: NameArgsMap[Name]]
-) => void;
-
-export type InitialEventListeners<NameArgsMap extends Record<string, any>> = {
-  [K in Extract<keyof NameArgsMap, string>]?: EventListenerGroup<NameArgsMap, K>;
+export type InitialEventListeners<EventMap extends Record<string, any>> = {
+  [K in keyof EventMap]?: EventListener<EventMap> | EventListener<EventMap>[];
 };
 
-const manageListener = <NameArgsMap extends Record<string, any>>(
-  callback: (listener?: EventListener<NameArgsMap>) => void,
-  listener?: EventListener<NameArgsMap> | EventListener<NameArgsMap>[]
+const manageListener = <EventMap extends Record<string, any>>(
+  callback: (listener?: EventListener<EventMap>) => void,
+  listener?: EventListener<EventMap> | EventListener<EventMap>[]
 ) => {
   each(isArray(listener) ? listener : [listener], callback);
 };
 
-export const createEventListenerHub = <NameArgsMap extends Record<string, any>>(
-  initialEventListeners?: InitialEventListeners<NameArgsMap>
-): [
-  AddEventListener<NameArgsMap>,
-  RemoveEventListener<NameArgsMap>,
-  TriggerEventListener<NameArgsMap>
-] => {
-  const events = new Map<Extract<keyof NameArgsMap, string>, Set<EventListener<NameArgsMap>>>();
-  const removeEvent: RemoveEventListener<NameArgsMap> = (name?, listener?) => {
+export const createEventListenerHub = <EventMap extends Record<string, any>>(
+  initialEventListeners?: InitialEventListeners<EventMap>
+) => {
+  type EventListener<Name extends keyof EventMap = keyof EventMap> = (
+    ...args: EventMap[Name] extends undefined ? [] : [args: EventMap[Name]]
+  ) => void;
+
+  const events = new Map<keyof EventMap, Set<EventListener>>();
+
+  function removeEvent<Name extends keyof EventMap>(
+    name?: Name,
+    listener?: EventListener<Name>
+  ): void;
+  function removeEvent<Name extends keyof EventMap>(
+    name?: Name,
+    listener?: EventListener<Name>[]
+  ): void;
+  function removeEvent<Name extends keyof EventMap>(
+    name?: Name,
+    listener?: EventListener<Name> | EventListener<Name>[]
+  ): void {
     if (name) {
       const eventSet = events.get(name);
       manageListener((currListener) => {
         if (eventSet) {
           eventSet[currListener ? 'delete' : 'clear'](currListener!);
         }
-      }, listener as EventListenerGroup<NameArgsMap> | undefined);
+      }, listener as any);
     } else {
       events.forEach((eventSet) => {
         eventSet.clear();
       });
       events.clear();
     }
-  };
-  const addEvent: AddEventListener<NameArgsMap> = (name, listener) => {
+  }
+
+  function addEvent<Name extends keyof EventMap>(
+    name: Name,
+    listener: EventListener<Name>
+  ): () => void;
+  function addEvent<Name extends keyof EventMap>(
+    name: Name,
+    listener: EventListener<Name>[]
+  ): () => void;
+  function addEvent<Name extends keyof EventMap>(
+    name: Name,
+    listener: EventListener<Name> | EventListener<Name>[]
+  ): () => void {
     const eventSet = events.get(name) || new Set();
     events.set(name, eventSet);
 
     manageListener((currListener) => {
       currListener && eventSet.add(currListener);
-    }, listener as EventListenerGroup<NameArgsMap>);
+    }, listener as any);
 
-    return removeEvent.bind(0, name as any, listener as EventListenerGroup<NameArgsMap>);
-  };
-  const triggerEvent: TriggerEventListener<NameArgsMap> = (name, args?) => {
+    return removeEvent.bind(0, name as any, listener as any);
+  }
+
+  function triggerEvent<Name extends keyof EventMap>(
+    name: Name,
+    ...args: EventMap[Name] extends undefined ? [] : [args: EventMap[Name]]
+  ): void {
     const eventSet = events.get(name);
 
     each(from(eventSet), (event) => {
       if (args) {
-        (event as (args: NameArgsMap[Extract<keyof NameArgsMap, string>]) => void)(args as any);
+        (event as (args: EventMap[keyof EventMap]) => void)(args as any);
       } else {
         (event as () => void)();
       }
     });
-  };
+  }
 
-  const initialListenerKeys = keys(initialEventListeners) as Extract<keyof NameArgsMap, string>[];
+  const initialListenerKeys = keys(initialEventListeners) as Extract<keyof EventMap, string>[];
   each(initialListenerKeys, (key) => {
     addEvent(key, initialEventListeners![key] as any);
   });
 
-  return [addEvent, removeEvent, triggerEvent];
+  return [addEvent, removeEvent, triggerEvent] as [
+    typeof addEvent,
+    typeof removeEvent,
+    typeof triggerEvent
+  ];
 };

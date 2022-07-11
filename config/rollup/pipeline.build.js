@@ -27,14 +27,10 @@ const createOutputWithMinifiedVersion = (output, esm, buildMinifiedVersion) =>
               rollupTerser({
                 ecma: esm ? 2015 : 5,
                 safari10: true,
-                mangle: {
-                  safari10: true,
-                  properties: {
-                    regex: /^_/,
-                  },
-                },
                 compress: {
                   evaluate: false,
+                  module: !!esm,
+                  passes: 3,
                 },
               }),
             ],
@@ -63,6 +59,30 @@ module.exports = (esm, options, { declarationFiles = false, outputStyle = false 
       format: esm ? 'esm' : 'umd',
       generatedCode: esm ? 'es2015' : 'es5',
       file: path.resolve(distPath, `${file}${esm ? '.esm' : ''}.js`),
+      plugins: [
+        rollupTerser({
+          ecma: esm ? 2015 : 5,
+          safari10: true,
+
+          mangle: {
+            safari10: true,
+            keep_fnames: true, // eslint-disable-line camelcase
+            properties: {
+              regex: /^_/,
+            },
+          },
+          compress: {
+            defaults: false,
+            hoist_funs: true, // eslint-disable-line camelcase
+          },
+          format: {
+            beautify: true,
+            max_line_len: 80, // eslint-disable-line camelcase
+            braces: true,
+            indent_level: 2, // eslint-disable-line camelcase
+          },
+        }),
+      ],
     },
     esm,
     buildMinifiedVersion

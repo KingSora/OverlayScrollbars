@@ -1,46 +1,6 @@
 type PartialOptions<T> = {
     [P in keyof T]?: T[P] extends Record<string, unknown> ? PartialOptions<T[P]> : T[P];
 };
-type OSTargetElement = HTMLElement | HTMLTextAreaElement;
-/**
- * Static elements MUST be present.
- */
-type StructureInitializationStaticElement = HTMLElement;
-/**
- * Dynamic element CAN be present.
- * If its a element the element will be handled as the repsective element.
- * True means that the respective dynamic element is forced to be generated.
- * False means that the respective dynamic element is forced NOT to be generated.
- */
-type StructureInitializationDynamicElement = HTMLElement | boolean;
-/**
- * Object for special initialization.
- *
- * Target is always required, if element is not provided or undefined it will be generated.
- *
- * If element is provided, the provided element takes all its responsibilities.
- * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
- *
- * Undefined means that the environment initialization strategy for the respective element is used.
- */
-interface StructureInitialization {
-    target: OSTargetElement;
-    host?: StructureInitializationStaticElement; // only relevant for textarea
-    viewport?: StructureInitializationStaticElement;
-    padding?: StructureInitializationDynamicElement;
-    content?: StructureInitializationDynamicElement;
-}
-/**
- * Object for special initialization.
- *
- * scrollbarsSlot is the element to which the scrollbars are applied to. If null or undefined the plugin decides by itself whats the scrollbars slot.
- */
-interface ScrollbarsInitialization {
-    scrollbarsSlot?: null | HTMLElement | ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => null | HTMLElement);
-}
-interface OSInitializationObject extends StructureInitialization, ScrollbarsInitialization {
-}
-type OSTarget = OSTargetElement | OSInitializationObject;
 type OverflowStyle = "scroll" | "hidden" | "visible";
 interface TRBL {
     t: number;
@@ -52,20 +12,17 @@ interface XY<T> {
     x: T;
     y: T;
 }
-type EventListener<NameArgsMap extends Record<string, any>, Name extends Extract<keyof NameArgsMap, string>> = (...args: NameArgsMap[Name] extends undefined ? [
+type EventListener<EventMap extends Record<string, any>, Name extends keyof EventMap> = (...args: EventMap[Name] extends undefined ? [
 ] : [
-    args: NameArgsMap[Name]
+    args: EventMap[Name]
 ]) => void;
-type EventListenerGroup<NameArgsMap extends Record<string, any>, Name extends Extract<keyof NameArgsMap, string>> = EventListener<NameArgsMap, Name> | EventListener<NameArgsMap, Name>[];
-type AddEventListener<NameArgsMap extends Record<string, any>> = <Name extends Extract<keyof NameArgsMap, string>>(name: Name, listener: EventListenerGroup<NameArgsMap, Name>) => () => void;
-type RemoveEventListener<NameArgsMap extends Record<string, any>> = <Name extends Extract<keyof NameArgsMap, string>>(name?: Name, listener?: EventListenerGroup<NameArgsMap, Name>) => void;
-type InitialEventListeners<NameArgsMap extends Record<string, any>> = {
-    [K in Extract<keyof NameArgsMap, string>]?: EventListenerGroup<NameArgsMap, K>;
+type InitialEventListeners<EventMap extends Record<string, any>> = {
+    [K in keyof EventMap]?: EventListener<EventMap> | EventListener<EventMap>[];
 };
 type OverflowBehavior = "hidden" | "scroll" | "visible" | "visible-hidden" | "visible-scroll";
 type VisibilityBehavior = "visible" | "hidden" | "auto";
 type AutoHideBehavior = "never" | "scroll" | "leave" | "move";
-interface OSOptions {
+interface Options {
     paddingAbsolute: boolean;
     updating: {
         elementEvents: Array<[
@@ -96,43 +53,78 @@ interface OSOptions {
         initialize: boolean;
     };
 }
-type StructureInitializationStrategyElementFn<T> = ((target: OSTargetElement) => HTMLElement | T) | T;
-type ScrollbarsInitializationStrategyElementFn<T> = ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => HTMLElement | T) | T;
-/**
- * A Static element is an element which MUST be generated.
- * If null or undefined (or the returned result is null or undefined), the initialization function is generatig the element, otherwise
- * the element returned by the function acts as the generated element.
- */
-type StructureInitializationStrategyStaticElement = StructureInitializationStrategyElementFn<null | undefined>;
-/**
- * A Dynamic element is an element which CAN be generated.
- * If boolean (or the returned result is boolean), the generation of the element is forced (or not).
- * If the function returns and element, the element returned by the function acts as the generated element.
- */
-type StructureInitializationStrategyDynamicElement = StructureInitializationStrategyElementFn<boolean>;
-interface StructureInitializationStrategy {
-    _host: StructureInitializationStrategyStaticElement;
-    _viewport: StructureInitializationStrategyStaticElement;
-    _padding: StructureInitializationStrategyDynamicElement;
-    _content: StructureInitializationStrategyDynamicElement;
-}
-interface ScrollbarsInitializationStrategy {
-    /**
-     * The scrollbars slot.  If null or undefined (or the returned result is null or undefined), the initialization function is deciding the element, otherwise
-     * the element returned by the function acts as the scrollbars slot.
-     */
-    _scrollbarsSlot: ScrollbarsInitializationStrategyElementFn<null | undefined>;
-}
-interface InitializationStrategy extends StructureInitializationStrategy, ScrollbarsInitializationStrategy {
-}
-type DefaultInitializationStrategy = {
-    [K in keyof InitializationStrategy]: Extract<InitializationStrategy[K], boolean | null | undefined>;
-};
 type OSPluginInstance = Record<string, unknown> | ((staticObj: OverlayScrollbarsStatic, instanceObj: OverlayScrollbars) => void);
 type OSPlugin<T extends OSPluginInstance> = [
     string,
     T
 ];
+type ScrollbarsDynamicInitializationElement = DynamicInitializationElement<[
+    target: InitializationTargetElement,
+    host: HTMLElement,
+    viewport: HTMLElement
+]>;
+/**
+ * Object for special initialization.
+ *
+ * If element is provided, the provided element takes all its responsibilities.
+ * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
+ *
+ * Null or Undefined means that the environment initialization strategy is used.
+ */
+interface ScrollbarsInitialization {
+    scrollbarsSlot?: ScrollbarsDynamicInitializationElement;
+}
+type ScrollbarsInitializationStrategy = {
+    [K in keyof ScrollbarsInitialization as `_${K}`]: InitializtationElementStrategy<ScrollbarsInitialization[K]>;
+};
+type StructureStaticInitializationElement = StaticInitializationElement<[
+    target: InitializationTargetElement
+]>;
+type StructureDynamicInitializationElement = DynamicInitializationElement<[
+    target: InitializationTargetElement
+]>;
+/**
+ * Object for special initialization.
+ *
+ * Target is always required, if element is not provided or undefined it will be generated.
+ *
+ * If element is provided, the provided element takes all its responsibilities.
+ * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
+ *
+ * Null or Undefined means that the environment initialization strategy is used.
+ */
+interface StructureInitialization {
+    target: InitializationTargetElement;
+    host?: StructureStaticInitializationElement; // only relevant for textarea
+    viewport?: StructureStaticInitializationElement;
+    padding?: StructureDynamicInitializationElement;
+    content?: StructureDynamicInitializationElement;
+}
+type StructureInitializationStrategy = {
+    [K in keyof Omit<StructureInitialization, "target"> as `_${K}`]: InitializtationElementStrategy<StructureInitialization[K]>;
+};
+type StaticInitialization = HTMLElement | null | undefined;
+type DynamicInitialization = HTMLElement | boolean | null | undefined;
+type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
+type InitializationTargetObject = StructureInitialization & ScrollbarsInitialization;
+type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
+type InitializationStrategy = StructureInitializationStrategy & ScrollbarsInitializationStrategy;
+/**
+ * Static elements MUST be present.
+ * Null or undefined behave like if this element wasn't specified during initialization.
+ */
+type StaticInitializationElement<Args extends any[]> = ((...args: Args) => StaticInitialization) | StaticInitialization;
+/**
+ * Dynamic element CAN be present.
+ * If its a element the element will be handled as the repsective element.
+ * True means that the respective dynamic element is forced to be generated.
+ * False means that the respective dynamic element is forced NOT to be generated.
+ * Null or undefined behave like if this element wasn't specified during initialization.
+ */
+type DynamicInitializationElement<Args extends any[]> = ((...args: Args) => DynamicInitialization) | DynamicInitialization;
+type InitializtationElementStrategy<InitElm> = Exclude<InitElm, HTMLElement>;
+type GeneralInitialEventListeners = InitialEventListeners;
+type GeneralEventListener = EventListener;
 /*
 onScrollStart               : null,
 onScroll                    : null,
@@ -143,6 +135,42 @@ onDirectionChanged          : null, // gone
 onContentSizeChanged        : null, // gone
 onHostSizeChanged           : null, // gone
 */
+interface OverlayScrollbarsStatic {
+    (target: InitializationTarget | InitializationTargetObject, options?: PartialOptions<Options>, eventListeners?: GeneralInitialEventListeners<EventListenerMap>): OverlayScrollbars;
+    plugin(osPlugin: OSPlugin | OSPlugin[]): void;
+    env(): Environment;
+}
+interface Environment {
+    scrollbarSize: XY<number>;
+    scrollbarIsOverlaid: XY<boolean>;
+    scrollbarStyling: boolean;
+    rtlScrollBehavior: {
+        n: boolean;
+        i: boolean;
+    };
+    flexboxGlue: boolean;
+    cssCustomProperties: boolean;
+    defaultInitializationStrategy: InitializationStrategy;
+    defaultDefaultOptions: Options;
+    getInitializationStrategy(): InitializationStrategy;
+    setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
+    getDefaultOptions(): Options;
+    setDefaultOptions(newDefaultOptions: PartialOptions<Options>): void;
+}
+interface State {
+    padding: TRBL;
+    paddingAbsolute: boolean;
+    overflowAmount: XY<number>;
+    overflowStyle: XY<OverflowStyle>;
+    hasOverflow: XY<boolean>;
+}
+interface Elements {
+    target: HTMLElement;
+    host: HTMLElement;
+    padding: HTMLElement;
+    viewport: HTMLElement;
+    content: HTMLElement;
+}
 interface OnUpdatedEventListenerArgs {
     updateHints: {
         sizeChanged: boolean;
@@ -153,63 +181,27 @@ interface OnUpdatedEventListenerArgs {
         hostMutation: boolean;
         contentMutation: boolean;
     };
-    changedOptions: PartialOptions<OSOptions>;
+    changedOptions: PartialOptions<Options>;
     force: boolean;
 }
-interface OSEventListenersNameArgsMap {
+interface EventListenerMap {
     initialized: undefined;
     initializationWithdrawn: undefined;
     updated: OnUpdatedEventListenerArgs;
     destroyed: undefined;
 }
-type AddOSEventListener = AddEventListener<OSEventListenersNameArgsMap>;
-type RemoveOSEventListener = RemoveEventListener<OSEventListenersNameArgsMap>;
-type InitialOSEventListeners = InitialEventListeners<OSEventListenersNameArgsMap>;
-interface OverlayScrollbarsStatic {
-    (target: OSTarget | OSInitializationObject, options?: PartialOptions<OSOptions>, eventListeners?: InitialOSEventListeners): OverlayScrollbars;
-    plugin(osPlugin: OSPlugin | OSPlugin[]): void;
-    env(): OverlayScrollbarsEnv;
-}
-interface OverlayScrollbarsEnv {
-    scrollbarSize: XY<number>;
-    scrollbarIsOverlaid: XY<boolean>;
-    scrollbarStyling: boolean;
-    rtlScrollBehavior: {
-        n: boolean;
-        i: boolean;
-    };
-    flexboxGlue: boolean;
-    cssCustomProperties: boolean;
-    defaultInitializationStrategy: DefaultInitializationStrategy;
-    defaultDefaultOptions: OSOptions;
-    getInitializationStrategy(): InitializationStrategy;
-    setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
-    getDefaultOptions(): OSOptions;
-    setDefaultOptions(newDefaultOptions: PartialOptions<OSOptions>): void;
-}
-interface OverlayScrollbarsState {
-    padding: TRBL;
-    paddingAbsolute: boolean;
-    overflowAmount: XY<number>;
-    overflowStyle: XY<OverflowStyle>;
-    hasOverflow: XY<boolean>;
-}
-interface OverlayScrollbarsElements {
-    target: HTMLElement;
-    host: HTMLElement;
-    padding: HTMLElement;
-    viewport: HTMLElement;
-    content: HTMLElement;
-}
+type EventListener$0<Name extends keyof EventListenerMap> = GeneralEventListener<EventListenerMap, Name>;
 interface OverlayScrollbars {
-    options(): OSOptions;
-    options(newOptions?: PartialOptions<OSOptions>): OSOptions;
+    options(): Options;
+    options(newOptions?: PartialOptions<Options>): Options;
     update(force?: boolean): void;
     destroy(): void;
-    state(): OverlayScrollbarsState;
-    elements(): OverlayScrollbarsElements;
-    on: AddOSEventListener;
-    off: RemoveOSEventListener;
+    state(): State;
+    elements(): Elements;
+    on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener$0<Name>): () => void;
+    on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener$0<Name>[]): () => void;
+    off<Name extends keyof EventListenerMap>(name: Name, listener?: EventListener$0<Name>): void;
+    off<Name extends keyof EventListenerMap>(name: Name, listener?: EventListener$0<Name>[]): void;
 }
 /**
  * Notes:

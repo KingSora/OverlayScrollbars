@@ -1,5 +1,5 @@
 import { OSPlugin } from 'plugins';
-import { OSOptions, OverflowBehavior, VisibilityBehavior, AutoHideBehavior } from 'options';
+import { Options, OverflowBehavior, VisibilityBehavior, AutoHideBehavior } from 'options';
 import {
   validateOptions,
   OptionsTemplate,
@@ -18,7 +18,7 @@ const scrollbarsVisibilityAllowedValues: OptionsTemplateValue<VisibilityBehavior
 const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<AutoHideBehavior> =
   'never scroll leavemove';
 
-const optionsTemplate: OptionsTemplate<OSOptions> = {
+const optionsTemplate: OptionsTemplate<Options> = {
   // resize: resizeAllowedValues, // none || both  || horizontal || vertical || n || b ||
   paddingAbsolute: booleanAllowedValues, // true || false
   updating: {
@@ -53,7 +53,7 @@ const optionsTemplate: OptionsTemplate<OSOptions> = {
 };
 
 export type OptionsValidationPluginInstance = {
-  _: (options: PartialOptions<OSOptions>, doWriteErrors?: boolean) => PartialOptions<OSOptions>;
+  _: (options: PartialOptions<Options>, doWriteErrors?: boolean) => PartialOptions<Options>;
 };
 
 export const optionsValidationPluginName = '__osOptionsValidationPlugin';
@@ -61,7 +61,7 @@ export const optionsValidationPluginName = '__osOptionsValidationPlugin';
 export const optionsValidationPlugin: OSPlugin<OptionsValidationPluginInstance> = [
   optionsValidationPluginName,
   {
-    _: (options: PartialOptions<OSOptions>, doWriteErrors?: boolean) => {
+    _: (options: PartialOptions<Options>, doWriteErrors?: boolean) => {
       const [validated, foreign] = validateOptions(optionsTemplate, options, doWriteErrors);
       return { ...foreign, ...validated };
     },

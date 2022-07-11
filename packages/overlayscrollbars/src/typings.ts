@@ -14,59 +14,6 @@ export type StyleObject<CustomCssProps = ''> = {
     | number;
 };
 
-export type InternalVersionOf<T> = {
-  [K in keyof T as `_${Uncapitalize<string & K>}`]: T[K];
-};
-
-export type OSTargetElement = HTMLElement | HTMLTextAreaElement;
-
-/**
- * Static elements MUST be present.
- */
-type StructureInitializationStaticElement = HTMLElement;
-
-/**
- * Dynamic element CAN be present.
- * If its a element the element will be handled as the repsective element.
- * True means that the respective dynamic element is forced to be generated.
- * False means that the respective dynamic element is forced NOT to be generated.
- */
-type StructureInitializationDynamicElement = HTMLElement | boolean;
-
-/**
- * Object for special initialization.
- *
- * Target is always required, if element is not provided or undefined it will be generated.
- *
- * If element is provided, the provided element takes all its responsibilities.
- * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
- *
- * Undefined means that the environment initialization strategy for the respective element is used.
- */
-export interface StructureInitialization {
-  target: OSTargetElement;
-  host?: StructureInitializationStaticElement; // only relevant for textarea
-  viewport?: StructureInitializationStaticElement;
-  padding?: StructureInitializationDynamicElement;
-  content?: StructureInitializationDynamicElement;
-}
-
-/**
- * Object for special initialization.
- *
- * scrollbarsSlot is the element to which the scrollbars are applied to. If null or undefined the plugin decides by itself whats the scrollbars slot.
- */
-export interface ScrollbarsInitialization {
-  scrollbarsSlot?:
-    | null
-    | HTMLElement
-    | ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => null | HTMLElement);
-}
-
-export interface OSInitializationObject extends StructureInitialization, ScrollbarsInitialization {}
-
-export type OSTarget = OSTargetElement | OSInitializationObject;
-
 export type OverflowStyle = 'scroll' | 'hidden' | 'visible';
 
 /*

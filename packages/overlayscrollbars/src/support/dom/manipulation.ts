@@ -12,11 +12,11 @@ type NodeCollection = ArrayLike<Node> | Node | false | null | undefined;
  */
 const before = (
   parentElm: Node | false | null | undefined,
-  preferredAnchor: Node | null | undefined,
+  preferredAnchor: Node | false | null | undefined,
   insertedElms: NodeCollection
 ): void => {
   if (insertedElms) {
-    let anchor: Node | null | undefined = preferredAnchor;
+    let anchor: Node | false | null | undefined = preferredAnchor;
     let fragment: DocumentFragment | Node | null | undefined;
 
     // parent must be defined
@@ -54,7 +54,10 @@ const before = (
  * @param node The Node to which the children shall be appended.
  * @param children The Nodes which shall be appended.
  */
-export const appendChildren = (node: Node | null | undefined, children: NodeCollection): void => {
+export const appendChildren = (
+  node: Node | false | null | undefined,
+  children: NodeCollection
+): void => {
   before(node, null, children);
 };
 
@@ -63,7 +66,10 @@ export const appendChildren = (node: Node | null | undefined, children: NodeColl
  * @param node The Node to which the children shall be prepended.
  * @param children The Nodes which shall be prepended.
  */
-export const prependChildren = (node: Node | null | undefined, children: NodeCollection): void => {
+export const prependChildren = (
+  node: Node | false | null | undefined,
+  children: NodeCollection
+): void => {
   before(node, node && node.firstChild, children);
 };
 
@@ -73,7 +79,7 @@ export const prependChildren = (node: Node | null | undefined, children: NodeCol
  * @param insertedNodes The Nodes which shall be inserted.
  */
 export const insertBefore = (
-  node: Node | null | undefined,
+  node: Node | false | null | undefined,
   insertedNodes: NodeCollection
 ): void => {
   before(parent(node), node, insertedNodes);
@@ -84,7 +90,10 @@ export const insertBefore = (
  * @param node The Node after which the given Nodes shall be inserted.
  * @param insertedNodes The Nodes which shall be inserted.
  */
-export const insertAfter = (node: Node | null | undefined, insertedNodes: NodeCollection): void => {
+export const insertAfter = (
+  node: Node | false | null | undefined,
+  insertedNodes: NodeCollection
+): void => {
   before(parent(node), node && node.nextSibling, insertedNodes);
 };
 

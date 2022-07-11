@@ -6,9 +6,10 @@ import { createStructureSetupObservers } from 'setups/structureSetup/structureSe
 import type { StructureSetupUpdateHints } from 'setups/structureSetup/structureSetup.update';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type { TRBL, XY } from 'support';
-import type { OSOptions, ReadonlyOSOptions } from 'options';
+import type { Options, ReadonlyOSOptions } from 'options';
 import type { Setup } from 'setups';
-import type { OSTarget, PartialOptions, StyleObject, OverflowStyle } from 'typings';
+import type { InitializationTarget } from 'initialization';
+import type { PartialOptions, StyleObject, OverflowStyle } from 'typings';
 
 export interface StructureSetupState {
   _padding: TRBL;
@@ -28,7 +29,7 @@ export interface StructureSetupStaticState {
 
 export type OnUpdatedListener = (
   updateHints: StructureSetupUpdateHints,
-  changedOptions: PartialOptions<OSOptions>,
+  changedOptions: PartialOptions<Options>,
   force: boolean
 ) => void;
 
@@ -66,7 +67,7 @@ const initialStructureSetupUpdateState: StructureSetupState = {
 };
 
 export const createStructureSetup = (
-  target: OSTarget,
+  target: InitializationTarget,
   options: ReadonlyOSOptions
 ): Setup<StructureSetupState, StructureSetupStaticState> => {
   const checkOptionsFallback = createOptionCheck(options, {});
@@ -75,7 +76,7 @@ export const createStructureSetup = (
   const [getState] = state;
   const runOnUpdatedListeners = (
     updateHints: StructureSetupUpdateHints,
-    changedOptions?: PartialOptions<OSOptions>,
+    changedOptions?: PartialOptions<Options>,
     force?: boolean
   ) => {
     runEach(onUpdatedListeners, [updateHints, changedOptions || {}, !!force]);

@@ -1,4 +1,4 @@
-import { appendChildren, createDiv, removeElements, isFunction } from 'support';
+import { appendChildren, createDiv, removeElements } from 'support';
 import {
   classNameScrollbar,
   classNameScrollbarHorizontal,
@@ -6,9 +6,15 @@ import {
   classNameScrollbarTrack,
   classNameScrollbarHandle,
 } from 'classnames';
-import { getEnvironment, ScrollbarsInitializationStrategy } from 'environment';
-import { OSTarget, ScrollbarsInitialization } from 'typings';
+import { getEnvironment } from 'environment';
+import { dynamicInitializationElement as generalDynamicInitializationElement } from 'initialization';
+import type { InitializationTarget } from 'initialization';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
+import type {
+  ScrollbarsInitialization,
+  ScrollbarsInitializationStrategy,
+  ScrollbarsDynamicInitializationElement,
+} from 'setups/scrollbarsSetup/scrollbarsSetup.initialization';
 
 export interface ScrollbarStructure {
   _scrollbar: HTMLElement;
@@ -39,7 +45,7 @@ const generateScrollbarDOM = (scrollbarClassName: string): ScrollbarStructure =>
 };
 
 export const createScrollbarsSetupElements = (
-  target: OSTarget,
+  target: InitializationTarget,
   structureSetupElements: StructureSetupElementsObj
 ): ScrollbarsSetupElements => {
   const { _getInitializationStrategy } = getEnvironment();
@@ -48,15 +54,13 @@ export const createScrollbarsSetupElements = (
   const { _target, _host, _viewport, _targetIsElm } = structureSetupElements;
   const initializationScrollbarSlot =
     !_targetIsElm && (target as ScrollbarsInitialization).scrollbarsSlot;
-  const initializationScrollbarSlotResult = isFunction(initializationScrollbarSlot)
-    ? initializationScrollbarSlot(_target, _host, _viewport)
-    : initializationScrollbarSlot;
   const evaluatedScrollbarSlot =
-    initializationScrollbarSlotResult ||
-    (isFunction(environmentScrollbarSlot)
-      ? environmentScrollbarSlot(_target, _host, _viewport)
-      : environmentScrollbarSlot) ||
-    _host;
+    generalDynamicInitializationElement<ScrollbarsDynamicInitializationElement>(
+      [_target, _host, _viewport],
+      () => _host,
+      environmentScrollbarSlot,
+      initializationScrollbarSlot
+    );
 
   const horizontalScrollbarStructure = generateScrollbarDOM(classNameScrollbarHorizontal);
   const verticalScrollbarStructure = generateScrollbarDOM(classNameScrollbarVertical);

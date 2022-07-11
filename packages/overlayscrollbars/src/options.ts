@@ -1,7 +1,7 @@
 import { assignDeep, each, isObject, keys, isArray, hasOwnProperty, isFunction } from 'support';
 import { PartialOptions, ReadonlyOptions } from 'typings';
 
-const stringify = (value: any) =>
+const opsStringify = (value: any) =>
   JSON.stringify(value, (_, val) => {
     if (isFunction(val)) {
       throw new Error();
@@ -38,7 +38,7 @@ export type SizeChangedCallback = (this: any, args?: SizeChangedArgs) => void;
 
 export type UpdatedCallback = (this: any, args?: UpdatedArgs) => void;
 
-export interface OSOptions {
+export interface Options {
   paddingAbsolute: boolean;
   updating: {
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
@@ -64,7 +64,7 @@ export interface OSOptions {
   };
 }
 
-export type ReadonlyOSOptions = ReadonlyOptions<OSOptions>;
+export type ReadonlyOSOptions = ReadonlyOptions<Options>;
 
 export interface OverflowChangedArgs {
   x: boolean;
@@ -93,7 +93,7 @@ export interface UpdatedArgs {
   forced: boolean;
 }
 
-export const defaultOptions: OSOptions = {
+export const defaultOptions: Options = {
   // resize: 'none', // none || both  || horizontal || vertical || n || b || h || v
   paddingAbsolute: false, // true || false
   updating: {
@@ -145,7 +145,7 @@ export const getOptionsDiff = <T>(
 
       if (isArray(currOptionValue) || isArray(newOptionValue)) {
         try {
-          if (stringify(currOptionValue) === stringify(newOptionValue)) {
+          if (opsStringify(currOptionValue) === opsStringify(newOptionValue)) {
             isDiff = false;
           }
         } catch {}

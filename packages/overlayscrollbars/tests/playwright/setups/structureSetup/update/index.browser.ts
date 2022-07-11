@@ -22,7 +22,7 @@ import { resize } from '@/testing-browser/Resize';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
-import { OSOptions } from 'options';
+import { Options } from 'options';
 import { PartialOptions } from 'typings';
 
 interface Metrics {
@@ -572,7 +572,7 @@ const iterateMinMax = async (afterEach?: () => any) => {
   await iterate(containerMinMaxSelect, afterEach);
 };
 
-const overflowTest = async (osOptions?: PartialOptions<OSOptions>) => {
+const overflowTest = async (osOptions?: PartialOptions<Options>) => {
   const additiveOverflow = () => {
     if (isFractionalPixelRatio()) {
       return 1;

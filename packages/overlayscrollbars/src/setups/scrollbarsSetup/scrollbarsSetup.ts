@@ -6,7 +6,7 @@ import {
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type { ReadonlyOSOptions } from 'options';
 import type { Setup } from 'setups';
-import type { OSTarget } from 'typings';
+import type { InitializationTarget } from 'initialization';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
@@ -16,7 +16,7 @@ export interface ScrollbarsSetupStaticState {
 }
 
 export const createScrollbarsSetup = (
-  target: OSTarget,
+  target: InitializationTarget,
   options: ReadonlyOSOptions,
   structureSetupElements: StructureSetupElementsObj
 ): Setup<ScrollbarsSetupState, ScrollbarsSetupStaticState> => {

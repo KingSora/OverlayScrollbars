@@ -27,81 +27,31 @@ import {
   classNameEnvironmentFlexboxGlueMax,
   classNameViewportScrollbarStyling,
 } from 'classnames';
-import { OSOptions, defaultOptions } from 'options';
-import { OSTargetElement, PartialOptions } from 'typings';
-
-type StructureInitializationStrategyElementFn<T> =
-  | ((target: OSTargetElement) => HTMLElement | T)
-  | T;
-
-type ScrollbarsInitializationStrategyElementFn<T> =
-  | ((target: OSTargetElement, host: HTMLElement, viewport: HTMLElement) => HTMLElement | T)
-  | T;
-
-/**
- * A Static element is an element which MUST be generated.
- * If null or undefined (or the returned result is null or undefined), the initialization function is generatig the element, otherwise
- * the element returned by the function acts as the generated element.
- */
-export type StructureInitializationStrategyStaticElement = StructureInitializationStrategyElementFn<
-  null | undefined
->;
-
-/**
- * A Dynamic element is an element which CAN be generated.
- * If boolean (or the returned result is boolean), the generation of the element is forced (or not).
- * If the function returns and element, the element returned by the function acts as the generated element.
- */
-export type StructureInitializationStrategyDynamicElement =
-  StructureInitializationStrategyElementFn<boolean>;
-
-export interface StructureInitializationStrategy {
-  _host: StructureInitializationStrategyStaticElement;
-  _viewport: StructureInitializationStrategyStaticElement;
-  _padding: StructureInitializationStrategyDynamicElement;
-  _content: StructureInitializationStrategyDynamicElement;
-}
-
-export interface ScrollbarsInitializationStrategy {
-  /**
-   * The scrollbars slot.  If null or undefined (or the returned result is null or undefined), the initialization function is deciding the element, otherwise
-   * the element returned by the function acts as the scrollbars slot.
-   */
-  _scrollbarsSlot: ScrollbarsInitializationStrategyElementFn<null | undefined>;
-}
-
-export interface InitializationStrategy
-  extends StructureInitializationStrategy,
-    ScrollbarsInitializationStrategy {}
-
-export type DefaultInitializationStrategy = {
-  [K in keyof InitializationStrategy]: Extract<
-    InitializationStrategy[K],
-    boolean | null | undefined
-  >;
-};
+import { Options, defaultOptions } from 'options';
+import { PartialOptions } from 'typings';
+import { InitializationStrategy } from 'initialization';
 
 export interface EnvironmentListenersNameArgsMap {
   _: undefined;
 }
 
-export interface Environment {
+export interface InternalEnvironment {
   readonly _nativeScrollbarSize: XY;
   readonly _nativeScrollbarIsOverlaid: XY<boolean>;
   readonly _nativeScrollbarStyling: boolean;
   readonly _rtlScrollBehavior: { n: boolean; i: boolean };
   readonly _flexboxGlue: boolean;
   readonly _cssCustomProperties: boolean;
-  readonly _defaultInitializationStrategy: DefaultInitializationStrategy;
-  readonly _defaultDefaultOptions: OSOptions;
+  readonly _defaultInitializationStrategy: InitializationStrategy;
+  readonly _defaultDefaultOptions: Options;
   _addListener(listener: EventListener<EnvironmentListenersNameArgsMap, '_'>): () => void;
   _getInitializationStrategy(): InitializationStrategy;
   _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
-  _getDefaultOptions(): OSOptions;
-  _setDefaultOptions(newDefaultOptions: PartialOptions<OSOptions>): void;
+  _getDefaultOptions(): Options;
+  _setDefaultOptions(newDefaultOptions: PartialOptions<Options>): void;
 }
 
-let environmentInstance: Environment;
+let environmentInstance: InternalEnvironment;
 const { abs, round } = Math;
 
 const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
@@ -199,15 +149,12 @@ const getWindowDPR = (): number => {
 
 const getDefaultInitializationStrategy = (
   nativeScrollbarStyling: boolean
-): DefaultInitializationStrategy => ({
-  _host: null,
-  _viewport: null,
+): InitializationStrategy => ({
   _padding: !nativeScrollbarStyling,
   _content: false,
-  _scrollbarsSlot: null,
 });
 
-const createEnvironment = (): Environment => {
+const createEnvironment = (): InternalEnvironment => {
   const { body } = document;
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
@@ -226,7 +173,7 @@ const createEnvironment = (): Environment => {
   const initializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
   const defaultDefaultOptions = assignDeep({}, defaultOptions);
 
-  const env: Environment = {
+  const env: InternalEnvironment = {
     _nativeScrollbarSize: nativeScrollbarSize,
     _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
     _nativeScrollbarStyling: nativeScrollbarStyling,
@@ -242,11 +189,7 @@ const createEnvironment = (): Environment => {
     _setInitializationStrategy(newInitializationStrategy) {
       assignDeep(initializationStrategy, newInitializationStrategy);
     },
-    _getDefaultOptions: assignDeep<OSOptions, OSOptions>.bind(
-      0,
-      {} as OSOptions,
-      defaultDefaultOptions
-    ),
+    _getDefaultOptions: assignDeep<Options, Options>.bind(0, {} as Options, defaultDefaultOptions),
     _setDefaultOptions(newDefaultOptions) {
       assignDeep(defaultDefaultOptions, newDefaultOptions);
     },
@@ -305,9 +248,11 @@ const createEnvironment = (): Environment => {
   return env;
 };
 
-export const getEnvironment = (): Environment => {
+const getEnvironment = (): InternalEnvironment => {
   if (!environmentInstance) {
     environmentInstance = createEnvironment();
   }
   return environmentInstance;
 };
+
+export { getEnvironment };

@@ -1,13 +1,14 @@
-import {
-  Environment,
-  StructureInitializationStrategyStaticElement,
-  StructureInitializationStrategyDynamicElement,
-} from 'environment';
-import { OSTarget, StructureInitialization } from 'typings';
+import { InternalEnvironment } from 'environment';
 import {
   createStructureSetupElements,
   StructureSetupElementsObj,
 } from 'setups/structureSetup/structureSetup.elements';
+import type { InitializationTarget, InitializtationElementStrategy } from 'initialization';
+import type {
+  StructureInitialization,
+  StructureStaticInitializationElement,
+  StructureDynamicInitializationElement,
+} from 'setups/structureSetup/structureSetup.initialization';
 import { isHTMLElement } from 'support';
 
 const mockGetEnvironment = jest.fn();
@@ -16,7 +17,7 @@ jest.mock('environment', () => ({
 }));
 
 interface StructureSetupElementsProxy {
-  input: OSTarget;
+  input: InitializationTarget;
   elements: StructureSetupElementsObj;
   destroy: () => void;
 }
@@ -95,7 +96,7 @@ const assertCorrectDOMStructure = (textarea?: boolean) => {
 };
 
 const createStructureSetupProxy = (
-  target: OSTarget | StructureInitialization
+  target: InitializationTarget | StructureInitialization
 ): StructureSetupElementsProxy => {
   const [elements, destroy] = createStructureSetupElements(target);
   return {
@@ -108,7 +109,7 @@ const createStructureSetupProxy = (
 const assertCorrectSetupElements = (
   textarea: boolean,
   setupElementsProxy: StructureSetupElementsProxy,
-  environment: Environment
+  environment: InternalEnvironment
 ): [StructureSetupElementsObj, () => void] => {
   const { input, elements, destroy } = setupElementsProxy;
   const { _target, _host, _padding, _viewport, _content } = elements;
@@ -165,11 +166,11 @@ const assertCorrectSetupElements = (
   const styleElm = document.querySelector('style');
   const checkStrategyDependendElements = (
     elm: Element | null,
-    input: HTMLElement | boolean | undefined,
+    input: StructureStaticInitializationElement | StructureDynamicInitializationElement,
     isStaticStrategy: boolean,
     strategy:
-      | StructureInitializationStrategyStaticElement
-      | StructureInitializationStrategyDynamicElement
+      | InitializtationElementStrategy<StructureStaticInitializationElement>
+      | InitializtationElementStrategy<StructureDynamicInitializationElement>
   ) => {
     if (input) {
       expect(elm).toBeTruthy();
@@ -179,7 +180,8 @@ const assertCorrectSetupElements = (
       }
       if (input === undefined) {
         if (isStaticStrategy) {
-          strategy = strategy as StructureInitializationStrategyStaticElement;
+          strategy =
+            strategy as InitializtationElementStrategy<StructureStaticInitializationElement>;
           if (typeof strategy === 'function') {
             const result = strategy(target);
             if (result) {
@@ -191,14 +193,13 @@ const assertCorrectSetupElements = (
             expect(elm).toBeTruthy();
           }
         } else {
-          strategy = strategy as StructureInitializationStrategyDynamicElement;
+          strategy =
+            strategy as InitializtationElementStrategy<StructureDynamicInitializationElement>;
           expect(strategy).not.toBe(null);
           expect(strategy).not.toBe(undefined);
           if (typeof strategy === 'function') {
             const result = strategy(target);
             const resultIsBoolean = typeof result === 'boolean';
-            expect(result).not.toBe(null);
-            expect(result).not.toBe(undefined);
             if (resultIsBoolean) {
               if (result) {
                 expect(elm).toBeTruthy();
@@ -265,7 +266,7 @@ const assertCorrectDestroy = (snapshot: string, destroy: () => void) => {
   expect(snapshot).toBe(getSnapshot());
 };
 
-const env: Environment = jest.requireActual('environment').getEnvironment();
+const env: InternalEnvironment = jest.requireActual('environment').getEnvironment();
 const envDefault = {
   name: 'default',
   env,
@@ -317,12 +318,8 @@ const envInitStrategyAssigned = {
     _getInitializationStrategy: () => ({
       _host: () => document.querySelector('#host1') as HTMLElement,
       _viewport: (target: HTMLElement) => target.querySelector('#viewport') as HTMLElement,
-      _content: (target: HTMLElement) =>
-        target.querySelector<HTMLElement>('#content') ||
-        env._defaultInitializationStrategy._content,
-      _padding: (target: HTMLElement) =>
-        target.querySelector<HTMLElement>('#padding') ||
-        env._defaultInitializationStrategy._padding,
+      _content: (target: HTMLElement) => target.querySelector<HTMLElement>('#content'),
+      _padding: (target: HTMLElement) => target.querySelector<HTMLElement>('#padding'),
       _scrollbarsSlot: null,
     }),
   },

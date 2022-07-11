@@ -1,4 +1,3 @@
-import { OSTarget, OSInitializationObject, PartialOptions, OverflowStyle } from 'typings';
 import {
   assignDeep,
   isEmptyObject,
@@ -8,10 +7,11 @@ import {
   isHTMLElement,
   XY,
   TRBL,
+  createEventListenerHub,
 } from 'support';
 import { createStructureSetup, createScrollbarsSetup } from 'setups';
-import { getOptionsDiff, OSOptions, ReadonlyOSOptions } from 'options';
-import { DefaultInitializationStrategy, getEnvironment, InitializationStrategy } from 'environment';
+import { getOptionsDiff, Options, ReadonlyOSOptions } from 'options';
+import { getEnvironment } from 'environment';
 import {
   getPlugins,
   addPlugin,
@@ -20,41 +20,56 @@ import {
   OptionsValidationPluginInstance,
 } from 'plugins';
 import { addInstance, getInstance, removeInstance } from 'instances';
-import {
-  createOSEventListenerHub,
-  InitialOSEventListeners,
-  AddOSEventListener,
-  RemoveOSEventListener,
-} from 'eventListeners';
+import type { PartialOptions, OverflowStyle } from 'typings';
+import type {
+  InitializationTarget,
+  InitializationTargetObject,
+  InitializationStrategy,
+} from 'initialization';
+import type {
+  InitialEventListeners as GeneralInitialEventListeners,
+  EventListener as GeneralEventListener,
+} from 'support/eventListeners';
+
+/*
+onScrollStart               : null,
+onScroll                    : null,
+onScrollStop                : null,
+onOverflowChanged           : null,
+onOverflowAmountChanged     : null, // fusion with onOverflowChanged
+onDirectionChanged          : null, // gone
+onContentSizeChanged        : null, // gone
+onHostSizeChanged           : null, // gone
+*/
 
 export interface OverlayScrollbarsStatic {
   (
-    target: OSTarget | OSInitializationObject,
-    options?: PartialOptions<OSOptions>,
-    eventListeners?: InitialOSEventListeners
+    target: InitializationTarget | InitializationTargetObject,
+    options?: PartialOptions<Options>,
+    eventListeners?: GeneralInitialEventListeners<EventListenerMap>
   ): OverlayScrollbars;
 
   plugin(osPlugin: OSPlugin | OSPlugin[]): void;
-  env(): OverlayScrollbarsEnv;
+  env(): Environment;
 }
 
-export interface OverlayScrollbarsEnv {
+export interface Environment {
   scrollbarSize: XY<number>;
   scrollbarIsOverlaid: XY<boolean>;
   scrollbarStyling: boolean;
   rtlScrollBehavior: { n: boolean; i: boolean };
   flexboxGlue: boolean;
   cssCustomProperties: boolean;
-  defaultInitializationStrategy: DefaultInitializationStrategy;
-  defaultDefaultOptions: OSOptions;
+  defaultInitializationStrategy: InitializationStrategy;
+  defaultDefaultOptions: Options;
 
   getInitializationStrategy(): InitializationStrategy;
   setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
-  getDefaultOptions(): OSOptions;
-  setDefaultOptions(newDefaultOptions: PartialOptions<OSOptions>): void;
+  getDefaultOptions(): Options;
+  setDefaultOptions(newDefaultOptions: PartialOptions<Options>): void;
 }
 
-export interface OverlayScrollbarsState {
+export interface State {
   padding: TRBL;
   paddingAbsolute: boolean;
   overflowAmount: XY<number>;
@@ -62,7 +77,7 @@ export interface OverlayScrollbarsState {
   hasOverflow: XY<boolean>;
 }
 
-export interface OverlayScrollbarsElements {
+export interface Elements {
   target: HTMLElement;
   host: HTMLElement;
   padding: HTMLElement;
@@ -70,18 +85,51 @@ export interface OverlayScrollbarsElements {
   content: HTMLElement;
 }
 
+export interface OnUpdatedEventListenerArgs {
+  updateHints: {
+    sizeChanged: boolean;
+    directionChanged: boolean;
+    heightIntrinsicChanged: boolean;
+    overflowAmountChanged: boolean;
+    overflowStyleChanged: boolean;
+    hostMutation: boolean;
+    contentMutation: boolean;
+  };
+  changedOptions: PartialOptions<Options>;
+  force: boolean;
+}
+
+export interface EventListenerMap {
+  initialized: undefined;
+  initializationWithdrawn: undefined;
+  updated: OnUpdatedEventListenerArgs;
+  destroyed: undefined;
+}
+
+export type InitialEventListeners = GeneralInitialEventListeners<EventListenerMap>;
+
+export type EventListener<Name extends keyof EventListenerMap> = GeneralEventListener<
+  EventListenerMap,
+  Name
+>;
+
 export interface OverlayScrollbars {
-  options(): OSOptions;
-  options(newOptions?: PartialOptions<OSOptions>): OSOptions;
+  options(): Options;
+  options(newOptions?: PartialOptions<Options>): Options;
 
   update(force?: boolean): void;
+
   destroy(): void;
 
-  state(): OverlayScrollbarsState;
-  elements(): OverlayScrollbarsElements;
+  state(): State;
 
-  on: AddOSEventListener;
-  off: RemoveOSEventListener;
+  elements(): Elements;
+
+  on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>): () => void;
+  on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>[]): () => void;
+
+  off<Name extends keyof EventListenerMap>(name: Name, listener?: EventListener<Name>): void;
+  off<Name extends keyof EventListenerMap>(name: Name, listener?: EventListener<Name>[]): void;
 }
 
 /**
@@ -109,7 +157,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   const optionsValidationPlugin = plugins[
     optionsValidationPluginName
   ] as OptionsValidationPluginInstance;
-  const validateOptions = (newOptions?: PartialOptions<OSOptions>) => {
+  const validateOptions = (newOptions?: PartialOptions<Options>) => {
     const opts = newOptions || {};
     const validate = optionsValidationPlugin && optionsValidationPlugin._;
     return validate ? validate(opts, true) : opts;
@@ -119,7 +167,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     _getDefaultOptions(),
     validateOptions(options)
   );
-  const [addEvent, removeEvent, triggerEvent] = createOSEventListenerHub(eventListeners);
+  const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
 
   if (
     _nativeScrollbarIsOverlaid.x &&
@@ -139,7 +187,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     structureState._elements
   );
 
-  const update = (changedOptions: PartialOptions<OSOptions>, force?: boolean) => {
+  const update = (changedOptions: PartialOptions<Options>, force?: boolean) => {
     updateStructure(changedOptions, force);
     updateScrollbars(changedOptions, force);
   };
@@ -173,7 +221,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   });
 
   const instance: OverlayScrollbars = {
-    options(newOptions?: PartialOptions<OSOptions>) {
+    options(newOptions?: PartialOptions<Options>) {
       if (newOptions) {
         const changedOptions = getOptionsDiff(currentOptions, validateOptions(newOptions));
 
