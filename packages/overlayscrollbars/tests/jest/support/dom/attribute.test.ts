@@ -1,6 +1,15 @@
-import { attr, removeAttr, val, scrollLeft, scrollTop } from 'support/dom/attribute';
+import {
+  attr,
+  attrClass,
+  hasAttrClass,
+  removeAttr,
+  val,
+  scrollLeft,
+  scrollTop,
+} from 'support/dom/attribute';
 
 const testElm = document.body;
+const getAttribute = (name: string) => testElm.getAttribute(name);
 const setAttribute = (name: string, value: string) => {
   testElm.setAttribute(name, value);
 };
@@ -43,6 +52,66 @@ describe('dom attributes', () => {
     test('null', () => {
       expect(attr(null, 'hi')).toBe(null);
       expect(attr(null, 'hi', '123')).toBe(undefined);
+    });
+  });
+
+  describe('attrClass', () => {
+    test('add', () => {
+      const attrName = 'data-test-attrClass-add';
+
+      attrClass(testElm, attrName, '000', true);
+      expect(getAttribute(attrName)).toBe('000');
+
+      setAttribute(attrName, '123');
+      attrClass(testElm, attrName, '456', true);
+      expect(getAttribute(attrName)).toBe('123 456');
+
+      attrClass(testElm, attrName, '789', true);
+      attrClass(testElm, attrName, '789', true);
+      expect(getAttribute(attrName)).toBe('123 456 789');
+
+      attrClass(testElm, attrName, '', true);
+      expect(getAttribute(attrName)).toBe('123 456 789');
+
+      removeAttribute(attrName);
+    });
+
+    test('remove', () => {
+      const attrName = 'data-test-attrClass-remove';
+
+      setAttribute(attrName, '123');
+      attrClass(testElm, attrName, '456');
+      expect(getAttribute(attrName)).toBe('123');
+
+      attrClass(testElm, attrName, '123');
+      expect(getAttribute(attrName)).toBe('');
+      attrClass(testElm, attrName, '123');
+      expect(getAttribute(attrName)).toBe('');
+
+      attrClass(testElm, attrName, '', true);
+      expect(getAttribute(attrName)).toBe('');
+
+      removeAttribute(attrName);
+    });
+  });
+
+  describe('hasAttrClass', () => {
+    test('hasAttrClass', () => {
+      const attrName = 'data-test-hasAttrClass';
+
+      expect(hasAttrClass(testElm, attrName, '123')).toBe(false);
+
+      setAttribute(attrName, '123');
+      attrClass(testElm, attrName, '456', true);
+      attrClass(testElm, attrName, '789', true);
+      expect(hasAttrClass(testElm, attrName, '123')).toBe(true);
+      expect(hasAttrClass(testElm, attrName, '456')).toBe(true);
+      expect(hasAttrClass(testElm, attrName, '789')).toBe(true);
+      expect(hasAttrClass(testElm, attrName, '123 456 789')).toBe(false);
+
+      expect(hasAttrClass(testElm, attrName, '')).toBe(false);
+
+      removeAttribute(attrName);
     });
   });
 

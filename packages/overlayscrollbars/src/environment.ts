@@ -147,13 +147,6 @@ const getWindowDPR = (): number => {
   return window.devicePixelRatio || dDPI / sDPI;
 };
 
-const getDefaultInitializationStrategy = (
-  nativeScrollbarStyling: boolean
-): InitializationStrategy => ({
-  _padding: !nativeScrollbarStyling,
-  _content: false,
-});
-
 const createEnvironment = (): InternalEnvironment => {
   const { body } = document;
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
@@ -170,7 +163,10 @@ const createEnvironment = (): InternalEnvironment => {
     x: nativeScrollbarSize.x === 0,
     y: nativeScrollbarSize.y === 0,
   };
-  const initializationStrategy = getDefaultInitializationStrategy(nativeScrollbarStyling);
+  const initializationStrategy = {
+    _padding: !nativeScrollbarStyling,
+    _content: false,
+  };
   const defaultDefaultOptions = assignDeep({}, defaultOptions);
 
   const env: InternalEnvironment = {

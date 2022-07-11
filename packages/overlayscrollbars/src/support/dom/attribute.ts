@@ -39,6 +39,13 @@ export function attr(
   elm && elm.setAttribute(attrName, value);
 }
 
+/**
+ * Treats the given attribute like the "class" attribute and adds or removes the given value from it.
+ * @param elm The element.
+ * @param attrName The attributeName to which the value shall be added or removed.
+ * @param value The value which shall be added or removed.
+ * @param add True if the value shall be added, false otherwise.
+ */
 export const attrClass = (
   elm: HTMLElement | false | null | undefined,
   attrName: string,
@@ -52,6 +59,13 @@ export const attrClass = (
   attr(elm, attrName, from(currValuesSet).join(' ').trim());
 };
 
+/**
+ * Treats the given attribute like the "class" attribute and checks if the given value is in it.
+ * @param elm The element.
+ * @param attrName The attributeName from which the content shall be checked.
+ * @param value The value.
+ * @returns True if the given attribute has the value in it, false otherwise.
+ */
 export const hasAttrClass = (
   elm: HTMLElement | false | null | undefined,
   attrName: string,

@@ -19,6 +19,7 @@ describe('dom class names', () => {
   describe('add', () => {
     test('none', () => {
       addClass(testElm, '');
+      addClass(testElm, ' ');
       // @ts-ignore
       addClass(testElm, null);
       // @ts-ignore
@@ -53,6 +54,7 @@ describe('dom class names', () => {
     test('none', () => {
       addClass(testElm, 'test-class');
       removeClass(testElm, '');
+      removeClass(testElm, ' ');
       // @ts-ignore
       removeClass(testElm, null);
       // @ts-ignore
@@ -82,6 +84,7 @@ describe('dom class names', () => {
   describe('has', () => {
     test('none', () => {
       expect(hasClass(testElm, '')).toBe(false);
+      expect(hasClass(testElm, ' ')).toBe(false);
     });
 
     test('single', () => {
@@ -103,6 +106,7 @@ describe('dom class names', () => {
   describe('diff', () => {
     test('none', () => {
       expect(diffClass('', '')).toEqual([]);
+      expect(diffClass('', ' ')).toEqual([]);
     });
 
     test('single', () => {

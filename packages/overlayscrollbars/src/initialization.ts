@@ -1,4 +1,4 @@
-import { isFunction, isBoolean, isNull, isUndefined } from 'support';
+import { isFunction, isNull, isUndefined } from 'support';
 import type {
   StructureInitialization,
   StructureInitializationStrategy,
@@ -47,23 +47,20 @@ export type DefaultInitializtationElementStrategy<
   ? (...args: P) => HTMLElement
   : never;
 
+const resolveInitialization = <T>(value: any, args: any): T =>
+  isFunction(value) ? value.apply(0, args) : value;
+
 const staticInitializationElement = <T extends StaticInitializationElement<any>>(
   args: Parameters<Extract<T, (...args: any[]) => any>>,
   defaultStaticInitializationElement: DefaultInitializtationElementStrategy<T>,
   staticInitializationElementStrategy?: InitializtationElementStrategy<T>,
   staticInitializationElementValue?: T | false
-): HTMLElement => {
-  const result =
+): HTMLElement =>
+  resolveInitialization<StaticInitialization>(
     staticInitializationElementValue ||
-    (isFunction(staticInitializationElementStrategy)
-      ? staticInitializationElementStrategy.apply(0, args)
-      : staticInitializationElementStrategy);
-
-  return (
-    (isFunction(result) ? result.apply(0, args) : result) ||
-    defaultStaticInitializationElement.apply(0, args)
-  );
-};
+      resolveInitialization<StaticInitialization>(staticInitializationElementStrategy, args),
+    args
+  ) || defaultStaticInitializationElement.apply(0, args);
 
 const dynamicInitializationElement = <T extends DynamicInitializationElement<any>>(
   args: Parameters<Extract<T, (...args: any[]) => any>>,
@@ -71,15 +68,19 @@ const dynamicInitializationElement = <T extends DynamicInitializationElement<any
   dynamicInitializationElementStrategy?: InitializtationElementStrategy<T>,
   dynamicInitializationElementValue?: T | false
 ): HTMLElement | false => {
-  const takeInitializationValue =
-    isBoolean(dynamicInitializationElementValue) || !!dynamicInitializationElementValue;
-  const result = takeInitializationValue
-    ? (dynamicInitializationElementValue as boolean | HTMLElement)
-    : isFunction(dynamicInitializationElementStrategy)
-    ? dynamicInitializationElementStrategy.apply(0, args)
-    : dynamicInitializationElementStrategy;
+  let result = resolveInitialization<DynamicInitialization>(
+    dynamicInitializationElementValue,
+    args
+  );
 
-  return result === true || isNull(result) || isUndefined(result) || isFunction(result)
+  if (isNull(result) || isUndefined(result)) {
+    result = resolveInitialization<DynamicInitialization>(
+      dynamicInitializationElementStrategy,
+      args
+    );
+  }
+
+  return result === true || isNull(result) || isUndefined(result)
     ? defaultDynamicInitializationElement.apply(0, args)
     : result;
 };

@@ -92,8 +92,8 @@ const createUniqueViewportArrangeElement = (): HTMLStyleElement | false => {
   return result;
 };
 
-const addDataAttrHost = (elm: HTMLElement, value?: string | false | null | undefined) => {
-  attr(elm, dataAttributeHost, value || '');
+const addDataAttrHost = (elm: HTMLElement, value: string) => {
+  attr(elm, dataAttributeHost, value);
   return removeAttr.bind(0, elm, dataAttributeHost);
 };
 
@@ -117,7 +117,7 @@ export const createStructureSetupElements = (
   const ownerDocument = targetElement!.ownerDocument;
   const bodyElm = ownerDocument.body as HTMLBodyElement;
   const wnd = ownerDocument.defaultView as Window;
-  const singleElmSupport = !!ResizeObserverConstructor && _nativeScrollbarStyling;
+  const singleElmSupport = !!ResizeObserverConstructor && !isTextarea && _nativeScrollbarStyling;
   const staticInitializationElement =
     generalStaticInitializationElement<StructureStaticInitializationElement>.bind(0, [
       targetElement,
@@ -126,17 +126,18 @@ export const createStructureSetupElements = (
     generalDynamicInitializationElement<StructureDynamicInitializationElement>.bind(0, [
       targetElement,
     ]);
-  const potentialViewportElement = staticInitializationElement(
-    createNewDiv,
-    viewportInitializationStrategy,
-    targetStructureInitialization.viewport
-  );
-  const potentiallySingleElm = potentialViewportElement === targetElement;
-  const viewportIsTarget = singleElmSupport && potentiallySingleElm;
-  const viewportElement =
-    potentiallySingleElm && !viewportIsTarget
-      ? staticInitializationElement(createNewDiv)
-      : potentialViewportElement;
+  const viewportElement = [
+    staticInitializationElement(
+      createNewDiv,
+      viewportInitializationStrategy,
+      targetStructureInitialization.viewport
+    ),
+    staticInitializationElement(createNewDiv, viewportInitializationStrategy),
+    staticInitializationElement(createNewDiv),
+  ].filter((potentialViewport) =>
+    !singleElmSupport ? potentialViewport !== targetElement : true
+  )[0];
+  const viewportIsTarget = viewportElement === targetElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: isTextarea
@@ -147,16 +148,20 @@ export const createStructureSetupElements = (
         )
       : (targetElement as HTMLElement),
     _viewport: viewportElement,
-    _padding: dynamicInitializationElement(
-      createNewDiv,
-      paddingInitializationStrategy,
-      targetStructureInitialization.padding
-    ),
-    _content: dynamicInitializationElement(
-      createNewDiv,
-      contentInitializationStrategy,
-      targetStructureInitialization.content
-    ),
+    _padding:
+      !viewportIsTarget &&
+      dynamicInitializationElement(
+        createNewDiv,
+        paddingInitializationStrategy,
+        targetStructureInitialization.padding
+      ),
+    _content:
+      !viewportIsTarget &&
+      dynamicInitializationElement(
+        createNewDiv,
+        contentInitializationStrategy,
+        targetStructureInitialization.content
+      ),
     _viewportArrange: !viewportIsTarget && createUniqueViewportArrangeElement(),
     _windowElm: wnd,
     _documentElm: ownerDocument,
