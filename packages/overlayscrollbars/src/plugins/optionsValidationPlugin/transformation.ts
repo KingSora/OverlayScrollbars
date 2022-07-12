@@ -4,7 +4,7 @@ import {
   OptionsTemplateNativeTypes,
   OptionsTemplateTypes,
   OptionsTemplateValue,
-} from 'plugins/optionsValidation/validation';
+} from 'plugins/optionsValidationPlugin/validation';
 import { PlainObject } from 'typings';
 import { isArray } from 'support/utils/types';
 import { each, keys } from 'support/utils';
