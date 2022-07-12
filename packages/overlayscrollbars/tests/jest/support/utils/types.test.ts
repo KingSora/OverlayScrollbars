@@ -73,7 +73,9 @@ describe('types', () => {
     expect(type(new Number(3))).toBe('number');
     expect(type('test')).toBe('string');
     expect(type(new String('test'))).toBe('string');
+    // eslint-disable-next-line prefer-arrow-callback
     expect(type(function () {})).toBe('function');
+    expect(type(() => {})).toBe('function');
     expect(type([])).toBe('array');
     expect(type([])).toBe('array');
     expect(type(new Date())).toBe('date');

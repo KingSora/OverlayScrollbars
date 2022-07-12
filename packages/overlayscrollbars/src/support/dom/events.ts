@@ -12,7 +12,7 @@ const supportPassiveEvents = (): boolean => {
         'test',
         null,
         Object.defineProperty({}, 'passive', {
-          get: function () {
+          get() {
             passiveEventsSupport = true;
           },
         })

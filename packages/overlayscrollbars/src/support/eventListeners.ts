@@ -24,21 +24,32 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
   type EventListener<Name extends keyof EventMap = keyof EventMap> = (
     ...args: EventMap[Name]
   ) => void;
+  type RemoveEvent = {
+    <Name extends keyof EventMap>(name?: Name, listener?: EventListener<Name>): void;
+    <Name extends keyof EventMap>(name?: Name, listener?: EventListener<Name>[]): void;
+    <Name extends keyof EventMap>(
+      name?: Name,
+      listener?: EventListener<Name> | EventListener<Name>[]
+    ): void;
+  };
+  type AddEvent = {
+    <Name extends keyof EventMap>(name: Name, listener: EventListener<Name>): () => void;
+    <Name extends keyof EventMap>(name: Name, listener: EventListener<Name>[]): () => void;
+    <Name extends keyof EventMap>(
+      name: Name,
+      listener: EventListener<Name> | EventListener<Name>[]
+    ): () => void;
+  };
+  type TriggerEvent = {
+    <Name extends keyof EventMap>(name: Name, args?: EventMap[Name]): void;
+  };
 
   const events = new Map<keyof EventMap, Set<EventListener>>();
 
-  function removeEvent<Name extends keyof EventMap>(
-    name?: Name,
-    listener?: EventListener<Name>
-  ): void;
-  function removeEvent<Name extends keyof EventMap>(
-    name?: Name,
-    listener?: EventListener<Name>[]
-  ): void;
-  function removeEvent<Name extends keyof EventMap>(
+  const removeEvent: RemoveEvent = <Name extends keyof EventMap>(
     name?: Name,
     listener?: EventListener<Name> | EventListener<Name>[]
-  ): void {
+  ): void => {
     if (name) {
       const eventSet = events.get(name);
       manageListener((currListener) => {
@@ -52,20 +63,12 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
       });
       events.clear();
     }
-  }
+  };
 
-  function addEvent<Name extends keyof EventMap>(
-    name: Name,
-    listener: EventListener<Name>
-  ): () => void;
-  function addEvent<Name extends keyof EventMap>(
-    name: Name,
-    listener: EventListener<Name>[]
-  ): () => void;
-  function addEvent<Name extends keyof EventMap>(
+  const addEvent: AddEvent = <Name extends keyof EventMap>(
     name: Name,
     listener: EventListener<Name> | EventListener<Name>[]
-  ): () => void {
+  ): (() => void) => {
     const eventSet = events.get(name) || new Set();
     events.set(name, eventSet);
 
@@ -74,9 +77,12 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
     }, listener as any);
 
     return removeEvent.bind(0, name as any, listener as any);
-  }
+  };
 
-  function triggerEvent<Name extends keyof EventMap>(name: Name, args?: EventMap[Name]): void {
+  const triggerEvent: TriggerEvent = <Name extends keyof EventMap>(
+    name: Name,
+    args?: EventMap[Name]
+  ): void => {
     const eventSet = events.get(name);
 
     each(from(eventSet), (event) => {
@@ -86,16 +92,12 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
         (event as () => void)();
       }
     });
-  }
+  };
 
   const initialListenerKeys = keys(initialEventListeners) as Extract<keyof EventMap, string>[];
   each(initialListenerKeys, (key) => {
     addEvent(key, initialEventListeners![key] as any);
   });
 
-  return [addEvent, removeEvent, triggerEvent] as [
-    typeof addEvent,
-    typeof removeEvent,
-    typeof triggerEvent
-  ];
+  return [addEvent, removeEvent, triggerEvent] as [AddEvent, RemoveEvent, TriggerEvent];
 };

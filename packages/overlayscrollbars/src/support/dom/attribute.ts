@@ -3,17 +3,32 @@ import { isUndefined } from 'support/utils/types';
 
 type GetSetPropName = 'scrollLeft' | 'scrollTop' | 'value';
 
-function getSetProp(
+type Attr = {
+  (elm: HTMLElement | false | null | undefined, attrName: string): string | null;
+  (elm: HTMLElement | false | null | undefined, attrName: string, value: string): void;
+  (elm: HTMLElement | false | null | undefined, attrName: string, value?: string):
+    | string
+    | null
+    | void;
+};
+
+type GetSetProp = {
+  (elm: HTMLElement | false | null | undefined): number;
+  (elm: HTMLElement | false | null | undefined, value: number): void;
+  (elm: HTMLElement | false | null | undefined, value?: number): number | void;
+};
+
+const getSetProp = (
   topLeft: GetSetPropName,
   fallback: number | string,
   elm: HTMLElement | HTMLInputElement | false | null | undefined,
   value?: number | string
-): number | string | void {
+): number | string | void => {
   if (isUndefined(value)) {
     return elm ? elm[topLeft] : fallback;
   }
   elm && (elm[topLeft] = value);
-}
+};
 
 /**
  * Gets or sets a attribute with the given attribute of the given element depending whether the value attribute is given.
@@ -22,22 +37,16 @@ function getSetProp(
  * @param attrName The attribute name which shall be get or set.
  * @param value The value of the attribute which shall be set.
  */
-export function attr(elm: HTMLElement | false | null | undefined, attrName: string): string | null;
-export function attr(
-  elm: HTMLElement | false | null | undefined,
-  attrName: string,
-  value: string
-): void;
-export function attr(
+export const attr = ((
   elm: HTMLElement | false | null | undefined,
   attrName: string,
   value?: string
-): string | null | void {
+): string | null | void => {
   if (isUndefined(value)) {
     return elm ? elm.getAttribute(attrName) : null;
   }
   elm && elm.setAttribute(attrName, value);
-}
+}) as Attr;
 
 /**
  * Treats the given attribute like the "class" attribute and adds or removes the given value from it.
@@ -90,39 +99,27 @@ export const removeAttr = (elm: Element | false | null | undefined, attrName: st
  * @param elm The element of which the scrollLeft value shall be get or set.
  * @param value The scrollLeft value which shall be set.
  */
-export function scrollLeft(elm: HTMLElement | false | null | undefined): number;
-export function scrollLeft(elm: HTMLElement | false | null | undefined, value: number): void;
-export function scrollLeft(
+export const scrollLeft = ((
   elm: HTMLElement | false | null | undefined,
   value?: number
-): number | void {
-  return getSetProp('scrollLeft', 0, elm, value) as number;
-}
+): number | void => getSetProp('scrollLeft', 0, elm, value) as number) as GetSetProp;
 
 /**
  * Gets or sets the scrollTop value of the given element depending whether the value attribute is given.
  * @param elm The element of which the scrollTop value shall be get or set.
  * @param value The scrollTop value which shall be set.
  */
-export function scrollTop(elm: HTMLElement | false | null | undefined): number;
-export function scrollTop(elm: HTMLElement | false | null | undefined, value: number): void;
-export function scrollTop(
+export const scrollTop = ((
   elm: HTMLElement | false | null | undefined,
   value?: number
-): number | void {
-  return getSetProp('scrollTop', 0, elm, value) as number;
-}
+): number | void => getSetProp('scrollTop', 0, elm, value) as number) as GetSetProp;
 
 /**
  * Gets or sets the value of the given input element depending whether the value attribute is given.
  * @param elm The input element of which the value shall be get or set.
  * @param value The value which shall be set.
  */
-export function val(elm: HTMLInputElement | false | null | undefined): string;
-export function val(elm: HTMLInputElement | false | null | undefined, value: string): void;
-export function val(
+export const val = ((
   elm: HTMLInputElement | false | null | undefined,
   value?: string
-): string | void {
-  return getSetProp('value', '', elm, value) as string;
-}
+): string | void => getSetProp('value', '', elm, value) as string) as GetSetProp;

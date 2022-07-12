@@ -28,16 +28,20 @@ const cssNumber = {
 const parseToZeroOrNumber = (value: string, toFloat?: boolean): number => {
   /* istanbul ignore next */
   const num = toFloat ? parseFloat(value) : parseInt(value, 10);
+  // num === num means num is not NaN
   /* istanbul ignore next */
-  return Number.isNaN(num) ? 0 : num;
+  return num === num ? num : 0; // eslint-disable-line no-self-compare
 };
+
 const adaptCSSVal = (prop: string, val: string | number): string | number =>
   !cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val;
+
 const getCSSVal = (elm: HTMLElement, computedStyle: CSSStyleDeclaration, prop: string): string =>
   /* istanbul ignore next */
   computedStyle != null
     ? computedStyle[prop] || computedStyle.getPropertyValue(prop)
     : elm.style[prop];
+
 const setCSSVal = (
   elm: HTMLElement | false | null | undefined,
   prop: string,

@@ -1,7 +1,17 @@
-import { off, preventDefault, stopPropagation, stopAndPrevent, OnOptions } from 'support/dom/events';
+import {
+  off,
+  preventDefault,
+  stopPropagation,
+  stopAndPrevent,
+  OnOptions,
+} from 'support/dom/events';
 
 const testElm = document.body;
-const mockEventListener = (passive?: boolean, add?: (...args: any) => any, remove?: (...args: any) => any) => {
+const mockEventListener = (
+  passive?: boolean,
+  add?: (...args: any) => any,
+  remove?: (...args: any) => any
+) => {
   const originalAdd = testElm.addEventListener;
   const originalRemove = testElm.removeEventListener;
   const originalWindow = window.addEventListener;
@@ -59,23 +69,31 @@ describe('dom events', () => {
       const removeFn = eventsModule.on(testElm, eventNames, eventListener, options);
 
       eventNames.split(' ').forEach((eventName, index) => {
-        expect(mockFnAdd).toHaveBeenCalledWith(eventName, once ? onceListeners[index] : eventListener, expectObjAdd);
+        expect(mockFnAdd).toHaveBeenCalledWith(
+          eventName,
+          once ? onceListeners[index] : eventListener,
+          expectObjAdd
+        );
       });
 
       removeFn();
       eventNames.split(' ').forEach((eventName, index) => {
-        expect(mockFnRemove).toHaveBeenCalledWith(eventName, once ? onceListeners[index] : eventListener, expectObjRemove);
+        expect(mockFnRemove).toHaveBeenCalledWith(
+          eventName,
+          once ? onceListeners[index] : eventListener,
+          expectObjRemove
+        );
       });
 
       revert();
     };
 
-    beforeEach(() => {
-      return import('support/dom/events').then((module) => {
+    beforeEach(() =>
+      import('support/dom/events').then((module) => {
         eventsModule = module;
         jest.resetModules();
-      });
-    });
+      })
+    );
 
     [true, false].forEach((passiveSupport) => {
       describe(`passive event listeners support: ${passiveSupport}`, () => {

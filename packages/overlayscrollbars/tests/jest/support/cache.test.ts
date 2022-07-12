@@ -2,12 +2,10 @@ import { createCache } from 'support/cache';
 
 const createUpdater = <T>(updaterReturn: (i: number) => T) => {
   let index = 0;
-  const updater = jest.fn(
-    (): T => {
-      index += 1;
-      return updaterReturn(index);
-    }
-  );
+  const updater = jest.fn((): T => {
+    index += 1;
+    return updaterReturn(index);
+  });
 
   return updater;
 };
@@ -16,7 +14,7 @@ describe('cache', () => {
   test('creates and updates cache', () => {
     const updater = createUpdater((i) => `${i}`);
     const _initialValue = '';
-    const [updateCache, getCurrentCache] = createCache<string>(
+    const [updateCache, getCurrentCache] = createCache(
       {
         _initialValue,
       },

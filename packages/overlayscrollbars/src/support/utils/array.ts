@@ -35,9 +35,9 @@ export function each(
   callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown
 ): PlainObject | null | undefined;
 export function each<T>(
-  source: ArrayLike<T> | PlainObject | null | undefined,
+  source: Array<T> | ArrayLike<T> | ReadonlyArray<T> | PlainObject | null | undefined,
   callback: (value: T, indexOrKey: any, source: any) => boolean | unknown
-): Array<T> | ReadonlyArray<T> | ArrayLike<T> | PlainObject | null | undefined {
+): Array<T> | ArrayLike<T> | ReadonlyArray<T> | PlainObject | null | undefined {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
       if (callback(source[i], i, source) === false) {
@@ -76,10 +76,12 @@ export const push = <T>(array: T[], items: T | ArrayLike<T>, arrayIsSingleItem?:
  * @param arr The object from which the array instance shall be created.
  */
 export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => {
-  if (Array.from && arr) {
-    return Array.from(arr);
-  }
+  const original = Array.from;
   const result: T[] = [];
+
+  if (original && arr) {
+    return original(arr);
+  }
 
   if (arr instanceof Set) {
     arr.forEach((value) => {
@@ -107,18 +109,9 @@ export const isEmptyArray = (array: any[] | null | undefined): boolean =>
  * @param args The args with which each function is called.
  * @param keep True when the Set / array should not be cleared afterwards, false otherwise.
  */
-export const runEachAndClear = (
-  arr: ArrayLike<RunEachItem> | Set<RunEachItem>,
-  args?: any[],
-  keep?: boolean
-): void => {
+export const runEachAndClear = (arr: RunEachItem[], args?: any[], keep?: boolean): void => {
   // eslint-disable-next-line prefer-spread
   const runFn = (fn: RunEachItem) => fn && fn.apply(undefined, args || []);
-  if (arr instanceof Set) {
-    arr.forEach(runFn);
-    !keep && arr.clear();
-  } else {
-    each(arr, runFn);
-    !keep && (arr as any[]).splice && (arr as any[]).splice(0, arr.length);
-  }
+  each(arr, runFn);
+  !keep && ((arr as any[]).length = 0);
 };

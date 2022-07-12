@@ -301,18 +301,6 @@ describe('array utilities', () => {
       runEachAndClear(arr, ['a', 'b', 'c', 'd']);
       expect(arr.length).toBe(0);
     });
-
-    test('set', () => {
-      const set = new Set([jest.fn(), null, jest.fn(), undefined, jest.fn()]);
-      runEachAndClear(set, [1, 2, 3, 4], true);
-      set.forEach((fn) => {
-        if (fn) {
-          expect(fn).toHaveBeenCalledWith(1, 2, 3, 4);
-        }
-      });
-      runEachAndClear(set, [1, 2, 3, 4]);
-      expect(set.size).toBe(0);
-    });
   });
 
   test('indexOf', () => {

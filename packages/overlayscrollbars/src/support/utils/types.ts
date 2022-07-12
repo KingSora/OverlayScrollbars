@@ -3,15 +3,11 @@ import { PlainObject } from 'typings';
 const ElementNodeType = Node.ELEMENT_NODE;
 const { toString, hasOwnProperty } = Object.prototype;
 
-export function isUndefined(obj: any): obj is undefined {
-  return obj === undefined;
-}
+export const isUndefined = (obj: any): obj is undefined => obj === undefined;
 
-export function isNull(obj: any): obj is null {
-  return obj === null;
-}
+export const isNull = (obj: any): obj is null => obj === null;
 
-export const type: (obj: any) => string = (obj) =>
+export const type = (obj: any): string =>
   isUndefined(obj) || isNull(obj)
     ? `${obj}`
     : toString
@@ -19,35 +15,24 @@ export const type: (obj: any) => string = (obj) =>
         .replace(/^\[object (.+)\]$/, '$1')
         .toLowerCase();
 
-export function isNumber(obj: any): obj is number {
-  return typeof obj === 'number';
-}
+export const isNumber = (obj: any): obj is number => typeof obj === 'number';
 
-export function isString(obj: any): obj is string {
-  return typeof obj === 'string';
-}
+export const isString = (obj: any): obj is string => typeof obj === 'string';
 
-export function isBoolean(obj: any): obj is boolean {
-  return typeof obj === 'boolean';
-}
+export const isBoolean = (obj: any): obj is boolean => typeof obj === 'boolean';
 
-export function isFunction(obj: any): obj is (...args: any[]) => any {
-  return typeof obj === 'function';
-}
+export const isFunction = (obj: any): obj is (...args: any[]) => any => typeof obj === 'function';
 
-export function isArray(obj: any): obj is Array<any> {
-  return Array.isArray(obj);
-}
+export const isArray = <T = any>(obj: any): obj is Array<T> => Array.isArray(obj);
 
-export function isObject(obj: any): boolean {
-  return typeof obj === 'object' && !isArray(obj) && !isNull(obj);
-}
+export const isObject = (obj: any): boolean =>
+  typeof obj === 'object' && !isArray(obj) && !isNull(obj);
 
 /**
  * Returns true if the given object is array like, false otherwise.
  * @param obj The Object
  */
-export function isArrayLike<T extends PlainObject = any>(obj: any): obj is ArrayLike<T> {
+export const isArrayLike = <T extends PlainObject = any>(obj: any): obj is ArrayLike<T> => {
   const length = !!obj && obj.length;
   const lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0; // eslint-disable-line eqeqeq
 
@@ -56,13 +41,13 @@ export function isArrayLike<T extends PlainObject = any>(obj: any): obj is Array
       ? length - 1 in obj
       : true
     : false;
-}
+};
 
 /**
  * Returns true if the given object is a "plain" (e.g. { key: value }) object, false otherwise.
  * @param obj The Object.
  */
-export function isPlainObject<T = any>(obj: any): obj is PlainObject<T> {
+export const isPlainObject = <T = any>(obj: any): obj is PlainObject<T> => {
   if (!obj || !isObject(obj) || type(obj) !== 'object') return false;
 
   let key;
@@ -83,30 +68,30 @@ export function isPlainObject<T = any>(obj: any): obj is PlainObject<T> {
   /* eslint-enable */
 
   return isUndefined(key) || hasOwnProperty.call(obj, key);
-}
+};
 
 /**
  * Checks whether the given object is a HTMLElement.
  * @param obj The object which shall be checked.
  */
-export function isHTMLElement(obj: any): obj is HTMLElement {
+export const isHTMLElement = (obj: any): obj is HTMLElement => {
   const instanceofObj = window.HTMLElement;
   return obj
     ? instanceofObj
       ? obj instanceof instanceofObj
       : obj.nodeType === ElementNodeType
     : false;
-}
+};
 
 /**
  * Checks whether the given object is a Element.
  * @param obj The object which shall be checked.
  */
-export function isElement(obj: any): obj is Element {
+export const isElement = (obj: any): obj is Element => {
   const instanceofObj = window.Element;
   return obj
     ? instanceofObj
       ? obj instanceof instanceofObj
       : obj.nodeType === ElementNodeType
     : false;
-}
+};

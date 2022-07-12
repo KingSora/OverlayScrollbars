@@ -15,31 +15,30 @@ export const hasOwnProperty = (obj: any, prop: string | number | symbol): boolea
  */
 export const keys = (obj: any): Array<string> => (obj ? Object.keys(obj) : []);
 
+type AssignDeep = {
+  <T, U>(target: T, object1: U): T & U;
+  <T, U, V>(target: T, object1: U, object2: V): T & U & V;
+  <T, U, V, W>(target: T, object1: U, object2: V, object3: W): T & U & V & W;
+  <T, U, V, W, X>(target: T, object1: U, object2: V, object3: W, object4: X): T & U & V & W & X;
+  <T, U, V, W, X, Y>(target: T, object1: U, object2: V, object3: W, object4: X, object5: Y): T &
+    U &
+    V &
+    W &
+    X &
+    Y;
+  <T, U, V, W, X, Y, Z>(
+    target: T,
+    object1?: U,
+    object2?: V,
+    object3?: W,
+    object4?: X,
+    object5?: Y,
+    object6?: Z
+  ): T & U & V & W & X & Y & Z;
+};
+
 // https://github.com/jquery/jquery/blob/master/src/core.js#L116
-export function assignDeep<T, U>(target: T, object1: U): T & U;
-export function assignDeep<T, U, V>(target: T, object1: U, object2: V): T & U & V;
-export function assignDeep<T, U, V, W>(
-  target: T,
-  object1: U,
-  object2: V,
-  object3: W
-): T & U & V & W;
-export function assignDeep<T, U, V, W, X>(
-  target: T,
-  object1: U,
-  object2: V,
-  object3: W,
-  object4: X
-): T & U & V & W & X;
-export function assignDeep<T, U, V, W, X, Y>(
-  target: T,
-  object1: U,
-  object2: V,
-  object3: W,
-  object4: X,
-  object5: Y
-): T & U & V & W & X & Y;
-export function assignDeep<T, U, V, W, X, Y, Z>(
+export const assignDeep: AssignDeep = <T, U, V, W, X, Y, Z>(
   target: T,
   object1?: U,
   object2?: V,
@@ -47,7 +46,7 @@ export function assignDeep<T, U, V, W, X, Y, Z>(
   object4?: X,
   object5?: Y,
   object6?: Z
-): T & U & V & W & X & Y & Z {
+): T & U & V & W & X & Y & Z => {
   const sources: Array<any> = [object1, object2, object3, object4, object5, object6];
 
   // Handle case when target is a string or something (possible in deep copy)
@@ -90,15 +89,15 @@ export function assignDeep<T, U, V, W, X, Y, Z>(
 
   // Return the modified object
   return target as any;
-}
+};
 
 /**
  * Returns true if the given object is empty, false otherwise.
  * @param obj The Object.
  */
-export function isEmptyObject(obj: any): boolean {
+export const isEmptyObject = (obj: any): boolean => {
   /* eslint-disable no-restricted-syntax, guard-for-in */
   for (const name in obj) return false;
   return true;
   /* eslint-enable */
-}
+};

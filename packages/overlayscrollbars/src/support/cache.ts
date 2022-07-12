@@ -23,15 +23,18 @@ export type Cache<Value> = [UpdateCache<Value>, GetCurrentCache<Value>];
 
 export type CacheContextual<Value> = [UpdateCacheContextual<Value>, GetCurrentCache<Value>];
 
-export function createCache<Value>(options: CacheOptions<Value>): CacheContextual<Value>;
-export function createCache<Value>(
-  options: CacheOptions<Value>,
-  update: CacheUpdater<Value>
-): Cache<Value>;
-export function createCache<Value>(
+type CreateCache = {
+  <Value>(options: CacheOptions<Value>): CacheContextual<Value>;
+  <Value>(options: CacheOptions<Value>, update: CacheUpdater<Value>): Cache<Value>;
+  <Value>(options: CacheOptions<Value>, update?: CacheUpdater<Value>):
+    | CacheContextual<Value>
+    | Cache<Value>;
+};
+
+export const createCache: CreateCache = <Value>(
   options: CacheOptions<Value>,
   update?: CacheUpdater<Value>
-): CacheContextual<Value> | Cache<Value> {
+): CacheContextual<Value> | Cache<Value> => {
   const { _initialValue, _equal, _alwaysUpdateValues } = options;
   let _value: Value = _initialValue;
   let _previous: Value | undefined;
@@ -61,4 +64,4 @@ export function createCache<Value>(
   return [update ? cacheUpdateIsolated : cacheUpdateContextual, getCurrentCache] as
     | CacheContextual<Value>
     | Cache<Value>;
-}
+};

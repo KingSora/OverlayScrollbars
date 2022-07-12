@@ -173,7 +173,7 @@ type GeneralInitialEventListeners = InitialEventListeners;
 type GeneralEventListener = EventListener;
 interface OverlayScrollbarsStatic {
     (target: InitializationTarget | InitializationTargetObject, options?: PartialOptions<Options>, eventListeners?: GeneralInitialEventListeners<EventListenerMap>): OverlayScrollbars;
-    plugin(osPlugin: Plugin | Plugin[]): void;
+    plugin(plugin: Plugin | Plugin[]): void;
     env(): Environment;
 }
 interface Environment {
