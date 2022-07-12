@@ -1,12 +1,12 @@
-import { OSPlugin } from 'plugins';
 import { Options, OverflowBehavior, VisibilityBehavior, AutoHideBehavior } from 'options';
 import {
   validateOptions,
   OptionsTemplate,
   OptionsTemplateValue,
   optionsTemplateTypes as oTypes,
-} from 'plugins/optionsValidation/validation';
-import { PartialOptions } from 'typings';
+} from 'plugins/optionsValidationPlugin/validation';
+import type { PartialOptions } from 'typings';
+import type { Plugin } from 'plugins';
 
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
 const booleanAllowedValues: OptionsTemplateValue<boolean> = oTypes.boolean;
@@ -58,12 +58,11 @@ export type OptionsValidationPluginInstance = {
 
 export const optionsValidationPluginName = '__osOptionsValidationPlugin';
 
-export const optionsValidationPlugin: OSPlugin<OptionsValidationPluginInstance> = [
-  optionsValidationPluginName,
-  {
+export const optionsValidationPlugin: Plugin<OptionsValidationPluginInstance> = {
+  [optionsValidationPluginName]: {
     _: (options: PartialOptions<Options>, doWriteErrors?: boolean) => {
       const [validated, foreign] = validateOptions(optionsTemplate, options, doWriteErrors);
       return { ...foreign, ...validated };
     },
   },
-];
+};

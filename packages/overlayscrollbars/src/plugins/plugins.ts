@@ -1,16 +1,20 @@
-import { assignDeep, each, isArray } from 'support';
+import { assignDeep, each, isArray, keys } from 'support';
 import { OverlayScrollbars, OverlayScrollbarsStatic } from 'overlayscrollbars';
 
-export type OSPluginInstance =
+export type PluginInstance =
   | Record<string, unknown>
   | ((staticObj: OverlayScrollbarsStatic, instanceObj: OverlayScrollbars) => void);
-export type OSPlugin<T extends OSPluginInstance = OSPluginInstance> = [string, T];
+export type Plugin<T extends PluginInstance = PluginInstance> = {
+  [pluginName: string]: T;
+};
 
-const pluginRegistry: Record<string, OSPluginInstance> = {};
+const pluginRegistry: Record<string, PluginInstance> = {};
 
 export const getPlugins = () => assignDeep({}, pluginRegistry);
 
-export const addPlugin = (addedPlugin: OSPlugin | OSPlugin[]) =>
-  each((isArray(addedPlugin) ? addedPlugin : [addedPlugin]) as OSPlugin[], (plugin) => {
-    pluginRegistry[plugin[0]] = plugin[1];
+export const addPlugin = (addedPlugin: Plugin | Plugin[]) =>
+  each((isArray(addedPlugin) ? addedPlugin : [addedPlugin]) as Plugin[], (plugin) => {
+    each(keys(plugin), (pluginName) => {
+      pluginRegistry[pluginName] = plugin[pluginName];
+    });
   });

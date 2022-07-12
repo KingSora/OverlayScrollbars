@@ -16,7 +16,7 @@ import {
   getPlugins,
   addPlugin,
   optionsValidationPluginName,
-  OSPlugin,
+  Plugin,
   OptionsValidationPluginInstance,
 } from 'plugins';
 import { addInstance, getInstance, removeInstance } from 'instances';
@@ -38,14 +38,14 @@ export interface OverlayScrollbarsStatic {
     eventListeners?: GeneralInitialEventListeners<EventListenerMap>
   ): OverlayScrollbars;
 
-  plugin(osPlugin: OSPlugin | OSPlugin[]): void;
+  plugin(osPlugin: Plugin | Plugin[]): void;
   env(): Environment;
 }
 
 export interface Environment {
-  scrollbarSize: XY<number>;
-  scrollbarIsOverlaid: XY<boolean>;
-  scrollbarStyling: boolean;
+  scrollbarsSize: XY<number>;
+  scrollbarsOverlaid: XY<boolean>;
+  scrollbarsHiding: boolean;
   rtlScrollBehavior: { n: boolean; i: boolean };
   flexboxGlue: boolean;
   cssCustomProperties: boolean;
@@ -143,7 +143,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   let destroyed = false;
   const {
     _getDefaultOptions,
-    _nativeScrollbarIsOverlaid,
+    _nativeScrollbarsOverlaid: _nativeScrollbarIsOverlaid,
     _addListener: addEnvListener,
   } = getEnvironment();
   const plugins = getPlugins();
@@ -303,9 +303,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 OverlayScrollbars.plugin = addPlugin;
 OverlayScrollbars.env = () => {
   const {
-    _nativeScrollbarSize,
-    _nativeScrollbarIsOverlaid,
-    _nativeScrollbarStyling,
+    _nativeScrollbarsSize,
+    _nativeScrollbarsOverlaid,
+    _nativeScrollbarsHiding,
     _rtlScrollBehavior,
     _flexboxGlue,
     _cssCustomProperties,
@@ -319,9 +319,9 @@ OverlayScrollbars.env = () => {
   return assignDeep(
     {},
     {
-      scrollbarSize: _nativeScrollbarSize,
-      scrollbarIsOverlaid: _nativeScrollbarIsOverlaid,
-      scrollbarStyling: _nativeScrollbarStyling,
+      scrollbarsSize: _nativeScrollbarsSize,
+      scrollbarsOverlaid: _nativeScrollbarsOverlaid,
+      scrollbarsHiding: _nativeScrollbarsHiding,
       rtlScrollBehavior: _rtlScrollBehavior,
       flexboxGlue: _flexboxGlue,
       cssCustomProperties: _cssCustomProperties,

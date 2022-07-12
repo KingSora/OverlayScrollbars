@@ -189,7 +189,11 @@ const assertCorrectSetupElements = (
 
   expect(typeof destroy).toBe('function');
 
-  const { _nativeScrollbarStyling, _cssCustomProperties, _getInitializationStrategy } = environment;
+  const {
+    _nativeScrollbarsHiding: _nativeScrollbarStyling,
+    _cssCustomProperties,
+    _getInitializationStrategy,
+  } = environment;
   const {
     _host: hostInitStrategy,
     _viewport: viewportInitStrategy,

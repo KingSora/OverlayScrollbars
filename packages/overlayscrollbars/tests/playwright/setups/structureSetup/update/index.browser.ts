@@ -24,6 +24,11 @@ import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-brow
 import { timeout } from '@/testing-browser/timeout';
 import { Options } from 'options';
 import { PartialOptions } from 'typings';
+import { addPlugin, scrollbarsHidingPlugin } from 'plugins';
+
+if (!OverlayScrollbars.env().scrollbarsHiding) {
+  addPlugin(scrollbarsHidingPlugin);
+}
 
 // @ts-ignore
 window.OverlayScrollbars = OverlayScrollbars;

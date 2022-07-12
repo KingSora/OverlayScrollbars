@@ -1,2 +1,4 @@
 export * from './plugins';
-export * from './optionsValidation';
+export * from './optionsValidationPlugin';
+export * from './sizeObserverPlugin';
+export * from './scrollbarsHidingPlugin';

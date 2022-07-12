@@ -1,3 +1,4 @@
 import 'index.scss';
 
-export { OverlayScrollbars as default } from 'overlayscrollbars';
+export { OverlayScrollbars } from 'overlayscrollbars';
+export { optionsValidationPlugin, scrollbarsHidingPlugin, sizeObserverPlugin } from 'plugins';

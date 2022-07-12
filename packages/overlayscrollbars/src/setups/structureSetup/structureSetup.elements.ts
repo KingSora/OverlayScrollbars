@@ -27,11 +27,12 @@ import {
   dataAttributeHostOverflowY,
   classNamePadding,
   classNameViewport,
-  classNameViewportArrange,
   classNameContent,
   classNameViewportScrollbarStyling,
 } from 'classnames';
 import { getEnvironment } from 'environment';
+import { getPlugins, scrollbarsHidingPluginName } from 'plugins';
+import type { ScrollbarsHidingPluginInstance } from 'plugins/scrollbarsHidingPlugin';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
@@ -55,7 +56,7 @@ export interface StructureSetupElementsObj {
   _viewport: HTMLElement;
   _padding: HTMLElement | false;
   _content: HTMLElement | false;
-  _viewportArrange: HTMLStyleElement | false;
+  _viewportArrange: HTMLStyleElement | false | null | undefined;
   // ctx ----
   _isTextarea: boolean;
   _isBody: boolean;
@@ -69,31 +70,11 @@ export interface StructureSetupElementsObj {
   _viewportAddRemoveClass: (className: string, attributeClassName: string, add?: boolean) => void;
 }
 
-let contentArrangeCounter = 0;
-
 const createNewDiv = createDiv.bind(0, '');
 
 const unwrap = (elm: HTMLElement | false | null | undefined) => {
   appendChildren(parent(elm), contents(elm));
   removeElements(elm);
-};
-
-const createUniqueViewportArrangeElement = (): HTMLStyleElement | false => {
-  const { _nativeScrollbarStyling, _nativeScrollbarIsOverlaid, _cssCustomProperties } =
-    getEnvironment();
-  /* istanbul ignore next */
-  const create =
-    !_cssCustomProperties &&
-    !_nativeScrollbarStyling &&
-    (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
-  const result = create ? document.createElement('style') : false;
-
-  if (result) {
-    attr(result, 'id', `${classNameViewportArrange}-${contentArrangeCounter}`);
-    contentArrangeCounter++;
-  }
-
-  return result;
 };
 
 const addDataAttrHost = (elm: HTMLElement, value: string) => {
@@ -104,7 +85,12 @@ const addDataAttrHost = (elm: HTMLElement, value: string) => {
 export const createStructureSetupElements = (
   target: InitializationTarget
 ): StructureSetupElements => {
-  const { _getInitializationStrategy, _nativeScrollbarStyling } = getEnvironment();
+  const { _getInitializationStrategy, _nativeScrollbarsHiding } = getEnvironment();
+  const scrollbarsHidingPlugin = getPlugins()[scrollbarsHidingPluginName] as
+    | ScrollbarsHidingPluginInstance
+    | undefined;
+  const createUniqueViewportArrangeElement =
+    scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
   const {
     _host: hostInitializationStrategy,
     _viewport: viewportInitializationStrategy,
@@ -121,7 +107,7 @@ export const createStructureSetupElements = (
   const ownerDocument = targetElement!.ownerDocument;
   const bodyElm = ownerDocument.body as HTMLBodyElement;
   const wnd = ownerDocument.defaultView as Window;
-  const singleElmSupport = !!ResizeObserverConstructor && !isTextarea && _nativeScrollbarStyling;
+  const singleElmSupport = !!ResizeObserverConstructor && !isTextarea && _nativeScrollbarsHiding;
   const staticInitializationElement =
     generalStaticInitializationElement<StructureStaticInitializationElement>.bind(0, [
       targetElement,
@@ -166,7 +152,11 @@ export const createStructureSetupElements = (
         contentInitializationStrategy,
         targetStructureInitialization.content
       ),
-    _viewportArrange: !viewportIsTarget && createUniqueViewportArrangeElement(),
+    _viewportArrange:
+      !viewportIsTarget &&
+      !_nativeScrollbarsHiding &&
+      createUniqueViewportArrangeElement &&
+      createUniqueViewportArrangeElement(),
     _windowElm: wnd,
     _documentElm: ownerDocument,
     _htmlElm: parent(bodyElm) as HTMLHtmlElement,
@@ -241,7 +231,7 @@ export const createStructureSetupElements = (
       removeContentClass();
     });
 
-    if (_nativeScrollbarStyling && !viewportIsTarget) {
+    if (_nativeScrollbarsHiding && !viewportIsTarget) {
       push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
     }
     if (_viewportArrange) {

@@ -34,12 +34,10 @@ test.describe('StructureSetup.update', () => {
             await expectSuccess(page);
           });
 
-          test('without flexbox glue & css custom props', async ({ page }) => {
+          test('with fully overlaid scrollbars', async ({ page }) => {
             await setTargetIsVp(page);
             await nss(page);
-            await page.click('#fbg');
-            await page.waitForTimeout(500);
-            await page.click('#ccp');
+            await page.click('#fo');
             await page.waitForTimeout(500);
             await page.click('#start');
             await expectSuccess(page);
@@ -59,10 +57,12 @@ test.describe('StructureSetup.update', () => {
             await expectSuccess(page);
           });
 
-          test('with fully overlaid scrollbars', async ({ page }) => {
+          test('without flexbox glue & css custom props', async ({ page }) => {
             await setTargetIsVp(page);
             await nss(page);
-            await page.click('#fo');
+            await page.click('#fbg');
+            await page.waitForTimeout(500);
+            await page.click('#ccp');
             await page.waitForTimeout(500);
             await page.click('#start');
             await expectSuccess(page);

@@ -6,6 +6,11 @@ import { resize } from '@/testing-browser/Resize';
 import { timeout } from '@/testing-browser/timeout';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { addClass, each, isArray, removeAttr, style } from 'support';
+import { addPlugin, scrollbarsHidingPlugin } from 'plugins';
+
+if (!OverlayScrollbars.env().scrollbarsHiding) {
+  addPlugin(scrollbarsHidingPlugin);
+}
 
 // @ts-ignore
 window.OverlayScrollbars = OverlayScrollbars;

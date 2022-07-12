@@ -1,5 +1,12 @@
+interface WH<T> {
+    w: T;
+    h: T;
+}
 type PartialOptions<T> = {
     [P in keyof T]?: T[P] extends Record<string, unknown> ? PartialOptions<T[P]> : T[P];
+};
+type StyleObject<CustomCssProps> = {
+    [Key in keyof CSSStyleDeclaration | (CustomCssProps extends string ? CustomCssProps : "")]?: string | number;
 };
 type OverflowStyle = "scroll" | "hidden" | "visible";
 interface TRBL {
@@ -50,11 +57,41 @@ interface Options {
         initialize: boolean;
     };
 }
-type OSPluginInstance = Record<string, unknown> | ((staticObj: OverlayScrollbarsStatic, instanceObj: OverlayScrollbars) => void);
-type OSPlugin<T extends OSPluginInstance> = [
-    string,
-    T
-];
+type PluginInstance = Record<string, unknown> | ((staticObj: OverlayScrollbarsStatic, instanceObj: OverlayScrollbars) => void);
+type Plugin<T extends PluginInstance> = {
+    [pluginName: string]: T;
+};
+type OptionsValidationPluginInstance = {
+    _: (options: PartialOptions<Options>, doWriteErrors?: boolean) => PartialOptions<Options>;
+};
+declare const optionsValidationPlugin: Plugin<OptionsValidationPluginInstance>;
+type SizeObserverPluginInstance = {
+    _: (listenerElement: HTMLElement, onSizeChangedCallback: (appear: boolean) => any, observeAppearChange: boolean) => [
+        appearCallback: () => any,
+        offFns: (() => any)[]
+    ];
+};
+declare const sizeObserverPlugin: Plugin<SizeObserverPluginInstance>;
+type StaticInitialization = HTMLElement | null | undefined;
+type DynamicInitialization = HTMLElement | boolean | null | undefined;
+type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
+type InitializationTargetObject = StructureInitialization & ScrollbarsInitialization;
+type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
+type InitializationStrategy = StructureInitializationStrategy & ScrollbarsInitializationStrategy;
+/**
+ * Static elements MUST be present.
+ * Null or undefined behave like if this element wasn't specified during initialization.
+ */
+type StaticInitializationElement<Args extends any[]> = ((...args: Args) => StaticInitialization) | StaticInitialization;
+/**
+ * Dynamic element CAN be present.
+ * If its a element the element will be handled as the repsective element.
+ * True means that the respective dynamic element is forced to be generated.
+ * False means that the respective dynamic element is forced NOT to be generated.
+ * Null or undefined behave like if this element wasn't specified during initialization.
+ */
+type DynamicInitializationElement<Args extends any[]> = ((...args: Args) => DynamicInitialization) | DynamicInitialization;
+type InitializtationElementStrategy<InitElm> = Exclude<InitElm, HTMLElement>;
 type ScrollbarsDynamicInitializationElement = DynamicInitializationElement<[
     target: InitializationTargetElement,
     host: HTMLElement,
@@ -74,6 +111,16 @@ interface ScrollbarsInitialization {
 type ScrollbarsInitializationStrategy = {
     [K in keyof ScrollbarsInitialization as `_${K}`]: InitializtationElementStrategy<ScrollbarsInitialization[K]>;
 };
+interface StructureSetupState {
+    _padding: TRBL;
+    _paddingAbsolute: boolean;
+    _viewportPaddingStyle: StyleObject;
+    _overflowAmount: XY<number>;
+    _overflowStyle: XY<OverflowStyle>;
+    _hasOverflow: XY<boolean>;
+    _heightIntrinsic: boolean;
+    _directionIsRTL: boolean;
+}
 type StructureStaticInitializationElement = StaticInitializationElement<[
     target: InitializationTargetElement
 ]>;
@@ -100,37 +147,39 @@ interface StructureInitialization {
 type StructureInitializationStrategy = {
     [K in keyof Omit<StructureInitialization, "target"> as `_${K}`]: InitializtationElementStrategy<StructureInitialization[K]>;
 };
-type StaticInitialization = HTMLElement | null | undefined;
-type DynamicInitialization = HTMLElement | boolean | null | undefined;
-type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
-type InitializationTargetObject = StructureInitialization & ScrollbarsInitialization;
-type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
-type InitializationStrategy = StructureInitializationStrategy & ScrollbarsInitializationStrategy;
-/**
- * Static elements MUST be present.
- * Null or undefined behave like if this element wasn't specified during initialization.
- */
-type StaticInitializationElement<Args extends any[]> = ((...args: Args) => StaticInitialization) | StaticInitialization;
-/**
- * Dynamic element CAN be present.
- * If its a element the element will be handled as the repsective element.
- * True means that the respective dynamic element is forced to be generated.
- * False means that the respective dynamic element is forced NOT to be generated.
- * Null or undefined behave like if this element wasn't specified during initialization.
- */
-type DynamicInitializationElement<Args extends any[]> = ((...args: Args) => DynamicInitialization) | DynamicInitialization;
-type InitializtationElementStrategy<InitElm> = Exclude<InitElm, HTMLElement>;
+interface ViewportOverflowState {
+    _scrollbarsHideOffset: XY<number>;
+    _scrollbarsHideOffsetArrange: XY<boolean>;
+    _overflowScroll: XY<boolean>;
+    _overflowStyle: XY<OverflowStyle>;
+}
+type GetViewportOverflowState = (showNativeOverlaidScrollbars: boolean, viewportStyleObj?: StyleObject) => ViewportOverflowState;
+type HideNativeScrollbars = (viewportOverflowState: ViewportOverflowState, directionIsRTL: boolean, viewportArrange: boolean, viewportStyleObj: StyleObject) => void;
+type ArrangeViewport = (viewportOverflowState: ViewportOverflowState, viewportScrollSize: WH<number>, sizeFraction: WH<number>, directionIsRTL: boolean) => boolean;
+type UndoViewportArrangeResult = [
+    redoViewportArrange: () => void,
+    overflowState?: ViewportOverflowState
+];
+type UndoArrangeViewport = (showNativeOverlaidScrollbars: boolean, directionIsRTL: boolean, viewportOverflowState?: ViewportOverflowState) => UndoViewportArrangeResult;
+type ScrollbarsHidingPluginInstance = {
+    _createUniqueViewportArrangeElement(): HTMLStyleElement | false;
+    _overflowUpdateSegment(doViewportArrange: boolean, viewport: HTMLElement, viewportArrange: HTMLStyleElement | false | null | undefined, getState: () => StructureSetupState, getViewportOverflowState: GetViewportOverflowState, hideNativeScrollbars: HideNativeScrollbars): [
+        ArrangeViewport,
+        UndoArrangeViewport
+    ];
+};
+declare const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance>;
 type GeneralInitialEventListeners = InitialEventListeners;
 type GeneralEventListener = EventListener;
 interface OverlayScrollbarsStatic {
     (target: InitializationTarget | InitializationTargetObject, options?: PartialOptions<Options>, eventListeners?: GeneralInitialEventListeners<EventListenerMap>): OverlayScrollbars;
-    plugin(osPlugin: OSPlugin | OSPlugin[]): void;
+    plugin(osPlugin: Plugin | Plugin[]): void;
     env(): Environment;
 }
 interface Environment {
-    scrollbarSize: XY<number>;
-    scrollbarIsOverlaid: XY<boolean>;
-    scrollbarStyling: boolean;
+    scrollbarsSize: XY<number>;
+    scrollbarsOverlaid: XY<boolean>;
+    scrollbarsHiding: boolean;
     rtlScrollBehavior: {
         n: boolean;
         i: boolean;
@@ -212,4 +261,4 @@ interface OverlayScrollbars {
  * Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
  */
 declare const OverlayScrollbars: OverlayScrollbarsStatic;
-export { OverlayScrollbars as default };
+export { OverlayScrollbars, optionsValidationPlugin, scrollbarsHidingPlugin, sizeObserverPlugin };

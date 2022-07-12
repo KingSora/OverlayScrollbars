@@ -24,7 +24,7 @@ export const createPaddingUpdate: CreateStructureUpdateSegment = (
 
   return (updateHints, checkOption, force) => {
     let [padding, paddingChanged] = currentPaddingCache(force);
-    const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+    const { _nativeScrollbarsHiding: _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
     const { _directionIsRTL } = getState();
     const { _sizeChanged, _contentMutation, _directionChanged } = updateHints;
     const [paddingAbsolute, paddingAbsoluteChanged] = checkOption('paddingAbsolute');

@@ -1,12 +1,12 @@
 function createCache(t, n) {
-  const {o: e, u: o, _: s} = t;
+  const {o: e, u: s, _: o} = t;
   let c = e;
   let i;
   const cacheUpdateContextual = (t, n) => {
     const e = c;
     const r = t;
-    const a = n || (o ? !o(e, r) : e !== r);
-    if (a || s) {
+    const a = n || (s ? !s(e, r) : e !== r);
+    if (a || o) {
       c = r;
       i = e;
     }
@@ -60,12 +60,12 @@ function isPlainObject(t) {
     return false;
   }
   let n;
-  const o = "constructor";
-  const s = t[o];
-  const c = s && s.prototype;
-  const i = e.call(t, o);
+  const s = "constructor";
+  const o = t[s];
+  const c = o && o.prototype;
+  const i = e.call(t, s);
   const r = c && e.call(c, "isPrototypeOf");
-  if (s && !i && !r) {
+  if (o && !i && !r) {
     return false;
   }
   for (n in t) {}
@@ -95,29 +95,29 @@ function each(t, n) {
   return t;
 }
 
-function assignDeep(t, n, e, o, s, c, i) {
-  const r = [ n, e, o, s, c, i ];
+function assignDeep(t, n, e, s, o, c, i) {
+  const r = [ n, e, s, o, c, i ];
   if (("object" !== typeof t || isNull(t)) && !isFunction(t)) {
     t = {};
   }
   each(r, (n => {
     each(keys(n), (e => {
-      const o = n[e];
-      if (t === o) {
+      const s = n[e];
+      if (t === s) {
         return true;
       }
-      const s = isArray(o);
-      if (o && (isPlainObject(o) || s)) {
+      const o = isArray(s);
+      if (s && (isPlainObject(s) || o)) {
         const n = t[e];
         let c = n;
-        if (s && !isArray(n)) {
+        if (o && !isArray(n)) {
           c = [];
-        } else if (!s && !isPlainObject(n)) {
+        } else if (!o && !isPlainObject(n)) {
           c = {};
         }
-        t[e] = assignDeep(c, o);
+        t[e] = assignDeep(c, s);
       } else {
-        t[e] = o;
+        t[e] = s;
       }
     }));
   }));
@@ -131,11 +131,11 @@ function isEmptyObject(t) {
   return true;
 }
 
-function getSetProp(t, n, e, o) {
-  if (isUndefined(o)) {
+function getSetProp(t, n, e, s) {
+  if (isUndefined(s)) {
     return e ? e[t] : n;
   }
-  e && (e[t] = o);
+  e && (e[t] = s);
 }
 
 function attr(t, n, e) {
@@ -155,19 +155,23 @@ function scrollTop(t, n) {
 
 function style(t, n) {
   const e = isString(n);
-  const o = isArray(n) || e;
-  if (o) {
-    let o = e ? "" : {};
+  const s = isArray(n) || e;
+  if (s) {
+    let s = e ? "" : {};
     if (t) {
-      const s = window.getComputedStyle(t, null);
-      o = e ? getCSSVal(t, s, n) : n.reduce(((n, e) => {
-        n[e] = getCSSVal(t, s, e);
+      const o = window.getComputedStyle(t, null);
+      s = e ? getCSSVal(t, o, n) : n.reduce(((n, e) => {
+        n[e] = getCSSVal(t, o, e);
         return n;
-      }), o);
+      }), s);
     }
-    return o;
+    return s;
   }
   each(keys(n), (e => setCSSVal(t, e, n[e])));
+}
+
+function getDefaultExportFromCjs(t) {
+  return t && t.g && Object.prototype.hasOwnProperty.call(t, "default") ? t["default"] : t;
 }
 
 const t = Node.ELEMENT_NODE;
@@ -217,29 +221,29 @@ const hasOwnProperty = (t, n) => Object.prototype.hasOwnProperty.call(t, n);
 
 const keys = t => t ? Object.keys(t) : [];
 
-const attrClass = (t, n, e, o) => {
-  const s = attr(t, n) || "";
-  const c = new Set(s.split(" "));
-  c[o ? "add" : "delete"](e);
+const attrClass = (t, n, e, s) => {
+  const o = attr(t, n) || "";
+  const c = new Set(o.split(" "));
+  c[s ? "add" : "delete"](e);
   attr(t, n, from(c).join(" ").trim());
 };
 
 const hasAttrClass = (t, n, e) => {
-  const o = attr(t, n) || "";
-  const s = new Set(o.split(" "));
-  return s.has(e);
+  const s = attr(t, n) || "";
+  const o = new Set(s.split(" "));
+  return o.has(e);
 };
 
 const removeAttr = (t, n) => {
   t && t.removeAttribute(n);
 };
 
-const o = Element.prototype;
+const s = Element.prototype;
 
 const find = (t, n) => {
   const e = [];
-  const o = n ? isElement(n) ? n : null : document;
-  return o ? push(e, o.querySelectorAll(t)) : e;
+  const s = n ? isElement(n) ? n : null : document;
+  return s ? push(e, s.querySelectorAll(t)) : e;
 };
 
 const findFirst = (t, n) => {
@@ -249,7 +253,7 @@ const findFirst = (t, n) => {
 
 const is = (t, n) => {
   if (isElement(t)) {
-    const e = o.matches || o.msMatchesSelector;
+    const e = s.matches || s.msMatchesSelector;
     return e.call(t, n);
   }
   return false;
@@ -261,7 +265,7 @@ const parent = t => t ? t.parentElement : null;
 
 const closest = (t, n) => {
   if (isElement(t)) {
-    const e = o.closest;
+    const e = s.closest;
     if (e) {
       return e.call(t, n);
     }
@@ -276,35 +280,35 @@ const closest = (t, n) => {
 };
 
 const liesBetween = (t, n, e) => {
-  const o = t && closest(t, n);
-  const s = t && findFirst(e, o);
-  return o && s ? o === t || s === t || closest(closest(t, e), n) !== o : false;
+  const s = t && closest(t, n);
+  const o = t && findFirst(e, s);
+  return s && o ? s === t || o === t || closest(closest(t, e), n) !== s : false;
 };
 
 const before = (t, n, e) => {
   if (e) {
-    let o = n;
-    let s;
+    let s = n;
+    let o;
     if (t) {
       if (isArrayLike(e)) {
-        s = document.createDocumentFragment();
+        o = document.createDocumentFragment();
         each(e, (t => {
-          if (t === o) {
-            o = t.previousSibling;
+          if (t === s) {
+            s = t.previousSibling;
           }
-          s.appendChild(t);
+          o.appendChild(t);
         }));
       } else {
-        s = e;
+        o = e;
       }
       if (n) {
-        if (!o) {
-          o = t.firstChild;
-        } else if (o !== n) {
-          o = o.nextSibling;
+        if (!s) {
+          s = t.firstChild;
+        } else if (s !== n) {
+          s = s.nextSibling;
         }
       }
-      t.insertBefore(s, o || null);
+      t.insertBefore(o, s || null);
     }
   }
 };
@@ -354,7 +358,7 @@ const firstLetterToUpper = t => t.charAt(0).toUpperCase() + t.slice(1);
 
 const getDummyStyle = () => createDiv().style;
 
-const s = [ "-webkit-", "-moz-", "-o-", "-ms-" ];
+const o = [ "-webkit-", "-moz-", "-o-", "-ms-" ];
 
 const c = [ "WebKit", "Moz", "O", "MS", "webkit", "moz", "o", "ms" ];
 
@@ -368,11 +372,11 @@ const cssProperty = t => {
     return n;
   }
   const e = firstLetterToUpper(t);
-  const o = getDummyStyle();
-  each(s, (s => {
-    const c = s.replace(/-/g, "");
-    const i = [ t, s + t, c + e, firstLetterToUpper(c) + e ];
-    return !(n = i.find((t => void 0 !== o[t])));
+  const s = getDummyStyle();
+  each(o, (o => {
+    const c = o.replace(/-/g, "");
+    const i = [ t, o + t, c + e, firstLetterToUpper(c) + e ];
+    return !(n = i.find((t => void 0 !== s[t])));
   }));
   return r[t] = n || "";
 };
@@ -403,14 +407,14 @@ const d = jsAPI("requestAnimationFrame");
 const _ = /[^\x20\t\r\n\f]+/g;
 
 const classListAction = (t, n, e) => {
-  let o;
-  let s = 0;
+  let s;
+  let o = 0;
   let c = false;
   if (t && n && isString(n)) {
     const i = n.match(_) || [];
     c = i.length > 0;
-    while (o = i[s++]) {
-      c = !!e(t.classList, o) && c;
+    while (s = i[o++]) {
+      c = !!e(t.classList, s) && c;
     }
   }
   return c;
@@ -427,17 +431,17 @@ const addClass = (t, n) => {
   return removeClass.bind(0, t, n);
 };
 
-const equal = (t, n, e, o) => {
+const equal = (t, n, e, s) => {
   if (t && n) {
-    let s = true;
+    let o = true;
     each(e, (e => {
-      const c = o ? o(t[e]) : t[e];
-      const i = o ? o(n[e]) : n[e];
+      const c = s ? s(t[e]) : t[e];
+      const i = s ? s(n[e]) : n[e];
       if (c !== i) {
-        s = false;
+        o = false;
       }
     }));
-    return s;
+    return o;
   }
   return false;
 };
@@ -459,18 +463,18 @@ const noop = () => {};
 
 const debounce = (t, n) => {
   let e;
-  let o;
   let s;
+  let o;
   let c;
-  const {g: i, p: r, v: a} = n || {};
+  const {p: i, v: r, m: a} = n || {};
   const l = window.setTimeout;
   const u = function invokeFunctionToDebounce(n) {
     clearTimeouts(e);
-    clearTimeouts(o);
-    o = e = s = void 0;
+    clearTimeouts(s);
+    s = e = o = void 0;
     t.apply(this, n);
   };
-  const mergeParms = t => a && s ? a(s, t) : t;
+  const mergeParms = t => a && o ? a(o, t) : t;
   const flush = () => {
     if (e) {
       u(mergeParms(c) || c);
@@ -489,15 +493,15 @@ const debounce = (t, n) => {
       const h = u.bind(0, g);
       clearTimeouts(e);
       e = f(h, n);
-      if (a && !o) {
-        o = l(flush, i);
+      if (a && !s) {
+        s = l(flush, i);
       }
-      s = c = g;
+      o = c = g;
     } else {
       u(t);
     }
   };
-  f.m = flush;
+  f.S = flush;
   return f;
 };
 
@@ -518,23 +522,23 @@ const getCSSVal = (t, n, e) => null != n ? n[e] || n.getPropertyValue(e) : t.sty
 const setCSSVal = (t, n, e) => {
   try {
     if (t) {
-      const {style: o} = t;
-      if (!isUndefined(o[n])) {
-        o[n] = adaptCSSVal(n, e);
+      const {style: s} = t;
+      if (!isUndefined(s[n])) {
+        s[n] = adaptCSSVal(n, e);
       } else {
-        o.setProperty(n, e);
+        s.setProperty(n, e);
       }
     }
-  } catch (o) {}
+  } catch (s) {}
 };
 
 const topRightBottomLeft = (t, n, e) => {
-  const o = n ? `${n}-` : "";
-  const s = e ? `-${e}` : "";
-  const c = `${o}top${s}`;
-  const i = `${o}right${s}`;
-  const r = `${o}bottom${s}`;
-  const a = `${o}left${s}`;
+  const s = n ? `${n}-` : "";
+  const o = e ? `-${e}` : "";
+  const c = `${s}top${o}`;
+  const i = `${s}right${o}`;
+  const r = `${s}bottom${o}`;
+  const a = `${s}left${o}`;
   const l = style(t, [ c, i, r, a ]);
   return {
     t: parseToZeroOrNumber(l[c]),
@@ -598,29 +602,29 @@ const supportPassiveEvents = () => {
 
 const splitEventNames = t => t.split(" ");
 
-const off = (t, n, e, o) => {
+const off = (t, n, e, s) => {
   each(splitEventNames(n), (n => {
-    t.removeEventListener(n, e, o);
+    t.removeEventListener(n, e, s);
   }));
 };
 
-const on = (t, n, e, o) => {
-  const s = supportPassiveEvents();
-  const c = s && o && o.S || false;
-  const i = o && o.C || false;
-  const r = o && o.O || false;
+const on = (t, n, e, s) => {
+  const o = supportPassiveEvents();
+  const c = o && s && s.C || false;
+  const i = s && s.O || false;
+  const r = s && s.$ || false;
   const a = [];
-  const l = s ? {
+  const l = o ? {
     passive: c,
     capture: i
   } : i;
   each(splitEventNames(n), (n => {
-    const o = r ? s => {
-      t.removeEventListener(n, o, i);
-      e && e(s);
+    const s = r ? o => {
+      t.removeEventListener(n, s, i);
+      e && e(o);
     } : e;
-    push(a, off.bind(null, t, n, o, i));
-    t.addEventListener(n, o, l);
+    push(a, off.bind(null, t, n, s, i));
+    t.addEventListener(n, s, l);
   }));
   return runEachAndClear.bind(0, a);
 };
@@ -651,10 +655,10 @@ const manageListener = (t, n) => {
 const createEventListenerHub = t => {
   function removeEvent(t, e) {
     if (t) {
-      const o = n.get(t);
+      const s = n.get(t);
       manageListener((t => {
-        if (o) {
-          o[t ? "delete" : "clear"](t);
+        if (s) {
+          s[t ? "delete" : "clear"](t);
         }
       }), e);
     } else {
@@ -665,16 +669,16 @@ const createEventListenerHub = t => {
     }
   }
   function addEvent(t, e) {
-    const o = n.get(t) || new Set;
-    n.set(t, o);
+    const s = n.get(t) || new Set;
+    n.set(t, s);
     manageListener((t => {
-      t && o.add(t);
+      t && s.add(t);
     }), e);
     return removeEvent.bind(0, t, e);
   }
   function triggerEvent(t, e) {
-    const o = n.get(t);
-    each(from(o), (t => {
+    const s = n.get(t);
+    each(from(s), (t => {
       if (e && !isEmptyArray(e)) {
         t.apply(0, e);
       } else {
@@ -692,7 +696,7 @@ const createEventListenerHub = t => {
 
 const getPropByPath = (t, n) => t ? n.split(".").reduce(((t, n) => t && hasOwnProperty(t, n) ? t[n] : void 0), t) : void 0;
 
-const createOptionCheck = (t, n, e) => o => [ getPropByPath(t, o), e || void 0 !== getPropByPath(n, o) ];
+const createOptionCheck = (t, n, e) => s => [ getPropByPath(t, s), e || void 0 !== getPropByPath(n, s) ];
 
 const createState = t => {
   let n = t;
@@ -711,41 +715,47 @@ const m = "data-overlayscrollbars";
 
 const S = `${m}-overflow-x`;
 
-const C = `${m}-overflow-y`;
+const x = `${m}-overflow-y`;
 
-const x = "overflowVisible";
+const C = "overflowVisible";
 
 const O = "viewportStyled";
 
-const A = "os-padding";
+const $ = "os-padding";
 
-const I = "os-viewport";
+const A = "os-viewport";
 
-const L = `${I}-arrange`;
+const L = `${A}-arrange`;
 
 const T = "os-content";
 
-const $ = `${I}-scrollbar-styled`;
+const z = `${A}-scrollbar-styled`;
 
-const z = `os-overflow-visible`;
+const D = `os-overflow-visible`;
 
-const D = "os-size-observer";
+const E = "os-size-observer";
 
-const E = `${D}-appear`;
+const P = `${E}-appear`;
 
-const P = `${D}-listener`;
+const I = `${E}-listener`;
 
-const M = "os-trinsic-observer";
+const j = `${I}-scroll`;
 
-const j = "os-scrollbar";
+const M = `${I}-item`;
 
-const N = `${j}-horizontal`;
+const H = `${M}-final`;
 
-const R = `${j}-vertical`;
+const N = "os-trinsic-observer";
 
-const H = "os-scrollbar-track";
+const R = "os-scrollbar";
 
-const F = "os-scrollbar-handle";
+const F = `${R}-horizontal`;
+
+const V = `${R}-vertical`;
+
+const k = "os-scrollbar-track";
+
+const B = "os-scrollbar-handle";
 
 const opsStringify = t => JSON.stringify(t, ((t, n) => {
   if (isFunction(n)) {
@@ -754,7 +764,7 @@ const opsStringify = t => JSON.stringify(t, ((t, n) => {
   return n;
 }));
 
-const k = {
+const U = {
   paddingAbsolute: false,
   updating: {
     elementEvents: [ [ "img", "load" ] ],
@@ -782,56 +792,56 @@ const k = {
 
 const getOptionsDiff = (t, n) => {
   const e = {};
-  const o = keys(n).concat(keys(t));
-  each(o, (o => {
-    const s = t[o];
-    const c = n[o];
-    if (isObject(s) && isObject(c)) {
-      assignDeep(e[o] = {}, getOptionsDiff(s, c));
-    } else if (hasOwnProperty(n, o) && c !== s) {
+  const s = keys(n).concat(keys(t));
+  each(s, (s => {
+    const o = t[s];
+    const c = n[s];
+    if (isObject(o) && isObject(c)) {
+      assignDeep(e[s] = {}, getOptionsDiff(o, c));
+    } else if (hasOwnProperty(n, s) && c !== o) {
       let t = true;
-      if (isArray(s) || isArray(c)) {
+      if (isArray(o) || isArray(c)) {
         try {
-          if (opsStringify(s) === opsStringify(c)) {
+          if (opsStringify(o) === opsStringify(c)) {
             t = false;
           }
         } catch (i) {}
       }
       if (t) {
-        e[o] = c;
+        e[s] = c;
       }
     }
   }));
   return e;
 };
 
-let V;
+let Y;
 
-const {abs: B, round: U} = Math;
+const {abs: q, round: G} = Math;
 
 const diffBiggerThanOne = (t, n) => {
-  const e = B(t);
-  const o = B(n);
-  return !(e === o || e + 1 === o || e - 1 === o);
+  const e = q(t);
+  const s = q(n);
+  return !(e === s || e + 1 === s || e - 1 === s);
 };
 
 const getNativeScrollbarSize = (t, n, e) => {
   appendChildren(t, n);
-  const o = clientSize(n);
-  const s = offsetSize(n);
+  const s = clientSize(n);
+  const o = offsetSize(n);
   const c = fractionalSize(e);
   return {
-    x: s.h - o.h + c.h,
-    y: s.w - o.w + c.w
+    x: o.h - s.h + c.h,
+    y: o.w - s.w + c.w
   };
 };
 
-const getNativeScrollbarStyling = t => {
+const getNativeScrollbarsHiding = t => {
   let n = false;
-  const e = addClass(t, $);
+  const e = addClass(t, z);
   try {
     n = "none" === style(t, cssProperty("scrollbar-width")) || "none" === window.getComputedStyle(t, "::-webkit-scrollbar").getPropertyValue("display");
-  } catch (o) {}
+  } catch (s) {}
   e();
   return n;
 };
@@ -844,21 +854,21 @@ const getRtlScrollBehavior = (t, n) => {
     direction: "rtl"
   });
   scrollLeft(t, 0);
-  const o = absoluteCoordinates(t);
-  const s = absoluteCoordinates(n);
+  const s = absoluteCoordinates(t);
+  const o = absoluteCoordinates(n);
   scrollLeft(t, -999);
   const c = absoluteCoordinates(n);
   return {
-    i: o.x === s.x,
-    n: s.x !== c.x
+    i: s.x === o.x,
+    n: o.x !== c.x
   };
 };
 
 const getFlexboxGlue = (t, n) => {
   const e = addClass(t, w);
-  const o = getBoundingClientRect(t);
-  const s = getBoundingClientRect(n);
-  const c = equalBCRWH(s, o, true);
+  const s = getBoundingClientRect(t);
+  const o = getBoundingClientRect(n);
+  const c = equalBCRWH(o, s, true);
   const i = addClass(t, y);
   const r = getBoundingClientRect(t);
   const a = getBoundingClientRect(n);
@@ -878,47 +888,47 @@ const createEnvironment = () => {
   const {body: t} = document;
   const n = createDOM(`<div class="${b}"><div></div></div>`);
   const e = n[0];
-  const o = e.firstChild;
-  const [s, , c] = createEventListenerHub();
+  const s = e.firstChild;
+  const [o, , c] = createEventListenerHub();
   const [i, r] = createCache({
-    o: getNativeScrollbarSize(t, e, o),
+    o: getNativeScrollbarSize(t, e, s),
     u: equalXY
   });
   const [a] = r();
-  const l = getNativeScrollbarStyling(e);
+  const l = getNativeScrollbarsHiding(e);
   const u = {
     x: 0 === a.x,
     y: 0 === a.y
   };
   const f = {
     A: !l,
-    I: false
+    L: false
   };
-  const d = assignDeep({}, k);
+  const d = assignDeep({}, U);
   const _ = {
-    L: a,
-    T: u,
-    $: l,
-    D: "-1" === style(e, "zIndex"),
-    P: getRtlScrollBehavior(e, o),
-    M: getFlexboxGlue(e, o),
-    j: t => s("_", t),
+    T: a,
+    D: u,
+    P: l,
+    I: "-1" === style(e, "zIndex"),
+    j: getRtlScrollBehavior(e, s),
+    M: getFlexboxGlue(e, s),
+    H: t => o("_", t),
     N: assignDeep.bind(0, {}, f),
     R(t) {
       assignDeep(f, t);
     },
-    H: assignDeep.bind(0, {}, d),
-    F(t) {
+    F: assignDeep.bind(0, {}, d),
+    V(t) {
       assignDeep(d, t);
     },
     k: assignDeep({}, f),
-    V: assignDeep({}, d)
+    B: assignDeep({}, d)
   };
   removeAttr(e, "style");
   removeElements(e);
   if (!l && (!u.x || !u.y)) {
     let n = windowSize();
-    let s = getWindowDPR();
+    let o = getWindowDPR();
     window.addEventListener("resize", (() => {
       const r = windowSize();
       const a = {
@@ -929,70 +939,353 @@ const createEnvironment = () => {
         return;
       }
       const l = {
-        w: B(a.w),
-        h: B(a.h)
+        w: q(a.w),
+        h: q(a.h)
       };
       const u = {
-        w: B(U(r.w / (n.w / 100))),
-        h: B(U(r.h / (n.h / 100)))
+        w: q(G(r.w / (n.w / 100))),
+        h: q(G(r.h / (n.h / 100)))
       };
       const f = getWindowDPR();
       const d = l.w > 2 && l.h > 2;
       const _ = !diffBiggerThanOne(u.w, u.h);
-      const g = f !== s && s > 0;
+      const g = f !== o && o > 0;
       const h = d && _ && g;
       if (h) {
-        const [n, s] = i(getNativeScrollbarSize(t, e, o));
-        assignDeep(V.L, n);
+        const [n, o] = i(getNativeScrollbarSize(t, e, s));
+        assignDeep(Y.T, n);
         removeElements(e);
-        if (s) {
+        if (o) {
           c("_");
         }
       }
       n = r;
-      s = f;
+      o = f;
     }));
   }
   return _;
 };
 
 const getEnvironment = () => {
-  if (!V) {
-    V = createEnvironment();
+  if (!Y) {
+    Y = createEnvironment();
   }
-  return V;
+  return Y;
+};
+
+const W = {};
+
+const getPlugins = () => assignDeep({}, W);
+
+const addPlugin = t => each(isArray(t) ? t : [ t ], (t => {
+  each(keys(t), (n => {
+    W[n] = t[n];
+  }));
+}));
+
+var X = {
+  exports: {}
+};
+
+(function(t) {
+  function _extends() {
+    t.exports = _extends = Object.assign ? Object.assign.bind() : function(t) {
+      for (var n = 1; n < arguments.length; n++) {
+        var e = arguments[n];
+        for (var s in e) {
+          if (Object.prototype.hasOwnProperty.call(e, s)) {
+            t[s] = e[s];
+          }
+        }
+      }
+      return t;
+    }, t.exports.g = true, t.exports["default"] = t.exports;
+    return _extends.apply(this, arguments);
+  }
+  t.exports = _extends, t.exports.g = true, t.exports["default"] = t.exports;
+})(X);
+
+const J = getDefaultExportFromCjs(X.exports);
+
+const K = {
+  boolean: "__TPL_boolean_TYPE__",
+  number: "__TPL_number_TYPE__",
+  string: "__TPL_string_TYPE__",
+  array: "__TPL_array_TYPE__",
+  object: "__TPL_object_TYPE__",
+  function: "__TPL_function_TYPE__",
+  null: "__TPL_null_TYPE__"
+};
+
+const validateRecursive = (t, n, e, s) => {
+  const o = {};
+  const c = J({}, n);
+  const i = keys(t).filter((t => hasOwnProperty(n, t)));
+  each(i, (i => {
+    const r = n[i];
+    const a = t[i];
+    const l = isPlainObject(a);
+    const u = s ? `${s}.` : "";
+    if (l && isPlainObject(r)) {
+      const [t, n] = validateRecursive(a, r, e, u + i);
+      o[i] = t;
+      c[i] = n;
+      each([ c, o ], (t => {
+        if (isEmptyObject(t[i])) {
+          delete t[i];
+        }
+      }));
+    } else if (!l) {
+      let t = false;
+      const n = [];
+      const s = [];
+      const l = type(r);
+      const f = !isArray(a) ? [ a ] : a;
+      each(f, (e => {
+        let o;
+        each(K, ((t, n) => {
+          if (t === e) {
+            o = n;
+          }
+        }));
+        const c = isUndefined(o);
+        if (c && isString(r)) {
+          const s = e.split(" ");
+          t = !!s.find((t => t === r));
+          push(n, s);
+        } else {
+          t = K[l] === e;
+        }
+        push(s, c ? K.string : o);
+        return !t;
+      }));
+      if (t) {
+        o[i] = r;
+      } else if (e) {
+        console.warn(`${`The option "${u}${i}" wasn't set, because it doesn't accept the type [ ${l.toUpperCase()} ] with the value of "${r}".\r\n` + `Accepted types are: [ ${s.join(", ").toUpperCase()} ].\r\n`}${n.length > 0 ? `\r\nValid strings are: [ ${n.join(", ")} ].` : ""}`);
+      }
+      delete c[i];
+    }
+  }));
+  return [ o, c ];
+};
+
+const validateOptions = (t, n, e) => validateRecursive(t, n, e);
+
+const Q = K.number;
+
+const Z = K.boolean;
+
+const tt = [ K.array, K.null ];
+
+const nt = "hidden scroll visible visible-hidden";
+
+const et = "visible hidden auto";
+
+const st = "never scroll leavemove";
+
+const ot = {
+  paddingAbsolute: Z,
+  updating: {
+    elementEvents: tt,
+    attributes: tt,
+    debounce: [ K.number, K.array, K.null ],
+    ignoreMutation: [ K.function, K.null ]
+  },
+  overflow: {
+    x: nt,
+    y: nt
+  },
+  scrollbars: {
+    visibility: et,
+    autoHide: st,
+    autoHideDelay: Q,
+    dragScroll: Z,
+    clickScroll: Z,
+    touch: Z
+  },
+  nativeScrollbarsOverlaid: {
+    show: Z,
+    initialize: Z
+  }
+};
+
+const ct = "__osOptionsValidationPlugin";
+
+const it = {
+  [ct]: {
+    U: (t, n) => {
+      const [e, s] = validateOptions(ot, t, n);
+      return J({}, s, e);
+    }
+  }
+};
+
+const rt = 3333333;
+
+const at = "scroll";
+
+const lt = "__osSizeObserverPlugin";
+
+const ut = {
+  [lt]: {
+    U: (t, n, e) => {
+      const s = createDOM(`<div class="${M}" dir="ltr"><div class="${M}"><div class="${H}"></div></div><div class="${M}"><div class="${H}" style="width: 200%; height: 200%"></div></div></div>`);
+      appendChildren(t, s);
+      addClass(t, j);
+      const o = s[0];
+      const c = o.lastChild;
+      const i = o.firstChild;
+      const r = null == i ? void 0 : i.firstChild;
+      let a = offsetSize(o);
+      let l = a;
+      let u = false;
+      let _;
+      const reset = () => {
+        scrollLeft(i, rt);
+        scrollTop(i, rt);
+        scrollLeft(c, rt);
+        scrollTop(c, rt);
+      };
+      const onResized = t => {
+        _ = 0;
+        if (u) {
+          a = l;
+          n(true === t);
+        }
+      };
+      const onScroll = t => {
+        l = offsetSize(o);
+        u = !t || !equalWH(l, a);
+        if (t) {
+          stopAndPrevent(t);
+          if (u && !_) {
+            f(_);
+            _ = d(onResized);
+          }
+        } else {
+          onResized(false === t);
+        }
+        reset();
+      };
+      const g = push([], [ on(i, at, onScroll), on(c, at, onScroll) ]);
+      style(r, {
+        width: rt,
+        height: rt
+      });
+      reset();
+      return [ e ? onScroll.bind(0, false) : reset, g ];
+    }
+  }
+};
+
+let ft = 0;
+
+const dt = "__osScrollbarsHidingPlugin";
+
+const _t = {
+  [dt]: {
+    Y: () => {
+      const {P: t, D: n, I: e} = getEnvironment();
+      const s = !e && !t && (n.x || n.y);
+      const o = s ? document.createElement("style") : false;
+      if (o) {
+        attr(o, "id", `${L}-${ft}`);
+        ft++;
+      }
+      return o;
+    },
+    q: (t, n, e, s, o, c) => {
+      const {M: i} = getEnvironment();
+      const arrangeViewport = (o, c, i, r) => {
+        if (t) {
+          const {G: t} = s();
+          const {W: a, X: l} = o;
+          const {x: u, y: f} = l;
+          const {x: d, y: _} = a;
+          const g = r ? "paddingRight" : "paddingLeft";
+          const h = t[g];
+          const p = t.paddingTop;
+          const v = c.w + i.w;
+          const b = c.h + i.h;
+          const w = {
+            w: _ && f ? `${_ + v - h}px` : "",
+            h: d && u ? `${d + b - p}px` : ""
+          };
+          if (e) {
+            const {sheet: t} = e;
+            if (t) {
+              const {cssRules: n} = t;
+              if (n) {
+                if (!n.length) {
+                  t.insertRule(`#${attr(e, "id")} + .${L}::before {}`, 0);
+                }
+                const s = n[0].style;
+                s.width = w.w;
+                s.height = w.h;
+              }
+            }
+          } else {
+            style(n, {
+              "--os-vaw": w.w,
+              "--os-vah": w.h
+            });
+          }
+        }
+        return t;
+      };
+      const undoViewportArrange = (e, r, a) => {
+        if (t) {
+          const l = a || o(e);
+          const {G: u} = s();
+          const {X: f} = l;
+          const {x: d, y: _} = f;
+          const g = {};
+          const assignProps = t => each(t.split(" "), (t => {
+            g[t] = u[t];
+          }));
+          if (d) {
+            assignProps("marginBottom paddingTop paddingBottom");
+          }
+          if (_) {
+            assignProps("marginLeft marginRight paddingLeft paddingRight");
+          }
+          const h = style(n, keys(g));
+          removeClass(n, L);
+          if (!i) {
+            g.height = "";
+          }
+          style(n, g);
+          return [ () => {
+            c(l, r, t, h);
+            style(n, h);
+            addClass(n, L);
+          }, l ];
+        }
+        return [ noop ];
+      };
+      return [ arrangeViewport, undoViewportArrange ];
+    }
+  }
 };
 
 const resolveInitialization = (t, n) => isFunction(t) ? t.apply(0, n) : t;
 
-const staticInitializationElement = (t, n, e, o) => resolveInitialization(o || resolveInitialization(e, t), t) || n.apply(0, t);
+const staticInitializationElement = (t, n, e, s) => resolveInitialization(s || resolveInitialization(e, t), t) || n.apply(0, t);
 
-const dynamicInitializationElement = (t, n, e, o) => {
-  let s = resolveInitialization(o, t);
-  if (isNull(s) || isUndefined(s)) {
-    s = resolveInitialization(e, t);
+const dynamicInitializationElement = (t, n, e, s) => {
+  let o = resolveInitialization(s, t);
+  if (isNull(o) || isUndefined(o)) {
+    o = resolveInitialization(e, t);
   }
-  return true === s || isNull(s) || isUndefined(s) ? n.apply(0, t) : s;
+  return true === o || isNull(o) || isUndefined(o) ? n.apply(0, t) : o;
 };
 
-let Y = 0;
-
-const q = createDiv.bind(0, "");
+const gt = createDiv.bind(0, "");
 
 const unwrap = t => {
   appendChildren(parent(t), contents(t));
   removeElements(t);
-};
-
-const createUniqueViewportArrangeElement = () => {
-  const {$: t, T: n, D: e} = getEnvironment();
-  const o = !e && !t && (n.x || n.y);
-  const s = o ? document.createElement("style") : false;
-  if (s) {
-    attr(s, "id", `${L}-${Y}`);
-    Y++;
-  }
-  return s;
 };
 
 const addDataAttrHost = (t, n) => {
@@ -1001,136 +1294,138 @@ const addDataAttrHost = (t, n) => {
 };
 
 const createStructureSetupElements = t => {
-  const {N: n, $: e} = getEnvironment();
-  const {B: o, U: s, A: c, I: i} = n();
-  const r = isHTMLElement(t);
-  const a = t;
-  const l = r ? t : a.target;
-  const f = is(l, "textarea");
-  const d = !f && is(l, "body");
-  const _ = l.ownerDocument;
-  const g = _.body;
-  const h = _.defaultView;
-  const p = !!u && !f && e;
-  const v = staticInitializationElement.bind(0, [ l ]);
-  const b = dynamicInitializationElement.bind(0, [ l ]);
-  const w = [ v(q, s, a.viewport), v(q, s), v(q) ].filter((t => !p ? t !== l : true))[0];
-  const y = w === l;
-  const x = {
-    Y: l,
-    B: f ? v(q, o, a.host) : l,
-    U: w,
-    A: !y && b(q, c, a.padding),
-    I: !y && b(q, i, a.content),
-    q: !y && createUniqueViewportArrangeElement(),
-    G: h,
-    W: _,
-    X: parent(g),
-    J: g,
-    K: f,
+  const {N: n, P: e} = getEnvironment();
+  const s = getPlugins()[dt];
+  const o = s && s.Y;
+  const {J: c, K: i, A: r, L: a} = n();
+  const l = isHTMLElement(t);
+  const f = t;
+  const d = l ? t : f.target;
+  const _ = is(d, "textarea");
+  const g = !_ && is(d, "body");
+  const h = d.ownerDocument;
+  const p = h.body;
+  const v = h.defaultView;
+  const b = !!u && !_ && e;
+  const w = staticInitializationElement.bind(0, [ d ]);
+  const y = dynamicInitializationElement.bind(0, [ d ]);
+  const C = [ w(gt, i, f.viewport), w(gt, i), w(gt) ].filter((t => !b ? t !== d : true))[0];
+  const O = C === d;
+  const L = {
     Z: d,
-    tt: r,
-    nt: y,
-    et: (t, n) => y ? hasAttrClass(w, m, n) : hasClass(w, t),
-    ot: (t, n, e) => y ? attrClass(w, m, n, e) : (e ? addClass : removeClass)(w, t)
+    J: _ ? w(gt, c, f.host) : d,
+    K: C,
+    A: !O && y(gt, r, f.padding),
+    L: !O && y(gt, a, f.content),
+    tt: !O && !e && o && o(),
+    nt: v,
+    et: h,
+    st: parent(p),
+    ot: p,
+    ct: _,
+    it: g,
+    rt: l,
+    lt: O,
+    ut: (t, n) => O ? hasAttrClass(C, m, n) : hasClass(C, t),
+    ft: (t, n, e) => O ? attrClass(C, m, n, e) : (e ? addClass : removeClass)(C, t)
   };
-  const O = keys(x).reduce(((t, n) => {
-    const e = x[n];
+  const D = keys(L).reduce(((t, n) => {
+    const e = L[n];
     return push(t, e && !parent(e) ? e : false);
   }), []);
-  const elementIsGenerated = t => t ? indexOf(O, t) > -1 : null;
-  const {Y: L, B: z, A: D, U: E, I: P, q: M} = x;
-  const j = [];
-  const N = f && elementIsGenerated(z);
-  const R = f ? L : contents([ P, E, D, z, L ].find((t => false === elementIsGenerated(t))));
-  const H = P || E;
+  const elementIsGenerated = t => t ? indexOf(D, t) > -1 : null;
+  const {Z: E, J: P, A: I, K: j, L: M, tt: H} = L;
+  const N = [];
+  const R = _ && elementIsGenerated(P);
+  const F = _ ? E : contents([ M, j, I, P, E ].find((t => false === elementIsGenerated(t))));
+  const V = M || j;
   const appendElements = () => {
-    const t = addDataAttrHost(z, y ? "viewport" : "host");
-    const n = addClass(D, A);
-    const o = addClass(E, !y && I);
-    const s = addClass(P, T);
-    if (N) {
-      insertAfter(L, z);
-      push(j, (() => {
-        insertAfter(z, L);
-        removeElements(z);
+    const t = addDataAttrHost(P, O ? "viewport" : "host");
+    const n = addClass(I, $);
+    const s = addClass(j, !O && A);
+    const o = addClass(M, T);
+    if (R) {
+      insertAfter(E, P);
+      push(N, (() => {
+        insertAfter(P, E);
+        removeElements(P);
       }));
     }
-    appendChildren(H, R);
-    appendChildren(z, D);
-    appendChildren(D || z, !y && E);
-    appendChildren(E, P);
-    push(j, (() => {
+    appendChildren(V, F);
+    appendChildren(P, I);
+    appendChildren(I || P, !O && j);
+    appendChildren(j, M);
+    push(N, (() => {
       t();
-      removeAttr(E, S);
-      removeAttr(E, C);
-      if (elementIsGenerated(P)) {
-        unwrap(P);
+      removeAttr(j, S);
+      removeAttr(j, x);
+      if (elementIsGenerated(M)) {
+        unwrap(M);
       }
-      if (elementIsGenerated(E)) {
-        unwrap(E);
+      if (elementIsGenerated(j)) {
+        unwrap(j);
       }
-      if (elementIsGenerated(D)) {
-        unwrap(D);
+      if (elementIsGenerated(I)) {
+        unwrap(I);
       }
       n();
-      o();
       s();
+      o();
     }));
-    if (e && !y) {
-      push(j, removeClass.bind(0, E, $));
+    if (e && !O) {
+      push(N, removeClass.bind(0, j, z));
     }
-    if (M) {
-      insertBefore(E, M);
-      push(j, removeElements.bind(0, M));
+    if (H) {
+      insertBefore(j, H);
+      push(N, removeElements.bind(0, H));
     }
   };
-  return [ x, appendElements, runEachAndClear.bind(0, j) ];
+  return [ L, appendElements, runEachAndClear.bind(0, N) ];
 };
 
 const createTrinsicUpdate = (t, n) => {
-  const {I: e} = t;
-  const [o] = n;
+  const {L: e} = t;
+  const [s] = n;
   return t => {
     const {M: n} = getEnvironment();
-    const {st: s} = o();
-    const {ct: c} = t;
+    const {dt: o} = s();
+    const {_t: c} = t;
     const i = (e || !n) && c;
     if (i) {
       style(e, {
-        height: s ? "" : "100%"
+        height: o ? "" : "100%"
       });
     }
     return {
-      it: i,
-      rt: i
+      gt: i,
+      ht: i
     };
   };
 };
 
 const createPaddingUpdate = (t, n) => {
-  const [e, o] = n;
-  const {B: s, A: c, U: i, nt: r} = t;
+  const [e, s] = n;
+  const {J: o, A: c, K: i, lt: r} = t;
   const [a, l] = createCache({
     u: equalTRBL,
     o: topRightBottomLeft()
-  }, topRightBottomLeft.bind(0, s, "padding", ""));
-  return (t, n, s) => {
-    let [u, f] = l(s);
-    const {$: d, M: _} = getEnvironment();
-    const {lt: g} = e();
-    const {it: h, rt: p, ut: v} = t;
+  }, topRightBottomLeft.bind(0, o, "padding", ""));
+  return (t, n, o) => {
+    let [u, f] = l(o);
+    const {P: d, M: _} = getEnvironment();
+    const {vt: g} = e();
+    const {gt: h, ht: p, bt: v} = t;
     const [b, w] = n("paddingAbsolute");
     const y = !_ && p;
     if (h || f || y) {
-      [u, f] = a(s);
+      [u, f] = a(o);
     }
     const m = !r && (w || v || f);
     if (m) {
       const t = !b || !c && !d;
       const n = u.r + u.l;
       const e = u.t + u.b;
-      const s = {
+      const o = {
         marginRight: t && !g ? -n : 0,
         marginBottom: t ? -e : 0,
         marginLeft: t && g ? -n : 0,
@@ -1145,29 +1440,29 @@ const createPaddingUpdate = (t, n) => {
         paddingBottom: t ? u.b : 0,
         paddingLeft: t ? u.l : 0
       };
-      style(c || i, s);
+      style(c || i, o);
       style(i, r);
-      o({
+      s({
         A: u,
-        ft: !t,
-        dt: c ? r : assignDeep({}, s, r)
+        wt: !t,
+        G: c ? r : assignDeep({}, o, r)
       });
     }
     return {
-      _t: m
+      yt: m
     };
   };
 };
 
-const {max: G} = Math;
+const {max: ht} = Math;
 
-const W = "visible";
+const pt = "visible";
 
-const X = "hidden";
+const vt = "hidden";
 
-const J = 42;
+const bt = 42;
 
-const K = {
+const wt = {
   u: equalWH,
   o: {
     w: 0,
@@ -1175,50 +1470,51 @@ const K = {
   }
 };
 
-const Q = {
+const yt = {
   u: equalXY,
   o: {
-    x: X,
-    y: X
+    x: vt,
+    y: vt
   }
 };
 
 const getOverflowAmount = (t, n, e) => {
-  const o = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
-  const s = {
-    w: G(0, t.w - n.w - G(0, e.w)),
-    h: G(0, t.h - n.h - G(0, e.h))
+  const s = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
+  const o = {
+    w: ht(0, t.w - n.w - ht(0, e.w)),
+    h: ht(0, t.h - n.h - ht(0, e.h))
   };
   return {
-    w: s.w > o ? s.w : 0,
-    h: s.h > o ? s.h : 0
+    w: o.w > s ? o.w : 0,
+    h: o.h > s ? o.h : 0
   };
 };
 
 const conditionalClass = (t, n, e) => e ? addClass(t, n) : removeClass(t, n);
 
-const overflowIsVisible = t => 0 === t.indexOf(W);
+const overflowIsVisible = t => 0 === t.indexOf(pt);
 
 const createOverflowUpdate = (t, n) => {
-  const [e, o] = n;
-  const {B: s, A: c, U: i, q: r, nt: a, ot: l} = t;
-  const {L: u, M: f, $: d, T: _} = getEnvironment();
-  const g = !a && !d && (_.x || _.y);
-  const [h, p] = createCache(K, fractionalSize.bind(0, i));
-  const [v, b] = createCache(K, scrollSize.bind(0, i));
-  const [w, y] = createCache(K);
-  const [A] = createCache(Q);
+  const [e, s] = n;
+  const {J: o, A: c, K: i, tt: r, lt: a, ft: l} = t;
+  const {T: u, M: f, P: d, D: _} = getEnvironment();
+  const g = getPlugins()[dt];
+  const h = !a && !d && (_.x || _.y);
+  const [p, v] = createCache(wt, fractionalSize.bind(0, i));
+  const [b, w] = createCache(wt, scrollSize.bind(0, i));
+  const [y, $] = createCache(wt);
+  const [A] = createCache(yt);
   const fixFlexboxGlue = (t, n) => {
     style(i, {
       height: ""
     });
     if (n) {
-      const {ft: n, A: o} = e();
-      const {gt: c, ht: r} = t;
-      const a = fractionalSize(s);
-      const l = clientSize(s);
+      const {wt: n, A: s} = e();
+      const {St: c, W: r} = t;
+      const a = fractionalSize(o);
+      const l = clientSize(o);
       const u = "content-box" === style(i, "boxSizing");
-      const f = n || u ? o.b + o.t : 0;
+      const f = n || u ? s.b + s.t : 0;
       const d = !(_.x && u);
       style(i, {
         height: l.h + a.h + (c.x && d ? r.x : 0) - f
@@ -1226,188 +1522,122 @@ const createOverflowUpdate = (t, n) => {
     }
   };
   const getViewportOverflowState = (t, n) => {
-    const e = !d && !t ? J : 0;
-    const getStatePerAxis = (t, o, s) => {
+    const e = !d && !t ? bt : 0;
+    const getStatePerAxis = (t, s, o) => {
       const c = style(i, t);
       const r = n ? n[t] : c;
       const a = "scroll" === r;
-      const l = o ? e : s;
+      const l = s ? e : o;
       const u = a && !d ? l : 0;
-      const f = o && !!e;
+      const f = s && !!e;
       return [ c, a, u, f ];
     };
-    const [o, s, c, r] = getStatePerAxis("overflowX", _.x, u.x);
+    const [s, o, c, r] = getStatePerAxis("overflowX", _.x, u.x);
     const [a, l, f, g] = getStatePerAxis("overflowY", _.y, u.y);
     return {
-      vt: {
-        x: o,
+      xt: {
+        x: s,
         y: a
       },
-      gt: {
-        x: s,
+      St: {
+        x: o,
         y: l
       },
-      ht: {
+      W: {
         x: c,
         y: f
       },
-      bt: {
+      X: {
         x: r,
         y: g
       }
     };
   };
-  const setViewportOverflowState = (t, n, e, o) => {
+  const setViewportOverflowState = (t, n, e, s) => {
     const setAxisOverflowStyle = (t, n) => {
       const e = overflowIsVisible(t);
-      const o = n && e && t.replace(`${W}-`, "") || "";
-      return [ n && !e ? t : "", overflowIsVisible(o) ? "hidden" : o ];
+      const s = n && e && t.replace(`${pt}-`, "") || "";
+      return [ n && !e ? t : "", overflowIsVisible(s) ? "hidden" : s ];
     };
-    const [s, c] = setAxisOverflowStyle(e.x, n.x);
+    const [o, c] = setAxisOverflowStyle(e.x, n.x);
     const [i, r] = setAxisOverflowStyle(e.y, n.y);
-    o.overflowX = c && i ? c : s;
-    o.overflowY = r && s ? r : i;
-    return getViewportOverflowState(t, o);
+    s.overflowX = c && i ? c : o;
+    s.overflowY = r && o ? r : i;
+    return getViewportOverflowState(t, s);
   };
-  const arrangeViewport = (t, n, o, s) => {
-    if (g) {
-      const {dt: c} = e();
-      const {ht: a, bt: l} = t;
-      const {x: u, y: f} = l;
-      const {x: d, y: _} = a;
-      const g = s ? "paddingRight" : "paddingLeft";
-      const h = c[g];
-      const p = c.paddingTop;
-      const v = n.w + o.w;
-      const b = n.h + o.h;
-      const w = {
-        w: _ && f ? `${_ + v - h}px` : "",
-        h: d && u ? `${d + b - p}px` : ""
-      };
-      if (r) {
-        const {sheet: t} = r;
-        if (t) {
-          const {cssRules: n} = t;
-          if (n) {
-            if (!n.length) {
-              t.insertRule(`#${attr(r, "id")} + .${L}::before {}`, 0);
-            }
-            const e = n[0].style;
-            e.width = w.w;
-            e.height = w.h;
-          }
-        }
-      } else {
-        style(i, {
-          "--os-vaw": w.w,
-          "--os-vah": w.h
-        });
-      }
-    }
-    return g;
-  };
-  const hideNativeScrollbars = (t, n, o, s) => {
-    const {ht: c, bt: i} = t;
+  const hideNativeScrollbars = (t, n, s, o) => {
+    const {W: c, X: i} = t;
     const {x: r, y: a} = i;
     const {x: l, y: u} = c;
-    const {dt: f} = e();
+    const {G: f} = e();
     const d = n ? "marginLeft" : "marginRight";
     const _ = n ? "paddingLeft" : "paddingRight";
     const g = f[d];
     const h = f.marginBottom;
     const p = f[_];
     const v = f.paddingBottom;
-    s.width = `calc(100% + ${u + -1 * g}px)`;
-    s[d] = -u + g;
-    s.marginBottom = -l + h;
-    if (o) {
-      s[_] = p + (a ? u : 0);
-      s.paddingBottom = v + (r ? l : 0);
+    o.width = `calc(100% + ${u + -1 * g}px)`;
+    o[d] = -u + g;
+    o.marginBottom = -l + h;
+    if (s) {
+      o[_] = p + (a ? u : 0);
+      o.paddingBottom = v + (r ? l : 0);
     }
   };
-  const undoViewportArrange = (t, n, o) => {
-    if (g) {
-      const s = o || getViewportOverflowState(t);
-      const {dt: c} = e();
-      const {bt: r} = s;
-      const {x: a, y: l} = r;
-      const u = {};
-      const assignProps = t => each(t.split(" "), (t => {
-        u[t] = c[t];
-      }));
-      if (a) {
-        assignProps("marginBottom paddingTop paddingBottom");
-      }
-      if (l) {
-        assignProps("marginLeft marginRight paddingLeft paddingRight");
-      }
-      const d = style(i, keys(u));
-      removeClass(i, L);
-      if (!f) {
-        u.height = "";
-      }
-      style(i, u);
-      return [ () => {
-        hideNativeScrollbars(s, n, g, d);
-        style(i, d);
-        addClass(i, L);
-      }, s ];
-    }
-    return [ noop ];
-  };
+  const [L, T] = g ? g.q(h, i, r, e, getViewportOverflowState, hideNativeScrollbars) : [ () => h, () => [ noop ] ];
   return (t, n, r) => {
-    const {it: u, wt: g, rt: I, _t: L, ct: T, ut: D} = t;
-    const {st: E, lt: P} = e();
-    const [M, j] = n("nativeScrollbarsOverlaid.show");
-    const [N, R] = n("overflow");
-    const H = M && _.x && _.y;
-    const F = !a && !f && (u || I || g || j || T);
-    const k = overflowIsVisible(N.x);
-    const V = overflowIsVisible(N.y);
-    const B = k || V;
-    let U = p(r);
-    let Y = b(r);
-    let q = y(r);
-    let W;
-    if (j && d) {
-      l($, O, !H);
+    const {gt: u, Ct: g, ht: h, yt: E, _t: P, bt: I} = t;
+    const {dt: j, vt: M} = e();
+    const [H, N] = n("nativeScrollbarsOverlaid.show");
+    const [R, F] = n("overflow");
+    const V = H && _.x && _.y;
+    const k = !a && !f && (u || h || g || N || P);
+    const B = overflowIsVisible(R.x);
+    const U = overflowIsVisible(R.y);
+    const Y = B || U;
+    let q = v(r);
+    let G = w(r);
+    let W = $(r);
+    let X;
+    if (N && d) {
+      l(z, O, !V);
     }
-    if (F) {
-      W = getViewportOverflowState(H);
-      fixFlexboxGlue(W, E);
+    if (k) {
+      X = getViewportOverflowState(V);
+      fixFlexboxGlue(X, j);
     }
-    if (u || L || I || D || j) {
-      if (B) {
-        l(z, x, false);
+    if (u || E || h || I || N) {
+      if (Y) {
+        l(D, C, false);
       }
-      const [t, n] = undoViewportArrange(H, P, W);
-      const [e, o] = U = h(r);
-      const [s, c] = Y = v(r);
+      const [t, n] = T(V, M, X);
+      const [e, s] = q = p(r);
+      const [o, c] = G = b(r);
       const a = clientSize(i);
-      let u = s;
+      let u = o;
       let f = a;
       t();
-      if ((c || o || j) && n && !H && arrangeViewport(n, s, e, P)) {
+      if ((c || s || N) && n && !V && L(n, o, e, M)) {
         f = clientSize(i);
         u = scrollSize(i);
       }
-      q = w(getOverflowAmount({
-        w: G(s.w, u.w),
-        h: G(s.h, u.h)
+      W = y(getOverflowAmount({
+        w: ht(o.w, u.w),
+        h: ht(o.h, u.h)
       }, {
-        w: f.w + G(0, a.w - s.w),
-        h: f.h + G(0, a.h - s.h)
+        w: f.w + ht(0, a.w - o.w),
+        h: f.h + ht(0, a.h - o.h)
       }, e), r);
     }
-    const [X, J] = q;
-    const [K, Q] = Y;
-    const [Z, tt] = U;
-    const nt = {
-      x: X.w > 0,
-      y: X.h > 0
+    const [J, K] = W;
+    const [Q, Z] = G;
+    const [tt, nt] = q;
+    const et = {
+      x: J.w > 0,
+      y: J.h > 0
     };
-    const et = k && V && (nt.x || nt.y) || k && nt.x && !nt.y || V && nt.y && !nt.x;
-    if (L || D || tt || Q || J || R || j || F) {
+    const st = B && U && (et.x || et.y) || B && et.x && !et.y || U && et.y && !et.x;
+    if (E || I || nt || Z || K || F || N || k) {
       const t = {
         marginRight: 0,
         marginBottom: 0,
@@ -1416,74 +1646,74 @@ const createOverflowUpdate = (t, n) => {
         overflowY: "",
         overflowX: ""
       };
-      const n = setViewportOverflowState(H, nt, N, t);
-      const e = arrangeViewport(n, K, Z, P);
+      const n = setViewportOverflowState(V, et, R, t);
+      const e = L(n, Q, tt, M);
       if (!a) {
-        hideNativeScrollbars(n, P, e, t);
+        hideNativeScrollbars(n, M, e, t);
       }
-      if (F) {
-        fixFlexboxGlue(n, E);
+      if (k) {
+        fixFlexboxGlue(n, j);
       }
       if (a) {
-        attr(s, S, t.overflowX);
-        attr(s, C, t.overflowY);
+        attr(o, S, t.overflowX);
+        attr(o, x, t.overflowY);
       } else {
         style(i, t);
       }
     }
-    attrClass(s, m, x, et);
-    conditionalClass(c, z, et);
-    !a && conditionalClass(i, z, B);
-    const [ot, st] = A(getViewportOverflowState(H).vt);
-    o({
-      vt: ot,
-      yt: {
-        x: X.w,
-        y: X.h
+    attrClass(o, m, C, st);
+    conditionalClass(c, D, st);
+    !a && conditionalClass(i, D, Y);
+    const [ot, ct] = A(getViewportOverflowState(V).xt);
+    s({
+      xt: ot,
+      Ot: {
+        x: J.w,
+        y: J.h
       },
-      St: nt
+      $t: et
     });
     return {
-      Ct: st,
-      xt: J
+      At: ct,
+      Lt: K
     };
   };
 };
 
 const prepareUpdateHints = (t, n, e) => {
-  const o = {};
-  const s = n || {};
-  const c = keys(t).concat(keys(s));
+  const s = {};
+  const o = n || {};
+  const c = keys(t).concat(keys(o));
   each(c, (n => {
     const c = t[n];
-    const i = s[n];
-    o[n] = !!(e || c || i);
+    const i = o[n];
+    s[n] = !!(e || c || i);
   }));
-  return o;
+  return s;
 };
 
 const createStructureSetupUpdate = (t, n) => {
-  const {U: e} = t;
-  const {$: o, T: s, M: c} = getEnvironment();
-  const i = !o && (s.x || s.y);
+  const {K: e} = t;
+  const {P: s, D: o, M: c} = getEnvironment();
+  const i = !s && (o.x || o.y);
   const r = [ createTrinsicUpdate(t, n), createPaddingUpdate(t, n), createOverflowUpdate(t, n) ];
-  return (t, n, o) => {
-    const s = prepareUpdateHints(assignDeep({
-      it: false,
+  return (t, n, s) => {
+    const o = prepareUpdateHints(assignDeep({
+      gt: false,
+      yt: false,
+      bt: false,
       _t: false,
-      ut: false,
-      ct: false,
-      xt: false,
+      Lt: false,
+      At: false,
       Ct: false,
-      wt: false,
-      rt: false
-    }, n), {}, o);
+      ht: false
+    }, n), {}, s);
     const a = i || !c;
     const l = a && scrollLeft(e);
     const u = a && scrollTop(e);
-    let f = s;
+    let f = o;
     each(r, (n => {
-      f = prepareUpdateHints(f, n(f, t, !!o) || {}, o);
+      f = prepareUpdateHints(f, n(f, t, !!s) || {}, s);
     }));
     if (isNumber(l)) {
       scrollLeft(e, l);
@@ -1495,115 +1725,120 @@ const createStructureSetupUpdate = (t, n) => {
   };
 };
 
-const Z = "animationstart";
+const mt = "animationstart";
 
-const tt = "scroll";
+const St = "scroll";
 
-const nt = 3333333;
+const xt = 3333333;
 
 const getElmDirectionIsRTL = t => "rtl" === style(t, "direction");
 
 const domRectHasDimensions = t => t && (t.height || t.width);
 
 const createSizeObserver = (t, n, e) => {
-  const {Ot: o = false, At: s = false} = e || {};
-  const {P: c} = getEnvironment();
-  const i = createDOM(`<div class="${D}"><div class="${P}"></div></div>`);
-  const r = i[0];
-  const a = r.firstChild;
-  const l = getElmDirectionIsRTL.bind(0, r);
-  const [f] = createCache({
+  const {Tt: s = false, zt: o = false} = e || {};
+  const c = getPlugins()[lt];
+  const {j: i} = getEnvironment();
+  const r = createDOM(`<div class="${E}"><div class="${I}"></div></div>`);
+  const a = r[0];
+  const l = a.firstChild;
+  const f = getElmDirectionIsRTL.bind(0, a);
+  const [d] = createCache({
     o: void 0,
     _: true,
     u: (t, n) => !(!t || !domRectHasDimensions(t) && domRectHasDimensions(n))
   });
   const onSizeChangedCallbackProxy = t => {
     const e = isArray(t) && t.length > 0 && isObject(t[0]);
-    const s = !e && isBoolean(t[0]);
-    let i = false;
-    let a = false;
+    const o = !e && isBoolean(t[0]);
+    let c = false;
+    let r = false;
     let l = true;
     if (e) {
-      const [n, , e] = f(t.pop().contentRect);
-      const o = domRectHasDimensions(n);
-      const s = domRectHasDimensions(e);
-      i = !e || !o;
-      a = !s && o;
-      l = !i;
-    } else if (s) {
+      const [n, , e] = d(t.pop().contentRect);
+      const s = domRectHasDimensions(n);
+      const o = domRectHasDimensions(e);
+      c = !e || !s;
+      r = !o && s;
+      l = !c;
+    } else if (o) {
       [, l] = t;
     } else {
-      a = true === t;
+      r = true === t;
     }
-    if (o && l) {
-      const n = s ? t[0] : getElmDirectionIsRTL(r);
-      scrollLeft(r, n ? c.n ? -nt : c.i ? 0 : nt : nt);
-      scrollTop(r, nt);
+    if (s && l) {
+      const n = o ? t[0] : getElmDirectionIsRTL(a);
+      scrollLeft(a, n ? i.n ? -xt : i.i ? 0 : xt : xt);
+      scrollTop(a, xt);
     }
-    if (!i) {
+    if (!c) {
       n({
-        it: !s,
-        It: s ? t : void 0,
-        At: !!a
+        gt: !o,
+        Dt: o ? t : void 0,
+        zt: !!r
       });
     }
   };
-  const d = [];
-  let _ = s ? onSizeChangedCallbackProxy : false;
-  let g;
+  const _ = [];
+  let g = o ? onSizeChangedCallbackProxy : false;
+  let h;
   if (u) {
     const t = new u(onSizeChangedCallbackProxy);
-    t.observe(a);
-    push(d, (() => {
+    t.observe(l);
+    push(_, (() => {
       t.disconnect();
     }));
+  } else if (c) {
+    const [t, n] = c.U(l, onSizeChangedCallbackProxy, o);
+    g = t;
+    push(_, n);
   }
-  if (o) {
-    g = createCache({
-      o: !l()
-    }, l);
-    const [t] = g;
-    push(d, on(r, tt, (n => {
+  if (s) {
+    h = createCache({
+      o: !f()
+    }, f);
+    const [t] = h;
+    push(_, on(a, St, (n => {
       const e = t();
-      const [o, s] = e;
-      if (s) {
-        removeClass(a, "ltr rtl");
-        if (o) {
-          addClass(a, "rtl");
+      const [s, o] = e;
+      if (o) {
+        removeClass(l, "ltr rtl");
+        if (s) {
+          addClass(l, "rtl");
         } else {
-          addClass(a, "ltr");
+          addClass(l, "ltr");
         }
         onSizeChangedCallbackProxy(e);
       }
       stopAndPrevent(n);
     })));
   }
-  if (_) {
-    addClass(r, E);
-    push(d, on(r, Z, _, {
-      O: !!u
+  if (g) {
+    addClass(a, P);
+    push(_, on(a, mt, g, {
+      $: !!u
     }));
   }
-  prependChildren(t, r);
+  prependChildren(t, a);
   return () => {
-    runEachAndClear(d);
-    removeElements(r);
+    runEachAndClear(_);
+    removeElements(a);
   };
 };
 
 const isHeightIntrinsic = t => 0 === t.h || t.isIntersecting || t.intersectionRatio > 0;
 
 const createTrinsicObserver = (t, n) => {
-  const e = createDiv(M);
-  const o = [];
-  const [s] = createCache({
+  const e = createDiv(N);
+  const s = [];
+  const [o] = createCache({
     o: false
   });
   const triggerOnTrinsicChangedCallback = t => {
     if (t) {
-      const e = s(isHeightIntrinsic(t));
-      const [, o] = e;
-      if (o) {
+      const e = o(isHeightIntrinsic(t));
+      const [, s] = e;
+      if (s) {
         n(e);
       }
     }
@@ -1617,7 +1852,7 @@ const createTrinsicObserver = (t, n) => {
       root: t
     });
     n.observe(e);
-    push(o, (() => {
+    push(s, (() => {
       n.disconnect();
     }));
   } else {
@@ -1625,38 +1860,38 @@ const createTrinsicObserver = (t, n) => {
       const t = offsetSize(e);
       triggerOnTrinsicChangedCallback(t);
     };
-    push(o, createSizeObserver(e, onSizeChanged));
+    push(s, createSizeObserver(e, onSizeChanged));
     onSizeChanged();
   }
   prependChildren(t, e);
   return () => {
-    runEachAndClear(o);
+    runEachAndClear(s);
     removeElements(e);
   };
 };
 
 const createEventContentChange = (t, n, e) => {
-  let o;
-  let s = false;
+  let s;
+  let o = false;
   const destroy = () => {
-    s = true;
+    o = true;
   };
   const updateElements = c => {
     if (e) {
       const i = e.reduce(((n, e) => {
         if (e) {
-          const o = e[0];
-          const s = e[1];
-          const i = s && o && (c ? c(o) : find(o, t));
-          if (i && i.length && s && isString(s)) {
-            push(n, [ i, s.trim() ], true);
+          const s = e[0];
+          const o = e[1];
+          const i = o && s && (c ? c(s) : find(s, t));
+          if (i && i.length && o && isString(o)) {
+            push(n, [ i, o.trim() ], true);
           }
         }
         return n;
       }), []);
       each(i, (t => each(t[0], (e => {
         const c = t[1];
-        const i = o.get(e);
+        const i = s.get(e);
         if (i) {
           const t = i[0];
           const n = i[1];
@@ -1665,39 +1900,39 @@ const createEventContentChange = (t, n, e) => {
           }
         }
         const r = on(e, c, (t => {
-          if (s) {
+          if (o) {
             r();
-            o.delete(e);
+            s.delete(e);
           } else {
             n(t);
           }
         }));
-        o.set(e, [ c, r ]);
+        s.set(e, [ c, r ]);
       }))));
     }
   };
   if (e) {
-    o = new WeakMap;
+    s = new WeakMap;
     updateElements();
   }
   return [ destroy, updateElements ];
 };
 
-const createDOMObserver = (t, n, e, o) => {
-  let s = false;
-  const {Lt: c, Tt: i, $t: r, zt: l, Dt: u, Et: f} = o || {};
+const createDOMObserver = (t, n, e, s) => {
+  let o = false;
+  const {Et: c, Pt: i, It: r, jt: l, Mt: u, Ht: f} = s || {};
   const [d, _] = createEventContentChange(t, debounce((() => {
-    if (s) {
+    if (o) {
       e(true);
     }
   }), {
-    g: 33,
-    p: 99
+    p: 33,
+    v: 99
   }), r);
   const g = c || [];
   const h = i || [];
   const p = g.concat(h);
-  const observerCallback = s => {
+  const observerCallback = o => {
     const c = u || noop;
     const i = f || noop;
     const r = [];
@@ -1705,27 +1940,27 @@ const createDOMObserver = (t, n, e, o) => {
     let d = false;
     let g = false;
     let p = false;
-    each(s, (e => {
-      const {attributeName: s, target: u, type: f, oldValue: _, addedNodes: v} = e;
+    each(o, (e => {
+      const {attributeName: o, target: u, type: f, oldValue: _, addedNodes: v} = e;
       const b = "attributes" === f;
       const w = "childList" === f;
       const y = t === u;
-      const m = b && isString(s) ? attr(u, s) : 0;
+      const m = b && isString(o) ? attr(u, o) : 0;
       const S = 0 !== m && _ !== m;
-      const C = indexOf(h, s) > -1 && S;
+      const x = indexOf(h, o) > -1 && S;
       if (n && !y) {
         const n = !b;
-        const r = b && C;
+        const r = b && x;
         const f = r && l && is(u, l);
-        const d = f ? !c(u, s, _, m) : n || r;
-        const h = d && !i(e, !!f, t, o);
+        const d = f ? !c(u, o, _, m) : n || r;
+        const h = d && !i(e, !!f, t, s);
         push(a, v);
         g = g || h;
         p = p || w;
       }
-      if (!n && y && S && !c(u, s, _, m)) {
-        push(r, s);
-        d = d || C;
+      if (!n && y && S && !c(u, o, _, m)) {
+        push(r, o);
+        d = d || x;
       }
     }));
     if (p && !isEmptyArray(a)) {
@@ -1749,37 +1984,37 @@ const createDOMObserver = (t, n, e, o) => {
     childList: n,
     characterData: n
   });
-  s = true;
+  o = true;
   return [ () => {
-    if (s) {
+    if (o) {
       d();
       v.disconnect();
-      s = false;
+      o = false;
     }
   }, () => {
-    if (s) {
+    if (o) {
       observerCallback(v.takeRecords());
     }
   } ];
 };
 
-const et = `[${m}]`;
+const Ct = `[${m}]`;
 
-const ot = `.${I}`;
+const Ot = `.${A}`;
 
-const st = [ "tabindex" ];
+const $t = [ "tabindex" ];
 
-const ct = [ "wrap", "cols", "rows" ];
+const At = [ "wrap", "cols", "rows" ];
 
-const it = [ "id", "class", "style", "open" ];
+const Lt = [ "id", "class", "style", "open" ];
 
 const createStructureSetupObservers = (t, n, e) => {
-  let o;
   let s;
+  let o;
   let c;
   const [, i] = n;
-  const {B: r, U: a, I: l, K: f, nt: d, et: _, ot: g} = t;
-  const {$: h, M: p} = getEnvironment();
+  const {J: r, K: a, L: l, ct: f, lt: d, ut: _, ft: g} = t;
+  const {P: h, M: p} = getEnvironment();
   const [v] = createCache({
     u: equalWH,
     o: {
@@ -1787,33 +2022,33 @@ const createStructureSetupObservers = (t, n, e) => {
       h: 0
     }
   }, (() => {
-    const t = _(z, x);
-    t && g(z, x);
+    const t = _(D, C);
+    t && g(D, C);
     const n = scrollSize(l);
     const e = scrollSize(a);
-    const o = fractionalSize(a);
-    t && g(z, x, true);
+    const s = fractionalSize(a);
+    t && g(D, C, true);
     return {
-      w: e.w + n.w + o.w,
-      h: e.h + n.h + o.h
+      w: e.w + n.w + s.w,
+      h: e.h + n.h + s.h
     };
   }));
-  const b = f ? ct : it.concat(ct);
+  const b = f ? At : Lt.concat(At);
   const w = debounce(e, {
-    g: () => o,
     p: () => s,
-    v(t, n) {
+    v: () => o,
+    m(t, n) {
       const [e] = t;
-      const [o] = n;
-      return [ keys(e).concat(keys(o)).reduce(((t, n) => {
-        t[n] = e[n] || o[n];
+      const [s] = n;
+      return [ keys(e).concat(keys(s)).reduce(((t, n) => {
+        t[n] = e[n] || s[n];
         return t;
       }), {}) ];
     }
   });
   const updateViewportAttrsFromHost = t => {
-    each(t || st, (t => {
-      if (indexOf(st, t) > -1) {
+    each(t || $t, (t => {
+      if (indexOf($t, t) > -1) {
         const n = attr(r, t);
         if (isString(n)) {
           attr(a, t, n);
@@ -1824,42 +2059,42 @@ const createStructureSetupObservers = (t, n, e) => {
     }));
   };
   const onTrinsicChanged = t => {
-    const [n, o] = t;
+    const [n, s] = t;
     i({
-      st: n
+      dt: n
     });
     e({
-      ct: o
+      _t: s
     });
   };
-  const onSizeChanged = ({it: t, It: n, At: o}) => {
-    const s = !t || o ? e : w;
+  const onSizeChanged = ({gt: t, Dt: n, zt: s}) => {
+    const o = !t || s ? e : w;
     let c = false;
     if (n) {
       const [t, e] = n;
       c = e;
       i({
-        lt: t
+        vt: t
       });
     }
-    s({
-      it: t,
-      ut: c
+    o({
+      gt: t,
+      bt: c
     });
   };
   const onContentMutation = t => {
     const [, n] = v();
-    const o = t ? e : w;
+    const s = t ? e : w;
     if (n) {
-      o({
-        rt: true
+      s({
+        ht: true
       });
     }
   };
   const onHostMutation = (t, n) => {
     if (n) {
       w({
-        wt: true
+        Ct: true
       });
     } else if (!d) {
       updateViewportAttrsFromHost(t);
@@ -1867,17 +2102,17 @@ const createStructureSetupObservers = (t, n, e) => {
   };
   const y = (l || !p) && createTrinsicObserver(r, onTrinsicChanged);
   const m = !d && createSizeObserver(r, onSizeChanged, {
-    At: true,
-    Ot: !h
+    zt: true,
+    Tt: !h
   });
   const [S] = createDOMObserver(r, false, onHostMutation, {
-    Tt: it,
-    Lt: it.concat(st)
+    Pt: Lt,
+    Et: Lt.concat($t)
   });
-  const C = d && new u(onSizeChanged.bind(0, {
-    it: true
+  const x = d && new u(onSizeChanged.bind(0, {
+    gt: true
   }));
-  C && C.observe(r);
+  x && x.observe(r);
   updateViewportAttrsFromHost();
   return [ t => {
     const [n] = t("updating.ignoreMutation");
@@ -1892,50 +2127,50 @@ const createStructureSetupObservers = (t, n, e) => {
         c[0]();
       }
       c = createDOMObserver(l || a, true, onContentMutation, {
-        Tt: b.concat(e || []),
-        Lt: b.concat(e || []),
-        $t: r,
-        zt: et,
-        Et: (t, n) => {
-          const {target: e, attributeName: o} = t;
-          const s = !n && o ? liesBetween(e, et, ot) : false;
-          return s || !!ignoreMutationFromOptions(t);
+        Pt: b.concat(e || []),
+        Et: b.concat(e || []),
+        It: r,
+        jt: Ct,
+        Ht: (t, n) => {
+          const {target: e, attributeName: s} = t;
+          const o = !n && s ? liesBetween(e, Ct, Ot) : false;
+          return o || !!ignoreMutationFromOptions(t);
         }
       });
     }
     if (d) {
-      w.m();
+      w.S();
       if (isArray(f)) {
         const t = f[0];
         const n = f[1];
-        o = isNumber(t) ? t : false;
-        s = isNumber(n) ? n : false;
+        s = isNumber(t) ? t : false;
+        o = isNumber(n) ? n : false;
       } else if (isNumber(f)) {
-        o = f;
-        s = false;
-      } else {
+        s = f;
         o = false;
+      } else {
         s = false;
+        o = false;
       }
     }
   }, () => {
     c && c[0]();
     y && y();
     m && m();
-    C && C.disconnect();
+    x && x.disconnect();
     S();
   } ];
 };
 
-const rt = {
+const Tt = {
   A: {
     t: 0,
     r: 0,
     b: 0,
     l: 0
   },
-  ft: false,
-  dt: {
+  wt: false,
+  G: {
     marginRight: 0,
     marginBottom: 0,
     marginLeft: 0,
@@ -1944,42 +2179,42 @@ const rt = {
     paddingBottom: 0,
     paddingLeft: 0
   },
-  yt: {
+  Ot: {
     x: 0,
     y: 0
   },
-  vt: {
+  xt: {
     x: "hidden",
     y: "hidden"
   },
-  St: {
+  $t: {
     x: false,
     y: false
   },
-  st: false,
-  lt: false
+  dt: false,
+  vt: false
 };
 
 const createStructureSetup = (t, n) => {
   const e = createOptionCheck(n, {});
-  const o = createState(rt);
-  const [s, c, i] = createEventListenerHub();
-  const [r] = o;
+  const s = createState(Tt);
+  const [o, c, i] = createEventListenerHub();
+  const [r] = s;
   const [a, l, u] = createStructureSetupElements(t);
-  const f = createStructureSetupUpdate(a, o);
-  const [d, _] = createStructureSetupObservers(a, o, (t => {
+  const f = createStructureSetupUpdate(a, s);
+  const [d, _] = createStructureSetupObservers(a, s, (t => {
     i("u", [ f(e, t), {}, false ]);
   }));
   const g = r.bind(0);
-  g.Pt = t => {
-    s("u", t);
+  g.Nt = t => {
+    o("u", t);
   };
-  g.Mt = l;
-  g.jt = a;
+  g.Rt = l;
+  g.Ft = a;
   return [ (t, e) => {
-    const o = createOptionCheck(n, t, e);
-    d(o);
-    i("u", [ f(o, {}, e), t, !!e ]);
+    const s = createOptionCheck(n, t, e);
+    d(s);
+    i("u", [ f(s, {}, e), t, !!e ]);
   }, g, () => {
     c();
     _();
@@ -1988,146 +2223,88 @@ const createStructureSetup = (t, n) => {
 };
 
 const generateScrollbarDOM = t => {
-  const n = createDiv(`${j} ${t}`);
-  const e = createDiv(H);
-  const o = createDiv(F);
+  const n = createDiv(`${R} ${t}`);
+  const e = createDiv(k);
+  const s = createDiv(B);
   appendChildren(n, e);
-  appendChildren(e, o);
+  appendChildren(e, s);
   return {
-    Nt: n,
-    Rt: e,
-    Ht: o
+    Vt: n,
+    kt: e,
+    Bt: s
   };
 };
 
 const createScrollbarsSetupElements = (t, n) => {
   const {N: e} = getEnvironment();
-  const {Ft: o} = e();
-  const {Y: s, B: c, U: i, tt: r} = n;
+  const {Ut: s} = e();
+  const {Z: o, J: c, K: i, rt: r} = n;
   const a = !r && t.scrollbarsSlot;
-  const l = dynamicInitializationElement([ s, c, i ], (() => c), o, a);
-  const u = generateScrollbarDOM(N);
-  const f = generateScrollbarDOM(R);
-  const {Nt: d} = u;
-  const {Nt: _} = f;
+  const l = dynamicInitializationElement([ o, c, i ], (() => c), s, a);
+  const u = generateScrollbarDOM(F);
+  const f = generateScrollbarDOM(V);
+  const {Vt: d} = u;
+  const {Vt: _} = f;
   const appendElements = () => {
     appendChildren(l, d);
     appendChildren(l, _);
   };
   return [ {
-    kt: u,
-    Vt: f
+    Yt: u,
+    qt: f
   }, appendElements, removeElements.bind(0, [ d, _ ]) ];
 };
 
 const createScrollbarsSetup = (t, n, e) => {
-  const o = createState({});
-  const [s] = o;
+  const s = createState({});
+  const [o] = s;
   const [c, i, r] = createScrollbarsSetupElements(t, e);
-  const a = s.bind(0);
-  a.jt = c;
-  a.Mt = i;
+  const a = o.bind(0);
+  a.Ft = c;
+  a.Rt = i;
   return [ (t, e) => {
-    const o = createOptionCheck(n, t, e);
-    console.log(o);
+    const s = createOptionCheck(n, t, e);
+    console.log(s);
   }, a, () => {
     r();
   } ];
 };
 
-const at = {};
+const zt = new Set;
 
-const getPlugins = () => assignDeep({}, at);
-
-const addPlugin = t => each(isArray(t) ? t : [ t ], (t => {
-  at[t[0]] = t[1];
-}));
-
-const lt = {
-  boolean: "__TPL_boolean_TYPE__",
-  number: "__TPL_number_TYPE__",
-  string: "__TPL_string_TYPE__",
-  array: "__TPL_array_TYPE__",
-  object: "__TPL_object_TYPE__",
-  function: "__TPL_function_TYPE__",
-  null: "__TPL_null_TYPE__"
-};
-
-const ut = lt.number;
-
-const ft = lt.boolean;
-
-const dt = [ lt.array, lt.null ];
-
-const _t = "hidden scroll visible visible-hidden";
-
-const gt = "visible hidden auto";
-
-const ht = "never scroll leavemove";
-
-({
-  paddingAbsolute: ft,
-  updating: {
-    elementEvents: dt,
-    attributes: dt,
-    debounce: [ lt.number, lt.array, lt.null ],
-    ignoreMutation: [ lt.function, lt.null ]
-  },
-  overflow: {
-    x: _t,
-    y: _t
-  },
-  scrollbars: {
-    visibility: gt,
-    autoHide: ht,
-    autoHideDelay: ut,
-    dragScroll: ft,
-    clickScroll: ft,
-    touch: ft
-  },
-  nativeScrollbarsOverlaid: {
-    show: ft,
-    initialize: ft
-  }
-});
-
-const pt = "__osOptionsValidationPlugin";
-
-const vt = new Set;
-
-const bt = new WeakMap;
+const Dt = new WeakMap;
 
 const addInstance = (t, n) => {
-  bt.set(t, n);
-  vt.add(t);
+  Dt.set(t, n);
+  zt.add(t);
 };
 
 const removeInstance = t => {
-  bt.delete(t);
-  vt.delete(t);
+  Dt.delete(t);
+  zt.delete(t);
 };
 
-const getInstance = t => bt.get(t);
+const getInstance = t => Dt.get(t);
 
 const OverlayScrollbars = (t, n, e) => {
-  let o = false;
-  const {H: s, T: c, j: i} = getEnvironment();
+  let s = false;
+  const {F: o, D: c, H: i} = getEnvironment();
   const r = getPlugins();
   const a = isHTMLElement(t) ? t : t.target;
   const l = getInstance(a);
   if (l) {
     return l;
   }
-  const u = r[pt];
+  const u = r[ct];
   const validateOptions = t => {
     const n = t || {};
-    const e = u && u.Bt;
+    const e = u && u.U;
     return e ? e(n, true) : n;
   };
-  const f = assignDeep({}, s(), validateOptions(n));
+  const f = assignDeep({}, o(), validateOptions(n));
   const [d, _, g] = createEventListenerHub(e);
   const [h, p, v] = createStructureSetup(t, f);
-  const [b, w, y] = createScrollbarsSetup(t, f, p.jt);
+  const [b, w, y] = createScrollbarsSetup(t, f, p.Ft);
   const update = (t, n) => {
     h(t, n);
     b(t, n);
@@ -2138,7 +2315,7 @@ const OverlayScrollbars = (t, n, e) => {
     m();
     y();
     v();
-    o = true;
+    s = true;
     g("destroyed", [ S, !!t ]);
     _();
   };
@@ -2158,24 +2335,24 @@ const OverlayScrollbars = (t, n, e) => {
       t && n && _(t, n);
     },
     state() {
-      const {yt: t, vt: n, St: e, A: s, ft: c} = p();
+      const {Ot: t, xt: n, $t: e, A: o, wt: c} = p();
       return assignDeep({}, {
         overflowAmount: t,
         overflowStyle: n,
         hasOverflow: e,
-        padding: s,
+        padding: o,
         paddingAbsolute: c,
-        destroyed: o
+        destroyed: s
       });
     },
     elements() {
-      const {Y: t, B: n, A: e, U: o, I: s} = p.jt;
+      const {Z: t, J: n, A: e, K: s, L: o} = p.Ft;
       return assignDeep({}, {
         target: t,
         host: n,
-        padding: e || o,
-        viewport: o,
-        content: s || o
+        padding: e || s,
+        viewport: s,
+        content: o || s
       });
     },
     update(t) {
@@ -2194,16 +2371,16 @@ const OverlayScrollbars = (t, n, e) => {
     destroy(true);
     return S;
   }
-  p.Mt();
-  w.Mt();
+  p.Rt();
+  w.Rt();
   addInstance(a, S);
   g("initialized", [ S ]);
-  p.Pt(((t, n, e) => {
-    const {it: o, ut: s, ct: c, xt: i, Ct: r, rt: a, wt: l} = t;
+  p.Nt(((t, n, e) => {
+    const {gt: s, bt: o, _t: c, Lt: i, At: r, ht: a, Ct: l} = t;
     g("updated", [ S, {
       updateHints: {
-        sizeChanged: o,
-        directionChanged: s,
+        sizeChanged: s,
+        directionChanged: o,
         heightIntrinsicChanged: c,
         overflowAmountChanged: i,
         overflowStyleChanged: r,
@@ -2220,13 +2397,13 @@ const OverlayScrollbars = (t, n, e) => {
 OverlayScrollbars.plugin = addPlugin;
 
 OverlayScrollbars.env = () => {
-  const {L: t, T: n, $: e, P: o, M: s, D: c, k: i, V: r, N: a, R: l, H: u, F: f} = getEnvironment();
+  const {T: t, D: n, P: e, j: s, M: o, I: c, k: i, B: r, N: a, R: l, F: u, V: f} = getEnvironment();
   return assignDeep({}, {
-    scrollbarSize: t,
-    scrollbarIsOverlaid: n,
-    scrollbarStyling: e,
-    rtlScrollBehavior: o,
-    flexboxGlue: s,
+    scrollbarsSize: t,
+    scrollbarsOverlaid: n,
+    scrollbarsHiding: e,
+    rtlScrollBehavior: s,
+    flexboxGlue: o,
     cssCustomProperties: c,
     defaultInitializationStrategy: i,
     defaultDefaultOptions: r,
@@ -2237,5 +2414,5 @@ OverlayScrollbars.env = () => {
   });
 };
 
-export { OverlayScrollbars as default };
+export { OverlayScrollbars, it as optionsValidationPlugin, _t as scrollbarsHidingPlugin, ut as sizeObserverPlugin };
 //# sourceMappingURL=overlayscrollbars.esm.js.map

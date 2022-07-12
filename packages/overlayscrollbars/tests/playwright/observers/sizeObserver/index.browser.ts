@@ -3,6 +3,7 @@ import './index.scss';
 import './handleEnvironment';
 import should from 'should';
 import { hasDimensions, offsetSize, WH, style } from 'support';
+import { addPlugin, sizeObserverPlugin } from 'plugins';
 import { createSizeObserver } from 'observers/sizeObserver';
 import {
   generateClassChangeSelectCallback,
@@ -11,6 +12,8 @@ import {
 } from '@/testing-browser/Select';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { timeout } from '@/testing-browser/timeout';
+
+addPlugin(sizeObserverPlugin);
 
 let sizeIterations = 0;
 let directionIterations = 0;

@@ -36,9 +36,9 @@ type EnvironmentEventMap = {
 };
 
 export interface InternalEnvironment {
-  readonly _nativeScrollbarSize: XY;
-  readonly _nativeScrollbarIsOverlaid: XY<boolean>;
-  readonly _nativeScrollbarStyling: boolean;
+  readonly _nativeScrollbarsSize: XY;
+  readonly _nativeScrollbarsOverlaid: XY<boolean>;
+  readonly _nativeScrollbarsHiding: boolean;
   readonly _rtlScrollBehavior: { n: boolean; i: boolean };
   readonly _flexboxGlue: boolean;
   readonly _cssCustomProperties: boolean;
@@ -77,7 +77,7 @@ const getNativeScrollbarSize = (
   };
 };
 
-const getNativeScrollbarStyling = (testElm: HTMLElement): boolean => {
+const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   let result = false;
   const revertClass = addClass(testElm, classNameViewportScrollbarStyling);
   try {
@@ -157,22 +157,22 @@ const createEnvironment = (): InternalEnvironment => {
     _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
     _equal: equalXY,
   });
-  const [nativeScrollbarSize] = getNativeScrollbarSizeCache();
-  const nativeScrollbarStyling = getNativeScrollbarStyling(envElm);
-  const nativeScrollbarIsOverlaid = {
-    x: nativeScrollbarSize.x === 0,
-    y: nativeScrollbarSize.y === 0,
+  const [nativeScrollbarsSize] = getNativeScrollbarSizeCache();
+  const nativeScrollbarsHiding = getNativeScrollbarsHiding(envElm);
+  const nativeScrollbarsOverlaid = {
+    x: nativeScrollbarsSize.x === 0,
+    y: nativeScrollbarsSize.y === 0,
   };
   const initializationStrategy = {
-    _padding: !nativeScrollbarStyling,
+    _padding: !nativeScrollbarsHiding,
     _content: false,
   };
   const defaultDefaultOptions = assignDeep({}, defaultOptions);
 
   const env: InternalEnvironment = {
-    _nativeScrollbarSize: nativeScrollbarSize,
-    _nativeScrollbarIsOverlaid: nativeScrollbarIsOverlaid,
-    _nativeScrollbarStyling: nativeScrollbarStyling,
+    _nativeScrollbarsSize: nativeScrollbarsSize,
+    _nativeScrollbarsOverlaid: nativeScrollbarsOverlaid,
+    _nativeScrollbarsHiding: nativeScrollbarsHiding,
     _cssCustomProperties: style(envElm, 'zIndex') === '-1',
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
@@ -196,7 +196,7 @@ const createEnvironment = (): InternalEnvironment => {
   removeAttr(envElm, 'style');
   removeElements(envElm);
 
-  if (!nativeScrollbarStyling && (!nativeScrollbarIsOverlaid.x || !nativeScrollbarIsOverlaid.y)) {
+  if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
     let size = windowSize();
     let dpr = getWindowDPR();
 
@@ -228,7 +228,7 @@ const createEnvironment = (): InternalEnvironment => {
           getNativeScrollbarSize(body, envElm, envChildElm)
         );
 
-        assignDeep(environmentInstance._nativeScrollbarSize, scrollbarSize); // keep the object same!
+        assignDeep(environmentInstance._nativeScrollbarsSize, scrollbarSize); // keep the object same!
         removeElements(envElm);
 
         if (scrollbarSizeChanged) {

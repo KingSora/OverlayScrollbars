@@ -78,7 +78,7 @@ export const createStructureSetupObservers = (
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = structureSetupElements;
-  const { _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+  const { _nativeScrollbarsHiding: _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
 
   const [updateContentSizeCache] = createCache<WH<number>>(
     {
