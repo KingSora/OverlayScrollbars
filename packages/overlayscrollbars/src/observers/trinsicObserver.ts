@@ -3,7 +3,7 @@ import {
   CacheValues,
   createDiv,
   offsetSize,
-  runEach,
+  runEachAndClear,
   prependChildren,
   removeElements,
   createCache,
@@ -74,7 +74,7 @@ export const createTrinsicObserver = (
   prependChildren(target, trinsicObserver);
 
   return () => {
-    runEach(offListeners);
+    runEachAndClear(offListeners);
     removeElements(trinsicObserver);
   };
 };

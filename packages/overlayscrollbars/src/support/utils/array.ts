@@ -104,14 +104,21 @@ export const isEmptyArray = (array: any[] | null | undefined): boolean =>
 /**
  * Calls all functions in the passed array/set of functions.
  * @param arr The array filled with function which shall be called.
- * @param p1 The first param.
+ * @param args The args with which each function is called.
+ * @param keep True when the Set / array should not be cleared afterwards, false otherwise.
  */
-export const runEach = (arr: ArrayLike<RunEachItem> | Set<RunEachItem>, args?: any[]): void => {
+export const runEachAndClear = (
+  arr: ArrayLike<RunEachItem> | Set<RunEachItem>,
+  args?: any[],
+  keep?: boolean
+): void => {
   // eslint-disable-next-line prefer-spread
   const runFn = (fn: RunEachItem) => fn && fn.apply(undefined, args || []);
   if (arr instanceof Set) {
     arr.forEach(runFn);
+    !keep && arr.clear();
   } else {
     each(arr, runFn);
+    !keep && (arr as any[]).splice && (arr as any[]).splice(0, arr.length);
   }
 };

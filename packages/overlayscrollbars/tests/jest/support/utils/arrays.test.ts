@@ -1,4 +1,4 @@
-import { push, each, from, indexOf, runEach, isEmptyArray } from 'support/utils/array';
+import { push, each, from, indexOf, runEachAndClear, isEmptyArray } from 'support/utils/array';
 
 describe('array utilities', () => {
   describe('push', () => {
@@ -289,25 +289,29 @@ describe('array utilities', () => {
     });
   });
 
-  describe('runEach', () => {
+  describe('runEachAndClear', () => {
     test('array', () => {
       const arr = [jest.fn(), null, jest.fn(), undefined, jest.fn()];
-      runEach(arr, ['a', 'b', 'c', 'd']);
+      runEachAndClear(arr, ['a', 'b', 'c', 'd'], true);
       arr.forEach((fn) => {
         if (fn) {
           expect(fn).toHaveBeenCalledWith('a', 'b', 'c', 'd');
         }
       });
+      runEachAndClear(arr, ['a', 'b', 'c', 'd']);
+      expect(arr.length).toBe(0);
     });
 
     test('set', () => {
       const set = new Set([jest.fn(), null, jest.fn(), undefined, jest.fn()]);
-      runEach(set, [1, 2, 3, 4]);
+      runEachAndClear(set, [1, 2, 3, 4], true);
       set.forEach((fn) => {
         if (fn) {
           expect(fn).toHaveBeenCalledWith(1, 2, 3, 4);
         }
       });
+      runEachAndClear(set, [1, 2, 3, 4]);
+      expect(set.size).toBe(0);
     });
   });
 

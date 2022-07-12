@@ -8,7 +8,7 @@ import {
   offsetSize,
   scrollLeft,
   scrollTop,
-  runEach,
+  runEachAndClear,
   prependChildren,
   removeElements,
   on,
@@ -267,7 +267,7 @@ export const createSizeObserver = (
   prependChildren(target, sizeObserver);
 
   return () => {
-    runEach(offListeners);
+    runEachAndClear(offListeners);
     removeElements(sizeObserver);
   };
 };

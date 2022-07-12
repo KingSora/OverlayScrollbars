@@ -11,7 +11,7 @@ import { addClass, each, isArray, removeAttr, style } from 'support';
 window.OverlayScrollbars = OverlayScrollbars;
 
 OverlayScrollbars.env().setDefaultOptions({
-  nativeScrollbarsOverlaid: { initialize: false },
+  nativeScrollbarsOverlaid: { initialize: true },
 });
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');

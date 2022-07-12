@@ -12,7 +12,7 @@ import {
   removeClass,
   hasClass,
   push,
-  runEach,
+  runEachAndClear,
   insertBefore,
   attr,
   keys,
@@ -250,5 +250,5 @@ export const createStructureSetupElements = (
     }
   };
 
-  return [evaluatedTargetObj, appendElements, runEach.bind(0, destroyFns)];
+  return [evaluatedTargetObj, appendElements, runEachAndClear.bind(0, destroyFns)];
 };

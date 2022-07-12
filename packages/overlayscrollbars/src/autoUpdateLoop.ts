@@ -1,4 +1,4 @@
-import { rAF, cAF, isEmptyArray, indexOf, createCache, runEach, push } from 'support';
+import { rAF, cAF, isEmptyArray, indexOf, createCache, runEachAndClear, push } from 'support';
 // import { getEnvironment } from 'environment';
 
 /**
@@ -36,7 +36,7 @@ const createAutoUpdateLoop = (): AutoUpdateLoop => {
       loopId = rAF!(loop);
       const [value, changed, previous] = updateTimeCache(newTime || performance.now());
       if (changed) {
-        runEach(loopFunctions, value - previous!);
+        runEachAndClear(loopFunctions, value - previous!);
       }
     }
   };
