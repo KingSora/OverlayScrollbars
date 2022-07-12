@@ -43,7 +43,11 @@ import type {
   StructureStaticInitializationElement,
 } from 'setups/structureSetup/structureSetup.initialization';
 
-export type StructureSetupElements = [targetObj: StructureSetupElementsObj, destroy: () => void];
+export type StructureSetupElements = [
+  targetObj: StructureSetupElementsObj,
+  appendElements: () => void,
+  destroy: () => void
+];
 
 export interface StructureSetupElementsObj {
   _target: InitializationTargetElement;
@@ -197,52 +201,54 @@ export const createStructureSetupElements = (
         )
       );
   const contentSlot = _content || _viewport;
-  const removeHostDataAttr = addDataAttrHost(_host, viewportIsTarget ? 'viewport' : 'host');
-  const removePaddingClass = addClass(_padding, classNamePadding);
-  const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
-  const removeContentClass = addClass(_content, classNameContent);
+  const appendElements = () => {
+    const removeHostDataAttr = addDataAttrHost(_host, viewportIsTarget ? 'viewport' : 'host');
+    const removePaddingClass = addClass(_padding, classNamePadding);
+    const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
+    const removeContentClass = addClass(_content, classNameContent);
 
-  // only insert host for textarea after target if it was generated
-  if (isTextareaHostGenerated) {
-    insertAfter(_target, _host);
+    // only insert host for textarea after target if it was generated
+    if (isTextareaHostGenerated) {
+      insertAfter(_target, _host);
+
+      push(destroyFns, () => {
+        insertAfter(_host, _target);
+        removeElements(_host);
+      });
+    }
+
+    appendChildren(contentSlot, targetContents);
+    appendChildren(_host, _padding);
+    appendChildren(_padding || _host, !viewportIsTarget && _viewport);
+    appendChildren(_viewport, _content);
 
     push(destroyFns, () => {
-      insertAfter(_host, _target);
-      removeElements(_host);
+      removeHostDataAttr();
+      removeAttr(_viewport, dataAttributeHostOverflowX);
+      removeAttr(_viewport, dataAttributeHostOverflowY);
+
+      if (elementIsGenerated(_content)) {
+        unwrap(_content);
+      }
+      if (elementIsGenerated(_viewport)) {
+        unwrap(_viewport);
+      }
+      if (elementIsGenerated(_padding)) {
+        unwrap(_padding);
+      }
+      removePaddingClass();
+      removeViewportClass();
+      removeContentClass();
     });
-  }
 
-  appendChildren(contentSlot, targetContents);
-  appendChildren(_host, _padding);
-  appendChildren(_padding || _host, !viewportIsTarget && _viewport);
-  appendChildren(_viewport, _content);
-
-  push(destroyFns, () => {
-    removeHostDataAttr();
-    removeAttr(_viewport, dataAttributeHostOverflowX);
-    removeAttr(_viewport, dataAttributeHostOverflowY);
-
-    if (elementIsGenerated(_content)) {
-      unwrap(_content);
+    if (_nativeScrollbarStyling && !viewportIsTarget) {
+      push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
     }
-    if (elementIsGenerated(_viewport)) {
-      unwrap(_viewport);
+    if (_viewportArrange) {
+      insertBefore(_viewport, _viewportArrange);
+      push(destroyFns, removeElements.bind(0, _viewportArrange));
     }
-    if (elementIsGenerated(_padding)) {
-      unwrap(_padding);
-    }
-    removePaddingClass();
-    removeViewportClass();
-    removeContentClass();
-  });
+  };
 
-  if (_nativeScrollbarStyling && !viewportIsTarget) {
-    push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
-  }
-  if (_viewportArrange) {
-    insertBefore(_viewport, _viewportArrange);
-    push(destroyFns, removeElements.bind(0, _viewportArrange));
-  }
-
-  return [evaluatedTargetObj, runEach.bind(0, destroyFns)];
+  return [evaluatedTargetObj, appendElements, runEach.bind(0, destroyFns)];
 };

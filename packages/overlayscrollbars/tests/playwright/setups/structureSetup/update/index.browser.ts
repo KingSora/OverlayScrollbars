@@ -25,6 +25,13 @@ import { timeout } from '@/testing-browser/timeout';
 import { Options } from 'options';
 import { PartialOptions } from 'typings';
 
+// @ts-ignore
+window.OverlayScrollbars = OverlayScrollbars;
+
+OverlayScrollbars.env().setDefaultOptions({
+  nativeScrollbarsOverlaid: { initialize: true },
+});
+
 interface Metrics {
   offset: {
     left: number;
@@ -122,7 +129,7 @@ const osInstance =
   // @ts-ignore
   (window.os = OverlayScrollbars(
     initObj,
-    { nativeScrollbarsOverlaid: { initialize: true } },
+    {},
     {
       updated() {
         updateCount++;

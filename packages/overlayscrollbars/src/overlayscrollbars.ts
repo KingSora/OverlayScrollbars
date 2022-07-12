@@ -31,17 +31,6 @@ import type {
   EventListener as GeneralEventListener,
 } from 'support/eventListeners';
 
-/*
-onScrollStart               : null,
-onScroll                    : null,
-onScrollStop                : null,
-onOverflowChanged           : null,
-onOverflowAmountChanged     : null, // fusion with onOverflowChanged
-onDirectionChanged          : null, // gone
-onContentSizeChanged        : null, // gone
-onHostSizeChanged           : null, // gone
-*/
-
 export interface OverlayScrollbarsStatic {
   (
     target: InitializationTarget | InitializationTargetObject,
@@ -75,6 +64,7 @@ export interface State {
   overflowAmount: XY<number>;
   overflowStyle: XY<OverflowStyle>;
   hasOverflow: XY<boolean>;
+  destroyed: boolean;
 }
 
 export interface Elements {
@@ -100,10 +90,18 @@ export interface OnUpdatedEventListenerArgs {
 }
 
 export type EventListenerMap = {
-  initialized: [];
-  initializationWithdrawn: [];
-  updated: [OnUpdatedEventListenerArgs];
-  destroyed: [];
+  /**
+   * Triggered after all elements are initialized and appended.
+   */
+  initialized: [instance: OverlayScrollbars];
+  /**
+   * Triggered after an update.
+   */
+  updated: [instance: OverlayScrollbars, onUpdatedArgs: OnUpdatedEventListenerArgs];
+  /**
+   * Triggered after all elements, observers and events are destroyed.
+   */
+  destroyed: [instance: OverlayScrollbars, withdrawn: boolean];
 };
 
 export type InitialEventListeners = GeneralInitialEventListeners<EventListenerMap>;
@@ -117,7 +115,7 @@ export interface OverlayScrollbars {
   options(): Options;
   options(newOptions?: PartialOptions<Options>): Options;
 
-  update(force?: boolean): void;
+  update(force?: boolean): OverlayScrollbars;
 
   destroy(): void;
 
@@ -142,6 +140,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   options?,
   eventListeners?
 ): OverlayScrollbars => {
+  let destroyed = false;
   const {
     _getDefaultOptions,
     _nativeScrollbarIsOverlaid,
@@ -168,59 +167,33 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     validateOptions(options)
   );
   const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
-
-  if (
-    _nativeScrollbarIsOverlaid.x &&
-    _nativeScrollbarIsOverlaid.y &&
-    !currentOptions.nativeScrollbarsOverlaid.initialize
-  ) {
-    triggerEvent('initializationWithdrawn');
-  }
-
   const [updateStructure, structureState, destroyStructure] = createStructureSetup(
     target,
     currentOptions
   );
-  const [updateScrollbars, , destroyScrollbars] = createScrollbarsSetup(
+  const [updateScrollbars, scrollbarsState, destroyScrollbars] = createScrollbarsSetup(
     target,
     currentOptions,
     structureState._elements
   );
-
   const update = (changedOptions: PartialOptions<Options>, force?: boolean) => {
     updateStructure(changedOptions, force);
     updateScrollbars(changedOptions, force);
   };
-
   const removeEnvListener = addEnvListener(update.bind(0, {}, true));
+  const destroy = (withdrawn?: boolean) => {
+    removeInstance(instanceTarget);
+    removeEnvListener();
 
-  structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
-    const {
-      _sizeChanged,
-      _directionChanged,
-      _heightIntrinsicChanged,
-      _overflowAmountChanged,
-      _overflowStyleChanged,
-      _contentMutation,
-      _hostMutation,
-    } = updateHints;
+    destroyScrollbars();
+    destroyStructure();
 
-    triggerEvent('updated', [
-      {
-        updateHints: {
-          sizeChanged: _sizeChanged,
-          directionChanged: _directionChanged,
-          heightIntrinsicChanged: _heightIntrinsicChanged,
-          overflowAmountChanged: _overflowAmountChanged,
-          overflowStyleChanged: _overflowStyleChanged,
-          contentMutation: _contentMutation,
-          hostMutation: _hostMutation,
-        },
-        changedOptions,
-        force,
-      },
-    ]);
-  });
+    destroyed = true;
+
+    // eslint-disable-next-line no-use-before-define
+    triggerEvent('destroyed', [instance, !!withdrawn]);
+    removeEvent();
+  };
 
   const instance: OverlayScrollbars = {
     options(newOptions?: PartialOptions<Options>) {
@@ -235,7 +208,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       return assignDeep({}, currentOptions);
     },
     on: addEvent,
-    off: removeEvent,
+    off: (name, listener) => {
+      name && listener && removeEvent(name, listener as any);
+    },
     state() {
       const { _overflowAmount, _overflowStyle, _hasOverflow, _padding, _paddingAbsolute } =
         structureState();
@@ -247,6 +222,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           hasOverflow: _hasOverflow,
           padding: _padding,
           paddingAbsolute: _paddingAbsolute,
+          destroyed,
         }
       );
     },
@@ -265,17 +241,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     },
     update(force?: boolean) {
       update({}, force);
+      return instance;
     },
-    destroy: () => {
-      removeInstance(instanceTarget);
-      removeEnvListener();
-      removeEvent();
-
-      destroyScrollbars();
-      destroyStructure();
-
-      triggerEvent('destroyed');
-    },
+    destroy: destroy.bind(0),
   };
 
   each(keys(plugins), (pluginName) => {
@@ -285,13 +253,51 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     }
   });
 
-  instance.update(true);
+  if (
+    _nativeScrollbarIsOverlaid.x &&
+    _nativeScrollbarIsOverlaid.y &&
+    !currentOptions.nativeScrollbarsOverlaid.initialize
+  ) {
+    destroy(true);
+    return instance;
+  }
+
+  structureState._appendElements();
+  scrollbarsState._appendElements();
 
   addInstance(instanceTarget, instance);
+  triggerEvent('initialized', [instance]);
 
-  triggerEvent('initialized');
+  structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
+    const {
+      _sizeChanged,
+      _directionChanged,
+      _heightIntrinsicChanged,
+      _overflowAmountChanged,
+      _overflowStyleChanged,
+      _contentMutation,
+      _hostMutation,
+    } = updateHints;
 
-  return instance;
+    triggerEvent('updated', [
+      instance,
+      {
+        updateHints: {
+          sizeChanged: _sizeChanged,
+          directionChanged: _directionChanged,
+          heightIntrinsicChanged: _heightIntrinsicChanged,
+          overflowAmountChanged: _overflowAmountChanged,
+          overflowStyleChanged: _overflowStyleChanged,
+          contentMutation: _contentMutation,
+          hostMutation: _hostMutation,
+        },
+        changedOptions,
+        force,
+      },
+    ]);
+  });
+
+  return instance.update(true);
 };
 
 OverlayScrollbars.plugin = addPlugin;

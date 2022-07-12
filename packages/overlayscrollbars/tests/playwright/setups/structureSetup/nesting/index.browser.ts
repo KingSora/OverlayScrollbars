@@ -7,8 +7,11 @@ import { timeout } from '@/testing-browser/timeout';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { addClass, each, isArray, removeAttr, style } from 'support';
 
+// @ts-ignore
+window.OverlayScrollbars = OverlayScrollbars;
+
 OverlayScrollbars.env().setDefaultOptions({
-  nativeScrollbarsOverlaid: { initialize: true },
+  nativeScrollbarsOverlaid: { initialize: false },
 });
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
@@ -33,6 +36,7 @@ let rootUpdateCount = 0;
 let aUpdateCount = 0;
 let bUpdateCount = 0;
 let cUpdateCount = 0;
+
 const rootInstance = OverlayScrollbars(
   { target: targetRoot!, padding: true },
   {},

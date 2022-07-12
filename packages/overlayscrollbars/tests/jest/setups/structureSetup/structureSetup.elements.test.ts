@@ -115,7 +115,8 @@ const assertCorrectDOMStructure = (textarea: boolean, viewportIsTarget: boolean)
 const createStructureSetupProxy = (
   target: InitializationTarget | StructureInitialization
 ): StructureSetupElementsProxy => {
-  const [elements, destroy] = createStructureSetupElements(target);
+  const [elements, appendElements, destroy] = createStructureSetupElements(target);
+  appendElements();
   return {
     input: target,
     elements,

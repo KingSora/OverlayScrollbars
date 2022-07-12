@@ -13,6 +13,7 @@ export interface ScrollbarsSetupState {}
 
 export interface ScrollbarsSetupStaticState {
   _elements: ScrollbarsSetupElementsObj;
+  _appendElements: () => void;
 }
 
 export const createScrollbarsSetup = (
@@ -23,11 +24,15 @@ export const createScrollbarsSetup = (
   const state = createState({});
   const [getState] = state;
 
-  const [elements, destroyElements] = createScrollbarsSetupElements(target, structureSetupElements);
+  const [elements, appendElements, destroyElements] = createScrollbarsSetupElements(
+    target,
+    structureSetupElements
+  );
 
   const scrollbarsSetupState = getState.bind(0) as (() => ScrollbarsSetupState) &
     ScrollbarsSetupStaticState;
   scrollbarsSetupState._elements = elements;
+  scrollbarsSetupState._appendElements = appendElements;
 
   return [
     (changedOptions, force?) => {

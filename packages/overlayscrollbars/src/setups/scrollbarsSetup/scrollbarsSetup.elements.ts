@@ -27,7 +27,11 @@ export interface ScrollbarsSetupElementsObj {
   _verticalScrollbarStructure: ScrollbarStructure;
 }
 
-export type ScrollbarsSetupElements = [elements: ScrollbarsSetupElementsObj, destroy: () => void];
+export type ScrollbarsSetupElements = [
+  elements: ScrollbarsSetupElementsObj,
+  appendElements: () => void,
+  destroy: () => void
+];
 
 const generateScrollbarDOM = (scrollbarClassName: string): ScrollbarStructure => {
   const scrollbar = createDiv(`${classNameScrollbar} ${scrollbarClassName}`);
@@ -68,14 +72,17 @@ export const createScrollbarsSetupElements = (
   const { _scrollbar: horizontalScrollbar } = horizontalScrollbarStructure;
   const { _scrollbar: verticalScrollbar } = verticalScrollbarStructure;
 
-  appendChildren(evaluatedScrollbarSlot, horizontalScrollbar);
-  appendChildren(evaluatedScrollbarSlot, verticalScrollbar);
+  const appendElements = () => {
+    appendChildren(evaluatedScrollbarSlot, horizontalScrollbar);
+    appendChildren(evaluatedScrollbarSlot, verticalScrollbar);
+  };
 
   return [
     {
       _horizontalScrollbarStructure: horizontalScrollbarStructure,
       _verticalScrollbarStructure: verticalScrollbarStructure,
     },
+    appendElements,
     removeElements.bind(0, [horizontalScrollbar, verticalScrollbar]),
   ];
 };

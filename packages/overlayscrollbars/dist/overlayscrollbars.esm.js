@@ -670,11 +670,11 @@ const createEventListenerHub = t => {
     }), e);
     return removeEvent.bind(0, t, e);
   }
-  function triggerEvent(t, ...e) {
+  function triggerEvent(t, e) {
     const o = n.get(t);
     each(from(o), (t => {
-      if (e) {
-        t(e);
+      if (e && !isEmptyArray(e)) {
+        t.apply(0, e);
       } else {
         t();
       }
@@ -1048,46 +1048,48 @@ const createStructureSetupElements = t => {
   const N = f && elementIsGenerated(z);
   const R = f ? L : contents([ P, E, D, z, L ].find((t => false === elementIsGenerated(t))));
   const H = P || E;
-  const F = addDataAttrHost(z, y ? "viewport" : "host");
-  const k = addClass(D, A);
-  const V = addClass(E, !y && $);
-  const B = addClass(P, I);
-  if (N) {
-    insertAfter(L, z);
+  const appendElements = () => {
+    const t = addDataAttrHost(z, y ? "viewport" : "host");
+    const n = addClass(D, A);
+    const o = addClass(E, !y && $);
+    const s = addClass(P, I);
+    if (N) {
+      insertAfter(L, z);
+      push(j, (() => {
+        insertAfter(z, L);
+        removeElements(z);
+      }));
+    }
+    appendChildren(H, R);
+    appendChildren(z, D);
+    appendChildren(D || z, !y && E);
+    appendChildren(E, P);
     push(j, (() => {
-      insertAfter(z, L);
-      removeElements(z);
+      t();
+      removeAttr(E, S);
+      removeAttr(E, C);
+      if (elementIsGenerated(P)) {
+        unwrap(P);
+      }
+      if (elementIsGenerated(E)) {
+        unwrap(E);
+      }
+      if (elementIsGenerated(D)) {
+        unwrap(D);
+      }
+      n();
+      o();
+      s();
     }));
-  }
-  appendChildren(H, R);
-  appendChildren(z, D);
-  appendChildren(D || z, !y && E);
-  appendChildren(E, P);
-  push(j, (() => {
-    F();
-    removeAttr(E, S);
-    removeAttr(E, C);
-    if (elementIsGenerated(P)) {
-      unwrap(P);
+    if (e && !y) {
+      push(j, removeClass.bind(0, E, T));
     }
-    if (elementIsGenerated(E)) {
-      unwrap(E);
+    if (M) {
+      insertBefore(E, M);
+      push(j, removeElements.bind(0, M));
     }
-    if (elementIsGenerated(D)) {
-      unwrap(D);
-    }
-    k();
-    V();
-    B();
-  }));
-  if (e && !y) {
-    push(j, removeClass.bind(0, E, T));
-  }
-  if (M) {
-    insertBefore(E, M);
-    push(j, removeElements.bind(0, M));
-  }
-  return [ x, runEach.bind(0, j) ];
+  };
+  return [ x, appendElements, runEach.bind(0, j) ];
 };
 
 const createTrinsicUpdate = (t, n) => {
@@ -2011,29 +2013,27 @@ const ut = {
 const createStructureSetup = (t, n) => {
   const e = createOptionCheck(n, {});
   const o = createState(ut);
-  const s = new Set;
-  const [c] = o;
-  const runOnUpdatedListeners = (t, n, e) => {
-    runEach(s, [ t, n || {}, !!e ]);
-  };
-  const [i, r] = createStructureSetupElements(t);
-  const a = createStructureSetupUpdate(i, o);
-  const [l, u] = createStructureSetupObservers(i, o, (t => {
-    runOnUpdatedListeners(a(e, t));
+  const [s, c, i] = createEventListenerHub();
+  const [r] = o;
+  const [a, l, u] = createStructureSetupElements(t);
+  const f = createStructureSetupUpdate(a, o);
+  const [d, _] = createStructureSetupObservers(a, o, (t => {
+    i("u", [ f(e, t), {}, false ]);
   }));
-  const f = c.bind(0);
-  f.Pt = t => {
-    s.add(t);
+  const g = r.bind(0);
+  g.Pt = t => {
+    s("u", t);
   };
-  f.Mt = i;
+  g.Mt = l;
+  g.jt = a;
   return [ (t, e) => {
     const o = createOptionCheck(n, t, e);
-    l(o);
-    runOnUpdatedListeners(a(o, {}, e));
-  }, f, () => {
-    s.clear();
+    d(o);
+    i("u", [ f(o, {}, e), t, !!e ]);
+  }, g, () => {
+    c();
+    _();
     u();
-    r();
   } ];
 };
 
@@ -2044,41 +2044,44 @@ const generateScrollbarDOM = t => {
   appendChildren(n, e);
   appendChildren(e, o);
   return {
-    jt: n,
-    Nt: e,
-    Rt: o
+    Nt: n,
+    Rt: e,
+    Ht: o
   };
 };
 
 const createScrollbarsSetupElements = (t, n) => {
   const {N: e} = getEnvironment();
-  const {Ht: o} = e();
+  const {Ft: o} = e();
   const {Y: s, B: c, U: i, tt: r} = n;
   const a = !r && t.scrollbarsSlot;
   const l = dynamicInitializationElement([ s, c, i ], (() => c), o, a);
   const u = generateScrollbarDOM(F);
   const f = generateScrollbarDOM(k);
-  const {jt: d} = u;
-  const {jt: _} = f;
-  appendChildren(l, d);
-  appendChildren(l, _);
+  const {Nt: d} = u;
+  const {Nt: _} = f;
+  const appendElements = () => {
+    appendChildren(l, d);
+    appendChildren(l, _);
+  };
   return [ {
-    Ft: u,
-    kt: f
-  }, removeElements.bind(0, [ d, _ ]) ];
+    kt: u,
+    Vt: f
+  }, appendElements, removeElements.bind(0, [ d, _ ]) ];
 };
 
 const createScrollbarsSetup = (t, n, e) => {
   const o = createState({});
   const [s] = o;
-  const [c, i] = createScrollbarsSetupElements(t, e);
-  const r = s.bind(0);
-  r.Mt = c;
+  const [c, i, r] = createScrollbarsSetupElements(t, e);
+  const a = s.bind(0);
+  a.jt = c;
+  a.Mt = i;
   return [ (t, e) => {
     const o = createOptionCheck(n, t, e);
     console.log(o);
-  }, r, () => {
-    i();
+  }, a, () => {
+    r();
   } ];
 };
 
@@ -2157,34 +2160,95 @@ const removeInstance = t => {
 const getInstance = t => mt.get(t);
 
 const OverlayScrollbars = (t, n, e) => {
-  const {H: o, I: s, j: c} = getEnvironment();
-  const i = getPlugins();
-  const r = isHTMLElement(t) ? t : t.target;
-  const a = getInstance(r);
-  if (a) {
-    return a;
+  let o = false;
+  const {H: s, I: c, j: i} = getEnvironment();
+  const r = getPlugins();
+  const a = isHTMLElement(t) ? t : t.target;
+  const l = getInstance(a);
+  if (l) {
+    return l;
   }
-  const l = i[bt];
+  const u = r[bt];
   const validateOptions = t => {
     const n = t || {};
-    const e = l && l.Vt;
+    const e = u && u.Bt;
     return e ? e(n, true) : n;
   };
-  const u = assignDeep({}, o(), validateOptions(n));
-  const [f, d, _] = createEventListenerHub(e);
-  if (s.x && s.y && !u.nativeScrollbarsOverlaid.initialize) {
-    _("initializationWithdrawn");
-  }
-  const [g, h, p] = createStructureSetup(t, u);
-  const [v, , w] = createScrollbarsSetup(t, u, h.Mt);
+  const f = assignDeep({}, s(), validateOptions(n));
+  const [d, _, g] = createEventListenerHub(e);
+  const [h, p, v] = createStructureSetup(t, f);
+  const [w, b, y] = createScrollbarsSetup(t, f, p.jt);
   const update = (t, n) => {
-    g(t, n);
-    v(t, n);
+    h(t, n);
+    w(t, n);
   };
-  const b = c(update.bind(0, {}, true));
-  h.Pt(((t, n, e) => {
+  const m = i(update.bind(0, {}, true));
+  const destroy = t => {
+    removeInstance(a);
+    m();
+    y();
+    v();
+    o = true;
+    g("destroyed", [ S, !!t ]);
+    _();
+  };
+  const S = {
+    options(t) {
+      if (t) {
+        const n = getOptionsDiff(f, validateOptions(t));
+        if (!isEmptyObject(n)) {
+          assignDeep(f, n);
+          update(n);
+        }
+      }
+      return assignDeep({}, f);
+    },
+    on: d,
+    off: _,
+    state() {
+      const {yt: t, vt: n, St: e, A: s, ft: c} = p();
+      return assignDeep({}, {
+        overflowAmount: t,
+        overflowStyle: n,
+        hasOverflow: e,
+        padding: s,
+        paddingAbsolute: c,
+        destroyed: o
+      });
+    },
+    elements() {
+      const {Y: t, B: n, A: e, U: o, $: s} = p.jt;
+      return assignDeep({}, {
+        target: t,
+        host: n,
+        padding: e || o,
+        viewport: o,
+        content: s || o
+      });
+    },
+    update(t) {
+      update({}, t);
+      return S;
+    },
+    destroy: destroy.bind(0)
+  };
+  if (c.x && c.y && !f.nativeScrollbarsOverlaid.initialize) {
+    destroy(true);
+    return S;
+  }
+  each(keys(r), (t => {
+    const n = r[t];
+    if (isFunction(n)) {
+      n(OverlayScrollbars, S);
+    }
+  }));
+  p.Mt();
+  b.Mt();
+  addInstance(a, S);
+  g("initialized", [ S ]);
+  p.Pt(((t, n, e) => {
     const {it: o, ut: s, ct: c, xt: i, Ct: r, rt: a, bt: l} = t;
-    _("updated", {
+    g("updated", [ S, {
       updateHints: {
         sizeChanged: o,
         directionChanged: s,
@@ -2196,63 +2260,9 @@ const OverlayScrollbars = (t, n, e) => {
       },
       changedOptions: n,
       force: e
-    });
+    } ]);
   }));
-  const y = {
-    options(t) {
-      if (t) {
-        const n = getOptionsDiff(u, validateOptions(t));
-        if (!isEmptyObject(n)) {
-          assignDeep(u, n);
-          update(n);
-        }
-      }
-      return assignDeep({}, u);
-    },
-    on: f,
-    off: d,
-    state() {
-      const {yt: t, vt: n, St: e, A: o, ft: s} = h();
-      return assignDeep({}, {
-        overflowAmount: t,
-        overflowStyle: n,
-        hasOverflow: e,
-        padding: o,
-        paddingAbsolute: s
-      });
-    },
-    elements() {
-      const {Y: t, B: n, A: e, U: o, $: s} = h.Mt;
-      return assignDeep({}, {
-        target: t,
-        host: n,
-        padding: e || o,
-        viewport: o,
-        content: s || o
-      });
-    },
-    update(t) {
-      update({}, t);
-    },
-    destroy: () => {
-      removeInstance(r);
-      b();
-      d();
-      w();
-      p();
-      _("destroyed");
-    }
-  };
-  each(keys(i), (t => {
-    const n = i[t];
-    if (isFunction(n)) {
-      n(OverlayScrollbars, y);
-    }
-  }));
-  y.update(true);
-  addInstance(r, y);
-  _("initialized");
-  return y;
+  return S.update(true);
 };
 
 OverlayScrollbars.plugin = addPlugin;

@@ -12,11 +12,8 @@ interface XY<T> {
     x: T;
     y: T;
 }
-type EventListener<EventMap extends Record<string, any>, Name extends keyof EventMap> = (...args: EventMap[Name] extends undefined ? [
-] : [
-    args: EventMap[Name]
-]) => void;
-type InitialEventListeners<EventMap extends Record<string, any>> = {
+type EventListener<EventMap extends Record<string, any[]>, Name extends keyof EventMap> = (...args: EventMap[Name]) => void;
+type InitialEventListeners<EventMap extends Record<string, any[]>> = {
     [K in keyof EventMap]?: EventListener<EventMap> | EventListener<EventMap>[];
 };
 type OverflowBehavior = "hidden" | "scroll" | "visible" | "visible-hidden" | "visible-scroll";
@@ -125,16 +122,6 @@ type DynamicInitializationElement<Args extends any[]> = ((...args: Args) => Dyna
 type InitializtationElementStrategy<InitElm> = Exclude<InitElm, HTMLElement>;
 type GeneralInitialEventListeners = InitialEventListeners;
 type GeneralEventListener = EventListener;
-/*
-onScrollStart               : null,
-onScroll                    : null,
-onScrollStop                : null,
-onOverflowChanged           : null,
-onOverflowAmountChanged     : null, // fusion with onOverflowChanged
-onDirectionChanged          : null, // gone
-onContentSizeChanged        : null, // gone
-onHostSizeChanged           : null, // gone
-*/
 interface OverlayScrollbarsStatic {
     (target: InitializationTarget | InitializationTargetObject, options?: PartialOptions<Options>, eventListeners?: GeneralInitialEventListeners<EventListenerMap>): OverlayScrollbars;
     plugin(osPlugin: OSPlugin | OSPlugin[]): void;
@@ -163,6 +150,7 @@ interface State {
     overflowAmount: XY<number>;
     overflowStyle: XY<OverflowStyle>;
     hasOverflow: XY<boolean>;
+    destroyed: boolean;
 }
 interface Elements {
     target: HTMLElement;
@@ -184,24 +172,40 @@ interface OnUpdatedEventListenerArgs {
     changedOptions: PartialOptions<Options>;
     force: boolean;
 }
-interface EventListenerMap {
-    initialized: undefined;
-    initializationWithdrawn: undefined;
-    updated: OnUpdatedEventListenerArgs;
-    destroyed: undefined;
-}
+type EventListenerMap = {
+    /**
+     * Triggered after all elements are initialized and appended.
+     */
+    initialized: [
+        instance: OverlayScrollbars
+    ];
+    /**
+     * Triggered after an update.
+     */
+    updated: [
+        instance: OverlayScrollbars,
+        onUpdatedArgs: OnUpdatedEventListenerArgs
+    ];
+    /**
+     * Triggered after all elements, observers and events are destroyed.
+     */
+    destroyed: [
+        instance: OverlayScrollbars,
+        withdrawn: boolean
+    ];
+};
 type EventListener$0<Name extends keyof EventListenerMap> = GeneralEventListener<EventListenerMap, Name>;
 interface OverlayScrollbars {
     options(): Options;
     options(newOptions?: PartialOptions<Options>): Options;
-    update(force?: boolean): void;
+    update(force?: boolean): OverlayScrollbars;
     destroy(): void;
     state(): State;
     elements(): Elements;
     on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener$0<Name>): () => void;
     on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener$0<Name>[]): () => void;
-    off<Name extends keyof EventListenerMap>(name: Name, listener?: EventListener$0<Name>): void;
-    off<Name extends keyof EventListenerMap>(name: Name, listener?: EventListener$0<Name>[]): void;
+    off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener$0<Name>): void;
+    off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener$0<Name>[]): void;
 }
 /**
  * Notes:

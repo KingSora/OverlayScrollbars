@@ -1,11 +1,11 @@
-import { runEach } from 'support';
+import { createEventListenerHub } from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
 import { createStructureSetupElements } from 'setups/structureSetup/structureSetup.elements';
 import { createStructureSetupUpdate } from 'setups/structureSetup/structureSetup.update';
 import { createStructureSetupObservers } from 'setups/structureSetup/structureSetup.observers';
 import type { StructureSetupUpdateHints } from 'setups/structureSetup/structureSetup.update';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
-import type { TRBL, XY } from 'support';
+import type { TRBL, XY, EventListener } from 'support';
 import type { Options, ReadonlyOSOptions } from 'options';
 import type { Setup } from 'setups';
 import type { InitializationTarget } from 'initialization';
@@ -24,14 +24,17 @@ export interface StructureSetupState {
 
 export interface StructureSetupStaticState {
   _elements: StructureSetupElementsObj;
-  _addOnUpdatedListener: (listener: OnUpdatedListener) => void;
+  _appendElements: () => void;
+  _addOnUpdatedListener: (listener: EventListener<StructureSetupEventMap, 'u'>) => void;
 }
 
-export type OnUpdatedListener = (
-  updateHints: StructureSetupUpdateHints,
-  changedOptions: PartialOptions<Options>,
-  force: boolean
-) => void;
+type StructureSetupEventMap = {
+  u: [
+    updateHints: StructureSetupUpdateHints,
+    changedOptions: PartialOptions<Options>,
+    force: boolean
+  ];
+};
 
 const initialStructureSetupUpdateState: StructureSetupState = {
   _padding: {
@@ -72,42 +75,35 @@ export const createStructureSetup = (
 ): Setup<StructureSetupState, StructureSetupStaticState> => {
   const checkOptionsFallback = createOptionCheck(options, {});
   const state = createState(initialStructureSetupUpdateState);
-  const onUpdatedListeners = new Set<OnUpdatedListener>();
+  const [addEvent, removeEvent, triggerEvent] = createEventListenerHub<StructureSetupEventMap>();
   const [getState] = state;
-  const runOnUpdatedListeners = (
-    updateHints: StructureSetupUpdateHints,
-    changedOptions?: PartialOptions<Options>,
-    force?: boolean
-  ) => {
-    runEach(onUpdatedListeners, [updateHints, changedOptions || {}, !!force]);
-  };
-
-  const [elements, destroyElements] = createStructureSetupElements(target);
+  const [elements, appendElements, destroyElements] = createStructureSetupElements(target);
   const updateStructure = createStructureSetupUpdate(elements, state);
   const [updateObservers, destroyObservers] = createStructureSetupObservers(
     elements,
     state,
     (updateHints) => {
-      runOnUpdatedListeners(updateStructure(checkOptionsFallback, updateHints));
+      triggerEvent('u', [updateStructure(checkOptionsFallback, updateHints), {}, false]);
     }
   );
 
   const structureSetupState = getState.bind(0) as (() => StructureSetupState) &
     StructureSetupStaticState;
   structureSetupState._addOnUpdatedListener = (listener) => {
-    onUpdatedListeners.add(listener);
+    addEvent('u', listener);
   };
+  structureSetupState._appendElements = appendElements;
   structureSetupState._elements = elements;
 
   return [
     (changedOptions, force?) => {
       const checkOption = createOptionCheck(options, changedOptions, force);
       updateObservers(checkOption);
-      runOnUpdatedListeners(updateStructure(checkOption, {}, force));
+      triggerEvent('u', [updateStructure(checkOption, {}, force), changedOptions, !!force]);
     },
     structureSetupState,
     () => {
-      onUpdatedListeners.clear();
+      removeEvent();
       destroyObservers();
       destroyElements();
     },
