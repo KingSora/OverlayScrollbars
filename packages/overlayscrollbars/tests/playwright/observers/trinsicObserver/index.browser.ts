@@ -4,6 +4,7 @@ import './handleEnvironment';
 import should from 'should';
 import { offsetSize } from 'support';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
+import { addPlugin, sizeObserverPlugin } from 'plugins';
 import {
   generateClassChangeSelectCallback,
   iterateSelect,
@@ -11,6 +12,10 @@ import {
 } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
+
+if (!window.ResizeObserver) {
+  addPlugin(sizeObserverPlugin);
+}
 
 let heightIntrinsic: boolean | undefined;
 let heightIterations = 0;

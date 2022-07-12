@@ -29,7 +29,7 @@ module.exports = (testDir, onListening = null) => {
 
   return createRollupConfig({
     project: name,
-    mode: 'dev',
+    mode: 'build',
     paths: {
       dist,
       src: path.resolve(testDir, './'),
@@ -46,6 +46,7 @@ module.exports = (testDir, onListening = null) => {
       output: {
         sourcemap: true,
       },
+      treeshake: true,
       plugins: [
         rollupPluginStyles(),
         rollupPluginHtml(`Playwright: ${name}`, htmlName, () =>

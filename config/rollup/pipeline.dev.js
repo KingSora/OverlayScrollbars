@@ -27,15 +27,15 @@ module.exports = (options) => {
     output,
     ...rollupOptions,
     plugins: [
-      rollupScss(extractStyle),
       rollupAlias(alias),
-      rollupResolve(srcPath),
+      rollupScss(extractStyle),
       rollupEsBuild({
         include: /\.[jt]sx?$/,
         sourceMap: true,
         target: 'es6',
         tsconfig: './tsconfig.json',
       }),
+      rollupResolve(srcPath),
       rollupCommonjs(sourcemap),
       ...plugins,
     ].filter(Boolean),

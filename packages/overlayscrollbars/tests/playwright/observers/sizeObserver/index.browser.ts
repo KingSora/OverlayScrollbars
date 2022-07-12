@@ -13,7 +13,9 @@ import {
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { timeout } from '@/testing-browser/timeout';
 
-addPlugin(sizeObserverPlugin);
+if (!window.ResizeObserver) {
+  addPlugin(sizeObserverPlugin);
+}
 
 let sizeIterations = 0;
 let directionIterations = 0;

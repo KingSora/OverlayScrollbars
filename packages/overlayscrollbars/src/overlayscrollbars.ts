@@ -38,7 +38,7 @@ export interface OverlayScrollbarsStatic {
     eventListeners?: GeneralInitialEventListeners<EventListenerMap>
   ): OverlayScrollbars;
 
-  plugin(osPlugin: Plugin | Plugin[]): void;
+  plugin(plugin: Plugin | Plugin[]): void;
   env(): Environment;
 }
 

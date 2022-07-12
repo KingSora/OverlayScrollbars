@@ -67,9 +67,11 @@ module.exports = (esm, options, { declarationFiles = false, outputStyle = false 
           mangle: {
             safari10: true,
             keep_fnames: true, // eslint-disable-line camelcase
+            /*
             properties: {
               regex: /^_/,
             },
+            */
           },
           compress: {
             defaults: false,
