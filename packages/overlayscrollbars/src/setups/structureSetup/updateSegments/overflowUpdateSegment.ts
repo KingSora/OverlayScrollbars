@@ -66,15 +66,11 @@ const xyCacheOptions = {
   _initialValue: { x: strHidden, y: strHidden } as XY<OverflowStyle>,
 };
 
-const getOverflowAmount = (
-  viewportScrollSize: WH<number>,
-  viewportClientSize: WH<number>,
-  sizeFraction: WH<number>
-) => {
+const getOverflowAmount = (viewportScrollSize: WH<number>, viewportClientSize: WH<number>) => {
   const tollerance = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
   const amount = {
-    w: max(0, viewportScrollSize.w - viewportClientSize.w - max(0, sizeFraction.w)),
-    h: max(0, viewportScrollSize.h - viewportClientSize.h - max(0, sizeFraction.h)),
+    w: max(0, viewportScrollSize.w - viewportClientSize.w),
+    h: max(0, viewportScrollSize.h - viewportClientSize.h),
   };
 
   return {
@@ -134,6 +130,8 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
 
   const [updateOverflowAmountCache, getCurrentOverflowAmountCache] =
     createCache<WH<number>>(whCacheOptions);
+
+  const [updateOverflowEdge, getCurrentOverflowEdgeCache] = createCache<WH<number>>(whCacheOptions);
 
   const [updateOverflowStyleCache] = createCache<XY<OverflowStyle>>(xyCacheOptions);
 
@@ -350,6 +348,7 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
     let sizeFractionCache = getCurrentSizeFraction(force);
     let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
     let overflowAmuntCache = getCurrentOverflowAmountCache(force);
+    let overflowEdgeCache = getCurrentOverflowEdgeCache(force);
 
     let preMeasureViewportOverflowState: ViewportOverflowState | undefined;
 
@@ -407,22 +406,29 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
         arrangedViewportScrollSize = scrollSize(_viewport);
       }
 
+      const overflowAmountScrollSize = {
+        w: max(viewportScrollSize.w, arrangedViewportScrollSize.w) + sizeFraction.w,
+        h: max(viewportScrollSize.h, arrangedViewportScrollSize.h) + sizeFraction.h,
+      };
+      const overflowAmountClientSize = {
+        w:
+          arrangedViewportClientSize.w +
+          max(0, viewportclientSize.w - viewportScrollSize.w) +
+          sizeFraction.w,
+        h:
+          arrangedViewportClientSize.h +
+          max(0, viewportclientSize.h - viewportScrollSize.h) +
+          sizeFraction.h,
+      };
+
+      overflowEdgeCache = updateOverflowEdge(overflowAmountClientSize);
       overflowAmuntCache = updateOverflowAmountCache(
-        getOverflowAmount(
-          {
-            w: max(viewportScrollSize.w, arrangedViewportScrollSize.w),
-            h: max(viewportScrollSize.h, arrangedViewportScrollSize.h),
-          }, // scroll size
-          {
-            w: arrangedViewportClientSize.w + max(0, viewportclientSize.w - viewportScrollSize.w),
-            h: arrangedViewportClientSize.h + max(0, viewportclientSize.h - viewportScrollSize.h),
-          }, // client size
-          sizeFraction
-        ),
+        getOverflowAmount(overflowAmountScrollSize, overflowAmountClientSize),
         force
       );
     }
 
+    const [overflowEdge, overflowEdgeChanged] = overflowEdgeCache;
     const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
     const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
     const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
@@ -440,6 +446,7 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
       _directionChanged ||
       sizeFractionChanged ||
       viewportScrollSizeChanged ||
+      overflowEdgeChanged ||
       overflowAmountChanged ||
       overflowChanged ||
       showNativeOverlaidScrollbarsChanged ||
@@ -497,6 +504,10 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
 
     setState({
       _overflowStyle: overflowStyle,
+      _overflowEdge: {
+        x: overflowEdge.w,
+        y: overflowEdge.h,
+      },
       _overflowAmount: {
         x: overflowAmount.w,
         y: overflowAmount.h,
@@ -506,6 +517,7 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
 
     return {
       _overflowStyleChanged: overflowStyleChanged,
+      _overflowEdgeChanged: overflowEdgeChanged,
       _overflowAmountChanged: overflowAmountChanged,
     };
   };

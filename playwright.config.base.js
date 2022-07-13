@@ -9,9 +9,9 @@ module.exports = {
   workers: 4,
   projects: [
     {
-      name: 'Safari',
+      name: 'Chromium',
       use: {
-        ...devices['Desktop Safari'],
+        ...devices['Desktop Chromium'],
         headless: false,
       },
     },

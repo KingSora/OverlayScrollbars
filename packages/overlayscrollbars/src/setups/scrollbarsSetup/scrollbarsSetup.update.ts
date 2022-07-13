@@ -26,7 +26,6 @@ export interface StructureSetupUpdateHints {
   _sizeChanged: boolean;
   _directionChanged: boolean;
   _heightIntrinsicChanged: boolean;
-  _overflowEdgeChanged: boolean;
   _overflowAmountChanged: boolean;
   _overflowStyleChanged: boolean;
   _paddingStyleChanged: boolean;
@@ -83,7 +82,6 @@ export const createStructureSetupUpdate = (
           _paddingStyleChanged: false,
           _directionChanged: false,
           _heightIntrinsicChanged: false,
-          _overflowEdgeChanged: false,
           _overflowAmountChanged: false,
           _overflowStyleChanged: false,
           _hostMutation: false,

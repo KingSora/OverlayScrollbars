@@ -15,6 +15,7 @@ export interface StructureSetupState {
   _padding: TRBL;
   _paddingAbsolute: boolean;
   _viewportPaddingStyle: StyleObject;
+  _overflowEdge: XY<number>;
   _overflowAmount: XY<number>;
   _overflowStyle: XY<OverflowStyle>;
   _hasOverflow: XY<boolean>;
@@ -36,6 +37,7 @@ type StructureSetupEventMap = {
   ];
 };
 
+const initialXYNumber = { x: 0, y: 0 };
 const initialStructureSetupUpdateState: StructureSetupState = {
   _padding: {
     t: 0,
@@ -53,10 +55,8 @@ const initialStructureSetupUpdateState: StructureSetupState = {
     paddingBottom: 0,
     paddingLeft: 0,
   },
-  _overflowAmount: {
-    x: 0,
-    y: 0,
-  },
+  _overflowEdge: initialXYNumber,
+  _overflowAmount: initialXYNumber,
   _overflowStyle: {
     x: 'hidden',
     y: 'hidden',

@@ -34,7 +34,7 @@ export type ScrollbarsSetupElements = [
 ];
 
 const generateScrollbarDOM = (scrollbarClassName: string): ScrollbarStructure => {
-  const scrollbar = createDiv(`${classNameScrollbar} ${scrollbarClassName}`);
+  const scrollbar = createDiv(`${classNameScrollbar} ${scrollbarClassName} os-theme-dark`);
   const track = createDiv(classNameScrollbarTrack);
   const handle = createDiv(classNameScrollbarHandle);
 

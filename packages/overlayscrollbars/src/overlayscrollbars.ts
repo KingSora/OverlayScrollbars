@@ -61,6 +61,7 @@ export interface Environment {
 export interface State {
   padding: TRBL;
   paddingAbsolute: boolean;
+  overflowEdge: XY<number>;
   overflowAmount: XY<number>;
   overflowStyle: XY<OverflowStyle>;
   hasOverflow: XY<boolean>;
@@ -80,6 +81,7 @@ export interface OnUpdatedEventListenerArgs {
     sizeChanged: boolean;
     directionChanged: boolean;
     heightIntrinsicChanged: boolean;
+    overflowEdgeChanged: boolean;
     overflowAmountChanged: boolean;
     overflowStyleChanged: boolean;
     hostMutation: boolean;
@@ -212,11 +214,18 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       name && listener && removeEvent(name, listener as any);
     },
     state() {
-      const { _overflowAmount, _overflowStyle, _hasOverflow, _padding, _paddingAbsolute } =
-        structureState();
+      const {
+        _overflowEdge,
+        _overflowAmount,
+        _overflowStyle,
+        _hasOverflow,
+        _padding,
+        _paddingAbsolute,
+      } = structureState();
       return assignDeep(
         {},
         {
+          overflowEdge: _overflowEdge,
           overflowAmount: _overflowAmount,
           overflowStyle: _overflowStyle,
           hasOverflow: _hasOverflow,
@@ -273,6 +282,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       _sizeChanged,
       _directionChanged,
       _heightIntrinsicChanged,
+      _overflowEdgeChanged,
       _overflowAmountChanged,
       _overflowStyleChanged,
       _contentMutation,
@@ -286,6 +296,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           sizeChanged: _sizeChanged,
           directionChanged: _directionChanged,
           heightIntrinsicChanged: _heightIntrinsicChanged,
+          overflowEdgeChanged: _overflowEdgeChanged,
           overflowAmountChanged: _overflowAmountChanged,
           overflowStyleChanged: _overflowStyleChanged,
           contentMutation: _contentMutation,
