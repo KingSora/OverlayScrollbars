@@ -54,6 +54,7 @@ export type HideNativeScrollbars = (
 ) => void;
 
 const { max } = Math;
+const max0 = max.bind(0, 0);
 const strVisible = 'visible';
 const strHidden = 'hidden';
 const overlaidScrollbarsHideOffset = 42;
@@ -69,8 +70,8 @@ const xyCacheOptions = {
 const getOverflowAmount = (viewportScrollSize: WH<number>, viewportClientSize: WH<number>) => {
   const tollerance = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
   const amount = {
-    w: max(0, viewportScrollSize.w - viewportClientSize.w),
-    h: max(0, viewportScrollSize.h - viewportClientSize.h),
+    w: max0(viewportScrollSize.w - viewportClientSize.w),
+    h: max0(viewportScrollSize.h - viewportClientSize.h),
   };
 
   return {
@@ -407,18 +408,20 @@ export const createOverflowUpdate: CreateStructureUpdateSegment = (
       }
 
       const overflowAmountScrollSize = {
-        w: max(viewportScrollSize.w, arrangedViewportScrollSize.w) + sizeFraction.w,
-        h: max(viewportScrollSize.h, arrangedViewportScrollSize.h) + sizeFraction.h,
+        w: max0(max(viewportScrollSize.w, arrangedViewportScrollSize.w) + sizeFraction.w),
+        h: max0(max(viewportScrollSize.h, arrangedViewportScrollSize.h) + sizeFraction.h),
       };
       const overflowAmountClientSize = {
-        w:
+        w: max0(
           arrangedViewportClientSize.w +
-          max(0, viewportclientSize.w - viewportScrollSize.w) +
-          sizeFraction.w,
-        h:
+            max0(viewportclientSize.w - viewportScrollSize.w) +
+            sizeFraction.w
+        ),
+        h: max0(
           arrangedViewportClientSize.h +
-          max(0, viewportclientSize.h - viewportScrollSize.h) +
-          sizeFraction.h,
+            max0(viewportclientSize.h - viewportScrollSize.h) +
+            sizeFraction.h
+        ),
       };
 
       overflowEdgeCache = updateOverflowEdge(overflowAmountClientSize);
