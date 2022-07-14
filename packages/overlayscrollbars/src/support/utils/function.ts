@@ -3,7 +3,7 @@ import { from } from 'support/utils/array';
 import { rAF, cAF } from 'support/compatibility/apis';
 
 const clearTimeouts = (id: number | undefined) => {
-  id && window.clearTimeout(id);
+  id && clearTimeout(id);
   id && cAF!(id);
 };
 
@@ -49,7 +49,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
   let prevArguments: Parameters<FunctionToDebounce> | null | undefined;
   let latestArguments: Parameters<FunctionToDebounce> | null | undefined;
   const { _timeout, _maxDelay, _mergeParams } = options || {};
-  const setT = window.setTimeout;
+  const setT = setTimeout as (...args: any[]) => number;
 
   const invokeFunctionToDebounce = function (args: IArguments) {
     clearTimeouts(timeoutId);

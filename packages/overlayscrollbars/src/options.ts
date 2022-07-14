@@ -18,9 +18,9 @@ export type OverflowBehavior =
   | 'visible-hidden'
   | 'visible-scroll';
 
-export type VisibilityBehavior = 'visible' | 'hidden' | 'auto';
+export type ScrollbarVisibilityBehavior = 'visible' | 'hidden' | 'auto';
 
-export type AutoHideBehavior = 'never' | 'scroll' | 'leave' | 'move';
+export type ScrollbarAutoHideBehavior = 'never' | 'scroll' | 'leave' | 'move';
 
 export type ScrollBehavior = 'always' | 'ifneeded' | 'never';
 
@@ -51,8 +51,8 @@ export interface Options {
     y: OverflowBehavior;
   };
   scrollbars: {
-    visibility: VisibilityBehavior;
-    autoHide: AutoHideBehavior;
+    visibility: ScrollbarVisibilityBehavior;
+    autoHide: ScrollbarAutoHideBehavior;
     autoHideDelay: number;
     dragScroll: boolean;
     clickScroll: boolean;

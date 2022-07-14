@@ -24,8 +24,8 @@ type InitialEventListeners<EventMap extends Record<string, any[]>> = {
     [K in keyof EventMap]?: EventListener<EventMap> | EventListener<EventMap>[];
 };
 type OverflowBehavior = "hidden" | "scroll" | "visible" | "visible-hidden" | "visible-scroll";
-type VisibilityBehavior = "visible" | "hidden" | "auto";
-type AutoHideBehavior = "never" | "scroll" | "leave" | "move";
+type ScrollbarVisibilityBehavior = "visible" | "hidden" | "auto";
+type ScrollbarAutoHideBehavior = "never" | "scroll" | "leave" | "move";
 interface Options {
     paddingAbsolute: boolean;
     updating: {
@@ -45,8 +45,8 @@ interface Options {
         y: OverflowBehavior;
     };
     scrollbars: {
-        visibility: VisibilityBehavior;
-        autoHide: AutoHideBehavior;
+        visibility: ScrollbarVisibilityBehavior;
+        autoHide: ScrollbarAutoHideBehavior;
         autoHideDelay: number;
         dragScroll: boolean;
         clickScroll: boolean;
@@ -115,6 +115,7 @@ interface StructureSetupState {
     _padding: TRBL;
     _paddingAbsolute: boolean;
     _viewportPaddingStyle: StyleObject;
+    _overflowEdge: XY<number>;
     _overflowAmount: XY<number>;
     _overflowStyle: XY<OverflowStyle>;
     _hasOverflow: XY<boolean>;
@@ -196,6 +197,7 @@ interface Environment {
 interface State {
     padding: TRBL;
     paddingAbsolute: boolean;
+    overflowEdge: XY<number>;
     overflowAmount: XY<number>;
     overflowStyle: XY<OverflowStyle>;
     hasOverflow: XY<boolean>;
@@ -213,6 +215,7 @@ interface OnUpdatedEventListenerArgs {
         sizeChanged: boolean;
         directionChanged: boolean;
         heightIntrinsicChanged: boolean;
+        overflowEdgeChanged: boolean;
         overflowAmountChanged: boolean;
         overflowStyleChanged: boolean;
         hostMutation: boolean;

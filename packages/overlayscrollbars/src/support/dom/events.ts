@@ -62,7 +62,7 @@ export const on = <T extends Event = Event>(
   options?: OnOptions
 ): (() => void) => {
   const doSupportPassiveEvents = supportPassiveEvents();
-  const passive = (doSupportPassiveEvents && options && options._passive) || false;
+  const passive = (doSupportPassiveEvents && options && options._passive) ?? doSupportPassiveEvents;
   const capture = (options && options._capture) || false;
   const once = (options && options._once) || false;
   const offListeners: (() => void)[] = [];

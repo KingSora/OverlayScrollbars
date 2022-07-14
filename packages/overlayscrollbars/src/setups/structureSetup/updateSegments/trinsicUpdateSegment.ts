@@ -7,7 +7,7 @@ import type { CreateStructureUpdateSegment } from 'setups/structureSetup/structu
  * @param structureUpdateHub
  * @returns
  */
-export const createTrinsicUpdate: CreateStructureUpdateSegment = (
+export const createTrinsicUpdateSegment: CreateStructureUpdateSegment = (
   structureSetupElements,
   state
 ) => {

@@ -1,9 +1,9 @@
 import { each, isNumber, scrollLeft, scrollTop, assignDeep, keys } from 'support';
 import { getEnvironment } from 'environment';
 import {
-  createTrinsicUpdate,
-  createPaddingUpdate,
-  createOverflowUpdate,
+  createTrinsicUpdateSegment,
+  createPaddingUpdateSegment,
+  createOverflowUpdateSegment,
 } from 'setups/structureSetup/updateSegments';
 import type { SetupState, SetupUpdateSegment, SetupUpdateCheckOption } from 'setups';
 import type { StructureSetupState } from 'setups/structureSetup';
@@ -66,9 +66,9 @@ export const createStructureSetupUpdate = (
     !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
 
   const updateSegments: StructureSetupUpdateSegment[] = [
-    createTrinsicUpdate(structureSetupElements, state),
-    createPaddingUpdate(structureSetupElements, state),
-    createOverflowUpdate(structureSetupElements, state),
+    createTrinsicUpdateSegment(structureSetupElements, state),
+    createPaddingUpdateSegment(structureSetupElements, state),
+    createOverflowUpdateSegment(structureSetupElements, state),
   ];
 
   return (

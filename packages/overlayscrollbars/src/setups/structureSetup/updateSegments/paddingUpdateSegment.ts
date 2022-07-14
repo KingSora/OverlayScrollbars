@@ -8,7 +8,7 @@ import type { CreateStructureUpdateSegment } from 'setups/structureSetup/structu
  * @param structureUpdateHub
  * @returns
  */
-export const createPaddingUpdate: CreateStructureUpdateSegment = (
+export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
   structureSetupElements,
   state
 ) => {

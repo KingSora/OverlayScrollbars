@@ -1,4 +1,9 @@
-import { Options, OverflowBehavior, VisibilityBehavior, AutoHideBehavior } from 'options';
+import {
+  Options,
+  OverflowBehavior,
+  ScrollbarVisibilityBehavior,
+  ScrollbarAutoHideBehavior,
+} from 'options';
 import {
   validateOptions,
   OptionsTemplate,
@@ -13,9 +18,9 @@ const booleanAllowedValues: OptionsTemplateValue<boolean> = oTypes.boolean;
 const arrayNullValues: OptionsTemplateValue<Array<unknown> | null> = [oTypes.array, oTypes.null];
 const overflowAllowedValues: OptionsTemplateValue<OverflowBehavior> =
   'hidden scroll visible visible-hidden';
-const scrollbarsVisibilityAllowedValues: OptionsTemplateValue<VisibilityBehavior> =
+const scrollbarsVisibilityAllowedValues: OptionsTemplateValue<ScrollbarVisibilityBehavior> =
   'visible hidden auto';
-const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<AutoHideBehavior> =
+const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<ScrollbarAutoHideBehavior> =
   'never scroll leavemove';
 
 const optionsTemplate: OptionsTemplate<Options> = {

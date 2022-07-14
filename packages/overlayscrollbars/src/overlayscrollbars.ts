@@ -176,11 +176,10 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   const [updateScrollbars, scrollbarsState, destroyScrollbars] = createScrollbarsSetup(
     target,
     currentOptions,
-    structureState._elements
+    structureState
   );
   const update = (changedOptions: PartialOptions<Options>, force?: boolean) => {
-    updateStructure(changedOptions, force);
-    updateScrollbars(changedOptions, force);
+    updateStructure(changedOptions, !!force);
   };
   const removeEnvListener = addEnvListener(update.bind(0, {}, true));
   const destroy = (withdrawn?: boolean) => {
@@ -254,6 +253,10 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     },
     destroy: destroy.bind(0),
   };
+
+  structureState._addOnUpdatedListener((updateHints, changedOptions, force: boolean) => {
+    updateScrollbars(changedOptions, force, updateHints);
+  });
 
   each(keys(plugins), (pluginName) => {
     const pluginInstance = plugins[pluginName];

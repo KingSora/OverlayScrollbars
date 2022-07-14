@@ -28,3 +28,7 @@ export const classNameScrollbarHorizontal = `${classNameScrollbar}-horizontal`;
 export const classNameScrollbarVertical = `${classNameScrollbar}-vertical`;
 export const classNameScrollbarTrack = 'os-scrollbar-track';
 export const classNameScrollbarHandle = 'os-scrollbar-handle';
+export const classNamesScrollbarVisible = `${classNameScrollbar}-visible`;
+export const classNamesScrollbarCornerless = `${classNameScrollbar}-cornerless`;
+export const classNamesScrollbarInteraction = `${classNameScrollbar}-interaction`;
+export const classNamesScrollbarAutoHidden = `${classNameScrollbar}-auto-hidden`;

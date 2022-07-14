@@ -1,10 +1,21 @@
-import { appendChildren, createDiv, removeElements } from 'support';
+import {
+  addClass,
+  appendChildren,
+  createDiv,
+  each,
+  on,
+  push,
+  removeClass,
+  removeElements,
+  runEachAndClear,
+} from 'support';
 import {
   classNameScrollbar,
   classNameScrollbarHorizontal,
   classNameScrollbarVertical,
   classNameScrollbarTrack,
   classNameScrollbarHandle,
+  classNamesScrollbarInteraction,
 } from 'classnames';
 import { getEnvironment } from 'environment';
 import { dynamicInitializationElement as generalDynamicInitializationElement } from 'initialization';
@@ -22,9 +33,20 @@ export interface ScrollbarStructure {
   _handle: HTMLElement;
 }
 
+export interface ScrollbarsSetupElement {
+  _scrollbarStructures: ScrollbarStructure[];
+  _clone: () => ScrollbarStructure;
+  _addRemoveClass: (classNames: string, add?: boolean) => void;
+  // _removeClass: (classNames: string) => void;
+  /*
+  _addEventListener: () => void;
+  _removeEventListener: () => void;
+  */
+}
+
 export interface ScrollbarsSetupElementsObj {
-  _horizontalScrollbarStructure: ScrollbarStructure;
-  _verticalScrollbarStructure: ScrollbarStructure;
+  _horizontal: ScrollbarsSetupElement;
+  _vertical: ScrollbarsSetupElement;
 }
 
 export type ScrollbarsSetupElements = [
@@ -33,20 +55,8 @@ export type ScrollbarsSetupElements = [
   destroy: () => void
 ];
 
-const generateScrollbarDOM = (scrollbarClassName: string): ScrollbarStructure => {
-  const scrollbar = createDiv(`${classNameScrollbar} ${scrollbarClassName} os-theme-dark`);
-  const track = createDiv(classNameScrollbarTrack);
-  const handle = createDiv(classNameScrollbarHandle);
-
-  appendChildren(scrollbar, track);
-  appendChildren(track, handle);
-
-  return {
-    _scrollbar: scrollbar,
-    _track: track,
-    _handle: handle,
-  };
-};
+const interactionStartEventNames = 'touchstart mouseenter';
+const interactionEndEventNames = 'touchend touchcancel mouseleave';
 
 export const createScrollbarsSetupElements = (
   target: InitializationTarget,
@@ -65,24 +75,84 @@ export const createScrollbarsSetupElements = (
       environmentScrollbarSlot,
       initializationScrollbarSlot
     );
-
-  const horizontalScrollbarStructure = generateScrollbarDOM(classNameScrollbarHorizontal);
-  const verticalScrollbarStructure = generateScrollbarDOM(classNameScrollbarVertical);
-
-  const { _scrollbar: horizontalScrollbar } = horizontalScrollbarStructure;
-  const { _scrollbar: verticalScrollbar } = verticalScrollbarStructure;
-
-  const appendElements = () => {
-    appendChildren(evaluatedScrollbarSlot, horizontalScrollbar);
-    appendChildren(evaluatedScrollbarSlot, verticalScrollbar);
+  const scrollbarsAddRemoveClass = (
+    scrollbarStructures: ScrollbarStructure[],
+    classNames: string,
+    add?: boolean
+  ) => {
+    const action = add ? addClass : removeClass;
+    each(scrollbarStructures, (scrollbarStructure) => {
+      action(scrollbarStructure._scrollbar, classNames);
+    });
   };
+  const destroyFns: (() => void)[] = [];
+  const horizontalScrollbars: ScrollbarStructure[] = [];
+  const verticalScrollbars: ScrollbarStructure[] = [];
+
+  const addRemoveClassHorizontal = scrollbarsAddRemoveClass.bind(0, horizontalScrollbars);
+  const addRemoveClassVertical = scrollbarsAddRemoveClass.bind(0, verticalScrollbars);
+  const generateScrollbarDOM = (horizontal?: boolean): ScrollbarStructure => {
+    const scrollbarClassName = horizontal
+      ? classNameScrollbarHorizontal
+      : classNameScrollbarVertical;
+    const arrToPush = horizontal ? horizontalScrollbars : verticalScrollbars;
+    const scrollbar = createDiv(`${classNameScrollbar} ${scrollbarClassName} os-theme-dark`);
+    const track = createDiv(classNameScrollbarTrack);
+    const handle = createDiv(classNameScrollbarHandle);
+    const result = {
+      _scrollbar: scrollbar,
+      _track: track,
+      _handle: handle,
+    };
+
+    appendChildren(scrollbar, track);
+    appendChildren(track, handle);
+
+    push(destroyFns, removeElements.bind(0, scrollbar));
+    push(arrToPush, result);
+
+    push(
+      destroyFns,
+      on(scrollbar, interactionStartEventNames, () => {
+        addRemoveClassHorizontal(classNamesScrollbarInteraction, true);
+        addRemoveClassVertical(classNamesScrollbarInteraction, true);
+      })
+    );
+
+    push(
+      destroyFns,
+      on(scrollbar, interactionEndEventNames, () => {
+        addRemoveClassHorizontal(classNamesScrollbarInteraction);
+        addRemoveClassVertical(classNamesScrollbarInteraction);
+      })
+    );
+
+    return result;
+  };
+  const generateHorizontalScrollbarStructure = generateScrollbarDOM.bind(0, true);
+  const generateVerticalScrollbarStructure = generateScrollbarDOM.bind(0, false);
+  const appendElements = () => {
+    appendChildren(evaluatedScrollbarSlot, horizontalScrollbars[0]._scrollbar);
+    appendChildren(evaluatedScrollbarSlot, verticalScrollbars[0]._scrollbar);
+  };
+
+  generateHorizontalScrollbarStructure();
+  generateVerticalScrollbarStructure();
 
   return [
     {
-      _horizontalScrollbarStructure: horizontalScrollbarStructure,
-      _verticalScrollbarStructure: verticalScrollbarStructure,
+      _horizontal: {
+        _scrollbarStructures: horizontalScrollbars,
+        _clone: generateHorizontalScrollbarStructure,
+        _addRemoveClass: addRemoveClassHorizontal,
+      },
+      _vertical: {
+        _scrollbarStructures: verticalScrollbars,
+        _clone: generateVerticalScrollbarStructure,
+        _addRemoveClass: addRemoveClassVertical,
+      },
     },
     appendElements,
-    removeElements.bind(0, [horizontalScrollbar, verticalScrollbar]),
+    runEachAndClear.bind(0, destroyFns),
   ];
 };

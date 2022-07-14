@@ -1,11 +1,10 @@
-.os-scrollbar-transition {
-  transition: opacity 0.3s, visibility 0.3s, top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
-}
 .os-scrollbar {
+  transition: opacity 0.3s, visibility 0.3s, top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
   pointer-events: none;
   position: absolute;
-  opacity: 1;
   z-index: 0;
+  opacity: 0;
+  visibility: hidden;
 }
 .os-scrollbar-track {
   pointer-events: auto;
@@ -48,14 +47,25 @@
   right: auto;
   left: 0;
 }
-.os-scrollbar-hidden {
+.os-scrollbar-visible {
+  opacity: 1;
+  visibility: visible;
+}
+.os-scrollbar-auto-hidden {
   opacity: 0;
   visibility: hidden;
-  pointer-events: none;
 }
-.os-scrollbar:hover {
-  opacity: 1 !important;
-  visibility: visible !important;
+.os-scrollbar-interaction.os-scrollbar-visible {
+  opacity: 1;
+  visibility: visible;
+}
+.os-scrollbar.os-scrollbar-horizontal.os-scrollbar-cornerless {
+  left: 0;
+  right: 0;
+}
+.os-scrollbar.os-scrollbar-vertical.os-scrollbar-cornerless {
+  top: 0;
+  bottom: 0;
 }
 
 /*

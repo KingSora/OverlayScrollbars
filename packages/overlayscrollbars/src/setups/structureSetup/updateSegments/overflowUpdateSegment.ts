@@ -93,7 +93,7 @@ const overflowIsVisible = (overflowBehavior: string) => overflowBehavior.indexOf
  * @param structureUpdateHub
  * @returns
  */
-export const createOverflowUpdate: CreateStructureUpdateSegment = (
+export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   structureSetupElements,
   state
 ) => {

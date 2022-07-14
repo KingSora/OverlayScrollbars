@@ -75,7 +75,7 @@ export const isPlainObject = <T = any>(obj: any): obj is PlainObject<T> => {
  * @param obj The object which shall be checked.
  */
 export const isHTMLElement = (obj: any): obj is HTMLElement => {
-  const instanceofObj = window.HTMLElement;
+  const instanceofObj = HTMLElement;
   return obj
     ? instanceofObj
       ? obj instanceof instanceofObj
@@ -88,7 +88,7 @@ export const isHTMLElement = (obj: any): obj is HTMLElement => {
  * @param obj The object which shall be checked.
  */
 export const isElement = (obj: any): obj is Element => {
-  const instanceofObj = window.Element;
+  const instanceofObj = Element;
   return obj
     ? instanceofObj
       ? obj instanceof instanceofObj

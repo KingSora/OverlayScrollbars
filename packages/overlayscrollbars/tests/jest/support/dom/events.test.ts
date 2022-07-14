@@ -39,7 +39,7 @@ describe('dom events', () => {
       const once = options?._once;
       const expectObjAdd = passive
         ? {
-            passive: (options && options._passive) || false,
+            passive: (options && options._passive) ?? passive,
             capture: (options && options._capture) || false,
           }
         : options?._capture || false;

@@ -66,33 +66,38 @@ export const resize = (element: HTMLElement) => {
     dragResizeBtn = undefined;
   };
 
-  on(resizeBtn, strMouseTouchDownEvent, (event: MouseEvent | TouchEvent) => {
-    const { currentTarget } = event;
-    const correctButton = (event as MouseEvent).buttons === 1 || event.which === 1;
-    const isTouchEvent = (event as TouchEvent).touches !== undefined;
-    const mouseOffsetHolder = isTouchEvent
-      ? (event as TouchEvent).touches[0]
-      : (event as MouseEvent);
+  on(
+    resizeBtn,
+    strMouseTouchDownEvent,
+    (event: MouseEvent | TouchEvent) => {
+      const { currentTarget } = event;
+      const correctButton = (event as MouseEvent).buttons === 1 || event.which === 1;
+      const isTouchEvent = (event as TouchEvent).touches !== undefined;
+      const mouseOffsetHolder = isTouchEvent
+        ? (event as TouchEvent).touches[0]
+        : (event as MouseEvent);
 
-    if (correctButton || isTouchEvent) {
-      dragStartPosition.x = mouseOffsetHolder.pageX;
-      dragStartPosition.y = mouseOffsetHolder.pageY;
+      if (correctButton || isTouchEvent) {
+        dragStartPosition.x = mouseOffsetHolder.pageX;
+        dragStartPosition.y = mouseOffsetHolder.pageY;
 
-      dragResizeBtn = currentTarget as HTMLElement;
-      dragResizer = parent(currentTarget as HTMLElement) as HTMLElement;
+        dragResizeBtn = currentTarget as HTMLElement;
+        dragResizer = parent(currentTarget as HTMLElement) as HTMLElement;
 
-      const cSize = clientSize(element);
-      dragStartSize.w = cSize.w;
-      dragStartSize.h = cSize.h;
+        const cSize = clientSize(element);
+        dragStartSize.w = cSize.w;
+        dragStartSize.h = cSize.h;
 
-      on(document, strSelectStartEvent, onSelectStart);
-      on(document, strMouseTouchMoveEvent, resizerResize);
-      on(document, strMouseTouchUpEvent, resizerResized);
+        on(document, strSelectStartEvent, onSelectStart, { _passive: false });
+        on(document, strMouseTouchMoveEvent, resizerResize, { _passive: false });
+        on(document, strMouseTouchUpEvent, resizerResized, { _passive: false });
 
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  });
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+    { _passive: false }
+  );
 
   return {
     addResizeListener(listener: ResizeListener) {

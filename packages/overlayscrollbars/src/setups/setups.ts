@@ -4,7 +4,11 @@ import type { PartialOptions } from 'typings';
 
 export type SetupElements<T extends Record<string, any>> = [elements: T, destroy: () => void];
 
-export type SetupUpdate<T = void> = (changedOptions: PartialOptions<Options>, force?: boolean) => T;
+export type SetupUpdate<T extends any[]> = (
+  changedOptions: PartialOptions<Options>,
+  force: boolean,
+  ...args: T
+) => void;
 
 export type SetupUpdateCheckOption = <T>(path: string) => [value: T, changed: boolean];
 
@@ -19,11 +23,11 @@ export type SetupState<T extends Record<string, any>> = [
   set: (newState: Partial<T>) => void
 ];
 
-export type Setup<DynamicState, StaticState extends Record<string, any> = Record<string, any>> = [
-  update: SetupUpdate,
-  state: (() => DynamicState) & StaticState,
-  destroy: () => void
-];
+export type Setup<
+  DynamicState,
+  StaticState extends Record<string, any> = Record<string, any>,
+  A extends any[] = []
+> = [update: SetupUpdate<A>, state: (() => DynamicState) & StaticState, destroy: () => void];
 
 const getPropByPath = <T>(obj: any, path: string): T =>
   obj
