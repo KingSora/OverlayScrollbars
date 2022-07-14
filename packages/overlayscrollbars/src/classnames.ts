@@ -30,5 +30,6 @@ export const classNameScrollbarTrack = 'os-scrollbar-track';
 export const classNameScrollbarHandle = 'os-scrollbar-handle';
 export const classNamesScrollbarVisible = `${classNameScrollbar}-visible`;
 export const classNamesScrollbarCornerless = `${classNameScrollbar}-cornerless`;
+export const classNamesScrollbarTransitionless = `${classNameScrollbar}-transitionless`;
 export const classNamesScrollbarInteraction = `${classNameScrollbar}-interaction`;
 export const classNamesScrollbarAutoHidden = `${classNameScrollbar}-auto-hidden`;

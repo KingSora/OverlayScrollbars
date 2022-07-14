@@ -6,6 +6,9 @@
   opacity: 0;
   visibility: hidden;
 }
+.os-scrollbar-transitionless {
+  transition: none;
+}
 .os-scrollbar-track {
   pointer-events: auto;
   position: relative;

@@ -29,8 +29,8 @@ export interface ScrollbarsSetupStaticState {
 
 const createSelfCancelTimeout = (timeout?: number | (() => number)) => {
   let id: number;
-  const setT = timeout ? (window.setTimeout as (...args: any[]) => number) : rAF!;
-  const clearT = timeout ? window.clearTimeout : cAF!;
+  const setT = timeout ? (setTimeout as (...args: any[]) => number) : rAF!;
+  const clearT = timeout ? clearTimeout : cAF!;
   return [
     (callback: () => any) => {
       clearT(id);
