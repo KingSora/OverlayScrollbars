@@ -9,6 +9,7 @@ import {
   removeClass,
   removeElements,
   runEachAndClear,
+  stopPropagation,
 } from 'support';
 import {
   classNameScrollbar,
@@ -59,6 +60,13 @@ export type ScrollbarsSetupElements = [
 
 const interactionStartEventNames = 'touchstart mouseenter';
 const interactionEndEventNames = 'touchend touchcancel mouseleave';
+const stopRootClickPropagation = (scrollbar: HTMLElement, documentElm: Document) =>
+  on(
+    scrollbar,
+    'mousedown',
+    on.bind(0, documentElm, 'click', stopPropagation, { _once: true, _capture: true }),
+    { _capture: true }
+  );
 
 export const createScrollbarsSetupElements = (
   target: InitializationTarget,
@@ -67,7 +75,7 @@ export const createScrollbarsSetupElements = (
   const { _getInitializationStrategy } = getEnvironment();
   const { _scrollbarsSlot: environmentScrollbarSlot } =
     _getInitializationStrategy() as ScrollbarsInitializationStrategy;
-  const { _target, _host, _viewport, _targetIsElm } = structureSetupElements;
+  const { _documentElm, _target, _host, _viewport, _targetIsElm } = structureSetupElements;
   const initializationScrollbarSlot =
     !_targetIsElm && (target as ScrollbarsInitialization).scrollbarsSlot;
   const evaluatedScrollbarSlot =
@@ -113,24 +121,19 @@ export const createScrollbarsSetupElements = (
     appendChildren(scrollbar, track);
     appendChildren(track, handle);
 
-    push(destroyFns, removeElements.bind(0, scrollbar));
     push(arrToPush, result);
-
-    push(
-      destroyFns,
+    push(destroyFns, [
+      removeElements.bind(0, scrollbar),
       on(scrollbar, interactionStartEventNames, () => {
         addRemoveClassHorizontal(classNamesScrollbarInteraction, true);
         addRemoveClassVertical(classNamesScrollbarInteraction, true);
-      })
-    );
-
-    push(
-      destroyFns,
+      }),
       on(scrollbar, interactionEndEventNames, () => {
         addRemoveClassHorizontal(classNamesScrollbarInteraction);
         addRemoveClassVertical(classNamesScrollbarInteraction);
-      })
-    );
+      }),
+      stopRootClickPropagation(scrollbar, _documentElm),
+    ]);
 
     return result;
   };
