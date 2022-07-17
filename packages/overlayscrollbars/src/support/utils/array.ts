@@ -15,29 +15,29 @@ export function each<T>(
   callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | unknown
 ): Array<T> | ReadonlyArray<T>;
 export function each<T>(
-  array: Array<T> | ReadonlyArray<T> | null | undefined,
+  array: Array<T> | ReadonlyArray<T> | false | null | undefined,
   callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | unknown
-): Array<T> | ReadonlyArray<T> | null | undefined;
+): Array<T> | ReadonlyArray<T> | false | null | undefined;
 export function each<T>(
   arrayLikeObject: ArrayLike<T>,
   callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown
 ): ArrayLike<T>;
 export function each<T>(
-  arrayLikeObject: ArrayLike<T> | null | undefined,
+  arrayLikeObject: ArrayLike<T> | false | null | undefined,
   callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown
-): ArrayLike<T> | null | undefined;
+): ArrayLike<T> | false | null | undefined;
 export function each(
   obj: PlainObject,
   callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown
 ): PlainObject;
 export function each(
-  obj: PlainObject | null | undefined,
+  obj: PlainObject | false | null | undefined,
   callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown
-): PlainObject | null | undefined;
+): PlainObject | false | null | undefined;
 export function each<T>(
-  source: Array<T> | ArrayLike<T> | ReadonlyArray<T> | PlainObject | null | undefined,
+  source: Array<T> | ArrayLike<T> | ReadonlyArray<T> | PlainObject | false | null | undefined,
   callback: (value: T, indexOrKey: any, source: any) => boolean | unknown
-): Array<T> | ArrayLike<T> | ReadonlyArray<T> | PlainObject | null | undefined {
+): Array<T> | ArrayLike<T> | ReadonlyArray<T> | PlainObject | false | null | undefined {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
       if (callback(source[i], i, source) === false) {

@@ -17,6 +17,7 @@ import {
   fractionalSize,
   isFunction,
   ResizeObserverConstructor,
+  closest,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -24,6 +25,7 @@ import {
   dataValueHostOverflowVisible,
   classNameViewport,
   classNameOverflowVisible,
+  classNameScrollbar,
 } from 'classnames';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
@@ -231,9 +233,13 @@ export const createStructureSetupObservers = (
               const { target, attributeName } = mutation;
               const ignore =
                 !isNestedTarget && attributeName
-                  ? liesBetween(target as Element, hostSelector, viewportSelector)
+                  ? liesBetween(target, hostSelector, viewportSelector)
                   : false;
-              return ignore || !!ignoreMutationFromOptions(mutation);
+              return (
+                ignore ||
+                !!closest(target, `.${classNameScrollbar}`) || // ignore explicitely all scrollbar elements
+                !!ignoreMutationFromOptions(mutation)
+              );
             },
           }
         );

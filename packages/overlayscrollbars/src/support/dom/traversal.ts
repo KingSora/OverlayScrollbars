@@ -1,8 +1,8 @@
 import { isElement } from 'support/utils/types';
 import { push, from } from 'support/utils/array';
 
-type InputElementType = Element | Node | false | null | undefined;
-type OutputElementType = Element | null;
+type InputElementType = Node | Element | Node | false | null | undefined;
+type OutputElementType = Node | Element | null;
 
 const elmPrototype = Element.prototype;
 
@@ -74,7 +74,7 @@ const contents = (elm: InputElementType): ReadonlyArray<ChildNode> =>
  */
 const parent = (elm: InputElementType): OutputElementType => (elm ? elm.parentElement : null);
 
-const closest = (elm: InputElementType, selector: string): OutputElementType => {
+export const closest = (elm: InputElementType, selector: string): OutputElementType => {
   if (isElement(elm)) {
     const closestFn = elmPrototype.closest;
     if (closestFn) {

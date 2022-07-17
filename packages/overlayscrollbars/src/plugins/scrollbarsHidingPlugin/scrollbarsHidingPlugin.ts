@@ -252,7 +252,9 @@ export const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> = {
           h: sizeNew.h - size.h,
         };
 
-        if (deltaSize.w === 0 && deltaSize.h === 0) return;
+        if (deltaSize.w === 0 && deltaSize.h === 0) {
+          return;
+        }
 
         const deltaAbsSize = {
           w: abs(deltaSize.w),
