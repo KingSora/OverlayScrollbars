@@ -118,15 +118,16 @@
       min-height: 1px;
       min-width: 1px; }
 
-.os-scrollbar-transition {
-  transition: opacity 0.3s, visibility 0.3s, top 0.3s, right 0.3s, bottom 0.3s, left 0.3s; }
-
 .os-scrollbar {
+  transition: opacity 0.3s, visibility 0.3s, top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
   pointer-events: none;
   position: absolute;
   z-index: 0;
   opacity: 0;
   visibility: hidden; }
+
+.os-scrollbar-transitionless {
+  transition: none; }
 
 .os-scrollbar-track {
   pointer-events: auto;

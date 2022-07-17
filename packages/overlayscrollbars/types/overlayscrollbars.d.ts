@@ -1,3 +1,9 @@
+type CacheValues<T> = [
+    value: T,
+    changed: boolean,
+    previous?: T
+];
+type UpdateCache<Value> = (force?: boolean) => CacheValues<Value>;
 interface WH<T> {
     w: T;
     h: T;
@@ -156,6 +162,28 @@ interface ViewportOverflowState {
 }
 type GetViewportOverflowState = (showNativeOverlaidScrollbars: boolean, viewportStyleObj?: StyleObject) => ViewportOverflowState;
 type HideNativeScrollbars = (viewportOverflowState: ViewportOverflowState, directionIsRTL: boolean, viewportArrange: boolean, viewportStyleObj: StyleObject) => void;
+type EnvironmentEventMap = {
+    _: [
+    ];
+};
+interface InternalEnvironment {
+    readonly _nativeScrollbarsSize: XY;
+    readonly _nativeScrollbarsOverlaid: XY<boolean>;
+    readonly _nativeScrollbarsHiding: boolean;
+    readonly _rtlScrollBehavior: {
+        n: boolean;
+        i: boolean;
+    };
+    readonly _flexboxGlue: boolean;
+    readonly _cssCustomProperties: boolean;
+    readonly _defaultInitializationStrategy: InitializationStrategy;
+    readonly _defaultDefaultOptions: Options;
+    _addListener(listener: EventListener<EnvironmentEventMap, "_">): () => void;
+    _getInitializationStrategy(): InitializationStrategy;
+    _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
+    _getDefaultOptions(): Options;
+    _setDefaultOptions(newDefaultOptions: PartialOptions<Options>): void;
+}
 type ArrangeViewport = (viewportOverflowState: ViewportOverflowState, viewportScrollSize: WH<number>, sizeFraction: WH<number>, directionIsRTL: boolean) => boolean;
 type UndoViewportArrangeResult = [
     redoViewportArrange: () => void,
@@ -163,11 +191,12 @@ type UndoViewportArrangeResult = [
 ];
 type UndoArrangeViewport = (showNativeOverlaidScrollbars: boolean, directionIsRTL: boolean, viewportOverflowState?: ViewportOverflowState) => UndoViewportArrangeResult;
 type ScrollbarsHidingPluginInstance = {
-    _createUniqueViewportArrangeElement(): HTMLStyleElement | false;
-    _overflowUpdateSegment(doViewportArrange: boolean, viewport: HTMLElement, viewportArrange: HTMLStyleElement | false | null | undefined, getState: () => StructureSetupState, getViewportOverflowState: GetViewportOverflowState, hideNativeScrollbars: HideNativeScrollbars): [
+    _createUniqueViewportArrangeElement(env: InternalEnvironment): HTMLStyleElement | false;
+    _overflowUpdateSegment(doViewportArrange: boolean, flexboxGlue: boolean, viewport: HTMLElement, viewportArrange: HTMLStyleElement | false | null | undefined, getState: () => StructureSetupState, getViewportOverflowState: GetViewportOverflowState, hideNativeScrollbars: HideNativeScrollbars): [
         ArrangeViewport,
         UndoArrangeViewport
     ];
+    _envWindowZoom(): (envInstance: InternalEnvironment, updateNativeScrollbarSizeCache: UpdateCache<XY<number>>, triggerEvent: () => void) => void;
 };
 declare const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance>;
 type GeneralInitialEventListeners = InitialEventListeners;

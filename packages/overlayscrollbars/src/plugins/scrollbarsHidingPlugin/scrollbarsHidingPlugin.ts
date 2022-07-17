@@ -242,8 +242,8 @@ export const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> = {
       return [arrangeViewport, undoViewportArrange];
     },
     _envWindowZoom: () => {
-      let size = windowSize();
-      let dpr = getWindowDPR();
+      let size = { w: 0, h: 0 };
+      let dpr = 0;
 
       return (envInstance, updateNativeScrollbarSizeCache, triggerEvent) => {
         const sizeNew = windowSize();
@@ -265,7 +265,7 @@ export const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> = {
         const dprNew = getWindowDPR();
         const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
         const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
-        const dprChanged = dprNew !== dpr && dpr > 0;
+        const dprChanged = dprNew !== dpr && dprNew > 0;
         const isZoom = deltaIsBigger && difference && dprChanged;
 
         if (isZoom) {
