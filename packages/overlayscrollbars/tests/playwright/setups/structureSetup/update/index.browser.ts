@@ -30,6 +30,7 @@ if (!window.ResizeObserver) {
   addPlugin(sizeObserverPlugin);
 }
 if (!OverlayScrollbars.env().scrollbarsHiding) {
+  console.log('added');
   addPlugin(scrollbarsHidingPlugin);
 }
 

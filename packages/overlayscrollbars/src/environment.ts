@@ -11,7 +11,6 @@ import {
   XY,
   removeAttr,
   removeElements,
-  windowSize,
   equalBCRWH,
   getBoundingClientRect,
   assignDeep,
@@ -30,6 +29,7 @@ import {
 import { Options, defaultOptions } from 'options';
 import { PartialOptions } from 'typings';
 import { InitializationStrategy } from 'initialization';
+import { getPlugins, ScrollbarsHidingPluginInstance, scrollbarsHidingPluginName } from 'plugins';
 
 type EnvironmentEventMap = {
   _: [];
@@ -52,24 +52,20 @@ export interface InternalEnvironment {
 }
 
 let environmentInstance: InternalEnvironment;
-const { abs, round } = Math;
-
-const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
-  const absValOne = abs(valOne);
-  const absValTwo = abs(valTwo);
-  return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
-};
 
 const getNativeScrollbarSize = (
   body: HTMLElement,
   measureElm: HTMLElement,
-  measureElmChild: HTMLElement
+  measureElmChild: HTMLElement,
+  clear?: boolean
 ): XY => {
   appendChildren(body, measureElm);
 
   const cSize = clientSize(measureElm);
   const oSize = offsetSize(measureElm);
   const fSize = fractionalSize(measureElmChild);
+
+  clear && removeElements(measureElm);
 
   return {
     x: oSize.h - cSize.h + fSize.h,
@@ -137,26 +133,19 @@ const getFlexboxGlue = (parentElm: HTMLElement, childElm: HTMLElement): boolean 
   return supportsMin && supportsMax;
 };
 
-const getWindowDPR = (): number => {
-  // eslint-disable-next-line
-  // @ts-ignore
-  const dDPI = window.screen.deviceXDPI || 0;
-  // eslint-disable-next-line
-  // @ts-ignore
-  const sDPI = window.screen.logicalXDPI || 1;
-  return window.devicePixelRatio || dDPI / sDPI;
-};
-
 const createEnvironment = (): InternalEnvironment => {
   const { body } = document;
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
   const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventMap>();
-  const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache({
-    _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
-    _equal: equalXY,
-  });
+  const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache(
+    {
+      _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
+      _equal: equalXY,
+    },
+    getNativeScrollbarSize.bind(0, body, envElm, envChildElm, true)
+  );
   const [nativeScrollbarsSize] = getNativeScrollbarSizeCache();
   const nativeScrollbarsHiding = getNativeScrollbarsHiding(envElm);
   const nativeScrollbarsOverlaid = {
@@ -197,47 +186,14 @@ const createEnvironment = (): InternalEnvironment => {
   removeElements(envElm);
 
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
-    let size = windowSize();
-    let dpr = getWindowDPR();
-
+    let resizeFn: undefined | ReturnType<ScrollbarsHidingPluginInstance['_envWindowZoom']>;
     window.addEventListener('resize', () => {
-      const sizeNew = windowSize();
-      const deltaSize = {
-        w: sizeNew.w - size.w,
-        h: sizeNew.h - size.h,
-      };
+      const scrollbarsHidingPlugin = getPlugins()[scrollbarsHidingPluginName] as
+        | ScrollbarsHidingPluginInstance
+        | undefined;
 
-      if (deltaSize.w === 0 && deltaSize.h === 0) return;
-
-      const deltaAbsSize = {
-        w: abs(deltaSize.w),
-        h: abs(deltaSize.h),
-      };
-      const deltaAbsRatio = {
-        w: abs(round(sizeNew.w / (size.w / 100.0))),
-        h: abs(round(sizeNew.h / (size.h / 100.0))),
-      };
-      const dprNew = getWindowDPR();
-      const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
-      const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
-      const dprChanged = dprNew !== dpr && dpr > 0;
-      const isZoom = deltaIsBigger && difference && dprChanged;
-
-      if (isZoom) {
-        const [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache(
-          getNativeScrollbarSize(body, envElm, envChildElm)
-        );
-
-        assignDeep(environmentInstance._nativeScrollbarsSize, scrollbarSize); // keep the object same!
-        removeElements(envElm);
-
-        if (scrollbarSizeChanged) {
-          triggerEvent('_');
-        }
-      }
-
-      size = sizeNew;
-      dpr = dprNew;
+      resizeFn = resizeFn || (scrollbarsHidingPlugin && scrollbarsHidingPlugin._envWindowZoom());
+      resizeFn && resizeFn(env, updateNativeScrollbarSizeCache, triggerEvent.bind(0, '_'));
     });
   }
 

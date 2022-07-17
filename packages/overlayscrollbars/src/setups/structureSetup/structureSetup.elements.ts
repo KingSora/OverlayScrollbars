@@ -85,7 +85,8 @@ const addDataAttrHost = (elm: HTMLElement, value: string) => {
 export const createStructureSetupElements = (
   target: InitializationTarget
 ): StructureSetupElements => {
-  const { _getInitializationStrategy, _nativeScrollbarsHiding } = getEnvironment();
+  const env = getEnvironment();
+  const { _getInitializationStrategy, _nativeScrollbarsHiding } = env;
   const scrollbarsHidingPlugin = getPlugins()[scrollbarsHidingPluginName] as
     | ScrollbarsHidingPluginInstance
     | undefined;
@@ -156,7 +157,7 @@ export const createStructureSetupElements = (
       !viewportIsTarget &&
       !_nativeScrollbarsHiding &&
       createUniqueViewportArrangeElement &&
-      createUniqueViewportArrangeElement(),
+      createUniqueViewportArrangeElement(env),
     _windowElm: wnd,
     _documentElm: ownerDocument,
     _htmlElm: parent(bodyElm) as HTMLHtmlElement,

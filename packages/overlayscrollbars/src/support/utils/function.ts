@@ -1,11 +1,6 @@
 import { isNumber, isFunction } from 'support/utils/types';
 import { from } from 'support/utils/array';
-import { rAF, cAF } from 'support/compatibility/apis';
-
-const clearTimeouts = (id: number | undefined) => {
-  id && clearTimeout(id);
-  id && cAF!(id);
-};
+import { rAF, cAF, setT, clearT } from 'support/compatibility/apis';
 
 type DebounceTiming = number | false | null | undefined;
 
@@ -44,17 +39,17 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
   functionToDebounce: FunctionToDebounce,
   options?: DebounceOptions<FunctionToDebounce>
 ): Debounced<FunctionToDebounce> => {
-  let timeoutId: number | undefined;
   let maxTimeoutId: number | undefined;
   let prevArguments: Parameters<FunctionToDebounce> | null | undefined;
   let latestArguments: Parameters<FunctionToDebounce> | null | undefined;
+  let clear: () => void = noop;
   const { _timeout, _maxDelay, _mergeParams } = options || {};
-  const setT = setTimeout as (...args: any[]) => number;
 
   const invokeFunctionToDebounce = function (args: IArguments) {
-    clearTimeouts(timeoutId);
-    clearTimeouts(maxTimeoutId);
-    maxTimeoutId = timeoutId = prevArguments = undefined;
+    clear();
+    clearT(maxTimeoutId);
+    maxTimeoutId = prevArguments = undefined;
+    clear = noop;
     // eslint-disable-next-line
     // @ts-ignore
     functionToDebounce.apply(this, args);
@@ -67,7 +62,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
 
   const flush = () => {
     /* istanbul ignore next */
-    if (timeoutId) {
+    if (clear !== noop) {
       invokeFunctionToDebounce(mergeParms(latestArguments!) || latestArguments!);
     }
   };
@@ -82,6 +77,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
       const finalMaxWait = isFunction(_maxDelay) ? _maxDelay() : _maxDelay;
       const hasMaxWait = isNumber(finalMaxWait) && finalMaxWait >= 0;
       const setTimeoutFn = finalTimeout > 0 ? setT : rAF!;
+      const clearTimeoutFn = finalTimeout > 0 ? clearT : cAF!;
       const mergeParamsResult = mergeParms(args);
       const invokedArgs = mergeParamsResult || args;
       const boundInvoke = invokeFunctionToDebounce.bind(0, invokedArgs);
@@ -90,9 +86,10 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
       //   invokeFunctionToDebounce(prevArguments || args);
       // }
 
-      clearTimeouts(timeoutId);
+      clear();
       // @ts-ignore
-      timeoutId = setTimeoutFn(boundInvoke, finalTimeout as number) as number;
+      const timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
+      clear = () => clearTimeoutFn(timeoutId);
 
       if (hasMaxWait && !maxTimeoutId) {
         maxTimeoutId = setT(flush, finalMaxWait as number);

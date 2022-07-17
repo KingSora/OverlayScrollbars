@@ -1,25 +1,14 @@
 import { noop, debounce } from 'support/utils/function';
-import { rAF } from 'support/compatibility/apis';
+import { rAF, setT } from 'support/compatibility/apis';
 
 jest.mock('support/compatibility/apis', () => {
   const originalModule = jest.requireActual('support/compatibility/apis');
   return {
     ...originalModule,
     rAF: jest.fn().mockImplementation((...args) => originalModule.rAF(...args)),
+    setT: jest.fn().mockImplementation((...args) => originalModule.setT(...args)),
   };
 });
-
-const mockSetTimeout = () => {
-  const original = window.setTimeout;
-  // @ts-ignore
-  const setT = (window.setTimeout = jest.fn((...args) => original(...args)));
-  return [
-    setT,
-    () => {
-      window.setTimeout = original;
-    },
-  ];
-};
 
 // eslint-disable-next-line no-return-await
 const timeout = async (timeout = 100) => await new Promise((r) => setTimeout(r, timeout));
@@ -34,7 +23,6 @@ describe('function', () => {
     describe('timeout', () => {
       test('without timeout', () => {
         let i = 0;
-        const [setT, unmockSetTimeout] = mockSetTimeout();
         const debouncedFn = debounce(() => {
           i += 1;
         });
@@ -44,12 +32,10 @@ describe('function', () => {
         expect(rAF).not.toHaveBeenCalled();
         expect(setT).not.toHaveBeenCalled();
         expect(i).toBe(1);
-        unmockSetTimeout();
       });
 
       test('with timeout 0', async () => {
         let i = 0;
-        const [setT, unmockSetTimeout] = mockSetTimeout();
         const debouncedFn = debounce(
           () => {
             i += 1;
@@ -67,12 +53,10 @@ describe('function', () => {
         await timeout();
 
         expect(i).toBe(1);
-        unmockSetTimeout();
       });
 
       test('with timeout > 0', async () => {
         let i = 0;
-        const [setT, unmockSetTimeout] = mockSetTimeout();
         const debouncedFn = debounce(
           () => {
             i += 1;
@@ -89,8 +73,6 @@ describe('function', () => {
         expect(i).toBe(0);
         await timeout();
         expect(i).toBe(1);
-
-        unmockSetTimeout();
       });
 
       test('with timeout > 0 and multiple calls', async () => {

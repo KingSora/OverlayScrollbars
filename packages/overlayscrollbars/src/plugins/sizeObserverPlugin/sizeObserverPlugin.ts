@@ -6,12 +6,12 @@ import {
   scrollLeft,
   scrollTop,
   on,
-  stopAndPrevent,
   addClass,
   equalWH,
   push,
   cAF,
   rAF,
+  stopPropagation,
 } from 'support';
 import {
   classNameSizeObserverListenerScroll,
@@ -68,7 +68,7 @@ export const sizeObserverPlugin: Plugin<SizeObserverPluginInstance> = {
         isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
         if (scrollEvent) {
-          stopAndPrevent(scrollEvent);
+          stopPropagation(scrollEvent);
 
           if (isDirty && !rAFId) {
             cAF!(rAFId);

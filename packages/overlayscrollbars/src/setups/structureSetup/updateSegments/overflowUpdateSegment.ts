@@ -308,6 +308,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const [arrangeViewport, undoViewportArrange] = scrollbarsHidingPlugin
     ? scrollbarsHidingPlugin._overflowUpdateSegment(
         doViewportArrange,
+        _flexboxGlue,
         _viewport,
         _viewportArrange,
         getState,

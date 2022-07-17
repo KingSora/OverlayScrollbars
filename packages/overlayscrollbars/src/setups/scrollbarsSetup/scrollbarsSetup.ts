@@ -1,4 +1,4 @@
-import { rAF, cAF, isFunction, on, runEachAndClear } from 'support';
+import { rAF, cAF, isFunction, on, runEachAndClear, setT, clearT } from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
 import {
   createScrollbarsSetupElements,
@@ -29,15 +29,15 @@ export interface ScrollbarsSetupStaticState {
 
 const createSelfCancelTimeout = (timeout?: number | (() => number)) => {
   let id: number;
-  const setT = timeout ? (setTimeout as (...args: any[]) => number) : rAF!;
-  const clearT = timeout ? clearTimeout : cAF!;
+  const setTFn = timeout ? setT : rAF!;
+  const clearTFn = timeout ? clearT : cAF!;
   return [
     (callback: () => any) => {
-      clearT(id);
+      clearTFn(id);
       // @ts-ignore
-      id = setT(callback, isFunction(timeout) ? timeout() : timeout);
+      id = setTFn(callback, isFunction(timeout) ? timeout() : timeout);
     },
-    () => clearT(id),
+    () => clearTFn(id),
   ] as [timeout: (callback: () => any) => void, clear: () => void];
 };
 

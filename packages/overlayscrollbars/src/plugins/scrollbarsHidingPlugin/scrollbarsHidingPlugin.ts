@@ -1,5 +1,17 @@
-import { keys, attr, WH, style, addClass, removeClass, noop, each } from 'support';
-import { getEnvironment } from 'environment';
+import {
+  keys,
+  attr,
+  WH,
+  style,
+  addClass,
+  removeClass,
+  noop,
+  each,
+  assignDeep,
+  windowSize,
+  UpdateCache,
+  XY,
+} from 'support';
 import { classNameViewportArrange } from 'classnames';
 import type { StyleObject } from 'typings';
 import type { StructureSetupState } from 'setups/structureSetup';
@@ -8,6 +20,7 @@ import type {
   GetViewportOverflowState,
   HideNativeScrollbars,
 } from 'setups/structureSetup/updateSegments/overflowUpdateSegment';
+import type { InternalEnvironment } from 'environment';
 import type { Plugin } from 'plugins';
 
 export type ArrangeViewport = (
@@ -29,29 +42,51 @@ export type UndoArrangeViewport = (
 ) => UndoViewportArrangeResult;
 
 export type ScrollbarsHidingPluginInstance = {
-  _createUniqueViewportArrangeElement(): HTMLStyleElement | false;
+  _createUniqueViewportArrangeElement(env: InternalEnvironment): HTMLStyleElement | false;
   _overflowUpdateSegment(
     doViewportArrange: boolean,
+    flexboxGlue: boolean,
     viewport: HTMLElement,
     viewportArrange: HTMLStyleElement | false | null | undefined,
     getState: () => StructureSetupState,
     getViewportOverflowState: GetViewportOverflowState,
     hideNativeScrollbars: HideNativeScrollbars
   ): [ArrangeViewport, UndoArrangeViewport];
+  _envWindowZoom(): (
+    envInstance: InternalEnvironment,
+    updateNativeScrollbarSizeCache: UpdateCache<XY<number>>,
+    triggerEvent: () => void
+  ) => void;
 };
 
 let contentArrangeCounter = 0;
+const { round, abs } = Math;
+const getWindowDPR = (): number => {
+  // eslint-disable-next-line
+  // @ts-ignore
+  const dDPI = window.screen.deviceXDPI || 0;
+  // eslint-disable-next-line
+  // @ts-ignore
+  const sDPI = window.screen.logicalXDPI || 1;
+  return window.devicePixelRatio || dDPI / sDPI;
+};
+
+const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
+  const absValOne = abs(valOne);
+  const absValTwo = abs(valTwo);
+  return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
+};
 
 export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';
 
 export const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> = {
   [scrollbarsHidingPluginName]: {
-    _createUniqueViewportArrangeElement: () => {
+    _createUniqueViewportArrangeElement: (env: InternalEnvironment) => {
       const {
         _nativeScrollbarsHiding: _nativeScrollbarStyling,
         _nativeScrollbarsOverlaid: _nativeScrollbarIsOverlaid,
         _cssCustomProperties,
-      } = getEnvironment();
+      } = env;
       const create =
         !_cssCustomProperties &&
         !_nativeScrollbarStyling &&
@@ -67,14 +102,13 @@ export const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> = {
     },
     _overflowUpdateSegment: (
       doViewportArrange,
+      flexboxGlue,
       viewport,
       viewportArrange,
       getState,
       getViewportOverflowState,
       hideNativeScrollbars
     ) => {
-      const { _flexboxGlue } = getEnvironment();
-
       /**
        * Sets the styles of the viewport arrange element.
        * @param viewportOverflowState The viewport overflow state according to which the scrollbars shall be hidden.
@@ -182,7 +216,7 @@ export const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> = {
 
           removeClass(viewport, classNameViewportArrange);
 
-          if (!_flexboxGlue) {
+          if (!flexboxGlue) {
             finalPaddingStyle.height = '';
           }
 
@@ -206,6 +240,47 @@ export const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> = {
       };
 
       return [arrangeViewport, undoViewportArrange];
+    },
+    _envWindowZoom: () => {
+      let size = windowSize();
+      let dpr = getWindowDPR();
+
+      return (envInstance, updateNativeScrollbarSizeCache, triggerEvent) => {
+        const sizeNew = windowSize();
+        const deltaSize = {
+          w: sizeNew.w - size.w,
+          h: sizeNew.h - size.h,
+        };
+
+        if (deltaSize.w === 0 && deltaSize.h === 0) return;
+
+        const deltaAbsSize = {
+          w: abs(deltaSize.w),
+          h: abs(deltaSize.h),
+        };
+        const deltaAbsRatio = {
+          w: abs(round(sizeNew.w / (size.w / 100.0))),
+          h: abs(round(sizeNew.h / (size.h / 100.0))),
+        };
+        const dprNew = getWindowDPR();
+        const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
+        const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
+        const dprChanged = dprNew !== dpr && dpr > 0;
+        const isZoom = deltaIsBigger && difference && dprChanged;
+
+        if (isZoom) {
+          const [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache();
+
+          assignDeep(envInstance._nativeScrollbarsSize, scrollbarSize); // keep the object same!
+
+          if (scrollbarSizeChanged) {
+            triggerEvent();
+          }
+        }
+
+        size = sizeNew;
+        dpr = dprNew;
+      };
     },
   },
 };

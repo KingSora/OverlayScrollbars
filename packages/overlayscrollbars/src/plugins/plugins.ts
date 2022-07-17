@@ -12,9 +12,10 @@ const pluginRegistry: Record<string, PluginInstance> = {};
 
 export const getPlugins = () => assignDeep({}, pluginRegistry);
 
-export const addPlugin = (addedPlugin: Plugin | Plugin[]) =>
+export const addPlugin = (addedPlugin: Plugin | Plugin[]) => {
   each((isArray(addedPlugin) ? addedPlugin : [addedPlugin]) as Plugin[], (plugin) => {
     each(keys(plugin), (pluginName) => {
       pluginRegistry[pluginName] = plugin[pluginName];
     });
   });
+};

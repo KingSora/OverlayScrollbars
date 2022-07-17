@@ -10,7 +10,6 @@ import {
   prependChildren,
   removeElements,
   on,
-  stopAndPrevent,
   addClass,
   push,
   ResizeObserverConstructor,
@@ -18,6 +17,7 @@ import {
   isBoolean,
   removeClass,
   isObject,
+  stopPropagation,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -190,7 +190,7 @@ export const createSizeObserver = (
           onSizeChangedCallbackProxy(directionIsRTLCacheValues);
         }
 
-        stopAndPrevent(event);
+        stopPropagation(event);
       })
     );
   }

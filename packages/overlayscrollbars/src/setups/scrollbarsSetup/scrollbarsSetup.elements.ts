@@ -9,6 +9,7 @@ import {
   removeClass,
   removeElements,
   runEachAndClear,
+  setT,
   stopPropagation,
 } from 'support';
 import {
@@ -143,7 +144,7 @@ export const createScrollbarsSetupElements = (
     appendChildren(evaluatedScrollbarSlot, horizontalScrollbars[0]._scrollbar);
     appendChildren(evaluatedScrollbarSlot, verticalScrollbars[0]._scrollbar);
 
-    setTimeout(() => {
+    setT(() => {
       addRemoveClassHorizontal(classNamesScrollbarTransitionless);
       addRemoveClassVertical(classNamesScrollbarTransitionless);
     }, 300);
