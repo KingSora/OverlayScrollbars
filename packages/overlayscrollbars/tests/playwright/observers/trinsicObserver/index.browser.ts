@@ -29,7 +29,7 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const changesSlot: HTMLButtonElement | null = document.querySelector('#changes');
 const preInitChildren = targetElm?.children.length;
 
-const destroyTrinsicObserver = createTrinsicObserver(
+const [destroyTrinsicObserver, updateTrinsicObserver] = createTrinsicObserver(
   targetElm as HTMLElement,
   (heightIntrinsicCache) => {
     const [currentHeightIntrinsic, currentHeightIntrinsicChanged] = heightIntrinsicCache;
@@ -158,6 +158,9 @@ const start = async () => {
   });
   await changeWhileHidden();
 
+  updateTrinsicObserver();
+  destroyTrinsicObserver();
+  updateTrinsicObserver();
   destroyTrinsicObserver();
   should.equal(
     targetElm?.children.length,

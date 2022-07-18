@@ -18,6 +18,8 @@ import {
   isFunction,
   ResizeObserverConstructor,
   closest,
+  assignDeep,
+  push,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -41,8 +43,9 @@ import type {
 export type StructureSetupObserversUpdate = (checkOption: SetupUpdateCheckOption) => void;
 
 export type StructureSetupObservers = [
-  updateObserverOptions: StructureSetupObserversUpdate,
-  destroy: () => void
+  destroy: () => void,
+  updateObservers: () => Partial<StructureSetupUpdateHints>,
+  updateObserversOptions: StructureSetupObserversUpdate
 ];
 
 type ExcludeFromTuple<T extends readonly any[], E> = T extends [infer F, ...infer R]
@@ -69,7 +72,7 @@ export const createStructureSetupObservers = (
 ): StructureSetupObservers => {
   let debounceTimeout: number | false | undefined;
   let debounceMaxDelay: number | false | undefined;
-  let contentMutationObserver: DOMObserver | undefined;
+  let contentMutationObserver: DOMObserver<true> | undefined;
   const [, setState] = state;
   const {
     _host,
@@ -134,10 +137,14 @@ export const createStructureSetupObservers = (
       }
     });
   };
-  const onTrinsicChanged = (heightIntrinsicCache: CacheValues<boolean>) => {
+  const onTrinsicChanged = (heightIntrinsicCache: CacheValues<boolean>, fromRecords?: true) => {
     const [heightIntrinsic, heightIntrinsicChanged] = heightIntrinsicCache;
+    const updateHints: Partial<StructureSetupUpdateHints> = {
+      _heightIntrinsicChanged: heightIntrinsicChanged,
+    };
     setState({ _heightIntrinsic: heightIntrinsic });
-    structureSetupUpdate({ _heightIntrinsicChanged: heightIntrinsicChanged });
+    !fromRecords && structureSetupUpdate(updateHints);
+    return updateHints;
   };
   const onSizeChanged = ({
     _sizeChanged,
@@ -158,30 +165,36 @@ export const createStructureSetupObservers = (
 
     updateFn({ _sizeChanged, _directionChanged: directionChanged });
   };
-  const onContentMutation = (contentChangedTroughEvent: boolean) => {
+  const onContentMutation = (contentChangedTroughEvent: boolean, fromRecords?: true) => {
     const [, contentSizeChanged] = updateContentSizeCache();
+    const updateHints: Partial<StructureSetupUpdateHints> = {
+      _contentMutation: contentSizeChanged,
+    };
     // if contentChangedTroughEvent is true its already debounced
     const updateFn = contentChangedTroughEvent
       ? structureSetupUpdate
       : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
 
     if (contentSizeChanged) {
-      updateFn({
-        _contentMutation: true,
-      });
+      !fromRecords && updateFn(updateHints);
     }
+    return updateHints;
   };
-  const onHostMutation = (targetChangedAttrs: string[], targetStyleChanged: boolean) => {
+  const onHostMutation = (
+    targetChangedAttrs: string[],
+    targetStyleChanged: boolean,
+    fromRecords?: true
+  ) => {
+    const updateHints: Partial<StructureSetupUpdateHints> = { _hostMutation: targetStyleChanged };
     if (targetStyleChanged) {
-      structureSetupUpdateWithDebouncedAdaptiveUpdateHints({
-        _hostMutation: true,
-      });
+      !fromRecords && structureSetupUpdateWithDebouncedAdaptiveUpdateHints(updateHints);
     } else if (!_viewportIsTarget) {
       updateViewportAttrsFromHost(targetChangedAttrs);
     }
+    return updateHints;
   };
 
-  const destroyTrinsicObserver =
+  const trinsicObserver =
     (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
   const destroySizeObserver =
     !_viewportIsTarget &&
@@ -189,10 +202,15 @@ export const createStructureSetupObservers = (
       _appear: true,
       _direction: !_nativeScrollbarStyling,
     });
-  const [destroyHostMutationObserver] = createDOMObserver(_host, false, onHostMutation, {
-    _styleChangingAttributes: baseStyleChangingAttrs,
-    _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
-  });
+  const [destroyHostMutationObserver, updateHostMutationObserver] = createDOMObserver(
+    _host,
+    false,
+    onHostMutation,
+    {
+      _styleChangingAttributes: baseStyleChangingAttrs,
+      _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
+    }
+  );
 
   const viewportIsTargetResizeObserver =
     _viewportIsTarget &&
@@ -202,6 +220,58 @@ export const createStructureSetupObservers = (
   updateViewportAttrsFromHost();
 
   return [
+    () => {
+      contentMutationObserver && contentMutationObserver[0](); // destroy
+      trinsicObserver && trinsicObserver[0](); // destroy
+      destroySizeObserver && destroySizeObserver();
+      viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
+      destroyHostMutationObserver();
+    },
+    () => {
+      const updateHints: Partial<StructureSetupUpdateHints> = {};
+      const hostUpdateResult = updateHostMutationObserver();
+      const contentUpdateResult = contentMutationObserver && contentMutationObserver[1](); // update
+      const trinsicUpdateResult = trinsicObserver && trinsicObserver[1](); // update
+
+      if (hostUpdateResult) {
+        assignDeep(
+          updateHints,
+          onHostMutation.apply(
+            0,
+            push(hostUpdateResult, true) as [
+              ...updateResult: typeof hostUpdateResult,
+              fromRecords: true
+            ]
+          )
+        );
+      }
+      if (contentUpdateResult) {
+        assignDeep(
+          updateHints,
+          onContentMutation.apply(
+            0,
+            push(contentUpdateResult, true) as [
+              ...updateResult: typeof contentUpdateResult,
+              fromRecords: true
+            ]
+          )
+        );
+      }
+      if (trinsicUpdateResult) {
+        assignDeep(
+          updateHints,
+          onTrinsicChanged.apply(
+            0,
+            push(trinsicUpdateResult as any[], true) as [
+              ...updateResult: typeof trinsicUpdateResult,
+              fromRecords: true
+            ]
+          )
+        );
+      }
+
+      return updateHints;
+    },
     (checkOption) => {
       const [ignoreMutation] = checkOption<string[] | null>('updating.ignoreMutation');
       const [attributes, attributesChanged] = checkOption<string[] | null>('updating.attributes');
@@ -260,13 +330,6 @@ export const createStructureSetupObservers = (
           debounceMaxDelay = false;
         }
       }
-    },
-    () => {
-      contentMutationObserver && contentMutationObserver[0](); // destroy
-      destroyTrinsicObserver && destroyTrinsicObserver();
-      destroySizeObserver && destroySizeObserver();
-      viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
-      destroyHostMutationObserver();
     },
   ];
 };
