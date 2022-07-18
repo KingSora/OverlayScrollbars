@@ -51,6 +51,7 @@ interface Options {
         y: OverflowBehavior;
     };
     scrollbars: {
+        theme: string | null;
         visibility: ScrollbarVisibilityBehavior;
         autoHide: ScrollbarAutoHideBehavior;
         autoHideDelay: number;
@@ -115,7 +116,7 @@ interface ScrollbarsInitialization {
     scrollbarsSlot?: ScrollbarsDynamicInitializationElement;
 }
 type ScrollbarsInitializationStrategy = {
-    [K in keyof ScrollbarsInitialization as `_${K}`]: InitializtationElementStrategy<ScrollbarsInitialization[K]>;
+    [K in keyof ScrollbarsInitialization]: InitializtationElementStrategy<ScrollbarsInitialization[K]>;
 };
 interface StructureSetupState {
     _padding: TRBL;
@@ -152,7 +153,7 @@ interface StructureInitialization {
     content?: StructureDynamicInitializationElement;
 }
 type StructureInitializationStrategy = {
-    [K in keyof Omit<StructureInitialization, "target"> as `_${K}`]: InitializtationElementStrategy<StructureInitialization[K]>;
+    [K in keyof Omit<StructureInitialization, "target">]: InitializtationElementStrategy<StructureInitialization[K]>;
 };
 interface ViewportOverflowState {
     _scrollbarsHideOffset: XY<number>;

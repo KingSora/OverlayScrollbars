@@ -44,7 +44,7 @@ export interface ScrollbarsSetupElement {
   _scrollbarStructures: ScrollbarStructure[];
   _clone: () => ScrollbarStructure;
   _addRemoveClass: (
-    classNames: string,
+    classNames: string | false | null | undefined,
     add?: boolean,
     elm?: (scrollbarStructure: ScrollbarStructure) => HTMLElement | false | null | undefined
   ) => void;
@@ -101,7 +101,7 @@ export const createScrollbarsSetupElements = (
     );
   const scrollbarsAddRemoveClass = (
     scrollbarStructures: ScrollbarStructure[],
-    classNames: string,
+    classNames: string | false | null | undefined,
     add?: boolean,
     elm?: (scrollbarStructure: ScrollbarStructure) => HTMLElement | false | null | undefined
   ) => {
