@@ -93,10 +93,10 @@ export const createStructureSetupElements = (
   const createUniqueViewportArrangeElement =
     scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
   const {
-    _host: hostInitializationStrategy,
-    _viewport: viewportInitializationStrategy,
-    _padding: paddingInitializationStrategy,
-    _content: contentInitializationStrategy,
+    host: hostInitializationStrategy,
+    viewport: viewportInitializationStrategy,
+    padding: paddingInitializationStrategy,
+    content: contentInitializationStrategy,
   } = _getInitializationStrategy();
   const targetIsElm = isHTMLElement(target);
   const targetStructureInitialization = target as StructureInitialization;

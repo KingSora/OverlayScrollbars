@@ -40,7 +40,7 @@ export interface ScrollbarStructure {
 export interface ScrollbarsSetupElement {
   _scrollbarStructures: ScrollbarStructure[];
   _clone: () => ScrollbarStructure;
-  _addRemoveClass: (classNames: string, add?: boolean) => void;
+  _addRemoveClass: (classNames: string | false | null | undefined, add?: boolean) => void;
   // _removeClass: (classNames: string) => void;
   /*
   _addEventListener: () => void;
@@ -74,11 +74,12 @@ export const createScrollbarsSetupElements = (
   structureSetupElements: StructureSetupElementsObj
 ): ScrollbarsSetupElements => {
   const { _getInitializationStrategy } = getEnvironment();
-  const { _scrollbarsSlot: environmentScrollbarSlot } =
+  const { scrollbarsSlot: environmentScrollbarSlot } =
     _getInitializationStrategy() as ScrollbarsInitializationStrategy;
   const { _documentElm, _target, _host, _viewport, _targetIsElm } = structureSetupElements;
-  const initializationScrollbarSlot =
-    !_targetIsElm && (target as ScrollbarsInitialization).scrollbarsSlot;
+  const initializationScrollbarSlot = _targetIsElm
+    ? null
+    : (target as ScrollbarsInitialization).scrollbarsSlot;
   const evaluatedScrollbarSlot =
     generalDynamicInitializationElement<ScrollbarsDynamicInitializationElement>(
       [_target, _host, _viewport],
@@ -88,7 +89,7 @@ export const createScrollbarsSetupElements = (
     );
   const scrollbarsAddRemoveClass = (
     scrollbarStructures: ScrollbarStructure[],
-    classNames: string,
+    classNames: string | false | null | undefined,
     add?: boolean
   ) => {
     const action = add ? addClass : removeClass;
@@ -109,7 +110,7 @@ export const createScrollbarsSetupElements = (
     const arrToPush = horizontal ? horizontalScrollbars : verticalScrollbars;
     const transitionlessClass = isEmptyArray(arrToPush) ? classNamesScrollbarTransitionless : '';
     const scrollbar = createDiv(
-      `${classNameScrollbar} ${scrollbarClassName} ${transitionlessClass} os-theme-dark`
+      `${classNameScrollbar} ${scrollbarClassName} ${transitionlessClass}`
     );
     const track = createDiv(classNameScrollbarTrack);
     const handle = createDiv(classNameScrollbarHandle);

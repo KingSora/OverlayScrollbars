@@ -6,6 +6,9 @@
   opacity: 0;
   visibility: hidden;
 }
+body > .os-scrollbar {
+  position: fixed;
+}
 .os-scrollbar-transitionless {
   transition: none;
 }

@@ -32,7 +32,7 @@ export interface StructureInitialization {
 }
 
 export type StructureInitializationStrategy = {
-  [K in keyof Omit<StructureInitialization, 'target'> as `_${K}`]: InitializtationElementStrategy<
+  [K in keyof Omit<StructureInitialization, 'target'>]: InitializtationElementStrategy<
     StructureInitialization[K]
   >;
 };

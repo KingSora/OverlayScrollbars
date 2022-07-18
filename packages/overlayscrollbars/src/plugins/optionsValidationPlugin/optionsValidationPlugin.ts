@@ -37,6 +37,7 @@ const optionsTemplate: OptionsTemplate<Options> = {
     y: overflowAllowedValues, // visible-hidden  || visible-scroll || hidden || scrol
   },
   scrollbars: {
+    theme: [oTypes.string, oTypes.null], // string || null
     visibility: scrollbarsVisibilityAllowedValues, // visible || hidden || auto || v ||
     autoHide: scrollbarsAutoHideAllowedValues, // never || scroll || leave || move ||
     autoHideDelay: numberAllowedValues, // number

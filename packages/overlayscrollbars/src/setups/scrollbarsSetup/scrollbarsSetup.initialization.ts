@@ -21,7 +21,7 @@ export interface ScrollbarsInitialization {
 }
 
 export type ScrollbarsInitializationStrategy = {
-  [K in keyof ScrollbarsInitialization as `_${K}`]: InitializtationElementStrategy<
+  [K in keyof ScrollbarsInitialization]: InitializtationElementStrategy<
     ScrollbarsInitialization[K]
   >;
 };

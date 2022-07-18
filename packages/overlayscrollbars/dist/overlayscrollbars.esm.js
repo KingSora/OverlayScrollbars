@@ -387,17 +387,18 @@ const g = window.clearTimeout;
 const h = /[^\x20\t\r\n\f]+/g;
 
 const classListAction = (t, n, o) => {
-  let s;
-  let e = 0;
-  let c = false;
-  if (t && n && isString(n)) {
-    const r = n.match(h) || [];
-    c = r.length > 0;
-    while (s = r[e++]) {
-      c = !!o(t.classList, s) && c;
+  const s = t && t.classList;
+  let e;
+  let c = 0;
+  let r = false;
+  if (s && n && isString(n)) {
+    const t = n.match(h) || [];
+    r = t.length > 0;
+    while (e = t[c++]) {
+      r = !!o(s, e) && r;
     }
   }
-  return c;
+  return r;
 };
 
 const hasClass = (t, n) => classListAction(t, n, ((t, n) => t.contains(n)));
@@ -1108,8 +1109,11 @@ const bt = {
       return [ arrangeViewport, undoViewportArrange ];
     },
     j: () => {
-      let t = windowSize();
-      let n = getWindowDPR();
+      let t = {
+        w: 0,
+        h: 0
+      };
+      let n = 0;
       return (o, s, e) => {
         const c = windowSize();
         const r = {
@@ -1130,7 +1134,7 @@ const bt = {
         const a = getWindowDPR();
         const u = i.w > 2 && i.h > 2;
         const d = !diffBiggerThanOne(l.w, l.h);
-        const f = a !== n && n > 0;
+        const f = a !== n && a > 0;
         const _ = u && d && f;
         if (_) {
           const [t, n] = s();
@@ -1733,11 +1737,7 @@ const createStructureSetupUpdate = (t, n) => {
   };
 };
 
-const It = "animationstart";
-
-const Tt = "scroll";
-
-const Et = 3333333;
+const It = 3333333;
 
 const getElmDirectionIsRTL = t => "rtl" === style(t, "direction");
 
@@ -1776,8 +1776,8 @@ const createSizeObserver = (t, n, o) => {
     }
     if (s && a) {
       const n = e ? t[0] : getElmDirectionIsRTL(l);
-      scrollLeft(l, n ? r.n ? -Et : r.i ? 0 : Et : Et);
-      scrollTop(l, Et);
+      scrollLeft(l, n ? r.n ? -It : r.i ? 0 : It : It);
+      scrollTop(l, It);
     }
     if (!c) {
       n({
@@ -1806,7 +1806,7 @@ const createSizeObserver = (t, n, o) => {
       u: !d()
     }, d);
     const [t] = h;
-    push(_, on(l, Tt, (n => {
+    push(_, on(l, "scroll", (n => {
       const o = t();
       const [s, e] = o;
       if (e) {
@@ -1823,7 +1823,7 @@ const createSizeObserver = (t, n, o) => {
   }
   if (g) {
     addClass(l, M);
-    push(_, on(l, It, g, {
+    push(_, on(l, "animationstart", g, {
       O: !!u
     }));
   }
@@ -1837,45 +1837,52 @@ const createSizeObserver = (t, n, o) => {
 const isHeightIntrinsic = t => 0 === t.h || t.isIntersecting || t.intersectionRatio > 0;
 
 const createTrinsicObserver = (t, n) => {
-  const o = createDiv(k);
-  const s = [];
-  const [e] = createCache({
+  let o;
+  const s = createDiv(k);
+  const e = [];
+  const [c] = createCache({
     u: false
   });
-  const triggerOnTrinsicChangedCallback = t => {
+  const triggerOnTrinsicChangedCallback = (t, o) => {
     if (t) {
-      const o = e(isHeightIntrinsic(t));
-      const [, s] = o;
-      if (s) {
-        n(o);
+      const s = c(isHeightIntrinsic(t));
+      const [, e] = s;
+      if (e) {
+        !o && n(s);
+        return [ s ];
       }
     }
   };
+  const intersectionObserverCallback = (t, n) => {
+    if (t && t.length > 0) {
+      return triggerOnTrinsicChangedCallback(t.pop(), n);
+    }
+  };
   if (a) {
-    const n = new a((t => {
-      if (t && t.length > 0) {
-        triggerOnTrinsicChangedCallback(t.pop());
-      }
-    }), {
+    o = new a((t => intersectionObserverCallback(t)), {
       root: t
     });
-    n.observe(o);
-    push(s, (() => {
-      n.disconnect();
+    o.observe(s);
+    push(e, (() => {
+      o.disconnect();
     }));
   } else {
     const onSizeChanged = () => {
-      const t = offsetSize(o);
+      const t = offsetSize(s);
       triggerOnTrinsicChangedCallback(t);
     };
-    push(s, createSizeObserver(o, onSizeChanged));
+    push(e, createSizeObserver(s, onSizeChanged));
     onSizeChanged();
   }
-  prependChildren(t, o);
-  return () => {
-    runEachAndClear(s);
-    removeElements(o);
-  };
+  prependChildren(t, s);
+  return [ () => {
+    runEachAndClear(e);
+    removeElements(s);
+  }, () => {
+    if (o) {
+      return intersectionObserverCallback(o.takeRecords(), true);
+    }
+  } ];
 };
 
 const createEventContentChange = (t, n, o) => {
@@ -1929,65 +1936,69 @@ const createEventContentChange = (t, n, o) => {
 const createDOMObserver = (t, n, o, s) => {
   let e = false;
   const {Mt: c, Rt: r, Dt: i, jt: a, Vt: u, kt: d} = s || {};
-  const [f, _] = createEventContentChange(t, debounce((() => {
+  const f = debounce((() => {
     if (e) {
       o(true);
     }
   }), {
     v: 33,
     p: 99
-  }), i);
-  const g = c || [];
-  const h = r || [];
-  const v = g.concat(h);
-  const observerCallback = e => {
-    const c = u || noop;
-    const r = d || noop;
-    const i = [];
+  });
+  const [_, g] = createEventContentChange(t, f, i);
+  const h = c || [];
+  const v = r || [];
+  const w = h.concat(v);
+  const observerCallback = (e, c) => {
+    const r = u || noop;
+    const i = d || noop;
     const l = [];
-    let f = false;
-    let g = false;
-    let v = false;
+    const f = [];
+    let _ = false;
+    let h = false;
+    let w = false;
     each(e, (o => {
-      const {attributeName: e, target: u, type: d, oldValue: _, addedNodes: w} = o;
-      const p = "attributes" === d;
-      const b = "childList" === d;
-      const y = t === u;
-      const m = p && isString(e) ? attr(u, e) : 0;
-      const S = 0 !== m && _ !== m;
-      const x = indexOf(h, e) > -1 && S;
+      const {attributeName: e, target: c, type: u, oldValue: d, addedNodes: g} = o;
+      const p = "attributes" === u;
+      const b = "childList" === u;
+      const y = t === c;
+      const m = p && isString(e) ? attr(c, e) : 0;
+      const S = 0 !== m && d !== m;
+      const x = indexOf(v, e) > -1 && S;
       if (n && !y) {
         const n = !p;
-        const i = p && x;
-        const d = i && a && is(u, a);
-        const f = d ? !c(u, e, _, m) : n || i;
-        const h = f && !r(o, !!d, t, s);
-        push(l, w);
-        g = g || h;
-        v = v || b;
+        const l = p && x;
+        const u = l && a && is(c, a);
+        const _ = u ? !r(c, e, d, m) : n || l;
+        const v = _ && !i(o, !!u, t, s);
+        push(f, g);
+        h = h || v;
+        w = w || b;
       }
-      if (!n && y && S && !c(u, e, _, m)) {
-        push(i, e);
-        f = f || x;
+      if (!n && y && S && !r(c, e, d, m)) {
+        push(l, e);
+        _ = _ || x;
       }
     }));
-    if (v && !isEmptyArray(l)) {
-      _((t => l.reduce(((n, o) => {
+    if (w && !isEmptyArray(f)) {
+      g((t => f.reduce(((n, o) => {
         push(n, find(t, o));
         return is(o, t) ? push(n, o) : n;
       }), [])));
     }
     if (n) {
-      g && o(false);
-    } else if (!isEmptyArray(i) || f) {
-      o(i, f);
+      !c && h && o(false);
+      return [ false ];
+    }
+    if (!isEmptyArray(l) || _) {
+      !c && o(l, _);
+      return [ l, _ ];
     }
   };
-  const w = new l(observerCallback);
-  w.observe(t, {
+  const p = new l((t => observerCallback(t)));
+  p.observe(t, {
     attributes: true,
     attributeOldValue: true,
-    attributeFilter: v,
+    attributeFilter: w,
     subtree: n,
     childList: n,
     characterData: n
@@ -1995,26 +2006,28 @@ const createDOMObserver = (t, n, o, s) => {
   e = true;
   return [ () => {
     if (e) {
-      f();
-      w.disconnect();
+      _();
+      p.disconnect();
       e = false;
     }
   }, () => {
     if (e) {
-      observerCallback(w.takeRecords());
+      f.S();
+      const t = p.takeRecords();
+      return !isEmptyArray(t) && observerCallback(t, true);
     }
   } ];
 };
 
-const Pt = `[${x}]`;
+const Tt = `[${x}]`;
 
-const Lt = `.${I}`;
+const Et = `.${I}`;
 
-const Ht = [ "tabindex" ];
+const Pt = [ "tabindex" ];
 
-const Mt = [ "wrap", "cols", "rows" ];
+const Lt = [ "wrap", "cols", "rows" ];
 
-const Rt = [ "id", "class", "style", "open" ];
+const Ht = [ "id", "class", "style", "open" ];
 
 const createStructureSetupObservers = (t, n, o) => {
   let s;
@@ -2041,7 +2054,7 @@ const createStructureSetupObservers = (t, n, o) => {
       h: o.h + n.h + s.h
     };
   }));
-  const p = d ? Mt : Rt.concat(Mt);
+  const p = d ? Lt : Ht.concat(Lt);
   const b = debounce(o, {
     v: () => s,
     p: () => e,
@@ -2055,8 +2068,8 @@ const createStructureSetupObservers = (t, n, o) => {
     }
   });
   const updateViewportAttrsFromHost = t => {
-    each(t || Ht, (t => {
-      if (indexOf(Ht, t) > -1) {
+    each(t || Pt, (t => {
+      if (indexOf(Pt, t) > -1) {
         const n = attr(i, t);
         if (isString(n)) {
           attr(l, t, n);
@@ -2066,14 +2079,16 @@ const createStructureSetupObservers = (t, n, o) => {
       }
     }));
   };
-  const onTrinsicChanged = t => {
-    const [n, s] = t;
+  const onTrinsicChanged = (t, n) => {
+    const [s, e] = t;
+    const c = {
+      gt: e
+    };
     r({
-      _t: n
+      _t: s
     });
-    o({
-      gt: s
-    });
+    !n && o(c);
+    return c;
   };
   const onSizeChanged = ({ht: t, Ht: n, Lt: s}) => {
     const e = !t || s ? o : b;
@@ -2090,39 +2105,64 @@ const createStructureSetupObservers = (t, n, o) => {
       bt: c
     });
   };
-  const onContentMutation = t => {
-    const [, n] = w();
-    const s = t ? o : b;
-    if (n) {
-      s({
-        vt: true
-      });
+  const onContentMutation = (t, n) => {
+    const [, s] = w();
+    const e = {
+      vt: s
+    };
+    const c = t ? o : b;
+    if (s) {
+      !n && c(e);
     }
+    return e;
   };
-  const onHostMutation = (t, n) => {
+  const onHostMutation = (t, n, o) => {
+    const s = {
+      $t: n
+    };
     if (n) {
-      b({
-        $t: true
-      });
+      !o && b(s);
     } else if (!f) {
       updateViewportAttrsFromHost(t);
     }
+    return s;
   };
   const y = (a || !v) && createTrinsicObserver(i, onTrinsicChanged);
   const m = !f && createSizeObserver(i, onSizeChanged, {
     Lt: true,
     Pt: !h
   });
-  const [S] = createDOMObserver(i, false, onHostMutation, {
-    Rt: Rt,
-    Mt: Rt.concat(Ht)
+  const [S, x] = createDOMObserver(i, false, onHostMutation, {
+    Rt: Ht,
+    Mt: Ht.concat(Pt)
   });
-  const x = f && new u(onSizeChanged.bind(0, {
+  const C = f && new u(onSizeChanged.bind(0, {
     ht: true
   }));
-  x && x.observe(i);
+  C && C.observe(i);
   updateViewportAttrsFromHost();
-  return [ t => {
+  return [ () => {
+    c && c[0]();
+    y && y[0]();
+    m && m();
+    C && C.disconnect();
+    S();
+  }, () => {
+    const t = {};
+    const n = x();
+    const o = c && c[1]();
+    const s = y && y[1]();
+    if (n) {
+      assignDeep(t, onHostMutation.apply(0, push(n, true)));
+    }
+    if (o) {
+      assignDeep(t, onContentMutation.apply(0, push(o, true)));
+    }
+    if (s) {
+      assignDeep(t, onTrinsicChanged.apply(0, push(s, true)));
+    }
+    return t;
+  }, t => {
     const [n] = t("updating.ignoreMutation");
     const [o, r] = t("updating.attributes");
     const [i, u] = t("updating.elementEvents");
@@ -2138,11 +2178,11 @@ const createStructureSetupObservers = (t, n, o) => {
         Rt: p.concat(o || []),
         Mt: p.concat(o || []),
         Dt: i,
-        jt: Pt,
+        jt: Tt,
         kt: (t, n) => {
           const {target: o, attributeName: s} = t;
-          const e = !n && s ? liesBetween(o, Pt, Lt) : false;
-          return e || !!ignoreMutationFromOptions(t);
+          const e = !n && s ? liesBetween(o, Tt, Et) : false;
+          return e || !!closest(o, `.${B}`) || !!ignoreMutationFromOptions(t);
         }
       });
     }
@@ -2161,21 +2201,15 @@ const createStructureSetupObservers = (t, n, o) => {
         e = false;
       }
     }
-  }, () => {
-    c && c[0]();
-    y && y();
-    m && m();
-    x && x.disconnect();
-    S();
   } ];
 };
 
-const Dt = {
+const Mt = {
   x: 0,
   y: 0
 };
 
-const jt = {
+const Rt = {
   k: {
     t: 0,
     r: 0,
@@ -2192,8 +2226,8 @@ const jt = {
     paddingBottom: 0,
     paddingLeft: 0
   },
-  Ot: Dt,
-  zt: Dt,
+  Ot: Mt,
+  zt: Mt,
   Ct: {
     x: "hidden",
     y: "hidden"
@@ -2208,34 +2242,40 @@ const jt = {
 
 const createStructureSetup = (t, n) => {
   const o = createOptionCheck(n, {});
-  const s = createState(jt);
+  const s = createState(Rt);
   const [e, c, r] = createEventListenerHub();
   const [i] = s;
   const [l, a, u] = createStructureSetupElements(t);
   const d = createStructureSetupUpdate(l, s);
-  const [f, _] = createStructureSetupObservers(l, s, (t => {
-    r("u", [ d(o, t), {}, false ]);
+  const triggerUpdateEvent = (t, n, o) => {
+    const s = keys(t).some((n => t[n]));
+    if (s || !isEmptyObject(n) || o) {
+      r("u", [ t, n, o ]);
+    }
+  };
+  const [f, _, g] = createStructureSetupObservers(l, s, (t => {
+    triggerUpdateEvent(d(o, t), {}, false);
   }));
-  const g = i.bind(0);
-  g.Bt = t => {
+  const h = i.bind(0);
+  h.Bt = t => {
     e("u", t);
   };
-  g.Ft = a;
-  g.Yt = l;
+  h.Ft = a;
+  h.Yt = l;
   return [ (t, o) => {
     const s = createOptionCheck(n, t, o);
-    f(s);
-    r("u", [ d(s, {}, o), t, !!o ]);
-  }, g, () => {
+    g(s);
+    triggerUpdateEvent(d(s, _(), o), t, !!o);
+  }, h, () => {
     c();
-    _();
+    f();
     u();
   } ];
 };
 
-const Vt = "touchstart mouseenter";
+const Dt = "touchstart mouseenter";
 
-const kt = "touchend touchcancel mouseleave";
+const jt = "touchend touchcancel mouseleave";
 
 const stopRootClickPropagation = (t, n) => on(t, "mousedown", on.bind(0, n, "click", stopPropagation, {
   O: true,
@@ -2276,10 +2316,10 @@ const createScrollbarsSetupElements = (t, n) => {
     appendChildren(c, r);
     appendChildren(r, i);
     push(o, l);
-    push(d, [ removeElements.bind(0, c), on(c, Vt, (() => {
+    push(d, [ removeElements.bind(0, c), on(c, Dt, (() => {
       h(X, true);
       v(X, true);
-    })), on(c, kt, (() => {
+    })), on(c, jt, (() => {
       h(X);
       v(X);
     })), stopRootClickPropagation(c, e) ]);
@@ -2416,21 +2456,21 @@ const createScrollbarsSetup = (t, n, o) => {
   }, T, runEachAndClear.bind(0, I) ];
 };
 
-const Bt = new Set;
+const Vt = new Set;
 
-const Ft = new WeakMap;
+const kt = new WeakMap;
 
 const addInstance = (t, n) => {
-  Ft.set(t, n);
-  Bt.add(t);
+  kt.set(t, n);
+  Vt.add(t);
 };
 
 const removeInstance = t => {
-  Ft.delete(t);
-  Bt.delete(t);
+  kt.delete(t);
+  Vt.delete(t);
 };
 
-const getInstance = t => Ft.get(t);
+const getInstance = t => kt.get(t);
 
 const OverlayScrollbars = (t, n, o) => {
   let s = false;

@@ -153,8 +153,8 @@ const createEnvironment = (): InternalEnvironment => {
     y: nativeScrollbarsSize.y === 0,
   };
   const initializationStrategy = {
-    _padding: !nativeScrollbarsHiding,
-    _content: false,
+    padding: !nativeScrollbarsHiding,
+    content: false,
   };
   const defaultDefaultOptions = assignDeep({}, defaultOptions);
 

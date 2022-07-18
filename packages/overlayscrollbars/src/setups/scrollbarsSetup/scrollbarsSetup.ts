@@ -46,11 +46,13 @@ export const createScrollbarsSetup = (
   options: ReadonlyOSOptions,
   structureSetupState: (() => StructureSetupState) & StructureSetupStaticState
 ): Setup<ScrollbarsSetupState, ScrollbarsSetupStaticState, [StructureSetupUpdateHints]> => {
-  let globalAutoHideDelay = 0;
   let autoHideIsMove: boolean;
   let autoHideIsLeave: boolean;
   let autoHideNotNever: boolean;
-  let mouseInHost: boolean;
+  let mouseInHost: boolean | undefined;
+  let prevTheme: string | null | undefined;
+  let globalAutoHideDelay = 0;
+
   const state = createState({});
   const [getState] = state;
   const [requestMouseMoveAnimationFrame, cancelMouseMoveAnimationFrame] = createSelfCancelTimeout();
@@ -132,6 +134,7 @@ export const createScrollbarsSetup = (
         structureUpdateHints;
       const checkOption = createOptionCheck(options, changedOptions, force);
 
+      const [theme, themeChanged] = checkOption<string | null>('scrollbars.theme');
       const [visibility, visibilityChanged] =
         checkOption<ScrollbarVisibilityBehavior>('scrollbars.visibility');
       const [autoHide, autoHideChanged] =
@@ -166,6 +169,14 @@ export const createScrollbarsSetup = (
 
         addRemoveClassHorizontal(classNamesScrollbarCornerless, !hasCorner);
         addRemoveClassVertical(classNamesScrollbarCornerless, !hasCorner);
+      }
+      if (themeChanged) {
+        addRemoveClassHorizontal(prevTheme);
+        addRemoveClassVertical(prevTheme);
+
+        addRemoveClassHorizontal(theme, true);
+        addRemoveClassVertical(theme, true);
+        prevTheme = theme;
       }
       if (autoHideChanged) {
         autoHideIsMove = autoHide === 'move';

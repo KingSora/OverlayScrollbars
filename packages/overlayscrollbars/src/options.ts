@@ -51,6 +51,7 @@ export interface Options {
     y: OverflowBehavior;
   };
   scrollbars: {
+    theme: string | null;
     visibility: ScrollbarVisibilityBehavior;
     autoHide: ScrollbarAutoHideBehavior;
     autoHideDelay: number;
@@ -111,6 +112,7 @@ export const defaultOptions: Options = {
     initialize: false, // true || false
   },
   scrollbars: {
+    theme: 'os-theme-dark',
     visibility: 'auto', // visible || hidden || auto || v || h || a
     autoHide: 'never', // never || scroll || leave || move || n || s || l || m
     autoHideDelay: 800, // number
