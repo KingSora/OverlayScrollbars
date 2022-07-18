@@ -1,5 +1,5 @@
 import { from } from 'support/utils/array';
-import { isUndefined } from 'support/utils/types';
+import { isNull, isUndefined } from 'support/utils/types';
 
 type GetSetPropName = 'scrollLeft' | 'scrollTop' | 'value';
 
@@ -14,20 +14,20 @@ type Attr = {
 
 type GetSetProp<T> = {
   (elm: HTMLElement | false | null | undefined): T;
-  (elm: HTMLElement | false | null | undefined, value: T): void;
-  (elm: HTMLElement | false | null | undefined, value?: T): number | void;
+  (elm: HTMLElement | false | null | undefined, value: T | false | null): void;
+  (elm: HTMLElement | false | null | undefined, value?: T | false | null): T | void;
 };
 
 const getSetProp = (
   topLeft: GetSetPropName,
   fallback: number | string,
   elm: HTMLElement | HTMLInputElement | false | null | undefined,
-  value?: number | string
+  value?: number | string | false | null
 ): number | string | void => {
   if (isUndefined(value)) {
     return elm ? elm[topLeft] : fallback;
   }
-  elm && (elm[topLeft] = value);
+  elm && !isNull(value) && value !== false && (elm[topLeft] = value);
 };
 
 /**
@@ -103,7 +103,7 @@ export const removeAttr = (elm: Element | false | null | undefined, attrName: st
  */
 export const scrollLeft = ((
   elm: HTMLElement | false | null | undefined,
-  value?: number
+  value?: number | false | null
 ): number | void => getSetProp('scrollLeft', 0, elm, value) as number) as GetSetProp<number>;
 
 /**
@@ -113,7 +113,7 @@ export const scrollLeft = ((
  */
 export const scrollTop = ((
   elm: HTMLElement | false | null | undefined,
-  value?: number
+  value?: number | false | null
 ): number | void => getSetProp('scrollTop', 0, elm, value) as number) as GetSetProp<number>;
 
 /**

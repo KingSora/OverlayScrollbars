@@ -20,6 +20,8 @@ import {
   closest,
   assignDeep,
   push,
+  scrollLeft,
+  scrollTop,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -28,6 +30,7 @@ import {
   classNameViewport,
   classNameOverflowVisible,
   classNameScrollbar,
+  classNameViewportArrange,
 } from 'classnames';
 import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
 import { createTrinsicObserver } from 'observers/trinsicObserver';
@@ -91,14 +94,21 @@ export const createStructureSetupObservers = (
       _initialValue: { w: 0, h: 0 },
     },
     () => {
-      const has = _viewportHasClass(classNameOverflowVisible, dataValueHostOverflowVisible);
-      has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible);
+      const hasOver = _viewportHasClass(classNameOverflowVisible, dataValueHostOverflowVisible);
+      const hasVpStyle = _viewportHasClass(classNameViewportArrange, '');
+      const scrollOffsetX = hasVpStyle && scrollLeft(_viewport);
+      const scrollOffsetY = hasVpStyle && scrollTop(_viewport);
+      _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible);
+      _viewportAddRemoveClass(classNameViewportArrange, '');
 
       const contentScroll = scrollSize(_content);
       const viewportScroll = scrollSize(_viewport);
       const fractional = fractionalSize(_viewport);
 
-      has && _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, true);
+      _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, hasOver);
+      _viewportAddRemoveClass(classNameViewportArrange, '', hasVpStyle);
+      scrollLeft(_viewport, scrollOffsetX);
+      scrollTop(_viewport, scrollOffsetY);
       return {
         w: viewportScroll.w + contentScroll.w + fractional.w,
         h: viewportScroll.h + contentScroll.h + fractional.h,

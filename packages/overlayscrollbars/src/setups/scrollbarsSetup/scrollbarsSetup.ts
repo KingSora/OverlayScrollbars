@@ -1,21 +1,9 @@
-import {
-  rAF,
-  cAF,
-  isFunction,
-  on,
-  runEachAndClear,
-  setT,
-  clearT,
-  parent,
-  scrollLeft,
-  scrollTop,
-} from 'support';
+import { rAF, cAF, isFunction, on, runEachAndClear, setT, clearT } from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
 import {
   createScrollbarsSetupElements,
   ScrollbarsSetupElement,
   ScrollbarsSetupElementsObj,
-  ScrollbarStructure,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
 import {
   classNamesScrollbarVisible,
@@ -175,7 +163,7 @@ export const createScrollbarsSetup = (
     target,
     structureSetupState._elements
   );
-  const { _host, _viewport, _viewportIsTarget, _isBody } = structureSetupState._elements;
+  const { _host, _viewport } = structureSetupState._elements;
   const { _horizontal, _vertical } = elements;
   const { _addRemoveClass: addRemoveClassHorizontal, _handleStyle: styleHorizontal } = _horizontal;
   const { _addRemoveClass: addRemoveClassVertical, _handleStyle: styleVertical } = _vertical;

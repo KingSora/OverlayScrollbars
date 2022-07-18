@@ -1,4 +1,4 @@
-import { each, isNumber, scrollLeft, scrollTop, assignDeep, keys } from 'support';
+import { each, scrollLeft, scrollTop, assignDeep, keys } from 'support';
 import { getEnvironment } from 'environment';
 import {
   createTrinsicUpdateSegment,
@@ -107,12 +107,8 @@ export const createStructureSetupUpdate = (
       );
     });
 
-    if (isNumber(scrollOffsetX)) {
-      scrollLeft(_viewport, scrollOffsetX);
-    }
-    if (isNumber(scrollOffsetY)) {
-      scrollTop(_viewport, scrollOffsetY);
-    }
+    scrollLeft(_viewport, scrollOffsetX);
+    scrollTop(_viewport, scrollOffsetY);
 
     return adaptivedUpdateHints;
   };
