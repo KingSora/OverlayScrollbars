@@ -1,4 +1,4 @@
-import { createEventListenerHub } from 'support';
+import { createEventListenerHub, isEmptyObject, keys } from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
 import { createStructureSetupElements } from 'setups/structureSetup/structureSetup.elements';
 import { createStructureSetupUpdate } from 'setups/structureSetup/structureSetup.update';
@@ -79,11 +79,22 @@ export const createStructureSetup = (
   const [getState] = state;
   const [elements, appendElements, destroyElements] = createStructureSetupElements(target);
   const updateStructure = createStructureSetupUpdate(elements, state);
-  const [updateObservers, destroyObservers] = createStructureSetupObservers(
+  const triggerUpdateEvent: (...args: StructureSetupEventMap['u']) => void = (
+    updateHints,
+    changedOptions,
+    force
+  ) => {
+    const truthyUpdateHints = keys(updateHints).some((key) => updateHints[key]);
+
+    if (truthyUpdateHints || !isEmptyObject(changedOptions) || force) {
+      triggerEvent('u', [updateHints, changedOptions, force]);
+    }
+  };
+  const [destroyObservers, updateObservers, updateObserversOptions] = createStructureSetupObservers(
     elements,
     state,
     (updateHints) => {
-      triggerEvent('u', [updateStructure(checkOptionsFallback, updateHints), {}, false]);
+      triggerUpdateEvent(updateStructure(checkOptionsFallback, updateHints), {}, false);
     }
   );
 
@@ -98,8 +109,12 @@ export const createStructureSetup = (
   return [
     (changedOptions, force?) => {
       const checkOption = createOptionCheck(options, changedOptions, force);
-      updateObservers(checkOption);
-      triggerEvent('u', [updateStructure(checkOption, {}, force), changedOptions, !!force]);
+      updateObserversOptions(checkOption);
+      triggerUpdateEvent(
+        updateStructure(checkOption, updateObservers(), force),
+        changedOptions,
+        !!force
+      );
     },
     structureSetupState,
     () => {

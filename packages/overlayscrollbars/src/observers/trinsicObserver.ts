@@ -13,7 +13,11 @@ import {
 import { createSizeObserver } from 'observers/sizeObserver';
 import { classNameTrinsicObserver } from 'classnames';
 
-export type DestroyTrinsicObserver = () => void;
+export type TrinsicObserverCallback = (heightIntrinsic: CacheValues<boolean>) => any;
+export type TrinsicObserver = [
+  destroy: () => void,
+  update: () => void | Parameters<TrinsicObserverCallback>
+];
 
 const isHeightIntrinsic = (ioEntryOrSize: IntersectionObserverEntry | WH<number>): boolean =>
   (ioEntryOrSize as WH<number>).h === 0 ||
@@ -28,39 +32,45 @@ const isHeightIntrinsic = (ioEntryOrSize: IntersectionObserverEntry | WH<number>
  */
 export const createTrinsicObserver = (
   target: HTMLElement,
-  onTrinsicChangedCallback: (heightIntrinsic: CacheValues<boolean>) => any
-): DestroyTrinsicObserver => {
+  onTrinsicChangedCallback: TrinsicObserverCallback
+): TrinsicObserver => {
+  let intersectionObserverInstance: undefined | IntersectionObserver;
   const trinsicObserver = createDiv(classNameTrinsicObserver);
   const offListeners: (() => void)[] = [];
   const [updateHeightIntrinsicCache] = createCache({
     _initialValue: false,
   });
-
   const triggerOnTrinsicChangedCallback = (
-    updateValue?: IntersectionObserverEntry | WH<number>
-  ) => {
+    updateValue?: IntersectionObserverEntry | WH<number>,
+    fromRecords?: true
+  ): void | Parameters<TrinsicObserverCallback> => {
     if (updateValue) {
       const heightIntrinsic = updateHeightIntrinsicCache(isHeightIntrinsic(updateValue));
       const [, heightIntrinsicChanged] = heightIntrinsic;
 
       if (heightIntrinsicChanged) {
-        onTrinsicChangedCallback(heightIntrinsic);
+        !fromRecords && onTrinsicChangedCallback(heightIntrinsic);
+        return [heightIntrinsic];
       }
+    }
+  };
+  const intersectionObserverCallback = (
+    entries: IntersectionObserverEntry[],
+    fromRecords?: true
+  ) => {
+    if (entries && entries.length > 0) {
+      return triggerOnTrinsicChangedCallback(entries.pop(), fromRecords);
     }
   };
 
   if (IntersectionObserverConstructor) {
-    const intersectionObserverInstance: IntersectionObserver = new IntersectionObserverConstructor(
-      (entries: IntersectionObserverEntry[]) => {
-        if (entries && entries.length > 0) {
-          triggerOnTrinsicChangedCallback(entries.pop());
-        }
-      },
+    intersectionObserverInstance = new IntersectionObserverConstructor(
+      (entries) => intersectionObserverCallback(entries),
       { root: target }
     );
     intersectionObserverInstance.observe(trinsicObserver);
     push(offListeners, () => {
-      intersectionObserverInstance.disconnect();
+      intersectionObserverInstance!.disconnect();
     });
   } else {
     const onSizeChanged = () => {
@@ -73,8 +83,15 @@ export const createTrinsicObserver = (
 
   prependChildren(target, trinsicObserver);
 
-  return () => {
-    runEachAndClear(offListeners);
-    removeElements(trinsicObserver);
-  };
+  return [
+    () => {
+      runEachAndClear(offListeners);
+      removeElements(trinsicObserver);
+    },
+    () => {
+      if (intersectionObserverInstance) {
+        return intersectionObserverCallback(intersectionObserverInstance.takeRecords(), true);
+      }
+    },
+  ];
 };

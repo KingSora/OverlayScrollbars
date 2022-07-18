@@ -66,7 +66,10 @@ export type DOMObserverOptions<ContentObserver extends boolean> = ContentObserve
   ? DOMContentObserverOptions
   : DOMTargetObserverOptions;
 
-export type DOMObserver = [destroy: () => void, update: () => void];
+export type DOMObserver<ContentObserver extends boolean> = [
+  destroy: () => void,
+  update: () => void | false | Parameters<DOMObserverCallback<ContentObserver>>
+];
 
 type EventContentChangeUpdateElement = (getElements?: (selector: string) => Node[]) => void;
 type EventContentChange = [destroy: () => void, updateElements: EventContentChangeUpdateElement];
@@ -156,7 +159,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   isContentObserver: ContentObserver,
   callback: DOMObserverCallback<ContentObserver>,
   options?: DOMObserverOptions<ContentObserver>
-): DOMObserver => {
+): DOMObserver<ContentObserver> => {
   let isConnected = false;
   const {
     _attributes,
@@ -166,16 +169,17 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     _ignoreTargetChange,
     _ignoreContentChange,
   } = (options as DOMContentObserverOptions & DOMTargetObserverOptions) || {};
+  const debouncedEventContentChange = debounce(
+    () => {
+      if (isConnected) {
+        (callback as DOMContentObserverCallback)(true);
+      }
+    },
+    { _timeout: 33, _maxDelay: 99 }
+  );
   const [destroyEventContentChange, updateEventContentChangeElements] = createEventContentChange(
     target,
-    debounce(
-      () => {
-        if (isConnected) {
-          (callback as DOMContentObserverCallback)(true);
-        }
-      },
-      { _timeout: 33, _maxDelay: 99 }
-    ),
+    debouncedEventContentChange,
     _eventContentChange
   );
 
@@ -183,7 +187,10 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   const finalAttributes = _attributes || [];
   const finalStyleChangingAttributes = _styleChangingAttributes || [];
   const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
-  const observerCallback = (mutations: MutationRecord[]) => {
+  const observerCallback = (
+    mutations: MutationRecord[],
+    fromRecords?: true
+  ): void | Parameters<DOMObserverCallback<ContentObserver>> => {
     const ignoreTargetChange = _ignoreTargetChange || noop;
     const ignoreContentChange = _ignoreContentChange || noop;
     const targetChangedAttrs: string[] = [];
@@ -244,12 +251,20 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     }
 
     if (isContentObserver) {
-      contentChanged && (callback as DOMContentObserverCallback)(false);
-    } else if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
-      (callback as DOMTargetObserverCallback)(targetChangedAttrs, targetStyleChanged);
+      !fromRecords && contentChanged && (callback as DOMContentObserverCallback)(false);
+      return [false] as Parameters<DOMObserverCallback<ContentObserver>>;
+    }
+    if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
+      !fromRecords &&
+        (callback as DOMTargetObserverCallback)(targetChangedAttrs, targetStyleChanged);
+      return [targetChangedAttrs, targetStyleChanged] as Parameters<
+        DOMObserverCallback<ContentObserver>
+      >;
     }
   };
-  const mutationObserver: MutationObserver = new MutationObserverConstructor!(observerCallback);
+  const mutationObserver: MutationObserver = new MutationObserverConstructor!((mutations) =>
+    observerCallback(mutations)
+  );
 
   // Connect
   mutationObserver.observe(target, {
@@ -272,7 +287,10 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     },
     () => {
       if (isConnected) {
-        observerCallback(mutationObserver.takeRecords());
+        debouncedEventContentChange._flush();
+
+        const records = mutationObserver.takeRecords();
+        return !isEmptyArray(records) && observerCallback(records, true);
       }
     },
   ];
