@@ -4,6 +4,7 @@ import {
   createDiv,
   each,
   isEmptyArray,
+  noop,
   on,
   push,
   removeClass,
@@ -11,6 +12,7 @@ import {
   runEachAndClear,
   setT,
   stopPropagation,
+  style,
 } from 'support';
 import {
   classNameScrollbar,
@@ -30,6 +32,7 @@ import type {
   ScrollbarsInitializationStrategy,
   ScrollbarsDynamicInitializationElement,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.initialization';
+import { StyleObject } from 'typings';
 
 export interface ScrollbarStructure {
   _scrollbar: HTMLElement;
@@ -40,7 +43,16 @@ export interface ScrollbarStructure {
 export interface ScrollbarsSetupElement {
   _scrollbarStructures: ScrollbarStructure[];
   _clone: () => ScrollbarStructure;
-  _addRemoveClass: (classNames: string | false | null | undefined, add?: boolean) => void;
+  _addRemoveClass: (
+    classNames: string,
+    add?: boolean,
+    elm?: (scrollbarStructure: ScrollbarStructure) => HTMLElement | false | null | undefined
+  ) => void;
+  _handleStyle: (
+    elmStyle: (
+      scrollbarStructure: ScrollbarStructure
+    ) => [HTMLElement | false | null | undefined, StyleObject]
+  ) => void;
   // _removeClass: (classNames: string) => void;
   /*
   _addEventListener: () => void;
@@ -89,12 +101,24 @@ export const createScrollbarsSetupElements = (
     );
   const scrollbarsAddRemoveClass = (
     scrollbarStructures: ScrollbarStructure[],
-    classNames: string | false | null | undefined,
-    add?: boolean
+    classNames: string,
+    add?: boolean,
+    elm?: (scrollbarStructure: ScrollbarStructure) => HTMLElement | false | null | undefined
   ) => {
     const action = add ? addClass : removeClass;
     each(scrollbarStructures, (scrollbarStructure) => {
-      action(scrollbarStructure._scrollbar, classNames);
+      action((elm || noop)(scrollbarStructure) || scrollbarStructure._scrollbar, classNames);
+    });
+  };
+  const scrollbarsHandleStyle = (
+    scrollbarStructures: ScrollbarStructure[],
+    elmStyle: (
+      scrollbarStructure: ScrollbarStructure
+    ) => [HTMLElement | false | null | undefined, StyleObject]
+  ) => {
+    each(scrollbarStructures, (scrollbarStructure) => {
+      const [elm, styles] = elmStyle(scrollbarStructure);
+      style(elm, styles);
     });
   };
   const destroyFns: (() => void)[] = [];
@@ -160,11 +184,13 @@ export const createScrollbarsSetupElements = (
         _scrollbarStructures: horizontalScrollbars,
         _clone: generateHorizontalScrollbarStructure,
         _addRemoveClass: addRemoveClassHorizontal,
+        _handleStyle: scrollbarsHandleStyle.bind(0, horizontalScrollbars),
       },
       _vertical: {
         _scrollbarStructures: verticalScrollbars,
         _clone: generateVerticalScrollbarStructure,
         _addRemoveClass: addRemoveClassVertical,
+        _handleStyle: scrollbarsHandleStyle.bind(0, verticalScrollbars),
       },
     },
     appendElements,

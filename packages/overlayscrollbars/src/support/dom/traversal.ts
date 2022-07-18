@@ -74,7 +74,7 @@ const contents = (elm: InputElementType): ReadonlyArray<ChildNode> =>
  */
 const parent = (elm: InputElementType): OutputElementType => (elm ? elm.parentElement : null);
 
-export const closest = (elm: InputElementType, selector: string): OutputElementType => {
+const closest = (elm: InputElementType, selector: string): OutputElementType => {
   if (isElement(elm)) {
     const closestFn = elmPrototype.closest;
     if (closestFn) {
@@ -113,4 +113,4 @@ const liesBetween = (
     : false;
 };
 
-export { find, findFirst, is, children, contents, parent, liesBetween };
+export { find, findFirst, is, children, contents, parent, liesBetween, closest };
