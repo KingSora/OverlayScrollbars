@@ -40,8 +40,6 @@ export interface SizeObserverCallbackParams {
 
 export type DestroySizeObserver = () => void;
 
-const animationStartEventName = 'animationstart';
-const scrollEventName = 'scroll';
 const scrollAmount = 3333333;
 const getElmDirectionIsRTL = (elm: HTMLElement): boolean => style(elm, 'direction') === 'rtl';
 const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height || rect.width);
@@ -176,7 +174,7 @@ export const createSizeObserver = (
 
     push(
       offListeners,
-      on(sizeObserver, scrollEventName, (event: Event) => {
+      on(sizeObserver, 'scroll', (event: Event) => {
         const directionIsRTLCacheValues = updateDirectionIsRTLCache();
         const [directionIsRTL, directionIsRTLChanged] = directionIsRTLCacheValues;
 
@@ -200,7 +198,7 @@ export const createSizeObserver = (
     addClass(sizeObserver, classNameSizeObserverAppear);
     push(
       offListeners,
-      on(sizeObserver, animationStartEventName, appearCallback, {
+      on(sizeObserver, 'animationstart', appearCallback, {
         // Fire only once for "CSS is ready" event if ResizeObserver strategy is used
         _once: !!ResizeObserverConstructor,
       })
