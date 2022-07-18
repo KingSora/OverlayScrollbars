@@ -379,17 +379,18 @@
   var sr = window.clearTimeout;
   var dr = /[^\x20\t\r\n\f]+/g;
   var gr = function classListAction(r, a, e) {
-    var n;
-    var t = 0;
-    var i = false;
-    if (r && a && l(a)) {
-      var v = a.match(dr) || [];
-      i = v.length > 0;
-      while (n = v[t++]) {
-        i = !!e(r.classList, n) && i;
+    var n = r && r.classList;
+    var t;
+    var i = 0;
+    var v = false;
+    if (n && a && l(a)) {
+      var o = a.match(dr) || [];
+      v = o.length > 0;
+      while (t = o[i++]) {
+        v = !!e(n, t) && v;
       }
     }
-    return i;
+    return v;
   };
   var hr = function hasClass(r, a) {
     return gr(r, a, (function(r, a) {
@@ -1062,8 +1063,11 @@
       return [ o, u ];
     },
     j: function _envWindowZoom() {
-      var r = Ir();
-      var a = te();
+      var r = {
+        w: 0,
+        h: 0
+      };
+      var a = 0;
       return function(e, n, t) {
         var i = Ir();
         var v = {
@@ -1084,7 +1088,7 @@
         var f = te();
         var l = o.w > 2 && o.h > 2;
         var c = !ie(u.w, u.h);
-        var s = f !== a && a > 0;
+        var s = f !== a && f > 0;
         var d = l && c && s;
         if (d) {
           var g = n(), h = g[0], p = g[1];
@@ -2095,7 +2099,7 @@
           Br: function _ignoreContentChange(r, a) {
             var e = r.target, n = r.attributeName;
             var t = !a && n ? U(e, Ge, Xe) : false;
-            return t || !!S(r);
+            return t || !!q(e, "." + wa) || !!S(r);
           }
         });
       }

@@ -10,7 +10,7 @@
   transition: none;
 }
 .os-scrollbar-track {
-  pointer-events: auto;
+  pointer-events: none;
   position: relative;
   height: 100%;
   width: 100%;
@@ -18,14 +18,14 @@
   border: none !important;
 }
 .os-scrollbar-handle {
-  pointer-events: auto;
+  pointer-events: none;
   position: absolute;
   width: 100%;
   height: 100%;
 }
-.os-scrollbar-handle-off,
-.os-scrollbar-track-off {
-  pointer-events: none;
+.os-scrollbar-handle-interactive,
+.os-scrollbar-track-interactive {
+  pointer-events: auto;
 }
 .os-scrollbar-unusable,
 .os-scrollbar-unusable * {

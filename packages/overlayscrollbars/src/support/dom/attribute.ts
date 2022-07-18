@@ -61,11 +61,13 @@ export const attrClass = (
   value: string,
   add?: boolean
 ) => {
-  const currValues = attr(elm, attrName) || '';
-  const currValuesSet = new Set(currValues.split(' '));
-  currValuesSet[add ? 'add' : 'delete'](value);
+  if (value) {
+    const currValues = attr(elm, attrName) || '';
+    const currValuesSet = new Set(currValues.split(' '));
+    currValuesSet[add ? 'add' : 'delete'](value);
 
-  attr(elm, attrName, from(currValuesSet).join(' ').trim());
+    attr(elm, attrName, from(currValuesSet).join(' ').trim());
+  }
 };
 
 /**

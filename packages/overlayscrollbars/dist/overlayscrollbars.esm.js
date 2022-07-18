@@ -387,17 +387,18 @@ const g = window.clearTimeout;
 const h = /[^\x20\t\r\n\f]+/g;
 
 const classListAction = (t, n, o) => {
-  let s;
-  let e = 0;
-  let c = false;
-  if (t && n && isString(n)) {
-    const r = n.match(h) || [];
-    c = r.length > 0;
-    while (s = r[e++]) {
-      c = !!o(t.classList, s) && c;
+  const s = t && t.classList;
+  let e;
+  let c = 0;
+  let r = false;
+  if (s && n && isString(n)) {
+    const t = n.match(h) || [];
+    r = t.length > 0;
+    while (e = t[c++]) {
+      r = !!o(s, e) && r;
     }
   }
-  return c;
+  return r;
 };
 
 const hasClass = (t, n) => classListAction(t, n, ((t, n) => t.contains(n)));
@@ -1108,8 +1109,11 @@ const bt = {
       return [ arrangeViewport, undoViewportArrange ];
     },
     j: () => {
-      let t = windowSize();
-      let n = getWindowDPR();
+      let t = {
+        w: 0,
+        h: 0
+      };
+      let n = 0;
       return (o, s, e) => {
         const c = windowSize();
         const r = {
@@ -1130,7 +1134,7 @@ const bt = {
         const a = getWindowDPR();
         const u = i.w > 2 && i.h > 2;
         const d = !diffBiggerThanOne(l.w, l.h);
-        const f = a !== n && n > 0;
+        const f = a !== n && a > 0;
         const _ = u && d && f;
         if (_) {
           const [t, n] = s();
@@ -2142,7 +2146,7 @@ const createStructureSetupObservers = (t, n, o) => {
         kt: (t, n) => {
           const {target: o, attributeName: s} = t;
           const e = !n && s ? liesBetween(o, Pt, Lt) : false;
-          return e || !!ignoreMutationFromOptions(t);
+          return e || !!closest(o, `.${B}`) || !!ignoreMutationFromOptions(t);
         }
       });
     }
