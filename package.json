@@ -55,6 +55,7 @@
     "rollup-plugin-scss": "^3.0.0",
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-styles": "^3.10.0",
+    "rollup-plugin-summary": "^1.4.3",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-ts": "^3.0.2",
     "should": "^13.2.3",

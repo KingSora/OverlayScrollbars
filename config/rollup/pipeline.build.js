@@ -1,6 +1,7 @@
 const path = require('path');
 const { babel: rollupBabelInputPlugin } = require('@rollup/plugin-babel');
 const { terser: rollupTerser } = require('rollup-plugin-terser');
+const { summary } = require('rollup-plugin-summary');
 const rollupTs = require('rollup-plugin-ts');
 
 const babelConfigUmd = require('./babel.config.umd');
@@ -73,6 +74,15 @@ module.exports = (esm, options, { declarationFiles = false, outputStyle = false 
     },
     ...rollupOptions,
     plugins: [
+      summary({
+        showGzippedSize: true,
+        showBrotliSize: true,
+        showMinifiedSize: false,
+        warnLow: 33000,
+        totalLow: 33000,
+        warnHigh: 36000,
+        totalHigh: 36000,
+      }),
       rollupAlias(alias),
       rollupScss(extractStyle, outputStyle),
       rollupTs({
