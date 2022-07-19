@@ -29,7 +29,7 @@ import type { InitializationTarget } from 'initialization';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type {
   ScrollbarsInitialization,
-  ScrollbarsInitializationStrategy,
+  DefaultScrollbarsInitialization,
   ScrollbarsDynamicInitializationElement,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.initialization';
 import { StyleObject } from 'typings';
@@ -85,19 +85,17 @@ export const createScrollbarsSetupElements = (
   target: InitializationTarget,
   structureSetupElements: StructureSetupElementsObj
 ): ScrollbarsSetupElements => {
-  const { _getInitializationStrategy } = getEnvironment();
-  const { scrollbarsSlot: environmentScrollbarSlot } =
-    _getInitializationStrategy() as ScrollbarsInitializationStrategy;
+  const { _getDefaultInitialization } = getEnvironment();
+  const { scrollbarsSlot: defaultScrollbarSlot } =
+    _getDefaultInitialization() as DefaultScrollbarsInitialization;
   const { _documentElm, _target, _host, _viewport, _targetIsElm } = structureSetupElements;
-  const initializationScrollbarSlot = _targetIsElm
-    ? null
-    : (target as ScrollbarsInitialization).scrollbarsSlot;
+  const scrollbarSlot = _targetIsElm ? null : (target as ScrollbarsInitialization).scrollbarsSlot;
   const evaluatedScrollbarSlot =
     generalDynamicInitializationElement<ScrollbarsDynamicInitializationElement>(
       [_target, _host, _viewport],
       () => _host,
-      environmentScrollbarSlot,
-      initializationScrollbarSlot
+      defaultScrollbarSlot,
+      scrollbarSlot
     );
   const scrollbarsAddRemoveClass = (
     scrollbarStructures: ScrollbarStructure[],

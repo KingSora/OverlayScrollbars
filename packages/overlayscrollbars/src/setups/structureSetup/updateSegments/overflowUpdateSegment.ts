@@ -16,12 +16,12 @@ import {
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
-  classNameViewportScrollbarStyling,
+  classNameViewportScrollbarHidden,
   classNameOverflowVisible,
   dataAttributeHost,
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
-  dataValueHostViewportScrollbarStyling,
+  dataValueHostScrollbarHidden,
   dataValueHostOverflowVisible,
 } from 'classnames';
 import { getPlugins, scrollbarsHidingPluginName } from 'plugins';
@@ -328,7 +328,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     } = updateHints;
     const { _heightIntrinsic, _directionIsRTL } = getState();
     const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
-      checkOption<boolean>('nativeScrollbarsOverlaid.show');
+      checkOption<boolean>('showNativeOverlaidScrollbars');
     const [overflow, overflowChanged] = checkOption<XY<OverflowBehavior>>('overflow');
 
     const showNativeOverlaidScrollbars =
@@ -356,8 +356,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarsHiding) {
       _viewportAddRemoveClass(
-        classNameViewportScrollbarStyling,
-        dataValueHostViewportScrollbarStyling,
+        classNameViewportScrollbarHidden,
+        dataValueHostScrollbarHidden,
         !showNativeOverlaidScrollbars
       );
     }

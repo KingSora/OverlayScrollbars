@@ -5,7 +5,7 @@ import {
   createStructureSetupElements,
   StructureSetupElementsObj,
 } from 'setups/structureSetup/structureSetup.elements';
-import type { InitializationTarget, InitializtationElementStrategy } from 'initialization';
+import type { InitializationTarget, DefaultInitializtationElement } from 'initialization';
 import type {
   StructureInitialization,
   StructureStaticInitializationElement,
@@ -208,8 +208,8 @@ const assertCorrectSetupElements = (
     inputStrategy: StructureStaticInitializationElement | StructureDynamicInitializationElement,
     isStaticStrategy: boolean,
     strategy:
-      | InitializtationElementStrategy<StructureStaticInitializationElement>
-      | InitializtationElementStrategy<StructureDynamicInitializationElement>,
+      | DefaultInitializtationElement<StructureStaticInitializationElement>
+      | DefaultInitializtationElement<StructureDynamicInitializationElement>,
     kind: 'padding' | 'viewport' | 'content' | 'host'
   ) => {
     const input = isFunction(inputStrategy) ? inputStrategy(target) : inputStrategy;
@@ -224,7 +224,7 @@ const assertCorrectSetupElements = (
       if (input === undefined) {
         if (isStaticStrategy) {
           strategy =
-            strategy as InitializtationElementStrategy<StructureStaticInitializationElement>;
+            strategy as DefaultInitializtationElement<StructureStaticInitializationElement>;
           if (typeof strategy === 'function') {
             const result = strategy(target);
             if (_viewportIsTarget) {
@@ -243,7 +243,7 @@ const assertCorrectSetupElements = (
           }
         } else {
           strategy =
-            strategy as InitializtationElementStrategy<StructureDynamicInitializationElement>;
+            strategy as DefaultInitializtationElement<StructureDynamicInitializationElement>;
 
           if (typeof strategy === 'function') {
             const result = strategy(target);

@@ -18,8 +18,8 @@ if (!OverlayScrollbars.env().scrollbarsHiding) {
 // @ts-ignore
 window.OverlayScrollbars = OverlayScrollbars;
 
-OverlayScrollbars.env().setDefaultOptions({
-  nativeScrollbarsOverlaid: { initialize: true },
+OverlayScrollbars.env().setDefaultInitialization({
+  cancel: { nativeScrollbarsOverlaid: false },
 });
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');

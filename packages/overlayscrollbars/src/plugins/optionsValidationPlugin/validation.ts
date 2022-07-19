@@ -1,6 +1,6 @@
 import { each, hasOwnProperty, keys, push, isEmptyObject } from 'support/utils';
 import { type, isArray, isUndefined, isPlainObject, isString } from 'support/utils/types';
-import { PlainObject, PartialOptions } from 'typings';
+import { PlainObject, DeepPartial } from 'typings';
 
 export type OptionsObjectType = Record<string, unknown>;
 export type OptionsFunctionType = (this: any, ...args: any[]) => any;
@@ -26,7 +26,7 @@ export type OptionsTemplate<T> = {
 };
 
 export type OptionsValidationResult<T> = [
-  PartialOptions<T>, // validated
+  DeepPartial<T>, // validated
   Record<string, unknown> // foreign
 ];
 
@@ -88,12 +88,12 @@ const optionsTemplateTypes: OptionsTemplateTypesDictionary = {
  */
 const validateRecursive = <T extends PlainObject>(
   template: OptionsTemplate<T>,
-  options: PartialOptions<T>,
+  options: DeepPartial<T>,
   doWriteErrors?: boolean,
   propPath?: string
 ): OptionsValidationResult<T> => {
-  const validatedOptions: PartialOptions<T> = {};
-  const optionsCopy: PartialOptions<T> = { ...options };
+  const validatedOptions: DeepPartial<T> = {};
+  const optionsCopy: DeepPartial<T> = { ...options };
   const props = keys(template).filter((prop) => hasOwnProperty(options, prop));
 
   each(props, (prop: Extract<keyof T, string>) => {
@@ -189,7 +189,7 @@ const validateRecursive = <T extends PlainObject>(
  */
 const validateOptions = <T extends PlainObject>(
   template: OptionsTemplate<T>,
-  options: PartialOptions<T>,
+  options: DeepPartial<T>,
   doWriteErrors?: boolean
 ): OptionsValidationResult<T> => validateRecursive<T>(template, options, doWriteErrors);
 

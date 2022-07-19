@@ -1,5 +1,5 @@
 import { assignDeep, each, isObject, keys, isArray, hasOwnProperty, isFunction } from 'support';
-import { PartialOptions, ReadonlyOptions } from 'typings';
+import { DeepPartial, ReadonlyOptions } from 'typings';
 
 const opsStringify = (value: any) =>
   JSON.stringify(value, (_, val) => {
@@ -40,6 +40,7 @@ export type UpdatedCallback = (this: any, args?: UpdatedArgs) => void;
 
 export interface Options {
   paddingAbsolute: boolean;
+  showNativeOverlaidScrollbars: boolean;
   updating: {
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
     attributes: string[] | null;
@@ -58,10 +59,6 @@ export interface Options {
     dragScroll: boolean;
     clickScroll: boolean;
     touch: boolean;
-  };
-  nativeScrollbarsOverlaid: {
-    show: boolean;
-    initialize: boolean;
   };
 }
 
@@ -97,6 +94,7 @@ export interface UpdatedArgs {
 export const defaultOptions: Options = {
   // resize: 'none', // none || both  || horizontal || vertical || n || b || h || v
   paddingAbsolute: false, // true || false
+  showNativeOverlaidScrollbars: false, // true || false
   updating: {
     elementEvents: [['img', 'load']], // array of tuples || null
     debounce: [0, 33], // number || number array || null
@@ -106,10 +104,6 @@ export const defaultOptions: Options = {
   overflow: {
     x: 'scroll', // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
     y: 'scroll', // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
-  },
-  nativeScrollbarsOverlaid: {
-    show: false, // true || false
-    initialize: false, // true || false
   },
   scrollbars: {
     theme: 'os-theme-dark',
@@ -129,11 +123,8 @@ export const defaultOptions: Options = {
   */
 };
 
-export const getOptionsDiff = <T>(
-  currOptions: T,
-  newOptions: PartialOptions<T>
-): PartialOptions<T> => {
-  const diff: PartialOptions<T> = {};
+export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): DeepPartial<T> => {
+  const diff: DeepPartial<T> = {};
   const optionsKeys = keys(newOptions).concat(keys(currOptions));
 
   each(optionsKeys, (optionKey) => {

@@ -6,12 +6,12 @@ export const dataAttributeHost = 'data-overlayscrollbars';
 export const dataAttributeHostOverflowX = `${dataAttributeHost}-overflow-x`;
 export const dataAttributeHostOverflowY = `${dataAttributeHost}-overflow-y`;
 export const dataValueHostOverflowVisible = 'overflowVisible';
-export const dataValueHostViewportScrollbarStyling = 'viewportStyled';
+export const dataValueHostScrollbarHidden = 'scrollbarHidden';
 export const classNamePadding = 'os-padding';
 export const classNameViewport = 'os-viewport';
 export const classNameViewportArrange = `${classNameViewport}-arrange`;
 export const classNameContent = 'os-content';
-export const classNameViewportScrollbarStyling = `${classNameViewport}-scrollbar-styled`;
+export const classNameViewportScrollbarHidden = `${classNameViewport}-scrollbar-hidden`;
 export const classNameOverflowVisible = `os-overflow-visible`;
 
 export const classNameSizeObserver = 'os-size-observer';

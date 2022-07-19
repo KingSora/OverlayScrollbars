@@ -2,7 +2,7 @@ import type {
   InitializationTargetElement,
   StaticInitializationElement,
   DynamicInitializationElement,
-  InitializtationElementStrategy,
+  DefaultInitializtationElement,
 } from 'initialization';
 
 export type StructureStaticInitializationElement = StaticInitializationElement<
@@ -31,8 +31,8 @@ export interface StructureInitialization {
   content?: StructureDynamicInitializationElement;
 }
 
-export type StructureInitializationStrategy = {
-  [K in keyof Omit<StructureInitialization, 'target'>]: InitializtationElementStrategy<
+export type DefaultStructureInitialization = {
+  [K in keyof Omit<StructureInitialization, 'target'>]: DefaultInitializtationElement<
     StructureInitialization[K]
   >;
 };

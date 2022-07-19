@@ -24,11 +24,11 @@ import {
   classNameEnvironment,
   classNameEnvironmentFlexboxGlue,
   classNameEnvironmentFlexboxGlueMax,
-  classNameViewportScrollbarStyling,
+  classNameViewportScrollbarHidden,
 } from 'classnames';
 import { Options, defaultOptions } from 'options';
-import { PartialOptions } from 'typings';
-import { InitializationStrategy } from 'initialization';
+import { DeepPartial } from 'typings';
+import { DefaultInitialization } from 'initialization';
 import { getPlugins, ScrollbarsHidingPluginInstance, scrollbarsHidingPluginName } from 'plugins';
 
 type EnvironmentEventMap = {
@@ -42,13 +42,13 @@ export interface InternalEnvironment {
   readonly _rtlScrollBehavior: { n: boolean; i: boolean };
   readonly _flexboxGlue: boolean;
   readonly _cssCustomProperties: boolean;
-  readonly _defaultInitializationStrategy: InitializationStrategy;
-  readonly _defaultDefaultOptions: Options;
+  readonly _staticDefaultInitialization: DefaultInitialization;
+  readonly _staticDefaultOptions: Options;
   _addListener(listener: EventListener<EnvironmentEventMap, '_'>): () => void;
-  _getInitializationStrategy(): InitializationStrategy;
-  _setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
+  _getDefaultInitialization(): DefaultInitialization;
+  _setDefaultInitialization(newInitialization: DeepPartial<DefaultInitialization>): void;
   _getDefaultOptions(): Options;
-  _setDefaultOptions(newDefaultOptions: PartialOptions<Options>): void;
+  _setDefaultOptions(newDefaultOptions: DeepPartial<Options>): void;
 }
 
 let environmentInstance: InternalEnvironment;
@@ -75,7 +75,7 @@ const getNativeScrollbarSize = (
 
 const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   let result = false;
-  const revertClass = addClass(testElm, classNameViewportScrollbarStyling);
+  const revertClass = addClass(testElm, classNameViewportScrollbarHidden);
   try {
     result =
       style(testElm, cssProperty('scrollbar-width')) === 'none' ||
@@ -152,9 +152,13 @@ const createEnvironment = (): InternalEnvironment => {
     x: nativeScrollbarsSize.x === 0,
     y: nativeScrollbarsSize.y === 0,
   };
-  const initializationStrategy = {
+  const defaultInitialization = {
     padding: !nativeScrollbarsHiding,
     content: false,
+    cancel: {
+      nativeScrollbarsOverlaid: true,
+      body: null,
+    },
   };
   const defaultDefaultOptions = assignDeep({}, defaultOptions);
 
@@ -166,20 +170,20 @@ const createEnvironment = (): InternalEnvironment => {
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
     _addListener: (listener) => addEvent('_', listener),
-    _getInitializationStrategy: assignDeep<InitializationStrategy, InitializationStrategy>.bind(
+    _getDefaultInitialization: assignDeep<DefaultInitialization, DefaultInitialization>.bind(
       0,
-      {} as InitializationStrategy,
-      initializationStrategy
+      {} as DefaultInitialization,
+      defaultInitialization
     ),
-    _setInitializationStrategy(newInitializationStrategy) {
-      assignDeep(initializationStrategy, newInitializationStrategy);
+    _setDefaultInitialization(newInitializationStrategy) {
+      assignDeep(defaultInitialization, newInitializationStrategy);
     },
     _getDefaultOptions: assignDeep<Options, Options>.bind(0, {} as Options, defaultDefaultOptions),
     _setDefaultOptions(newDefaultOptions) {
       assignDeep(defaultDefaultOptions, newDefaultOptions);
     },
-    _defaultInitializationStrategy: assignDeep({}, initializationStrategy),
-    _defaultDefaultOptions: assignDeep({}, defaultDefaultOptions),
+    _staticDefaultInitialization: assignDeep({}, defaultInitialization),
+    _staticDefaultOptions: assignDeep({}, defaultDefaultOptions),
   };
 
   removeAttr(envElm, 'style');

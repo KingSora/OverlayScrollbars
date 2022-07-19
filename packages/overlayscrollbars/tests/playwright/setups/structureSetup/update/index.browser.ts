@@ -23,7 +23,7 @@ import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
 import { timeout } from '@/testing-browser/timeout';
 import { Options } from 'options';
-import { PartialOptions } from 'typings';
+import { DeepPartial } from 'typings';
 import { addPlugin, scrollbarsHidingPlugin, sizeObserverPlugin } from 'plugins';
 
 if (!window.ResizeObserver) {
@@ -36,8 +36,8 @@ if (!OverlayScrollbars.env().scrollbarsHiding) {
 // @ts-ignore
 window.OverlayScrollbars = OverlayScrollbars;
 
-OverlayScrollbars.env().setDefaultOptions({
-  nativeScrollbarsOverlaid: { initialize: true },
+OverlayScrollbars.env().setDefaultInitialization({
+  cancel: { nativeScrollbarsOverlaid: false },
 });
 
 interface Metrics {
@@ -587,7 +587,7 @@ const iterateMinMax = async (afterEach?: () => any) => {
   await iterate(containerMinMaxSelect, afterEach);
 };
 
-const overflowTest = async (osOptions?: PartialOptions<Options>) => {
+const overflowTest = async (osOptions?: DeepPartial<Options>) => {
   const additiveOverflow = () => {
     if (isFractionalPixelRatio()) {
       return 1;

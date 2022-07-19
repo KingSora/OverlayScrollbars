@@ -10,7 +10,7 @@ import {
   OptionsTemplateValue,
   optionsTemplateTypes as oTypes,
 } from 'plugins/optionsValidationPlugin/validation';
-import type { PartialOptions } from 'typings';
+import type { DeepPartial } from 'typings';
 import type { Plugin } from 'plugins';
 
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
@@ -26,6 +26,7 @@ const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<ScrollbarAutoHideBeh
 const optionsTemplate: OptionsTemplate<Options> = {
   // resize: resizeAllowedValues, // none || both  || horizontal || vertical || n || b ||
   paddingAbsolute: booleanAllowedValues, // true || false
+  showNativeOverlaidScrollbars: booleanAllowedValues, // true || false
   updating: {
     elementEvents: arrayNullValues, // array of tuples || null
     attributes: arrayNullValues,
@@ -52,21 +53,17 @@ const optionsTemplate: OptionsTemplate<Options> = {
     inheritedAttrs: stringArrayNullAllowedValues, // string || array || nul
   },
   */
-  nativeScrollbarsOverlaid: {
-    show: booleanAllowedValues, // true || false
-    initialize: booleanAllowedValues, // true || false
-  },
 };
 
 export type OptionsValidationPluginInstance = {
-  _: (options: PartialOptions<Options>, doWriteErrors?: boolean) => PartialOptions<Options>;
+  _: (options: DeepPartial<Options>, doWriteErrors?: boolean) => DeepPartial<Options>;
 };
 
 export const optionsValidationPluginName = '__osOptionsValidationPlugin';
 
 export const optionsValidationPlugin: Plugin<OptionsValidationPluginInstance> = {
   [optionsValidationPluginName]: {
-    _: (options: PartialOptions<Options>, doWriteErrors?: boolean) => {
+    _: (options: DeepPartial<Options>, doWriteErrors?: boolean) => {
       const [validated, foreign] = validateOptions(optionsTemplate, options, doWriteErrors);
       return { ...foreign, ...validated };
     },

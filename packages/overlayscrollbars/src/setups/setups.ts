@@ -1,11 +1,11 @@
 import { assignDeep, hasOwnProperty } from 'support';
 import type { Options, ReadonlyOSOptions } from 'options';
-import type { PartialOptions } from 'typings';
+import type { DeepPartial } from 'typings';
 
 export type SetupElements<T extends Record<string, any>> = [elements: T, destroy: () => void];
 
 export type SetupUpdate<T extends any[]> = (
-  changedOptions: PartialOptions<Options>,
+  changedOptions: DeepPartial<Options>,
   force: boolean,
   ...args: T
 ) => void;
@@ -37,7 +37,7 @@ const getPropByPath = <T>(obj: any, path: string): T =>
 export const createOptionCheck =
   (
     options: ReadonlyOSOptions,
-    changedOptions: PartialOptions<Options>,
+    changedOptions: DeepPartial<Options>,
     force?: boolean
   ): SetupUpdateCheckOption =>
   (path: string) =>

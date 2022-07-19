@@ -57,13 +57,9 @@ export const createStructureSetupUpdate = (
   state: SetupState<StructureSetupState>
 ): StructureSetupUpdate => {
   const { _viewport } = structureSetupElements;
-  const {
-    _nativeScrollbarsHiding: _nativeScrollbarStyling,
-    _nativeScrollbarsOverlaid: _nativeScrollbarIsOverlaid,
-    _flexboxGlue,
-  } = getEnvironment();
+  const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _flexboxGlue } = getEnvironment();
   const doViewportArrange =
-    !_nativeScrollbarStyling && (_nativeScrollbarIsOverlaid.x || _nativeScrollbarIsOverlaid.y);
+    !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
 
   const updateSegments: StructureSetupUpdateSegment[] = [
     createTrinsicUpdateSegment(structureSetupElements, state),

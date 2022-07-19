@@ -20,11 +20,12 @@ import {
   OptionsValidationPluginInstance,
 } from 'plugins';
 import { addInstance, getInstance, removeInstance } from 'instances';
-import type { PartialOptions, OverflowStyle } from 'typings';
-import type {
+import type { DeepPartial, OverflowStyle } from 'typings';
+import {
   InitializationTarget,
   InitializationTargetObject,
-  InitializationStrategy,
+  DefaultInitialization,
+  cancelInitialization,
 } from 'initialization';
 import type {
   InitialEventListeners as GeneralInitialEventListeners,
@@ -34,7 +35,7 @@ import type {
 export interface OverlayScrollbarsStatic {
   (
     target: InitializationTarget | InitializationTargetObject,
-    options?: PartialOptions<Options>,
+    options?: DeepPartial<Options>,
     eventListeners?: GeneralInitialEventListeners<EventListenerMap>
   ): OverlayScrollbars;
 
@@ -49,13 +50,13 @@ export interface Environment {
   rtlScrollBehavior: { n: boolean; i: boolean };
   flexboxGlue: boolean;
   cssCustomProperties: boolean;
-  defaultInitializationStrategy: InitializationStrategy;
-  defaultDefaultOptions: Options;
+  staticDefaultInitialization: DefaultInitialization;
+  staticDefaultOptions: Options;
 
-  getInitializationStrategy(): InitializationStrategy;
-  setInitializationStrategy(newInitializationStrategy: Partial<InitializationStrategy>): void;
+  getDefaultInitialization(): DefaultInitialization;
+  setDefaultInitialization(newDefaultInitialization: DeepPartial<DefaultInitialization>): void;
   getDefaultOptions(): Options;
-  setDefaultOptions(newDefaultOptions: PartialOptions<Options>): void;
+  setDefaultOptions(newDefaultOptions: DeepPartial<Options>): void;
 }
 
 export interface State {
@@ -87,7 +88,7 @@ export interface OnUpdatedEventListenerArgs {
     hostMutation: boolean;
     contentMutation: boolean;
   };
-  changedOptions: PartialOptions<Options>;
+  changedOptions: DeepPartial<Options>;
   force: boolean;
 }
 
@@ -103,7 +104,7 @@ export type EventListenerMap = {
   /**
    * Triggered after all elements, observers and events are destroyed.
    */
-  destroyed: [instance: OverlayScrollbars, withdrawn: boolean];
+  destroyed: [instance: OverlayScrollbars, canceled: boolean];
 };
 
 export type InitialEventListeners = GeneralInitialEventListeners<EventListenerMap>;
@@ -115,7 +116,7 @@ export type EventListener<Name extends keyof EventListenerMap> = GeneralEventLis
 
 export interface OverlayScrollbars {
   options(): Options;
-  options(newOptions?: PartialOptions<Options>): Options;
+  options(newOptions?: DeepPartial<Options>): Options;
 
   update(force?: boolean): OverlayScrollbars;
 
@@ -143,13 +144,10 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   eventListeners?
 ): OverlayScrollbars => {
   let destroyed = false;
-  const {
-    _getDefaultOptions,
-    _nativeScrollbarsOverlaid: _nativeScrollbarIsOverlaid,
-    _addListener: addEnvListener,
-  } = getEnvironment();
+  const { _getDefaultOptions, _addListener: addEnvListener } = getEnvironment();
   const plugins = getPlugins();
-  const instanceTarget = isHTMLElement(target) ? target : target.target;
+  const targetIsElement = isHTMLElement(target);
+  const instanceTarget = targetIsElement ? target : target.target;
   const potentialInstance = getInstance(instanceTarget);
   if (potentialInstance) {
     return potentialInstance;
@@ -158,7 +156,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   const optionsValidationPlugin = plugins[
     optionsValidationPluginName
   ] as OptionsValidationPluginInstance;
-  const validateOptions = (newOptions?: PartialOptions<Options>) => {
+  const validateOptions = (newOptions?: DeepPartial<Options>) => {
     const opts = newOptions || {};
     const validate = optionsValidationPlugin && optionsValidationPlugin._;
     return validate ? validate(opts, true) : opts;
@@ -178,11 +176,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     currentOptions,
     structureState
   );
-  const update = (changedOptions: PartialOptions<Options>, force?: boolean) => {
+  const update = (changedOptions: DeepPartial<Options>, force?: boolean) => {
     updateStructure(changedOptions, !!force);
   };
   const removeEnvListener = addEnvListener(update.bind(0, {}, true));
-  const destroy = (withdrawn?: boolean) => {
+  const destroy = (canceled?: boolean) => {
     removeInstance(instanceTarget);
     removeEnvListener();
 
@@ -192,12 +190,12 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     destroyed = true;
 
     // eslint-disable-next-line no-use-before-define
-    triggerEvent('destroyed', [instance, !!withdrawn]);
+    triggerEvent('destroyed', [instance, !!canceled]);
     removeEvent();
   };
 
   const instance: OverlayScrollbars = {
-    options(newOptions?: PartialOptions<Options>) {
+    options(newOptions?: DeepPartial<Options>) {
       if (newOptions) {
         const changedOptions = getOptionsDiff(currentOptions, validateOptions(newOptions));
 
@@ -265,11 +263,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     }
   });
 
-  if (
-    _nativeScrollbarIsOverlaid.x &&
-    _nativeScrollbarIsOverlaid.y &&
-    !currentOptions.nativeScrollbarsOverlaid.initialize
-  ) {
+  if (cancelInitialization(!targetIsElement && target.cancel, structureState._elements)) {
     destroy(true);
     return instance;
   }
@@ -323,10 +317,10 @@ OverlayScrollbars.env = () => {
     _rtlScrollBehavior,
     _flexboxGlue,
     _cssCustomProperties,
-    _defaultInitializationStrategy,
-    _defaultDefaultOptions,
-    _getInitializationStrategy,
-    _setInitializationStrategy,
+    _staticDefaultInitialization,
+    _staticDefaultOptions,
+    _getDefaultInitialization,
+    _setDefaultInitialization,
     _getDefaultOptions,
     _setDefaultOptions,
   } = getEnvironment();
@@ -339,11 +333,11 @@ OverlayScrollbars.env = () => {
       rtlScrollBehavior: _rtlScrollBehavior,
       flexboxGlue: _flexboxGlue,
       cssCustomProperties: _cssCustomProperties,
-      defaultInitializationStrategy: _defaultInitializationStrategy,
-      defaultDefaultOptions: _defaultDefaultOptions,
+      staticDefaultInitialization: _staticDefaultInitialization,
+      staticDefaultOptions: _staticDefaultOptions,
 
-      getInitializationStrategy: _getInitializationStrategy,
-      setInitializationStrategy: _setInitializationStrategy,
+      getDefaultInitialization: _getDefaultInitialization,
+      setDefaultInitialization: _setDefaultInitialization,
       getDefaultOptions: _getDefaultOptions,
       setDefaultOptions: _setDefaultOptions,
     }

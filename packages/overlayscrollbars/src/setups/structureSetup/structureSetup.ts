@@ -9,7 +9,7 @@ import type { TRBL, XY, EventListener } from 'support';
 import type { Options, ReadonlyOSOptions } from 'options';
 import type { Setup } from 'setups';
 import type { InitializationTarget } from 'initialization';
-import type { PartialOptions, StyleObject, OverflowStyle } from 'typings';
+import type { DeepPartial, StyleObject, OverflowStyle } from 'typings';
 
 export interface StructureSetupState {
   _padding: TRBL;
@@ -30,11 +30,7 @@ export interface StructureSetupStaticState {
 }
 
 type StructureSetupEventMap = {
-  u: [
-    updateHints: StructureSetupUpdateHints,
-    changedOptions: PartialOptions<Options>,
-    force: boolean
-  ];
+  u: [updateHints: StructureSetupUpdateHints, changedOptions: DeepPartial<Options>, force: boolean];
 };
 
 const initialXYNumber = { x: 0, y: 0 };

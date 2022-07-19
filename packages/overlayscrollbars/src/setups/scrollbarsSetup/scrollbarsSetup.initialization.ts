@@ -1,6 +1,6 @@
 import type {
   InitializationTargetElement,
-  InitializtationElementStrategy,
+  DefaultInitializtationElement,
   DynamicInitializationElement,
 } from 'initialization';
 
@@ -20,8 +20,6 @@ export interface ScrollbarsInitialization {
   scrollbarsSlot?: ScrollbarsDynamicInitializationElement;
 }
 
-export type ScrollbarsInitializationStrategy = {
-  [K in keyof ScrollbarsInitialization]: InitializtationElementStrategy<
-    ScrollbarsInitialization[K]
-  >;
+export type DefaultScrollbarsInitialization = {
+  [K in keyof ScrollbarsInitialization]: DefaultInitializtationElement<ScrollbarsInitialization[K]>;
 };

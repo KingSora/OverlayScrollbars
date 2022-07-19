@@ -1,24 +1,37 @@
-import { isFunction, isNull, isUndefined } from 'support';
+import { isBoolean, isFunction, isNull, isUndefined } from 'support';
 import type {
   StructureInitialization,
-  StructureInitializationStrategy,
+  DefaultStructureInitialization,
 } from 'setups/structureSetup';
 import type {
   ScrollbarsInitialization,
-  ScrollbarsInitializationStrategy,
+  DefaultScrollbarsInitialization,
 } from 'setups/scrollbarsSetup';
+import { getEnvironment } from 'environment';
+import { DeepPartial } from 'typings';
+import { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 
 type StaticInitialization = HTMLElement | null | undefined;
 type DynamicInitialization = HTMLElement | boolean | null | undefined;
 
+export type CancelInitialization = {
+  cancel: {
+    nativeScrollbarsOverlaid: boolean | undefined;
+    body: boolean | null | undefined;
+  };
+};
+
 export type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
 
-export type InitializationTargetObject = StructureInitialization & ScrollbarsInitialization;
+export type InitializationTargetObject = StructureInitialization &
+  ScrollbarsInitialization &
+  DeepPartial<CancelInitialization>;
 
 export type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
 
-export type InitializationStrategy = StructureInitializationStrategy &
-  ScrollbarsInitializationStrategy;
+export type DefaultInitialization = DefaultStructureInitialization &
+  DefaultScrollbarsInitialization &
+  CancelInitialization;
 
 /**
  * Static elements MUST be present.
@@ -39,9 +52,9 @@ export type DynamicInitializationElement<Args extends any[]> =
   | ((...args: Args) => DynamicInitialization)
   | DynamicInitialization;
 
-export type InitializtationElementStrategy<InitElm> = Exclude<InitElm, HTMLElement>;
+export type DefaultInitializtationElement<InitElm> = Exclude<InitElm, HTMLElement>;
 
-export type DefaultInitializtationElementStrategy<
+export type FallbackInitializtationElement<
   InitElm extends StaticInitializationElement<any> | DynamicInitializationElement<any>
 > = Extract<InitElm, (...args: any[]) => any> extends (...args: infer P) => any
   ? (...args: P) => HTMLElement
@@ -52,20 +65,20 @@ const resolveInitialization = <T>(value: any, args: any): T =>
 
 const staticInitializationElement = <T extends StaticInitializationElement<any>>(
   args: Parameters<Extract<T, (...args: any[]) => any>>,
-  defaultStaticInitializationElement: DefaultInitializtationElementStrategy<T>,
-  staticInitializationElementStrategy?: InitializtationElementStrategy<T>,
+  fallbackStaticInitializationElement: FallbackInitializtationElement<T>,
+  defaultStaticInitializationElementStrategy?: DefaultInitializtationElement<T>,
   staticInitializationElementValue?: T | false
 ): HTMLElement =>
   resolveInitialization<StaticInitialization>(
     staticInitializationElementValue ||
-      resolveInitialization<StaticInitialization>(staticInitializationElementStrategy, args),
+      resolveInitialization<StaticInitialization>(defaultStaticInitializationElementStrategy, args),
     args
-  ) || defaultStaticInitializationElement.apply(0, args);
+  ) || fallbackStaticInitializationElement.apply(0, args);
 
 const dynamicInitializationElement = <T extends DynamicInitializationElement<any>>(
   args: Parameters<Extract<T, (...args: any[]) => any>>,
-  defaultDynamicInitializationElement: DefaultInitializtationElementStrategy<T>,
-  dynamicInitializationElementStrategy?: InitializtationElementStrategy<T>,
+  fallbackDynamicInitializationElement: FallbackInitializtationElement<T>,
+  defaultDynamicInitializationElementStrategy?: DefaultInitializtationElement<T>,
   dynamicInitializationElementValue?: T | false
 ): HTMLElement | false => {
   let result = resolveInitialization<DynamicInitialization>(
@@ -75,14 +88,40 @@ const dynamicInitializationElement = <T extends DynamicInitializationElement<any
 
   if (isNull(result) || isUndefined(result)) {
     result = resolveInitialization<DynamicInitialization>(
-      dynamicInitializationElementStrategy,
+      defaultDynamicInitializationElementStrategy,
       args
     );
   }
 
   return result === true || isNull(result) || isUndefined(result)
-    ? defaultDynamicInitializationElement.apply(0, args)
+    ? fallbackDynamicInitializationElement.apply(0, args)
     : result;
 };
 
-export { staticInitializationElement, dynamicInitializationElement };
+const cancelInitialization = (
+  cancelInitializationValue: DeepPartial<CancelInitialization['cancel']> | false | null | undefined,
+  structureSetupElements: StructureSetupElementsObj
+): boolean => {
+  const { nativeScrollbarsOverlaid, body } = cancelInitializationValue || {};
+  const { _isBody, _viewportIsTarget } = structureSetupElements;
+  const { _getDefaultInitialization, _nativeScrollbarsOverlaid } = getEnvironment();
+  const { nativeScrollbarsOverlaid: defaultNativeScrollbarsOverlaid, body: defaultbody } =
+    _getDefaultInitialization().cancel;
+
+  const resolvedNativeScrollbarsOverlaid =
+    nativeScrollbarsOverlaid ?? defaultNativeScrollbarsOverlaid;
+  const resolvedDocumentScrollingElement = isBoolean(body) || isNull(body) ? body : defaultbody;
+
+  const finalNativeScrollbarsOverlaid =
+    (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y) &&
+    resolvedNativeScrollbarsOverlaid;
+  const finalDocumentScrollingElement =
+    _isBody &&
+    (isNull(resolvedDocumentScrollingElement)
+      ? !_viewportIsTarget
+      : resolvedDocumentScrollingElement);
+
+  return !!finalNativeScrollbarsOverlaid || !!finalDocumentScrollingElement;
+};
+
+export { staticInitializationElement, dynamicInitializationElement, cancelInitialization };

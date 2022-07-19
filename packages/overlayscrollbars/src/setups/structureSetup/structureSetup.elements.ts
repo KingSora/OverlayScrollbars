@@ -20,6 +20,8 @@ import {
   attrClass,
   hasAttrClass,
   ResizeObserverConstructor,
+  hasOwnProperty,
+  noop,
 } from 'support';
 import {
   dataAttributeHost,
@@ -28,7 +30,7 @@ import {
   classNamePadding,
   classNameViewport,
   classNameContent,
-  classNameViewportScrollbarStyling,
+  classNameViewportScrollbarHidden,
 } from 'classnames';
 import { getEnvironment } from 'environment';
 import { getPlugins, scrollbarsHidingPluginName } from 'plugins';
@@ -36,11 +38,11 @@ import type { ScrollbarsHidingPluginInstance } from 'plugins/scrollbarsHidingPlu
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
+  InitializationTargetObject,
 } from 'initialization';
 import type { InitializationTarget, InitializationTargetElement } from 'initialization';
 import type {
   StructureDynamicInitializationElement,
-  StructureInitialization,
   StructureStaticInitializationElement,
 } from 'setups/structureSetup/structureSetup.initialization';
 
@@ -60,8 +62,6 @@ export interface StructureSetupElementsObj {
   // ctx ----
   _isTextarea: boolean;
   _isBody: boolean;
-  _htmlElm: HTMLHtmlElement;
-  _bodyElm: HTMLBodyElement;
   _windowElm: Window;
   _documentElm: Document;
   _targetIsElm: boolean;
@@ -86,29 +86,35 @@ export const createStructureSetupElements = (
   target: InitializationTarget
 ): StructureSetupElements => {
   const env = getEnvironment();
-  const { _getInitializationStrategy, _nativeScrollbarsHiding } = env;
+  const { _getDefaultInitialization, _nativeScrollbarsHiding } = env;
   const scrollbarsHidingPlugin = getPlugins()[scrollbarsHidingPluginName] as
     | ScrollbarsHidingPluginInstance
     | undefined;
   const createUniqueViewportArrangeElement =
     scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
   const {
-    host: hostInitializationStrategy,
-    viewport: viewportInitializationStrategy,
-    padding: paddingInitializationStrategy,
-    content: contentInitializationStrategy,
-  } = _getInitializationStrategy();
+    host: defaultHostInitializationStrategy,
+    viewport: defaultViewportInitializationStrategy,
+    padding: defaultPaddingInitializationStrategy,
+    content: defaultContentInitializationStrategy,
+  } = _getDefaultInitialization();
   const targetIsElm = isHTMLElement(target);
-  const targetStructureInitialization = target as StructureInitialization;
-  const targetElement = targetIsElm
-    ? (target as InitializationTargetElement)
-    : targetStructureInitialization.target;
+  const targetStructureInitialization = (targetIsElm ? {} : target) as InitializationTargetObject;
+  const {
+    host: hostInitializationStrategy,
+    padding: paddingInitializationStrategy,
+    viewport: viewportInitializationStrategy,
+    content: contentInitializationStrategy,
+  } = targetStructureInitialization;
+
+  const targetElement = targetIsElm ? target : targetStructureInitialization.target;
   const isTextarea = is(targetElement, 'textarea');
-  const isBody = !isTextarea && is(targetElement, 'body');
-  const ownerDocument = targetElement!.ownerDocument;
-  const bodyElm = ownerDocument.body as HTMLBodyElement;
+  const ownerDocument = targetElement.ownerDocument;
+  const isBody = targetElement === ownerDocument.body;
   const wnd = ownerDocument.defaultView as Window;
-  const singleElmSupport = !!ResizeObserverConstructor && !isTextarea && _nativeScrollbarsHiding;
+  const singleElmSupport = isBody
+    ? _nativeScrollbarsHiding
+    : !!ResizeObserverConstructor && !isTextarea && _nativeScrollbarsHiding;
   const staticInitializationElement =
     generalStaticInitializationElement<StructureStaticInitializationElement>.bind(0, [
       targetElement,
@@ -120,13 +126,15 @@ export const createStructureSetupElements = (
   const viewportElement = [
     staticInitializationElement(
       createNewDiv,
-      viewportInitializationStrategy,
-      targetStructureInitialization.viewport
+      defaultViewportInitializationStrategy,
+      isBody && !hasOwnProperty(targetStructureInitialization, 'viewport')
+        ? targetElement
+        : viewportInitializationStrategy
     ),
-    staticInitializationElement(createNewDiv, viewportInitializationStrategy),
+    staticInitializationElement(createNewDiv, defaultViewportInitializationStrategy),
     staticInitializationElement(createNewDiv),
   ].filter((potentialViewport) =>
-    !singleElmSupport ? potentialViewport !== targetElement : true
+    singleElmSupport ? true : potentialViewport !== targetElement
   )[0];
   const viewportIsTarget = viewportElement === targetElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
@@ -134,8 +142,8 @@ export const createStructureSetupElements = (
     _host: isTextarea
       ? staticInitializationElement(
           createNewDiv,
-          hostInitializationStrategy,
-          targetStructureInitialization.host
+          defaultHostInitializationStrategy,
+          hostInitializationStrategy
         )
       : (targetElement as HTMLElement),
     _viewport: viewportElement,
@@ -143,15 +151,15 @@ export const createStructureSetupElements = (
       !viewportIsTarget &&
       dynamicInitializationElement(
         createNewDiv,
-        paddingInitializationStrategy,
-        targetStructureInitialization.padding
+        defaultPaddingInitializationStrategy,
+        paddingInitializationStrategy
       ),
     _content:
       !viewportIsTarget &&
       dynamicInitializationElement(
         createNewDiv,
-        contentInitializationStrategy,
-        targetStructureInitialization.content
+        defaultContentInitializationStrategy,
+        contentInitializationStrategy
       ),
     _viewportArrange:
       !viewportIsTarget &&
@@ -160,8 +168,6 @@ export const createStructureSetupElements = (
       createUniqueViewportArrangeElement(env),
     _windowElm: wnd,
     _documentElm: ownerDocument,
-    _htmlElm: parent(bodyElm) as HTMLHtmlElement,
-    _bodyElm: bodyElm,
     _isTextarea: isTextarea,
     _isBody: isBody,
     _targetIsElm: targetIsElm,
@@ -197,6 +203,9 @@ export const createStructureSetupElements = (
     const removePaddingClass = addClass(_padding, classNamePadding);
     const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
     const removeContentClass = addClass(_content, classNameContent);
+    const removeHtmlClass = isBody
+      ? addClass(parent(targetElement), classNameViewportScrollbarHidden)
+      : noop;
 
     // only insert host for textarea after target if it was generated
     if (isTextareaHostGenerated) {
@@ -214,6 +223,7 @@ export const createStructureSetupElements = (
     appendChildren(_viewport, _content);
 
     push(destroyFns, () => {
+      removeHtmlClass();
       removeHostDataAttr();
       removeAttr(_viewport, dataAttributeHostOverflowX);
       removeAttr(_viewport, dataAttributeHostOverflowY);
@@ -233,7 +243,7 @@ export const createStructureSetupElements = (
     });
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
-      push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarStyling));
+      push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarHidden));
     }
     if (_viewportArrange) {
       insertBefore(_viewport, _viewportArrange);

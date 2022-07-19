@@ -14,8 +14,8 @@ import { timeout } from '@/testing-browser/timeout';
 import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
 import { addClass, each, isArray, removeAttr, style } from 'support';
 
-OverlayScrollbars.env().setDefaultOptions({
-  nativeScrollbarsOverlaid: { initialize: true },
+OverlayScrollbars.env().setInitializationStrategy({
+  cancel: { nativeScrollbarsOverlaid: false },
 });
 
 
