@@ -85,15 +85,15 @@
 
 @-webkit-keyframes os-size-observer-appear-animation {
   from {
-    z-index: 0; }
+    cursor: auto; }
   to {
-    z-index: -1; } }
+    cursor: none; } }
 
 @keyframes os-size-observer-appear-animation {
   from {
-    z-index: 0; }
+    cursor: auto; }
   to {
-    z-index: -1; } }
+    cursor: none; } }
 
 .os-trinsic-observer {
   flex: none;

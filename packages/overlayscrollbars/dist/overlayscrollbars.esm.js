@@ -1832,15 +1832,16 @@ const createEventContentChange = (t, n, o) => {
             n();
           }
         }
-        const i = on(o, c, (t => {
+        const listener = t => {
           if (e) {
-            i();
+            off(o, c, listener);
             s.delete(o);
           } else {
             n(t);
           }
-        }));
-        s.set(o, [ c, i ]);
+        };
+        on(o, c, listener);
+        s.set(o, [ c, () => off(o, c, listener) ]);
       }))));
     }
   };

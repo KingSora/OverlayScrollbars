@@ -18,7 +18,7 @@ import type {
 } from 'options';
 import type { Setup, StructureSetupState, StructureSetupStaticState } from 'setups';
 import type { InitializationTarget } from 'initialization';
-import type { OverflowStyle, StyleObject } from 'typings';
+import type { OverflowStyle } from 'typings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
@@ -43,8 +43,7 @@ const createSelfCancelTimeout = (timeout?: number | (() => number)) => {
   ] as [timeout: (callback: () => any) => void, clear: () => void];
 };
 
-const refreshScrollbarHandleLength = (
-  setStyleFn: ScrollbarsSetupElement['_handleStyle'],
+const getScrollbarHandleRatio = (
   structureSetupState: StructureSetupState,
   isHorizontal?: boolean
 ) => {
@@ -52,94 +51,51 @@ const refreshScrollbarHandleLength = (
   const axis = isHorizontal ? 'x' : 'y';
   const viewportSize = _overflowEdge[axis];
   const overflowAmount = _overflowAmount[axis];
-  const handleRatio = min(1, viewportSize / (viewportSize + overflowAmount));
+  return min(1, viewportSize / (viewportSize + overflowAmount));
+};
+
+const refreshScrollbarHandleLength = (
+  setStyleFn: ScrollbarsSetupElement['_handleStyle'],
+  structureSetupState: StructureSetupState,
+  isHorizontal?: boolean
+) =>
+  setStyleFn((structure) => [
+    structure._handle,
+    {
+      [isHorizontal ? 'width' : 'height']: `${(
+        getScrollbarHandleRatio(structureSetupState, isHorizontal) * 100
+      ).toFixed(3)}%`,
+    },
+  ]);
+
+const refreshScrollbarHandlePosition = (
+  setStyleFn: ScrollbarsSetupElement['_handleStyle'],
+  structureSetupState: StructureSetupState,
+  viewport: HTMLElement,
+  isHorizontal?: boolean
+) => {
+  const axis = isHorizontal ? 'x' : 'y';
+  const translateAxis = isHorizontal ? 'X' : 'Y';
+  const scrollLeftTop = isHorizontal ? 'Left' : 'Top';
+  const handleRatio = getScrollbarHandleRatio(structureSetupState, isHorizontal);
+  const scrollPosition = viewport[`scroll${scrollLeftTop}`] as number;
+  const scrollPositionMax =
+    (viewport[`scroll${scrollLeftTop}Max`] as number) ||
+    Math.floor(structureSetupState._overflowAmount[axis]);
 
   setStyleFn((structure) => [
     structure._handle,
     {
-      [isHorizontal ? 'width' : 'height']: `${(handleRatio * 100).toFixed(3)}%`,
+      transform: scrollPositionMax
+        ? `translate${translateAxis}(${(
+            (1 / handleRatio) *
+            (1 - handleRatio) *
+            (scrollPosition / scrollPositionMax) *
+            100
+          ).toFixed(3)}%)`
+        : '',
     },
   ]);
-};
-
-const refreshScrollbarHandlePosition = (
-  setStyleFn: (styles: StyleObject) => void,
-  structureSetupState: StructureSetupState,
-  isHorizontal?: boolean
-) => {
-  /*
-  //measure the handle length to respect min & max length
-  var handleLength = scrollbarVarsInfo._handleLength;
-  var trackLength = scrollbarVars._track[0]['offset' + scrollbarVars._Width_Height];
-  var handleTrackDiff = trackLength - handleLength;
-  var handleCSS = {};
-  var transformOffset;
-  var translateValue;
-
-  //DONT use the variable '_contentScrollSizeCache[scrollbarVars._w_h]' instead of '_viewportElement[0]['scroll' + scrollbarVars._Width_Height]'
-  // because its a bit behind during the small delay when content size updates
-  //(delay = mutationObserverContentLag, if its 0 then this var could be used)
-  var maxScroll =
-    (_viewportElementNative[_strScroll + scrollbarVars._Width_Height] -
-      _viewportElementNative['client' + scrollbarVars._Width_Height]) *
-    (_rtlScrollBehavior.n && isRTLisHorizontal ? -1 : 1); //* -1 if rtl scroll max is negative
-  var getScrollRatio = function (base) {
-    return isNaN(base / maxScroll) ? 0 : MATH.max(0, MATH.min(1, base / maxScroll));
-  };
-  var getHandleOffset = function (scrollRatio) {
-    var offset = handleTrackDiff * scrollRatio;
-    offset = isNaN(offset) ? 0 : offset;
-    offset =
-      isRTLisHorizontal && !_rtlScrollBehavior.i ? trackLength - handleLength - offset : offset;
-    offset = MATH.max(0, offset);
-    return offset;
-  };
-  var scrollRatio = getScrollRatio(nativeScroll);
-  var unsnappedScrollRatio = getScrollRatio(currentScroll);
-  var handleOffset = getHandleOffset(unsnappedScrollRatio);
-  var snappedHandleOffset = getHandleOffset(scrollRatio);
-
-  scrollbarVarsInfo._maxScroll = maxScroll;
-  scrollbarVarsInfo._currentScroll = nativeScroll;
-  scrollbarVarsInfo._currentScrollRatio = scrollRatio;
-
-  if (_supportTransform) {
-    transformOffset = isRTLisHorizontal
-      ? -(trackLength - handleLength - handleOffset)
-      : handleOffset; //in px
-    //transformOffset = (transformOffset / trackLength * 100) * (trackLength / handleLength); //in %
-    translateValue = isHorizontal
-      ? strTranslateBrace + transformOffset + 'px, 0)'
-      : strTranslateBrace + '0, ' + transformOffset + 'px)';
-
-    handleCSS[strTransform] = translateValue;
-
-    //apply or clear up transition
-    if (_supportTransition)
-      handleCSS[strTransition] =
-        transition && MATH.abs(handleOffset - scrollbarVarsInfo._handleOffset) > 1
-          ? getCSSTransitionString(scrollbarVars._handle) +
-            ', ' +
-            (strTransform + _strSpace + transitionDuration + 'ms')
-          : _strEmpty;
-  } else handleCSS[scrollbarVars._left_top] = handleOffset;
-
-  //only apply css if offset has changed and overflow exists.
-  if (!nativeOverlayScrollbarsAreActive()) {
-    scrollbarVars._handle.css(handleCSS);
-
-    //clear up transition
-    if (_supportTransform && _supportTransition && transition) {
-      scrollbarVars._handle.one(_strTransitionEndEvent, function () {
-        if (!_destroyed) scrollbarVars._handle.css(strTransition, _strEmpty);
-      });
-    }
-  }
-
-  scrollbarVarsInfo._handleOffset = handleOffset;
-  scrollbarVarsInfo._snappedHandleOffset = snappedHandleOffset;
-  scrollbarVarsInfo._trackLength = trackLength;
-  */
 };
 
 export const createScrollbarsSetup = (
@@ -215,13 +171,16 @@ export const createScrollbarsSetup = (
         });
     }),
     on(_viewport, 'scroll', () => {
-      autoHideNotNever &&
-        requestScrollAnimationFrame(() => {
-          manageScrollbarsAutoHide(true);
-          scrollTimeout(() => {
-            autoHideNotNever && !mouseInHost && manageScrollbarsAutoHide(false);
-          });
+      requestScrollAnimationFrame(() => {
+        const structureState = structureSetupState();
+        refreshScrollbarHandlePosition(styleHorizontal, structureState, _viewport, true);
+        refreshScrollbarHandlePosition(styleVertical, structureState, _viewport);
+
+        autoHideNotNever && manageScrollbarsAutoHide(true);
+        scrollTimeout(() => {
+          autoHideNotNever && !mouseInHost && manageScrollbarsAutoHide(false);
         });
+      });
     }),
   ];
   const scrollbarsSetupState = getState.bind(0) as (() => ScrollbarsSetupState) &
@@ -289,6 +248,9 @@ export const createScrollbarsSetup = (
       if (updateHandle) {
         refreshScrollbarHandleLength(styleHorizontal, currStructureSetupState, true);
         refreshScrollbarHandleLength(styleVertical, currStructureSetupState);
+
+        refreshScrollbarHandlePosition(styleHorizontal, currStructureSetupState, _viewport, true);
+        refreshScrollbarHandlePosition(styleVertical, currStructureSetupState, _viewport);
       }
     },
     scrollbarsSetupState,

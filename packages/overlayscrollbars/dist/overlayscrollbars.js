@@ -1877,15 +1877,18 @@
                 u();
               }
             }
-            var f = qr(e, i, (function(r) {
+            var f = function listener(r) {
               if (t) {
-                f();
+                Fr(e, i, listener);
                 n.delete(e);
               } else {
                 a(r);
               }
-            }));
-            n.set(e, [ i, f ]);
+            };
+            qr(e, i, f);
+            n.set(e, [ i, function() {
+              return Fr(e, i, f);
+            } ]);
           }));
         }));
       }

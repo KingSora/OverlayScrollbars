@@ -1,4 +1,5 @@
 .os-scrollbar {
+  contain: strict;
   transition: opacity 0.3s, visibility 0.3s, top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
   pointer-events: none;
   position: absolute;
