@@ -2,13 +2,13 @@
  * OverlayScrollbars
  * https://github.com/KingSora/OverlayScrollbars
  *
- * Version: 1.13.2
+ * Version: 1.13.3
  *
  * Copyright KingSora | Rene Haas.
  * https://github.com/KingSora
  *
  * Released under the MIT license.
- * Date: 01.06.2022
+ * Date: 20.07.2022
  */
 
 (function (global, factory) {
@@ -2812,18 +2812,20 @@
                  * A callback which will be called after a element has loaded.	
                  */
                 function updateOnLoadCallback(event) {
-                    var target = event.target;
-                    var elm = FRAMEWORK(event.target);
-                    var index = FRAMEWORK.inArray(target, _updateOnLoadElms);
-                    if (index > -1) {
-                        _updateOnLoadElms.splice(index, 1);
-                    }
+					if (!_destroyed) {
+						var target = event.target;
+						var elm = FRAMEWORK(event.target);
+						var index = FRAMEWORK.inArray(target, _updateOnLoadElms);
+						if (index > -1) {
+							_updateOnLoadElms.splice(index, 1);
+						}
 
-                    eachUpdateOnLoad(function (i, updateOnLoadSelector) {
-                        if (elm.is(updateOnLoadSelector)) {
-                            update({ _contentSizeChanged: true });
-                        }
-                    });
+						eachUpdateOnLoad(function (i, updateOnLoadSelector) {
+							if (elm.is(updateOnLoadSelector)) {
+								update({ _contentSizeChanged: true });
+							}
+						});
+					}
                 }
 
                 /**
