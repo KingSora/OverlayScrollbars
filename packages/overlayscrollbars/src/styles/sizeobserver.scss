@@ -103,11 +103,12 @@ $shrink-scale: 0.1;
   transition: none;
 }
 
+// choose the most lightweight animatable css prop: https://csstriggers.com/
 @keyframes os-size-observer-appear-animation {
   from {
-    z-index: 0;
+    cursor: auto;
   }
   to {
-    z-index: -1;
+    cursor: none;
   }
 }
