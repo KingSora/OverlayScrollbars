@@ -68,7 +68,7 @@ const refreshScrollbarHandleLength = (
     },
   ]);
 
-const refreshScrollbarHandlePosition = (
+const refreshScrollbarHandleOffset = (
   setStyleFn: ScrollbarsSetupElement['_handleStyle'],
   structureSetupState: StructureSetupState,
   viewport: HTMLElement,
@@ -173,8 +173,8 @@ export const createScrollbarsSetup = (
     on(_viewport, 'scroll', () => {
       requestScrollAnimationFrame(() => {
         const structureState = structureSetupState();
-        refreshScrollbarHandlePosition(styleHorizontal, structureState, _viewport, true);
-        refreshScrollbarHandlePosition(styleVertical, structureState, _viewport);
+        refreshScrollbarHandleOffset(styleHorizontal, structureState, _viewport, true);
+        refreshScrollbarHandleOffset(styleVertical, structureState, _viewport);
 
         autoHideNotNever && manageScrollbarsAutoHide(true);
         scrollTimeout(() => {
@@ -249,8 +249,8 @@ export const createScrollbarsSetup = (
         refreshScrollbarHandleLength(styleHorizontal, currStructureSetupState, true);
         refreshScrollbarHandleLength(styleVertical, currStructureSetupState);
 
-        refreshScrollbarHandlePosition(styleHorizontal, currStructureSetupState, _viewport, true);
-        refreshScrollbarHandlePosition(styleVertical, currStructureSetupState, _viewport);
+        refreshScrollbarHandleOffset(styleHorizontal, currStructureSetupState, _viewport, true);
+        refreshScrollbarHandleOffset(styleVertical, currStructureSetupState, _viewport);
       }
     },
     scrollbarsSetupState,
