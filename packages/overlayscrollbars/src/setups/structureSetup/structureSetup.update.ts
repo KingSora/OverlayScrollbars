@@ -1,5 +1,6 @@
 import { each, scrollLeft, scrollTop, assignDeep, keys } from 'support';
 import { getEnvironment } from 'environment';
+import { dataValueHostUpdating } from 'classnames';
 import {
   createTrinsicUpdateSegment,
   createPaddingUpdateSegment,
@@ -56,7 +57,7 @@ export const createStructureSetupUpdate = (
   structureSetupElements: StructureSetupElementsObj,
   state: SetupState<StructureSetupState>
 ): StructureSetupUpdate => {
-  const { _viewport } = structureSetupElements;
+  const { _viewport, _viewportAddRemoveClass } = structureSetupElements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _flexboxGlue } = getEnvironment();
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
@@ -93,6 +94,7 @@ export const createStructureSetupUpdate = (
     const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
     const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
+    _viewportAddRemoveClass('', dataValueHostUpdating, true);
 
     let adaptivedUpdateHints: Required<StructureSetupUpdateHints> = initialUpdateHints;
     each(updateSegments, (updateSegment) => {
@@ -105,6 +107,7 @@ export const createStructureSetupUpdate = (
 
     scrollLeft(_viewport, scrollOffsetX);
     scrollTop(_viewport, scrollOffsetY);
+    _viewportAddRemoveClass('', dataValueHostUpdating);
 
     return adaptivedUpdateHints;
   };

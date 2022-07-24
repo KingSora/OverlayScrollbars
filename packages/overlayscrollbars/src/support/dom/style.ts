@@ -42,19 +42,13 @@ const getCSSVal = (elm: HTMLElement, computedStyle: CSSStyleDeclaration, prop: s
     ? computedStyle[prop] || computedStyle.getPropertyValue(prop)
     : elm.style[prop];
 
-const setCSSVal = (
-  elm: HTMLElement | false | null | undefined,
-  prop: string,
-  val: string | number
-): void => {
+const setCSSVal = (elm: HTMLElement, prop: string, val: string | number): void => {
   try {
-    if (elm) {
-      const { style: elmStyle } = elm;
-      if (!isUndefined(elmStyle[prop])) {
-        elmStyle[prop] = adaptCSSVal(prop, val);
-      } else {
-        elmStyle.setProperty(prop, val as string);
-      }
+    const { style: elmStyle } = elm;
+    if (!isUndefined(elmStyle[prop])) {
+      elmStyle[prop] = adaptCSSVal(prop, val);
+    } else {
+      elmStyle.setProperty(prop, val as string);
     }
   } catch (e) {}
 };
@@ -96,7 +90,7 @@ export function style<CustomCssProps>(
     }
     return getStylesResult;
   }
-  each(keys(styles), (key) => setCSSVal(elm, key, styles[key]));
+  elm && each(keys(styles), (key) => setCSSVal(elm, key, styles[key]));
 }
 
 /**

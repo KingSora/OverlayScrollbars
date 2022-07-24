@@ -298,11 +298,11 @@ body {
 
 // disable native scrollbar styling detection
 .nss {
-  .os-viewport-scrollbar-styled.os-environment {
+  .os-viewport-scrollbar-hidden.os-environment {
     scrollbar-width: auto !important;
   }
-  .os-viewport-scrollbar-styled.os-environment::-webkit-scrollbar,
-  .os-viewport-scrollbar-styled.os-environment::-webkit-scrollbar-corner {
+  .os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar,
+  .os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar-corner {
     display: block !important;
   }
 }

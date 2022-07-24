@@ -5,7 +5,8 @@ import {
   createStructureSetupElements,
   StructureSetupElementsObj,
 } from 'setups/structureSetup/structureSetup.elements';
-import type { InitializationTarget, DefaultInitializtationElement } from 'initialization';
+import { addPlugin, scrollbarsHidingPlugin } from 'plugins';
+import type { InitializationTarget } from 'initialization';
 import type {
   StructureInitialization,
   StructureStaticInitializationElement,
@@ -24,6 +25,8 @@ jest.mock('support/compatibility/apis', () => {
     ResizeObserverConstructor: true,
   };
 });
+
+addPlugin(scrollbarsHidingPlugin);
 
 interface StructureSetupElementsProxy {
   input: InitializationTarget;
@@ -178,38 +181,33 @@ const assertCorrectSetupElements = (
     expect(_content).toBeFalsy();
   }
 
-  const { _isTextarea, _isBody, _bodyElm, _htmlElm, _documentElm, _windowElm } = elements;
+  const { _isTextarea, _isBody, _documentElm, _windowElm } = elements;
 
   expect(_isTextarea).toBe(isTextarea);
   expect(_isBody).toBe(isBody);
   expect(_windowElm).toBe(document.defaultView);
   expect(_documentElm).toBe(document);
-  expect(_htmlElm).toBe(document.body.parentElement);
-  expect(_bodyElm).toBe(document.body);
 
   expect(typeof destroy).toBe('function');
 
+  const { _nativeScrollbarsHiding, _cssCustomProperties, _getDefaultInitialization } = environment;
   const {
-    _nativeScrollbarsHiding: _nativeScrollbarStyling,
-    _cssCustomProperties,
-    _getInitializationStrategy,
-  } = environment;
-  const {
-    _host: hostInitStrategy,
-    _viewport: viewportInitStrategy,
-    _padding: paddingInitStrategy,
-    _content: contentInitStrategy,
-  } = _getInitializationStrategy();
+    host: hostInitStrategy,
+    viewport: viewportInitStrategy,
+    padding: paddingInitStrategy,
+    content: contentInitStrategy,
+  } = _getDefaultInitialization();
   const inputIsElement = isHTMLElement(input);
   const inputAsObj = input as StructureInitialization;
   const styleElm = document.querySelector('style');
   const checkStrategyDependendElements = (
     elm: Element | null,
-    inputStrategy: StructureStaticInitializationElement | StructureDynamicInitializationElement,
+    inputStrategy:
+      | StructureStaticInitializationElement
+      | StructureDynamicInitializationElement
+      | undefined,
     isStaticStrategy: boolean,
-    strategy:
-      | DefaultInitializtationElement<StructureStaticInitializationElement>
-      | DefaultInitializtationElement<StructureDynamicInitializationElement>,
+    strategy: StructureStaticInitializationElement | StructureDynamicInitializationElement,
     kind: 'padding' | 'viewport' | 'content' | 'host'
   ) => {
     const input = isFunction(inputStrategy) ? inputStrategy(target) : inputStrategy;
@@ -223,8 +221,7 @@ const assertCorrectSetupElements = (
       }
       if (input === undefined) {
         if (isStaticStrategy) {
-          strategy =
-            strategy as DefaultInitializtationElement<StructureStaticInitializationElement>;
+          strategy = strategy as StructureStaticInitializationElement;
           if (typeof strategy === 'function') {
             const result = strategy(target);
             if (_viewportIsTarget) {
@@ -242,8 +239,7 @@ const assertCorrectSetupElements = (
             expect(elm).toBeTruthy();
           }
         } else {
-          strategy =
-            strategy as DefaultInitializtationElement<StructureDynamicInitializationElement>;
+          strategy = strategy as StructureDynamicInitializationElement;
 
           if (typeof strategy === 'function') {
             const result = strategy(target);
@@ -278,7 +274,7 @@ const assertCorrectSetupElements = (
     }
   };
 
-  if (_nativeScrollbarStyling || _cssCustomProperties) {
+  if (_nativeScrollbarsHiding || _cssCustomProperties) {
     expect(styleElm).toBeFalsy();
   } else {
     expect(styleElm).toBeTruthy();

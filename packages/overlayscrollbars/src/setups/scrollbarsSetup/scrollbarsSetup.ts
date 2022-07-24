@@ -1,9 +1,21 @@
-import { rAF, cAF, isFunction, on, runEachAndClear, setT, clearT } from 'support';
+import {
+  rAF,
+  cAF,
+  isFunction,
+  on,
+  runEachAndClear,
+  setT,
+  clearT,
+  parent,
+  scrollLeft,
+  scrollTop,
+} from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
 import {
   createScrollbarsSetupElements,
   ScrollbarsSetupElement,
   ScrollbarsSetupElementsObj,
+  ScrollbarStructure,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
 import {
   classNamesScrollbarVisible,
@@ -18,7 +30,7 @@ import type {
 } from 'options';
 import type { Setup, StructureSetupState, StructureSetupStaticState } from 'setups';
 import type { InitializationTarget } from 'initialization';
-import type { OverflowStyle } from 'typings';
+import type { OverflowStyle, StyleObject } from 'typings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
@@ -121,10 +133,20 @@ export const createScrollbarsSetup = (
     target,
     structureSetupState._elements
   );
-  const { _host, _viewport } = structureSetupState._elements;
+  const { _host, _viewport, _viewportIsTarget, _isBody } = structureSetupState._elements;
   const { _horizontal, _vertical } = elements;
   const { _addRemoveClass: addRemoveClassHorizontal, _handleStyle: styleHorizontal } = _horizontal;
   const { _addRemoveClass: addRemoveClassVertical, _handleStyle: styleVertical } = _vertical;
+  const styleScrollbarPosition = (structure: ScrollbarStructure) => {
+    const { _scrollbar } = structure;
+    const elm = _viewportIsTarget && _isBody && parent(_scrollbar) === _viewport && _scrollbar;
+    return [
+      elm,
+      {
+        transform: elm ? `translate(${scrollLeft(_viewport)}px, ${scrollTop(_viewport)}px)` : '',
+      },
+    ] as [HTMLElement | false, StyleObject];
+  };
   const manageScrollbarsAutoHide = (removeAutoHide: boolean, delayless?: boolean) => {
     clearAutoTimeout();
     if (removeAutoHide) {
@@ -146,6 +168,7 @@ export const createScrollbarsSetup = (
     mouseInHost = autoHideIsLeave;
     mouseInHost && manageScrollbarsAutoHide(true);
   };
+
   const destroyFns: (() => void)[] = [
     clearScrollTimeout,
     clearAutoTimeout,
@@ -181,6 +204,9 @@ export const createScrollbarsSetup = (
           autoHideNotNever && !mouseInHost && manageScrollbarsAutoHide(false);
         });
       });
+
+      _viewportIsTarget && styleHorizontal(styleScrollbarPosition);
+      _viewportIsTarget && styleVertical(styleScrollbarPosition);
     }),
   ];
   const scrollbarsSetupState = getState.bind(0) as (() => ScrollbarsSetupState) &

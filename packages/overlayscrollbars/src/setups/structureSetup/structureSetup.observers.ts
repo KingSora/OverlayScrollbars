@@ -27,6 +27,7 @@ import { getEnvironment } from 'environment';
 import {
   dataAttributeHost,
   dataValueHostOverflowVisible,
+  dataValueHostUpdating,
   classNameViewport,
   classNameOverflowVisible,
   classNameScrollbar,
@@ -100,6 +101,7 @@ export const createStructureSetupObservers = (
       const scrollOffsetY = hasVpStyle && scrollTop(_viewport);
       _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible);
       _viewportAddRemoveClass(classNameViewportArrange, '');
+      _viewportAddRemoveClass('', dataValueHostUpdating, true);
 
       const contentScroll = scrollSize(_content);
       const viewportScroll = scrollSize(_viewport);
@@ -107,6 +109,7 @@ export const createStructureSetupObservers = (
 
       _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, hasOver);
       _viewportAddRemoveClass(classNameViewportArrange, '', hasVpStyle);
+      _viewportAddRemoveClass('', dataValueHostUpdating, false);
       scrollLeft(_viewport, scrollOffsetX);
       scrollTop(_viewport, scrollOffsetY);
       return {
@@ -224,7 +227,8 @@ export const createStructureSetupObservers = (
 
   const viewportIsTargetResizeObserver =
     _viewportIsTarget &&
-    new ResizeObserverConstructor!(onSizeChanged.bind(0, { _sizeChanged: true }));
+    ResizeObserverConstructor &&
+    new ResizeObserverConstructor(onSizeChanged.bind(0, { _sizeChanged: true }));
 
   viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
   updateViewportAttrsFromHost();

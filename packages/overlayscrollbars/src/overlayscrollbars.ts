@@ -21,12 +21,7 @@ import {
 } from 'plugins';
 import { addInstance, getInstance, removeInstance } from 'instances';
 import type { DeepPartial, OverflowStyle } from 'typings';
-import {
-  InitializationTarget,
-  InitializationTargetObject,
-  DefaultInitialization,
-  cancelInitialization,
-} from 'initialization';
+import { InitializationTarget, Initialization, cancelInitialization } from 'initialization';
 import type {
   InitialEventListeners as GeneralInitialEventListeners,
   EventListener as GeneralEventListener,
@@ -34,7 +29,7 @@ import type {
 
 export interface OverlayScrollbarsStatic {
   (
-    target: InitializationTarget | InitializationTargetObject,
+    target: InitializationTarget,
     options?: DeepPartial<Options>,
     eventListeners?: GeneralInitialEventListeners<EventListenerMap>
   ): OverlayScrollbars;
@@ -50,11 +45,11 @@ export interface Environment {
   rtlScrollBehavior: { n: boolean; i: boolean };
   flexboxGlue: boolean;
   cssCustomProperties: boolean;
-  staticDefaultInitialization: DefaultInitialization;
+  staticDefaultInitialization: Initialization;
   staticDefaultOptions: Options;
 
-  getDefaultInitialization(): DefaultInitialization;
-  setDefaultInitialization(newDefaultInitialization: DeepPartial<DefaultInitialization>): void;
+  getDefaultInitialization(): Initialization;
+  setDefaultInitialization(newDefaultInitialization: DeepPartial<Initialization>): void;
   getDefaultOptions(): Options;
   setDefaultOptions(newDefaultOptions: DeepPartial<Options>): void;
 }

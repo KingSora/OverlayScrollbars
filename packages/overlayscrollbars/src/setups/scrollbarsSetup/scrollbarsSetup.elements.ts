@@ -29,7 +29,6 @@ import type { InitializationTarget } from 'initialization';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type {
   ScrollbarsInitialization,
-  DefaultScrollbarsInitialization,
   ScrollbarsDynamicInitializationElement,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.initialization';
 import { StyleObject } from 'typings';
@@ -86,8 +85,7 @@ export const createScrollbarsSetupElements = (
   structureSetupElements: StructureSetupElementsObj
 ): ScrollbarsSetupElements => {
   const { _getDefaultInitialization } = getEnvironment();
-  const { scrollbarsSlot: defaultScrollbarSlot } =
-    _getDefaultInitialization() as DefaultScrollbarsInitialization;
+  const { scrollbarsSlot: defaultScrollbarSlot } = _getDefaultInitialization();
   const { _documentElm, _target, _host, _viewport, _targetIsElm } = structureSetupElements;
   const scrollbarSlot = _targetIsElm ? null : (target as ScrollbarsInitialization).scrollbarsSlot;
   const evaluatedScrollbarSlot =

@@ -2,7 +2,6 @@ import type {
   InitializationTargetElement,
   StaticInitializationElement,
   DynamicInitializationElement,
-  DefaultInitializtationElement,
 } from 'initialization';
 
 export type StructureStaticInitializationElement = StaticInitializationElement<
@@ -25,14 +24,8 @@ export type StructureDynamicInitializationElement = DynamicInitializationElement
  */
 export interface StructureInitialization {
   target: InitializationTargetElement;
-  host?: StructureStaticInitializationElement; // only relevant for textarea
-  viewport?: StructureStaticInitializationElement;
-  padding?: StructureDynamicInitializationElement;
-  content?: StructureDynamicInitializationElement;
+  host: StructureStaticInitializationElement; // only relevant for textarea
+  viewport: StructureStaticInitializationElement;
+  padding: StructureDynamicInitializationElement;
+  content: StructureDynamicInitializationElement;
 }
-
-export type DefaultStructureInitialization = {
-  [K in keyof Omit<StructureInitialization, 'target'>]: DefaultInitializtationElement<
-    StructureInitialization[K]
-  >;
-};

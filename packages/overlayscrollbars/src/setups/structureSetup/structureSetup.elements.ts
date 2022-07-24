@@ -19,8 +19,6 @@ import {
   removeAttr,
   attrClass,
   hasAttrClass,
-  ResizeObserverConstructor,
-  hasOwnProperty,
   noop,
 } from 'support';
 import {
@@ -38,9 +36,12 @@ import type { ScrollbarsHidingPluginInstance } from 'plugins/scrollbarsHidingPlu
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
+} from 'initialization';
+import type {
+  InitializationTarget,
+  InitializationTargetElement,
   InitializationTargetObject,
 } from 'initialization';
-import type { InitializationTarget, InitializationTargetElement } from 'initialization';
 import type {
   StructureDynamicInitializationElement,
   StructureStaticInitializationElement,
@@ -93,18 +94,18 @@ export const createStructureSetupElements = (
   const createUniqueViewportArrangeElement =
     scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
   const {
-    host: defaultHostInitializationStrategy,
-    viewport: defaultViewportInitializationStrategy,
-    padding: defaultPaddingInitializationStrategy,
-    content: defaultContentInitializationStrategy,
+    host: defaultHostInitialization,
+    viewport: defaultViewportInitialization,
+    padding: defaultPaddingInitialization,
+    content: defaultContentInitialization,
   } = _getDefaultInitialization();
   const targetIsElm = isHTMLElement(target);
   const targetStructureInitialization = (targetIsElm ? {} : target) as InitializationTargetObject;
   const {
-    host: hostInitializationStrategy,
-    padding: paddingInitializationStrategy,
-    viewport: viewportInitializationStrategy,
-    content: contentInitializationStrategy,
+    host: hostInitialization,
+    padding: paddingInitialization,
+    viewport: viewportInitialization,
+    content: contentInitialization,
   } = targetStructureInitialization;
 
   const targetElement = targetIsElm ? target : targetStructureInitialization.target;
@@ -112,9 +113,6 @@ export const createStructureSetupElements = (
   const ownerDocument = targetElement.ownerDocument;
   const isBody = targetElement === ownerDocument.body;
   const wnd = ownerDocument.defaultView as Window;
-  const singleElmSupport = isBody
-    ? _nativeScrollbarsHiding
-    : !!ResizeObserverConstructor && !isTextarea && _nativeScrollbarsHiding;
   const staticInitializationElement =
     generalStaticInitializationElement<StructureStaticInitializationElement>.bind(0, [
       targetElement,
@@ -123,43 +121,31 @@ export const createStructureSetupElements = (
     generalDynamicInitializationElement<StructureDynamicInitializationElement>.bind(0, [
       targetElement,
     ]);
-  const viewportElement = [
-    staticInitializationElement(
-      createNewDiv,
-      defaultViewportInitializationStrategy,
-      isBody && !hasOwnProperty(targetStructureInitialization, 'viewport')
-        ? targetElement
-        : viewportInitializationStrategy
-    ),
-    staticInitializationElement(createNewDiv, defaultViewportInitializationStrategy),
-    staticInitializationElement(createNewDiv),
-  ].filter((potentialViewport) =>
-    singleElmSupport ? true : potentialViewport !== targetElement
-  )[0];
+  const viewportElement = staticInitializationElement(
+    createNewDiv,
+    defaultViewportInitialization,
+    viewportInitialization
+  );
   const viewportIsTarget = viewportElement === targetElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: isTextarea
-      ? staticInitializationElement(
-          createNewDiv,
-          defaultHostInitializationStrategy,
-          hostInitializationStrategy
-        )
+      ? staticInitializationElement(createNewDiv, defaultHostInitialization, hostInitialization)
       : (targetElement as HTMLElement),
     _viewport: viewportElement,
     _padding:
       !viewportIsTarget &&
       dynamicInitializationElement(
         createNewDiv,
-        defaultPaddingInitializationStrategy,
-        paddingInitializationStrategy
+        defaultPaddingInitialization,
+        paddingInitialization
       ),
     _content:
       !viewportIsTarget &&
       dynamicInitializationElement(
         createNewDiv,
-        defaultContentInitializationStrategy,
-        contentInitializationStrategy
+        defaultContentInitialization,
+        contentInitialization
       ),
     _viewportArrange:
       !viewportIsTarget &&

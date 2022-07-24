@@ -1,8 +1,4 @@
-import type {
-  InitializationTargetElement,
-  DefaultInitializtationElement,
-  DynamicInitializationElement,
-} from 'initialization';
+import type { InitializationTargetElement, DynamicInitializationElement } from 'initialization';
 
 export type ScrollbarsDynamicInitializationElement = DynamicInitializationElement<
   [target: InitializationTargetElement, host: HTMLElement, viewport: HTMLElement]
@@ -17,9 +13,5 @@ export type ScrollbarsDynamicInitializationElement = DynamicInitializationElemen
  * Null or Undefined means that the environment initialization strategy is used.
  */
 export interface ScrollbarsInitialization {
-  scrollbarsSlot?: ScrollbarsDynamicInitializationElement;
+  scrollbarsSlot: ScrollbarsDynamicInitializationElement;
 }
-
-export type DefaultScrollbarsInitialization = {
-  [K in keyof ScrollbarsInitialization]: DefaultInitializtationElement<ScrollbarsInitialization[K]>;
-};
