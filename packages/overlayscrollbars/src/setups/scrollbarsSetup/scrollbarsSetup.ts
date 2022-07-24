@@ -133,13 +133,15 @@ export const createScrollbarsSetup = (
     target,
     structureSetupState._elements
   );
-  const { _host, _viewport, _viewportIsTarget, _isBody } = structureSetupState._elements;
+  const { _host, _viewport, _viewportIsTarget, _isBody, _documentElm } =
+    structureSetupState._elements;
+  const scrollOffsetElement = _isBody ? _documentElm.documentElement : _viewport;
   const { _horizontal, _vertical } = elements;
   const { _addRemoveClass: addRemoveClassHorizontal, _handleStyle: styleHorizontal } = _horizontal;
   const { _addRemoveClass: addRemoveClassVertical, _handleStyle: styleVertical } = _vertical;
   const styleScrollbarPosition = (structure: ScrollbarStructure) => {
     const { _scrollbar } = structure;
-    const elm = _viewportIsTarget && _isBody && parent(_scrollbar) === _viewport && _scrollbar;
+    const elm = _viewportIsTarget && !_isBody && parent(_scrollbar) === _viewport && _scrollbar;
     return [
       elm,
       {
@@ -193,11 +195,11 @@ export const createScrollbarsSetup = (
           });
         });
     }),
-    on(_viewport, 'scroll', () => {
+    on(_isBody ? _documentElm : _viewport, 'scroll', () => {
       requestScrollAnimationFrame(() => {
         const structureState = structureSetupState();
-        refreshScrollbarHandleOffset(styleHorizontal, structureState, _viewport, true);
-        refreshScrollbarHandleOffset(styleVertical, structureState, _viewport);
+        refreshScrollbarHandleOffset(styleHorizontal, structureState, scrollOffsetElement, true);
+        refreshScrollbarHandleOffset(styleVertical, structureState, scrollOffsetElement);
 
         autoHideNotNever && manageScrollbarsAutoHide(true);
         scrollTimeout(() => {
@@ -275,8 +277,13 @@ export const createScrollbarsSetup = (
         refreshScrollbarHandleLength(styleHorizontal, currStructureSetupState, true);
         refreshScrollbarHandleLength(styleVertical, currStructureSetupState);
 
-        refreshScrollbarHandleOffset(styleHorizontal, currStructureSetupState, _viewport, true);
-        refreshScrollbarHandleOffset(styleVertical, currStructureSetupState, _viewport);
+        refreshScrollbarHandleOffset(
+          styleHorizontal,
+          currStructureSetupState,
+          scrollOffsetElement,
+          true
+        );
+        refreshScrollbarHandleOffset(styleVertical, currStructureSetupState, scrollOffsetElement);
       }
     },
     scrollbarsSetupState,
