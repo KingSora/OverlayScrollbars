@@ -109,7 +109,7 @@ export const createStructureSetupObservers = (
 
       _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, hasOver);
       _viewportAddRemoveClass(classNameViewportArrange, '', hasVpStyle);
-      _viewportAddRemoveClass('', dataValueHostUpdating, false);
+      _viewportAddRemoveClass('', dataValueHostUpdating);
       scrollLeft(_viewport, scrollOffsetX);
       scrollTop(_viewport, scrollOffsetY);
       return {
