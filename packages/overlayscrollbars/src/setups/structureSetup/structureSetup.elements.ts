@@ -60,6 +60,8 @@ export interface StructureSetupElementsObj {
   _padding: HTMLElement | false;
   _content: HTMLElement | false;
   _viewportArrange: HTMLStyleElement | false | null | undefined;
+  _scrollOffsetElement: HTMLElement;
+  _scrollEventElement: HTMLElement | Document;
   // ctx ----
   _isTextarea: boolean;
   _isBody: boolean;
@@ -152,6 +154,8 @@ export const createStructureSetupElements = (
       !_nativeScrollbarsHiding &&
       createUniqueViewportArrangeElement &&
       createUniqueViewportArrangeElement(env),
+    _scrollOffsetElement: isBody ? ownerDocument.documentElement : viewportElement,
+    _scrollEventElement: isBody ? ownerDocument : viewportElement,
     _windowElm: wnd,
     _documentElm: ownerDocument,
     _isTextarea: isTextarea,

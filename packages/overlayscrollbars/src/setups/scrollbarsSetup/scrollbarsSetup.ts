@@ -12,6 +12,11 @@ import {
 } from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
 import {
+  getScrollbarHandleLengthRatio,
+  getScrollbarHandleOffsetRatio,
+} from 'setups/scrollbarsSetup/scrollbarsSetup.calculations';
+import { createScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
+import {
   createScrollbarsSetupElements,
   ScrollbarsSetupElement,
   ScrollbarsSetupElementsObj,
@@ -40,7 +45,6 @@ export interface ScrollbarsSetupStaticState {
   _appendElements: () => void;
 }
 
-const { min } = Math;
 const createSelfCancelTimeout = (timeout?: number | (() => number)) => {
   let id: number;
   const setTFn = timeout ? setT : rAF!;
@@ -55,17 +59,6 @@ const createSelfCancelTimeout = (timeout?: number | (() => number)) => {
   ] as [timeout: (callback: () => any) => void, clear: () => void];
 };
 
-const getScrollbarHandleRatio = (
-  structureSetupState: StructureSetupState,
-  isHorizontal?: boolean
-) => {
-  const { _overflowAmount, _overflowEdge } = structureSetupState;
-  const axis = isHorizontal ? 'x' : 'y';
-  const viewportSize = _overflowEdge[axis];
-  const overflowAmount = _overflowAmount[axis];
-  return min(1, viewportSize / (viewportSize + overflowAmount));
-};
-
 const refreshScrollbarHandleLength = (
   setStyleFn: ScrollbarsSetupElement['_handleStyle'],
   structureSetupState: StructureSetupState,
@@ -75,7 +68,7 @@ const refreshScrollbarHandleLength = (
     structure._handle,
     {
       [isHorizontal ? 'width' : 'height']: `${(
-        getScrollbarHandleRatio(structureSetupState, isHorizontal) * 100
+        getScrollbarHandleLengthRatio(structureSetupState, isHorizontal) * 100
       ).toFixed(3)}%`,
     },
   ]);
@@ -83,28 +76,23 @@ const refreshScrollbarHandleLength = (
 const refreshScrollbarHandleOffset = (
   setStyleFn: ScrollbarsSetupElement['_handleStyle'],
   structureSetupState: StructureSetupState,
-  viewport: HTMLElement,
+  scrollOffsetElement: HTMLElement,
   isHorizontal?: boolean
 ) => {
-  const axis = isHorizontal ? 'x' : 'y';
   const translateAxis = isHorizontal ? 'X' : 'Y';
-  const scrollLeftTop = isHorizontal ? 'Left' : 'Top';
-  const handleRatio = getScrollbarHandleRatio(structureSetupState, isHorizontal);
-  const scrollPosition = viewport[`scroll${scrollLeftTop}`] as number;
-  const scrollPositionMax =
-    (viewport[`scroll${scrollLeftTop}Max`] as number) ||
-    Math.floor(structureSetupState._overflowAmount[axis]);
+  const offsetRatio = getScrollbarHandleOffsetRatio(
+    structureSetupState,
+    scrollOffsetElement,
+    isHorizontal
+  );
+  // eslint-disable-next-line no-self-compare
+  const validOffsetRatio = offsetRatio === offsetRatio; // is false when offset is NaN
 
   setStyleFn((structure) => [
     structure._handle,
     {
-      transform: scrollPositionMax
-        ? `translate${translateAxis}(${(
-            (1 / handleRatio) *
-            (1 - handleRatio) *
-            (scrollPosition / scrollPositionMax) *
-            100
-          ).toFixed(3)}%)`
+      transform: validOffsetRatio
+        ? `translate${translateAxis}(${(offsetRatio * 100).toFixed(3)}%)`
         : '',
     },
   ]);
@@ -131,34 +119,38 @@ export const createScrollbarsSetup = (
   const [auotHideTimeout, clearAutoTimeout] = createSelfCancelTimeout(() => globalAutoHideDelay);
   const [elements, appendElements, destroyElements] = createScrollbarsSetupElements(
     target,
-    structureSetupState._elements
+    structureSetupState._elements,
+    createScrollbarsSetupEvents(structureSetupState)
   );
-  const { _host, _viewport, _viewportIsTarget, _isBody, _documentElm } =
-    structureSetupState._elements;
-  const scrollOffsetElement = _isBody ? _documentElm.documentElement : _viewport;
-  const { _horizontal, _vertical } = elements;
-  const { _addRemoveClass: addRemoveClassHorizontal, _handleStyle: styleHorizontal } = _horizontal;
-  const { _addRemoveClass: addRemoveClassVertical, _handleStyle: styleVertical } = _vertical;
+  const {
+    _host,
+    _viewport,
+    _scrollOffsetElement,
+    _scrollEventElement,
+    _viewportIsTarget,
+    _isBody,
+  } = structureSetupState._elements;
+  const { _horizontal, _vertical, _scrollbarsAddRemoveClass: scrollbarsAddRemoveClass } = elements;
+  const { _handleStyle: styleHorizontal } = _horizontal;
+  const { _handleStyle: styleVertical } = _vertical;
   const styleScrollbarPosition = (structure: ScrollbarStructure) => {
     const { _scrollbar } = structure;
     const elm = _viewportIsTarget && !_isBody && parent(_scrollbar) === _viewport && _scrollbar;
     return [
       elm,
       {
-        transform: elm ? `translate(${scrollLeft(_viewport)}px, ${scrollTop(_viewport)}px)` : '',
+        transform: elm
+          ? `translate(${scrollLeft(_scrollOffsetElement)}px, ${scrollTop(_scrollOffsetElement)}px)`
+          : '',
       },
     ] as [HTMLElement | false, StyleObject];
   };
   const manageScrollbarsAutoHide = (removeAutoHide: boolean, delayless?: boolean) => {
     clearAutoTimeout();
     if (removeAutoHide) {
-      addRemoveClassHorizontal(classNamesScrollbarAutoHidden);
-      addRemoveClassVertical(classNamesScrollbarAutoHidden);
+      scrollbarsAddRemoveClass(classNamesScrollbarAutoHidden);
     } else {
-      const hide = () => {
-        addRemoveClassHorizontal(classNamesScrollbarAutoHidden, true);
-        addRemoveClassVertical(classNamesScrollbarAutoHidden, true);
-      };
+      const hide = () => scrollbarsAddRemoveClass(classNamesScrollbarAutoHidden, true);
       if (globalAutoHideDelay > 0 && !delayless) {
         auotHideTimeout(hide);
       } else {
@@ -195,11 +187,11 @@ export const createScrollbarsSetup = (
           });
         });
     }),
-    on(_isBody ? _documentElm : _viewport, 'scroll', () => {
+    on(_scrollEventElement, 'scroll', () => {
       requestScrollAnimationFrame(() => {
         const structureState = structureSetupState();
-        refreshScrollbarHandleOffset(styleHorizontal, structureState, scrollOffsetElement, true);
-        refreshScrollbarHandleOffset(styleVertical, structureState, scrollOffsetElement);
+        refreshScrollbarHandleOffset(styleHorizontal, structureState, _scrollOffsetElement, true);
+        refreshScrollbarHandleOffset(styleVertical, structureState, _scrollOffsetElement);
 
         autoHideNotNever && manageScrollbarsAutoHide(true);
         scrollTimeout(() => {
@@ -237,13 +229,10 @@ export const createScrollbarsSetup = (
       const updateHandle = _overflowEdgeChanged || _overflowAmountChanged;
       const updateVisibility = _overflowStyleChanged || visibilityChanged;
 
-      const setScrollbarVisibility = (
-        overflowStyle: OverflowStyle,
-        addRemoveClass: (classNames: string, add?: boolean) => void
-      ) => {
+      const setScrollbarVisibility = (overflowStyle: OverflowStyle, isHorizontal: boolean) => {
         const isVisible =
           visibility === 'visible' || (visibility === 'auto' && overflowStyle === 'scroll');
-        addRemoveClass(classNamesScrollbarVisible, isVisible);
+        scrollbarsAddRemoveClass(classNamesScrollbarVisible, isVisible, isHorizontal);
         return isVisible;
       };
 
@@ -252,19 +241,16 @@ export const createScrollbarsSetup = (
       if (updateVisibility) {
         const { _overflowStyle } = currStructureSetupState;
 
-        const xVisible = setScrollbarVisibility(_overflowStyle.x, addRemoveClassHorizontal);
-        const yVisible = setScrollbarVisibility(_overflowStyle.y, addRemoveClassVertical);
+        const xVisible = setScrollbarVisibility(_overflowStyle.x, true);
+        const yVisible = setScrollbarVisibility(_overflowStyle.y, false);
         const hasCorner = xVisible && yVisible;
 
-        addRemoveClassHorizontal(classNamesScrollbarCornerless, !hasCorner);
-        addRemoveClassVertical(classNamesScrollbarCornerless, !hasCorner);
+        scrollbarsAddRemoveClass(classNamesScrollbarCornerless, !hasCorner);
       }
       if (themeChanged) {
-        addRemoveClassHorizontal(prevTheme);
-        addRemoveClassVertical(prevTheme);
+        scrollbarsAddRemoveClass(prevTheme);
+        scrollbarsAddRemoveClass(theme, true);
 
-        addRemoveClassHorizontal(theme, true);
-        addRemoveClassVertical(theme, true);
         prevTheme = theme;
       }
       if (autoHideChanged) {
@@ -280,10 +266,10 @@ export const createScrollbarsSetup = (
         refreshScrollbarHandleOffset(
           styleHorizontal,
           currStructureSetupState,
-          scrollOffsetElement,
+          _scrollOffsetElement,
           true
         );
-        refreshScrollbarHandleOffset(styleVertical, currStructureSetupState, scrollOffsetElement);
+        refreshScrollbarHandleOffset(styleVertical, currStructureSetupState, _scrollOffsetElement);
       }
     },
     scrollbarsSetupState,

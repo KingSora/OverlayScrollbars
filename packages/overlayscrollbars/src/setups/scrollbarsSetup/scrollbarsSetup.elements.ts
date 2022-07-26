@@ -3,15 +3,13 @@ import {
   appendChildren,
   createDiv,
   each,
+  isBoolean,
   isEmptyArray,
-  noop,
-  on,
   push,
   removeClass,
   removeElements,
   runEachAndClear,
   setT,
-  stopPropagation,
   style,
 } from 'support';
 import {
@@ -20,18 +18,18 @@ import {
   classNameScrollbarVertical,
   classNameScrollbarTrack,
   classNameScrollbarHandle,
-  classNamesScrollbarInteraction,
   classNamesScrollbarTransitionless,
 } from 'classnames';
 import { getEnvironment } from 'environment';
 import { dynamicInitializationElement as generalDynamicInitializationElement } from 'initialization';
 import type { InitializationTarget } from 'initialization';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
+import type { ScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
 import type {
   ScrollbarsInitialization,
   ScrollbarsDynamicInitializationElement,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.initialization';
-import { StyleObject } from 'typings';
+import type { StyleObject } from 'typings';
 
 export interface ScrollbarStructure {
   _scrollbar: HTMLElement;
@@ -42,24 +40,19 @@ export interface ScrollbarStructure {
 export interface ScrollbarsSetupElement {
   _scrollbarStructures: ScrollbarStructure[];
   _clone: () => ScrollbarStructure;
-  _addRemoveClass: (
-    classNames: string | false | null | undefined,
-    add?: boolean,
-    elm?: (scrollbarStructure: ScrollbarStructure) => HTMLElement | false | null | undefined
-  ) => void;
   _handleStyle: (
     elmStyle: (
       scrollbarStructure: ScrollbarStructure
     ) => [HTMLElement | false | null | undefined, StyleObject]
   ) => void;
-  // _removeClass: (classNames: string) => void;
-  /*
-  _addEventListener: () => void;
-  _removeEventListener: () => void;
-  */
 }
 
 export interface ScrollbarsSetupElementsObj {
+  _scrollbarsAddRemoveClass: (
+    classNames: string | false | null | undefined,
+    add?: boolean,
+    isHorizontal?: boolean
+  ) => void;
   _horizontal: ScrollbarsSetupElement;
   _vertical: ScrollbarsSetupElement;
 }
@@ -70,23 +63,15 @@ export type ScrollbarsSetupElements = [
   destroy: () => void
 ];
 
-const interactionStartEventNames = 'touchstart mouseenter';
-const interactionEndEventNames = 'touchend touchcancel mouseleave';
-const stopRootClickPropagation = (scrollbar: HTMLElement, documentElm: Document) =>
-  on(
-    scrollbar,
-    'mousedown',
-    on.bind(0, documentElm, 'click', stopPropagation, { _once: true, _capture: true }),
-    { _capture: true }
-  );
-
 export const createScrollbarsSetupElements = (
   target: InitializationTarget,
-  structureSetupElements: StructureSetupElementsObj
+  structureSetupElements: StructureSetupElementsObj,
+  scrollbarsSetupEvents: ScrollbarsSetupEvents
 ): ScrollbarsSetupElements => {
   const { _getDefaultInitialization } = getEnvironment();
   const { scrollbarsSlot: defaultScrollbarsSlot } = _getDefaultInitialization();
-  const { _documentElm, _target, _host, _viewport, _targetIsElm } = structureSetupElements;
+  const { _documentElm, _target, _host, _viewport, _targetIsElm, _scrollOffsetElement } =
+    structureSetupElements;
   const { scrollbarsSlot } = (_targetIsElm ? {} : target) as ScrollbarsInitialization;
   const evaluatedScrollbarSlot =
     generalDynamicInitializationElement<ScrollbarsDynamicInitializationElement>(
@@ -95,15 +80,14 @@ export const createScrollbarsSetupElements = (
       defaultScrollbarsSlot,
       scrollbarsSlot
     );
-  const scrollbarsAddRemoveClass = (
+  const scrollbarStructureAddRemoveClass = (
     scrollbarStructures: ScrollbarStructure[],
     classNames: string | false | null | undefined,
-    add?: boolean,
-    elm?: (scrollbarStructure: ScrollbarStructure) => HTMLElement | false | null | undefined
+    add?: boolean
   ) => {
     const action = add ? addClass : removeClass;
     each(scrollbarStructures, (scrollbarStructure) => {
-      action((elm || noop)(scrollbarStructure) || scrollbarStructure._scrollbar, classNames);
+      action(scrollbarStructure._scrollbar, classNames);
     });
   };
   const scrollbarsHandleStyle = (
@@ -121,13 +105,22 @@ export const createScrollbarsSetupElements = (
   const horizontalScrollbars: ScrollbarStructure[] = [];
   const verticalScrollbars: ScrollbarStructure[] = [];
 
-  const addRemoveClassHorizontal = scrollbarsAddRemoveClass.bind(0, horizontalScrollbars);
-  const addRemoveClassVertical = scrollbarsAddRemoveClass.bind(0, verticalScrollbars);
-  const generateScrollbarDOM = (horizontal?: boolean): ScrollbarStructure => {
-    const scrollbarClassName = horizontal
+  const scrollbarsAddRemoveClass = (
+    className: string | false | null | undefined,
+    add?: boolean,
+    onlyHorizontal?: boolean
+  ) => {
+    const singleAxis = isBoolean(onlyHorizontal);
+    const runHorizontal = singleAxis ? onlyHorizontal : true;
+    const runVertical = singleAxis ? !onlyHorizontal : true;
+    runHorizontal && scrollbarStructureAddRemoveClass(horizontalScrollbars, className, add);
+    runVertical && scrollbarStructureAddRemoveClass(verticalScrollbars, className, add);
+  };
+  const generateScrollbarDOM = (isHorizontal?: boolean): ScrollbarStructure => {
+    const scrollbarClassName = isHorizontal
       ? classNameScrollbarHorizontal
       : classNameScrollbarVertical;
-    const arrToPush = horizontal ? horizontalScrollbars : verticalScrollbars;
+    const arrToPush = isHorizontal ? horizontalScrollbars : verticalScrollbars;
     const transitionlessClass = isEmptyArray(arrToPush) ? classNamesScrollbarTransitionless : '';
     const scrollbar = createDiv(
       `${classNameScrollbar} ${scrollbarClassName} ${transitionlessClass}`
@@ -146,15 +139,13 @@ export const createScrollbarsSetupElements = (
     push(arrToPush, result);
     push(destroyFns, [
       removeElements.bind(0, scrollbar),
-      on(scrollbar, interactionStartEventNames, () => {
-        addRemoveClassHorizontal(classNamesScrollbarInteraction, true);
-        addRemoveClassVertical(classNamesScrollbarInteraction, true);
-      }),
-      on(scrollbar, interactionEndEventNames, () => {
-        addRemoveClassHorizontal(classNamesScrollbarInteraction);
-        addRemoveClassVertical(classNamesScrollbarInteraction);
-      }),
-      stopRootClickPropagation(scrollbar, _documentElm),
+      scrollbarsSetupEvents(
+        result,
+        scrollbarsAddRemoveClass,
+        _documentElm,
+        _scrollOffsetElement,
+        isHorizontal
+      ),
     ]);
 
     return result;
@@ -166,8 +157,7 @@ export const createScrollbarsSetupElements = (
     appendChildren(evaluatedScrollbarSlot, verticalScrollbars[0]._scrollbar);
 
     setT(() => {
-      addRemoveClassHorizontal(classNamesScrollbarTransitionless);
-      addRemoveClassVertical(classNamesScrollbarTransitionless);
+      scrollbarsAddRemoveClass(classNamesScrollbarTransitionless);
     }, 300);
   };
 
@@ -176,16 +166,15 @@ export const createScrollbarsSetupElements = (
 
   return [
     {
+      _scrollbarsAddRemoveClass: scrollbarsAddRemoveClass,
       _horizontal: {
         _scrollbarStructures: horizontalScrollbars,
         _clone: generateHorizontalScrollbarStructure,
-        _addRemoveClass: addRemoveClassHorizontal,
         _handleStyle: scrollbarsHandleStyle.bind(0, horizontalScrollbars),
       },
       _vertical: {
         _scrollbarStructures: verticalScrollbars,
         _clone: generateVerticalScrollbarStructure,
-        _addRemoveClass: addRemoveClassVertical,
         _handleStyle: scrollbarsHandleStyle.bind(0, verticalScrollbars),
       },
     },
