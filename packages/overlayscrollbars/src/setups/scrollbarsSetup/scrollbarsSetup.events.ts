@@ -8,7 +8,7 @@ import {
   XY,
 } from 'support';
 import { classNamesScrollbarInteraction } from 'classnames';
-import { getScrollbarHandleOffsetRatio } from 'setups/scrollbarsSetup/scrollbarsSetup.calculations';
+import { getScrollbarHandleLengthRatio } from 'setups/scrollbarsSetup/scrollbarsSetup.calculations';
 import type { StructureSetupState } from 'setups';
 import type {
   ScrollbarsSetupElementsObj,
@@ -27,12 +27,12 @@ const getPageOffset = (event: PointerEvent): XY<number> => ({
   x: event.pageX,
   y: event.pageY,
 });
-const getInvertedScale = (element: HTMLElement): XY<number> => {
+const getScale = (element: HTMLElement): XY<number> => {
   const { width, height } = getBoundingClientRect(element);
   const { w, h } = offsetSize(element);
   return {
-    x: 1 / (Math.round(width) / w) || 1,
-    y: 1 / (Math.round(height) / h) || 1,
+    x: Math.round(width) / w || 1,
+    y: Math.round(height) / h || 1,
   };
 };
 const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentElm: Document) =>
@@ -56,7 +56,7 @@ const createDragScrollingEvents = (
     (event: PointerEvent) => {
       const movement = (getPageOffset(event)[xyKey] - mouseDownPageOffset) * mouseDownInvertedScale;
       const handleLengthRatio =
-        1 / getScrollbarHandleOffsetRatio(structureSetupState(), scrollOffsetElement, isHorizontal);
+        1 / getScrollbarHandleLengthRatio(structureSetupState(), isHorizontal);
       scrollOffsetElement[scrollOffsetKey] = mouseDownScroll + movement * handleLengthRatio;
       // if (_isRTL && isHorizontal && !_rtlScrollBehavior.i) scrollDelta *= -1;
     };
@@ -65,16 +65,17 @@ const createDragScrollingEvents = (
     const { button, isPrimary, pointerId } = pointerDownEvent;
 
     if (button === 0 && isPrimary) {
-      const mouseDownScroll = scrollOffsetElement[scrollOffsetKey] || 0;
-      const mouseDownPageOffset = getPageOffset(pointerDownEvent)[xyKey];
-      const mouseDownInvertedScale = getInvertedScale(scrollOffsetElement)[xyKey];
       const offSelectStart = on(doc, 'selectstart', (event: Event) => preventDefault(event), {
         _passive: false,
       });
       const offPointerMove = on(
         scrollbarHandle,
         'pointermove',
-        createOnPointerMoveHandler(mouseDownScroll, mouseDownPageOffset, mouseDownInvertedScale)
+        createOnPointerMoveHandler(
+          scrollOffsetElement[scrollOffsetKey] || 0,
+          getPageOffset(pointerDownEvent)[xyKey],
+          1 / getScale(scrollOffsetElement)[xyKey]
+        )
       );
 
       on(
