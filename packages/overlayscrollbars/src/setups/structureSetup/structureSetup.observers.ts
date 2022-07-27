@@ -158,6 +158,7 @@ export const createStructureSetupObservers = (
       _heightIntrinsicChanged: heightIntrinsicChanged,
     };
     setState({ _heightIntrinsic: heightIntrinsic });
+
     !fromRecords && structureSetupUpdate(updateHints);
     return updateHints;
   };
@@ -175,6 +176,7 @@ export const createStructureSetupObservers = (
     if (_directionIsRTLCache) {
       const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache;
       directionChanged = directionIsRTLChanged;
+
       setState({ _directionIsRTL: directionIsRTL });
     }
 

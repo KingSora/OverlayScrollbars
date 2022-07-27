@@ -58,7 +58,7 @@ interface Options {
         autoHideDelay: number;
         dragScroll: boolean;
         clickScroll: boolean;
-        touch: boolean;
+        pointers: string[] | null;
     };
 }
 type PluginInstance = Record<string, unknown> | ((staticObj: OverlayScrollbarsStatic, instanceObj: OverlayScrollbars) => void);
@@ -72,32 +72,29 @@ type SizeObserverPluginInstance = {
     ];
 };
 declare const sizeObserverPlugin: Plugin<SizeObserverPluginInstance>;
-type StaticInitialization = HTMLElement | null | undefined;
-type DynamicInitialization = HTMLElement | boolean | null | undefined;
-type CancelInitialization = {
+type StaticInitialization = HTMLElement | false | null;
+type DynamicInitialization = HTMLElement | boolean | null;
+type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
+type Initialization = Omit<StructureInitialization, "target"> & ScrollbarsInitialization & {
     cancel: {
-        nativeScrollbarsOverlaid: boolean | undefined;
-        body: boolean | null | undefined;
+        nativeScrollbarsOverlaid: boolean;
+        body: boolean | null;
     };
 };
-type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
-type InitializationTargetObject = StructureInitialization & ScrollbarsInitialization & DeepPartial<CancelInitialization>;
+type InitializationTargetObject = DeepPartial<Initialization> & Pick<StructureInitialization, "target">;
 type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
-type DefaultInitialization = DefaultStructureInitialization & DefaultScrollbarsInitialization & CancelInitialization;
 /**
  * Static elements MUST be present.
- * Null or undefined behave like if this element wasn't specified during initialization.
+ * With false, null or undefined the element will be generated, otherwise the specified element is taken.
  */
 type StaticInitializationElement<Args extends any[]> = ((...args: Args) => StaticInitialization) | StaticInitialization;
 /**
  * Dynamic element CAN be present.
- * If its a element the element will be handled as the repsective element.
- * True means that the respective dynamic element is forced to be generated.
- * False means that the respective dynamic element is forced NOT to be generated.
- * Null or undefined behave like if this element wasn't specified during initialization.
+ * If its a element the element will be taken as the repsective element.
+ * With true the element will be generated.
+ * With false, null or undefined the element won't be generated.
  */
 type DynamicInitializationElement<Args extends any[]> = ((...args: Args) => DynamicInitialization) | DynamicInitialization;
-type DefaultInitializtationElement<InitElm> = Exclude<InitElm, HTMLElement>;
 type ScrollbarsDynamicInitializationElement = DynamicInitializationElement<[
     target: InitializationTargetElement,
     host: HTMLElement,
@@ -112,11 +109,8 @@ type ScrollbarsDynamicInitializationElement = DynamicInitializationElement<[
  * Null or Undefined means that the environment initialization strategy is used.
  */
 interface ScrollbarsInitialization {
-    scrollbarsSlot?: ScrollbarsDynamicInitializationElement;
+    scrollbarsSlot: ScrollbarsDynamicInitializationElement;
 }
-type DefaultScrollbarsInitialization = {
-    [K in keyof ScrollbarsInitialization]: DefaultInitializtationElement<ScrollbarsInitialization[K]>;
-};
 interface StructureSetupState {
     _padding: TRBL;
     _paddingAbsolute: boolean;
@@ -146,14 +140,11 @@ type StructureDynamicInitializationElement = DynamicInitializationElement<[
  */
 interface StructureInitialization {
     target: InitializationTargetElement;
-    host?: StructureStaticInitializationElement; // only relevant for textarea
-    viewport?: StructureStaticInitializationElement;
-    padding?: StructureDynamicInitializationElement;
-    content?: StructureDynamicInitializationElement;
+    host: StructureStaticInitializationElement; // only relevant for textarea
+    viewport: StructureStaticInitializationElement;
+    padding: StructureDynamicInitializationElement;
+    content: StructureDynamicInitializationElement;
 }
-type DefaultStructureInitialization = {
-    [K in keyof Omit<StructureInitialization, "target">]: DefaultInitializtationElement<StructureInitialization[K]>;
-};
 interface ViewportOverflowState {
     _scrollbarsHideOffset: XY<number>;
     _scrollbarsHideOffsetArrange: XY<boolean>;
@@ -176,11 +167,11 @@ interface InternalEnvironment {
     };
     readonly _flexboxGlue: boolean;
     readonly _cssCustomProperties: boolean;
-    readonly _staticDefaultInitialization: DefaultInitialization;
+    readonly _staticDefaultInitialization: Initialization;
     readonly _staticDefaultOptions: Options;
     _addListener(listener: EventListener<EnvironmentEventMap, "_">): () => void;
-    _getDefaultInitialization(): DefaultInitialization;
-    _setDefaultInitialization(newInitialization: DeepPartial<DefaultInitialization>): void;
+    _getDefaultInitialization(): Initialization;
+    _setDefaultInitialization(newInitialization: DeepPartial<Initialization>): void;
     _getDefaultOptions(): Options;
     _setDefaultOptions(newDefaultOptions: DeepPartial<Options>): void;
 }
@@ -202,7 +193,7 @@ declare const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance>;
 type GeneralInitialEventListeners = InitialEventListeners;
 type GeneralEventListener = EventListener;
 interface OverlayScrollbarsStatic {
-    (target: InitializationTarget | InitializationTargetObject, options?: DeepPartial<Options>, eventListeners?: GeneralInitialEventListeners<EventListenerMap>): OverlayScrollbars;
+    (target: InitializationTarget, options?: DeepPartial<Options>, eventListeners?: GeneralInitialEventListeners<EventListenerMap>): OverlayScrollbars;
     plugin(plugin: Plugin | Plugin[]): void;
     env(): Environment;
 }
@@ -216,10 +207,10 @@ interface Environment {
     };
     flexboxGlue: boolean;
     cssCustomProperties: boolean;
-    staticDefaultInitialization: DefaultInitialization;
+    staticDefaultInitialization: Initialization;
     staticDefaultOptions: Options;
-    getDefaultInitialization(): DefaultInitialization;
-    setDefaultInitialization(newDefaultInitialization: DeepPartial<DefaultInitialization>): void;
+    getDefaultInitialization(): Initialization;
+    setDefaultInitialization(newDefaultInitialization: DeepPartial<Initialization>): void;
     getDefaultOptions(): Options;
     setDefaultOptions(newDefaultOptions: DeepPartial<Options>): void;
 }

@@ -61,6 +61,7 @@ export interface State {
   overflowAmount: XY<number>;
   overflowStyle: XY<OverflowStyle>;
   hasOverflow: XY<boolean>;
+  directionRTL: boolean;
   destroyed: boolean;
 }
 
@@ -213,6 +214,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
         _hasOverflow,
         _padding,
         _paddingAbsolute,
+        _directionIsRTL,
       } = structureState();
       return assignDeep(
         {},
@@ -223,6 +225,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           hasOverflow: _hasOverflow,
           padding: _padding,
           paddingAbsolute: _paddingAbsolute,
+          directionRTL: _directionIsRTL,
           destroyed,
         }
       );

@@ -2,6 +2,7 @@ import {
   addClass,
   appendChildren,
   createDiv,
+  directionIsRTL,
   each,
   isBoolean,
   isEmptyArray,
@@ -138,7 +139,7 @@ export const createScrollbarsSetupElements = (
         _track,
         _scrollOffsetElement,
         structureSetupState,
-        style(_scrollbar, 'direction') === 'rtl',
+        directionIsRTL(_scrollbar),
         isHorizontal
       );
       // eslint-disable-next-line no-self-compare

@@ -109,6 +109,9 @@ export const show = (elm: HTMLElement | false | null | undefined): void => {
   style(elm, { display: 'block' });
 };
 
+export const directionIsRTL = (elm: HTMLElement | false | null | undefined): boolean =>
+  style(elm, 'direction') === 'rtl';
+
 /**
  * Returns the top right bottom left values of the passed css property.
  * @param elm The element of which the values shall be returned.

@@ -1,9 +1,7 @@
 import {
-  Cache,
   CacheValues,
   createCache,
   createDOM,
-  style,
   scrollLeft,
   scrollTop,
   runEachAndClear,
@@ -18,6 +16,7 @@ import {
   isObject,
   stopPropagation,
   appendChildren,
+  directionIsRTL,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -41,7 +40,6 @@ export interface SizeObserverCallbackParams {
 export type SizeObserver = [destroy: () => void, append: () => void];
 
 const scrollAmount = 3333333;
-const getElmDirectionIsRTL = (elm: HTMLElement): boolean => style(elm, 'direction') === 'rtl';
 const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height || rect.width);
 
 /**
@@ -67,7 +65,7 @@ export const createSizeObserver = (
   );
   const sizeObserver = baseElements[0] as HTMLElement;
   const listenerElement = sizeObserver.firstChild as HTMLElement;
-  const getIsDirectionRTL = getElmDirectionIsRTL.bind(0, sizeObserver);
+  const getIsDirectionRTL = directionIsRTL.bind(0, target);
   const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | undefined>({
     _initialValue: undefined,
     _alwaysUpdateValues: true,
@@ -117,7 +115,7 @@ export const createSizeObserver = (
     if (observeDirectionChange && doDirectionScroll) {
       const rtl = hasDirectionCache
         ? (sizeChangedContext as CacheValues<boolean>)[0]
-        : getElmDirectionIsRTL(sizeObserver);
+        : directionIsRTL(sizeObserver);
       scrollLeft(
         sizeObserver,
         rtl
@@ -145,7 +143,6 @@ export const createSizeObserver = (
   let appearCallback: ((...args: any) => any) | false = observeAppearChange
     ? onSizeChangedCallbackProxy
     : false;
-  let directionIsRTLCache: Cache<boolean> | undefined;
 
   return [
     () => {
@@ -170,23 +167,22 @@ export const createSizeObserver = (
       }
 
       if (observeDirectionChange) {
-        directionIsRTLCache = createCache(
+        const [updateDirectionIsRTLCache] = createCache(
           {
             _initialValue: !getIsDirectionRTL(), // invert current value to trigger initial change
           },
           getIsDirectionRTL
         );
-        const [updateDirectionIsRTLCache] = directionIsRTLCache;
 
         push(
           offListeners,
           on(sizeObserver, 'scroll', (event: Event) => {
             const directionIsRTLCacheValues = updateDirectionIsRTLCache();
-            const [directionIsRTL, directionIsRTLChanged] = directionIsRTLCacheValues;
+            const [directionIsRTLCache, directionIsRTLCacheChanged] = directionIsRTLCacheValues;
 
-            if (directionIsRTLChanged) {
+            if (directionIsRTLCacheChanged) {
               removeClass(listenerElement, 'ltr rtl');
-              if (directionIsRTL) {
+              if (directionIsRTLCache) {
                 addClass(listenerElement, 'rtl');
               } else {
                 addClass(listenerElement, 'ltr');

@@ -1,11 +1,11 @@
 import {
+  directionIsRTL,
   getBoundingClientRect,
   offsetSize,
   on,
   preventDefault,
   runEachAndClear,
   stopPropagation,
-  style,
   XY,
 } from 'support';
 import { classNamesScrollbarInteraction } from 'classnames';
@@ -25,7 +25,7 @@ export type ScrollbarsSetupEvents = (
   isHorizontal?: boolean
 ) => () => void;
 
-const { round, abs } = Math;
+const { round } = Math;
 const getPageOffset = (event: PointerEvent): XY<number> => ({
   x: event.pageX,
   y: event.pageY,
@@ -81,12 +81,11 @@ const createDragScrollingEvents = (
       const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
       const scrollDeltaPercent = movement / handleTrackDiff;
       const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
-      const isRTL = style(_scrollbar, 'direction') === 'rtl';
+      const isRTL = directionIsRTL(_scrollbar);
       const negateMultiplactor =
         isRTL && isHorizontal ? (_rtlScrollBehavior.n || _rtlScrollBehavior.i ? 1 : -1) : 1;
 
-      scrollOffsetElement[scrollOffsetKey] =
-        abs(mouseDownScroll) + scrollDelta * negateMultiplactor;
+      scrollOffsetElement[scrollOffsetKey] = mouseDownScroll + scrollDelta * negateMultiplactor;
     };
 
   return on(_handle, 'pointerdown', (pointerDownEvent: PointerEvent) => {
