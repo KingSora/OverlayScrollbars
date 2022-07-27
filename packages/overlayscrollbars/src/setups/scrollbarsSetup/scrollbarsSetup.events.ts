@@ -8,7 +8,6 @@ import {
   XY,
 } from 'support';
 import { classNamesScrollbarInteraction } from 'classnames';
-import { getScrollbarHandleLengthRatio } from 'setups/scrollbarsSetup/scrollbarsSetup.calculations';
 import type { ReadonlyOptions } from 'options';
 import type { StructureSetupState } from 'setups';
 import type {
@@ -36,12 +35,21 @@ const getScale = (element: HTMLElement): XY<number> => {
     y: Math.round(height) / h || 1,
   };
 };
-const continuePointerDown = (event: PointerEvent, options: ReadonlyOptions, scrollType: 'dragScroll' | 'clickScroll') => {
+const continuePointerDown = (
+  event: PointerEvent,
+  options: ReadonlyOptions,
+  scrollType: 'dragScroll' | 'clickScroll'
+) => {
   const scrollbarOptions = options.scrollbars;
   const { button, isPrimary, pointerType } = event;
   const { pointers } = scrollbarOptions;
-  return button === 0 && isPrimary && scrollbarOptions[scrollType] && (pointers || []).includes(pointerType);
-}
+  return (
+    button === 0 &&
+    isPrimary &&
+    scrollbarOptions[scrollType] &&
+    (pointers || []).includes(pointerType)
+  );
+};
 const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentElm: Document) =>
   on(
     scrollbar,
@@ -52,30 +60,35 @@ const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentEl
 const createDragScrollingEvents = (
   options: ReadonlyOptions,
   doc: Document,
-  scrollbarHandle: HTMLElement,
+  scrollbarStructure: ScrollbarStructure,
   scrollOffsetElement: HTMLElement,
   structureSetupState: () => StructureSetupState,
   isHorizontal?: boolean
 ) => {
+  const { _handle, _track } = scrollbarStructure;
   const scrollOffsetKey = `scroll${isHorizontal ? 'Left' : 'Top'}`;
   const xyKey = `${isHorizontal ? 'x' : 'y'}`;
+  const whKey = `${isHorizontal ? 'w' : 'h'}`;
   const createOnPointerMoveHandler =
     (mouseDownScroll: number, mouseDownPageOffset: number, mouseDownInvertedScale: number) =>
     (event: PointerEvent) => {
+      const { _overflowAmount } = structureSetupState();
       const movement = (getPageOffset(event)[xyKey] - mouseDownPageOffset) * mouseDownInvertedScale;
-      const handleLengthRatio =
-        1 / getScrollbarHandleLengthRatio(structureSetupState(), isHorizontal);
-      scrollOffsetElement[scrollOffsetKey] = mouseDownScroll + movement * handleLengthRatio;
+      const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
+      const scrollDeltaPercent = movement / handleTrackDiff;
+      const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
+
+      scrollOffsetElement[scrollOffsetKey] = mouseDownScroll + scrollDelta;
       // if (_isRTL && isHorizontal && !_rtlScrollBehavior.i) scrollDelta *= -1;
     };
 
-  return on(scrollbarHandle, 'pointerdown', (pointerDownEvent: PointerEvent) => {
+  return on(_handle, 'pointerdown', (pointerDownEvent: PointerEvent) => {
     if (continuePointerDown(pointerDownEvent, options, 'dragScroll')) {
       const offSelectStart = on(doc, 'selectstart', (event: Event) => preventDefault(event), {
         _passive: false,
       });
       const offPointerMove = on(
-        scrollbarHandle,
+        _handle,
         'pointermove',
         createOnPointerMoveHandler(
           scrollOffsetElement[scrollOffsetKey] || 0,
@@ -85,24 +98,27 @@ const createDragScrollingEvents = (
       );
 
       on(
-        scrollbarHandle,
+        _handle,
         'pointerup',
         (pointerUpEvent: PointerEvent) => {
           offSelectStart();
           offPointerMove();
-          scrollbarHandle.releasePointerCapture(pointerUpEvent.pointerId);
+          _handle.releasePointerCapture(pointerUpEvent.pointerId);
         },
         { _once: true }
       );
-      scrollbarHandle.setPointerCapture(pointerDownEvent.pointerId);
+      _handle.setPointerCapture(pointerDownEvent.pointerId);
     }
   });
 };
 
 export const createScrollbarsSetupEvents =
-  (options: ReadonlyOptions, structureSetupState: () => StructureSetupState): ScrollbarsSetupEvents =>
+  (
+    options: ReadonlyOptions,
+    structureSetupState: () => StructureSetupState
+  ): ScrollbarsSetupEvents =>
   (scrollbarStructure, scrollbarsAddRemoveClass, documentElm, scrollOffsetElm, isHorizontal) => {
-    const { _scrollbar, _handle } = scrollbarStructure;
+    const { _scrollbar } = scrollbarStructure;
 
     return runEachAndClear.bind(0, [
       on(_scrollbar, 'pointerenter', () => {
@@ -115,7 +131,7 @@ export const createScrollbarsSetupEvents =
       createDragScrollingEvents(
         options,
         documentElm,
-        _handle,
+        scrollbarStructure,
         scrollOffsetElm,
         structureSetupState,
         isHorizontal

@@ -22,6 +22,10 @@ import {
 } from 'classnames';
 import { getEnvironment } from 'environment';
 import { dynamicInitializationElement as generalDynamicInitializationElement } from 'initialization';
+import {
+  getScrollbarHandleLengthRatio,
+  getScrollbarHandleOffsetRatio,
+} from 'setups/scrollbarsSetup/scrollbarsSetup.calculations';
 import type { InitializationTarget } from 'initialization';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type { ScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
@@ -30,6 +34,7 @@ import type {
   ScrollbarsDynamicInitializationElement,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.initialization';
 import type { StyleObject } from 'typings';
+import { StructureSetupState } from 'setups';
 
 export interface ScrollbarStructure {
   _scrollbar: HTMLElement;
@@ -53,6 +58,8 @@ export interface ScrollbarsSetupElementsObj {
     add?: boolean,
     isHorizontal?: boolean
   ) => void;
+  _refreshScrollbarsHandleLength: (structureSetupState: StructureSetupState) => void;
+  _refreshScrollbarsHandleOffset: (structureSetupState: StructureSetupState) => void;
   _horizontal: ScrollbarsSetupElement;
   _vertical: ScrollbarsSetupElement;
 }
@@ -101,6 +108,51 @@ export const createScrollbarsSetupElements = (
       style(elm, styles);
     });
   };
+  const scrollbarStructureRefreshHandleLength = (
+    scrollbarStructures: ScrollbarStructure[],
+    structureSetupState: StructureSetupState,
+    isHorizontal?: boolean
+  ) => {
+    scrollbarsHandleStyle(scrollbarStructures, (structure) => {
+      const { _handle, _track } = structure;
+      return [
+        _handle,
+        {
+          [isHorizontal ? 'width' : 'height']: `${(
+            getScrollbarHandleLengthRatio(_handle, _track, isHorizontal, structureSetupState) * 100
+          ).toFixed(3)}%`,
+        },
+      ];
+    });
+  };
+  const scrollbarStructureRefreshHandleOffset = (
+    scrollbarStructures: ScrollbarStructure[],
+    structureSetupState: StructureSetupState,
+    isHorizontal?: boolean
+  ) => {
+    const translateAxis = isHorizontal ? 'X' : 'Y';
+    scrollbarsHandleStyle(scrollbarStructures, (structure) => {
+      const { _handle, _track } = structure;
+      const offsetRatio = getScrollbarHandleOffsetRatio(
+        _handle,
+        _track,
+        _scrollOffsetElement,
+        structureSetupState,
+        isHorizontal
+      );
+      // eslint-disable-next-line no-self-compare
+      const validOffsetRatio = offsetRatio === offsetRatio; // is false when offset is NaN
+      return [
+        _handle,
+        {
+          transform: validOffsetRatio
+            ? `translate${translateAxis}(${(offsetRatio * 100).toFixed(3)}%)`
+            : '',
+        },
+      ];
+    });
+  };
+
   const destroyFns: (() => void)[] = [];
   const horizontalScrollbars: ScrollbarStructure[] = [];
   const verticalScrollbars: ScrollbarStructure[] = [];
@@ -115,6 +167,14 @@ export const createScrollbarsSetupElements = (
     const runVertical = singleAxis ? !onlyHorizontal : true;
     runHorizontal && scrollbarStructureAddRemoveClass(horizontalScrollbars, className, add);
     runVertical && scrollbarStructureAddRemoveClass(verticalScrollbars, className, add);
+  };
+  const refreshScrollbarsHandleLength = (structureSetupState: StructureSetupState) => {
+    scrollbarStructureRefreshHandleLength(horizontalScrollbars, structureSetupState, true);
+    scrollbarStructureRefreshHandleLength(verticalScrollbars, structureSetupState);
+  };
+  const refreshScrollbarsHandleOffset = (structureSetupState: StructureSetupState) => {
+    scrollbarStructureRefreshHandleOffset(horizontalScrollbars, structureSetupState, true);
+    scrollbarStructureRefreshHandleOffset(verticalScrollbars, structureSetupState);
   };
   const generateScrollbarDOM = (isHorizontal?: boolean): ScrollbarStructure => {
     const scrollbarClassName = isHorizontal
@@ -166,6 +226,8 @@ export const createScrollbarsSetupElements = (
 
   return [
     {
+      _refreshScrollbarsHandleLength: refreshScrollbarsHandleLength,
+      _refreshScrollbarsHandleOffset: refreshScrollbarsHandleOffset,
       _scrollbarsAddRemoveClass: scrollbarsAddRemoveClass,
       _horizontal: {
         _scrollbarStructures: horizontalScrollbars,

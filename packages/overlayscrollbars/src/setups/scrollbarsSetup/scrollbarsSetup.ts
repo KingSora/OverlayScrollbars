@@ -11,14 +11,9 @@ import {
   scrollTop,
 } from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
-import {
-  getScrollbarHandleLengthRatio,
-  getScrollbarHandleOffsetRatio,
-} from 'setups/scrollbarsSetup/scrollbarsSetup.calculations';
 import { createScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
 import {
   createScrollbarsSetupElements,
-  ScrollbarsSetupElement,
   ScrollbarsSetupElementsObj,
   ScrollbarStructure,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
@@ -62,45 +57,6 @@ const createSelfCancelTimeout = (timeout?: number | (() => number)) => {
   ] as [timeout: (callback: () => any) => void, clear: () => void];
 };
 
-const refreshScrollbarHandleLength = (
-  setStyleFn: ScrollbarsSetupElement['_handleStyle'],
-  structureSetupState: StructureSetupState,
-  isHorizontal?: boolean
-) =>
-  setStyleFn((structure) => [
-    structure._handle,
-    {
-      [isHorizontal ? 'width' : 'height']: `${(
-        getScrollbarHandleLengthRatio(structureSetupState, isHorizontal) * 100
-      ).toFixed(3)}%`,
-    },
-  ]);
-
-const refreshScrollbarHandleOffset = (
-  setStyleFn: ScrollbarsSetupElement['_handleStyle'],
-  structureSetupState: StructureSetupState,
-  scrollOffsetElement: HTMLElement,
-  isHorizontal?: boolean
-) => {
-  const translateAxis = isHorizontal ? 'X' : 'Y';
-  const offsetRatio = getScrollbarHandleOffsetRatio(
-    structureSetupState,
-    scrollOffsetElement,
-    isHorizontal
-  );
-  // eslint-disable-next-line no-self-compare
-  const validOffsetRatio = offsetRatio === offsetRatio; // is false when offset is NaN
-
-  setStyleFn((structure) => [
-    structure._handle,
-    {
-      transform: validOffsetRatio
-        ? `translate${translateAxis}(${(offsetRatio * 100).toFixed(3)}%)`
-        : '',
-    },
-  ]);
-};
-
 export const createScrollbarsSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions,
@@ -133,7 +89,13 @@ export const createScrollbarsSetup = (
     _viewportIsTarget,
     _isBody,
   } = structureSetupState._elements;
-  const { _horizontal, _vertical, _scrollbarsAddRemoveClass: scrollbarsAddRemoveClass } = elements;
+  const {
+    _horizontal,
+    _vertical,
+    _scrollbarsAddRemoveClass: scrollbarsAddRemoveClass,
+    _refreshScrollbarsHandleLength,
+    _refreshScrollbarsHandleOffset,
+  } = elements;
   const { _handleStyle: styleHorizontal } = _horizontal;
   const { _handleStyle: styleVertical } = _vertical;
   const styleScrollbarPosition = (structure: ScrollbarStructure) => {
@@ -192,9 +154,7 @@ export const createScrollbarsSetup = (
     }),
     on(_scrollEventElement, 'scroll', () => {
       requestScrollAnimationFrame(() => {
-        const structureState = structureSetupState();
-        refreshScrollbarHandleOffset(styleHorizontal, structureState, _scrollOffsetElement, true);
-        refreshScrollbarHandleOffset(styleVertical, structureState, _scrollOffsetElement);
+        _refreshScrollbarsHandleOffset(structureSetupState());
 
         autoHideNotNever && manageScrollbarsAutoHide(true);
         scrollTimeout(() => {
@@ -217,7 +177,7 @@ export const createScrollbarsSetup = (
         structureUpdateHints;
       const checkOption = createOptionCheck(options, changedOptions, force);
       const currStructureSetupState = structureSetupState();
-
+      const { _overflowAmount, _overflowStyle } = currStructureSetupState;
       const [theme, themeChanged] = checkOption<string | null>('scrollbars.theme');
       const [visibility, visibilityChanged] =
         checkOption<ScrollbarVisibilityBehavior>('scrollbars.visibility');
@@ -258,8 +218,6 @@ export const createScrollbarsSetup = (
         scrollbarsAddRemoveClass(classNamesScrollbarTrackInteractive, clickScroll);
       }
       if (updateVisibility) {
-        const { _overflowStyle } = currStructureSetupState;
-
         const xVisible = setScrollbarVisibility(_overflowStyle.x, true);
         const yVisible = setScrollbarVisibility(_overflowStyle.y, false);
         const hasCorner = xVisible && yVisible;
@@ -267,17 +225,8 @@ export const createScrollbarsSetup = (
         scrollbarsAddRemoveClass(classNamesScrollbarCornerless, !hasCorner);
       }
       if (updateHandle) {
-        const { _overflowAmount } = currStructureSetupState;
-        refreshScrollbarHandleLength(styleHorizontal, currStructureSetupState, true);
-        refreshScrollbarHandleLength(styleVertical, currStructureSetupState);
-
-        refreshScrollbarHandleOffset(
-          styleHorizontal,
-          currStructureSetupState,
-          _scrollOffsetElement,
-          true
-        );
-        refreshScrollbarHandleOffset(styleVertical, currStructureSetupState, _scrollOffsetElement);
+        _refreshScrollbarsHandleLength(currStructureSetupState);
+        _refreshScrollbarsHandleOffset(currStructureSetupState);
 
         scrollbarsAddRemoveClass(classNamesScrollbarUnusable, !_overflowAmount.x, true);
         scrollbarsAddRemoveClass(classNamesScrollbarUnusable, !_overflowAmount.y, false);
