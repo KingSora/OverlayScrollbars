@@ -4,11 +4,11 @@ import {
   createDiv,
   offsetSize,
   runEachAndClear,
-  prependChildren,
   removeElements,
   createCache,
   push,
   IntersectionObserverConstructor,
+  appendChildren,
 } from 'support';
 import { createSizeObserver } from 'observers/sizeObserver';
 import { classNameTrinsicObserver } from 'classnames';
@@ -93,7 +93,7 @@ export const createTrinsicObserver = (
         onSizeChanged();
       }
 
-      prependChildren(target, trinsicObserver);
+      appendChildren(target, trinsicObserver);
     },
     () => {
       if (intersectionObserverInstance) {

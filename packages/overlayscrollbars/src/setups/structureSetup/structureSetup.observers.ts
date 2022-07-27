@@ -244,6 +244,7 @@ export const createStructureSetupObservers = (
       destroyHostMutationObserver();
     },
     () => {
+      // order is matter!
       appendSizeObserver();
       appendTrinsicObserver();
     },

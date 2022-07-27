@@ -7,7 +7,6 @@ import {
   scrollLeft,
   scrollTop,
   runEachAndClear,
-  prependChildren,
   removeElements,
   on,
   addClass,
@@ -18,6 +17,7 @@ import {
   removeClass,
   isObject,
   stopPropagation,
+  appendChildren,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -211,7 +211,7 @@ export const createSizeObserver = (
         );
       }
 
-      prependChildren(target, sizeObserver);
+      appendChildren(target, sizeObserver);
     },
   ];
 };

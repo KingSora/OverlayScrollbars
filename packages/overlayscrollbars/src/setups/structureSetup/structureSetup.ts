@@ -97,8 +97,8 @@ export const createStructureSetup = (
     addEvent('u', listener);
   };
   structureSetupState._appendElements = () => {
-    appendStructureElements();
     appendObserverElements();
+    appendStructureElements();
   };
   structureSetupState._elements = elements;
 
