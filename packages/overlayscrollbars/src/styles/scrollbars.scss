@@ -18,6 +18,7 @@ body > .os-scrollbar {
 }
 .os-scrollbar-track {
   position: relative;
+  direction: ltr !important;
   padding: 0 !important;
   border: none !important;
 }
@@ -31,7 +32,7 @@ body > .os-scrollbar {
   height: 100%;
 }
 .os-scrollbar.os-scrollbar-track-interactive .os-scrollbar-track,
-.os-scrollbar.os-scrollbar-handle-interactive .os-scrollbar-handle  {
+.os-scrollbar.os-scrollbar-handle-interactive .os-scrollbar-handle {
   pointer-events: auto;
   touch-action: none;
 }
@@ -61,10 +62,10 @@ body > .os-scrollbar {
 }
 .os-scrollbar-unusable,
 .os-scrollbar-unusable * {
-    pointer-events: none !important;
+  pointer-events: none !important;
 }
 .os-scrollbar-unusable .os-scrollbar-handle {
-    opacity: 0 !important;
+  opacity: 0 !important;
 }
 .os-scrollbar.os-scrollbar-horizontal.os-scrollbar-cornerless {
   left: 0;

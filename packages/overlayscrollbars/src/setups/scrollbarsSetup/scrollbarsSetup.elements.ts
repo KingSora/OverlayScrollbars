@@ -132,12 +132,13 @@ export const createScrollbarsSetupElements = (
   ) => {
     const translateAxis = isHorizontal ? 'X' : 'Y';
     scrollbarsHandleStyle(scrollbarStructures, (structure) => {
-      const { _handle, _track } = structure;
+      const { _handle, _track, _scrollbar } = structure;
       const offsetRatio = getScrollbarHandleOffsetRatio(
         _handle,
         _track,
         _scrollOffsetElement,
         structureSetupState,
+        style(_scrollbar, 'direction') === 'rtl',
         isHorizontal
       );
       // eslint-disable-next-line no-self-compare

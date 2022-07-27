@@ -16,6 +16,7 @@ import { classNameTrinsicObserver } from 'classnames';
 export type TrinsicObserverCallback = (heightIntrinsic: CacheValues<boolean>) => any;
 export type TrinsicObserver = [
   destroy: () => void,
+  append: () => void,
   update: () => void | Parameters<TrinsicObserverCallback>
 ];
 
@@ -63,30 +64,36 @@ export const createTrinsicObserver = (
     }
   };
 
-  if (IntersectionObserverConstructor) {
-    intersectionObserverInstance = new IntersectionObserverConstructor(
-      (entries) => intersectionObserverCallback(entries),
-      { root: target }
-    );
-    intersectionObserverInstance.observe(trinsicObserver);
-    push(offListeners, () => {
-      intersectionObserverInstance!.disconnect();
-    });
-  } else {
-    const onSizeChanged = () => {
-      const newSize = offsetSize(trinsicObserver);
-      triggerOnTrinsicChangedCallback(newSize);
-    };
-    push(offListeners, createSizeObserver(trinsicObserver, onSizeChanged));
-    onSizeChanged();
-  }
-
-  prependChildren(target, trinsicObserver);
-
   return [
     () => {
       runEachAndClear(offListeners);
       removeElements(trinsicObserver);
+    },
+    () => {
+      if (IntersectionObserverConstructor) {
+        intersectionObserverInstance = new IntersectionObserverConstructor(
+          (entries) => intersectionObserverCallback(entries),
+          { root: target }
+        );
+        intersectionObserverInstance.observe(trinsicObserver);
+        push(offListeners, () => {
+          intersectionObserverInstance!.disconnect();
+        });
+      } else {
+        const onSizeChanged = () => {
+          const newSize = offsetSize(trinsicObserver);
+          triggerOnTrinsicChangedCallback(newSize);
+        };
+        const [destroySizeObserver, appendSizeObserver] = createSizeObserver(
+          trinsicObserver,
+          onSizeChanged
+        );
+        push(offListeners, destroySizeObserver);
+        appendSizeObserver();
+        onSizeChanged();
+      }
+
+      prependChildren(target, trinsicObserver);
     },
     () => {
       if (intersectionObserverInstance) {

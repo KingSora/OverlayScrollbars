@@ -91,7 +91,7 @@ export const sizeObserverPlugin: Plugin<SizeObserverPluginInstance> = {
         height: scrollAmount,
       });
 
-      reset();
+      rAF!(reset);
 
       return [observeAppearChange ? onScroll.bind(0, false) : reset, offListeners];
     },

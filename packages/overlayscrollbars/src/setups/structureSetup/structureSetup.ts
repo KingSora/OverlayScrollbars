@@ -73,7 +73,7 @@ export const createStructureSetup = (
   const state = createState(initialStructureSetupUpdateState);
   const [addEvent, removeEvent, triggerEvent] = createEventListenerHub<StructureSetupEventMap>();
   const [getState] = state;
-  const [elements, appendElements, destroyElements] = createStructureSetupElements(target);
+  const [elements, appendStructureElements, destroyElements] = createStructureSetupElements(target);
   const updateStructure = createStructureSetupUpdate(elements, state);
   const triggerUpdateEvent: (...args: StructureSetupEventMap['u']) => void = (
     updateHints,
@@ -86,20 +86,20 @@ export const createStructureSetup = (
       triggerEvent('u', [updateHints, changedOptions, force]);
     }
   };
-  const [destroyObservers, updateObservers, updateObserversOptions] = createStructureSetupObservers(
-    elements,
-    state,
-    (updateHints) => {
+  const [destroyObservers, appendObserverElements, updateObservers, updateObserversOptions] =
+    createStructureSetupObservers(elements, state, (updateHints) => {
       triggerUpdateEvent(updateStructure(checkOptionsFallback, updateHints), {}, false);
-    }
-  );
+    });
 
   const structureSetupState = getState.bind(0) as (() => StructureSetupState) &
     StructureSetupStaticState;
   structureSetupState._addOnUpdatedListener = (listener) => {
     addEvent('u', listener);
   };
-  structureSetupState._appendElements = appendElements;
+  structureSetupState._appendElements = () => {
+    appendStructureElements();
+    appendObserverElements();
+  };
   structureSetupState._elements = elements;
 
   return [

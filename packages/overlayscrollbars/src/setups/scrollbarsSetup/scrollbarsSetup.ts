@@ -173,8 +173,12 @@ export const createScrollbarsSetup = (
 
   return [
     (changedOptions, force, structureUpdateHints) => {
-      const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
-        structureUpdateHints;
+      const {
+        _overflowEdgeChanged,
+        _overflowAmountChanged,
+        _overflowStyleChanged,
+        _directionChanged,
+      } = structureUpdateHints;
       const checkOption = createOptionCheck(options, changedOptions, force);
       const currStructureSetupState = structureSetupState();
       const { _overflowAmount, _overflowStyle } = currStructureSetupState;
@@ -187,7 +191,7 @@ export const createScrollbarsSetup = (
       const [dragScroll, dragScrollChanged] = checkOption<boolean>('scrollbars.dragScroll');
       const [clickScroll, clickScrollChanged] = checkOption<boolean>('scrollbars.clickScroll');
 
-      const updateHandle = _overflowEdgeChanged || _overflowAmountChanged;
+      const updateHandle = _overflowEdgeChanged || _overflowAmountChanged || _directionChanged;
       const updateVisibility = _overflowStyleChanged || visibilityChanged;
 
       const setScrollbarVisibility = (overflowStyle: OverflowStyle, isHorizontal: boolean) => {

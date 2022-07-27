@@ -22,6 +22,7 @@ import {
   push,
   scrollLeft,
   scrollTop,
+  noop,
 } from 'support';
 import { getEnvironment } from 'environment';
 import {
@@ -48,6 +49,7 @@ export type StructureSetupObserversUpdate = (checkOption: SetupUpdateCheckOption
 
 export type StructureSetupObservers = [
   destroy: () => void,
+  appendElements: () => void,
   updateObservers: () => Partial<StructureSetupUpdateHints>,
   updateObserversOptions: StructureSetupObserversUpdate
 ];
@@ -87,7 +89,7 @@ export const createStructureSetupObservers = (
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = structureSetupElements;
-  const { _nativeScrollbarsHiding: _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+  const { _flexboxGlue } = getEnvironment();
 
   const [updateContentSizeCache] = createCache<WH<number>>(
     {
@@ -207,14 +209,14 @@ export const createStructureSetupObservers = (
     return updateHints;
   };
 
-  const trinsicObserver =
-    (_content || !_flexboxGlue) && createTrinsicObserver(_host, onTrinsicChanged);
-  const destroySizeObserver =
-    !_viewportIsTarget &&
-    createSizeObserver(_host, onSizeChanged, {
-      _appear: true,
-      _direction: !_nativeScrollbarStyling,
-    });
+  const [destroyTrinsicObserver, appendTrinsicObserver, updateTrinsicObserver] =
+    _content || !_flexboxGlue ? createTrinsicObserver(_host, onTrinsicChanged) : [noop, noop, noop];
+  const [destroySizeObserver, appendSizeObserver] = !_viewportIsTarget
+    ? createSizeObserver(_host, onSizeChanged, {
+        _appear: true,
+        _direction: true,
+      })
+    : [noop, noop];
   const [destroyHostMutationObserver, updateHostMutationObserver] = createDOMObserver(
     _host,
     false,
@@ -235,17 +237,21 @@ export const createStructureSetupObservers = (
 
   return [
     () => {
+      destroyTrinsicObserver();
+      destroySizeObserver();
       contentMutationObserver && contentMutationObserver[0](); // destroy
-      trinsicObserver && trinsicObserver[0](); // destroy
-      destroySizeObserver && destroySizeObserver();
       viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
       destroyHostMutationObserver();
     },
     () => {
+      appendSizeObserver();
+      appendTrinsicObserver();
+    },
+    () => {
       const updateHints: Partial<StructureSetupUpdateHints> = {};
       const hostUpdateResult = updateHostMutationObserver();
+      const trinsicUpdateResult = updateTrinsicObserver();
       const contentUpdateResult = contentMutationObserver && contentMutationObserver[1](); // update
-      const trinsicUpdateResult = trinsicObserver && trinsicObserver[1](); // update
 
       if (hostUpdateResult) {
         assignDeep(
@@ -259,18 +265,6 @@ export const createStructureSetupObservers = (
           )
         );
       }
-      if (contentUpdateResult) {
-        assignDeep(
-          updateHints,
-          onContentMutation.apply(
-            0,
-            push(contentUpdateResult, true) as [
-              ...updateResult: typeof contentUpdateResult,
-              fromRecords: true
-            ]
-          )
-        );
-      }
       if (trinsicUpdateResult) {
         assignDeep(
           updateHints,
@@ -278,6 +272,18 @@ export const createStructureSetupObservers = (
             0,
             push(trinsicUpdateResult as any[], true) as [
               ...updateResult: typeof trinsicUpdateResult,
+              fromRecords: true
+            ]
+          )
+        );
+      }
+      if (contentUpdateResult) {
+        assignDeep(
+          updateHints,
+          onContentMutation.apply(
+            0,
+            push(contentUpdateResult, true) as [
+              ...updateResult: typeof contentUpdateResult,
               fromRecords: true
             ]
           )

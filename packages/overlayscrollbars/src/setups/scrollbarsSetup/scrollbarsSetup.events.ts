@@ -5,6 +5,7 @@ import {
   preventDefault,
   runEachAndClear,
   stopPropagation,
+  style,
   XY,
 } from 'support';
 import { classNamesScrollbarInteraction } from 'classnames';
@@ -14,6 +15,7 @@ import type {
   ScrollbarsSetupElementsObj,
   ScrollbarStructure,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
+import { getEnvironment } from 'environment';
 
 export type ScrollbarsSetupEvents = (
   scrollbarStructure: ScrollbarStructure,
@@ -23,6 +25,7 @@ export type ScrollbarsSetupEvents = (
   isHorizontal?: boolean
 ) => () => void;
 
+const { round, abs } = Math;
 const getPageOffset = (event: PointerEvent): XY<number> => ({
   x: event.pageX,
   y: event.pageY,
@@ -31,8 +34,8 @@ const getScale = (element: HTMLElement): XY<number> => {
   const { width, height } = getBoundingClientRect(element);
   const { w, h } = offsetSize(element);
   return {
-    x: Math.round(width) / w || 1,
-    y: Math.round(height) / h || 1,
+    x: round(width) / w || 1,
+    y: round(height) / h || 1,
   };
 };
 const continuePointerDown = (
@@ -65,7 +68,8 @@ const createDragScrollingEvents = (
   structureSetupState: () => StructureSetupState,
   isHorizontal?: boolean
 ) => {
-  const { _handle, _track } = scrollbarStructure;
+  const { _rtlScrollBehavior } = getEnvironment();
+  const { _handle, _track, _scrollbar } = scrollbarStructure;
   const scrollOffsetKey = `scroll${isHorizontal ? 'Left' : 'Top'}`;
   const xyKey = `${isHorizontal ? 'x' : 'y'}`;
   const whKey = `${isHorizontal ? 'w' : 'h'}`;
@@ -77,9 +81,12 @@ const createDragScrollingEvents = (
       const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
       const scrollDeltaPercent = movement / handleTrackDiff;
       const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
+      const isRTL = style(_scrollbar, 'direction') === 'rtl';
+      const negateMultiplactor =
+        isRTL && isHorizontal ? (_rtlScrollBehavior.n || _rtlScrollBehavior.i ? 1 : -1) : 1;
 
-      scrollOffsetElement[scrollOffsetKey] = mouseDownScroll + scrollDelta;
-      // if (_isRTL && isHorizontal && !_rtlScrollBehavior.i) scrollDelta *= -1;
+      scrollOffsetElement[scrollOffsetKey] =
+        abs(mouseDownScroll) + scrollDelta * negateMultiplactor;
     };
 
   return on(_handle, 'pointerdown', (pointerDownEvent: PointerEvent) => {

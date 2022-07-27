@@ -38,7 +38,7 @@ export interface SizeObserverCallbackParams {
   _appear?: boolean;
 }
 
-export type DestroySizeObserver = () => void;
+export type SizeObserver = [destroy: () => void, append: () => void];
 
 const scrollAmount = 3333333;
 const getElmDirectionIsRTL = (elm: HTMLElement): boolean => style(elm, 'direction') === 'rtl';
@@ -55,7 +55,7 @@ export const createSizeObserver = (
   target: HTMLElement,
   onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
-): DestroySizeObserver => {
+): SizeObserver => {
   const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } =
     options || {};
   const sizeObserverPlugin = getPlugins()[sizeObserverPluginName] as
@@ -147,68 +147,71 @@ export const createSizeObserver = (
     : false;
   let directionIsRTLCache: Cache<boolean> | undefined;
 
-  if (ResizeObserverConstructor) {
-    const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
-    resizeObserverInstance.observe(listenerElement);
-    push(offListeners, () => {
-      resizeObserverInstance.disconnect();
-    });
-  } else if (sizeObserverPlugin) {
-    const [pluginAppearCallback, pluginOffListeners] = sizeObserverPlugin._(
-      listenerElement,
-      onSizeChangedCallbackProxy,
-      observeAppearChange
-    );
-    appearCallback = pluginAppearCallback;
-    push(offListeners, pluginOffListeners);
-  }
+  return [
+    () => {
+      runEachAndClear(offListeners);
+      removeElements(sizeObserver);
+    },
+    () => {
+      if (ResizeObserverConstructor) {
+        const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
+        resizeObserverInstance.observe(listenerElement);
+        push(offListeners, () => {
+          resizeObserverInstance.disconnect();
+        });
+      } else if (sizeObserverPlugin) {
+        const [pluginAppearCallback, pluginOffListeners] = sizeObserverPlugin._(
+          listenerElement,
+          onSizeChangedCallbackProxy,
+          observeAppearChange
+        );
+        appearCallback = pluginAppearCallback;
+        push(offListeners, pluginOffListeners);
+      }
 
-  if (observeDirectionChange) {
-    directionIsRTLCache = createCache(
-      {
-        _initialValue: !getIsDirectionRTL(), // invert current value to trigger initial change
-      },
-      getIsDirectionRTL
-    );
-    const [updateDirectionIsRTLCache] = directionIsRTLCache;
+      if (observeDirectionChange) {
+        directionIsRTLCache = createCache(
+          {
+            _initialValue: !getIsDirectionRTL(), // invert current value to trigger initial change
+          },
+          getIsDirectionRTL
+        );
+        const [updateDirectionIsRTLCache] = directionIsRTLCache;
 
-    push(
-      offListeners,
-      on(sizeObserver, 'scroll', (event: Event) => {
-        const directionIsRTLCacheValues = updateDirectionIsRTLCache();
-        const [directionIsRTL, directionIsRTLChanged] = directionIsRTLCacheValues;
+        push(
+          offListeners,
+          on(sizeObserver, 'scroll', (event: Event) => {
+            const directionIsRTLCacheValues = updateDirectionIsRTLCache();
+            const [directionIsRTL, directionIsRTLChanged] = directionIsRTLCacheValues;
 
-        if (directionIsRTLChanged) {
-          removeClass(listenerElement, 'ltr rtl');
-          if (directionIsRTL) {
-            addClass(listenerElement, 'rtl');
-          } else {
-            addClass(listenerElement, 'ltr');
-          }
-          onSizeChangedCallbackProxy(directionIsRTLCacheValues);
-        }
+            if (directionIsRTLChanged) {
+              removeClass(listenerElement, 'ltr rtl');
+              if (directionIsRTL) {
+                addClass(listenerElement, 'rtl');
+              } else {
+                addClass(listenerElement, 'ltr');
+              }
+              onSizeChangedCallbackProxy(directionIsRTLCacheValues);
+            }
 
-        stopPropagation(event);
-      })
-    );
-  }
+            stopPropagation(event);
+          })
+        );
+      }
 
-  // appearCallback is always needed on scroll-observer strategy to reset it
-  if (appearCallback) {
-    addClass(sizeObserver, classNameSizeObserverAppear);
-    push(
-      offListeners,
-      on(sizeObserver, 'animationstart', appearCallback, {
-        // Fire only once for "CSS is ready" event if ResizeObserver strategy is used
-        _once: !!ResizeObserverConstructor,
-      })
-    );
-  }
+      // appearCallback is always needed on scroll-observer strategy to reset it
+      if (appearCallback) {
+        addClass(sizeObserver, classNameSizeObserverAppear);
+        push(
+          offListeners,
+          on(sizeObserver, 'animationstart', appearCallback, {
+            // Fire only once for "CSS is ready" event if ResizeObserver strategy is used
+            _once: !!ResizeObserverConstructor,
+          })
+        );
+      }
 
-  prependChildren(target, sizeObserver);
-
-  return () => {
-    runEachAndClear(offListeners);
-    removeElements(sizeObserver);
-  };
+      prependChildren(target, sizeObserver);
+    },
+  ];
 };

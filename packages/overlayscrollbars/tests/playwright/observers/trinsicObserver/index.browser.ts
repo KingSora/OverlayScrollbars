@@ -29,9 +29,8 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const changesSlot: HTMLButtonElement | null = document.querySelector('#changes');
 const preInitChildren = targetElm?.children.length;
 
-const [destroyTrinsicObserver, updateTrinsicObserver] = createTrinsicObserver(
-  targetElm as HTMLElement,
-  (heightIntrinsicCache) => {
+const [destroyTrinsicObserver, appendTrinsicObserver, updateTrinsicObserver] =
+  createTrinsicObserver(targetElm as HTMLElement, (heightIntrinsicCache) => {
     const [currentHeightIntrinsic, currentHeightIntrinsicChanged] = heightIntrinsicCache;
     if (currentHeightIntrinsicChanged) {
       heightIterations += 1;
@@ -42,8 +41,8 @@ const [destroyTrinsicObserver, updateTrinsicObserver] = createTrinsicObserver(
         changesSlot.textContent = heightIterations.toString();
       }
     });
-  }
-);
+  });
+appendTrinsicObserver();
 
 const envElmSelectCallback = generateClassChangeSelectCallback(envElm as HTMLElement);
 const targetElmSelectCallback = generateClassChangeSelectCallback(targetElm as HTMLElement);
