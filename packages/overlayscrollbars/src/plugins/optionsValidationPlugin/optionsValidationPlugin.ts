@@ -44,7 +44,7 @@ const optionsTemplate: OptionsTemplate<Options> = {
     autoHideDelay: numberAllowedValues, // number
     dragScroll: booleanAllowedValues, // true || false
     clickScroll: booleanAllowedValues, // true || false
-    touch: booleanAllowedValues, // true || false
+    pointers: [oTypes.array, oTypes.null], // string array
   },
   /*
   textarea: {

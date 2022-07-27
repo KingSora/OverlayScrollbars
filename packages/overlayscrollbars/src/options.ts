@@ -1,5 +1,5 @@
 import { assignDeep, each, isObject, keys, isArray, hasOwnProperty, isFunction } from 'support';
-import { DeepPartial, ReadonlyOptions } from 'typings';
+import { DeepPartial, DeepReadonly } from 'typings';
 
 const opsStringify = (value: any) =>
   JSON.stringify(value, (_, val) => {
@@ -58,11 +58,11 @@ export interface Options {
     autoHideDelay: number;
     dragScroll: boolean;
     clickScroll: boolean;
-    touch: boolean;
+    pointers: string[] | null;
   };
 }
 
-export type ReadonlyOSOptions = ReadonlyOptions<Options>;
+export type ReadonlyOptions = DeepReadonly<Options>;
 
 export interface OverflowChangedArgs {
   x: boolean;
@@ -112,15 +112,8 @@ export const defaultOptions: Options = {
     autoHideDelay: 800, // number
     dragScroll: true, // true || false
     clickScroll: false, // true || false
-    touch: true, // true || false
+    pointers: ['mouse', 'touch', 'pen'], // null || array of supported pointers: https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pointerType
   },
-  /*
-  textarea: {
-    dynWidth: false, // true || false
-    dynHeight: false, // true || false
-    inheritedAttrs: ['style', 'class'], // string || array || null
-  },
-  */
 };
 
 export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): DeepPartial<T> => {

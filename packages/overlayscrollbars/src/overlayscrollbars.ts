@@ -10,7 +10,7 @@ import {
   createEventListenerHub,
 } from 'support';
 import { createStructureSetup, createScrollbarsSetup } from 'setups';
-import { getOptionsDiff, Options, ReadonlyOSOptions } from 'options';
+import { getOptionsDiff, Options, ReadonlyOptions } from 'options';
 import { getEnvironment } from 'environment';
 import {
   getPlugins,
@@ -156,7 +156,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     const validate = optionsValidationPlugin && optionsValidationPlugin._;
     return validate ? validate(opts, true) : opts;
   };
-  const currentOptions: ReadonlyOSOptions = assignDeep(
+  const currentOptions: ReadonlyOptions = assignDeep(
     {},
     _getDefaultOptions(),
     validateOptions(options)
