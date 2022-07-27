@@ -24,6 +24,7 @@ import {
   classNamesScrollbarAutoHidden,
   classNamesScrollbarHandleInteractive,
   classNamesScrollbarTrackInteractive,
+  classNameScrollbarRtl,
 } from 'classnames';
 import type { StructureSetupUpdateHints } from 'setups/structureSetup/structureSetup.update';
 import type {
@@ -181,7 +182,7 @@ export const createScrollbarsSetup = (
       } = structureUpdateHints;
       const checkOption = createOptionCheck(options, changedOptions, force);
       const currStructureSetupState = structureSetupState();
-      const { _overflowAmount, _overflowStyle } = currStructureSetupState;
+      const { _overflowAmount, _overflowStyle, _directionIsRTL } = currStructureSetupState;
       const [theme, themeChanged] = checkOption<string | null>('scrollbars.theme');
       const [visibility, visibilityChanged] =
         checkOption<ScrollbarVisibilityBehavior>('scrollbars.visibility');
@@ -234,6 +235,7 @@ export const createScrollbarsSetup = (
 
         scrollbarsAddRemoveClass(classNamesScrollbarUnusable, !_overflowAmount.x, true);
         scrollbarsAddRemoveClass(classNamesScrollbarUnusable, !_overflowAmount.y, false);
+        scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL);
       }
     },
     scrollbarsSetupState,
