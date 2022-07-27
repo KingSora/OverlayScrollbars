@@ -221,6 +221,7 @@ interface State {
     overflowAmount: XY<number>;
     overflowStyle: XY<OverflowStyle>;
     hasOverflow: XY<boolean>;
+    directionRTL: boolean;
     destroyed: boolean;
 }
 interface Elements {

@@ -164,10 +164,10 @@ body > .os-scrollbar {
   top: 0;
   right: 0; }
 
-.os-scrollbar-horizontal-rtl {
+.os-scrollbar-rtl.os-scrollbar-horizontal {
   right: 0; }
 
-.os-scrollbar-vertical-rtl {
+.os-scrollbar-rtl.os-scrollbar-vertical {
   right: auto;
   left: 0; }
 
@@ -213,8 +213,8 @@ THEMES:
   bottom: 10px;
   width: 10px; }
 
-.os-theme-dark.os-scrollbar-horizontal-rtl,
-.os-theme-light.os-scrollbar-horizontal-rtl {
+.os-theme-dark.os-scrollbar-rtl.os-scrollbar-horizontal,
+.os-theme-light.os-scrollbar-rtl.os-scrollbar-horizontal {
   left: 10px;
   right: 0; }
 
@@ -293,8 +293,8 @@ THEMES:
   left: -6px;
   right: -2px; }
 
-.os-theme-dark.os-scrollbar-vertical-rtl .os-scrollbar-handle:before,
-.os-theme-light.os-scrollbar-vertical-rtl .os-scrollbar-handle:before {
+.os-theme-dark.os-scrollbar-rtl.os-scrollbar-vertical .os-scrollbar-handle:before,
+.os-theme-light.os-scrollbar-rtl.os-scrollbar-vertical .os-scrollbar-handle:before {
   right: -6px;
   left: -2px; }
 
