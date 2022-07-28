@@ -34,7 +34,7 @@ import type {
 } from 'options';
 import type { Setup, StructureSetupState, StructureSetupStaticState } from 'setups';
 import type { InitializationTarget } from 'initialization';
-import type { OverflowStyle, StyleObject } from 'typings';
+import type { DeepPartial, OverflowStyle, StyleObject } from 'typings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
@@ -62,7 +62,11 @@ export const createScrollbarsSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions,
   structureSetupState: (() => StructureSetupState) & StructureSetupStaticState
-): Setup<ScrollbarsSetupState, ScrollbarsSetupStaticState, [StructureSetupUpdateHints]> => {
+): Setup<
+  ScrollbarsSetupState,
+  ScrollbarsSetupStaticState,
+  [DeepPartial<StructureSetupUpdateHints>]
+> => {
   let autoHideIsMove: boolean;
   let autoHideIsLeave: boolean;
   let autoHideNotNever: boolean;
