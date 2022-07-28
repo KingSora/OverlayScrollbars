@@ -26,9 +26,9 @@ export type ScrollbarsSetupEvents = (
 ) => () => void;
 
 const { round } = Math;
-const getPageOffset = (event: PointerEvent): XY<number> => ({
-  x: event.pageX,
-  y: event.pageY,
+const getClientOffset = (event: PointerEvent): XY<number> => ({
+  x: event.clientX,
+  y: event.clientY,
 });
 const getScale = (element: HTMLElement): XY<number> => {
   const { width, height } = getBoundingClientRect(element);
@@ -74,10 +74,11 @@ const createDragScrollingEvents = (
   const xyKey = `${isHorizontal ? 'x' : 'y'}`;
   const whKey = `${isHorizontal ? 'w' : 'h'}`;
   const createOnPointerMoveHandler =
-    (mouseDownScroll: number, mouseDownPageOffset: number, mouseDownInvertedScale: number) =>
+    (mouseDownScroll: number, mouseDownClientOffset: number, mouseDownInvertedScale: number) =>
     (event: PointerEvent) => {
       const { _overflowAmount } = structureSetupState();
-      const movement = (getPageOffset(event)[xyKey] - mouseDownPageOffset) * mouseDownInvertedScale;
+      const movement =
+        (getClientOffset(event)[xyKey] - mouseDownClientOffset) * mouseDownInvertedScale;
       const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
       const scrollDeltaPercent = movement / handleTrackDiff;
       const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
@@ -98,7 +99,7 @@ const createDragScrollingEvents = (
         'pointermove',
         createOnPointerMoveHandler(
           scrollOffsetElement[scrollOffsetKey] || 0,
-          getPageOffset(pointerDownEvent)[xyKey],
+          getClientOffset(pointerDownEvent)[xyKey],
           1 / getScale(scrollOffsetElement)[xyKey]
         )
       );

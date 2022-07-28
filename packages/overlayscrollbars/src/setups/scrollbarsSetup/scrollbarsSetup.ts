@@ -137,13 +137,13 @@ export const createScrollbarsSetup = (
     cancelMouseMoveAnimationFrame,
     destroyElements,
 
-    on(_host, 'mouseover', onHostMouseEnter, { _once: true }),
-    on(_host, 'mouseenter', onHostMouseEnter),
-    on(_host, 'mouseleave', () => {
+    on(_host, 'pointerover', onHostMouseEnter, { _once: true }),
+    on(_host, 'pointerenter', onHostMouseEnter),
+    on(_host, 'pointerleave', () => {
       mouseInHost = false;
       autoHideIsLeave && manageScrollbarsAutoHide(false);
     }),
-    on(_host, 'mousemove', () => {
+    on(_host, 'pointermove', () => {
       autoHideIsMove &&
         requestMouseMoveAnimationFrame(() => {
           clearScrollTimeout();
@@ -235,7 +235,7 @@ export const createScrollbarsSetup = (
 
         scrollbarsAddRemoveClass(classNamesScrollbarUnusable, !_overflowAmount.x, true);
         scrollbarsAddRemoveClass(classNamesScrollbarUnusable, !_overflowAmount.y, false);
-        scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL);
+        scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL && !_isBody);
       }
     },
     scrollbarsSetupState,
