@@ -15,37 +15,34 @@ const before = (
   preferredAnchor: Node | false | null | undefined,
   insertedElms: NodeCollection
 ): void => {
-  if (insertedElms) {
+  if (insertedElms && parentElm) {
     let anchor: Node | false | null | undefined = preferredAnchor;
     let fragment: DocumentFragment | Node | null | undefined;
 
-    // parent must be defined
-    if (parentElm) {
-      if (isArrayLike(insertedElms)) {
-        fragment = document.createDocumentFragment();
+    if (isArrayLike(insertedElms)) {
+      fragment = document.createDocumentFragment();
 
-        // append all insertedElms to the fragment and if one of these is the anchor, change the anchor
-        each(insertedElms, (insertedElm) => {
-          if (insertedElm === anchor) {
-            anchor = insertedElm.previousSibling;
-          }
-          fragment!.appendChild(insertedElm);
-        });
-      } else {
-        fragment = insertedElms;
-      }
-
-      // if the preferred anchor isn't null set it to a valid anchor
-      if (preferredAnchor) {
-        if (!anchor) {
-          anchor = parentElm.firstChild;
-        } else if (anchor !== preferredAnchor) {
-          anchor = anchor.nextSibling;
+      // append all insertedElms to the fragment and if one of these is the anchor, change the anchor
+      each(insertedElms, (insertedElm) => {
+        if (insertedElm === anchor) {
+          anchor = insertedElm.previousSibling;
         }
-      }
-
-      parentElm.insertBefore(fragment, anchor || null);
+        fragment!.appendChild(insertedElm);
+      });
+    } else {
+      fragment = insertedElms;
     }
+
+    // if the preferred anchor isn't null set it to a valid anchor
+    if (preferredAnchor) {
+      if (!anchor) {
+        anchor = parentElm.firstChild;
+      } else if (anchor !== preferredAnchor) {
+        anchor = anchor.nextSibling;
+      }
+    }
+
+    parentElm.insertBefore(fragment, anchor || null);
   }
 };
 

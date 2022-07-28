@@ -2,7 +2,8 @@ import { offsetSize } from 'support';
 import { getEnvironment } from 'environment';
 import type { StructureSetupState } from 'setups';
 
-const { min, max, abs } = Math;
+const { min, max, abs, round } = Math;
+
 export const getScrollbarHandleLengthRatio = (
   scrollbarHandle: HTMLElement,
   scrollbarTrack: HTMLElement,
@@ -22,6 +23,7 @@ export const getScrollbarHandleLengthRatio = (
   const trackSize = offsetSize(scrollbarTrack)[axis];
   return max(0, min(1, handleSize / trackSize));
 };
+
 export const getScrollbarHandleOffsetRatio = (
   scrollbarHandle: HTMLElement,
   scrollbarTrack: HTMLElement,
@@ -34,7 +36,7 @@ export const getScrollbarHandleOffsetRatio = (
   const axis = isHorizontal ? 'x' : 'y';
   const scrollLeftTop = isHorizontal ? 'Left' : 'Top';
   const { _overflowAmount } = structureSetupState;
-  const scrollPositionMax = Math.floor(_overflowAmount[axis]);
+  const scrollPositionMax = round(_overflowAmount[axis]);
   const scrollPosition = abs(scrollOffsetElement[`scroll${scrollLeftTop}`]);
   const handleRTL = isHorizontal && isRTL;
   const rtlNormalizedScrollPosition = _rtlScrollBehavior.i

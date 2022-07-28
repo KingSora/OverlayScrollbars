@@ -26,6 +26,10 @@ import type {
   InitialEventListeners as GeneralInitialEventListeners,
   EventListener as GeneralEventListener,
 } from 'support/eventListeners';
+import {
+  ScrollbarsSetupElement,
+  ScrollbarStructure,
+} from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
 
 export interface OverlayScrollbarsStatic {
   (
@@ -65,12 +69,26 @@ export interface State {
   destroyed: boolean;
 }
 
+export interface ScrollbarElements {
+  scrollbar: HTMLElement;
+  track: HTMLElement;
+  handle: HTMLElement;
+}
+
+export interface CloneableScrollbarElements extends ScrollbarElements {
+  clone(): ScrollbarElements;
+}
+
 export interface Elements {
   target: HTMLElement;
   host: HTMLElement;
   padding: HTMLElement;
   viewport: HTMLElement;
   content: HTMLElement;
+  scrollOffsetElement: HTMLElement;
+  scrollEventElement: HTMLElement | Document;
+  scrollbarHorizontal: CloneableScrollbarElements;
+  scrollbarVertical: CloneableScrollbarElements;
 }
 
 export interface OnUpdatedEventListenerArgs {
@@ -231,7 +249,40 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       );
     },
     elements() {
-      const { _target, _host, _padding, _viewport, _content } = structureState._elements;
+      const {
+        _target,
+        _host,
+        _padding,
+        _viewport,
+        _content,
+        _scrollOffsetElement,
+        _scrollEventElement,
+      } = structureState._elements;
+      const { _horizontal, _vertical } = scrollbarsState._elements;
+      const translateScrollbarStructure = (
+        scrollbarStructure: ScrollbarStructure
+      ): ScrollbarElements => {
+        const { _handle, _track, _scrollbar } = scrollbarStructure;
+        return {
+          scrollbar: _scrollbar,
+          track: _track,
+          handle: _handle,
+        };
+      };
+      const translateScrollbarsSetupElement = (
+        scrollbarsSetupElement: ScrollbarsSetupElement
+      ): CloneableScrollbarElements => {
+        const { _scrollbarStructures, _clone } = scrollbarsSetupElement;
+        const translatedStructure = translateScrollbarStructure(_scrollbarStructures[0]);
+
+        return assignDeep({}, translatedStructure, {
+          clone: () => {
+            const result = translateScrollbarStructure(_clone());
+            updateScrollbars({}, true, {});
+            return result;
+          },
+        });
+      };
       return assignDeep(
         {},
         {
@@ -240,6 +291,10 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           padding: _padding || _viewport,
           viewport: _viewport,
           content: _content || _viewport,
+          scrollOffsetElement: _scrollOffsetElement,
+          scrollEventElement: _scrollEventElement,
+          scrollbarHorizontal: translateScrollbarsSetupElement(_horizontal),
+          scrollbarVertical: translateScrollbarsSetupElement(_vertical),
         }
       );
     },

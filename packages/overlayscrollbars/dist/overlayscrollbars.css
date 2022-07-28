@@ -360,6 +360,12 @@ html.os-viewport-scrollbar-hidden::-webkit-scrollbar-corner,
   visibility: hidden !important;
   background: transparent !important; }
 
+html.os-viewport-scrollbar-hidden,
+html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%; }
+
 [data-overlayscrollbars],
 .os-padding {
   position: relative; }

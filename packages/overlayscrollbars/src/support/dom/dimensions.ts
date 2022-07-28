@@ -5,6 +5,7 @@ export interface WH<T = number> {
   h: T;
 }
 
+const { round } = Math;
 const elementHasDimensions = (elm: HTMLElement): boolean =>
   !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
 const zeroObj: WH = {
@@ -62,10 +63,10 @@ export const scrollSize = (elm: HTMLElement | false | null | undefined): WH =>
  */
 export const fractionalSize = (elm: HTMLElement | false | null | undefined): WH => {
   const cssHeight = parseFloat(style(elm, 'height')) || 0;
-  const cssWidth = parseFloat(style(elm, 'height')) || 0;
+  const cssWidth = parseFloat(style(elm, 'width')) || 0;
   return {
-    w: cssWidth - Math.round(cssWidth),
-    h: cssHeight - Math.round(cssHeight),
+    w: cssWidth - round(cssWidth),
+    h: cssHeight - round(cssHeight),
   };
 };
 
