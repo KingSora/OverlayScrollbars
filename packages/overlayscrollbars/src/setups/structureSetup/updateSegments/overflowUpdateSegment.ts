@@ -105,6 +105,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _viewportArrange,
     _viewportIsTarget,
     _viewportAddRemoveClass,
+    _isBody,
+    _windowElm,
   } = structureSetupElements;
   const {
     _nativeScrollbarsSize,
@@ -119,6 +121,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     !_viewportIsTarget &&
     !_nativeScrollbarsHiding &&
     (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
+  const viewportIsTargetBody = _isBody && _viewportIsTarget;
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
@@ -414,14 +417,18 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       };
       const overflowAmountClientSize = {
         w: max0(
-          arrangedViewportClientSize.w +
-            max0(viewportclientSize.w - viewportScrollSize.w) +
-            sizeFraction.w
+          viewportIsTargetBody
+            ? _windowElm.innerWidth
+            : arrangedViewportClientSize.w +
+                max0(viewportclientSize.w - viewportScrollSize.w) +
+                sizeFraction.w
         ),
         h: max0(
-          arrangedViewportClientSize.h +
-            max0(viewportclientSize.h - viewportScrollSize.h) +
-            sizeFraction.h
+          viewportIsTargetBody
+            ? _windowElm.innerHeight
+            : arrangedViewportClientSize.h +
+                max0(viewportclientSize.h - viewportScrollSize.h) +
+                sizeFraction.h
         ),
       };
 

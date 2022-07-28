@@ -109,7 +109,7 @@ export const defaultOptions: Options = {
     theme: 'os-theme-dark',
     visibility: 'auto', // visible || hidden || auto || v || h || a
     autoHide: 'never', // never || scroll || leave || move || n || s || l || m
-    autoHideDelay: 800, // number
+    autoHideDelay: 1300, // number
     dragScroll: true, // true || false
     clickScroll: false, // true || false
     pointers: ['mouse', 'touch', 'pen'], // null || array of supported pointers: https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pointerType

@@ -325,7 +325,7 @@ export const createStructureSetupObservers = (
             _ignoreContentChange: (mutation, isNestedTarget) => {
               const { target, attributeName } = mutation;
               const ignore =
-                !isNestedTarget && attributeName
+                !isNestedTarget && attributeName && !_viewportIsTarget
                   ? liesBetween(target, hostSelector, viewportSelector)
                   : false;
               return (
