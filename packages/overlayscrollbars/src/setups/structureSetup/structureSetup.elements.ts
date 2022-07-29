@@ -129,7 +129,7 @@ export const createStructureSetupElements = (
     viewportInitialization
   );
   const viewportIsTarget = viewportElement === targetElement;
-  const viewportIsTargetBody = viewportIsTarget & isBody;
+  const viewportIsTargetBody = viewportIsTarget && isBody;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: isTextarea
