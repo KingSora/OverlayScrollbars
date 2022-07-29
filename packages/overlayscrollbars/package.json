@@ -15,6 +15,7 @@
     "test:browser:quick": "jest --runInBand --detectOpenHandles --selectProjects browser --testPathIgnorePatterns=\"/node_modules/|/structureLifecycle/\"",
     "test:browser-dev": "jest --runInBand --detectOpenHandles --selectProjects browser-dev --testPathPattern",
     "build": "rollup -c",
-    "test:playwright": "playwright test"
+    "test:playwright": "playwright test",
+    "posttest:playwright": "node playwright.coverage.js"
   }
 }

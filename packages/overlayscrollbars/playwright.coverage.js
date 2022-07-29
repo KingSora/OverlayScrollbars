@@ -1,0 +1,1 @@
+require('../../playwright.coverage.base');

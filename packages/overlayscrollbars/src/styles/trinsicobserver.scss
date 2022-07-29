@@ -2,7 +2,7 @@
   flex: none;
   box-sizing: border-box;
   position: relative;
-  max-width: 1px;
+  max-width: 0px;
   max-height: 1px;
   padding: 0;
   margin: 0;
@@ -10,7 +10,7 @@
   overflow: hidden;
   z-index: -1;
   height: 0;
-  top: calc(-100% + 1px);
+  top: calc(100% + 1px);
   contain: strict;
 
   &:not(:empty) {
