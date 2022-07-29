@@ -1,7 +1,6 @@
 import { isEmptyObject } from 'support/utils/object';
 import { isString, isPlainObject } from 'support/utils/types';
-import { style, hide, show, topRightBottomLeft } from 'support/dom/style';
-import { StyleObject } from 'typings';
+import { style, hide, show, topRightBottomLeft, directionIsRTL } from 'support/dom/style';
 
 describe('dom style', () => {
   afterEach(() => {
@@ -36,8 +35,6 @@ describe('dom style', () => {
         style(document.body, { width: '123px' });
         expect(document.body.style.width).toBe('123px');
 
-        interface O {}
-
         expect(document.body.style.getPropertyValue('--custom')).toBe('');
         style<'--custom'>(document.body, { '--custom': '123px' });
         expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
@@ -62,7 +59,13 @@ describe('dom style', () => {
         expect(document.body.style.zIndex).toBe('');
         expect(document.body.style.lineHeight).toBe('');
         expect(document.body.style.getPropertyValue('--custom')).toBe('');
-        style<'--custom'>(document.body, { width: '123px', height: 321, opacity: '0.5', zIndex: 1, '--custom': '123px' });
+        style<'--custom'>(document.body, {
+          width: '123px',
+          height: 321,
+          opacity: '0.5',
+          zIndex: 1,
+          '--custom': '123px',
+        });
         expect(document.body.style.width).toBe('123px');
         expect(document.body.style.height).toBe('321px');
         expect(document.body.style.opacity).toBe('0.5');
@@ -136,6 +139,20 @@ describe('dom style', () => {
         expect(result.b).toBe(0);
         expect(result.l).toBe(0);
       });
+    });
+  });
+
+  describe('directionIsRTL', () => {
+    test('normal', () => {
+      document.body.setAttribute('style', 'direction: rtl');
+      expect(directionIsRTL(document.body)).toBe(true);
+
+      document.body.setAttribute('style', 'direction: ltr');
+      expect(directionIsRTL(document.body)).toBe(false);
+    });
+
+    test('null', () => {
+      expect(directionIsRTL(null)).toBe(false);
     });
   });
 });

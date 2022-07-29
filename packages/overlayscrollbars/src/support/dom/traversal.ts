@@ -105,11 +105,15 @@ const liesBetween = (
 ): boolean => {
   const closestHighBoundaryElm = elm && closest(elm, highBoundarySelector);
   const closestDeepBoundaryElm = elm && findFirst(deepBoundarySelector, closestHighBoundaryElm);
+  const deepBoundaryIsValid =
+    closest(closestDeepBoundaryElm, highBoundarySelector) === closestHighBoundaryElm;
 
   return closestHighBoundaryElm && closestDeepBoundaryElm
     ? closestHighBoundaryElm === elm ||
         closestDeepBoundaryElm === elm ||
-        closest(closest(elm, deepBoundarySelector), highBoundarySelector) !== closestHighBoundaryElm
+        (deepBoundaryIsValid &&
+          closest(closest(elm, deepBoundarySelector), highBoundarySelector) !==
+            closestHighBoundaryElm)
     : false;
 };
 

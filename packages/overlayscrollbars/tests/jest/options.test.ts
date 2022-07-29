@@ -3,36 +3,26 @@ import { defaultOptions, getOptionsDiff } from 'options';
 describe('options', () => {
   test('defaultOptions', () => {
     expect(defaultOptions).toEqual({
-      resize: 'none',
       paddingAbsolute: false,
+      showNativeOverlaidScrollbars: false,
       updating: {
         elementEvents: [['img', 'load']],
-        attributes: null,
         debounce: [0, 33],
+        attributes: null,
+        ignoreMutation: null,
       },
       overflow: {
         x: 'scroll',
         y: 'scroll',
       },
       scrollbars: {
+        theme: 'os-theme-dark',
         visibility: 'auto',
         autoHide: 'never',
-        autoHideDelay: 800,
+        autoHideDelay: 1300,
         dragScroll: true,
         clickScroll: false,
-        touch: true,
-      },
-      textarea: {
-        dynWidth: false,
-        dynHeight: false,
-        inheritedAttrs: ['style', 'class'],
-      },
-      nativeScrollbarsOverlaid: {
-        show: false,
-        initialize: false,
-      },
-      callbacks: {
-        onUpdated: null,
+        pointers: ['mouse', 'touch', 'pen'],
       },
     });
   });

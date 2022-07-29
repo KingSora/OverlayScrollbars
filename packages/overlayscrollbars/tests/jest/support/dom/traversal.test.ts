@@ -1,7 +1,18 @@
-import { find, findFirst, is, children, contents, parent, createDiv, liesBetween, createDOM } from 'support/dom';
+import {
+  find,
+  findFirst,
+  is,
+  children,
+  contents,
+  parent,
+  createDiv,
+  liesBetween,
+  createDOM,
+} from 'support/dom';
 
 const slotElm = document.body;
-const testHTML = '<div id="parent" class="div-class"><div id="child" class="div-class"></div></div><p>2</p><input type="text" value="3"></input>abc';
+const testHTML =
+  '<div id="parent" class="div-class"><div id="child" class="div-class"></div></div><p>2</p><input type="text" value="3"></input>abc';
 
 describe('dom traversal', () => {
   beforeEach(() => {
@@ -225,10 +236,18 @@ describe('dom traversal', () => {
   });
 
   describe('liesBetween', () => {
-    const elmsBetween = ['.host', '.something', '.something-a', '.something-b', '.padding', '.viewport', '.content'];
+    const elmsBetween = [
+      '.host',
+      '.something',
+      '.something-a',
+      '.something-b',
+      '.padding',
+      '.viewport',
+      '.content',
+    ];
     const elmsOutside = ['.allowed-a', '.allowed-b', '.allowed-c', '.deeper-a', '.deeper-b'];
     const elmsToTest = [...elmsBetween, ...elmsOutside];
-    const domPart = (id: string, content?: string) => `
+    const nestedDomPart = (id: string, content?: string) => `
       <div id="${id}" class="host">
         <div class="something">
           <div class="something-a">
@@ -244,17 +263,39 @@ describe('dom traversal', () => {
             </div>
           </div>
         </div>
-      </div>
-      `;
-    const createTestDOM = (nestings = 0) => {
+      </div>`;
+    const createNestedTestDOM = (nestings = 0) => {
       let part = '';
       for (let i = 0; i < nestings + 1; i++) {
-        part = domPart(`host-${nestings - i}`, part);
+        part = nestedDomPart(`host-${nestings - i}`, part);
       }
 
       return part;
     };
-    const genericTest = (nestings: number) => {
+    const createSpecialTestDOM = () => `
+        <div class="host">
+          <div class="allowed-a">
+            <div class="allowed-b">
+              <div class="allowed-c">
+              </div>
+            </div>
+          </div>
+          <div class="host">
+            <div class="something">
+              <div class="something-a">
+              </div>
+            </div>
+            <div class="padding">
+              <div class="something-b"></div>
+              <div class="viewport">
+                <div class="content">
+                  <div class="deeper-a"><div class="deeper-b"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    const genericTest = (nestings = 0) => {
       const allHostIds = Array(nestings)
         .fill(0)
         .map((_, index) => `#host-${index}`);
@@ -263,11 +304,19 @@ describe('dom traversal', () => {
         const runExpectance = (id: string) => {
           const isRemainingId = remainingIds.includes(id);
           elmsToTest.forEach((elm) => {
-            const hostElm = findFirst(`${id}`);
-            const searchElm = hostElm?.classList.contains(elm.substring(1)) ? hostElm : findFirst(`${id} ${elm}`);
+            const hostElm = findFirst(`${id}`) as HTMLElement;
+            const searchElm = hostElm?.classList.contains(elm.substring(1))
+              ? hostElm
+              : findFirst(`${id} ${elm}`);
 
             expect(liesBetween(searchElm, `${hostId}`, '.content')).toBe(
-              isRemainingId ? false : elmsBetween.includes(elm) ? true : elmsOutside.includes(elm) ? false : undefined
+              isRemainingId
+                ? false
+                : elmsBetween.includes(elm)
+                ? true
+                : elmsOutside.includes(elm)
+                ? false
+                : undefined
             );
           });
         };
@@ -295,24 +344,32 @@ describe('dom traversal', () => {
       }
     };
 
-    test('with native closest', () => {
-      slotElm.innerHTML = createTestDOM(3);
+    test('nested with native closest', () => {
+      slotElm.innerHTML = createNestedTestDOM(3);
       genericTest(3);
     });
 
-    test('with polyfill closest', () => {
+    test('nested with polyfill closest', () => {
       const original = Element.prototype.closest;
       // @ts-ignore
       Element.prototype.closest = undefined;
 
-      slotElm.innerHTML = createTestDOM(3);
+      slotElm.innerHTML = createNestedTestDOM(3);
       genericTest(3);
 
       Element.prototype.closest = original;
     });
 
+    test('special with polyfill closest', () => {
+      slotElm.innerHTML = createSpecialTestDOM();
+      genericTest();
+    });
+
     test('text node', () => {
-      expect(liesBetween(createDOM('<div>textnodehere</div>')[0].firstChild, '.a', '.b')).toEqual(false);
+      slotElm.innerHTML = createNestedTestDOM(3);
+      expect(liesBetween(createDOM('<div>textnodehere</div>')[0].firstChild, '.a', '.b')).toEqual(
+        false
+      );
     });
   });
 });

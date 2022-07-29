@@ -1,4 +1,4 @@
-import { assignDeep, each, isArray, keys } from 'support';
+import { each, isArray, keys } from 'support';
 import { OverlayScrollbars, OverlayScrollbarsStatic } from 'overlayscrollbars';
 
 export type PluginInstance =
@@ -10,12 +10,11 @@ export type Plugin<T extends PluginInstance = PluginInstance> = {
 
 const pluginRegistry: Record<string, PluginInstance> = {};
 
-export const getPlugins = () => assignDeep({}, pluginRegistry);
+export const getPlugins = () => pluginRegistry;
 
 export const addPlugin = (addedPlugin: Plugin | Plugin[]) => {
   each((isArray(addedPlugin) ? addedPlugin : [addedPlugin]) as Plugin[], (plugin) => {
-    each(keys(plugin), (pluginName) => {
-      pluginRegistry[pluginName] = plugin[pluginName];
-    });
+    const pluginName = keys(plugin)[0];
+    pluginRegistry[pluginName] = plugin[pluginName];
   });
 };

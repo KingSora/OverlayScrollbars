@@ -1,4 +1,4 @@
-import { hasClass, isFunction, isHTMLElement } from 'support';
+import { hasClass, is, isFunction, isHTMLElement } from 'support';
 import { dataAttributeHost } from 'classnames';
 import { InternalEnvironment } from 'environment';
 import {
@@ -34,27 +34,42 @@ interface StructureSetupElementsProxy {
   destroy: () => void;
 }
 
+type TargetType = 'element' | 'textarea' | 'body';
+
 const textareaId = 'textarea';
 const textareaHostId = 'host';
 const elementId = 'target';
 const dynamicContent = 'text<p>paragraph</p>';
 const textareaContent = `<textarea id="${textareaId}">text</textarea>`;
-const getSnapshot = () => document.body.innerHTML;
-const getTarget = (textarea?: boolean) =>
-  document.getElementById(textarea ? textareaId : elementId)!;
-const fillBody = (textarea?: boolean, customDOM?: (content: string, hostId: string) => string) => {
-  document.body.innerHTML = `
+const getSnapshot = () => document.documentElement.outerHTML;
+const getTarget = (targetType: TargetType) => {
+  switch (targetType) {
+    case 'element':
+      return document.getElementById(elementId)!;
+    case 'textarea':
+      return document.getElementById(textareaId)!;
+    case 'body':
+      return document.body;
+    default:
+      throw new Error('Invalid Target');
+  }
+};
+
+const fillBody = (
+  targetType: TargetType,
+  customDOM?: (content: string, hostId: string) => string
+) => {
+  const textarea = targetType === 'textarea';
+  const customDomResult =
+    customDOM &&
+    customDOM(textarea ? textareaContent : dynamicContent, textarea ? textareaHostId : elementId);
+  const normalDom = textarea ? textareaContent : `<div id="${elementId}">${dynamicContent}</div>`;
+  document.body.innerHTML =
+    targetType === 'body'
+      ? dynamicContent
+      : `
     <nav></nav>
-    ${
-      customDOM
-        ? customDOM(
-            textarea ? textareaContent : dynamicContent,
-            textarea ? textareaHostId : elementId
-          )
-        : textarea
-        ? textareaContent
-        : `<div id="${elementId}">${dynamicContent}</div>`
-    }
+    ${customDomResult || normalDom}
     <footer></footer>
   `;
   return getSnapshot();
@@ -63,8 +78,8 @@ const clearBody = () => {
   document.body.innerHTML = '';
 };
 
-const getElements = (textarea?: boolean) => {
-  const target = getTarget(textarea);
+const getElements = (targetType: TargetType) => {
+  const target = getTarget(targetType);
   const host = document.querySelector('[data-overlayscrollbars]')!;
   const padding = document.querySelector('.os-padding')!;
   const viewport = document.querySelector('.os-viewport')!;
@@ -79,8 +94,8 @@ const getElements = (textarea?: boolean) => {
   };
 };
 
-const assertCorrectDOMStructure = (textarea: boolean, viewportIsTarget: boolean) => {
-  const { target, host, padding, viewport, content } = getElements(textarea);
+const assertCorrectDOMStructure = (targetType: TargetType, viewportIsTarget: boolean) => {
+  const { target, host, padding, viewport, content } = getElements(targetType);
 
   if (viewportIsTarget) {
     expect(target).toBe(host);
@@ -100,12 +115,14 @@ const assertCorrectDOMStructure = (textarea: boolean, viewportIsTarget: boolean)
       expect(padding.parentElement).toBe(host);
     }
 
-    expect(host.parentElement).toBe(document.body);
-    expect(host.previousElementSibling).toBe(document.querySelector('nav'));
-    expect(host.nextElementSibling).toBe(document.querySelector('footer'));
+    if (targetType !== 'body') {
+      expect(host.parentElement).toBe(document.body);
+      expect(host.previousElementSibling).toBe(document.querySelector('nav'));
+      expect(host.nextElementSibling).toBe(document.querySelector('footer'));
+    }
 
     const contentElm = content || viewport;
-    if (textarea) {
+    if (targetType === 'textarea') {
       expect(target.parentElement).toBe(contentElm);
       expect(contentElm.innerHTML).toBe(textareaContent);
     } else {
@@ -128,7 +145,7 @@ const createStructureSetupProxy = (
 };
 
 const assertCorrectSetupElements = (
-  textarea: boolean,
+  targetType: TargetType,
   setupElementsProxy: StructureSetupElementsProxy,
   environment: InternalEnvironment
 ): [StructureSetupElementsObj, () => void] => {
@@ -143,11 +160,13 @@ const assertCorrectSetupElements = (
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = elements;
-  const { target, host, padding, viewport, content } = getElements(textarea);
+  const { target, host, padding, viewport, content } = getElements(targetType);
   const isTextarea = target.matches('textarea');
   const isBody = target.matches('body');
 
-  expect(textarea).toBe(isTextarea);
+  if (targetType !== 'element') {
+    expect(target.matches(targetType)).toBe(true);
+  }
 
   expect(_target).toBe(target);
   expect(_host).toBe(host);
@@ -222,52 +241,36 @@ const assertCorrectSetupElements = (
       if (input === undefined) {
         if (isStaticStrategy) {
           strategy = strategy as StructureStaticInitializationElement;
-          if (typeof strategy === 'function') {
-            const result = strategy(target);
-            if (_viewportIsTarget) {
-              if (kind === 'host') {
-                expect(elm).toBeTruthy();
-              } else {
-                expect(elm).toBeFalsy();
-              }
-            } else if (result && !isTextarea) {
-              expect(result).toBe(elm);
-            } else {
+          const resultingStrategy = typeof strategy === 'function' ? strategy(target) : strategy;
+          if (_viewportIsTarget) {
+            if (kind === 'host') {
               expect(elm).toBeTruthy();
+            } else {
+              expect(elm).toBeFalsy();
             }
+          } else if (resultingStrategy && !isTextarea) {
+            expect(resultingStrategy).toBe(elm);
           } else {
             expect(elm).toBeTruthy();
           }
         } else {
           strategy = strategy as StructureDynamicInitializationElement;
-
-          if (typeof strategy === 'function') {
-            const result = strategy(target);
-            const resultIsBoolean = typeof result === 'boolean';
-            if (_viewportIsTarget) {
-              if (kind === 'host') {
-                expect(elm).toBeTruthy();
-              } else {
-                expect(elm).toBeFalsy();
-              }
-            } else if (resultIsBoolean) {
-              if (result) {
-                expect(elm).toBeTruthy();
-              } else {
-                expect(elm).toBeFalsy();
-              }
-            } else if (result) {
-              expect(elm).toBe(result);
+          const resultingStrategy = typeof strategy === 'function' ? strategy(target) : strategy;
+          const resultIsBoolean = typeof resultingStrategy === 'boolean';
+          if (_viewportIsTarget) {
+            if (kind === 'host') {
+              expect(elm).toBeTruthy();
+            } else {
+              expect(elm).toBeFalsy();
             }
-          } else {
-            const strategyIsBoolean = typeof strategy === 'boolean';
-            if (strategyIsBoolean) {
-              if (strategy) {
-                expect(elm).toBeTruthy();
-              } else {
-                expect(elm).toBeFalsy();
-              }
+          } else if (resultIsBoolean) {
+            if (resultingStrategy) {
+              expect(elm).toBeTruthy();
+            } else {
+              expect(elm).toBeFalsy();
             }
+          } else if (resultingStrategy) {
+            expect(elm).toBe(resultingStrategy);
           }
         }
       }
@@ -345,7 +348,7 @@ const envNativeScrollbarStyling = {
   name: 'native scrollbar styling',
   env: {
     ...env,
-    _nativeScrollbarStyling: true,
+    _nativeScrollbarsHiding: true,
   },
 };
 const envCssCustomProperties = {
@@ -359,11 +362,12 @@ const envInitStrategyMin = {
   name: 'initialization strategy min',
   env: {
     ...env,
-    _getInitializationStrategy: () => ({
-      _host: null,
-      _viewport: () => null,
-      _content: () => false,
-      _padding: false,
+    _getDefaultInitialization: () => ({
+      ...env._staticDefaultInitialization,
+      host: null,
+      viewport: () => null,
+      content: () => false,
+      padding: false,
     }),
   },
 };
@@ -371,11 +375,12 @@ const envInitStrategyMax = {
   name: 'initialization strategy max',
   env: {
     ...env,
-    _getInitializationStrategy: () => ({
-      _host: null,
-      _viewport: null,
-      _content: true,
-      _padding: () => true,
+    _getDefaultInitialization: () => ({
+      ...env._staticDefaultInitialization,
+      host: null,
+      viewport: null,
+      content: true,
+      padding: () => true,
     }),
   },
 };
@@ -383,21 +388,23 @@ const envInitStrategyAssigned = {
   name: 'initialization strategy assigned',
   env: {
     ...env,
-    _getInitializationStrategy: () => ({
-      _host: () => document.querySelector('#host1') as HTMLElement,
-      _viewport: (target: HTMLElement) => target.querySelector('#viewport') as HTMLElement,
-      _content: (target: HTMLElement) => target.querySelector<HTMLElement>('#content'),
-      _padding: (target: HTMLElement) => target.querySelector<HTMLElement>('#padding'),
+    _getDefaultInitialization: () => ({
+      ...env._staticDefaultInitialization,
+      host: () => document.querySelector('#host1') as HTMLElement,
+      viewport: (target: HTMLElement) => target.querySelector('#viewport') as HTMLElement,
+      content: (target: HTMLElement) => target.querySelector<HTMLElement>('#content'),
+      padding: (target: HTMLElement) => target.querySelector<HTMLElement>('#padding'),
     }),
   },
 };
 const envInitStrategyViewportIsTarget = {
-  name: 'initialization strategy assigned',
+  name: 'initialization strategy viewport is target',
   env: {
     ...env,
-    _nativeScrollbarStyling: true,
-    _getInitializationStrategy: () => ({
-      _viewport: (target: HTMLElement) => target,
+    _nativeScrollbarsHiding: true,
+    _getDefaultInitialization: () => ({
+      ...env._staticDefaultInitialization,
+      viewport: (target: HTMLElement) => !is(target, 'textarea') && target,
     }),
   },
 };
@@ -420,28 +427,28 @@ describe('structureSetup', () => {
         mockGetEnvironment.mockImplementation(() => currEnv);
       });
 
-      [false, true].forEach((isTextarea) => {
-        describe(isTextarea ? 'textarea' : 'element', () => {
+      (['element', 'textarea', 'body'] as TargetType[]).forEach((targetType) => {
+        describe(targetType, () => {
           describe('basic', () => {
             test('Element', () => {
-              const snapshot = fillBody(isTextarea);
+              const snapshot = fillBody(targetType);
               const [elements, destroy] = assertCorrectSetupElements(
-                isTextarea,
-                createStructureSetupProxy(getTarget(isTextarea)),
+                targetType,
+                createStructureSetupProxy(getTarget(targetType)),
                 currEnv
               );
-              assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+              assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
               assertCorrectDestroy(snapshot, destroy);
             });
 
             test('Object', () => {
-              const snapshot = fillBody(isTextarea);
+              const snapshot = fillBody(targetType);
               const [elements, destroy] = assertCorrectSetupElements(
-                isTextarea,
-                createStructureSetupProxy({ target: getTarget(isTextarea) }),
+                targetType,
+                createStructureSetupProxy({ target: getTarget(targetType) }),
                 currEnv
               );
-              assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+              assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
               assertCorrectDestroy(snapshot, destroy);
             });
           });
@@ -450,58 +457,58 @@ describe('structureSetup', () => {
             describe('single assigned', () => {
               test('padding', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: () => document.querySelector<HTMLElement>('#padding')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: () => document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('content', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="content">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     content: document.querySelector<HTMLElement>('#content')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
@@ -509,176 +516,176 @@ describe('structureSetup', () => {
             describe('multiple assigned', () => {
               test('padding viewport content', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="viewport"><div id="content">${content}</div></div></div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: document.querySelector<HTMLElement>('#padding')!,
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                     content: () => document.querySelector<HTMLElement>('#content')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('padding viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: () => document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: document.querySelector<HTMLElement>('#padding')!,
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('padding content', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="content">${content}</div></div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: () => document.querySelector<HTMLElement>('#padding')!,
                     content: document.querySelector<HTMLElement>('#content')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('viewport content', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                     content: () => document.querySelector<HTMLElement>('#content')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
 
             describe('single false', () => {
               test('padding', () => {
-                const snapshot = fillBody(isTextarea);
+                const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: false,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('content', () => {
-                const snapshot = fillBody(isTextarea);
+                const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     content: () => false,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
 
             describe('single true', () => {
               test('padding', () => {
-                const snapshot = fillBody(isTextarea);
+                const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: () => true,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('content', () => {
-                const snapshot = fillBody(isTextarea);
+                const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     content: true,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
 
             describe('multiple false', () => {
               test('padding & content', () => {
-                const snapshot = fillBody(isTextarea);
+                const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: false,
                     content: false,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
 
             describe('multiple true', () => {
               test('padding & content', () => {
-                const snapshot = fillBody(isTextarea);
+                const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: true,
                     content: true,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
@@ -686,329 +693,329 @@ describe('structureSetup', () => {
             describe('mixed', () => {
               test('false: padding & content | assigned: viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: false,
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                     content: false,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding & content | assigned: viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: true,
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                     content: true,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: content | false: padding | assigned: viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: () => false,
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                     content: () => true,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding | false: content | assigned: viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: true,
                     viewport: () => document.querySelector<HTMLElement>('#viewport')!,
                     content: false,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: padding | assigned: content', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="content">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: false,
                     content: document.querySelector<HTMLElement>('#content')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding | assigned: content', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="content">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: true,
                     content: document.querySelector<HTMLElement>('#content')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: padding | assigned: viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: () => false,
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding | assigned: viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: true,
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: padding | assigned: viewport & content', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                     padding: false,
                     content: () => document.querySelector<HTMLElement>('#content')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: padding | assigned: viewport & content', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport"><div id="content">${content}</div></div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     viewport: () => document.querySelector<HTMLElement>('#viewport')!,
                     padding: true,
                     content: document.querySelector<HTMLElement>('#content')!,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: content | assigned: padding', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: document.querySelector<HTMLElement>('#padding')!,
                     content: false,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: content | assigned: padding', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: () => document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: document.querySelector<HTMLElement>('#padding')!,
                     content: true,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: content | assigned: viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     viewport: () => document.querySelector<HTMLElement>('#viewport')!,
                     content: false,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: content | assigned: viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="viewport">${content}</div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                     content: true,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('false: content | assigned: padding & viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: () => document.querySelector<HTMLElement>('#padding')!,
                     viewport: document.querySelector<HTMLElement>('#viewport')!,
                     content: () => false,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
               test('true: content | assigned: padding & viewport', () => {
                 const snapshot = fillBody(
-                  isTextarea,
+                  targetType,
                   (content, hostId) =>
                     `<div id="${hostId}"><div id="padding"><div id="viewport">${content}</div></div></div>`
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
-                  isTextarea,
+                  targetType,
                   createStructureSetupProxy({
                     host: () => document.querySelector<HTMLElement>('#host')!,
-                    target: getTarget(isTextarea),
+                    target: getTarget(targetType),
                     padding: document.querySelector<HTMLElement>('#padding')!,
                     viewport: () => document.querySelector<HTMLElement>('#viewport')!,
                     content: true,
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(isTextarea, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });

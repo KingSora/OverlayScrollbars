@@ -2,7 +2,7 @@ import {
   validateOptions,
   optionsTemplateTypes as oTypes,
   OptionsTemplate,
-} from 'plugins/optionsValidation/validation';
+} from 'plugins/optionsValidationPlugin/validation';
 import { assignDeep } from 'support/utils';
 
 type TestOptionsObj = { propA: 'propA'; null: null };

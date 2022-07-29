@@ -20,7 +20,7 @@ export type StructureDynamicInitializationElement = DynamicInitializationElement
  * If element is provided, the provided element takes all its responsibilities.
  * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
  *
- * Null or Undefined means that the environment initialization strategy is used.
+ * undefined means that the default initialization strategy is used.
  */
 export interface StructureInitialization {
   target: InitializationTargetElement;

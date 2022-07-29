@@ -2,11 +2,11 @@ import { PlainObject } from 'typings';
 import {
   optionsTemplateTypes as oTypes,
   OptionsTemplate,
-} from 'plugins/optionsValidation/validation';
+} from 'plugins/optionsValidationPlugin/validation';
 import {
   transformOptions,
   OptionsWithOptionsTemplate,
-} from 'plugins/optionsValidation/transformation';
+} from 'plugins/optionsValidationPlugin/transformation';
 
 type TestOptionsObj = { propA: 'propA'; null: null };
 type TestOptionsEnum = 'A' | 'B' | 'C';
