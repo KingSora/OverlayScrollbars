@@ -129,6 +129,7 @@ export const createStructureSetupElements = (
     viewportInitialization
   );
   const viewportIsTarget = viewportElement === targetElement;
+  const viewportIsTargetBody = viewportIsTarget & isBody;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: isTextarea
@@ -154,8 +155,8 @@ export const createStructureSetupElements = (
       !_nativeScrollbarsHiding &&
       createUniqueViewportArrangeElement &&
       createUniqueViewportArrangeElement(env),
-    _scrollOffsetElement: isBody ? ownerDocument.documentElement : viewportElement,
-    _scrollEventElement: isBody ? ownerDocument : viewportElement,
+    _scrollOffsetElement: viewportIsTargetBody ? ownerDocument.documentElement : viewportElement,
+    _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
     _windowElm: wnd,
     _documentElm: ownerDocument,
     _isTextarea: isTextarea,
@@ -193,7 +194,7 @@ export const createStructureSetupElements = (
     const removePaddingClass = addClass(_padding, classNamePadding);
     const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
     const removeContentClass = addClass(_content, classNameContent);
-    const removeHtmlClass = isBody
+    const removeHtmlClass = viewportIsTargetBody
       ? addClass(parent(targetElement), classNameViewportScrollbarHidden)
       : noop;
 
