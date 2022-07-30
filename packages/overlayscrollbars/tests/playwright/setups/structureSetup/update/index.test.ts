@@ -1,5 +1,4 @@
-// @ts-ignore
-import { playwrightRollup, expectSuccess } from '@/playwright/rollup';
+import { playwrightRollup, expectSuccess } from '@local/playwright-tooling';
 import { test, Page } from '@playwright/test';
 
 playwrightRollup();

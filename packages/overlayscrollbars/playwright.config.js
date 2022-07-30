@@ -1,1 +1,1 @@
-module.exports = require('../../playwright.config.base');
+module.exports = require('@local/config/playwright');

@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "name": "@local/playwright-tooling",
+  "main": "./src/index.js",
+  "types": "index.d.ts",
+  "version": "0.0.0"
+}

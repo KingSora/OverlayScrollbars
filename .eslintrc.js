@@ -1,4 +1,4 @@
-const resolve = require('./resolve.config');
+const resolve = require('@local/config/resolve');
 
 module.exports = {
   extends: [

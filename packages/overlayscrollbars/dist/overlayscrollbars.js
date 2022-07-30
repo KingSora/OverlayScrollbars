@@ -110,11 +110,11 @@
     for (a in r) {}
     return v(a) || i.call(r, a);
   };
-  var w = function isHTMLElement(r) {
+  var b = function isHTMLElement(r) {
     var a = HTMLElement;
     return r ? a ? r instanceof a : r.nodeType === e : false;
   };
-  var b = function isElement(r) {
+  var w = function isElement(r) {
     var a = Element;
     return r ? a ? r instanceof a : r.nodeType === e : false;
   };
@@ -192,13 +192,13 @@
     }
     return true;
   };
-  var T = function getSetProp(r, a, e, n) {
+  var z = function getSetProp(r, a, e, n) {
     if (v(n)) {
       return e ? e[r] : a;
     }
     e && !o(n) && false !== n && (e[r] = n);
   };
-  var z = function attr(r, a, e) {
+  var T = function attr(r, a, e) {
     if (v(e)) {
       return r ? r.getAttribute(a) : null;
     }
@@ -206,38 +206,38 @@
   };
   var L = function attrClass(r, a, e, n) {
     if (e) {
-      var t = z(r, a) || "";
+      var t = T(r, a) || "";
       var i = new Set(t.split(" "));
       i[n ? "add" : "delete"](e);
-      z(r, a, S(i).join(" ").trim());
+      T(r, a, S(i).join(" ").trim());
     }
   };
-  var D = function hasAttrClass(r, a, e) {
-    var n = z(r, a) || "";
+  var H = function hasAttrClass(r, a, e) {
+    var n = T(r, a) || "";
     var t = new Set(n.split(" "));
     return t.has(e);
   };
-  var H = function removeAttr(r, a) {
+  var D = function removeAttr(r, a) {
     r && r.removeAttribute(a);
   };
   var M = function scrollLeft(r, a) {
-    return T("scrollLeft", 0, r, a);
+    return z("scrollLeft", 0, r, a);
   };
   var R = function scrollTop(r, a) {
-    return T("scrollTop", 0, r, a);
+    return z("scrollTop", 0, r, a);
   };
   var I = Element.prototype;
   var V = function find(r, a) {
     var e = [];
-    var n = a ? b(a) ? a : null : document;
+    var n = a ? w(a) ? a : null : document;
     return n ? y(e, n.querySelectorAll(r)) : e;
   };
   var j = function findFirst(r, a) {
-    var e = a ? b(a) ? a : null : document;
+    var e = a ? w(a) ? a : null : document;
     return e ? e.querySelector(r) : null;
   };
   var k = function is(r, a) {
-    if (b(r)) {
+    if (w(r)) {
       var e = I.matches || I.msMatchesSelector;
       return e.call(r, a);
     }
@@ -250,7 +250,7 @@
     return r ? r.parentElement : null;
   };
   var q = function closest(r, a) {
-    if (b(r)) {
+    if (w(r)) {
       var e = I.closest;
       if (e) {
         return e.call(r, a);
@@ -267,33 +267,32 @@
   var U = function liesBetween(r, a, e) {
     var n = r && q(r, a);
     var t = r && j(e, n);
-    return n && t ? n === r || t === r || q(q(r, e), a) !== n : false;
+    var i = q(t, a) === n;
+    return n && t ? n === r || t === r || i && q(q(r, e), a) !== n : false;
   };
   var N = function before(r, a, e) {
-    if (e) {
+    if (e && r) {
       var n = a;
       var t;
-      if (r) {
-        if (h(e)) {
-          t = document.createDocumentFragment();
-          each(e, (function(r) {
-            if (r === n) {
-              n = r.previousSibling;
-            }
-            t.appendChild(r);
-          }));
-        } else {
-          t = e;
-        }
-        if (a) {
-          if (!n) {
-            n = r.firstChild;
-          } else if (n !== a) {
-            n = n.nextSibling;
+      if (h(e)) {
+        t = document.createDocumentFragment();
+        each(e, (function(r) {
+          if (r === n) {
+            n = r.previousSibling;
           }
-        }
-        r.insertBefore(t, n || null);
+          t.appendChild(r);
+        }));
+      } else {
+        t = e;
       }
+      if (a) {
+        if (!n) {
+          n = r.firstChild;
+        } else if (n !== a) {
+          n = n.nextSibling;
+        }
+      }
+      r.insertBefore(t, n || null);
     }
   };
   var Y = function appendChildren(r, a) {
@@ -320,7 +319,7 @@
   var Z = function createDiv(r) {
     var a = document.createElement("div");
     if (r) {
-      z(a, "class", r);
+      T(a, "class", r);
     }
     return a;
   };
@@ -421,10 +420,10 @@
     }
     return false;
   };
-  var wr = function equalWH(r, a) {
+  var br = function equalWH(r, a) {
     return _r(r, a, [ "w", "h" ]);
   };
-  var br = function equalXY(r, a) {
+  var wr = function equalXY(r, a) {
     return _r(r, a, [ "x", "y" ]);
   };
   var mr = function equalTRBL(r, a) {
@@ -465,14 +464,14 @@
         var l = s(u) ? u() : u;
         var h = f(l) && l >= 0;
         var p = a > 0 ? lr : fr;
-        var w = a > 0 ? cr : ur;
-        var b = d(r);
-        var m = b || r;
+        var b = a > 0 ? cr : ur;
+        var w = d(r);
+        var m = w || r;
         var y = c.bind(0, m);
         i();
         var C = p(y, a);
         i = function clear() {
-          return w(C);
+          return b(C);
         };
         if (h && !e) {
           e = lr(g, l);
@@ -509,10 +508,10 @@
       }
     } catch (t) {}
   };
-  var Tr = function directionIsRTL(r) {
+  var zr = function directionIsRTL(r) {
     return "rtl" === style(r, "direction");
   };
-  var zr = function topRightBottomLeft(r, a, e) {
+  var Tr = function topRightBottomLeft(r, a, e) {
     var n = a ? a + "-" : "";
     var t = e ? "-" + e : "";
     var i = n + "top" + t;
@@ -527,7 +526,8 @@
       l: xr(f[u])
     };
   };
-  var Lr = {
+  var Lr = Math.round;
+  var Hr = {
     w: 0,
     h: 0
   };
@@ -537,60 +537,60 @@
       h: window.innerHeight
     };
   };
-  var Hr = function offsetSize(r) {
+  var Mr = function offsetSize(r) {
     return r ? {
       w: r.offsetWidth,
       h: r.offsetHeight
-    } : Lr;
+    } : Hr;
   };
-  var Mr = function clientSize(r) {
+  var Rr = function clientSize(r) {
     return r ? {
       w: r.clientWidth,
       h: r.clientHeight
-    } : Lr;
+    } : Hr;
   };
-  var Rr = function scrollSize(r) {
+  var Ir = function scrollSize(r) {
     return r ? {
       w: r.scrollWidth,
       h: r.scrollHeight
-    } : Lr;
+    } : Hr;
   };
-  var Ir = function fractionalSize(r) {
+  var Vr = function fractionalSize(r) {
     var a = parseFloat(style(r, "height")) || 0;
-    var e = parseFloat(style(r, "height")) || 0;
+    var e = parseFloat(style(r, "width")) || 0;
     return {
-      w: e - Math.round(e),
-      h: a - Math.round(a)
+      w: e - Lr(e),
+      h: a - Lr(a)
     };
   };
-  var Vr = function getBoundingClientRect(r) {
+  var jr = function getBoundingClientRect(r) {
     return r.getBoundingClientRect();
   };
-  var jr;
-  var kr = function supportPassiveEvents() {
-    if (v(jr)) {
-      jr = false;
+  var kr;
+  var Br = function supportPassiveEvents() {
+    if (v(kr)) {
+      kr = false;
       try {
         window.addEventListener("test", null, Object.defineProperty({}, "passive", {
           get: function get() {
-            jr = true;
+            kr = true;
           }
         }));
       } catch (r) {}
     }
-    return jr;
+    return kr;
   };
-  var Br = function splitEventNames(r) {
+  var Fr = function splitEventNames(r) {
     return r.split(" ");
   };
-  var Fr = function off(r, a, e, n) {
-    each(Br(a), (function(a) {
+  var qr = function off(r, a, e, n) {
+    each(Fr(a), (function(a) {
       r.removeEventListener(a, e, n);
     }));
   };
-  var qr = function on(r, a, e, n) {
+  var Ur = function on(r, a, e, n) {
     var t;
-    var i = kr();
+    var i = Br();
     var v = null != (t = i && n && n.C) ? t : i;
     var o = n && n.O || false;
     var u = n && n.A || false;
@@ -599,42 +599,42 @@
       passive: v,
       capture: o
     } : o;
-    each(Br(a), (function(a) {
+    each(Fr(a), (function(a) {
       var n = u ? function(t) {
         r.removeEventListener(a, n, o);
         e && e(t);
       } : e;
-      y(f, Fr.bind(null, r, a, n, o));
+      y(f, qr.bind(null, r, a, n, o));
       r.addEventListener(a, n, l);
     }));
     return O.bind(0, f);
   };
-  var Ur = function stopPropagation(r) {
+  var Nr = function stopPropagation(r) {
     return r.stopPropagation();
   };
-  var Nr = function preventDefault(r) {
+  var Yr = function preventDefault(r) {
     return r.preventDefault();
   };
-  var Yr = {
+  var Wr = {
     x: 0,
     y: 0
   };
-  var Wr = function absoluteCoordinates(r) {
-    var a = r ? Vr(r) : 0;
+  var Gr = function absoluteCoordinates(r) {
+    var a = r ? jr(r) : 0;
     return a ? {
       x: a.left + window.pageYOffset,
       y: a.top + window.pageXOffset
-    } : Yr;
+    } : Wr;
   };
-  var Gr = function manageListener(r, a) {
+  var Xr = function manageListener(r, a) {
     each(d(a) ? a : [ a ], r);
   };
-  var Xr = function createEventListenerHub(r) {
+  var Zr = function createEventListenerHub(r) {
     var a = new Map;
     var e = function removeEvent(r, e) {
       if (r) {
         var n = a.get(r);
-        Gr((function(r) {
+        Xr((function(r) {
           if (n) {
             n[r ? "delete" : "clear"](r);
           }
@@ -649,7 +649,7 @@
     var n = function addEvent(r, n) {
       var t = a.get(r) || new Set;
       a.set(r, t);
-      Gr((function(r) {
+      Xr((function(r) {
         r && t.add(r);
       }), n);
       return e.bind(0, r, n);
@@ -670,17 +670,17 @@
     }));
     return [ n, e, t ];
   };
-  var Zr = function getPropByPath(r, a) {
+  var $r = function getPropByPath(r, a) {
     return r ? a.split(".").reduce((function(r, a) {
       return r && x(r, a) ? r[a] : void 0;
     }), r) : void 0;
   };
-  var $r = function createOptionCheck(r, a, e) {
+  var Jr = function createOptionCheck(r, a, e) {
     return function(n) {
-      return [ Zr(r, n), e || void 0 !== Zr(a, n) ];
+      return [ $r(r, n), e || void 0 !== $r(a, n) ];
     };
   };
-  var Jr = function createState(r) {
+  var Kr = function createState(r) {
     var a = r;
     return [ function() {
       return a;
@@ -688,43 +688,43 @@
       a = A({}, a, r);
     } ];
   };
-  var Kr = "os-environment";
-  var Qr = Kr + "-flexbox-glue";
-  var ra = Qr + "-max";
-  var aa = "data-overlayscrollbars";
-  var ea = aa + "-overflow-x";
-  var na = aa + "-overflow-y";
-  var ta = "overflowVisible";
-  var ia = "scrollbarHidden";
-  var va = "updating";
-  var oa = "os-padding";
-  var ua = "os-viewport";
-  var fa = ua + "-arrange";
-  var la = "os-content";
-  var ca = ua + "-scrollbar-hidden";
-  var sa = "os-overflow-visible";
-  var da = "os-size-observer";
-  var ga = da + "-appear";
-  var ha = da + "-listener";
-  var pa = ha + "-scroll";
-  var _a = ha + "-item";
-  var wa = _a + "-final";
-  var ba = "os-trinsic-observer";
-  var ma = "os-scrollbar";
-  var ya = ma + "-rtl";
-  var Sa = ma + "-horizontal";
-  var Ca = ma + "-vertical";
-  var Oa = ma + "-track";
-  var xa = ma + "-handle";
-  var Ea = ma + "-visible";
-  var Aa = ma + "-cornerless";
-  var Pa = ma + "-transitionless";
-  var Ta = ma + "-interaction";
-  var za = ma + "-unusable";
-  var La = ma + "-auto-hidden";
-  var Da = Oa + "-interactive";
-  var Ha = xa + "-interactive";
-  var Ma = function opsStringify(r) {
+  var Qr = "os-environment";
+  var ra = Qr + "-flexbox-glue";
+  var aa = ra + "-max";
+  var ea = "data-overlayscrollbars";
+  var na = ea + "-overflow-x";
+  var ta = ea + "-overflow-y";
+  var ia = "overflowVisible";
+  var va = "scrollbarHidden";
+  var oa = "updating";
+  var ua = "os-padding";
+  var fa = "os-viewport";
+  var la = fa + "-arrange";
+  var ca = "os-content";
+  var sa = fa + "-scrollbar-hidden";
+  var da = "os-overflow-visible";
+  var ga = "os-size-observer";
+  var ha = ga + "-appear";
+  var pa = ga + "-listener";
+  var _a = pa + "-scroll";
+  var ba = pa + "-item";
+  var wa = ba + "-final";
+  var ma = "os-trinsic-observer";
+  var ya = "os-scrollbar";
+  var Sa = ya + "-rtl";
+  var Ca = ya + "-horizontal";
+  var Oa = ya + "-vertical";
+  var xa = ya + "-track";
+  var Ea = ya + "-handle";
+  var Aa = ya + "-visible";
+  var Pa = ya + "-cornerless";
+  var za = ya + "-transitionless";
+  var Ta = ya + "-interaction";
+  var La = ya + "-unusable";
+  var Ha = ya + "-auto-hidden";
+  var Da = xa + "-interactive";
+  var Ma = Ea + "-interactive";
+  var Ra = function opsStringify(r) {
     return JSON.stringify(r, (function(r, a) {
       if (s(a)) {
         throw new Error;
@@ -732,7 +732,7 @@
       return a;
     }));
   };
-  var Ra = {
+  var Ia = {
     paddingAbsolute: false,
     showNativeOverlaidScrollbars: false,
     updating: {
@@ -749,13 +749,13 @@
       theme: "os-theme-dark",
       visibility: "auto",
       autoHide: "never",
-      autoHideDelay: 800,
+      autoHideDelay: 1300,
       dragScroll: true,
       clickScroll: false,
       pointers: [ "mouse", "touch", "pen" ]
     }
   };
-  var Ia = function getOptionsDiff(r, a) {
+  var Va = function getOptionsDiff(r, a) {
     var e = {};
     var n = E(a).concat(E(r));
     each(n, (function(n) {
@@ -767,7 +767,7 @@
         var v = true;
         if (d(t) || d(i)) {
           try {
-            if (Ma(t) === Ma(i)) {
+            if (Ra(t) === Ra(i)) {
               v = false;
             }
           } catch (o) {}
@@ -779,18 +779,17 @@
     }));
     return e;
   };
-  var Va = {};
-  var ja = function getPlugins() {
-    return A({}, Va);
+  var ja = {};
+  var ka = function getPlugins() {
+    return ja;
   };
-  var ka = function addPlugin(r) {
+  var Ba = function addPlugin(r) {
     each(d(r) ? r : [ r ], (function(r) {
-      each(E(r), (function(a) {
-        Va[a] = r[a];
-      }));
+      var a = E(r)[0];
+      ja[a] = r[a];
     }));
   };
-  var Ba = {
+  var Fa = {
     exports: {}
   };
   (function(r) {
@@ -809,9 +808,9 @@
       return _extends.apply(this, arguments);
     }
     r.exports = _extends, r.exports.v = true, r.exports["default"] = r.exports;
-  })(Ba);
-  var Fa = getDefaultExportFromCjs(Ba.exports);
-  var qa = {
+  })(Fa);
+  var qa = getDefaultExportFromCjs(Fa.exports);
+  var Ua = {
     boolean: "__TPL_boolean_TYPE__",
     number: "__TPL_number_TYPE__",
     string: "__TPL_string_TYPE__",
@@ -820,9 +819,9 @@
     function: "__TPL_function_TYPE__",
     null: "__TPL_null_TYPE__"
   };
-  var Ua = function validateRecursive(r, a, e, n) {
+  var Na = function validateRecursive(r, a, e, n) {
     var t = {};
-    var i = Fa({}, a);
+    var i = qa({}, a);
     var o = E(r).filter((function(r) {
       return x(a, r);
     }));
@@ -832,9 +831,9 @@
       var s = p(c);
       var g = n ? n + "." : "";
       if (s && p(f)) {
-        var h = validateRecursive(c, f, e, g + o), w = h[0], b = h[1];
-        t[o] = w;
-        i[o] = b;
+        var h = validateRecursive(c, f, e, g + o), b = h[0], w = h[1];
+        t[o] = b;
+        i[o] = w;
         each([ i, t ], (function(r) {
           if (P(r[o])) {
             delete r[o];
@@ -848,7 +847,7 @@
         var x = !d(c) ? [ c ] : c;
         each(x, (function(r) {
           var a;
-          each(qa, (function(e, n) {
+          each(Ua, (function(e, n) {
             if (e === r) {
               a = n;
             }
@@ -861,9 +860,9 @@
             }));
             y(S, n);
           } else {
-            m = qa[O] === r;
+            m = Ua[O] === r;
           }
-          y(C, e ? qa.string : a);
+          y(C, e ? Ua.string : a);
           return !m;
         }));
         if (m) {
@@ -876,68 +875,68 @@
     }));
     return [ t, i ];
   };
-  var Na = function validateOptions(r, a, e) {
-    return Ua(r, a, e);
+  var Ya = function validateOptions(r, a, e) {
+    return Na(r, a, e);
   };
-  var Ya;
-  var Wa = qa.number;
-  var Ga = qa.boolean;
-  var Xa = [ qa.array, qa.null ];
-  var Za = "hidden scroll visible visible-hidden";
-  var $a = "visible hidden auto";
-  var Ja = "never scroll leavemove";
-  var Ka = {
-    paddingAbsolute: Ga,
-    showNativeOverlaidScrollbars: Ga,
+  var Wa;
+  var Ga = Ua.number;
+  var Xa = Ua.boolean;
+  var Za = [ Ua.array, Ua.null ];
+  var $a = "hidden scroll visible visible-hidden";
+  var Ja = "visible hidden auto";
+  var Ka = "never scroll leavemove";
+  var Qa = {
+    paddingAbsolute: Xa,
+    showNativeOverlaidScrollbars: Xa,
     updating: {
-      elementEvents: Xa,
-      attributes: Xa,
-      debounce: [ qa.number, qa.array, qa.null ],
-      ignoreMutation: [ qa.function, qa.null ]
+      elementEvents: Za,
+      attributes: Za,
+      debounce: [ Ua.number, Ua.array, Ua.null ],
+      ignoreMutation: [ Ua.function, Ua.null ]
     },
     overflow: {
-      x: Za,
-      y: Za
+      x: $a,
+      y: $a
     },
     scrollbars: {
-      theme: [ qa.string, qa.null ],
-      visibility: $a,
-      autoHide: Ja,
-      autoHideDelay: Wa,
-      dragScroll: Ga,
-      clickScroll: Ga,
-      pointers: [ qa.array, qa.null ]
+      theme: [ Ua.string, Ua.null ],
+      visibility: Ja,
+      autoHide: Ka,
+      autoHideDelay: Ga,
+      dragScroll: Xa,
+      clickScroll: Xa,
+      pointers: [ Ua.array, Ua.null ]
     }
   };
-  var Qa = "__osOptionsValidationPlugin";
-  Ya = {}, Ya[Qa] = {
+  var re = "__osOptionsValidationPlugin";
+  Wa = {}, Wa[re] = {
     P: function _(r, a) {
-      var e = Na(Ka, r, a), n = e[0], t = e[1];
-      return Fa({}, t, n);
+      var e = Ya(Qa, r, a), n = e[0], t = e[1];
+      return qa({}, t, n);
     }
-  }, Ya;
-  var re;
-  var ae = 3333333;
-  var ee = "scroll";
-  var ne = "__osSizeObserverPlugin";
-  var te = (re = {}, re[ne] = {
+  }, Wa;
+  var ae;
+  var ee = 3333333;
+  var ne = "scroll";
+  var te = "__osSizeObserverPlugin";
+  var ie = (ae = {}, ae[te] = {
     P: function _(r, a, e) {
-      var n = $('<div class="' + _a + '" dir="ltr"><div class="' + _a + '"><div class="' + wa + '"></div></div><div class="' + _a + '"><div class="' + wa + '" style="width: 200%; height: 200%"></div></div></div>');
+      var n = $('<div class="' + ba + '" dir="ltr"><div class="' + ba + '"><div class="' + wa + '"></div></div><div class="' + ba + '"><div class="' + wa + '" style="width: 200%; height: 200%"></div></div></div>');
       Y(r, n);
-      pr(r, pa);
+      pr(r, _a);
       var t = n[0];
       var i = t.lastChild;
       var v = t.firstChild;
       var o = null == v ? void 0 : v.firstChild;
-      var u = Hr(t);
+      var u = Mr(t);
       var f = u;
       var l = false;
       var c;
       var s = function reset() {
-        M(v, ae);
-        R(v, ae);
-        M(i, ae);
-        R(i, ae);
+        M(v, ee);
+        R(v, ee);
+        M(i, ee);
+        R(i, ee);
       };
       var d = function onResized(r) {
         c = 0;
@@ -947,10 +946,10 @@
         }
       };
       var g = function onScroll(r) {
-        f = Hr(t);
-        l = !r || !wr(f, u);
+        f = Mr(t);
+        l = !r || !br(f, u);
         if (r) {
-          Ur(r);
+          Nr(r);
           if (l && !c) {
             ur(c);
             c = fr(d);
@@ -960,37 +959,37 @@
         }
         s();
       };
-      var h = y([], [ qr(v, ee, g), qr(i, ee, g) ]);
+      var h = y([], [ Ur(v, ne, g), Ur(i, ne, g) ]);
       style(o, {
-        width: ae,
-        height: ae
+        width: ee,
+        height: ee
       });
       fr(s);
       return [ e ? g.bind(0, false) : s, h ];
     }
-  }, re);
-  var ie;
-  var ve = 0;
-  var oe = Math.round, ue = Math.abs;
-  var fe = function getWindowDPR() {
+  }, ae);
+  var ve;
+  var oe = 0;
+  var ue = Math.round, fe = Math.abs;
+  var le = function getWindowDPR() {
     var r = window.screen.deviceXDPI || 0;
     var a = window.screen.logicalXDPI || 1;
     return window.devicePixelRatio || r / a;
   };
-  var le = function diffBiggerThanOne(r, a) {
-    var e = ue(r);
-    var n = ue(a);
+  var ce = function diffBiggerThanOne(r, a) {
+    var e = fe(r);
+    var n = fe(a);
     return !(e === n || e + 1 === n || e - 1 === n);
   };
-  var ce = "__osScrollbarsHidingPlugin";
-  var se = (ie = {}, ie[ce] = {
+  var se = "__osScrollbarsHidingPlugin";
+  var de = (ve = {}, ve[se] = {
     T: function _createUniqueViewportArrangeElement(r) {
-      var a = r.L, e = r.D, n = r.H;
+      var a = r.L, e = r.H, n = r.D;
       var t = !n && !a && (e.x || e.y);
       var i = t ? document.createElement("style") : false;
       if (i) {
-        z(i, "id", fa + "-" + ve);
-        ve++;
+        T(i, "id", la + "-" + oe);
+        oe++;
       }
       return i;
     },
@@ -1002,13 +1001,13 @@
           var s = c.x, d = c.y;
           var g = l.x, h = l.y;
           var p = o ? "paddingRight" : "paddingLeft";
-          var w = f[p];
-          var b = f.paddingTop;
+          var b = f[p];
+          var w = f.paddingTop;
           var m = i.w + v.w;
           var y = i.h + v.h;
           var S = {
-            w: h && d ? h + m - w + "px" : "",
-            h: g && s ? g + y - b + "px" : ""
+            w: h && d ? h + m - b + "px" : "",
+            h: g && s ? g + y - w + "px" : ""
           };
           if (n) {
             var C = n.sheet;
@@ -1016,7 +1015,7 @@
               var O = C.cssRules;
               if (O) {
                 if (!O.length) {
-                  C.insertRule("#" + z(n, "id") + " + ." + fa + "::before {}", 0);
+                  C.insertRule("#" + T(n, "id") + " + ." + la + "::before {}", 0);
                 }
                 var x = O[0].style;
                 x.width = S.w;
@@ -1050,16 +1049,16 @@
           if (g) {
             p("marginLeft marginRight paddingLeft paddingRight");
           }
-          var w = style(e, E(h));
-          hr(e, fa);
+          var b = style(e, E(h));
+          hr(e, la);
           if (!a) {
             h.height = "";
           }
           style(e, h);
           return [ function() {
-            v(f, o, r, w);
-            style(e, w);
-            pr(e, fa);
+            v(f, o, r, b);
+            style(e, b);
+            pr(e, la);
           }, f ];
         }
         return [ Sr ];
@@ -1082,16 +1081,16 @@
           return;
         }
         var o = {
-          w: ue(v.w),
-          h: ue(v.h)
+          w: fe(v.w),
+          h: fe(v.h)
         };
         var u = {
-          w: ue(oe(i.w / (r.w / 100))),
-          h: ue(oe(i.h / (r.h / 100)))
+          w: fe(ue(i.w / (r.w / 100))),
+          h: fe(ue(i.h / (r.h / 100)))
         };
-        var f = fe();
+        var f = le();
         var l = o.w > 2 && o.h > 2;
-        var c = !le(u.w, u.h);
+        var c = !ce(u.w, u.h);
         var s = f !== a && f > 0;
         var d = l && c && s;
         if (d) {
@@ -1105,29 +1104,29 @@
         a = f;
       };
     }
-  }, ie);
-  var de;
-  var ge = function getNativeScrollbarSize(r, a, e, n) {
+  }, ve);
+  var ge;
+  var he = function getNativeScrollbarSize(r, a, e, n) {
     Y(r, a);
-    var t = Mr(a);
-    var i = Hr(a);
-    var v = Ir(e);
+    var t = Rr(a);
+    var i = Mr(a);
+    var v = Vr(e);
     n && X(a);
     return {
       x: i.h - t.h + v.h,
       y: i.w - t.w + v.w
     };
   };
-  var he = function getNativeScrollbarsHiding(r) {
+  var pe = function getNativeScrollbarsHiding(r) {
     var a = false;
-    var e = pr(r, ca);
+    var e = pr(r, sa);
     try {
       a = "none" === style(r, nr("scrollbar-width")) || "none" === window.getComputedStyle(r, "::-webkit-scrollbar").getPropertyValue("display");
     } catch (n) {}
     e();
     return a;
   };
-  var pe = function getRtlScrollBehavior(r, a) {
+  var _e = function getRtlScrollBehavior(r, a) {
     var e = "hidden";
     style(r, {
       overflowX: e,
@@ -1135,23 +1134,23 @@
       direction: "rtl"
     });
     M(r, 0);
-    var n = Wr(r);
-    var t = Wr(a);
+    var n = Gr(r);
+    var t = Gr(a);
     M(r, -999);
-    var i = Wr(a);
+    var i = Gr(a);
     return {
       i: n.x === t.x,
       n: t.x !== i.x
     };
   };
-  var _e = function getFlexboxGlue(r, a) {
-    var e = pr(r, Qr);
-    var n = Vr(r);
-    var t = Vr(a);
+  var be = function getFlexboxGlue(r, a) {
+    var e = pr(r, ra);
+    var n = jr(r);
+    var t = jr(a);
     var i = yr(t, n, true);
-    var v = pr(r, ra);
-    var o = Vr(r);
-    var u = Vr(a);
+    var v = pr(r, aa);
+    var o = jr(r);
+    var u = jr(a);
     var f = yr(u, o, true);
     e();
     v();
@@ -1159,16 +1158,16 @@
   };
   var we = function createEnvironment() {
     var r = document, e = r.body;
-    var n = $('<div class="' + Kr + '"><div></div></div>');
+    var n = $('<div class="' + Qr + '"><div></div></div>');
     var t = n[0];
     var i = t.firstChild;
-    var v = Xr(), o = v[0], u = v[2];
+    var v = Zr(), o = v[0], u = v[2];
     var f = a({
-      o: ge(e, t, i),
-      u: br
-    }, ge.bind(0, e, t, i, true)), l = f[0], c = f[1];
+      o: he(e, t, i),
+      u: wr
+    }, he.bind(0, e, t, i, true)), l = f[0], c = f[1];
     var s = c(), d = s[0];
-    var g = he(t);
+    var g = pe(t);
     var h = {
       x: 0 === d.x,
       y: 0 === d.y
@@ -1186,14 +1185,14 @@
         body: null
       }
     };
-    var w = A({}, Ra);
-    var b = {
+    var b = A({}, Ia);
+    var w = {
       k: d,
-      D: h,
+      H: h,
       L: g,
-      H: "-1" === style(t, "zIndex"),
-      B: pe(t, i),
-      F: _e(t, i),
+      D: "-1" === style(t, "zIndex"),
+      B: _e(t, i),
+      F: be(t, i),
       q: function _addListener(r) {
         return o("_", r);
       },
@@ -1201,91 +1200,92 @@
       N: function _setDefaultInitialization(r) {
         A(p, r);
       },
-      Y: A.bind(0, {}, w),
+      Y: A.bind(0, {}, b),
       W: function _setDefaultOptions(r) {
-        A(w, r);
+        A(b, r);
       },
       G: A({}, p),
-      X: A({}, w)
+      X: A({}, b)
     };
-    H(t, "style");
+    D(t, "style");
     X(t);
     if (!g && (!h.x || !h.y)) {
       var m;
       window.addEventListener("resize", (function() {
-        var r = ja()[ce];
+        var r = ka()[se];
         m = m || r && r.j();
-        m && m(b, l, u.bind(0, "_"));
+        m && m(w, l, u.bind(0, "_"));
       }));
     }
-    return b;
+    return w;
   };
-  var be = function getEnvironment() {
-    if (!de) {
-      de = we();
+  var me = function getEnvironment() {
+    if (!ge) {
+      ge = we();
     }
-    return de;
+    return ge;
   };
-  var me = function resolveInitialization(r, a) {
+  var ye = function resolveInitialization(r, a) {
     return s(r) ? r.apply(0, a) : r;
   };
-  var ye = function staticInitializationElement(r, a, e, n) {
+  var Se = function staticInitializationElement(r, a, e, n) {
     var t = v(n) ? e : n;
-    var i = me(t, r);
+    var i = ye(t, r);
     return i || a();
   };
-  var Se = function dynamicInitializationElement(r, a, e, n) {
+  var Ce = function dynamicInitializationElement(r, a, e, n) {
     var t = v(n) ? e : n;
-    var i = me(t, r);
-    return !!i && (w(i) ? i : a());
+    var i = ye(t, r);
+    return !!i && (b(i) ? i : a());
   };
-  var Ce = function cancelInitialization(r, a) {
+  var Oe = function cancelInitialization(r, a) {
     var e = r || {}, n = e.nativeScrollbarsOverlaid, t = e.body;
     var i = a.Z, u = a.$;
-    var f = be(), l = f.U, c = f.D;
+    var f = me(), l = f.U, c = f.H;
     var s = l().cancel, d = s.nativeScrollbarsOverlaid, g = s.body;
     var h = null != n ? n : d;
     var p = v(t) ? g : t;
-    var w = (c.x || c.y) && h;
-    var b = i && (o(p) ? !u : p);
-    return !!w || !!b;
+    var b = (c.x || c.y) && h;
+    var w = i && (o(p) ? !u : p);
+    return !!b || !!w;
   };
-  var Oe = Z.bind(0, "");
-  var xe = function unwrap(r) {
+  var xe = Z.bind(0, "");
+  var Ee = function unwrap(r) {
     Y(F(r), B(r));
     X(r);
   };
-  var Ee = function addDataAttrHost(r, a) {
-    z(r, aa, a);
-    return H.bind(0, r, aa);
+  var Ae = function addDataAttrHost(r, a) {
+    T(r, ea, a);
+    return D.bind(0, r, ea);
   };
-  var Ae = function createStructureSetupElements(r) {
-    var a = be();
+  var Pe = function createStructureSetupElements(r) {
+    var a = me();
     var e = a.U, n = a.L;
-    var t = ja()[ce];
+    var t = ka()[se];
     var i = t && t.T;
     var v = e(), o = v.host, u = v.viewport, f = v.padding, l = v.content;
-    var c = w(r);
+    var c = b(r);
     var s = c ? {} : r;
     var d = s.host, g = s.padding, h = s.viewport, p = s.content;
-    var b = c ? r : s.target;
-    var S = k(b, "textarea");
-    var C = b.ownerDocument;
-    var x = b === C.body;
+    var w = c ? r : s.target;
+    var S = k(w, "textarea");
+    var C = w.ownerDocument;
+    var x = w === C.body;
     var A = C.defaultView;
-    var P = ye.bind(0, [ b ]);
-    var T = Se.bind(0, [ b ]);
-    var z = P(Oe, u, h);
-    var M = z === b;
-    var R = {
-      J: b,
-      K: S ? P(Oe, o, d) : b,
-      rr: z,
-      ar: !M && T(Oe, f, g),
-      er: !M && T(Oe, l, p),
+    var P = Se.bind(0, [ w ]);
+    var z = Ce.bind(0, [ w ]);
+    var T = P(xe, u, h);
+    var M = T === w;
+    var R = M && x;
+    var I = {
+      J: w,
+      K: S ? P(xe, o, d) : w,
+      rr: T,
+      ar: !M && z(xe, f, g),
+      er: !M && z(xe, l, p),
       nr: !M && !n && i && i(a),
-      tr: x ? C.documentElement : z,
-      ir: x ? C : z,
+      tr: R ? C.documentElement : T,
+      ir: R ? C : T,
       vr: A,
       ur: C,
       lr: S,
@@ -1293,76 +1293,76 @@
       cr: c,
       $: M,
       sr: function _viewportHasClass(r, a) {
-        return M ? D(z, aa, a) : gr(z, r);
+        return M ? H(T, ea, a) : gr(T, r);
       },
       dr: function _viewportAddRemoveClass(r, a, e) {
-        return M ? L(z, aa, a, e) : (e ? pr : hr)(z, r);
+        return M ? L(T, ea, a, e) : (e ? pr : hr)(T, r);
       }
     };
-    var I = E(R).reduce((function(r, a) {
-      var e = R[a];
+    var V = E(I).reduce((function(r, a) {
+      var e = I[a];
       return y(r, e && !F(e) ? e : false);
     }), []);
-    var V = function elementIsGenerated(r) {
-      return r ? m(I, r) > -1 : null;
+    var j = function elementIsGenerated(r) {
+      return r ? m(V, r) > -1 : null;
     };
-    var j = R.J, q = R.K, U = R.ar, N = R.rr, Z = R.er, $ = R.nr;
-    var J = [];
-    var K = S && V(q);
-    var Q = S ? j : B([ Z, N, U, q, j ].find((function(r) {
-      return false === V(r);
+    var q = I.J, U = I.K, N = I.ar, Z = I.rr, $ = I.er, J = I.nr;
+    var K = [];
+    var Q = S && j(U);
+    var rr = S ? q : B([ $, Z, N, U, q ].find((function(r) {
+      return false === j(r);
     })));
-    var rr = Z || N;
-    var ar = function appendElements() {
-      var r = Ee(q, M ? "viewport" : "host");
-      var a = pr(U, oa);
-      var e = pr(N, !M && ua);
-      var t = pr(Z, la);
-      var i = x ? pr(F(b), ca) : Sr;
-      if (K) {
-        G(j, q);
-        y(J, (function() {
-          G(q, j);
-          X(q);
+    var ar = $ || Z;
+    var er = function appendElements() {
+      var r = Ae(U, M ? "viewport" : "host");
+      var a = pr(N, ua);
+      var e = pr(Z, !M && fa);
+      var t = pr($, ca);
+      var i = R ? pr(F(w), sa) : Sr;
+      if (Q) {
+        G(q, U);
+        y(K, (function() {
+          G(U, q);
+          X(U);
         }));
       }
-      Y(rr, Q);
-      Y(q, U);
-      Y(U || q, !M && N);
-      Y(N, Z);
-      y(J, (function() {
+      Y(ar, rr);
+      Y(U, N);
+      Y(N || U, !M && Z);
+      Y(Z, $);
+      y(K, (function() {
         i();
         r();
-        H(N, ea);
-        H(N, na);
-        if (V(Z)) {
-          xe(Z);
+        D(Z, na);
+        D(Z, ta);
+        if (j($)) {
+          Ee($);
         }
-        if (V(N)) {
-          xe(N);
+        if (j(Z)) {
+          Ee(Z);
         }
-        if (V(U)) {
-          xe(U);
+        if (j(N)) {
+          Ee(N);
         }
         a();
         e();
         t();
       }));
       if (n && !M) {
-        y(J, hr.bind(0, N, ca));
+        y(K, hr.bind(0, Z, sa));
       }
-      if ($) {
-        W(N, $);
-        y(J, X.bind(0, $));
+      if (J) {
+        W(Z, J);
+        y(K, X.bind(0, J));
       }
     };
-    return [ R, ar, O.bind(0, J) ];
+    return [ I, er, O.bind(0, K) ];
   };
-  var Pe = function createTrinsicUpdateSegment(r, a) {
+  var ze = function createTrinsicUpdateSegment(r, a) {
     var e = r.er;
     var n = a[0];
     return function(r) {
-      var a = be(), t = a.F;
+      var a = me(), t = a.F;
       var i = n(), v = i.gr;
       var o = r.hr;
       var u = (e || !t) && o;
@@ -1382,46 +1382,46 @@
     var i = r.K, v = r.ar, o = r.rr, u = r.$;
     var f = a({
       u: mr,
-      o: zr()
-    }, zr.bind(0, i, "padding", "")), l = f[0], c = f[1];
+      o: Tr()
+    }, Tr.bind(0, i, "padding", "")), l = f[0], c = f[1];
     return function(r, a, e) {
       var i = c(e), f = i[0], s = i[1];
-      var d = be(), g = d.L, h = d.F;
-      var p = n(), w = p.wr;
-      var b = r.pr, m = r._r, y = r.br;
+      var d = me(), g = d.L, h = d.F;
+      var p = n(), b = p.br;
+      var w = r.pr, m = r._r, y = r.wr;
       var S = a("paddingAbsolute"), C = S[0], O = S[1];
       var x = !h && m;
-      if (b || s || x) {
+      if (w || s || x) {
         var E = l(e);
         f = E[0];
         s = E[1];
       }
       var P = !u && (O || y || s);
       if (P) {
-        var T = !C || !v && !g;
-        var z = f.r + f.l;
+        var z = !C || !v && !g;
+        var T = f.r + f.l;
         var L = f.t + f.b;
-        var D = {
-          marginRight: T && !w ? -z : 0,
-          marginBottom: T ? -L : 0,
-          marginLeft: T && w ? -z : 0,
-          top: T ? -f.t : 0,
-          right: T ? w ? -f.r : "auto" : 0,
-          left: T ? w ? "auto" : -f.l : 0,
-          width: T ? "calc(100% + " + z + "px)" : ""
-        };
         var H = {
-          paddingTop: T ? f.t : 0,
-          paddingRight: T ? f.r : 0,
-          paddingBottom: T ? f.b : 0,
-          paddingLeft: T ? f.l : 0
+          marginRight: z && !b ? -T : 0,
+          marginBottom: z ? -L : 0,
+          marginLeft: z && b ? -T : 0,
+          top: z ? -f.t : 0,
+          right: z ? b ? -f.r : "auto" : 0,
+          left: z ? b ? "auto" : -f.l : 0,
+          width: z ? "calc(100% + " + T + "px)" : ""
         };
-        style(v || o, D);
-        style(o, H);
+        var D = {
+          paddingTop: z ? f.t : 0,
+          paddingRight: z ? f.r : 0,
+          paddingBottom: z ? f.b : 0,
+          paddingLeft: z ? f.l : 0
+        };
+        style(v || o, H);
+        style(o, D);
         t({
           ar: f,
-          mr: !T,
-          R: v ? H : A({}, D, H)
+          mr: !z,
+          R: v ? D : A({}, H, D)
         });
       }
       return {
@@ -1429,83 +1429,84 @@
       };
     };
   };
-  var ze = Math.max;
-  var Le = ze.bind(0, 0);
+  var Le = Math.max;
+  var He = Le.bind(0, 0);
   var De = "visible";
-  var He = "hidden";
-  var Me = 42;
-  var Re = {
-    u: wr,
+  var Me = "hidden";
+  var Re = 42;
+  var Ie = {
+    u: br,
     o: {
       w: 0,
       h: 0
     }
   };
-  var Ie = {
-    u: br,
+  var Ve = {
+    u: wr,
     o: {
-      x: He,
-      y: He
+      x: Me,
+      y: Me
     }
   };
-  var Ve = function getOverflowAmount(r, a) {
+  var je = function getOverflowAmount(r, a) {
     var e = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
     var n = {
-      w: Le(r.w - a.w),
-      h: Le(r.h - a.h)
+      w: He(r.w - a.w),
+      h: He(r.h - a.h)
     };
     return {
       w: n.w > e ? n.w : 0,
       h: n.h > e ? n.h : 0
     };
   };
-  var je = function conditionalClass(r, a, e) {
+  var ke = function conditionalClass(r, a, e) {
     return e ? pr(r, a) : hr(r, a);
   };
-  var ke = function overflowIsVisible(r) {
+  var Be = function overflowIsVisible(r) {
     return 0 === r.indexOf(De);
   };
-  var Be = function createOverflowUpdateSegment(r, e) {
+  var Fe = function createOverflowUpdateSegment(r, e) {
     var n = e[0], t = e[1];
-    var i = r.K, v = r.ar, o = r.rr, u = r.nr, f = r.$, l = r.dr;
-    var c = be(), s = c.k, d = c.F, g = c.L, h = c.D;
-    var p = ja()[ce];
-    var w = !f && !g && (h.x || h.y);
-    var b = a(Re, Ir.bind(0, o)), m = b[0], y = b[1];
-    var S = a(Re, Rr.bind(0, o)), C = S[0], O = S[1];
-    var x = a(Re), E = x[0], A = x[1];
-    var P = a(Re), T = P[0], D = P[1];
-    var H = a(Ie), M = H[0];
-    var R = function fixFlexboxGlue(r, a) {
+    var i = r.K, v = r.ar, o = r.rr, u = r.nr, f = r.$, l = r.dr, c = r.Z, s = r.vr;
+    var d = me(), g = d.k, h = d.F, p = d.L, b = d.H;
+    var w = ka()[se];
+    var m = !f && !p && (b.x || b.y);
+    var y = c && f;
+    var S = a(Ie, Vr.bind(0, o)), C = S[0], O = S[1];
+    var x = a(Ie, Ir.bind(0, o)), E = x[0], A = x[1];
+    var P = a(Ie), z = P[0], H = P[1];
+    var D = a(Ie), M = D[0], R = D[1];
+    var I = a(Ve), V = I[0];
+    var j = function fixFlexboxGlue(r, a) {
       style(o, {
         height: ""
       });
       if (a) {
         var e = n(), t = e.mr, v = e.ar;
         var u = r.Sr, f = r.I;
-        var l = Ir(i);
-        var c = Mr(i);
+        var l = Vr(i);
+        var c = Rr(i);
         var s = "content-box" === style(o, "boxSizing");
         var d = t || s ? v.b + v.t : 0;
-        var g = !(h.x && s);
+        var g = !(b.x && s);
         style(o, {
           height: c.h + l.h + (u.x && g ? f.x : 0) - d
         });
       }
     };
-    var I = function getViewportOverflowState(r, a) {
-      var e = !g && !r ? Me : 0;
+    var k = function getViewportOverflowState(r, a) {
+      var e = !p && !r ? Re : 0;
       var n = function getStatePerAxis(r, n, t) {
         var i = style(o, r);
         var v = a ? a[r] : i;
         var u = "scroll" === v;
         var f = n ? e : t;
-        var l = u && !g ? f : 0;
+        var l = u && !p ? f : 0;
         var c = n && !!e;
         return [ i, u, l, c ];
       };
-      var t = n("overflowX", h.x, s.x), i = t[0], v = t[1], u = t[2], f = t[3];
-      var l = n("overflowY", h.y, s.y), c = l[0], d = l[1], p = l[2], w = l[3];
+      var t = n("overflowX", b.x, g.x), i = t[0], v = t[1], u = t[2], f = t[3];
+      var l = n("overflowY", b.y, g.y), c = l[0], s = l[1], d = l[2], h = l[3];
       return {
         Cr: {
           x: i,
@@ -1513,31 +1514,31 @@
         },
         Sr: {
           x: v,
-          y: d
+          y: s
         },
         I: {
           x: u,
-          y: p
+          y: d
         },
         V: {
           x: f,
-          y: w
+          y: h
         }
       };
     };
-    var V = function setViewportOverflowState(r, a, e, n) {
+    var B = function setViewportOverflowState(r, a, e, n) {
       var t = function setAxisOverflowStyle(r, a) {
-        var e = ke(r);
+        var e = Be(r);
         var n = a && e && r.replace(De + "-", "") || "";
-        return [ a && !e ? r : "", ke(n) ? "hidden" : n ];
+        return [ a && !e ? r : "", Be(n) ? "hidden" : n ];
       };
       var i = t(e.x, a.x), v = i[0], o = i[1];
       var u = t(e.y, a.y), f = u[0], l = u[1];
       n.overflowX = o && f ? o : v;
       n.overflowY = l && v ? l : f;
-      return I(r, n);
+      return k(r, n);
     };
-    var j = function hideNativeScrollbars(r, a, e, t) {
+    var F = function hideNativeScrollbars(r, a, e, t) {
       var i = r.I, v = r.V;
       var o = v.x, u = v.y;
       var f = i.x, l = i.y;
@@ -1546,80 +1547,80 @@
       var g = a ? "paddingLeft" : "paddingRight";
       var h = s[d];
       var p = s.marginBottom;
-      var w = s[g];
-      var b = s.paddingBottom;
+      var b = s[g];
+      var w = s.paddingBottom;
       t.width = "calc(100% + " + (l + -1 * h) + "px)";
       t[d] = -l + h;
       t.marginBottom = -f + p;
       if (e) {
-        t[g] = w + (u ? l : 0);
-        t.paddingBottom = b + (o ? f : 0);
+        t[g] = b + (u ? l : 0);
+        t.paddingBottom = w + (o ? f : 0);
       }
     };
-    var k = p ? p.M(w, d, o, u, n, I, j) : [ function() {
-      return w;
+    var q = w ? w.M(m, h, o, u, n, k, F) : [ function() {
+      return m;
     }, function() {
       return [ Sr ];
-    } ], B = k[0], F = k[1];
+    } ], U = q[0], N = q[1];
     return function(r, a, e) {
-      var u = r.pr, c = r.Or, s = r._r, p = r.yr, w = r.hr, b = r.br;
-      var S = n(), x = S.gr, P = S.wr;
-      var H = a("showNativeOverlaidScrollbars"), k = H[0], q = H[1];
-      var U = a("overflow"), N = U[0], Y = U[1];
-      var W = k && h.x && h.y;
-      var G = !f && !d && (u || s || c || q || w);
-      var X = ke(N.x);
-      var Z = ke(N.y);
-      var $ = X || Z;
-      var J = y(e);
-      var K = O(e);
-      var Q = A(e);
-      var rr = D(e);
-      var ar;
-      if (q && g) {
-        l(ca, ia, !W);
+      var u = r.pr, c = r.Or, d = r._r, g = r.yr, w = r.hr, m = r.wr;
+      var S = n(), x = S.gr, P = S.br;
+      var D = a("showNativeOverlaidScrollbars"), I = D[0], q = D[1];
+      var Y = a("overflow"), W = Y[0], G = Y[1];
+      var X = I && b.x && b.y;
+      var Z = !f && !h && (u || d || c || q || w);
+      var $ = Be(W.x);
+      var J = Be(W.y);
+      var K = $ || J;
+      var Q = O(e);
+      var rr = A(e);
+      var ar = H(e);
+      var er = R(e);
+      var nr;
+      if (q && p) {
+        l(sa, va, !X);
       }
-      if (G) {
-        ar = I(W);
-        R(ar, x);
+      if (Z) {
+        nr = k(X);
+        j(nr, x);
       }
-      if (u || p || s || b || q) {
-        if ($) {
-          l(sa, ta, false);
+      if (u || g || d || m || q) {
+        if (K) {
+          l(da, ia, false);
         }
-        var er = F(W, P, ar), nr = er[0], tr = er[1];
-        var ir = J = m(e), vr = ir[0], or = ir[1];
-        var ur = K = C(e), fr = ur[0], lr = ur[1];
-        var cr = Mr(o);
-        var sr = fr;
-        var dr = cr;
-        nr();
-        if ((lr || or || q) && tr && !W && B(tr, fr, vr, P)) {
-          dr = Mr(o);
-          sr = Rr(o);
+        var tr = N(X, P, nr), ir = tr[0], vr = tr[1];
+        var or = Q = C(e), ur = or[0], fr = or[1];
+        var lr = rr = E(e), cr = lr[0], sr = lr[1];
+        var dr = Rr(o);
+        var gr = cr;
+        var hr = dr;
+        ir();
+        if ((sr || fr || q) && vr && !X && U(vr, cr, ur, P)) {
+          hr = Rr(o);
+          gr = Ir(o);
         }
-        var gr = {
-          w: Le(ze(fr.w, sr.w) + vr.w),
-          h: Le(ze(fr.h, sr.h) + vr.h)
+        var pr = {
+          w: He(Le(cr.w, gr.w) + ur.w),
+          h: He(Le(cr.h, gr.h) + ur.h)
         };
-        var hr = {
-          w: Le(dr.w + Le(cr.w - fr.w) + vr.w),
-          h: Le(dr.h + Le(cr.h - fr.h) + vr.h)
+        var _r = {
+          w: He(y ? s.innerWidth : hr.w + He(dr.w - cr.w) + ur.w),
+          h: He(y ? s.innerHeight : hr.h + He(dr.h - cr.h) + ur.h)
         };
-        rr = T(hr);
-        Q = E(Ve(gr, hr), e);
+        er = M(_r);
+        ar = z(je(pr, _r), e);
       }
-      var pr = rr, _r = pr[0], wr = pr[1];
-      var br = Q, mr = br[0], yr = br[1];
-      var Sr = K, Cr = Sr[0], Or = Sr[1];
-      var xr = J, Er = xr[0], Ar = xr[1];
-      var Pr = {
-        x: mr.w > 0,
-        y: mr.h > 0
+      var br = er, wr = br[0], mr = br[1];
+      var yr = ar, Sr = yr[0], Cr = yr[1];
+      var Or = rr, xr = Or[0], Er = Or[1];
+      var Ar = Q, Pr = Ar[0], zr = Ar[1];
+      var Tr = {
+        x: Sr.w > 0,
+        y: Sr.h > 0
       };
-      var Tr = X && Z && (Pr.x || Pr.y) || X && Pr.x && !Pr.y || Z && Pr.y && !Pr.x;
-      if (p || b || Ar || Or || wr || yr || Y || q || G) {
-        var zr = {
+      var Lr = $ && J && (Tr.x || Tr.y) || $ && Tr.x && !Tr.y || J && Tr.y && !Tr.x;
+      if (g || m || zr || Er || mr || Cr || G || q || Z) {
+        var Hr = {
           marginRight: 0,
           marginBottom: 0,
           marginLeft: 0,
@@ -1627,45 +1628,45 @@
           overflowY: "",
           overflowX: ""
         };
-        var Lr = V(W, Pr, N, zr);
-        var Dr = B(Lr, Cr, Er, P);
+        var Dr = B(X, Tr, W, Hr);
+        var Mr = U(Dr, xr, Pr, P);
         if (!f) {
-          j(Lr, P, Dr, zr);
+          F(Dr, P, Mr, Hr);
         }
-        if (G) {
-          R(Lr, x);
+        if (Z) {
+          j(Dr, x);
         }
         if (f) {
-          z(i, ea, zr.overflowX);
-          z(i, na, zr.overflowY);
+          T(i, na, Hr.overflowX);
+          T(i, ta, Hr.overflowY);
         } else {
-          style(o, zr);
+          style(o, Hr);
         }
       }
-      L(i, aa, ta, Tr);
-      je(v, sa, Tr);
-      !f && je(o, sa, $);
-      var Hr = M(I(W).Cr), Ir = Hr[0], Vr = Hr[1];
+      L(i, ea, ia, Lr);
+      ke(v, da, Lr);
+      !f && ke(o, da, K);
+      var Vr = V(k(X).Cr), jr = Vr[0], kr = Vr[1];
       t({
-        Cr: Ir,
+        Cr: jr,
         Er: {
-          x: _r.w,
-          y: _r.h
+          x: wr.w,
+          y: wr.h
         },
         Ar: {
-          x: mr.w,
-          y: mr.h
+          x: Sr.w,
+          y: Sr.h
         },
-        Pr: Pr
+        Pr: Tr
       });
       return {
-        Tr: Vr,
-        zr: wr,
-        Lr: yr
+        zr: kr,
+        Tr: mr,
+        Lr: Cr
       };
     };
   };
-  var Fe = function prepareUpdateHints(r, a, e) {
+  var qe = function prepareUpdateHints(r, a, e) {
     var n = {};
     var t = a || {};
     var i = E(r).concat(E(t));
@@ -1676,54 +1677,54 @@
     }));
     return n;
   };
-  var qe = function createStructureSetupUpdate(r, a) {
+  var Ue = function createStructureSetupUpdate(r, a) {
     var e = r.rr, n = r.dr;
-    var t = be(), i = t.L, v = t.D, o = t.F;
+    var t = me(), i = t.L, v = t.H, o = t.F;
     var u = !i && (v.x || v.y);
-    var f = [ Pe(r, a), Te(r, a), Be(r, a) ];
+    var f = [ ze(r, a), Te(r, a), Fe(r, a) ];
     return function(r, a, t) {
-      var i = Fe(A({
+      var i = qe(A({
         pr: false,
         yr: false,
-        br: false,
+        wr: false,
         hr: false,
-        zr: false,
-        Lr: false,
         Tr: false,
+        Lr: false,
+        zr: false,
         Or: false,
         _r: false
       }, a), {}, t);
       var v = u || !o;
       var l = v && M(e);
       var c = v && R(e);
-      n("", va, true);
+      n("", oa, true);
       var s = i;
       each(f, (function(a) {
-        s = Fe(s, a(s, r, !!t) || {}, t);
+        s = qe(s, a(s, r, !!t) || {}, t);
       }));
       M(e, l);
       R(e, c);
-      n("", va);
+      n("", oa);
       return s;
     };
   };
-  var Ue = 3333333;
-  var Ne = function domRectHasDimensions(r) {
+  var Ne = 3333333;
+  var Ye = function domRectHasDimensions(r) {
     return r && (r.height || r.width);
   };
-  var Ye = function createSizeObserver(r, e, n) {
-    var t = n || {}, i = t.Dr, v = void 0 === i ? false : i, o = t.Hr, u = void 0 === o ? false : o;
-    var f = ja()[ne];
-    var l = be(), s = l.B;
-    var h = $('<div class="' + da + '"><div class="' + ha + '"></div></div>');
+  var We = function createSizeObserver(r, e, n) {
+    var t = n || {}, i = t.Hr, v = void 0 === i ? false : i, o = t.Dr, u = void 0 === o ? false : o;
+    var f = ka()[te];
+    var l = me(), s = l.B;
+    var h = $('<div class="' + ga + '"><div class="' + pa + '"></div></div>');
     var p = h[0];
-    var w = p.firstChild;
-    var b = Tr.bind(0, r);
+    var b = p.firstChild;
+    var w = zr.bind(0, r);
     var m = a({
       o: void 0,
       g: true,
       u: function _equal(r, a) {
-        return !(!r || !Ne(r) && Ne(a));
+        return !(!r || !Ye(r) && Ye(a));
       }
     }), S = m[0];
     var C = function onSizeChangedCallbackProxy(r) {
@@ -1734,10 +1735,10 @@
       var o = true;
       if (a) {
         var u = S(r.pop().contentRect), f = u[0], l = u[2];
-        var h = Ne(f);
-        var w = Ne(l);
+        var h = Ye(f);
+        var b = Ye(l);
         t = !l || !h;
-        i = !w && h;
+        i = !b && h;
         o = !t;
       } else if (n) {
         o = r[1];
@@ -1745,15 +1746,15 @@
         i = true === r;
       }
       if (v && o) {
-        var b = n ? r[0] : Tr(p);
-        M(p, b ? s.n ? -Ue : s.i ? 0 : Ue : Ue);
-        R(p, Ue);
+        var w = n ? r[0] : zr(p);
+        M(p, w ? s.n ? -Ne : s.i ? 0 : Ne : Ne);
+        R(p, Ne);
       }
       if (!t) {
         e({
           pr: !n,
           Mr: n ? r : void 0,
-          Hr: !!i
+          Dr: !!i
         });
       }
     };
@@ -1765,56 +1766,56 @@
     }, function() {
       if (or) {
         var e = new or(C);
-        e.observe(w);
+        e.observe(b);
         y(x, (function() {
           e.disconnect();
         }));
       } else if (f) {
-        var n = f.P(w, C, u), t = n[0], i = n[1];
+        var n = f.P(b, C, u), t = n[0], i = n[1];
         E = t;
         y(x, i);
       }
       if (v) {
         var o = a({
-          o: !b()
-        }, b), l = o[0];
-        y(x, qr(p, "scroll", (function(r) {
+          o: !w()
+        }, w), l = o[0];
+        y(x, Ur(p, "scroll", (function(r) {
           var a = l();
           var e = a[0], n = a[1];
           if (n) {
-            hr(w, "ltr rtl");
+            hr(b, "ltr rtl");
             if (e) {
-              pr(w, "rtl");
+              pr(b, "rtl");
             } else {
-              pr(w, "ltr");
+              pr(b, "ltr");
             }
             C(a);
           }
-          Ur(r);
+          Nr(r);
         })));
       }
       if (E) {
-        pr(p, ga);
-        y(x, qr(p, "animationstart", E, {
+        pr(p, ha);
+        y(x, Ur(p, "animationstart", E, {
           A: !!or
         }));
       }
       Y(r, p);
     } ];
   };
-  var We = function isHeightIntrinsic(r) {
+  var Ge = function isHeightIntrinsic(r) {
     return 0 === r.h || r.isIntersecting || r.intersectionRatio > 0;
   };
-  var Ge = function createTrinsicObserver(r, e) {
+  var Xe = function createTrinsicObserver(r, e) {
     var n;
-    var t = Z(ba);
+    var t = Z(ma);
     var i = [];
     var v = a({
       o: false
     }), o = v[0];
     var u = function triggerOnTrinsicChangedCallback(r, a) {
       if (r) {
-        var n = o(We(r));
+        var n = o(Ge(r));
         var t = n[1];
         if (t) {
           !a && e(n);
@@ -1843,10 +1844,10 @@
         }));
       } else {
         var a = function onSizeChanged() {
-          var r = Hr(t);
+          var r = Mr(t);
           u(r);
         };
-        var e = Ye(t, a), v = e[0], o = e[1];
+        var e = We(t, a), v = e[0], o = e[1];
         y(i, v);
         o();
         a();
@@ -1858,7 +1859,7 @@
       }
     } ];
   };
-  var Xe = function createEventContentChange(r, a, e) {
+  var Ze = function createEventContentChange(r, a, e) {
     var n;
     var t = false;
     var i = function destroy() {
@@ -1888,7 +1889,7 @@
                 u();
               }
             }
-            var f = qr(e, i, (function(r) {
+            var f = Ur(e, i, (function(r) {
               if (t) {
                 f();
                 n.delete(e);
@@ -1907,7 +1908,7 @@
     }
     return [ i, v ];
   };
-  var Ze = function createDOMObserver(r, a, e, n) {
+  var $e = function createDOMObserver(r, a, e, n) {
     var t = false;
     var i = n || {}, v = i.Rr, o = i.Ir, u = i.Vr, f = i.jr, c = i.kr, s = i.Br;
     var d = Cr((function() {
@@ -1918,10 +1919,10 @@
       p: 33,
       _: 99
     });
-    var g = Xe(r, d, u), h = g[0], p = g[1];
-    var w = v || [];
-    var b = o || [];
-    var S = w.concat(b);
+    var g = Ze(r, d, u), h = g[0], p = g[1];
+    var b = v || [];
+    var w = o || [];
+    var S = b.concat(w);
     var O = function observerCallback(t, i) {
       var v = c || Sr;
       var o = s || Sr;
@@ -1929,31 +1930,31 @@
       var d = [];
       var g = false;
       var h = false;
-      var w = false;
+      var b = false;
       each(t, (function(e) {
         var t = e.attributeName, i = e.target, c = e.type, s = e.oldValue, p = e.addedNodes;
         var S = "attributes" === c;
         var C = "childList" === c;
         var O = r === i;
-        var x = S && l(t) ? z(i, t) : 0;
+        var x = S && l(t) ? T(i, t) : 0;
         var E = 0 !== x && s !== x;
-        var A = m(b, t) > -1 && E;
+        var A = m(w, t) > -1 && E;
         if (a && !O) {
           var P = !S;
-          var T = S && A;
-          var L = T && f && k(i, f);
-          var D = L ? !v(i, t, s, x) : P || T;
-          var H = D && !o(e, !!L, r, n);
+          var z = S && A;
+          var L = z && f && k(i, f);
+          var H = L ? !v(i, t, s, x) : P || z;
+          var D = H && !o(e, !!L, r, n);
           y(d, p);
-          h = h || H;
-          w = w || C;
+          h = h || D;
+          b = b || C;
         }
         if (!a && O && E && !v(i, t, s, x)) {
           y(u, t);
           g = g || A;
         }
       }));
-      if (w && !C(d)) {
+      if (b && !C(d)) {
         p((function(r) {
           return d.reduce((function(a, e) {
             y(a, V(r, e));
@@ -1996,38 +1997,38 @@
       }
     } ];
   };
-  var $e = "[" + aa + "]";
-  var Je = "." + ua;
-  var Ke = [ "tabindex" ];
-  var Qe = [ "wrap", "cols", "rows" ];
-  var rn = [ "id", "class", "style", "open" ];
-  var an = function createStructureSetupObservers(r, e, n) {
+  var Je = "[" + ea + "]";
+  var Ke = "." + fa;
+  var Qe = [ "tabindex" ];
+  var rn = [ "wrap", "cols", "rows" ];
+  var an = [ "id", "class", "style", "open" ];
+  var en = function createStructureSetupObservers(r, e, n) {
     var t;
     var i;
     var v;
     var o = e[1];
-    var u = r.K, c = r.rr, g = r.er, h = r.lr, p = r.$, w = r.sr, b = r.dr;
-    var S = be(), C = S.F;
+    var u = r.K, c = r.rr, g = r.er, h = r.lr, p = r.$, b = r.sr, w = r.dr;
+    var S = me(), C = S.F;
     var O = a({
-      u: wr,
+      u: br,
       o: {
         w: 0,
         h: 0
       }
     }, (function() {
-      var r = w(sa, ta);
-      var a = w(fa, "");
+      var r = b(da, ia);
+      var a = b(la, "");
       var e = a && M(c);
       var n = a && R(c);
-      b(sa, ta);
-      b(fa, "");
-      b("", va, true);
-      var t = Rr(g);
-      var i = Rr(c);
-      var v = Ir(c);
-      b(sa, ta, r);
-      b(fa, "", a);
-      b("", va);
+      w(da, ia);
+      w(la, "");
+      w("", oa, true);
+      var t = Ir(g);
+      var i = Ir(c);
+      var v = Vr(c);
+      w(da, ia, r);
+      w(la, "", a);
+      w("", oa);
       M(c, e);
       R(c, n);
       return {
@@ -2035,8 +2036,8 @@
         h: i.h + t.h + v.h
       };
     })), x = O[0];
-    var P = h ? Qe : rn.concat(Qe);
-    var T = Cr(n, {
+    var P = h ? rn : an.concat(rn);
+    var z = Cr(n, {
       p: function _timeout() {
         return t;
       },
@@ -2053,18 +2054,18 @@
       }
     });
     var L = function updateViewportAttrsFromHost(r) {
-      each(r || Ke, (function(r) {
-        if (m(Ke, r) > -1) {
-          var a = z(u, r);
+      each(r || Qe, (function(r) {
+        if (m(Qe, r) > -1) {
+          var a = T(u, r);
           if (l(a)) {
-            z(c, r, a);
+            T(c, r, a);
           } else {
-            H(c, r);
+            D(c, r);
           }
         }
       }));
     };
-    var D = function onTrinsicChanged(r, a) {
+    var H = function onTrinsicChanged(r, a) {
       var e = r[0], t = r[1];
       var i = {
         hr: t
@@ -2076,19 +2077,19 @@
       return i;
     };
     var I = function onSizeChanged(r) {
-      var a = r.pr, e = r.Mr, t = r.Hr;
-      var i = !a || t ? n : T;
+      var a = r.pr, e = r.Mr, t = r.Dr;
+      var i = !a || t ? n : z;
       var v = false;
       if (e) {
         var u = e[0], f = e[1];
         v = f;
         o({
-          wr: u
+          br: u
         });
       }
       i({
         pr: a,
-        br: v
+        wr: v
       });
     };
     var V = function onContentMutation(r, a) {
@@ -2096,7 +2097,7 @@
       var i = {
         _r: t
       };
-      var v = r ? n : T;
+      var v = r ? n : z;
       if (t) {
         !a && v(i);
       }
@@ -2107,20 +2108,20 @@
         Or: a
       };
       if (a) {
-        !e && T(n);
+        !e && z(n);
       } else if (!p) {
         L(r);
       }
       return n;
     };
-    var k = g || !C ? Ge(u, D) : [ Sr, Sr, Sr ], B = k[0], F = k[1], N = k[2];
-    var Y = !p ? Ye(u, I, {
-      Hr: true,
-      Dr: true
+    var k = g || !C ? Xe(u, H) : [ Sr, Sr, Sr ], B = k[0], F = k[1], N = k[2];
+    var Y = !p ? We(u, I, {
+      Dr: true,
+      Hr: true
     }) : [ Sr, Sr ], W = Y[0], G = Y[1];
-    var X = Ze(u, false, j, {
-      Ir: rn,
-      Rr: rn.concat(Ke)
+    var X = $e(u, false, j, {
+      Ir: an,
+      Rr: an.concat(Qe)
     }), Z = X[0], $ = X[1];
     var J = p && or && new or(I.bind(0, {
       pr: true
@@ -2145,7 +2146,7 @@
         A(r, j.apply(0, y(a, true)));
       }
       if (e) {
-        A(r, D.apply(0, y(e, true)));
+        A(r, H.apply(0, y(e, true)));
       }
       if (n) {
         A(r, V.apply(0, y(n, true)));
@@ -2154,38 +2155,38 @@
     }, function(r) {
       var a = r("updating.ignoreMutation"), e = a[0];
       var n = r("updating.attributes"), o = n[0], u = n[1];
-      var l = r("updating.elementEvents"), h = l[0], p = l[1];
-      var w = r("updating.debounce"), b = w[0], m = w[1];
-      var y = p || u;
-      var S = function ignoreMutationFromOptions(r) {
+      var l = r("updating.elementEvents"), h = l[0], b = l[1];
+      var w = r("updating.debounce"), m = w[0], y = w[1];
+      var S = b || u;
+      var C = function ignoreMutationFromOptions(r) {
         return s(e) && e(r);
       };
-      if (y) {
+      if (S) {
         if (v) {
           v[1]();
           v[0]();
         }
-        v = Ze(g || c, true, V, {
+        v = $e(g || c, true, V, {
           Ir: P.concat(o || []),
           Rr: P.concat(o || []),
           Vr: h,
-          jr: $e,
+          jr: Je,
           Br: function _ignoreContentChange(r, a) {
             var e = r.target, n = r.attributeName;
-            var t = !a && n ? U(e, $e, Je) : false;
-            return t || !!q(e, "." + ma) || !!S(r);
+            var t = !a && n && !p ? U(e, Je, Ke) : false;
+            return t || !!q(e, "." + ya) || !!C(r);
           }
         });
       }
-      if (m) {
-        T.S();
-        if (d(b)) {
-          var C = b[0];
-          var O = b[1];
-          t = f(C) ? C : false;
-          i = f(O) ? O : false;
-        } else if (f(b)) {
-          t = b;
+      if (y) {
+        z.S();
+        if (d(m)) {
+          var O = m[0];
+          var x = m[1];
+          t = f(O) ? O : false;
+          i = f(x) ? x : false;
+        } else if (f(m)) {
+          t = m;
           i = false;
         } else {
           t = false;
@@ -2194,11 +2195,11 @@
       }
     } ];
   };
-  var en = {
+  var nn = {
     x: 0,
     y: 0
   };
-  var nn = {
+  var tn = {
     ar: {
       t: 0,
       r: 0,
@@ -2215,8 +2216,8 @@
       paddingBottom: 0,
       paddingLeft: 0
     },
-    Er: en,
-    Ar: en,
+    Er: nn,
+    Ar: nn,
     Cr: {
       x: "hidden",
       y: "hidden"
@@ -2226,15 +2227,15 @@
       y: false
     },
     gr: false,
-    wr: false
+    br: false
   };
-  var tn = function createStructureSetup(r, a) {
-    var e = $r(a, {});
-    var n = Jr(nn);
-    var t = Xr(), i = t[0], v = t[1], o = t[2];
+  var vn = function createStructureSetup(r, a) {
+    var e = Jr(a, {});
+    var n = Kr(tn);
+    var t = Zr(), i = t[0], v = t[1], o = t[2];
     var u = n[0];
-    var f = Ae(r), l = f[0], c = f[1], s = f[2];
-    var d = qe(l, n);
+    var f = Pe(r), l = f[0], c = f[1], s = f[2];
+    var d = Ue(l, n);
     var g = function triggerUpdateEvent(r, a, e) {
       var n = E(r).some((function(a) {
         return r[a];
@@ -2243,59 +2244,59 @@
         o("u", [ r, a, e ]);
       }
     };
-    var h = an(l, n, (function(r) {
+    var h = en(l, n, (function(r) {
       g(d(e, r), {}, false);
-    })), p = h[0], w = h[1], b = h[2], m = h[3];
+    })), p = h[0], b = h[1], w = h[2], m = h[3];
     var y = u.bind(0);
     y.Fr = function(r) {
       i("u", r);
     };
     y.qr = function() {
-      w();
+      b();
       c();
     };
     y.Ur = l;
     return [ function(r, e) {
-      var n = $r(a, r, e);
+      var n = Jr(a, r, e);
       m(n);
-      g(d(n, b(), e), r, !!e);
+      g(d(n, w(), e), r, !!e);
     }, y, function() {
       v();
       p();
       s();
     } ];
   };
-  var vn = Math.round;
-  var un = function getClientOffset(r) {
+  var un = Math.round;
+  var fn = function getClientOffset(r) {
     return {
       x: r.clientX,
       y: r.clientY
     };
   };
-  var fn = function getScale(r) {
-    var a = Vr(r), e = a.width, n = a.height;
-    var t = Hr(r), i = t.w, v = t.h;
+  var ln = function getScale(r) {
+    var a = jr(r), e = a.width, n = a.height;
+    var t = Mr(r), i = t.w, v = t.h;
     return {
-      x: vn(e) / i || 1,
-      y: vn(n) / v || 1
+      x: un(e) / i || 1,
+      y: un(n) / v || 1
     };
   };
-  var ln = function continuePointerDown(r, a, e) {
+  var cn = function continuePointerDown(r, a, e) {
     var n = a.scrollbars;
     var t = r.button, i = r.isPrimary, v = r.pointerType;
     var o = n.pointers;
     return 0 === t && i && n[e] && (o || []).includes(v);
   };
-  var cn = function createRootClickStopPropagationEvents(r, a) {
-    return qr(r, "mousedown", qr.bind(0, a, "click", Ur, {
+  var sn = function createRootClickStopPropagationEvents(r, a) {
+    return Ur(r, "mousedown", Ur.bind(0, a, "click", Nr, {
       A: true,
       O: true
     }), {
       O: true
     });
   };
-  var sn = function createDragScrollingEvents(r, a, e, n, t, i) {
-    var v = be(), o = v.B;
+  var dn = function createDragScrollingEvents(r, a, e, n, t, i) {
+    var v = me(), o = v.B;
     var u = e.Nr, f = e.Yr, l = e.Wr;
     var c = "scroll" + (i ? "Left" : "Top");
     var s = i ? "x" : "y";
@@ -2303,24 +2304,24 @@
     var g = function createOnPointerMoveHandler(r, a, e) {
       return function(v) {
         var g = t(), h = g.Ar;
-        var p = (un(v)[s] - a) * e;
-        var w = Hr(f)[d] - Hr(u)[d];
-        var b = p / w;
-        var m = b * h[s];
-        var y = Tr(l);
+        var p = (fn(v)[s] - a) * e;
+        var b = Mr(f)[d] - Mr(u)[d];
+        var w = p / b;
+        var m = w * h[s];
+        var y = zr(l);
         var S = y && i ? o.n || o.i ? 1 : -1 : 1;
         n[c] = r + m * S;
       };
     };
-    return qr(u, "pointerdown", (function(e) {
-      if (ln(e, r, "dragScroll")) {
-        var t = qr(a, "selectstart", (function(r) {
-          return Nr(r);
+    return Ur(u, "pointerdown", (function(e) {
+      if (cn(e, r, "dragScroll")) {
+        var t = Ur(a, "selectstart", (function(r) {
+          return Yr(r);
         }), {
           C: false
         });
-        var i = qr(u, "pointermove", g(n[c] || 0, un(e)[s], 1 / fn(n)[s]));
-        qr(u, "pointerup", (function(r) {
+        var i = Ur(u, "pointermove", g(n[c] || 0, fn(e)[s], 1 / ln(n)[s]));
+        Ur(u, "pointerup", (function(r) {
           t();
           i();
           u.releasePointerCapture(r.pointerId);
@@ -2331,80 +2332,80 @@
       }
     }));
   };
-  var dn = function createScrollbarsSetupEvents(r, a) {
+  var gn = function createScrollbarsSetupEvents(r, a) {
     return function(e, n, t, i, v) {
       var o = e.Wr;
-      return O.bind(0, [ qr(o, "pointerenter", (function() {
+      return O.bind(0, [ Ur(o, "pointerenter", (function() {
         n(Ta, true);
-      })), qr(o, "pointerleave pointercancel", (function() {
+      })), Ur(o, "pointerleave pointercancel", (function() {
         n(Ta);
-      })), cn(o, t), sn(r, t, e, i, a, v) ]);
+      })), sn(o, t), dn(r, t, e, i, a, v) ]);
     };
   };
-  var gn = Math.min, hn = Math.max, pn = Math.abs, _n = Math.round;
+  var hn = Math.min, pn = Math.max, _n = Math.abs, bn = Math.round;
   var wn = function getScrollbarHandleLengthRatio(r, a, e, n) {
     if (n) {
       var t = e ? "x" : "y";
       var i = n.Ar, v = n.Er;
       var o = v[t];
       var u = i[t];
-      return hn(0, gn(1, o / (o + u)));
+      return pn(0, hn(1, o / (o + u)));
     }
     var f = e ? "w" : "h";
-    var l = Hr(r)[f];
-    var c = Hr(a)[f];
-    return hn(0, gn(1, l / c));
+    var l = Mr(r)[f];
+    var c = Mr(a)[f];
+    return pn(0, hn(1, l / c));
   };
-  var bn = function getScrollbarHandleOffsetRatio(r, a, e, n, t, i) {
-    var v = be(), o = v.B;
+  var mn = function getScrollbarHandleOffsetRatio(r, a, e, n, t, i) {
+    var v = me(), o = v.B;
     var u = i ? "x" : "y";
     var f = i ? "Left" : "Top";
     var l = n.Ar;
-    var c = _n(l[u]);
-    var s = pn(e["scroll" + f]);
+    var c = bn(l[u]);
+    var s = _n(e["scroll" + f]);
     var d = i && t;
     var g = o.i ? s : c - s;
     var h = d ? g : s;
-    var p = gn(1, h / c);
-    var w = wn(r, a, i);
-    return 1 / w * (1 - w) * p;
+    var p = hn(1, h / c);
+    var b = wn(r, a, i);
+    return 1 / b * (1 - b) * p;
   };
-  var mn = function createScrollbarsSetupElements(r, a, e) {
-    var n = be(), t = n.U;
+  var yn = function createScrollbarsSetupElements(r, a, e) {
+    var n = me(), t = n.U;
     var i = t(), v = i.scrollbarsSlot;
     var o = a.ur, u = a.J, f = a.K, l = a.rr, s = a.cr, d = a.tr;
     var g = s ? {} : r, h = g.scrollbarsSlot;
-    var p = Se([ u, f, l ], (function() {
+    var p = Ce([ u, f, l ], (function() {
       return f;
     }), v, h);
-    var w = function scrollbarStructureAddRemoveClass(r, a, e) {
+    var b = function scrollbarStructureAddRemoveClass(r, a, e) {
       var n = e ? pr : hr;
       each(r, (function(r) {
         n(r.Wr, a);
       }));
     };
-    var b = function scrollbarsHandleStyle(r, a) {
+    var w = function scrollbarsHandleStyle(r, a) {
       each(r, (function(r) {
         var e = a(r), n = e[0], t = e[1];
         style(n, t);
       }));
     };
     var m = function scrollbarStructureRefreshHandleLength(r, a, e) {
-      b(r, (function(r) {
+      w(r, (function(r) {
         var n;
         var t = r.Nr, i = r.Yr;
-        return [ t, (n = {}, n[e ? "width" : "height"] = (100 * wn(t, i, e, a)).toFixed(5) + "%", 
+        return [ t, (n = {}, n[e ? "width" : "height"] = (100 * wn(t, i, e, a)).toFixed(3) + "%", 
         n) ];
       }));
     };
     var S = function scrollbarStructureRefreshHandleOffset(r, a, e) {
       var n = e ? "X" : "Y";
-      b(r, (function(r) {
+      w(r, (function(r) {
         var t = r.Nr, i = r.Yr, v = r.Wr;
-        var o = bn(t, i, d, a, Tr(v), e);
+        var o = mn(t, i, d, a, zr(v), e);
         var u = o === o;
         return [ t, {
-          transform: u ? "translate" + n + "(" + (100 * o).toFixed(5) + "%)" : ""
+          transform: u ? "translate" + n + "(" + (100 * o).toFixed(3) + "%)" : ""
         } ];
       }));
     };
@@ -2415,24 +2416,24 @@
       var n = c(e);
       var t = n ? e : true;
       var i = n ? !e : true;
-      t && w(E, r, a);
-      i && w(A, r, a);
+      t && b(E, r, a);
+      i && b(A, r, a);
     };
-    var T = function refreshScrollbarsHandleLength(r) {
+    var z = function refreshScrollbarsHandleLength(r) {
       m(E, r, true);
       m(A, r);
     };
-    var z = function refreshScrollbarsHandleOffset(r) {
+    var T = function refreshScrollbarsHandleOffset(r) {
       S(E, r, true);
       S(A, r);
     };
     var L = function generateScrollbarDOM(r) {
-      var a = r ? Sa : Ca;
+      var a = r ? Ca : Oa;
       var n = r ? E : A;
-      var t = C(n) ? Pa : "";
-      var i = Z(ma + " " + a + " " + t);
-      var v = Z(Oa);
-      var u = Z(xa);
+      var t = C(n) ? za : "";
+      var i = Z(ya + " " + a + " " + t);
+      var v = Z(xa);
+      var u = Z(Ea);
       var f = {
         Wr: i,
         Yr: v,
@@ -2444,34 +2445,34 @@
       y(x, [ X.bind(0, i), e(f, P, o, d, r) ]);
       return f;
     };
-    var D = L.bind(0, true);
-    var H = L.bind(0, false);
+    var H = L.bind(0, true);
+    var D = L.bind(0, false);
     var M = function appendElements() {
       Y(p, E[0].Wr);
       Y(p, A[0].Wr);
       lr((function() {
-        P(Pa);
+        P(za);
       }), 300);
     };
-    D();
     H();
+    D();
     return [ {
-      Gr: T,
-      Xr: z,
+      Gr: z,
+      Xr: T,
       Zr: P,
       $r: {
         Jr: E,
-        Kr: D,
-        Qr: b.bind(0, E)
+        Kr: H,
+        Qr: w.bind(0, E)
       },
       ra: {
         Jr: A,
-        Kr: H,
-        Qr: b.bind(0, A)
+        Kr: D,
+        Qr: w.bind(0, A)
       }
     }, M, O.bind(0, x) ];
   };
-  var yn = function createSelfCancelTimeout(r) {
+  var Sn = function createSelfCancelTimeout(r) {
     var a;
     var e = r ? lr : fr;
     var n = r ? cr : ur;
@@ -2482,25 +2483,25 @@
       return n(a);
     } ];
   };
-  var Sn = function createScrollbarsSetup(r, a, e) {
+  var Cn = function createScrollbarsSetup(r, a, e) {
     var n;
     var t;
     var i;
     var v;
     var o;
     var u = 0;
-    var f = Jr({});
+    var f = Kr({});
     var l = f[0];
-    var c = yn(), s = c[0], d = c[1];
-    var g = yn(), h = g[0], p = g[1];
-    var w = yn(100), b = w[0], m = w[1];
-    var y = yn(100), S = y[0], C = y[1];
-    var x = yn((function() {
+    var c = Sn(), s = c[0], d = c[1];
+    var g = Sn(), h = g[0], p = g[1];
+    var b = Sn(100), w = b[0], m = b[1];
+    var y = Sn(100), S = y[0], C = y[1];
+    var x = Sn((function() {
       return u;
     })), E = x[0], A = x[1];
-    var P = mn(r, e.Ur, dn(a, e)), T = P[0], z = P[1], L = P[2];
-    var D = e.Ur, H = D.K, I = D.rr, V = D.tr, j = D.ir, k = D.$, B = D.Z;
-    var q = T.$r, U = T.ra, N = T.Zr, Y = T.Gr, W = T.Xr;
+    var P = yn(r, e.Ur, gn(a, e)), z = P[0], T = P[1], L = P[2];
+    var H = e.Ur, D = H.K, I = H.rr, V = H.tr, j = H.ir, k = H.$, B = H.Z;
+    var q = z.$r, U = z.ra, N = z.Zr, Y = z.Gr, W = z.Xr;
     var G = q.Qr;
     var X = U.Qr;
     var Z = function styleScrollbarPosition(r) {
@@ -2513,10 +2514,10 @@
     var $ = function manageScrollbarsAutoHide(r, a) {
       A();
       if (r) {
-        N(La);
+        N(Ha);
       } else {
         var e = function hide() {
-          return N(La, true);
+          return N(Ha, true);
         };
         if (u > 0 && !a) {
           E(e);
@@ -2529,12 +2530,12 @@
       v = t;
       v && $(true);
     };
-    var K = [ m, A, C, p, d, L, qr(H, "pointerover", J, {
+    var K = [ m, A, C, p, d, L, Ur(D, "pointerover", J, {
       A: true
-    }), qr(H, "pointerenter", J), qr(H, "pointerleave", (function() {
+    }), Ur(D, "pointerenter", J), Ur(D, "pointerleave", (function() {
       v = false;
       t && $(false);
-    })), qr(H, "pointermove", (function() {
+    })), Ur(D, "pointermove", (function() {
       n && s((function() {
         m();
         $(true);
@@ -2542,11 +2543,11 @@
           n && $(false);
         }));
       }));
-    })), qr(j, "scroll", (function() {
+    })), Ur(j, "scroll", (function() {
       h((function() {
         W(e());
         i && $(true);
-        b((function() {
+        w((function() {
           i && !v && $(false);
         }));
       }));
@@ -2554,27 +2555,27 @@
       k && X(Z);
     })) ];
     var Q = l.bind(0);
-    Q.Ur = T;
-    Q.qr = z;
+    Q.Ur = z;
+    Q.qr = T;
     return [ function(r, v, f) {
-      var l = f.zr, c = f.Lr, s = f.Tr, d = f.br;
-      var g = $r(a, r, v);
+      var l = f.Tr, c = f.Lr, s = f.zr, d = f.wr;
+      var g = Jr(a, r, v);
       var h = e();
-      var p = h.Ar, w = h.Cr, b = h.wr;
+      var p = h.Ar, b = h.Cr, w = h.br;
       var m = g("scrollbars.theme"), y = m[0], S = m[1];
       var C = g("scrollbars.visibility"), O = C[0], x = C[1];
       var E = g("scrollbars.autoHide"), A = E[0], P = E[1];
-      var T = g("scrollbars.autoHideDelay"), z = T[0];
-      var L = g("scrollbars.dragScroll"), D = L[0], H = L[1];
+      var z = g("scrollbars.autoHideDelay"), T = z[0];
+      var L = g("scrollbars.dragScroll"), H = L[0], D = L[1];
       var M = g("scrollbars.clickScroll"), R = M[0], I = M[1];
-      var V = l || c || d;
-      var j = s || x;
+      var V = l || c || d || v;
+      var j = s || x || v;
       var k = function setScrollbarVisibility(r, a) {
         var e = "visible" === O || "auto" === O && "scroll" === r;
-        N(Ea, e, a);
+        N(Aa, e, a);
         return e;
       };
-      u = z;
+      u = T;
       if (S) {
         N(o);
         N(y, true);
@@ -2586,90 +2587,90 @@
         i = "never" !== A;
         $(!i, true);
       }
-      if (H) {
-        N(Ha, D);
+      if (D) {
+        N(Ma, H);
       }
       if (I) {
         N(Da, R);
       }
       if (j) {
-        var F = k(w.x, true);
-        var q = k(w.y, false);
+        var F = k(b.x, true);
+        var q = k(b.y, false);
         var U = F && q;
-        N(Aa, !U);
+        N(Pa, !U);
       }
       if (V) {
         Y(h);
         W(h);
-        N(za, !p.x, true);
-        N(za, !p.y, false);
-        N(ya, b && !B);
+        N(La, !p.x, true);
+        N(La, !p.y, false);
+        N(Sa, w && !B);
       }
     }, Q, O.bind(0, K) ];
   };
-  var Cn = new Set;
-  var On = new WeakMap;
-  var xn = function addInstance(r, a) {
-    On.set(r, a);
-    Cn.add(r);
+  var On = new Set;
+  var xn = new WeakMap;
+  var En = function addInstance(r, a) {
+    xn.set(r, a);
+    On.add(r);
   };
-  var En = function removeInstance(r) {
+  var An = function removeInstance(r) {
+    xn.delete(r);
     On.delete(r);
-    Cn.delete(r);
   };
-  var An = function getInstance(r) {
-    return On.get(r);
+  var Pn = function getInstance(r) {
+    return xn.get(r);
   };
-  var Pn = function OverlayScrollbars(r, a, e) {
+  var zn = function OverlayScrollbars(r, a, e) {
     var n = false;
-    var t = be(), i = t.Y, v = t.q;
-    var o = ja();
-    var u = w(r);
+    var t = me(), i = t.Y, v = t.q;
+    var o = ka();
+    var u = b(r);
     var f = u ? r : r.target;
-    var l = An(f);
+    var l = Pn(f);
     if (l) {
       return l;
     }
-    var c = o[Qa];
+    var c = o[re];
     var d = function validateOptions(r) {
       var a = r || {};
       var e = c && c.P;
       return e ? e(a, true) : a;
     };
     var g = A({}, i(), d(a));
-    var h = Xr(e), p = h[0], b = h[1], m = h[2];
-    var y = tn(r, g), S = y[0], C = y[1], O = y[2];
-    var x = Sn(r, g, C), T = x[0], z = x[1], L = x[2];
-    var D = function update(r, a) {
+    var h = Zr(e), p = h[0], w = h[1], m = h[2];
+    var y = vn(r, g), S = y[0], C = y[1], O = y[2];
+    var x = Cn(r, g, C), z = x[0], T = x[1], L = x[2];
+    var H = function update(r, a) {
       S(r, !!a);
     };
-    var H = v(D.bind(0, {}, true));
+    var D = v(H.bind(0, {}, true));
     var M = function destroy(r) {
-      En(f);
-      H();
+      An(f);
+      D();
       L();
       O();
       n = true;
       m("destroyed", [ R, !!r ]);
-      b();
+      w();
     };
     var R = {
       options: function options(r) {
         if (r) {
-          var a = Ia(g, d(r));
+          var a = Va(g, d(r));
           if (!P(a)) {
             A(g, a);
-            D(a);
+            H(a);
           }
         }
         return A({}, g);
       },
       on: p,
       off: function off(r, a) {
-        r && a && b(r, a);
+        r && a && w(r, a);
       },
       state: function state() {
-        var r = C(), a = r.Er, e = r.Ar, t = r.Cr, i = r.Pr, v = r.ar, o = r.mr, u = r.wr;
+        var r = C(), a = r.Er, e = r.Ar, t = r.Cr, i = r.Pr, v = r.ar, o = r.mr, u = r.br;
         return A({}, {
           overflowEdge: a,
           overflowAmount: e,
@@ -2682,23 +2683,47 @@
         });
       },
       elements: function elements() {
-        var r = C.Ur, a = r.J, e = r.K, n = r.ar, t = r.rr, i = r.er;
+        var r = C.Ur, a = r.J, e = r.K, n = r.ar, t = r.rr, i = r.er, v = r.tr, o = r.ir;
+        var u = T.Ur, f = u.$r, l = u.ra;
+        var c = function translateScrollbarStructure(r) {
+          var a = r.Nr, e = r.Yr, n = r.Wr;
+          return {
+            scrollbar: n,
+            track: e,
+            handle: a
+          };
+        };
+        var s = function translateScrollbarsSetupElement(r) {
+          var a = r.Jr, e = r.Kr;
+          var n = c(a[0]);
+          return A({}, n, {
+            clone: function clone() {
+              var r = c(e());
+              z({}, true, {});
+              return r;
+            }
+          });
+        };
         return A({}, {
           target: a,
           host: e,
           padding: n || t,
           viewport: t,
-          content: i || t
+          content: i || t,
+          scrollOffsetElement: v,
+          scrollEventElement: o,
+          scrollbarHorizontal: s(f),
+          scrollbarVertical: s(l)
         });
       },
       update: function update(r) {
-        D({}, r);
+        H({}, r);
         return R;
       },
       destroy: M.bind(0)
     };
     C.Fr((function(r, a, e) {
-      T(a, e, r);
+      z(a, e, r);
     }));
     each(E(o), (function(r) {
       var a = o[r];
@@ -2706,16 +2731,16 @@
         a(OverlayScrollbars, R);
       }
     }));
-    if (Ce(!u && r.cancel, C.Ur)) {
+    if (Oe(!u && r.cancel, C.Ur)) {
       M(true);
       return R;
     }
     C.qr();
-    z.qr();
-    xn(f, R);
+    T.qr();
+    En(f, R);
     m("initialized", [ R ]);
     C.Fr((function(r, a, e) {
-      var n = r.pr, t = r.br, i = r.hr, v = r.zr, o = r.Lr, u = r.Tr, f = r._r, l = r.Or;
+      var n = r.pr, t = r.wr, i = r.hr, v = r.Tr, o = r.Lr, u = r.zr, f = r._r, l = r.Or;
       m("updated", [ R, {
         updateHints: {
           sizeChanged: n,
@@ -2733,9 +2758,9 @@
     }));
     return R.update(true);
   };
-  Pn.plugin = ka;
-  Pn.env = function() {
-    var r = be(), a = r.k, e = r.D, n = r.L, t = r.B, i = r.F, v = r.H, o = r.G, u = r.X, f = r.U, l = r.N, c = r.Y, s = r.W;
+  zn.plugin = Ba;
+  zn.env = function() {
+    var r = me(), a = r.k, e = r.H, n = r.L, t = r.B, i = r.F, v = r.D, o = r.G, u = r.X, f = r.U, l = r.N, c = r.Y, s = r.W;
     return A({}, {
       scrollbarsSize: a,
       scrollbarsOverlaid: e,
@@ -2751,9 +2776,9 @@
       setDefaultOptions: s
     });
   };
-  r.OverlayScrollbars = Pn;
-  r.scrollbarsHidingPlugin = se;
-  r.sizeObserverPlugin = te;
+  r.OverlayScrollbars = zn;
+  r.scrollbarsHidingPlugin = de;
+  r.sizeObserverPlugin = ie;
   Object.defineProperty(r, "v", {
     value: true
   });

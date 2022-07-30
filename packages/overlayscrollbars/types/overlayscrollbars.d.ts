@@ -136,7 +136,7 @@ type StructureDynamicInitializationElement = DynamicInitializationElement<[
  * If element is provided, the provided element takes all its responsibilities.
  * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
  *
- * Null or Undefined means that the environment initialization strategy is used.
+ * undefined means that the default initialization strategy is used.
  */
 interface StructureInitialization {
     target: InitializationTargetElement;
@@ -224,12 +224,24 @@ interface State {
     directionRTL: boolean;
     destroyed: boolean;
 }
+interface ScrollbarElements {
+    scrollbar: HTMLElement;
+    track: HTMLElement;
+    handle: HTMLElement;
+}
+interface CloneableScrollbarElements extends ScrollbarElements {
+    clone(): ScrollbarElements;
+}
 interface Elements {
     target: HTMLElement;
     host: HTMLElement;
     padding: HTMLElement;
     viewport: HTMLElement;
     content: HTMLElement;
+    scrollOffsetElement: HTMLElement;
+    scrollEventElement: HTMLElement | Document;
+    scrollbarHorizontal: CloneableScrollbarElements;
+    scrollbarVertical: CloneableScrollbarElements;
 }
 interface OnUpdatedEventListenerArgs {
     updateHints: {

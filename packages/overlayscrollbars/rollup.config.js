@@ -1,5 +1,5 @@
 const { terser: rollupTerser } = require('rollup-plugin-terser');
-const createRollupConfig = require('../../rollup.config.base');
+const createRollupConfig = require('@local/rollup');
 const { devDependencies, peerDependencies } = require('./package.json');
 
 module.exports = createRollupConfig({

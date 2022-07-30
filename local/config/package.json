@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "name": "@local/config",
+  "exports": {
+    "./resolve": "./src/resolve.json",
+    "./playwright": "./src/playwright.js",
+    "./jest": "./src/jest.js",
+    "./babel": "./src/babel.js"
+  },
+  "version": "0.0.0"
+}

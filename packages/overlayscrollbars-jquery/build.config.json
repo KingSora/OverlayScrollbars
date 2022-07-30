@@ -1,7 +1,0 @@
-{
-  "name": "OverlayScrollbars",
-  "exports": "auto",
-  "globals": {
-    "jquery": "jQuery"
-  }
-}

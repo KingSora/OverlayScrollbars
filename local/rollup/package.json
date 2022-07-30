@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "@local/rollup",
+  "exports": {
+    ".": "./src/createRollupConfig.js",
+    "./playwright": "./src/playwright/createPlaywrightRollupConfig.js"
+  },
+  "version": "0.0.0"
+}
