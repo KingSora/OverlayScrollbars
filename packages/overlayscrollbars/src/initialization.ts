@@ -51,7 +51,7 @@ const resolveInitialization = <T>(value: any, args: any): T =>
   isFunction(value) ? value.apply(0, args) : value;
 
 const staticInitializationElement = <T extends StaticInitializationElement<any>>(
-  args: Parameters<Extract<T, (...args: any[]) => any>>,
+  args: Parameters<Extract<T, (...initializationFnArgs: any[]) => any>>,
   fallbackStaticInitializationElement: FallbackInitializtationElement<T>,
   defaultStaticInitializationElementStrategy: T,
   staticInitializationElementValue?: T
@@ -67,7 +67,7 @@ const staticInitializationElement = <T extends StaticInitializationElement<any>>
 };
 
 const dynamicInitializationElement = <T extends DynamicInitializationElement<any>>(
-  args: Parameters<Extract<T, (...args: any[]) => any>>,
+  args: Parameters<Extract<T, (...initializationFnArgs: any[]) => any>>,
   fallbackDynamicInitializationElement: FallbackInitializtationElement<T>,
   defaultDynamicInitializationElementStrategy: T,
   dynamicInitializationElementValue?: T

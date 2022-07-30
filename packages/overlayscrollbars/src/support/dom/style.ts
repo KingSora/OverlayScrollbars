@@ -62,11 +62,8 @@ export function style<CustomCssProps>(
   elm: HTMLElement | false | null | undefined,
   styles: StyleObject<CustomCssProps>
 ): void;
-export function style<CustomCssProps>(
-  elm: HTMLElement | false | null | undefined,
-  styles: string
-): string;
-export function style<CustomCssProps>(
+export function style(elm: HTMLElement | false | null | undefined, styles: string): string;
+export function style(
   elm: HTMLElement | false | null | undefined,
   styles: Array<string> | string
 ): { [key: string]: string };

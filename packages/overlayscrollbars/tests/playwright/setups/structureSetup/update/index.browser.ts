@@ -4,6 +4,14 @@ import './handleEnvironment';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import should from 'should';
 import {
+  generateClassChangeSelectCallback,
+  iterateSelect,
+  resize,
+  timeout,
+  setTestResult,
+  waitForOrFailTest,
+} from '@local/browser-testing';
+import {
   assignDeep,
   clientSize,
   from,
@@ -18,10 +26,6 @@ import {
   createDOM,
   hasClass,
 } from 'support';
-import { resize } from '@/testing-browser/Resize';
-import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
-import { generateClassChangeSelectCallback, iterateSelect } from '@/testing-browser/Select';
-import { timeout } from '@/testing-browser/timeout';
 import { Options } from 'options';
 import { DeepPartial } from 'typings';
 import { addPlugin, scrollbarsHidingPlugin, sizeObserverPlugin } from 'plugins';
@@ -97,9 +101,9 @@ const fixedDigitsOffset = 3;
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const target: HTMLElement | null = document.querySelector('#target');
-const targetMetrics: HTMLElement | null = document.querySelector('#targetMetrics');
+const targetMetricsElement: HTMLElement | null = document.querySelector('#targetMetrics');
 const comparison: HTMLElement | null = document.querySelector('#comparison');
-const comparisonMetrics: HTMLElement | null = document.querySelector('#comparisonMetrics');
+const comparisonMetricsElement: HTMLElement | null = document.querySelector('#comparisonMetrics');
 const targetResize: HTMLElement | null = document.querySelector('#target .resize');
 const comparisonResize: HTMLElement | null = document.querySelector('#comparison .resize');
 const targetPercent: HTMLElement | null = document.querySelector('#target .percent');
@@ -213,9 +217,9 @@ const getMetrics = (elm: HTMLElement): Metrics => {
   };
 
   if (elmIsTarget) {
-    targetMetrics!.textContent = JSON.stringify(results, null, 2);
+    targetMetricsElement!.textContent = JSON.stringify(results, null, 2);
   } else {
-    comparisonMetrics!.textContent = JSON.stringify(results, null, 2);
+    comparisonMetricsElement!.textContent = JSON.stringify(results, null, 2);
   }
 
   return results;

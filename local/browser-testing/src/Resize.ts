@@ -27,6 +27,7 @@ export const resize = (element: HTMLElement) => {
   appendChildren(element, resizeBtn);
   addClass(element, 'resizer');
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let dragResizeBtn: HTMLElement | undefined;
   let dragResizer: HTMLElement | undefined;
 

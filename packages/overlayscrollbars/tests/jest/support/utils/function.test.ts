@@ -11,7 +11,12 @@ jest.mock('support/compatibility/apis', () => {
 });
 
 // eslint-disable-next-line no-return-await
-const timeout = async (timeout = 100) => await new Promise((r) => setTimeout(r, timeout));
+const timeout = async (timeoutMs = 100) => {
+  const result = await new Promise((r) => {
+    setTimeout(r, timeoutMs);
+  });
+  return result;
+};
 
 describe('function', () => {
   test('noop', () => {

@@ -96,7 +96,7 @@ export const assignDeep: AssignDeep = <T, U, V, W, X, Y, Z>(
  * @param obj The Object.
  */
 export const isEmptyObject = (obj: any): boolean => {
-  /* eslint-disable no-restricted-syntax, guard-for-in */
+  // eslint-disable-next-line no-restricted-syntax, no-unreachable-loop, guard-for-in
   for (const name in obj) return false;
   return true;
   /* eslint-enable */

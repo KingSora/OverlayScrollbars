@@ -2,10 +2,5 @@
   "extends": "@local/tsconfig",
   "compilerOptions": {
     "baseUrl": "./src",
-    "paths": {
-      "@/playwright/rollup": ["../playwright.rollup"],
-      "@/testing-browser*": ["../../testing-browser/src*"],
-      "@/overlayscrollbars*": ["../../overlayscrollbars/src*"]
-    }
   }
 }

@@ -11,6 +11,7 @@ export const resize = (element) => {
     const resizeBtn = createDiv('resizeBtn');
     appendChildren(element, resizeBtn);
     addClass(element, 'resizer');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let dragResizeBtn;
     let dragResizer;
     const onSelectStart = (event) => {
@@ -69,4 +70,4 @@ export const resize = (element) => {
         },
     };
 };
-//# sourceMappingURL=Resize.js.map
+//# sourceMappingURL=resize.js.map

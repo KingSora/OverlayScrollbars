@@ -1,9 +1,13 @@
 import 'index.scss';
 import './index.scss';
 import should from 'should';
-import { generateSelectCallback, iterateSelect } from '@/testing-browser/Select';
-import { timeout } from '@/testing-browser/timeout';
-import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
+import {
+  generateSelectCallback,
+  iterateSelect,
+  timeout,
+  setTestResult,
+  waitForOrFailTest,
+} from '@local/browser-testing';
 import {
   appendChildren,
   createDiv,
@@ -302,8 +306,8 @@ const addRemoveElementsTest = async (
       | DOMContentObserverResult[]
       | undefined;
     if (changeThrough && !isArray(changeThrough)) {
-      addChangeThrough = (changeThrough as SeparateChangeThrough).added;
-      removeChangeThrough = (changeThrough as SeparateChangeThrough).removed;
+      addChangeThrough = changeThrough.added;
+      removeChangeThrough = changeThrough.removed;
     }
 
     const addElm = async () => {
@@ -685,12 +689,24 @@ const triggerBetweenSummaryChange = async () => {
   await triggerSummaryElemet(summaryBetween);
 };
 
-addRemoveTargetElms?.addEventListener('click', addRemoveTargetElmsFn);
-addRemoveTargetContentElms?.addEventListener('click', addRemoveTargetContentElmsFn);
-addRemoveTargetContentBetweenElms?.addEventListener('click', addRemoveTargetContentBetweenElmsFn);
-addRemoveImgElms?.addEventListener('click', () => addRemoveImgElmsFn());
-addRemoveTransitionElms?.addEventListener('click', addRemoveTransitionElmsFn);
-ignoreTargetChange?.addEventListener('click', ignoreTargetChangeFn);
+addRemoveTargetElms?.addEventListener('click', () => {
+  addRemoveTargetElmsFn();
+});
+addRemoveTargetContentElms?.addEventListener('click', () => {
+  addRemoveTargetContentElmsFn();
+});
+addRemoveTargetContentBetweenElms?.addEventListener('click', () => {
+  addRemoveTargetContentBetweenElmsFn();
+});
+addRemoveImgElms?.addEventListener('click', () => {
+  addRemoveImgElmsFn();
+});
+addRemoveTransitionElms?.addEventListener('click', () => {
+  addRemoveTransitionElmsFn();
+});
+ignoreTargetChange?.addEventListener('click', () => {
+  ignoreTargetChangeFn();
+});
 setTargetAttr?.addEventListener('change', attrChangeListener(targetElm));
 setFilteredTargetAttr?.addEventListener('change', attrChangeListener(targetElm));
 setContentAttr?.addEventListener('change', attrChangeListener(contentElmAttrChange));
@@ -743,6 +759,8 @@ const start = async () => {
   setTestResult(true);
 };
 
-startBtn?.addEventListener('click', start);
+startBtn?.addEventListener('click', () => {
+  start();
+});
 
 export { start };

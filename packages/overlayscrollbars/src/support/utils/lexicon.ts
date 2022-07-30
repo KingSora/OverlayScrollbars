@@ -9,9 +9,7 @@ interface GenericLexicon<T extends boolean> {
   _lt: T extends true ? 'l' : 't';
 }
 
-export interface Lexicon<T extends boolean> extends GenericLexicon<T> {
-  // _inverted: Lexicon<T extends true ? false : true>;
-}
+export type Lexicon<T extends boolean> = GenericLexicon<T>
 
 export const getLexicon = <T extends boolean = false>(horizontal?: T): Lexicon<T> =>
   ({

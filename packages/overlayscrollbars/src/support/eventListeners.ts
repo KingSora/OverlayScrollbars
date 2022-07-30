@@ -21,6 +21,7 @@ const manageListener = <EventMap extends Record<string, any[]>>(
 export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
   initialEventListeners?: InitialEventListeners<EventMap>
 ) => {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   type EventListener<Name extends keyof EventMap = keyof EventMap> = (
     ...args: EventMap[Name]
   ) => void;
@@ -87,7 +88,7 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
 
     each(from(eventSet), (event) => {
       if (args && !isEmptyArray(args)) {
-        (event as (...args: EventMap[keyof EventMap]) => void).apply(0, args as any);
+        (event as (...eventArgs: EventMap[keyof EventMap]) => void).apply(0, args as any);
       } else {
         (event as () => void)();
       }

@@ -13,8 +13,8 @@ declare type StyleObject<CustomCssProps = ''> = {
  * @param styles The styles which shall be set or read.
  */
 export declare function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: StyleObject<CustomCssProps>): void;
-export declare function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: string): string;
-export declare function style<CustomCssProps>(elm: HTMLElement | false | null | undefined, styles: Array<string> | string): {
+export declare function style(elm: HTMLElement | false | null | undefined, styles: string): string;
+export declare function style(elm: HTMLElement | false | null | undefined, styles: Array<string> | string): {
     [key: string]: string;
 };
 /**

@@ -1,12 +1,7 @@
 const resolve = require('@local/config/resolve');
 
 module.exports = {
-  extends: [
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'airbnb',
-    'prettier',
-  ],
+  extends: ['airbnb', 'prettier'],
   env: {
     browser: true,
     es2020: true,
@@ -53,18 +48,6 @@ module.exports = {
         ignore: [`^@/.*`],
       },
     ],
-    '@typescript-eslint/ban-ts-comment': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-var-requires': 'off',
-    '@typescript-eslint/no-this-alias': [
-      'error',
-      {
-        allowDestructuring: true, // Allow `const { props, state } = this`; false by default
-        allowedNames: ['self', '_self'], // Allow `const self = this`; `[]` by default
-      },
-    ],
     'import/extensions': [
       'off',
       'ignorePackages',
@@ -78,6 +61,38 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['*.ts', '*.tsx', '*.d.ts'],
+      extends: ['plugin:@typescript-eslint/recommended', 'plugin:react/recommended'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+        project: ['./packages/**/tsconfig.json', './local/**/tsconfig.json'],
+      },
+      rules: {
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': ['error'],
+        'no-use-before-define': 'off',
+        '@typescript-eslint/no-use-before-define': ['error'],
+        'no-redeclare': 'off',
+        '@typescript-eslint/no-redeclare': ['error', { ignoreDeclarationMerge: true }],
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': ['error'],
+        '@typescript-eslint/ban-ts-comment': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/unbound-method': 'off',
+        '@typescript-eslint/no-this-alias': [
+          'error',
+          {
+            allowDestructuring: true, // Allow `const { props, state } = this`; false by default
+            allowedNames: ['self', '_self'], // Allow `const self = this`; `[]` by default
+          },
+        ],
+      },
+    },
+    {
       files: ['*.test.*', '**/tests/**'],
       rules: {
         'no-shadow': 'off',
@@ -86,6 +101,7 @@ module.exports = {
         '@typescript-eslint/ban-ts-comment': 'off',
         '@typescript-eslint/no-empty-function': 'off',
         '@typescript-eslint/ban-types': 'off',
+        '@typescript-eslint/no-floating-promises': 'off',
         'no-console': 'off',
         'consistent-return': 'off',
         'symbol-description': 'off',

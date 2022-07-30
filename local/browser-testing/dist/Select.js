@@ -72,4 +72,4 @@ export const iterateSelect = async (select, options) => {
         }
     }
 };
-//# sourceMappingURL=Select.js.map
+//# sourceMappingURL=select.js.map

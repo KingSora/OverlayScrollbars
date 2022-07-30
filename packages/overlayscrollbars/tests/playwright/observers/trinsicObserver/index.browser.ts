@@ -2,16 +2,17 @@ import 'index.scss';
 import './index.scss';
 import './handleEnvironment';
 import should from 'should';
-import { offsetSize } from 'support';
-import { createTrinsicObserver } from 'observers/trinsicObserver';
-import { addPlugin, sizeObserverPlugin } from 'plugins';
 import {
   generateClassChangeSelectCallback,
   iterateSelect,
   selectOption,
-} from '@/testing-browser/Select';
-import { timeout } from '@/testing-browser/timeout';
-import { setTestResult, waitForOrFailTest } from '@/testing-browser/TestResult';
+  timeout,
+  setTestResult,
+  waitForOrFailTest,
+} from '@local/browser-testing';
+import { offsetSize } from 'support';
+import { createTrinsicObserver } from 'observers/trinsicObserver';
+import { addPlugin, sizeObserverPlugin } from 'plugins';
 
 if (!window.ResizeObserver) {
   addPlugin(sizeObserverPlugin);

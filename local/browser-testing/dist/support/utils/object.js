@@ -56,6 +56,7 @@ export const assignDeep = (target, object1, object2, object3, object4, object5, 
  */
 export const isEmptyObject = (obj) => {
     /* eslint-disable no-restricted-syntax, guard-for-in */
+    // eslint-disable-next-line no-unreachable-loop
     for (const name in obj)
         return false;
     return true;

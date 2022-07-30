@@ -152,6 +152,7 @@ export interface OverlayScrollbars {
  * Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
  */
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target,
   options?,
@@ -203,7 +204,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
     destroyed = true;
 
-    // eslint-disable-next-line no-use-before-define
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     triggerEvent('destroyed', [instance, !!canceled]);
     removeEvent();
   };

@@ -229,16 +229,16 @@ const assertCorrectSetupElements = (
     strategy: StructureStaticInitializationElement | StructureDynamicInitializationElement,
     kind: 'padding' | 'viewport' | 'content' | 'host'
   ) => {
-    const input = isFunction(inputStrategy) ? inputStrategy(target) : inputStrategy;
-    if (input) {
+    const resolvedInputStrategy = isFunction(inputStrategy) ? inputStrategy(target) : inputStrategy;
+    if (resolvedInputStrategy) {
       if (!_viewportIsTarget) {
         expect(elm).toBeTruthy();
       }
     } else {
-      if (input === false) {
+      if (resolvedInputStrategy === false) {
         expect(elm).toBeFalsy();
       }
-      if (input === undefined) {
+      if (resolvedInputStrategy === undefined) {
         if (isStaticStrategy) {
           strategy = strategy as StructureStaticInitializationElement;
           const resultingStrategy = typeof strategy === 'function' ? strategy(target) : strategy;
