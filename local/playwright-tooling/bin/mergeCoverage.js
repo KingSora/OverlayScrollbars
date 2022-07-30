@@ -28,6 +28,9 @@ const mergeCoverage = async () => {
   try {
     await mergeCoverage();
   } catch (e) {
-    console.error(`Playwright coverage couldn't be merged.`, e);
+    // console.error(`Playwright coverage couldn't be merged.`, e);
+    if (fs.existsSync(tmpCoverageDirectory)) {
+      fs.rmSync(tmpCoverageDirectory, { recursive: true });
+    }
   }
 })();

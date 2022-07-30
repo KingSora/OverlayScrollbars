@@ -17,35 +17,43 @@ const copyReportFile = (path) => {
       path,
       join(tmpCoverageDirectory, `${basename(dirname(path))}_${Date.now()}.json`)
     );
+    return true;
   }
+  return false;
 };
 
 const generateFullCoverage = async () => {
-  copyReportFile(join(playwrightCoverage, reportFileName));
-  copyReportFile(join(jestCoverage, reportFileName));
+  const copiedPlaywright = copyReportFile(join(playwrightCoverage, reportFileName));
+  const copiedJest = copyReportFile(join(jestCoverage, reportFileName));
 
-  const mergeDestination = join(tmpCoverageDirectory, `full_${Date.now()}.json`);
-  execSync(`nyc merge ${tmpCoverageDirectory} ${mergeDestination}`);
+  if (copiedPlaywright || copiedJest) {
+    const mergeDestination = join(tmpCoverageDirectory, `full_${Date.now()}.json`);
+    execSync(`nyc merge ${tmpCoverageDirectory} ${mergeDestination}`);
 
-  const files = fs.readdirSync(tmpCoverageDirectory);
-  files.forEach((file) => {
-    const filePath = join(tmpCoverageDirectory, file);
-    if (filePath !== mergeDestination) {
-      fs.rmSync(filePath);
-    }
-  });
+    const files = fs.readdirSync(tmpCoverageDirectory);
+    files.forEach((file) => {
+      const filePath = join(tmpCoverageDirectory, file);
+      if (filePath !== mergeDestination) {
+        fs.rmSync(filePath);
+      }
+    });
 
-  execSync(
-    `nyc report --reporter=lcov --reporter=clover --reporter=json --report-dir=${coverageDirectory} --temp-dir=${tmpCoverageDirectory}`
-    /* { stdio: 'inherit' } */
-  );
-  fs.rmSync(tmpCoverageDirectory, { recursive: true });
+    execSync(
+      `nyc report --reporter=lcov --reporter=clover --reporter=json --report-dir=${coverageDirectory} --temp-dir=${tmpCoverageDirectory}`
+      /* { stdio: 'inherit' } */
+    );
+
+    fs.rmSync(tmpCoverageDirectory, { recursive: true });
+  }
 };
 
 (async () => {
   try {
     await generateFullCoverage();
   } catch (e) {
-    console.error(`Full coverage couldn't be generated.`, e);
+    // console.error(`Full coverage couldn't be generated.`, e);
+    if (fs.existsSync(tmpCoverageDirectory)) {
+      fs.rmSync(tmpCoverageDirectory, { recursive: true });
+    }
   }
 })();
