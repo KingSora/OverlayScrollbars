@@ -2,7 +2,7 @@ const { dirname } = require('path');
 const { rollup, watch: rollupWatch } = require('rollup');
 const { test } = require('@playwright/test');
 const createPlaywrightRollupConfig = require('@local/rollup/playwright');
-const { collectCoverage } = require('./coverage');
+const collectCoverage = require('./collectCoverage');
 
 const createRollupBundle = async (testDir, watch = false) => {
   let server;

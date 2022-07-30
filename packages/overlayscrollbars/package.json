@@ -9,14 +9,10 @@
   ],
   "types": "types/index.d.ts",
   "scripts": {
-    "test": "jest --coverage --runInBand --detectOpenHandles",
     "test:jsdom": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
-    "test:browser": "jest --runInBand --detectOpenHandles --selectProjects browser --testPathPattern",
-    "test:browser:quick": "jest --runInBand --detectOpenHandles --selectProjects browser --testPathIgnorePatterns=\"/node_modules/|/structureLifecycle/\"",
-    "test:browser-dev": "jest --runInBand --detectOpenHandles --selectProjects browser-dev --testPathPattern",
+    "posttest:jsdom": "full-coverage",
     "build": "rollup -c",
     "test:playwright": "playwright test",
-    "posttest:playwright": "node playwright.coverage.js",
-    "root:tt": "node workspace.root.js root:some" 
+    "posttest:playwright": "playwright-merge-coverage && full-coverage"
   }
 }

@@ -41,8 +41,8 @@
     "eslint-plugin-react": "^7.30.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "glob": "^7.1.6",
-    "jest": "^28.1.1",
-    "jest-environment-jsdom": "^28.1.1",
+    "jest": "^28.1.3",
+    "jest-environment-jsdom": "^28.1.3",
     "node-sass": "^7.0.1",
     "nyc": "^15.1.0",
     "playwright": "^1.22.2",
@@ -70,19 +70,15 @@
     "@local/tsconfig": "file:./local/tsconfig",
     "@local/config": "file:./local/config",
     "@local/rollup": "file:./local/rollup",
+    "@local/full-coverage": "file:./local/full-coverage",
     "@local/playwright-tooling": "file:./local/playwright-tooling",
     "@local/browser-testing": "file:./local/browser-testing"
   },
   "scripts": {
     "test": "yarn workspaces run test",
     "test:jsdom": "yarn workspaces run test:jsdom",
-    "test:browser": "yarn workspaces run test:browser",
-    "test:browser:quick": "yarn workspaces run test:browser:quick",
-    "test:browser-dev": "yarn workspaces run test:browser-dev",
     "test:playwright": "yarn workspaces run test:playwright",
     "build": "yarn workspaces run build",
-    "lint": "npx eslint --fix .",
-    "aa": "echo hi",
-    "root:some": "workspace-root aa"
+    "lint": "npx eslint --fix ."
   }
 }
