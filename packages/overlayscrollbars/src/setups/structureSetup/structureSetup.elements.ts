@@ -181,7 +181,7 @@ export const createStructureSetupElements = (
   const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [];
   const isTextareaHostGenerated = isTextarea && elementIsGenerated(_host);
-  const targetContents = isTextarea
+  let targetContents = isTextarea
     ? _target
     : contents(
         [_content, _viewport, _padding, _host, _target].find(
@@ -240,6 +240,9 @@ export const createStructureSetupElements = (
       insertBefore(_viewport, _viewportArrange);
       push(destroyFns, removeElements.bind(0, _viewportArrange));
     }
+
+    // @ts-ignore
+    targetContents = 0;
   };
 
   return [evaluatedTargetObj, appendElements, runEachAndClear.bind(0, destroyFns)];

@@ -62,15 +62,15 @@ module.exports = () => {
     ({ close, url, output } = await createRollupBundle(dirname(file), true, config.quiet));
   });
 
-  test.beforeEach(async ({ page, browserName }) => {
+  test.beforeEach(async ({ page, browserName }, { config }) => {
     await page.goto(url);
-    if (browserName === 'chromium') {
+    if (browserName === 'chromium' && config.quiet) {
       await page.coverage.startJSCoverage();
     }
   });
 
-  test.afterEach(async ({ page, browserName }, { file }) => {
-    if (browserName === 'chromium') {
+  test.afterEach(async ({ page, browserName }, { file, config }) => {
+    if (browserName === 'chromium' && config.quiet) {
       const coverage = await page.coverage.stopJSCoverage();
       await collectCoverage(originalCwd, dirname(output), coverage, file);
     }

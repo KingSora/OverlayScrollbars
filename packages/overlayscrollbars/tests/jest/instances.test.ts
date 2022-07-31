@@ -1,4 +1,4 @@
-import { addInstance, removeInstance, getInstance, allInstances } from 'instances';
+import { addInstance, removeInstance, getInstance } from 'instances';
 import { OverlayScrollbars } from 'overlayscrollbars';
 
 const testElm = document.body;
@@ -12,14 +12,14 @@ describe('instances', () => {
   test('add instance', () => {
     addInstance(testElm, testInstance);
 
-    expect(allInstances().size).toBe(1);
+    expect(getInstance(testElm)).toBe(testInstance);
   });
 
   test('remove instance', () => {
     addInstance(testElm, testInstance);
     removeInstance(testElm);
 
-    expect(allInstances().size).toBe(0);
+    expect(getInstance(testElm)).toBe(undefined);
   });
 
   test('get instance', () => {

@@ -1,6 +1,5 @@
 import { OverlayScrollbars } from 'overlayscrollbars';
 
-const targets: Set<Element> = new Set();
 const targetInstanceMap: WeakMap<Element, OverlayScrollbars> = new WeakMap();
 
 /**
@@ -10,7 +9,6 @@ const targetInstanceMap: WeakMap<Element, OverlayScrollbars> = new WeakMap();
  */
 export const addInstance = (target: Element, osInstance: OverlayScrollbars): void => {
   targetInstanceMap.set(target, osInstance);
-  targets.add(target);
 };
 
 /**
@@ -19,7 +17,6 @@ export const addInstance = (target: Element, osInstance: OverlayScrollbars): voi
  */
 export const removeInstance = (target: Element): void => {
   targetInstanceMap.delete(target);
-  targets.delete(target);
 };
 
 /**
@@ -28,26 +25,3 @@ export const removeInstance = (target: Element): void => {
  */
 export const getInstance = (target: Element): OverlayScrollbars | undefined =>
   targetInstanceMap.get(target);
-
-/**
- * Gets a Map which represents all active OverayScrollbars instances.
- * The Key is the element and the value is the instance.
- */
-export const allInstances = (): ReadonlyMap<Element, OverlayScrollbars> => {
-  const validTargetInstanceMap: Map<Element, OverlayScrollbars> = new Map();
-
-  targets.forEach((target: Element) => {
-    /* istanbul ignore else */
-    if (targetInstanceMap.has(target)) {
-      validTargetInstanceMap.set(target, targetInstanceMap.get(target)!);
-    }
-  });
-
-  targets.clear();
-
-  validTargetInstanceMap.forEach((instance: OverlayScrollbars, validTarget: Element) => {
-    targets.add(validTarget);
-  });
-
-  return validTargetInstanceMap;
-};
