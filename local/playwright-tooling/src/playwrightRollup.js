@@ -58,8 +58,8 @@ module.exports = () => {
   let output;
 
   // eslint-disable-next-line no-empty-pattern
-  test.beforeAll(async ({}, { file }) => {
-    ({ close, url, output } = await createRollupBundle(dirname(file), true));
+  test.beforeAll(async ({}, { file, config }) => {
+    ({ close, url, output } = await createRollupBundle(dirname(file), true, config.quiet));
   });
 
   test.beforeEach(async ({ page, browserName }) => {

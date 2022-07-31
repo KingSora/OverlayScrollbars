@@ -75,10 +75,10 @@
     "@local/browser-testing": "file:./local/browser-testing"
   },
   "scripts": {
-    "test": "yarn workspaces run test",
-    "test:jsdom": "yarn workspaces run test:jsdom",
-    "test:playwright": "yarn workspaces run test:playwright",
-    "build": "yarn workspaces run build",
+    "test:jsdom": "npm run test:jsdom --workspace=overlayscrollbars",
+    "test:playwright": "npm run test:playwright --workspace=overlayscrollbars",
+    "test:playwright:dev": "npm run test:playwright --workspace=overlayscrollbars",
+    "build": "npm run build --workspace=overlayscrollbars",
     "lint": "npx eslint --fix ."
   }
 }

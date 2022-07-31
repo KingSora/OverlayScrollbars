@@ -12,7 +12,8 @@
     "test:jsdom": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
     "posttest:jsdom": "full-coverage",
     "build": "rollup -c",
-    "test:playwright": "playwright test",
+    "test:playwright": "playwright test --quiet",
+    "test:playwright:dev": "playwright test",
     "posttest:playwright": "playwright-merge-coverage && full-coverage"
   }
 }
