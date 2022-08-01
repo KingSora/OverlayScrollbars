@@ -192,9 +192,13 @@ type ScrollbarsHidingPluginInstance = {
 declare const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance>;
 type GeneralInitialEventListeners = InitialEventListeners;
 type GeneralEventListener = EventListener;
+// Notes:
+// Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
 interface OverlayScrollbarsStatic {
-    (target: InitializationTarget, options?: DeepPartial<Options>, eventListeners?: GeneralInitialEventListeners<EventListenerMap>): OverlayScrollbars;
+    (target: InitializationTarget): OverlayScrollbars | undefined;
+    (target: InitializationTarget, options: DeepPartial<Options>, eventListeners?: GeneralInitialEventListeners<EventListenerMap>): OverlayScrollbars;
     plugin(plugin: Plugin | Plugin[]): void;
+    valid(osInstance: any): boolean;
     env(): Environment;
 }
 interface Environment {
@@ -292,9 +296,6 @@ interface OverlayScrollbars {
     off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener$0<Name>): void;
     off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener$0<Name>[]): void;
 }
-/**
- * Notes:
- * Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
- */
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 declare const OverlayScrollbars: OverlayScrollbarsStatic;
 export { OverlayScrollbars, scrollbarsHidingPlugin, sizeObserverPlugin };
