@@ -14,6 +14,11 @@ module.exports = (resolve, options) => {
   return [
     {
       input,
+      onwarn: (warning, warn) => {
+        if (warning.code !== 'EMPTY_BUNDLE') {
+          warn(warning);
+        }
+      },
       output: {
         file: path.resolve(typesPath, `${file}`),
       },

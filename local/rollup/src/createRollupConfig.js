@@ -139,7 +139,7 @@ const createConfig = (userOptions = {}) => {
     const types = extractTypes && pipelineTypes(resolve, options);
     const styles = extractStyles && pipelineStyles(resolve, options);
 
-    return [umd, esm, types, styles].flat().filter((build) => !!build);
+    return [styles, types, umd, esm].flat().filter((build) => !!build);
   }
 
   return [pipelineDev(resolve, options)];
