@@ -1,16 +1,19 @@
 module.exports = {
   project: null,
   mode: 'build',
+  verbose: false,
   paths: {
     src: './src',
     dist: './dist',
     types: './types',
+    styles: './styles',
   },
   versions: {
     minified: true,
     module: true,
   },
-  extractStyle: false,
+  extractStyles: false,
+  extractTypes: false,
   alias: {},
   rollup: {
     input: './src/index',

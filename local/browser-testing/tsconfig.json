@@ -2,9 +2,6 @@
   "extends": "@local/tsconfig",
   "compilerOptions": {
     "outDir": "./dist/",
-    "baseUrl": "./src/",
-    "paths": {
-      "@/overlayscrollbars*": ["../../../packages/overlayscrollbars/src*"]
-    }
+    "baseUrl": "./src/"
   }
 }

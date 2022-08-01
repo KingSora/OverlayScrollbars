@@ -1,6 +1,6 @@
 {
   "extends": "@local/tsconfig",
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": "./src"
   }
 }

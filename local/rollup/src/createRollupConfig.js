@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable import/no-dynamic-require */
-const { execSync } = require("child_process");
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
@@ -8,6 +8,8 @@ const resolve = require('@local/config/resolve');
 const defaultOptions = require('./defaultOptions');
 const pipelineBuild = require('./pipeline.build');
 const pipelineDev = require('./pipeline.dev');
+const pipelineStyles = require('./pipeline.styles');
+const pipelineTypes = require('./pipeline.types');
 
 const workspaceRoot = path.dirname(execSync('npm root').toString());
 const pkg = require(`${workspaceRoot}/package.json`);
@@ -57,7 +59,9 @@ const mergeAndResolveOptions = (userOptions) => {
     versions: defaultVersions,
     alias: defaultAlias,
     rollup: defaultRollup,
-    extractStyle: defaultExtractStyle,
+    extractStyles: defaultExtractStyles,
+    extractTypes: defaultExtractTypes,
+    verbose: defaultVerbose,
   } = defaultOptions;
   const {
     project,
@@ -66,14 +70,18 @@ const mergeAndResolveOptions = (userOptions) => {
     versions: rawVersions = {},
     alias: rawAlias = {},
     rollup: rawRollup = {},
-    extractStyle: rawExtractStyle,
+    extractStyles: rawExtractStyles,
+    extractTypes: rawExtractTypes,
+    verbose: rawVerbose,
   } = userOptions;
   const projectPath = process.cwd();
   const mergedOptions = {
     project: project || path.basename(projectPath),
     mode: rawMode || defaultMode,
     repoRoot: workspaceRoot,
-    extractStyle: rawExtractStyle ?? defaultExtractStyle,
+    extractStyles: rawExtractStyles ?? defaultExtractStyles,
+    extractTypes: rawExtractTypes ?? defaultExtractTypes,
+    verbose: rawVerbose ?? defaultVerbose,
     paths: {
       ...defaultPaths,
       ...rawPaths,
@@ -96,11 +104,12 @@ const mergeAndResolveOptions = (userOptions) => {
       },
     },
   };
-  const { src, dist, types } = mergedOptions.paths;
+  const { src, dist, types, styles } = mergedOptions.paths;
 
   mergedOptions.paths.src = resolvePath(projectPath, src);
   mergedOptions.paths.dist = resolvePath(projectPath, dist);
   mergedOptions.paths.types = resolvePath(projectPath, types);
+  mergedOptions.paths.styles = resolvePath(projectPath, styles);
 
   mergedOptions.rollup.input = resolvePath(projectPath, mergedOptions.rollup.input, true);
   mergedOptions.rollup.output = {
@@ -114,19 +123,23 @@ const mergeAndResolveOptions = (userOptions) => {
 
 const createConfig = (userOptions = {}) => {
   const options = mergeAndResolveOptions(userOptions);
-  const { project, mode, versions } = options;
+  const { project, mode, versions, extractTypes, extractStyles, verbose } = options;
   const { module: buildModuleVersion } = versions;
   const isBuild = mode === 'build';
 
-  if (isBuild) {
+  if (verbose) {
     console.log('');
     console.log('PROJECT : ', project);
     console.log('OPTIONS : ', options);
+  }
 
-    const umd = pipelineBuild(resolve, false, options, { declarationFiles: true, outputStyle: true });
-    const esm = buildModuleVersion ? pipelineBuild(resolve, true, options) : null;
+  if (isBuild) {
+    const umd = pipelineBuild(resolve, options);
+    const esm = buildModuleVersion && pipelineBuild(resolve, options, true);
+    const types = extractTypes && pipelineTypes(resolve, options);
+    const styles = extractStyles && pipelineStyles(resolve, options);
 
-    return [umd, esm].filter((build) => !!build);
+    return [umd, esm, types, styles].flat().filter((build) => !!build);
   }
 
   return [pipelineDev(resolve, options)];

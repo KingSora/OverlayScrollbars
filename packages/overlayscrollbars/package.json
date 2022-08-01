@@ -6,17 +6,18 @@
   "files": [
     "src",
     "dist",
-    "types/overlayscrollbars.d.ts"
+    "types",
+    "styles"
   ],
   "main": "dist/overlayscrollbars.js",
   "module": "dist/overlayscrollbars.esm.js",
   "types": "types/overlayscrollbars.d.ts",
   "scripts": {
-    "test:jsdom": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
-    "posttest:jsdom": "full-coverage",
     "build": "rollup -c",
-    "test:playwright": "playwright test --quiet",
-    "test:playwright:dev": "playwright test",
-    "posttest:playwright": "playwright-merge-coverage && full-coverage"
+    "jest": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
+    "postjest": "full-coverage",
+    "playwright": "playwright test --quiet",
+    "playwright:dev": "playwright test",
+    "postplaywright": "playwright-merge-coverage && full-coverage"
   }
 }

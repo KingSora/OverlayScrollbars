@@ -12,6 +12,12 @@
     "@babel/preset-env": "^7.18.2",
     "@babel/preset-typescript": "^7.17.12",
     "@babel/runtime": "^7.18.2",
+    "@local/browser-testing": "file:./local/browser-testing",
+    "@local/config": "file:./local/config",
+    "@local/full-coverage": "file:./local/full-coverage",
+    "@local/playwright-tooling": "file:./local/playwright-tooling",
+    "@local/rollup": "file:./local/rollup",
+    "@local/tsconfig": "file:./local/tsconfig",
     "@playwright/test": "^1.22.2",
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-babel": "^5.3.1",
@@ -53,6 +59,7 @@
     "postcss": "^8.4.14",
     "prettier": "^2.6.2",
     "rollup": "^2.75.5",
+    "rollup-plugin-dts": "^4.2.2",
     "rollup-plugin-esbuild": "^4.9.1",
     "rollup-plugin-ignore-import": "^1.3.2",
     "rollup-plugin-livereload": "^2.0.0",
@@ -66,19 +73,16 @@
     "tslib": "^2.4.0",
     "typescript": "^4.7.4",
     "utf-8-validate": "^5.0.2",
-    "v8-to-istanbul": "^9.0.1",
-    "@local/tsconfig": "file:./local/tsconfig",
-    "@local/config": "file:./local/config",
-    "@local/rollup": "file:./local/rollup",
-    "@local/full-coverage": "file:./local/full-coverage",
-    "@local/playwright-tooling": "file:./local/playwright-tooling",
-    "@local/browser-testing": "file:./local/browser-testing"
+    "v8-to-istanbul": "^9.0.1"
   },
   "scripts": {
-    "test:jsdom": "npm run test:jsdom --workspace=overlayscrollbars",
-    "test:playwright": "npm run test:playwright --workspace=overlayscrollbars",
-    "test:playwright:dev": "npm run test:playwright --workspace=overlayscrollbars",
+    "jest": "npm run jest --workspace=overlayscrollbars",
+    "playwright": "npm run playwright --workspace=overlayscrollbars",
+    "playwright:dev": "npm run test:playwright:dev --workspace=overlayscrollbars",
     "build": "npm run build --workspace=overlayscrollbars",
     "lint": "npx eslint --fix ."
+  },
+  "dependencies": {
+    "rollup-plugin-typescript2": "^0.32.1"
   }
 }

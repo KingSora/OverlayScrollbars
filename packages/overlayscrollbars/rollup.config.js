@@ -1,10 +1,13 @@
 const { terser: rollupTerser } = require('rollup-plugin-terser');
+const { summary } = require('rollup-plugin-summary');
 const createRollupConfig = require('@local/rollup');
 const { devDependencies, peerDependencies } = require('./package.json');
 
 module.exports = createRollupConfig({
   project: 'OverlayScrollbars',
-  extractStyle: true,
+  verbose: true,
+  extractStyles: true,
+  extractTypes: true,
   rollup: {
     external: Object.keys(devDependencies || {}).concat(Object.keys(peerDependencies || {})),
     output: {
@@ -32,5 +35,16 @@ module.exports = createRollupConfig({
         }),
       ],
     },
+    plugins: [
+      summary({
+        showGzippedSize: true,
+        showBrotliSize: true,
+        showMinifiedSize: false,
+        warnLow: 33000,
+        totalLow: 33000,
+        warnHigh: 36000,
+        totalHigh: 36000,
+      }),
+    ],
   },
 });
