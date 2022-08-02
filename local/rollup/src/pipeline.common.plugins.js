@@ -88,6 +88,7 @@ module.exports = {
         include: [`${srcPath}/**/*`],
         exclude: ['node_modules', '**/node_modules/*', '*.d.ts', '**/*.d.ts'],
       },
+      clean: true,
       // files to include / exclude from the plugin
       include: ['*.ts+(|x)', '**/*.ts+(|x)'],
       exclude: ['node_modules', '**/node_modules/*', '*.d.ts', '**/*.d.ts'],

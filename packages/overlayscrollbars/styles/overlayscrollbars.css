@@ -340,12 +340,15 @@ THEMES:
 .os-viewport {
   -ms-overflow-style: scrollbar !important; }
 
+[data-overlayscrollbars=''],
 [data-overlayscrollbars~='scrollbarHidden'],
 html.os-viewport-scrollbar-hidden,
 .os-viewport-scrollbar-hidden.os-environment,
 .os-viewport-scrollbar-hidden.os-viewport {
   scrollbar-width: none !important; }
 
+[data-overlayscrollbars='']::-webkit-scrollbar,
+[data-overlayscrollbars='']::-webkit-scrollbar-corner,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar-corner,
 html.os-viewport-scrollbar-hidden::-webkit-scrollbar,
@@ -401,7 +404,7 @@ html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
     width: var(--os-vaw);
     height: var(--os-vah); }
 
-[data-overlayscrollbars] {
+[data-overlayscrollbars~='viewport'] {
   overflow: hidden !important; }
 
 [data-overlayscrollbars~='overflowVisible'] {
