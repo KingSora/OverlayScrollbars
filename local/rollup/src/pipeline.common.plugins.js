@@ -1,3 +1,4 @@
+const sass = require('sass');
 const postcss = require('postcss');
 const autoprefixer = require('autoprefixer');
 const { nodeResolve: rollupPluginResolve } = require('@rollup/plugin-node-resolve');
@@ -34,6 +35,7 @@ module.exports = {
         ? rollupPluginScss({
             output,
             sourceMap,
+            sass,
             processor: () => postcss([autoprefixer()]),
           })
         : rollupPluginIgnoreImport({

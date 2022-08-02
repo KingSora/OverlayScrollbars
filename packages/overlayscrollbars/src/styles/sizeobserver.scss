@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 $inflate-margin: 133px;
 $shrink-scale: 0.1;
 
@@ -58,7 +60,9 @@ $shrink-scale: 0.1;
   padding: inherit;
   border: inherit;
   margin: -$inflate-margin;
-  transform: scale(1 / $shrink-scale);
+  transform: scale(
+    math.div(1, $shrink-scale)
+  ); // scale(calc(1 / #{$shrink-scale})) not supported in ie11
 
   &.ltr {
     margin-right: -$inflate-margin * 2;
