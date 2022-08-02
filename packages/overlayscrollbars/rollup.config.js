@@ -12,6 +12,7 @@ module.exports = createRollupConfig({
     external: Object.keys(devDependencies || {}).concat(Object.keys(peerDependencies || {})),
     output: {
       exports: 'auto',
+      sourcemap: true,
       plugins: [
         rollupTerser({
           safari10: true,

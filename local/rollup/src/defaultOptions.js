@@ -18,7 +18,7 @@ module.exports = {
   rollup: {
     input: './src/index',
     output: {
-      sourcemap: true,
+      sourcemap: false,
       exports: 'auto',
     },
   },

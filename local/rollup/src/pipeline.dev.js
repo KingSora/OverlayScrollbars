@@ -28,7 +28,7 @@ module.exports = (resolve, options) => {
     ...rollupOptions,
     plugins: [
       rollupAlias(alias),
-      rollupScss(extractStyles, false),
+      rollupScss(extractStyles, false, sourcemap),
       rollupEsBuild(),
       rollupResolve(srcPath, resolve),
       rollupCommonjs(sourcemap, resolve),

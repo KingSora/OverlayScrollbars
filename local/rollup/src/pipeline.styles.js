@@ -4,7 +4,7 @@ const { rollupResolve, rollupScss, rollupEsBuild } = require('./pipeline.common.
 module.exports = (resolve, options) => {
   const { rollup, paths } = options;
   const { output: rollupOutput, input } = rollup;
-  const { file } = rollupOutput;
+  const { file, sourcemap } = rollupOutput;
   const { src: srcPath, styles: stylesPath } = paths;
   const ogWrite = process.stdout.write;
 
@@ -12,7 +12,7 @@ module.exports = (resolve, options) => {
     input,
     plugins: [
       rollupResolve(srcPath, resolve),
-      rollupScss(true, path.resolve(stylesPath, `${file}.css`)),
+      rollupScss(true, path.resolve(stylesPath, `${file}.css`), sourcemap),
       rollupEsBuild(),
       {
         generateBundle() {

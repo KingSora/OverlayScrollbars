@@ -8,9 +8,7 @@ import { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.
 type StaticInitialization = HTMLElement | false | null;
 type DynamicInitialization = HTMLElement | boolean | null;
 
-export type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
-
-export type Initialization = Omit<StructureInitialization, 'target'> &
+export type Initialization = StructureInitialization &
   ScrollbarsInitialization & {
     cancel: {
       nativeScrollbarsOverlaid: boolean;
@@ -18,8 +16,11 @@ export type Initialization = Omit<StructureInitialization, 'target'> &
     };
   };
 
-export type InitializationTargetObject = DeepPartial<Initialization> &
-  Pick<StructureInitialization, 'target'>;
+export type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
+
+export type InitializationTargetObject = DeepPartial<Initialization> & {
+  target: InitializationTargetElement;
+};
 
 export type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
 
@@ -50,7 +51,7 @@ export type FallbackInitializtationElement<
 const resolveInitialization = <T>(value: any, args: any): T =>
   isFunction(value) ? value.apply(0, args) : value;
 
-const staticInitializationElement = <T extends StaticInitializationElement<any>>(
+export const staticInitializationElement = <T extends StaticInitializationElement<any>>(
   args: Parameters<Extract<T, (...initializationFnArgs: any[]) => any>>,
   fallbackStaticInitializationElement: FallbackInitializtationElement<T>,
   defaultStaticInitializationElementStrategy: T,
@@ -66,7 +67,7 @@ const staticInitializationElement = <T extends StaticInitializationElement<any>>
   return resolvedInitialization || fallbackStaticInitializationElement();
 };
 
-const dynamicInitializationElement = <T extends DynamicInitializationElement<any>>(
+export const dynamicInitializationElement = <T extends DynamicInitializationElement<any>>(
   args: Parameters<Extract<T, (...initializationFnArgs: any[]) => any>>,
   fallbackDynamicInitializationElement: FallbackInitializtationElement<T>,
   defaultDynamicInitializationElementStrategy: T,
@@ -87,7 +88,7 @@ const dynamicInitializationElement = <T extends DynamicInitializationElement<any
   );
 };
 
-const cancelInitialization = (
+export const cancelInitialization = (
   cancelInitializationValue: DeepPartial<Initialization['cancel']> | false | null | undefined,
   structureSetupElements: StructureSetupElementsObj
 ): boolean => {
@@ -112,5 +113,3 @@ const cancelInitialization = (
 
   return !!finalNativeScrollbarsOverlaid || !!finalDocumentScrollingElement;
 };
-
-export { staticInitializationElement, dynamicInitializationElement, cancelInitialization };

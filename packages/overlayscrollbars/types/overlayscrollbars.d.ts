@@ -26,8 +26,8 @@ interface XY<T = number> {
     y: T;
 }
 
-declare type EventListener$1<EventMap extends Record<string, any[]>, Name extends keyof EventMap = keyof EventMap> = (...args: EventMap[Name]) => void;
-declare type InitialEventListeners<EventMap extends Record<string, any[]>> = {
+declare type EventListener$1<EventMap extends Record<string, any[]>, N extends keyof EventMap = keyof EventMap> = (...args: EventMap[N]) => void;
+declare type InitialEventListeners$1<EventMap extends Record<string, any[]>> = {
     [K in keyof EventMap]?: EventListener$1<EventMap> | EventListener$1<EventMap>[];
 };
 
@@ -70,14 +70,16 @@ declare const sizeObserverPlugin: Plugin<SizeObserverPluginInstance>;
 
 declare type StaticInitialization = HTMLElement | false | null;
 declare type DynamicInitialization = HTMLElement | boolean | null;
-declare type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
-declare type Initialization = Omit<StructureInitialization, 'target'> & ScrollbarsInitialization & {
+declare type Initialization = StructureInitialization & ScrollbarsInitialization & {
     cancel: {
         nativeScrollbarsOverlaid: boolean;
         body: boolean | null;
     };
 };
-declare type InitializationTargetObject = DeepPartial<Initialization> & Pick<StructureInitialization, 'target'>;
+declare type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
+declare type InitializationTargetObject = DeepPartial<Initialization> & {
+    target: InitializationTargetElement;
+};
 declare type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
 /**
  * Static elements MUST be present.
@@ -138,7 +140,6 @@ declare type StructureDynamicInitializationElement = DynamicInitializationElemen
  * undefined means that the default initialization strategy is used.
  */
 interface StructureInitialization {
-    target: InitializationTargetElement;
     host: StructureStaticInitializationElement;
     viewport: StructureStaticInitializationElement;
     padding: StructureDynamicInitializationElement;
@@ -189,9 +190,40 @@ declare type ScrollbarsHidingPluginInstance = {
 };
 declare const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance>;
 
+interface OnUpdatedEventListenerArgs {
+    updateHints: {
+        sizeChanged: boolean;
+        directionChanged: boolean;
+        heightIntrinsicChanged: boolean;
+        overflowEdgeChanged: boolean;
+        overflowAmountChanged: boolean;
+        overflowStyleChanged: boolean;
+        hostMutation: boolean;
+        contentMutation: boolean;
+    };
+    changedOptions: DeepPartial<Options>;
+    force: boolean;
+}
+declare type EventListenerMap = {
+    /**
+     * Triggered after all elements are initialized and appended.
+     */
+    initialized: [instance: OverlayScrollbars];
+    /**
+     * Triggered after an update.
+     */
+    updated: [instance: OverlayScrollbars, onUpdatedArgs: OnUpdatedEventListenerArgs];
+    /**
+     * Triggered after all elements, observers and events are destroyed.
+     */
+    destroyed: [instance: OverlayScrollbars, canceled: boolean];
+};
+declare type InitialEventListeners = InitialEventListeners$1<EventListenerMap>;
+declare type EventListener<N extends keyof EventListenerMap> = EventListener$1<EventListenerMap, N>;
+
 interface OverlayScrollbarsStatic {
     (target: InitializationTarget): OverlayScrollbars | undefined;
-    (target: InitializationTarget, options: DeepPartial<Options>, eventListeners?: InitialEventListeners<EventListenerMap>): OverlayScrollbars;
+    (target: InitializationTarget, options: DeepPartial<Options>, eventListeners?: InitialEventListeners): OverlayScrollbars;
     plugin(plugin: Plugin | Plugin[]): void;
     valid(osInstance: any): boolean;
     env(): Environment;
@@ -242,35 +274,6 @@ interface Elements {
     scrollbarHorizontal: CloneableScrollbarElements;
     scrollbarVertical: CloneableScrollbarElements;
 }
-interface OnUpdatedEventListenerArgs {
-    updateHints: {
-        sizeChanged: boolean;
-        directionChanged: boolean;
-        heightIntrinsicChanged: boolean;
-        overflowEdgeChanged: boolean;
-        overflowAmountChanged: boolean;
-        overflowStyleChanged: boolean;
-        hostMutation: boolean;
-        contentMutation: boolean;
-    };
-    changedOptions: DeepPartial<Options>;
-    force: boolean;
-}
-declare type EventListenerMap = {
-    /**
-     * Triggered after all elements are initialized and appended.
-     */
-    initialized: [instance: OverlayScrollbars];
-    /**
-     * Triggered after an update.
-     */
-    updated: [instance: OverlayScrollbars, onUpdatedArgs: OnUpdatedEventListenerArgs];
-    /**
-     * Triggered after all elements, observers and events are destroyed.
-     */
-    destroyed: [instance: OverlayScrollbars, canceled: boolean];
-};
-declare type EventListener<Name extends keyof EventListenerMap> = EventListener$1<EventListenerMap, Name>;
 interface OverlayScrollbars {
     options(): Options;
     options(newOptions?: DeepPartial<Options>): Options;
@@ -278,11 +281,11 @@ interface OverlayScrollbars {
     destroy(): void;
     state(): State;
     elements(): Elements;
-    on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>): () => void;
-    on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>[]): () => void;
-    off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>): void;
-    off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>[]): void;
+    on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): () => void;
+    on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): () => void;
+    off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): void;
+    off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): void;
 }
 declare const OverlayScrollbars: OverlayScrollbarsStatic;
 
-export { OverlayScrollbars, scrollbarsHidingPlugin, sizeObserverPlugin };
+export { DynamicInitializationElement, EventListener, EventListenerMap, InitialEventListeners, Initialization, InitializationTarget, InitializationTargetElement, InitializationTargetObject, OnUpdatedEventListenerArgs, Options, OverflowBehavior, OverlayScrollbars, Plugin, PluginInstance, ScrollbarAutoHideBehavior, ScrollbarVisibilityBehavior, StaticInitializationElement, scrollbarsHidingPlugin, sizeObserverPlugin };

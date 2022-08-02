@@ -5,29 +5,22 @@ import {
   isFunction,
   keys,
   isHTMLElement,
-  XY,
-  TRBL,
   createEventListenerHub,
   isPlainObject,
 } from 'support';
-import { createStructureSetup, createScrollbarsSetup } from 'setups';
-import { getOptionsDiff, Options, ReadonlyOptions } from 'options';
+import { getOptionsDiff } from 'options';
 import { getEnvironment } from 'environment';
-import {
-  getPlugins,
-  addPlugin,
-  optionsValidationPluginName,
-  Plugin,
-  OptionsValidationPluginInstance,
-} from 'plugins';
+import { cancelInitialization } from 'initialization';
 import { addInstance, getInstance, removeInstance } from 'instances';
+import { createStructureSetup, createScrollbarsSetup } from 'setups';
+import { getPlugins, addPlugin, optionsValidationPluginName } from 'plugins';
+import type { XY, TRBL } from 'support';
+import type { Options, ReadonlyOptions } from 'options';
+import type { Plugin, OptionsValidationPluginInstance } from 'plugins';
+import type { InitializationTarget, Initialization } from 'initialization';
 import type { DeepPartial, OverflowStyle } from 'typings';
-import { InitializationTarget, Initialization, cancelInitialization } from 'initialization';
+import type { EventListenerMap, EventListener, InitialEventListeners } from 'eventListeners';
 import type {
-  InitialEventListeners as GeneralInitialEventListeners,
-  EventListener as GeneralEventListener,
-} from 'support/eventListeners';
-import {
   ScrollbarsSetupElement,
   ScrollbarStructure,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
@@ -40,7 +33,7 @@ export interface OverlayScrollbarsStatic {
   (
     target: InitializationTarget,
     options: DeepPartial<Options>,
-    eventListeners?: GeneralInitialEventListeners<EventListenerMap>
+    eventListeners?: InitialEventListeners
   ): OverlayScrollbars;
 
   plugin(plugin: Plugin | Plugin[]): void;
@@ -97,43 +90,6 @@ export interface Elements {
   scrollbarVertical: CloneableScrollbarElements;
 }
 
-export interface OnUpdatedEventListenerArgs {
-  updateHints: {
-    sizeChanged: boolean;
-    directionChanged: boolean;
-    heightIntrinsicChanged: boolean;
-    overflowEdgeChanged: boolean;
-    overflowAmountChanged: boolean;
-    overflowStyleChanged: boolean;
-    hostMutation: boolean;
-    contentMutation: boolean;
-  };
-  changedOptions: DeepPartial<Options>;
-  force: boolean;
-}
-
-export type EventListenerMap = {
-  /**
-   * Triggered after all elements are initialized and appended.
-   */
-  initialized: [instance: OverlayScrollbars];
-  /**
-   * Triggered after an update.
-   */
-  updated: [instance: OverlayScrollbars, onUpdatedArgs: OnUpdatedEventListenerArgs];
-  /**
-   * Triggered after all elements, observers and events are destroyed.
-   */
-  destroyed: [instance: OverlayScrollbars, canceled: boolean];
-};
-
-export type InitialEventListeners = GeneralInitialEventListeners<EventListenerMap>;
-
-export type EventListener<Name extends keyof EventListenerMap> = GeneralEventListener<
-  EventListenerMap,
-  Name
->;
-
 export interface OverlayScrollbars {
   options(): Options;
   options(newOptions?: DeepPartial<Options>): Options;
@@ -146,18 +102,18 @@ export interface OverlayScrollbars {
 
   elements(): Elements;
 
-  on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>): () => void;
-  on<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>[]): () => void;
+  on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): () => void;
+  on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): () => void;
 
-  off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>): void;
-  off<Name extends keyof EventListenerMap>(name: Name, listener: EventListener<Name>[]): void;
+  off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): void;
+  off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target: InitializationTarget,
   options?: DeepPartial<Options>,
-  eventListeners?: GeneralInitialEventListeners<EventListenerMap>
+  eventListeners?: InitialEventListeners
 ) => {
   const { _getDefaultOptions, _addListener: addEnvListener } = getEnvironment();
   const plugins = getPlugins();

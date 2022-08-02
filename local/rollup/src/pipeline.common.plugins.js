@@ -28,11 +28,12 @@ module.exports = {
       moduleDirectories: resolve.directories,
       extensions: resolve.extensions,
     }),
-  rollupScss: (extractStyleOption, output) => {
+  rollupScss: (extractStyleOption, output, sourceMap) => {
     if (extractStyleOption) {
       return output
         ? rollupPluginScss({
             output,
+            sourceMap,
             processor: () => postcss([autoprefixer()]),
           })
         : rollupPluginIgnoreImport({
@@ -83,6 +84,7 @@ module.exports = {
         compilerOptions: {
           declaration,
           emitDeclarationOnly: declaration,
+          declarationMap: declaration,
         },
         // files to include / exclude from typescript .d.ts generation
         include: [`${srcPath}/**/*`],

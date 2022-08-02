@@ -23,7 +23,6 @@ export type StructureDynamicInitializationElement = DynamicInitializationElement
  * undefined means that the default initialization strategy is used.
  */
 export interface StructureInitialization {
-  target: InitializationTargetElement;
   host: StructureStaticInitializationElement; // only relevant for textarea
   viewport: StructureStaticInitializationElement;
   padding: StructureDynamicInitializationElement;
