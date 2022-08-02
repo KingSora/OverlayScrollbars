@@ -72,7 +72,7 @@ module.exports = (resolve, options, esm) => {
     plugins: [
       rollupLicense(banner, sourcemap),
       rollupAlias(alias),
-      rollupScss(extractStyles, false, sourcemap),
+      rollupScss(banner, sourcemap, extractStyles, false),
       rollupTs(srcPath),
       rollupResolve(srcPath, resolve),
       rollupCommonjs(sourcemap, resolve),

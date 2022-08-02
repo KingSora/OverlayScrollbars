@@ -30,13 +30,21 @@ module.exports = {
       moduleDirectories: resolve.directories,
       extensions: resolve.extensions,
     }),
-  rollupScss: (extractStyleOption, output, sourceMap) => {
+  rollupScss: (banner, sourceMap, extractStyleOption, output) => {
     if (extractStyleOption) {
       return output
         ? rollupPluginScss({
             output,
             sourceMap,
             sass,
+            prefix: banner
+              ? `/*! \r\n${banner
+                  .replace(/\r\n/g, '\r')
+                  .replace(/\n/g, '\r')
+                  .split(/\r/)
+                  .map((line) => ` * ${line}\r\n`)
+                  .join('')} */`
+              : undefined,
             processor: () => postcss([autoprefixer()]),
           })
         : rollupPluginIgnoreImport({

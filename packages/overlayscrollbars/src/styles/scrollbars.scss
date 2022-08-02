@@ -1,6 +1,3 @@
-[data-overlayscrollbars~='updating'] > .os-scrollbar {
-  display: none !important;
-}
 .os-scrollbar {
   contain: strict;
   transition: opacity 0.3s, visibility 0.3s, top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
@@ -77,6 +74,7 @@ body > .os-scrollbar {
 }
 
 /* NONE THEME: */
+[data-overlayscrollbars~='updating'] > .os-scrollbar,
 .os-theme-none.os-scrollbar {
   display: none !important;
 }
