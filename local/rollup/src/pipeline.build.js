@@ -70,13 +70,13 @@ module.exports = (resolve, options, esm) => {
     },
     ...rollupOptions,
     plugins: [
+      rollupLicense(banner, sourcemap),
       rollupAlias(alias),
       rollupScss(extractStyles, false, sourcemap),
       rollupTs(srcPath),
       rollupResolve(srcPath, resolve),
       rollupCommonjs(sourcemap, resolve),
       rollupBabel(resolve, esm),
-      rollupLicense(banner, sourcemap),
       ...plugins,
     ].filter(Boolean),
   };
