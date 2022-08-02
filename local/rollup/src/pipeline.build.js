@@ -7,6 +7,7 @@ const {
   rollupResolve,
   rollupAlias,
   rollupScss,
+  rollupLicense,
 } = require('./pipeline.common.plugins');
 
 const createOutputWithMinifiedVersion = (output, esm, buildMinifiedVersion) =>
@@ -36,7 +37,7 @@ const createOutputWithMinifiedVersion = (output, esm, buildMinifiedVersion) =>
   );
 
 module.exports = (resolve, options, esm) => {
-  const { rollup, paths, versions, alias, extractStyles } = options;
+  const { rollup, paths, versions, alias, extractStyles, banner } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { name, file, globals, exports, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
   const { minified: buildMinifiedVersion } = versions;
@@ -75,6 +76,7 @@ module.exports = (resolve, options, esm) => {
       rollupResolve(srcPath, resolve),
       rollupCommonjs(sourcemap, resolve),
       rollupBabel(resolve, esm),
+      rollupLicense(banner, sourcemap),
       ...plugins,
     ].filter(Boolean),
   };

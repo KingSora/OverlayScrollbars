@@ -30,6 +30,7 @@ module.exports = (testDir, mode = 'dev', onListening = null) => {
   return createRollupConfig({
     project: name,
     mode,
+    banner: `${testDir}`,
     paths: {
       dist,
       src: path.resolve(testDir, './'),

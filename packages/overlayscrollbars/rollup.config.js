@@ -1,13 +1,20 @@
 const { terser: rollupTerser } = require('rollup-plugin-terser');
 const { summary } = require('rollup-plugin-summary');
 const createRollupConfig = require('@local/rollup');
-const { devDependencies, peerDependencies } = require('./package.json');
+const { devDependencies, peerDependencies, version } = require('./package.json');
 
 module.exports = createRollupConfig({
   project: 'OverlayScrollbars',
   verbose: true,
   extractStyles: true,
   extractTypes: true,
+  banner: `OverlayScrollbars
+Version: ${version}
+
+Copyright (c) Rene Haas | KingSora.
+https://github.com/KingSora
+
+Released under the MIT license.`,
   rollup: {
     external: Object.keys(devDependencies || {}).concat(Object.keys(peerDependencies || {})),
     output: {

@@ -62,6 +62,7 @@ const mergeAndResolveOptions = (userOptions) => {
     extractStyles: defaultExtractStyles,
     extractTypes: defaultExtractTypes,
     verbose: defaultVerbose,
+    banner: defaultBanner,
   } = defaultOptions;
   const {
     project,
@@ -73,6 +74,7 @@ const mergeAndResolveOptions = (userOptions) => {
     extractStyles: rawExtractStyles,
     extractTypes: rawExtractTypes,
     verbose: rawVerbose,
+    banner: rawBanner,
   } = userOptions;
   const projectPath = process.cwd();
   const mergedOptions = {
@@ -82,6 +84,7 @@ const mergeAndResolveOptions = (userOptions) => {
     extractStyles: rawExtractStyles ?? defaultExtractStyles,
     extractTypes: rawExtractTypes ?? defaultExtractTypes,
     verbose: rawVerbose ?? defaultVerbose,
+    banner: rawBanner ?? defaultBanner,
     paths: {
       ...defaultPaths,
       ...rawPaths,

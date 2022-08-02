@@ -2,6 +2,7 @@ module.exports = {
   project: null,
   mode: 'build',
   verbose: false,
+  banner: null,
   paths: {
     src: './src',
     dist: './dist',

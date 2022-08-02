@@ -1,3 +1,13 @@
+/*!
+ * OverlayScrollbars
+ * Version: 2.0.0-beta.0
+ *
+ * Copyright (c) Rene Haas | KingSora.
+ * https://github.com/KingSora
+ *
+ * Released under the MIT license.
+ */
+
 (function(r, a) {
   "object" === typeof exports && "undefined" !== typeof module ? a(exports) : "function" === typeof define && define.amd ? define([ "exports" ], a) : (r = "undefined" !== typeof globalThis ? globalThis : r || self, 
   a(r.OverlayScrollbars = {}));

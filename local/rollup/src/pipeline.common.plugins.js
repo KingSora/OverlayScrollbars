@@ -9,6 +9,7 @@ const rollupPluginCommonjs = require('@rollup/plugin-commonjs');
 const rollupPluginAlias = require('@rollup/plugin-alias');
 const rollupPluginTs = require('rollup-plugin-typescript2');
 const { default: rollupPluginEsBuild } = require('rollup-plugin-esbuild');
+const rollupPluginLicense = require('rollup-plugin-license');
 const babelConfigUmd = require('./babel.config.umd');
 const babelConfigEsm = require('./babel.config.esm');
 
@@ -96,5 +97,14 @@ module.exports = {
       // files to include / exclude from the plugin
       include: ['*.ts+(|x)', '**/*.ts+(|x)'],
       exclude: ['node_modules', '**/node_modules/*', '*.d.ts', '**/*.d.ts'],
+    }),
+  rollupLicense: (content, sourceMap) =>
+    content &&
+    rollupPluginLicense({
+      sourcemap: sourceMap,
+      banner: {
+        content,
+        commentStyle: 'ignored',
+      },
     }),
 };

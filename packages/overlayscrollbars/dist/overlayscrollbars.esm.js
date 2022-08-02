@@ -1,3 +1,13 @@
+/*!
+ * OverlayScrollbars
+ * Version: 2.0.0-beta.0
+ *
+ * Copyright (c) Rene Haas | KingSora.
+ * https://github.com/KingSora
+ *
+ * Released under the MIT license.
+ */
+
 function each(t, n) {
   if (isArrayLike(t)) {
     for (let o = 0; o < t.length; o++) {
