@@ -84,7 +84,7 @@ html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
   height: 100%;
 }
 
-[data-overlayscrollbars],
+[data-overlayscrollbars~='host'],
 .os-padding {
   position: relative;
 }
