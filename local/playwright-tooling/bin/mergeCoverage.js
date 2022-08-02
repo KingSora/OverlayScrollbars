@@ -2,7 +2,7 @@
 const fs = require('fs');
 const { execSync } = require('child_process');
 const { join } = require('path');
-const { coverageDirectory, tmpCoverageDirectory } = require('@local/config/playwright.coverage');
+const { coverageDirectory, tmpCoverageDirectory } = require('@~local/config/playwright.coverage');
 
 const mergeCoverage = async () => {
   if (fs.existsSync(tmpCoverageDirectory)) {

@@ -1,4 +1,4 @@
-import { playwrightRollup } from '@local/playwright-tooling';
+import { playwrightRollup } from '@~local/playwright-tooling';
 import { test } from '@playwright/test';
 import { InternalEnvironment } from 'environment';
 

@@ -7,7 +7,7 @@ import {
   timeout,
   setTestResult,
   waitForOrFailTest,
-} from '@local/browser-testing';
+} from '@~local/browser-testing';
 import {
   appendChildren,
   createDiv,

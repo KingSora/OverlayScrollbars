@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@local/playwright-tooling",
+  "name": "@~local/playwright-tooling",
   "main": "./src/index.js",
   "bin": {
     "playwright-merge-coverage": "./bin/mergeCoverage.js"

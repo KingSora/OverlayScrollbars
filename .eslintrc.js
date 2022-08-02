@@ -1,4 +1,4 @@
-const resolve = require('@local/config/resolve');
+const resolve = require('@~local/config/resolve');
 
 module.exports = {
   extends: ['airbnb', 'prettier'],

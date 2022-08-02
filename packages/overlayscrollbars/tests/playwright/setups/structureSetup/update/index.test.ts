@@ -1,4 +1,4 @@
-import { playwrightRollup, expectSuccess } from '@local/playwright-tooling';
+import { playwrightRollup, expectSuccess } from '@~local/playwright-tooling';
 import { test, Page } from '@playwright/test';
 
 playwrightRollup();

@@ -1,5 +1,5 @@
 {
-  "extends": "@local/tsconfig",
+  "extends": "@~local/tsconfig",
   "compilerOptions": {
     "baseUrl": "./src"
   }

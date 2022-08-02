@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { basename, dirname, join } = require('path');
 const v8toIstanbul = require('v8-to-istanbul');
-const { tmpCoverageDirectory } = require('@local/config/playwright.coverage');
+const { tmpCoverageDirectory } = require('@~local/config/playwright.coverage');
 
 module.exports = async (coverageOutputDir, sourceDir, coverage, testfile) => {
   // eslint-disable-next-line no-restricted-syntax

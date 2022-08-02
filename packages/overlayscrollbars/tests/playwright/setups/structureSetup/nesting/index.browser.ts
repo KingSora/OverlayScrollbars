@@ -1,7 +1,7 @@
 import './index.scss';
 import 'index.scss';
 import should from 'should';
-import { timeout, setTestResult, waitForOrFailTest, resize } from '@local/browser-testing';
+import { timeout, setTestResult, waitForOrFailTest, resize } from '@~local/browser-testing';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { addClass, each, isArray, removeAttr, style } from 'support';
 import { addPlugin, scrollbarsHidingPlugin, sizeObserverPlugin } from 'plugins';

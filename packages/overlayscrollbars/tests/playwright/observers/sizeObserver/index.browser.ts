@@ -9,7 +9,7 @@ import {
   timeout,
   setTestResult,
   waitForOrFailTest,
-} from '@local/browser-testing';
+} from '@~local/browser-testing';
 import { hasDimensions, offsetSize, WH, style } from 'support';
 import { addPlugin, sizeObserverPlugin } from 'plugins';
 import { createSizeObserver } from 'observers/sizeObserver';
