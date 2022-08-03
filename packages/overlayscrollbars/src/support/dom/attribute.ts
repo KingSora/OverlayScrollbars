@@ -1,5 +1,5 @@
 import { from } from 'support/utils/array';
-import { isNull, isUndefined } from 'support/utils/types';
+import { isNumber, isString, isUndefined } from 'support/utils/types';
 
 type GetSetPropName = 'scrollLeft' | 'scrollTop' | 'value';
 
@@ -27,7 +27,7 @@ const getSetProp = (
   if (isUndefined(value)) {
     return elm ? elm[topLeft] : fallback;
   }
-  elm && !isNull(value) && value !== false && (elm[topLeft] = value);
+  elm && (isString(value) || isNumber(value)) && (elm[topLeft] = value);
 };
 
 /**

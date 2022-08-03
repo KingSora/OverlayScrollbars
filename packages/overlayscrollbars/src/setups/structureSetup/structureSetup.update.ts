@@ -57,7 +57,7 @@ export const createStructureSetupUpdate = (
   structureSetupElements: StructureSetupElementsObj,
   state: SetupState<StructureSetupState>
 ): StructureSetupUpdate => {
-  const { _viewport, _viewportAddRemoveClass } = structureSetupElements;
+  const { _target, _viewport, _viewportAddRemoveClass, _viewportIsTarget } = structureSetupElements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _flexboxGlue } = getEnvironment();
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
@@ -108,6 +108,11 @@ export const createStructureSetupUpdate = (
     scrollLeft(_viewport, scrollOffsetX);
     scrollTop(_viewport, scrollOffsetY);
     _viewportAddRemoveClass('', dataValueHostUpdating);
+
+    if (!_viewportIsTarget) {
+      scrollLeft(_target, 0);
+      scrollTop(_target, 0);
+    }
 
     return adaptivedUpdateHints;
   };

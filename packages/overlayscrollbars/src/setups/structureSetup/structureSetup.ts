@@ -1,4 +1,4 @@
-import { createEventListenerHub, isEmptyObject, keys } from 'support';
+import { createEventListenerHub, isEmptyObject, keys, scrollLeft, scrollTop } from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
 import { createStructureSetupElements } from 'setups/structureSetup/structureSetup.elements';
 import { createStructureSetupUpdate } from 'setups/structureSetup/structureSetup.update';
@@ -97,8 +97,15 @@ export const createStructureSetup = (
     addEvent('u', listener);
   };
   structureSetupState._appendElements = () => {
+    const { _target, _viewport } = elements;
+    const initialScrollLeft = scrollLeft(_target);
+    const initialScrollTop = scrollTop(_target);
+
     appendObserverElements();
     appendStructureElements();
+
+    scrollLeft(_viewport, initialScrollLeft);
+    scrollTop(_viewport, initialScrollTop);
   };
   structureSetupState._elements = elements;
 

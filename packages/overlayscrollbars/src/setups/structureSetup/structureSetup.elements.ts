@@ -20,6 +20,7 @@ import {
   attrClass,
   hasAttrClass,
   noop,
+  on,
 } from 'support';
 import {
   dataAttributeHost,
@@ -73,6 +74,7 @@ export interface StructureSetupElementsObj {
   _viewportAddRemoveClass: (className: string, attributeClassName: string, add?: boolean) => void;
 }
 
+const tabIndexStr = 'tabindex';
 const createNewDiv = createDiv.bind(0, '');
 
 const unwrap = (elm: HTMLElement | false | null | undefined) => {
@@ -130,6 +132,8 @@ export const createStructureSetupElements = (
   );
   const viewportIsTarget = viewportElement === targetElement;
   const viewportIsTargetBody = viewportIsTarget && isBody;
+  const setFocus =
+    !viewportIsTarget && wnd.top === wnd && ownerDocument.activeElement === targetElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: isTextarea
@@ -239,6 +243,17 @@ export const createStructureSetupElements = (
     if (_viewportArrange) {
       insertBefore(_viewport, _viewportArrange);
       push(destroyFns, removeElements.bind(0, _viewportArrange));
+    }
+    if (setFocus) {
+      const ogTabindex = attr(_viewport, tabIndexStr);
+
+      attr(_viewport, tabIndexStr, '-1');
+      _viewport.focus();
+
+      const off = on(ownerDocument, 'pointerdown keydown', () => {
+        ogTabindex ? attr(_viewport, tabIndexStr, ogTabindex) : removeAttr(_viewport, tabIndexStr);
+        off();
+      });
     }
 
     // @ts-ignore
