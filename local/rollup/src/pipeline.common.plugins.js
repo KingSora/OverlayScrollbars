@@ -10,8 +10,8 @@ const rollupPluginAlias = require('@rollup/plugin-alias');
 const rollupPluginTs = require('rollup-plugin-typescript2');
 const { default: rollupPluginEsBuild } = require('rollup-plugin-esbuild');
 const rollupPluginLicense = require('rollup-plugin-license');
-const babelConfigUmd = require('./babel.config.umd');
-const babelConfigEsm = require('./babel.config.esm');
+const babelConfigEs5 = require('./babel.config.es5');
+const babelConfigEs6 = require('./babel.config.es2015');
 
 module.exports = {
   rollupAlias: (aliasEntries) =>
@@ -60,9 +60,9 @@ module.exports = {
       target: 'es6',
       tsconfig: './tsconfig.json',
     }),
-  rollupBabel: (resolve, esm) =>
+  rollupBabel: (resolve, es6) =>
     rollupBabelInputPlugin({
-      ...(esm ? babelConfigEsm : babelConfigUmd),
+      ...(es6 ? babelConfigEs6 : babelConfigEs5),
       assumptions: {
         enumerableModuleMeta: false,
         constantReexports: true,

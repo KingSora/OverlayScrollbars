@@ -1,3 +1,4 @@
+const { dirname, basename, resolve } = require('path');
 const { terser: rollupTerser } = require('rollup-plugin-terser');
 const { summary } = require('rollup-plugin-summary');
 const createRollupConfig = require('@~local/rollup');
@@ -8,6 +9,36 @@ module.exports = createRollupConfig({
   verbose: true,
   extractStyles: true,
   extractTypes: true,
+  versions: [
+    {
+      format: 'cjs',
+      generatedCode: 'es2015',
+      outputSuffix: '.cjs',
+      minifiedVersion: true,
+    },
+    {
+      format: 'esm',
+      generatedCode: 'es2015',
+      outputSuffix: '.esm',
+      minifiedVersion: true,
+    },
+    {
+      format: 'iife',
+      generatedCode: 'es2015',
+      outputSuffix: '.browser.es6',
+      minifiedVersion: true,
+      file: (originalPath) =>
+        `${resolve(dirname(originalPath), 'browser', basename(originalPath))}`,
+    },
+    {
+      format: 'iife',
+      generatedCode: 'es5',
+      outputSuffix: '.browser.es5',
+      minifiedVersion: true,
+      file: (originalPath) =>
+        `${resolve(dirname(originalPath), 'browser', basename(originalPath))}`,
+    },
+  ],
   banner: `OverlayScrollbars
 Version: ${version}
 

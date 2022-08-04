@@ -9,10 +9,20 @@ module.exports = {
     types: './types',
     styles: './styles',
   },
-  versions: {
-    minified: true,
-    module: true,
-  },
+  versions: [
+    {
+      format: 'cjs',
+      generatedCode: 'es2015',
+      outputSuffix: '.cjs',
+      minifiedVersion: true,
+    },
+    {
+      format: 'esm',
+      generatedCode: 'es2015',
+      outputSuffix: '.esm',
+      minifiedVersion: true,
+    },
+  ],
   extractStyles: false,
   extractTypes: false,
   alias: {},

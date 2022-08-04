@@ -35,10 +35,13 @@ module.exports = (testDir, mode = 'dev', onListening = null) => {
       dist,
       src: path.resolve(testDir, './'),
     },
-    versions: {
-      minified: false,
-      module: false,
-    },
+    versions: [
+      {
+        format: 'esm',
+        generatedCode: 'es2015',
+        minifiedVersion: false,
+      },
+    ],
     extractStyle: false,
     rollup: {
       input: path.resolve(testDir, meta.input),

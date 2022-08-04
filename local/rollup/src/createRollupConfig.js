@@ -68,9 +68,9 @@ const mergeAndResolveOptions = (userOptions) => {
     project,
     mode: rawMode,
     paths: rawPaths = {},
-    versions: rawVersions = {},
     alias: rawAlias = {},
     rollup: rawRollup = {},
+    versions: rawVersions,
     extractStyles: rawExtractStyles,
     extractTypes: rawExtractTypes,
     verbose: rawVerbose,
@@ -85,13 +85,10 @@ const mergeAndResolveOptions = (userOptions) => {
     extractTypes: rawExtractTypes ?? defaultExtractTypes,
     verbose: rawVerbose ?? defaultVerbose,
     banner: rawBanner ?? defaultBanner,
+    versions: rawVersions ?? defaultVersions,
     paths: {
       ...defaultPaths,
       ...rawPaths,
-    },
-    versions: {
-      ...defaultVersions,
-      ...rawVersions,
     },
     alias: {
       ...getWorkspaceAliases(),
@@ -126,8 +123,7 @@ const mergeAndResolveOptions = (userOptions) => {
 
 const createConfig = (userOptions = {}) => {
   const options = mergeAndResolveOptions(userOptions);
-  const { project, mode, versions, extractTypes, extractStyles, verbose } = options;
-  const { module: buildModuleVersion } = versions;
+  const { project, mode, extractTypes, extractStyles, verbose } = options;
   const isBuild = mode === 'build';
 
   if (verbose) {
@@ -137,12 +133,11 @@ const createConfig = (userOptions = {}) => {
   }
 
   if (isBuild) {
-    const umd = pipelineBuild(resolve, options);
-    const esm = buildModuleVersion && pipelineBuild(resolve, options, true);
+    const js = pipelineBuild(resolve, options);
     const types = extractTypes && pipelineTypes(resolve, options);
     const styles = extractStyles && pipelineStyles(resolve, options);
 
-    return [styles, types, umd, esm].flat().filter((build) => !!build);
+    return [styles, types, js].flat().filter((build) => !!build);
   }
 
   return [pipelineDev(resolve, options)];

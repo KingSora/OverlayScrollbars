@@ -10,74 +10,73 @@ const {
   rollupLicense,
 } = require('./pipeline.common.plugins');
 
-const createOutputWithMinifiedVersion = (output, esm, buildMinifiedVersion) =>
-  [output].concat(
-    buildMinifiedVersion
-      ? [
-          {
-            ...output,
-            compact: true,
-            file: output.file.replace('.js', '.min.js'),
-            sourcemap: false,
-            plugins: [
-              ...(output.plugins || []),
-              rollupTerser({
-                ecma: esm ? 2015 : 5,
-                safari10: true,
-                compress: {
-                  evaluate: false,
-                  module: !!esm,
-                  passes: 3,
-                },
-              }),
-            ],
-          },
-        ]
-      : []
-  );
+const moduleFormats = ['es', 'esm', 'module'];
+const createMinifiedOutput = (baseOutput) => ({
+  ...baseOutput,
+  compact: true,
+  file: baseOutput.file.replace('.js', '.min.js'),
+  sourcemap: false,
+  plugins: [
+    ...(baseOutput.plugins || []),
+    rollupTerser({
+      ecma: baseOutput.generatedCode === 'es2015' ? 2015 : 5,
+      safari10: true,
+      compress: {
+        evaluate: false,
+        module: moduleFormats.includes(baseOutput.format),
+        passes: 3,
+      },
+    }),
+  ],
+});
 
-module.exports = (resolve, options, esm) => {
+module.exports = (resolve, options) => {
   const { rollup, paths, versions, alias, extractStyles, banner } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { name, file, globals, exports, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
-  const { minified: buildMinifiedVersion } = versions;
   const { src: srcPath, dist: distPath } = paths;
   const sourcemap = rawSourcemap;
 
-  const output = createOutputWithMinifiedVersion(
-    {
-      ...outputConfig,
-      ...(!esm && {
-        name,
-        globals,
-        exports,
-      }),
-      sourcemap,
-      format: esm ? 'esm' : 'umd',
-      generatedCode: esm ? 'es2015' : 'es5',
-      file: path.resolve(distPath, `${file}${esm ? '.esm' : ''}.js`),
-    },
-    esm,
-    buildMinifiedVersion
-  );
+  return versions
+    .map(({ format, generatedCode, file: filePathOverride, outputSuffix, minifiedVersion }) => {
+      const needsGlobals = format === 'umd' || format === 'iife';
+      const filePath = path.resolve(distPath, `${file}${outputSuffix || ''}.js`);
 
-  return {
-    input,
-    output,
-    treeshake: {
-      propertyReadSideEffects: false,
-      moduleSideEffects: false,
-    },
-    ...rollupOptions,
-    plugins: [
-      rollupLicense(banner, sourcemap),
-      rollupAlias(alias),
-      rollupScss(banner, sourcemap, extractStyles, false),
-      rollupTs(srcPath),
-      rollupResolve(srcPath, resolve),
-      rollupCommonjs(sourcemap, resolve),
-      rollupBabel(resolve, esm),
-      ...plugins,
-    ].filter(Boolean),
-  };
+      const baseOutput = {
+        ...outputConfig,
+        ...(needsGlobals && {
+          name,
+          globals,
+          exports,
+        }),
+        sourcemap,
+        format,
+        generatedCode,
+        file: typeof filePathOverride === 'function' ? filePathOverride(filePath) : filePath,
+      };
+      const output = [baseOutput, minifiedVersion && createMinifiedOutput(baseOutput)].filter(
+        Boolean
+      );
+
+      return {
+        input,
+        output,
+        treeshake: {
+          propertyReadSideEffects: false,
+          moduleSideEffects: false,
+        },
+        ...rollupOptions,
+        plugins: [
+          rollupLicense(banner, sourcemap),
+          rollupAlias(alias),
+          rollupScss(banner, sourcemap, extractStyles, false),
+          rollupTs(srcPath),
+          rollupResolve(srcPath, resolve),
+          rollupCommonjs(sourcemap, resolve),
+          rollupBabel(resolve, generatedCode === 'es2015'),
+          ...plugins,
+        ].filter(Boolean),
+      };
+    })
+    .flat();
 };

@@ -28,7 +28,7 @@
     "types",
     "styles"
   ],
-  "main": "dist/overlayscrollbars.js",
+  "main": "dist/overlayscrollbars.cjs.js",
   "module": "dist/overlayscrollbars.esm.js",
   "types": "types/overlayscrollbars.d.ts",
   "scripts": {
