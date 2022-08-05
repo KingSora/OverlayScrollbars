@@ -1,19 +1,27 @@
 const path = require('path');
-const { rollupResolve, rollupScss, rollupEsBuild } = require('./pipeline.common.plugins');
+const {
+  rollupAlias,
+  rollupResolve,
+  rollupCommonjs,
+  rollupScss,
+  rollupTs,
+} = require('./pipeline.common.plugins');
 
 module.exports = (resolve, options) => {
-  const { rollup, paths, banner } = options;
+  const { rollup, alias, paths, banner } = options;
   const { output: rollupOutput, input } = rollup;
   const { file, sourcemap } = rollupOutput;
-  const { src: srcPath, styles: stylesPath } = paths;
+  const { styles: stylesPath } = paths;
   const ogWrite = process.stdout.write;
 
   return {
     input,
     plugins: [
-      rollupResolve(srcPath, resolve),
+      rollupAlias(alias),
       rollupScss(banner, sourcemap, true, path.resolve(stylesPath, `${file}.css`)),
-      rollupEsBuild(),
+      rollupTs(input),
+      rollupResolve(resolve),
+      rollupCommonjs(sourcemap, resolve),
       {
         generateBundle() {
           process.stdout.write = () => {

@@ -93,8 +93,9 @@ export const cancelInitialization = (
   structureSetupElements: StructureSetupElementsObj
 ): boolean => {
   const { nativeScrollbarsOverlaid, body } = cancelInitializationValue || {};
-  const { _isBody, _viewportIsTarget } = structureSetupElements;
-  const { _getDefaultInitialization, _nativeScrollbarsOverlaid } = getEnvironment();
+  const { _isBody } = structureSetupElements;
+  const { _getDefaultInitialization, _nativeScrollbarsOverlaid, _nativeScrollbarsHiding } =
+    getEnvironment();
   const { nativeScrollbarsOverlaid: defaultNativeScrollbarsOverlaid, body: defaultbody } =
     _getDefaultInitialization().cancel;
 
@@ -108,7 +109,7 @@ export const cancelInitialization = (
   const finalDocumentScrollingElement =
     _isBody &&
     (isNull(resolvedDocumentScrollingElement)
-      ? !_viewportIsTarget
+      ? !_nativeScrollbarsHiding
       : resolvedDocumentScrollingElement);
 
   return !!finalNativeScrollbarsOverlaid || !!finalDocumentScrollingElement;

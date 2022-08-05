@@ -1,3 +1,4 @@
+const path = require('path');
 const sass = require('sass');
 const postcss = require('postcss');
 const autoprefixer = require('autoprefixer');
@@ -13,6 +14,9 @@ const rollupPluginLicense = require('rollup-plugin-license');
 const babelConfigEs5 = require('./babel.config.es5');
 const babelConfigEs6 = require('./babel.config.es2015');
 
+const normalizePath = (pathName) =>
+  pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName;
+
 module.exports = {
   rollupAlias: (aliasEntries) =>
     rollupPluginAlias({
@@ -23,12 +27,12 @@ module.exports = {
       sourceMap: sourcemap,
       extensions: resolve.extensions,
     }),
-  rollupResolve: (srcPath, resolve) =>
+  rollupResolve: (resolve) =>
     rollupPluginResolve({
       mainFields: ['browser', 'umd:main', 'module', 'main'],
-      rootDir: srcPath,
       moduleDirectories: resolve.directories,
       extensions: resolve.extensions,
+      ignoreSideEffectsForRoot: true,
     }),
   rollupScss: (banner, sourceMap, extractStyleOption, output) => {
     if (extractStyleOption) {
@@ -56,7 +60,6 @@ module.exports = {
   rollupEsBuild: () =>
     rollupPluginEsBuild({
       include: /\.[jt]sx?$/,
-      sourceMap: true,
       target: 'es6',
       tsconfig: './tsconfig.json',
     }),
@@ -89,7 +92,7 @@ module.exports = {
       },
       extensions: resolve.extensions,
     }),
-  rollupTs: (srcPath, declaration) =>
+  rollupTs: (input, declaration) =>
     rollupPluginTs({
       tsconfigOverride: {
         compilerOptions: {
@@ -98,7 +101,7 @@ module.exports = {
           declarationMap: declaration,
         },
         // files to include / exclude from typescript .d.ts generation
-        include: [`${srcPath}/**/*`],
+        include: [`${normalizePath(path.dirname(path.resolve(input)))}/**/*`],
         exclude: ['node_modules', '**/node_modules/*', '*.d.ts', '**/*.d.ts'],
       },
       clean: true,

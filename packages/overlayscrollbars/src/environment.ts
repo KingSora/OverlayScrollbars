@@ -159,7 +159,7 @@ const createEnvironment = (): InternalEnvironment => {
     content: false,
     scrollbarsSlot: true,
     cancel: {
-      nativeScrollbarsOverlaid: true,
+      nativeScrollbarsOverlaid: false,
       body: null,
     },
   };

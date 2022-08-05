@@ -11,7 +11,7 @@ module.exports = (resolve, options) => {
   const { rollup, paths, alias, extractStyles, banner } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { file, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
-  const { src: srcPath, dist: distPath } = paths;
+  const { dist: distPath } = paths;
   const sourcemap = rawSourcemap;
 
   const output = {
@@ -30,8 +30,8 @@ module.exports = (resolve, options) => {
       rollupAlias(alias),
       rollupScss(banner, sourcemap, extractStyles, false),
       rollupEsBuild(),
-      rollupResolve(srcPath, resolve),
       rollupCommonjs(sourcemap, resolve),
+      rollupResolve(resolve),
       ...plugins,
     ].filter(Boolean),
   };

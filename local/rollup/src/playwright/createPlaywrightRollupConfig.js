@@ -33,7 +33,6 @@ module.exports = (testDir, mode = 'dev', onListening = null) => {
     banner: `${testDir}`,
     paths: {
       dist,
-      src: path.resolve(testDir, './'),
     },
     versions: [
       {

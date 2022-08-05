@@ -8,7 +8,7 @@ module.exports = (resolve, options) => {
   const { rollup, paths } = options;
   const { output: rollupOutput, input } = rollup;
   const { file } = rollupOutput;
-  const { src: srcPath, types: typesPath } = paths;
+  const { types: typesPath } = paths;
   const dtsOutput = path.resolve(typesPath, `${file}.d.ts`);
 
   return [
@@ -22,7 +22,7 @@ module.exports = (resolve, options) => {
       output: {
         file: path.resolve(typesPath, `${file}`),
       },
-      plugins: [rollupTs(srcPath, true)],
+      plugins: [rollupTs(input, true)],
     },
     {
       input: path.join(typesPath, `${basename(input).replace('.ts', '.d.ts')}`),

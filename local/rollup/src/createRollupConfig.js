@@ -31,24 +31,29 @@ const resolvePath = (basePath, pathToResolve, appendExt) => {
   return normalizePath(result && appendExt ? appendExtension(result) : result);
 };
 
-const getWorkspaceAliases = () =>
+// if the import would be 'overlayscrollbars' and the package name is also 'overlayscrollbars' esbuild needs an alias to resolve it correctly
+// only needed for playwright with esbuild
+const getOverlappingPackageNameAliases = () =>
   pkg.workspaces
     .map((pattern) => glob.sync(pattern, { cwd: workspaceRoot }))
     .flat()
     .reduce((obj, resolvedPath) => {
-      let projTsConfig;
       const absolutePath = path.resolve(workspaceRoot, resolvedPath);
       try {
         // eslint-disable-next-line import/no-dynamic-require, global-require
-        projTsConfig = require(`${path.resolve(workspaceRoot, resolvedPath)}/tsconfig.json`);
-      } catch {}
+        const projTsConfig = require(`${path.resolve(workspaceRoot, resolvedPath)}/tsconfig.json`);
+        // eslint-disable-next-line import/no-dynamic-require, global-require
+        const projPackageJson = require(`${path.resolve(
+          workspaceRoot,
+          resolvedPath
+        )}/package.json`);
 
-      obj[`@/${path.basename(absolutePath)}`] = `${normalizePath(
-        path.resolve(
-          absolutePath,
-          projTsConfig?.compilerOptions?.baseUrl || defaultOptions.paths.src
-        )
-      )}`;
+        const { name } = projPackageJson;
+        const { compilerOptions } = projTsConfig;
+        const { baseUrl } = compilerOptions;
+
+        obj[name] = resolvePath(absolutePath, path.join(baseUrl, name), true);
+      } catch {}
       return obj;
     }, {});
 
@@ -91,7 +96,6 @@ const mergeAndResolveOptions = (userOptions) => {
       ...rawPaths,
     },
     alias: {
-      ...getWorkspaceAliases(),
       ...defaultAlias,
       ...rawAlias,
     },
@@ -133,12 +137,18 @@ const createConfig = (userOptions = {}) => {
   }
 
   if (isBuild) {
-    const js = pipelineBuild(resolve, options);
-    const types = extractTypes && pipelineTypes(resolve, options);
     const styles = extractStyles && pipelineStyles(resolve, options);
+    const types = extractTypes && pipelineTypes(resolve, options);
+    const js = pipelineBuild(resolve, options);
 
     return [styles, types, js].flat().filter((build) => !!build);
   }
+
+  // only needed for playwright!
+  options.alias = {
+    ...getOverlappingPackageNameAliases(),
+    ...options.alias,
+  };
 
   return [pipelineDev(resolve, options)];
 };

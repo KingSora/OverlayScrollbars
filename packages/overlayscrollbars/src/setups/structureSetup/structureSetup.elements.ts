@@ -198,7 +198,7 @@ export const createStructureSetupElements = (
     const removePaddingClass = addClass(_padding, classNamePadding);
     const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
     const removeContentClass = addClass(_content, classNameContent);
-    const removeHtmlClass = viewportIsTargetBody
+    const removeHtmlClass = isBody
       ? addClass(parent(targetElement), classNameViewportScrollbarHidden)
       : noop;
 

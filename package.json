@@ -18,7 +18,7 @@
     "@playwright/test": "^1.22.2",
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-babel": "^5.3.1",
-    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-html": "^0.2.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@testing-library/dom": "^7.26.3",

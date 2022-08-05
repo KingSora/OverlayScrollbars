@@ -34,7 +34,7 @@ module.exports = (resolve, options) => {
   const { rollup, paths, versions, alias, extractStyles, banner } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { name, file, globals, exports, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
-  const { src: srcPath, dist: distPath } = paths;
+  const { dist: distPath } = paths;
   const sourcemap = rawSourcemap;
 
   return versions
@@ -70,8 +70,8 @@ module.exports = (resolve, options) => {
           rollupLicense(banner, sourcemap),
           rollupAlias(alias),
           rollupScss(banner, sourcemap, extractStyles, false),
-          rollupTs(srcPath),
-          rollupResolve(srcPath, resolve),
+          rollupTs(input),
+          rollupResolve(resolve),
           rollupCommonjs(sourcemap, resolve),
           rollupBabel(resolve, generatedCode === 'es2015'),
           ...plugins,

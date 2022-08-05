@@ -6,7 +6,7 @@ module.exports = {
   actionTimeout: 300,
   navigationTimeout: 1000,
   retries: 0,
-  workers: 4,
+  workers: 1,
   projects: [
     {
       name: 'Chromium',

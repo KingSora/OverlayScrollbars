@@ -8,6 +8,7 @@ export function each(source, callback) {
         }
     }
     else if (source) {
+        // cant use support func keys here due to circular dep
         each(Object.keys(source), (key) => callback(source[key], key, source));
     }
     return source;

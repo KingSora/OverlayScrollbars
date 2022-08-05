@@ -4,7 +4,6 @@ module.exports = {
   verbose: false,
   banner: null,
   paths: {
-    src: './src',
     dist: './dist',
     types: './types',
     styles: './styles',
