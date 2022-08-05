@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable import/no-dynamic-require */
 const fs = require('fs');
 const path = require('path');
 const rollupPluginStyles = require('rollup-plugin-styles');
@@ -31,6 +33,30 @@ module.exports = (testDir, mode = 'dev', onListening = null) => {
     project: name,
     mode,
     banner: `${testDir}`,
+    // if the import would be 'overlayscrollbars' and the package name is also 'overlayscrollbars' esbuild needs an alias to resolve it correctly
+    alias: (workspaceRoot, workspaces, resolvePath) =>
+      workspaces.reduce((obj, resolvedPath) => {
+        const absolutePath = path.resolve(workspaceRoot, resolvedPath);
+        try {
+          // eslint-disable-next-line import/no-dynamic-require, global-require
+          const projTsConfig = require(`${path.resolve(
+            workspaceRoot,
+            resolvedPath
+          )}/tsconfig.json`);
+          // eslint-disable-next-line import/no-dynamic-require, global-require
+          const projPackageJson = require(`${path.resolve(
+            workspaceRoot,
+            resolvedPath
+          )}/package.json`);
+
+          const { name: projectName } = projPackageJson;
+          const { compilerOptions } = projTsConfig;
+          const { baseUrl } = compilerOptions;
+
+          obj[projectName] = resolvePath(absolutePath, path.join(baseUrl, projectName), true);
+        } catch {}
+        return obj;
+      }, {}),
     paths: {
       dist,
     },

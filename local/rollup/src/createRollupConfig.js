@@ -16,7 +16,7 @@ const pkg = require(`${workspaceRoot}/package.json`);
 
 const appendExtension = (file) =>
   path.extname(file) === ''
-    ? file + resolve.extensions.find((ext) => fs.existsSync(path.resolve(`${file}${ext}`)))
+    ? file + (resolve.extensions.find((ext) => fs.existsSync(path.resolve(`${file}${ext}`))) || '')
     : file;
 
 const normalizePath = (pathName) =>
@@ -30,32 +30,6 @@ const resolvePath = (basePath, pathToResolve, appendExt) => {
     : null;
   return normalizePath(result && appendExt ? appendExtension(result) : result);
 };
-
-// if the import would be 'overlayscrollbars' and the package name is also 'overlayscrollbars' esbuild needs an alias to resolve it correctly
-// only needed for playwright with esbuild
-const getOverlappingPackageNameAliases = () =>
-  pkg.workspaces
-    .map((pattern) => glob.sync(pattern, { cwd: workspaceRoot }))
-    .flat()
-    .reduce((obj, resolvedPath) => {
-      const absolutePath = path.resolve(workspaceRoot, resolvedPath);
-      try {
-        // eslint-disable-next-line import/no-dynamic-require, global-require
-        const projTsConfig = require(`${path.resolve(workspaceRoot, resolvedPath)}/tsconfig.json`);
-        // eslint-disable-next-line import/no-dynamic-require, global-require
-        const projPackageJson = require(`${path.resolve(
-          workspaceRoot,
-          resolvedPath
-        )}/package.json`);
-
-        const { name } = projPackageJson;
-        const { compilerOptions } = projTsConfig;
-        const { baseUrl } = compilerOptions;
-
-        obj[name] = resolvePath(absolutePath, path.join(baseUrl, name), true);
-      } catch {}
-      return obj;
-    }, {});
 
 const mergeAndResolveOptions = (userOptions) => {
   const {
@@ -82,10 +56,12 @@ const mergeAndResolveOptions = (userOptions) => {
     banner: rawBanner,
   } = userOptions;
   const projectPath = process.cwd();
+  const workspaces = pkg.workspaces
+    .map((pattern) => glob.sync(pattern, { cwd: workspaceRoot }))
+    .flat();
   const mergedOptions = {
     project: project || path.basename(projectPath),
     mode: rawMode || defaultMode,
-    repoRoot: workspaceRoot,
     extractStyles: rawExtractStyles ?? defaultExtractStyles,
     extractTypes: rawExtractTypes ?? defaultExtractTypes,
     verbose: rawVerbose ?? defaultVerbose,
@@ -97,7 +73,9 @@ const mergeAndResolveOptions = (userOptions) => {
     },
     alias: {
       ...defaultAlias,
-      ...rawAlias,
+      ...(typeof rawAlias === 'function'
+        ? rawAlias(workspaceRoot, workspaces, resolvePath)
+        : rawAlias),
     },
     rollup: {
       ...defaultRollup,
@@ -143,12 +121,6 @@ const createConfig = (userOptions = {}) => {
 
     return [styles, types, js].flat().filter((build) => !!build);
   }
-
-  // only needed for playwright!
-  options.alias = {
-    ...getOverlappingPackageNameAliases(),
-    ...options.alias,
-  };
 
   return [pipelineDev(resolve, options)];
 };
