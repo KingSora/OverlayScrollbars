@@ -45,7 +45,7 @@
     "jest": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
     "postjest": "full-coverage",
     "playwright": "playwright test --quiet",
-    "playwright:dev": "playwright test",
+    "playwright:dev": "playwright test --workers 1",
     "postplaywright": "playwright-merge-coverage && full-coverage"
   }
 }

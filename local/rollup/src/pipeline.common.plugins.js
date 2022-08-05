@@ -1,6 +1,7 @@
 const path = require('path');
 const sass = require('sass');
 const postcss = require('postcss');
+const cssnano = require('cssnano');
 const autoprefixer = require('autoprefixer');
 const { nodeResolve: rollupPluginResolve } = require('@rollup/plugin-node-resolve');
 const { babel: rollupBabelInputPlugin } = require('@rollup/plugin-babel');
@@ -27,15 +28,16 @@ module.exports = {
       sourceMap: sourcemap,
       extensions: resolve.extensions,
     }),
-  rollupResolve: (resolve) =>
+  rollupResolve: (resolve, resolveOnly) =>
     rollupPluginResolve({
       mainFields: ['browser', 'umd:main', 'module', 'main'],
       moduleDirectories: resolve.directories,
       extensions: resolve.extensions,
       ignoreSideEffectsForRoot: true,
+      ...(resolveOnly ? { resolveOnly } : {}),
     }),
-  rollupScss: (banner, sourceMap, extractStyleOption, output) => {
-    if (extractStyleOption) {
+  rollupScss: (resolve, sourceMap, extract, output, banner, minified) => {
+    if (extract) {
       return output
         ? rollupPluginScss({
             output,
@@ -49,10 +51,10 @@ module.exports = {
                   .map((line) => ` * ${line}\r\n`)
                   .join('')} */`
               : undefined,
-            processor: () => postcss([autoprefixer()]),
+            processor: () => postcss([autoprefixer()].concat(minified ? cssnano() : [])),
           })
         : rollupPluginIgnoreImport({
-            extensions: ['.scss', '.sass', '.css'],
+            extensions: resolve.styleExtensions,
             body: 'export default undefined;',
           });
     }
@@ -61,7 +63,6 @@ module.exports = {
     rollupPluginEsBuild({
       include: /\.[jt]sx?$/,
       target: 'es6',
-      tsconfig: './tsconfig.json',
     }),
   rollupBabel: (resolve, es6) =>
     rollupBabelInputPlugin({

@@ -69,7 +69,7 @@ module.exports = (resolve, options) => {
         plugins: [
           rollupLicense(banner, sourcemap),
           rollupAlias(alias),
-          rollupScss(banner, sourcemap, extractStyles, false),
+          rollupScss(resolve, sourcemap, extractStyles, false),
           rollupTs(input),
           rollupResolve(resolve),
           rollupCommonjs(sourcemap, resolve),

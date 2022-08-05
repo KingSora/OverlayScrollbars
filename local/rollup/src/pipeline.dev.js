@@ -8,7 +8,7 @@ const {
 } = require('./pipeline.common.plugins');
 
 module.exports = (resolve, options) => {
-  const { rollup, paths, alias, extractStyles, banner } = options;
+  const { rollup, paths, alias, extractStyles } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { file, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
   const { dist: distPath } = paths;
@@ -28,7 +28,7 @@ module.exports = (resolve, options) => {
     ...rollupOptions,
     plugins: [
       rollupAlias(alias),
-      rollupScss(banner, sourcemap, extractStyles, false),
+      rollupScss(resolve, sourcemap, extractStyles, false),
       rollupEsBuild(),
       rollupCommonjs(sourcemap, resolve),
       rollupResolve(resolve),
