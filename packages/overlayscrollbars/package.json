@@ -39,7 +39,7 @@
     },
     "./overlayscrollbars.css": "./styles/overlayscrollbars.css"
   },
-  "sideEffects": ["*.css"],
+  "sideEffects": ["*.css", "*.scss", "*.sass"],
   "scripts": {
     "build": "rollup -c",
     "jest": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
