@@ -90,22 +90,6 @@ export function style<CustomCssProps>(
   elm && each(keys(styles), (key) => setCSSVal(elm, key, styles[key]));
 }
 
-/**
- * Hides the passed element (display: none).
- * @param elm The element which shall be hidden.
- */
-export const hide = (elm: HTMLElement | false | null | undefined): void => {
-  style(elm, { display: 'none' });
-};
-
-/**
- * Shows the passed element (display: block).
- * @param elm The element which shall be shown.
- */
-export const show = (elm: HTMLElement | false | null | undefined): void => {
-  style(elm, { display: 'block' });
-};
-
 export const directionIsRTL = (elm: HTMLElement | false | null | undefined): boolean =>
   style(elm, 'direction') === 'rtl';
 

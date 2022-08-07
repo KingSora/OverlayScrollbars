@@ -6,12 +6,11 @@ import {
   StructureSetupElementsObj,
 } from 'setups/structureSetup/structureSetup.elements';
 import { addPlugin, scrollbarsHidingPlugin } from 'plugins';
-import type { InitializationTarget } from 'initialization';
 import type {
-  StructureInitialization,
-  StructureStaticInitializationElement,
-  StructureDynamicInitializationElement,
-} from 'setups/structureSetup/structureSetup.initialization';
+  Initialization,
+  InitializationTarget,
+  InitializationTargetObject,
+} from 'initialization';
 
 const mockGetEnvironment = jest.fn();
 jest.mock('environment', () => ({
@@ -35,6 +34,8 @@ interface StructureSetupElementsProxy {
 }
 
 type TargetType = 'element' | 'textarea' | 'body';
+type StructureStaticInitializationElement = Initialization['elements']['viewport'];
+type StructureDynamicInitializationElement = Initialization['elements']['content'];
 
 const textareaId = 'textarea';
 const textareaHostId = 'host';
@@ -132,9 +133,7 @@ const assertCorrectDOMStructure = (targetType: TargetType, viewportIsTarget: boo
   }
 };
 
-const createStructureSetupProxy = (
-  target: InitializationTarget | StructureInitialization
-): StructureSetupElementsProxy => {
+const createStructureSetupProxy = (target: InitializationTarget): StructureSetupElementsProxy => {
   const [elements, appendElements, destroy] = createStructureSetupElements(target);
   appendElements();
   return {
@@ -210,14 +209,15 @@ const assertCorrectSetupElements = (
   expect(typeof destroy).toBe('function');
 
   const { _nativeScrollbarsHiding, _cssCustomProperties, _getDefaultInitialization } = environment;
+  const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
     host: hostInitStrategy,
     viewport: viewportInitStrategy,
     padding: paddingInitStrategy,
     content: contentInitStrategy,
-  } = _getDefaultInitialization();
+  } = defaultInitElements;
   const inputIsElement = isHTMLElement(input);
-  const inputAsObj = input as StructureInitialization;
+  const inputAsObj = input as InitializationTargetObject;
   const styleElm = document.querySelector('style');
   const checkStrategyDependendElements = (
     elm: Element | null,
@@ -289,12 +289,13 @@ const assertCorrectSetupElements = (
     checkStrategyDependendElements(viewport, undefined, true, viewportInitStrategy, 'viewport');
     checkStrategyDependendElements(host, undefined, true, hostInitStrategy, 'host');
   } else {
+    const { elements: inputElements } = inputAsObj;
     const {
       padding: inputPadding,
       content: inputContent,
       viewport: inputViewport,
       host: inputHost,
-    } = inputAsObj;
+    } = inputElements || {};
     checkStrategyDependendElements(padding, inputPadding, false, paddingInitStrategy, 'padding');
     checkStrategyDependendElements(content, inputContent, false, contentInitStrategy, 'content');
     checkStrategyDependendElements(viewport, inputViewport, true, viewportInitStrategy, 'viewport');
@@ -364,10 +365,13 @@ const envInitStrategyMin = {
     ...env,
     _getDefaultInitialization: () => ({
       ...env._staticDefaultInitialization,
-      host: null,
-      viewport: () => null,
-      content: () => false,
-      padding: false,
+      elements: {
+        ...env._staticDefaultInitialization.elements,
+        host: null,
+        viewport: () => null,
+        content: () => false,
+        padding: false,
+      },
     }),
   },
 };
@@ -377,10 +381,13 @@ const envInitStrategyMax = {
     ...env,
     _getDefaultInitialization: () => ({
       ...env._staticDefaultInitialization,
-      host: null,
-      viewport: null,
-      content: true,
-      padding: () => true,
+      elements: {
+        ...env._staticDefaultInitialization.elements,
+        host: null,
+        viewport: null,
+        content: true,
+        padding: () => true,
+      },
     }),
   },
 };
@@ -390,10 +397,13 @@ const envInitStrategyAssigned = {
     ...env,
     _getDefaultInitialization: () => ({
       ...env._staticDefaultInitialization,
-      host: () => document.querySelector('#host1') as HTMLElement,
-      viewport: (target: HTMLElement) => target.querySelector('#viewport') as HTMLElement,
-      content: (target: HTMLElement) => target.querySelector<HTMLElement>('#content'),
-      padding: (target: HTMLElement) => target.querySelector<HTMLElement>('#padding'),
+      elements: {
+        ...env._staticDefaultInitialization.elements,
+        host: () => document.querySelector('#host1') as HTMLElement,
+        viewport: (target: HTMLElement) => target.querySelector('#viewport') as HTMLElement,
+        content: (target: HTMLElement) => target.querySelector<HTMLElement>('#content'),
+        padding: (target: HTMLElement) => target.querySelector<HTMLElement>('#padding'),
+      },
     }),
   },
 };
@@ -404,7 +414,10 @@ const envInitStrategyViewportIsTarget = {
     _nativeScrollbarsHiding: true,
     _getDefaultInitialization: () => ({
       ...env._staticDefaultInitialization,
-      viewport: (target: HTMLElement) => !is(target, 'textarea') && target,
+      elements: {
+        ...env._staticDefaultInitialization.elements,
+        viewport: (target: HTMLElement) => !is(target, 'textarea') && target,
+      },
     }),
   },
 };
@@ -464,9 +477,11 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: () => document.querySelector<HTMLElement>('#padding')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: () => document.querySelector<HTMLElement>('#padding'),
+                    },
                   }),
                   currEnv
                 );
@@ -483,9 +498,11 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: () => document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
+                    elements: {
+                      host: () => document.querySelector<HTMLElement>('#host'),
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                    },
                   }),
                   currEnv
                 );
@@ -502,9 +519,11 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    content: document.querySelector<HTMLElement>('#content')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      content: document.querySelector<HTMLElement>('#content'),
+                    },
                   }),
                   currEnv
                 );
@@ -523,11 +542,13 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: document.querySelector<HTMLElement>('#padding')!,
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
-                    content: () => document.querySelector<HTMLElement>('#content')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: document.querySelector<HTMLElement>('#padding'),
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                      content: () => document.querySelector<HTMLElement>('#content'),
+                    },
                   }),
                   currEnv
                 );
@@ -544,10 +565,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: () => document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: document.querySelector<HTMLElement>('#padding')!,
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
+                    elements: {
+                      host: () => document.querySelector<HTMLElement>('#host'),
+                      padding: document.querySelector<HTMLElement>('#padding'),
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                    },
                   }),
                   currEnv
                 );
@@ -564,10 +587,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: () => document.querySelector<HTMLElement>('#padding')!,
-                    content: document.querySelector<HTMLElement>('#content')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: () => document.querySelector<HTMLElement>('#padding'),
+                      content: document.querySelector<HTMLElement>('#content'),
+                    },
                   }),
                   currEnv
                 );
@@ -584,10 +609,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
-                    content: () => document.querySelector<HTMLElement>('#content')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                      content: () => document.querySelector<HTMLElement>('#content'),
+                    },
                   }),
                   currEnv
                 );
@@ -603,7 +630,9 @@ describe('structureSetup', () => {
                   targetType,
                   createStructureSetupProxy({
                     target: getTarget(targetType),
-                    padding: false,
+                    elements: {
+                      padding: false,
+                    },
                   }),
                   currEnv
                 );
@@ -617,7 +646,9 @@ describe('structureSetup', () => {
                   targetType,
                   createStructureSetupProxy({
                     target: getTarget(targetType),
-                    content: () => false,
+                    elements: {
+                      content: () => false,
+                    },
                   }),
                   currEnv
                 );
@@ -633,7 +664,9 @@ describe('structureSetup', () => {
                   targetType,
                   createStructureSetupProxy({
                     target: getTarget(targetType),
-                    padding: () => true,
+                    elements: {
+                      padding: () => true,
+                    },
                   }),
                   currEnv
                 );
@@ -647,7 +680,9 @@ describe('structureSetup', () => {
                   targetType,
                   createStructureSetupProxy({
                     target: getTarget(targetType),
-                    content: true,
+                    elements: {
+                      content: true,
+                    },
                   }),
                   currEnv
                 );
@@ -663,8 +698,10 @@ describe('structureSetup', () => {
                   targetType,
                   createStructureSetupProxy({
                     target: getTarget(targetType),
-                    padding: false,
-                    content: false,
+                    elements: {
+                      padding: false,
+                      content: false,
+                    },
                   }),
                   currEnv
                 );
@@ -680,8 +717,10 @@ describe('structureSetup', () => {
                   targetType,
                   createStructureSetupProxy({
                     target: getTarget(targetType),
-                    padding: true,
-                    content: true,
+                    elements: {
+                      padding: true,
+                      content: true,
+                    },
                   }),
                   currEnv
                 );
@@ -700,11 +739,13 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: false,
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
-                    content: false,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: false,
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                      content: false,
+                    },
                   }),
                   currEnv
                 );
@@ -721,11 +762,13 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: true,
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
-                    content: true,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: true,
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                      content: true,
+                    },
                   }),
                   currEnv
                 );
@@ -742,11 +785,13 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: () => false,
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
-                    content: () => true,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: () => false,
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                      content: () => true,
+                    },
                   }),
                   currEnv
                 );
@@ -763,11 +808,13 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: true,
-                    viewport: () => document.querySelector<HTMLElement>('#viewport')!,
-                    content: false,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: true,
+                      viewport: () => document.querySelector<HTMLElement>('#viewport'),
+                      content: false,
+                    },
                   }),
                   currEnv
                 );
@@ -784,10 +831,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: false,
-                    content: document.querySelector<HTMLElement>('#content')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: false,
+                      content: document.querySelector<HTMLElement>('#content'),
+                    },
                   }),
                   currEnv
                 );
@@ -804,10 +853,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: true,
-                    content: document.querySelector<HTMLElement>('#content')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: true,
+                      content: document.querySelector<HTMLElement>('#content'),
+                    },
                   }),
                   currEnv
                 );
@@ -824,10 +875,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: () => false,
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: () => false,
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                    },
                   }),
                   currEnv
                 );
@@ -844,10 +897,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: true,
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: true,
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                    },
                   }),
                   currEnv
                 );
@@ -864,11 +919,13 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
-                    padding: false,
-                    content: () => document.querySelector<HTMLElement>('#content')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                      padding: false,
+                      content: () => document.querySelector<HTMLElement>('#content'),
+                    },
                   }),
                   currEnv
                 );
@@ -885,11 +942,13 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    viewport: () => document.querySelector<HTMLElement>('#viewport')!,
-                    padding: true,
-                    content: document.querySelector<HTMLElement>('#content')!,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      viewport: () => document.querySelector<HTMLElement>('#viewport'),
+                      padding: true,
+                      content: document.querySelector<HTMLElement>('#content'),
+                    },
                   }),
                   currEnv
                 );
@@ -906,10 +965,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: document.querySelector<HTMLElement>('#padding')!,
-                    content: false,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: document.querySelector<HTMLElement>('#padding'),
+                      content: false,
+                    },
                   }),
                   currEnv
                 );
@@ -926,10 +987,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: () => document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: document.querySelector<HTMLElement>('#padding')!,
-                    content: true,
+                    elements: {
+                      host: () => document.querySelector<HTMLElement>('#host'),
+                      padding: document.querySelector<HTMLElement>('#padding'),
+                      content: true,
+                    },
                   }),
                   currEnv
                 );
@@ -946,10 +1009,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    viewport: () => document.querySelector<HTMLElement>('#viewport')!,
-                    content: false,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      viewport: () => document.querySelector<HTMLElement>('#viewport'),
+                      content: false,
+                    },
                   }),
                   currEnv
                 );
@@ -966,10 +1031,12 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
-                    content: true,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                      content: true,
+                    },
                   }),
                   currEnv
                 );
@@ -986,11 +1053,13 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: () => document.querySelector<HTMLElement>('#padding')!,
-                    viewport: document.querySelector<HTMLElement>('#viewport')!,
-                    content: () => false,
+                    elements: {
+                      host: document.querySelector<HTMLElement>('#host'),
+                      padding: () => document.querySelector<HTMLElement>('#padding'),
+                      viewport: document.querySelector<HTMLElement>('#viewport'),
+                      content: () => false,
+                    },
                   }),
                   currEnv
                 );
@@ -1007,11 +1076,13 @@ describe('structureSetup', () => {
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
                   createStructureSetupProxy({
-                    host: () => document.querySelector<HTMLElement>('#host')!,
                     target: getTarget(targetType),
-                    padding: document.querySelector<HTMLElement>('#padding')!,
-                    viewport: () => document.querySelector<HTMLElement>('#viewport')!,
-                    content: true,
+                    elements: {
+                      host: () => document.querySelector<HTMLElement>('#host'),
+                      padding: document.querySelector<HTMLElement>('#padding'),
+                      viewport: () => document.querySelector<HTMLElement>('#viewport'),
+                      content: true,
+                    },
                   }),
                   currEnv
                 );

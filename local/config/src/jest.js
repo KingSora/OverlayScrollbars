@@ -7,6 +7,7 @@ const resolve = require('./resolve');
 module.exports = {
   clearMocks: true,
   coverageDirectory: './.coverage/jest',
+  coverageProvider: 'babel',
   testEnvironment: 'jsdom',
   moduleDirectories: resolve.directories,
   moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),

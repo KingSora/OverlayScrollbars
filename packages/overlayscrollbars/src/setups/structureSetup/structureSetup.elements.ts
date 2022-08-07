@@ -39,14 +39,11 @@ import {
   dynamicInitializationElement as generalDynamicInitializationElement,
 } from 'initialization';
 import type {
+  Initialization,
   InitializationTarget,
   InitializationTargetElement,
   InitializationTargetObject,
 } from 'initialization';
-import type {
-  StructureDynamicInitializationElement,
-  StructureStaticInitializationElement,
-} from 'setups/structureSetup/structureSetup.initialization';
 
 export type StructureSetupElements = [
   targetObj: StructureSetupElementsObj,
@@ -97,34 +94,34 @@ export const createStructureSetupElements = (
     | undefined;
   const createUniqueViewportArrangeElement =
     scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
+  const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
     host: defaultHostInitialization,
     viewport: defaultViewportInitialization,
     padding: defaultPaddingInitialization,
     content: defaultContentInitialization,
-  } = _getDefaultInitialization();
+  } = defaultInitElements;
   const targetIsElm = isHTMLElement(target);
   const targetStructureInitialization = (targetIsElm ? {} : target) as InitializationTargetObject;
+  const { elements: initElements } = targetStructureInitialization;
   const {
     host: hostInitialization,
     padding: paddingInitialization,
     viewport: viewportInitialization,
     content: contentInitialization,
-  } = targetStructureInitialization;
+  } = initElements || {};
 
   const targetElement = targetIsElm ? target : targetStructureInitialization.target;
   const isTextarea = is(targetElement, 'textarea');
   const ownerDocument = targetElement.ownerDocument;
   const isBody = targetElement === ownerDocument.body;
   const wnd = ownerDocument.defaultView as Window;
-  const staticInitializationElement =
-    generalStaticInitializationElement<StructureStaticInitializationElement>.bind(0, [
-      targetElement,
-    ]);
-  const dynamicInitializationElement =
-    generalDynamicInitializationElement<StructureDynamicInitializationElement>.bind(0, [
-      targetElement,
-    ]);
+  const staticInitializationElement = generalStaticInitializationElement<
+    Initialization['elements']['viewport']
+  >.bind(0, [targetElement]);
+  const dynamicInitializationElement = generalDynamicInitializationElement<
+    Initialization['elements']['content']
+  >.bind(0, [targetElement]);
   const viewportElement = staticInitializationElement(
     createNewDiv,
     defaultViewportInitialization,

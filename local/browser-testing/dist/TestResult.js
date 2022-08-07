@@ -27,4 +27,4 @@ export const waitForOrFailTest = (callback, options) => waitFor(callback, {
         return error;
     },
 });
-//# sourceMappingURL=testResult.js.map
+//# sourceMappingURL=TestResult.js.map

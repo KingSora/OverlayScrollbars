@@ -1,0 +1,138 @@
+<p align="center">
+  <a href="https://kingsora.github.io/OverlayScrollbars">
+    <a href="https://kingsora.github.io/OverlayScrollbars"><img src="https://kingsora.github.io/OverlayScrollbars/design/logo.svg" width="200" height="133" alt="OverlayScrollbars"></a>
+  </a>
+</p>
+<h6 align="center">
+    <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square" alt="Downloads"></a>
+    <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version"></a>
+    <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
+</h6>
+
+> OverlayScrollbars is a javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.
+
+## Why
+
+I've created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
+
+## Goals & Features
+
+ - Simple, powerful and good documented API
+ - High browser compatibility - <b>Firefox</b>, <b>Chrome</b>, <b>Opera</b>, <b>Edge</b>, <b>Safari 10+</b> and <b>IE 11</b>
+ - Tested on various devices - <b>Mobile</b>, <b>Desktop</b> and <b>Tablet</b>
+ - Tested with various (and mixed) inputs - <b>Mouse</b>, <b>touch</b> and <b>pen</b>
+ - Plugin based features with <b>Treeshaking</b> - bundle only what you really need
+ - Automatic update detection - <b>no polling</b>
+ - Usage of latest browser features - best <b>performance</b> in new browsers
+ - Bidirectional - LTR or RTL direction support
+ - Simple and effective scrollbar styling
+ - TypeScript support - fully written in TypeScript
+
+## Getting started
+
+#### npm & Node
+OverlayScrollbars can be downloaded from [npm](https://www.npmjs.com/package/overlayscrollbars) or the package manager of your choice:
+```sh
+npm install overlayscrollbars
+```
+After installation it can be imported:
+```js
+import 'overlayscrollbars/overlayscrollbars.css';
+import { OverlayScrollbars } from 'overlayscrollbars';
+```
+
+<details><summary><h6>Manual download & embedding</h6></summary>
+
+You can use OverlayScrollbars without any bundler or package manager.  
+Simply download it from the [Releases](https://github.com/KingSora/OverlayScrollbars/releases) or use a [CDN](https://cdnjs.com/libraries/overlayscrollbars).
+
+- Use the javascript files with the `.browser` extension.
+- If you target old browsers use the `.es5` javascript file, for new browsers `.es6`.
+- For production use the javascript / stylesheet files with the `.min` extension. 
+
+Embedd OverlayScrollbars manually in your HTML:
+```html
+<link type="text/css" href="path/to/overlayscrollbars.css" rel="stylesheet" />
+<script type="text/javascript" src="path/to/overlayscrollbars.js" defer></script>
+```
+</details>
+
+
+## Initialization
+
+> __Note__ During initialization its expected that the <b>CSS file is loaded and parsed</b> by the browser.
+
+You can initialize either directly with an `Element` or with an `Object` where you have more control over the initialization process. 
+
+```js
+// simple initialization with an element
+const osInstance = OverlayScrollbars(document.querySelector('#myElement'), {});
+```
+
+<details><summary><h6>Initialization with an Object</h6></summary>
+
+> __Note__ For now please refer to the <b>TypeScript definitions</b> for a more detailed description of all possibilities.
+
+The only required field is the `target` field. This is the field to which the plugin is applied to.  
+If you use the object initialization only with the `target` field, the outcome is equivalent to the element initialization:
+```js
+// Both initializations have the same outcome
+
+OverlayScrollbars(document.querySelector('#myElement'), {});
+OverlayScrollbars({ target: document.querySelector('#myElement') }, {});
+```
+
+In the initialization object you can specify how the library is handling generated elements.
+For example you can appoint an existing element as the `viewport` element. Like this the library won't generate it but take the specified element instead:
+
+ ```js
+OverlayScrollbars({ 
+  target: document.querySelector('#target'),
+  viewport: document.querySelector('#viewport'),
+}, {});
+```
+
+This is very useful if you have a fixed DOM structure and don't want OverlayScrollbars to generate its own elements. Those cases arise very often when you want an other library to work together with OverlayScrollbars.
+
+You can now also decide to which element the scrollbars should be applied to:
+
+ ```js
+OverlayScrollbars({ 
+  target: document.querySelector('#target'),
+  scrollbarsSlot: document.querySelector('#target').parentElement,
+}, {});
+```
+
+And last but not least you can decide when the library should cancel its initialization:
+ ```js
+OverlayScrollbars({ 
+  target: document.querySelector('#target'),
+  cancel: {
+    nativeScrollbarsOverlaid: true,
+    body: null,
+  }
+}, {});
+```
+
+With this `cancel` object the initialization is canceled when the native scrollbars are overlaid or when your target is a `body` element and the plugin determined that a initialization to the `body` element would affect native functionality like `window.scrollTo`.
+
+</details>
+
+
+
+
+
+
+## Sponsors
+<table>
+    <tr>
+        <td>
+            <a href="https://www.browserstack.com" target="_blank">
+                <img align="center" src="https://kingsora.github.io/OverlayScrollbars/img/browserstack.png" width="250">
+            </a>
+        </td>
+        <td>
+            Thanks to <a href="https://www.browserstack.com" target="_blank">BrowserStack</a> for sponsoring open source projects and letting me test OverlayScrollbars for free.
+        </td>
+    </tr>
+</table>

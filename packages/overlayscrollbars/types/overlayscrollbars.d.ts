@@ -70,7 +70,32 @@ declare const sizeObserverPlugin: Plugin<SizeObserverPluginInstance>;
 
 declare type StaticInitialization = HTMLElement | false | null;
 declare type DynamicInitialization = HTMLElement | boolean | null;
-declare type Initialization = StructureInitialization & ScrollbarsInitialization & {
+/**
+ * Static elements are elements which MUST be present in the final DOM.
+ * With false, null or undefined the element will be generated, otherwise the specified element is taken.
+ */
+declare type StaticInitializationElement<Args extends any[]> = ((...args: Args) => StaticInitialization) | StaticInitialization;
+/**
+ * Dynamic element are elements which CAN be present in the final DOM.
+ * If its a element the element will be taken as the repsective element.
+ * With true the element will be generated.
+ * With false, null or undefined the element won't be generated and wont be in the DOM.
+ */
+declare type DynamicInitializationElement<Args extends any[]> = ((...args: Args) => DynamicInitialization) | DynamicInitialization;
+declare type Initialization = {
+    elements: {
+        host: StaticInitializationElement<[target: InitializationTargetElement]>;
+        viewport: StaticInitializationElement<[target: InitializationTargetElement]>;
+        padding: DynamicInitializationElement<[target: InitializationTargetElement]>;
+        content: DynamicInitializationElement<[target: InitializationTargetElement]>;
+    };
+    scrollbars: {
+        slot: DynamicInitializationElement<[
+            target: InitializationTargetElement,
+            host: HTMLElement,
+            viewport: HTMLElement
+        ]>;
+    };
     cancel: {
         nativeScrollbarsOverlaid: boolean;
         body: boolean | null;
@@ -81,35 +106,6 @@ declare type InitializationTargetObject = DeepPartial<Initialization> & {
     target: InitializationTargetElement;
 };
 declare type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
-/**
- * Static elements MUST be present.
- * With false, null or undefined the element will be generated, otherwise the specified element is taken.
- */
-declare type StaticInitializationElement<Args extends any[]> = ((...args: Args) => StaticInitialization) | StaticInitialization;
-/**
- * Dynamic element CAN be present.
- * If its a element the element will be taken as the repsective element.
- * With true the element will be generated.
- * With false, null or undefined the element won't be generated.
- */
-declare type DynamicInitializationElement<Args extends any[]> = ((...args: Args) => DynamicInitialization) | DynamicInitialization;
-
-declare type ScrollbarsDynamicInitializationElement = DynamicInitializationElement<[
-    target: InitializationTargetElement,
-    host: HTMLElement,
-    viewport: HTMLElement
-]>;
-/**
- * Object for special initialization.
- *
- * If element is provided, the provided element takes all its responsibilities.
- * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
- *
- * Null or Undefined means that the environment initialization strategy is used.
- */
-interface ScrollbarsInitialization {
-    scrollbarsSlot: ScrollbarsDynamicInitializationElement;
-}
 
 interface StructureSetupState {
     _padding: TRBL;
@@ -121,29 +117,6 @@ interface StructureSetupState {
     _hasOverflow: XY<boolean>;
     _heightIntrinsic: boolean;
     _directionIsRTL: boolean;
-}
-
-declare type StructureStaticInitializationElement = StaticInitializationElement<[
-    target: InitializationTargetElement
-]>;
-declare type StructureDynamicInitializationElement = DynamicInitializationElement<[
-    target: InitializationTargetElement
-]>;
-/**
- * Object for special initialization.
- *
- * Target is always required, if element is not provided or undefined it will be generated.
- *
- * If element is provided, the provided element takes all its responsibilities.
- * DOM hierarchy isn't checked in this case, its assumed that hieararchy is correct in such a case.
- *
- * undefined means that the default initialization strategy is used.
- */
-interface StructureInitialization {
-    host: StructureStaticInitializationElement;
-    viewport: StructureStaticInitializationElement;
-    padding: StructureDynamicInitializationElement;
-    content: StructureDynamicInitializationElement;
 }
 
 interface ViewportOverflowState {

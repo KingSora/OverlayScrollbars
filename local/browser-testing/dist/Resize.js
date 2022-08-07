@@ -70,4 +70,4 @@ export const resize = (element) => {
         },
     };
 };
-//# sourceMappingURL=resize.js.map
+//# sourceMappingURL=Resize.js.map

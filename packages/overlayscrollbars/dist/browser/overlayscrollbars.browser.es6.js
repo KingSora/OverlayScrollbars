@@ -970,11 +970,15 @@ const OverlayScrollbars = function(t) {
       y: 0 === i.y
     };
     const d = {
-      host: null,
-      padding: !a,
-      viewport: t => a && t === t.ownerDocument.body && t,
-      content: false,
-      scrollbarsSlot: true,
+      elements: {
+        host: null,
+        padding: !a,
+        viewport: t => a && t === t.ownerDocument.body && t,
+        content: false
+      },
+      scrollbars: {
+        slot: true
+      },
       cancel: {
         nativeScrollbarsOverlaid: false,
         body: null
@@ -1071,103 +1075,105 @@ const OverlayScrollbars = function(t) {
     const {Y: o, T: s} = n;
     const e = getPlugins()[mt];
     const c = e && e.A;
-    const {host: r, viewport: l, padding: i, content: a} = o();
-    const u = isHTMLElement(t);
-    const d = u ? {} : t;
-    const {host: f, padding: _, viewport: h, content: g} = d;
-    const v = u ? t : d.target;
-    const w = is(v, "textarea");
-    const p = v.ownerDocument;
-    const b = v === p.body;
-    const y = p.defaultView;
-    const m = staticInitializationElement.bind(0, [ v ]);
-    const S = dynamicInitializationElement.bind(0, [ v ]);
-    const x = m(Ot, l, h);
-    const $ = x === v;
-    const C = $ && b;
-    const T = !$ && y.top === y && p.activeElement === v;
-    const z = {
-      X: v,
-      J: w ? m(Ot, r, f) : v,
-      K: x,
-      Z: !$ && S(Ot, i, _),
-      tt: !$ && S(Ot, a, g),
-      nt: !$ && !s && c && c(n),
-      ot: C ? p.documentElement : x,
-      st: C ? p : x,
-      et: y,
-      ct: p,
-      rt: w,
-      W: b,
-      lt: u,
-      it: $,
-      ut: (t, n) => $ ? hasAttrClass(x, O, n) : hasClass(x, t),
-      dt: (t, n, o) => $ ? attrClass(x, O, n, o) : (o ? addClass : removeClass)(x, t)
+    const {elements: r} = o();
+    const {host: l, viewport: i, padding: a, content: u} = r;
+    const d = isHTMLElement(t);
+    const f = d ? {} : t;
+    const {elements: _} = f;
+    const {host: h, padding: g, viewport: v, content: w} = _ || {};
+    const p = d ? t : f.target;
+    const b = is(p, "textarea");
+    const y = p.ownerDocument;
+    const m = p === y.body;
+    const S = y.defaultView;
+    const x = staticInitializationElement.bind(0, [ p ]);
+    const $ = dynamicInitializationElement.bind(0, [ p ]);
+    const C = x(Ot, i, v);
+    const T = C === p;
+    const z = T && m;
+    const I = !T && S.top === S && y.activeElement === p;
+    const P = {
+      X: p,
+      J: b ? x(Ot, l, h) : p,
+      K: C,
+      Z: !T && $(Ot, a, g),
+      tt: !T && $(Ot, u, w),
+      nt: !T && !s && c && c(n),
+      ot: z ? y.documentElement : C,
+      st: z ? y : C,
+      et: S,
+      ct: y,
+      rt: b,
+      W: m,
+      lt: d,
+      it: T,
+      ut: (t, n) => T ? hasAttrClass(C, O, n) : hasClass(C, t),
+      dt: (t, n, o) => T ? attrClass(C, O, n, o) : (o ? addClass : removeClass)(C, t)
     };
-    const I = keys(z).reduce(((t, n) => {
-      const o = z[n];
+    const R = keys(P).reduce(((t, n) => {
+      const o = P[n];
       return push(t, o && !parent(o) ? o : false);
     }), []);
-    const elementIsGenerated = t => t ? indexOf(I, t) > -1 : null;
-    const {X: P, J: R, Z: k, K: B, tt: V, nt: j} = z;
-    const Y = [];
-    const q = w && elementIsGenerated(R);
-    let F = w ? P : contents([ V, B, k, R, P ].find((t => false === elementIsGenerated(t))));
-    const G = V || B;
+    const elementIsGenerated = t => t ? indexOf(R, t) > -1 : null;
+    const {X: k, J: B, Z: V, K: j, tt: Y, nt: q} = P;
+    const F = [];
+    const G = b && elementIsGenerated(B);
+    let N = b ? k : contents([ Y, j, V, B, k ].find((t => false === elementIsGenerated(t))));
+    const U = Y || j;
     const appendElements = () => {
-      const t = addDataAttrHost(R, $ ? "viewport" : "host");
-      const n = addClass(k, L);
-      const o = addClass(B, !$ && H);
-      const e = addClass(V, D);
-      const c = b ? addClass(parent(v), M) : noop;
-      if (q) {
-        insertAfter(P, R);
-        push(Y, (() => {
-          insertAfter(R, P);
-          removeElements(R);
+      const t = addDataAttrHost(B, T ? "viewport" : "host");
+      const n = addClass(V, L);
+      const o = addClass(j, !T && H);
+      const e = addClass(Y, D);
+      const c = m ? addClass(parent(p), M) : noop;
+      if (G) {
+        insertAfter(k, B);
+        push(F, (() => {
+          insertAfter(B, k);
+          removeElements(B);
         }));
       }
-      appendChildren(G, F);
-      appendChildren(R, k);
-      appendChildren(k || R, !$ && B);
+      appendChildren(U, N);
       appendChildren(B, V);
-      push(Y, (() => {
+      appendChildren(V || B, !T && j);
+      appendChildren(j, Y);
+      push(F, (() => {
         c();
         t();
-        removeAttr(B, E);
-        removeAttr(B, A);
+        removeAttr(j, E);
+        removeAttr(j, A);
+        if (elementIsGenerated(Y)) {
+          unwrap(Y);
+        }
+        if (elementIsGenerated(j)) {
+          unwrap(j);
+        }
         if (elementIsGenerated(V)) {
           unwrap(V);
-        }
-        if (elementIsGenerated(B)) {
-          unwrap(B);
-        }
-        if (elementIsGenerated(k)) {
-          unwrap(k);
         }
         n();
         o();
         e();
       }));
-      if (s && !$) {
-        push(Y, removeClass.bind(0, B, M));
+      if (s && !T) {
+        push(F, removeClass.bind(0, j, M));
       }
-      if (j) {
-        insertBefore(B, j);
-        push(Y, removeElements.bind(0, j));
+      if (q) {
+        insertBefore(j, q);
+        push(F, removeElements.bind(0, q));
       }
-      if (T) {
-        const t = attr(B, Ct);
-        attr(B, Ct, "-1");
-        B.focus();
-        const n = on(p, "pointerdown keydown", (() => {
-          t ? attr(B, Ct, t) : removeAttr(B, Ct);
+      if (I) {
+        const t = attr(j, Ct);
+        attr(j, Ct, "-1");
+        j.focus();
+        const n = on(y, "pointerdown keydown", (() => {
+          t ? attr(j, Ct, t) : removeAttr(j, Ct);
           n();
         }));
       }
-      F = 0;
+      N = 0;
     };
-    return [ z, appendElements, runEachAndClear.bind(0, Y) ];
+    return [ P, appendElements, runEachAndClear.bind(0, F) ];
   };
   const createTrinsicUpdateSegment = (t, n) => {
     const {tt: o} = t;
@@ -2149,10 +2155,12 @@ const OverlayScrollbars = function(t) {
   };
   const createScrollbarsSetupElements = (t, n, o) => {
     const {Y: s} = getEnvironment();
-    const {scrollbarsSlot: e} = s();
-    const {ct: c, X: r, J: l, K: i, lt: a, ot: u} = n;
-    const {scrollbarsSlot: d} = a ? {} : t;
-    const f = dynamicInitializationElement([ r, l, i ], (() => l), e, d);
+    const {scrollbars: e} = s();
+    const {slot: c} = e;
+    const {ct: r, X: l, J: i, K: a, lt: u, ot: d} = n;
+    const {scrollbars: f} = u ? {} : t;
+    const {slot: _} = f || {};
+    const g = dynamicInitializationElement([ l, i, a ], (() => i), c, _);
     const scrollbarStructureAddRemoveClass = (t, n, o) => {
       const s = o ? addClass : removeClass;
       each(t, (t => {
@@ -2177,75 +2185,75 @@ const OverlayScrollbars = function(t) {
       const s = o ? "X" : "Y";
       scrollbarsHandleStyle(t, (t => {
         const {qt: e, Ft: c, Gt: r} = t;
-        const l = getScrollbarHandleOffsetRatio(e, c, u, n, directionIsRTL(r), o);
+        const l = getScrollbarHandleOffsetRatio(e, c, d, n, directionIsRTL(r), o);
         const i = l === l;
         return [ e, {
           transform: i ? `translate${s}(${(100 * l).toFixed(3)}%)` : ""
         } ];
       }));
     };
-    const _ = [];
-    const g = [];
     const v = [];
+    const w = [];
+    const p = [];
     const scrollbarsAddRemoveClass = (t, n, o) => {
       const s = isBoolean(o);
       const e = s ? o : true;
       const c = s ? !o : true;
-      e && scrollbarStructureAddRemoveClass(g, t, n);
-      c && scrollbarStructureAddRemoveClass(v, t, n);
+      e && scrollbarStructureAddRemoveClass(w, t, n);
+      c && scrollbarStructureAddRemoveClass(p, t, n);
     };
     const refreshScrollbarsHandleLength = t => {
-      scrollbarStructureRefreshHandleLength(g, t, true);
-      scrollbarStructureRefreshHandleLength(v, t);
+      scrollbarStructureRefreshHandleLength(w, t, true);
+      scrollbarStructureRefreshHandleLength(p, t);
     };
     const refreshScrollbarsHandleOffset = t => {
-      scrollbarStructureRefreshHandleOffset(g, t, true);
-      scrollbarStructureRefreshHandleOffset(v, t);
+      scrollbarStructureRefreshHandleOffset(w, t, true);
+      scrollbarStructureRefreshHandleOffset(p, t);
     };
     const generateScrollbarDOM = t => {
       const n = t ? U : W;
-      const s = t ? g : v;
+      const s = t ? w : p;
       const e = isEmptyArray(s) ? Q : "";
-      const r = createDiv(`${G} ${n} ${e}`);
+      const c = createDiv(`${G} ${n} ${e}`);
       const l = createDiv(X);
       const i = createDiv(J);
       const a = {
-        Gt: r,
+        Gt: c,
         Ft: l,
         qt: i
       };
-      appendChildren(r, l);
+      appendChildren(c, l);
       appendChildren(l, i);
       push(s, a);
-      push(_, [ removeElements.bind(0, r), o(a, scrollbarsAddRemoveClass, c, u, t) ]);
+      push(v, [ removeElements.bind(0, c), o(a, scrollbarsAddRemoveClass, r, d, t) ]);
       return a;
     };
-    const w = generateScrollbarDOM.bind(0, true);
-    const p = generateScrollbarDOM.bind(0, false);
+    const b = generateScrollbarDOM.bind(0, true);
+    const y = generateScrollbarDOM.bind(0, false);
     const appendElements = () => {
-      appendChildren(f, g[0].Gt);
-      appendChildren(f, v[0].Gt);
+      appendChildren(g, w[0].Gt);
+      appendChildren(g, p[0].Gt);
       h((() => {
         scrollbarsAddRemoveClass(Q);
       }), 300);
     };
-    w();
-    p();
+    b();
+    y();
     return [ {
       Nt: refreshScrollbarsHandleLength,
       Ut: refreshScrollbarsHandleOffset,
       Wt: scrollbarsAddRemoveClass,
       Xt: {
-        Jt: g,
-        Kt: w,
-        Zt: scrollbarsHandleStyle.bind(0, g)
+        Jt: w,
+        Kt: b,
+        Zt: scrollbarsHandleStyle.bind(0, w)
       },
       Qt: {
-        Jt: v,
-        Kt: p,
-        Zt: scrollbarsHandleStyle.bind(0, v)
+        Jt: p,
+        Kt: y,
+        Zt: scrollbarsHandleStyle.bind(0, p)
       }
-    }, appendElements, runEachAndClear.bind(0, _) ];
+    }, appendElements, runEachAndClear.bind(0, v) ];
   };
   const createSelfCancelTimeout = t => {
     let n;

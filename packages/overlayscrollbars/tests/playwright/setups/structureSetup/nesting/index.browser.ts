@@ -44,7 +44,7 @@ let bUpdateCount = 0;
 let cUpdateCount = 0;
 
 const rootInstance = OverlayScrollbars(
-  { target: targetRoot!, padding: true },
+  { target: targetRoot!, elements: { padding: true } },
   {},
   {
     initialized() {
@@ -65,7 +65,7 @@ const rootInstance = OverlayScrollbars(
   }
 );
 const aInstance = OverlayScrollbars(
-  { target: targetA!, content: true },
+  { target: targetA!, elements: { content: true } },
   {},
   {
     initialized() {
@@ -107,7 +107,7 @@ const bInstance = OverlayScrollbars(
   }
 );
 OverlayScrollbars(
-  { target: targetC!, viewport: targetC! },
+  { target: targetC!, elements: { viewport: targetC! } },
   {},
   {
     initialized() {

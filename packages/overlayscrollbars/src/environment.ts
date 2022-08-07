@@ -153,11 +153,16 @@ const createEnvironment = (): InternalEnvironment => {
     y: nativeScrollbarsSize.y === 0,
   };
   const staticDefaultInitialization: Initialization = {
-    host: null,
-    padding: !nativeScrollbarsHiding,
-    viewport: (target) => nativeScrollbarsHiding && target === target.ownerDocument.body && target,
-    content: false,
-    scrollbarsSlot: true,
+    elements: {
+      host: null,
+      padding: !nativeScrollbarsHiding,
+      viewport: (target) =>
+        nativeScrollbarsHiding && target === target.ownerDocument.body && target,
+      content: false,
+    },
+    scrollbars: {
+      slot: true,
+    },
     cancel: {
       nativeScrollbarsOverlaid: false,
       body: null,

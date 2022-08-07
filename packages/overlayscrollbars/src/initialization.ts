@@ -1,6 +1,4 @@
 import { isFunction, isHTMLElement, isNull, isUndefined } from 'support';
-import type { StructureInitialization } from 'setups/structureSetup';
-import type { ScrollbarsInitialization } from 'setups/scrollbarsSetup';
 import { getEnvironment } from 'environment';
 import { DeepPartial } from 'typings';
 import { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
@@ -8,13 +6,47 @@ import { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.
 type StaticInitialization = HTMLElement | false | null;
 type DynamicInitialization = HTMLElement | boolean | null;
 
-export type Initialization = StructureInitialization &
-  ScrollbarsInitialization & {
-    cancel: {
-      nativeScrollbarsOverlaid: boolean;
-      body: boolean | null;
-    };
+type FallbackInitializtationElement<
+  InitElm extends StaticInitializationElement<any> | DynamicInitializationElement<any>
+> = Extract<InitElm, (...args: any[]) => any> extends (...args: infer P) => any
+  ? (...args: P) => HTMLElement
+  : never;
+
+/**
+ * Static elements are elements which MUST be present in the final DOM.
+ * With false, null or undefined the element will be generated, otherwise the specified element is taken.
+ */
+export type StaticInitializationElement<Args extends any[]> =
+  | ((...args: Args) => StaticInitialization)
+  | StaticInitialization;
+
+/**
+ * Dynamic element are elements which CAN be present in the final DOM.
+ * If its a element the element will be taken as the repsective element.
+ * With true the element will be generated.
+ * With false, null or undefined the element won't be generated and wont be in the DOM.
+ */
+export type DynamicInitializationElement<Args extends any[]> =
+  | ((...args: Args) => DynamicInitialization)
+  | DynamicInitialization;
+
+export type Initialization = {
+  elements: {
+    host: StaticInitializationElement<[target: InitializationTargetElement]>; // only relevant for textarea
+    viewport: StaticInitializationElement<[target: InitializationTargetElement]>;
+    padding: DynamicInitializationElement<[target: InitializationTargetElement]>;
+    content: DynamicInitializationElement<[target: InitializationTargetElement]>;
   };
+  scrollbars: {
+    slot: DynamicInitializationElement<
+      [target: InitializationTargetElement, host: HTMLElement, viewport: HTMLElement]
+    >;
+  };
+  cancel: {
+    nativeScrollbarsOverlaid: boolean;
+    body: boolean | null;
+  };
+};
 
 export type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
 
@@ -23,30 +55,6 @@ export type InitializationTargetObject = DeepPartial<Initialization> & {
 };
 
 export type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
-
-/**
- * Static elements MUST be present.
- * With false, null or undefined the element will be generated, otherwise the specified element is taken.
- */
-export type StaticInitializationElement<Args extends any[]> =
-  | ((...args: Args) => StaticInitialization)
-  | StaticInitialization;
-
-/**
- * Dynamic element CAN be present.
- * If its a element the element will be taken as the repsective element.
- * With true the element will be generated.
- * With false, null or undefined the element won't be generated.
- */
-export type DynamicInitializationElement<Args extends any[]> =
-  | ((...args: Args) => DynamicInitialization)
-  | DynamicInitialization;
-
-export type FallbackInitializtationElement<
-  InitElm extends StaticInitializationElement<any> | DynamicInitializationElement<any>
-> = Extract<InitElm, (...args: any[]) => any> extends (...args: infer P) => any
-  ? (...args: P) => HTMLElement
-  : never;
 
 const resolveInitialization = <T>(value: any, args: any): T =>
   isFunction(value) ? value.apply(0, args) : value;

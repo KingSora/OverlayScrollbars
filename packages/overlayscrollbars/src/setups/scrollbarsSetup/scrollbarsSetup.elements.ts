@@ -27,13 +27,13 @@ import {
   getScrollbarHandleLengthRatio,
   getScrollbarHandleOffsetRatio,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.calculations';
-import type { InitializationTarget } from 'initialization';
+import type {
+  Initialization,
+  InitializationTarget,
+  InitializationTargetObject,
+} from 'initialization';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type { ScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
-import type {
-  ScrollbarsInitialization,
-  ScrollbarsDynamicInitializationElement,
-} from 'setups/scrollbarsSetup/scrollbarsSetup.initialization';
 import type { StyleObject } from 'typings';
 import { StructureSetupState } from 'setups';
 
@@ -77,17 +77,15 @@ export const createScrollbarsSetupElements = (
   scrollbarsSetupEvents: ScrollbarsSetupEvents
 ): ScrollbarsSetupElements => {
   const { _getDefaultInitialization } = getEnvironment();
-  const { scrollbarsSlot: defaultScrollbarsSlot } = _getDefaultInitialization();
+  const { scrollbars: defaultInitScrollbars } = _getDefaultInitialization();
+  const { slot: defaultInitScrollbarsSlot } = defaultInitScrollbars;
   const { _documentElm, _target, _host, _viewport, _targetIsElm, _scrollOffsetElement } =
     structureSetupElements;
-  const { scrollbarsSlot } = (_targetIsElm ? {} : target) as ScrollbarsInitialization;
-  const evaluatedScrollbarSlot =
-    generalDynamicInitializationElement<ScrollbarsDynamicInitializationElement>(
-      [_target, _host, _viewport],
-      () => _host,
-      defaultScrollbarsSlot,
-      scrollbarsSlot
-    );
+  const { scrollbars: scrollbarsInit } = (_targetIsElm ? {} : target) as InitializationTargetObject;
+  const { slot: initScrollbarsSlot } = scrollbarsInit || {};
+  const evaluatedScrollbarSlot = generalDynamicInitializationElement<
+    Initialization['scrollbars']['slot']
+  >([_target, _host, _viewport], () => _host, defaultInitScrollbarsSlot, initScrollbarsSlot);
   const scrollbarStructureAddRemoveClass = (
     scrollbarStructures: ScrollbarStructure[],
     classNames: string | false | null | undefined,

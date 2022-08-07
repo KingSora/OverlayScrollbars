@@ -1,6 +1,6 @@
 import { isEmptyObject } from 'support/utils/object';
 import { isString, isPlainObject } from 'support/utils/types';
-import { style, hide, show, topRightBottomLeft, directionIsRTL } from 'support/dom/style';
+import { style, topRightBottomLeft, directionIsRTL } from 'support/dom/style';
 
 describe('dom style', () => {
   afterEach(() => {
@@ -77,30 +77,6 @@ describe('dom style', () => {
         expect(style(null, { width: '123px' })).toBe(undefined);
         expect(style(null, { width: '123px', height: '321px' })).toBe(undefined);
       });
-    });
-  });
-
-  describe('hide', () => {
-    test('normal', () => {
-      expect(document.body.style.display).toBe('');
-      hide(document.body);
-      expect(document.body.style.display).toBe('none');
-    });
-
-    test('null', () => {
-      expect(hide(null)).toBe(undefined);
-    });
-  });
-
-  describe('show', () => {
-    test('normal', () => {
-      expect(document.body.style.display).toBe('');
-      show(document.body);
-      expect(document.body.style.display).toBe('block');
-    });
-
-    test('null', () => {
-      expect(show(null)).toBe(undefined);
     });
   });
 

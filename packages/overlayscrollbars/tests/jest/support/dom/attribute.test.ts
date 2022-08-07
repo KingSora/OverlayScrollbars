@@ -128,9 +128,18 @@ describe('dom attributes', () => {
       setScrollLeft(0);
     });
 
-    test('null', () => {
+    test('element null', () => {
       expect(scrollLeft(null)).toBe(0);
       expect(scrollLeft(null, 0)).toBe(undefined);
+    });
+
+    test('value null', () => {
+      scrollLeft(testElm, 100);
+      expect(scrollLeft(testElm)).toBe(100);
+      scrollLeft(testElm, null);
+      expect(scrollLeft(testElm)).toBe(100);
+      scrollLeft(testElm, 0);
+      expect(scrollLeft(testElm)).toBe(0);
     });
   });
 
@@ -147,9 +156,18 @@ describe('dom attributes', () => {
       setScrollTop(0);
     });
 
-    test('null', () => {
+    test('element null', () => {
       expect(scrollTop(null)).toBe(0);
       expect(scrollTop(null, 0)).toBe(undefined);
+    });
+
+    test('value null', () => {
+      scrollTop(testElm, 100);
+      expect(scrollTop(testElm)).toBe(100);
+      scrollTop(testElm, null);
+      expect(scrollTop(testElm)).toBe(100);
+      scrollTop(testElm, 0);
+      expect(scrollTop(testElm)).toBe(0);
     });
   });
 
