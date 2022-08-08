@@ -80,6 +80,7 @@ html.os-viewport-scrollbar-hidden::-webkit-scrollbar-corner,
 html.os-viewport-scrollbar-hidden,
 html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
   box-sizing: border-box;
+  margin: 0;
   width: 100%;
   height: 100%;
 }
