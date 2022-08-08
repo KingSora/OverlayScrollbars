@@ -1101,8 +1101,9 @@ const OverlayScrollbars = function(t) {
     const C = $(Et, i, v);
     const T = C === p;
     const z = T && m;
-    const I = !T && S.top === S && y.activeElement === p;
-    const M = {
+    const I = y.activeElement;
+    const M = !T && S.top === S && I === p;
+    const R = {
       W: p,
       J: b ? $(Et, l, h) : p,
       K: C,
@@ -1120,70 +1121,72 @@ const OverlayScrollbars = function(t) {
       ut: (t, n) => T ? hasAttrClass(C, O, n) : hasClass(C, t),
       dt: (t, n, o) => T ? attrClass(C, O, n, o) : (o ? addClass : removeClass)(C, t)
     };
-    const R = keys(M).reduce(((t, n) => {
-      const o = M[n];
+    const k = keys(R).reduce(((t, n) => {
+      const o = R[n];
       return push(t, o && !parent(o) ? o : false);
     }), []);
-    const elementIsGenerated = t => t ? indexOf(R, t) > -1 : null;
-    const {W: k, J: B, Z: V, K: j, tt: Y, nt: q} = M;
-    const F = [];
-    const G = b && elementIsGenerated(B);
-    let N = b ? k : contents([ Y, j, V, B, k ].find((t => false === elementIsGenerated(t))));
-    const X = Y || j;
+    const elementIsGenerated = t => t ? indexOf(k, t) > -1 : null;
+    const {W: B, J: V, Z: j, K: Y, tt: q, nt: F} = R;
+    const G = [];
+    const N = b && elementIsGenerated(V);
+    let X = b ? B : contents([ q, Y, j, V, B ].find((t => false === elementIsGenerated(t))));
+    const U = q || Y;
     const appendElements = () => {
-      const t = addDataAttrHost(B, T ? "viewport" : "host");
-      const n = addClass(V, L);
-      const o = addClass(j, !T && H);
-      const e = addClass(Y, P);
+      const t = addDataAttrHost(V, T ? "viewport" : "host");
+      const n = addClass(j, L);
+      const o = addClass(Y, !T && H);
+      const e = addClass(q, P);
       const c = m ? addClass(parent(p), D) : noop;
-      if (G) {
-        insertAfter(k, B);
-        push(F, (() => {
-          insertAfter(B, k);
-          removeElements(B);
+      if (N) {
+        insertAfter(B, V);
+        push(G, (() => {
+          insertAfter(V, B);
+          removeElements(V);
         }));
       }
-      appendChildren(X, N);
-      appendChildren(B, V);
-      appendChildren(V || B, !T && j);
-      appendChildren(j, Y);
-      push(F, (() => {
+      appendChildren(U, X);
+      appendChildren(V, j);
+      appendChildren(j || V, !T && Y);
+      appendChildren(Y, q);
+      push(G, (() => {
         c();
         t();
-        removeAttr(j, E);
-        removeAttr(j, A);
+        removeAttr(Y, E);
+        removeAttr(Y, A);
+        if (elementIsGenerated(q)) {
+          unwrap(q);
+        }
         if (elementIsGenerated(Y)) {
           unwrap(Y);
         }
         if (elementIsGenerated(j)) {
           unwrap(j);
         }
-        if (elementIsGenerated(V)) {
-          unwrap(V);
-        }
         n();
         o();
         e();
       }));
       if (s && !T) {
-        push(F, removeClass.bind(0, j, D));
+        push(G, removeClass.bind(0, Y, D));
       }
-      if (q) {
-        insertBefore(j, q);
-        push(F, removeElements.bind(0, q));
+      if (F) {
+        insertBefore(Y, F);
+        push(G, removeElements.bind(0, F));
       }
-      if (I) {
-        const t = attr(j, Ot);
-        attr(j, Ot, "-1");
-        j.focus();
+      if (M) {
+        const t = attr(Y, Ot);
+        attr(Y, Ot, "-1");
+        Y.focus();
         const n = on(y, "pointerdown keydown", (() => {
-          t ? attr(j, Ot, t) : removeAttr(j, Ot);
+          t ? attr(Y, Ot, t) : removeAttr(Y, Ot);
           n();
         }));
+      } else if (I && I.focus) {
+        I.focus();
       }
-      N = 0;
+      X = 0;
     };
-    return [ M, appendElements, runEachAndClear.bind(0, F) ];
+    return [ R, appendElements, runEachAndClear.bind(0, G) ];
   };
   const createTrinsicUpdateSegment = (t, n) => {
     const {tt: o} = t;
@@ -2129,7 +2132,7 @@ const OverlayScrollbars = function(t) {
   };
   const createScrollbarsSetupEvents = (t, n) => (o, s, e, c, r, l) => {
     const {Gt: i} = o;
-    const [a, u] = selfCancelTimeout(500);
+    const [a, u] = selfCancelTimeout(333);
     const d = !!r.scrollBy;
     let f = true;
     return runEachAndClear.bind(0, [ on(i, "pointerenter", (() => {

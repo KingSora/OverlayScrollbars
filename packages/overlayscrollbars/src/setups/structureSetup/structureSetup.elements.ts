@@ -129,8 +129,8 @@ export const createStructureSetupElements = (
   );
   const viewportIsTarget = viewportElement === targetElement;
   const viewportIsTargetBody = viewportIsTarget && isBody;
-  const setFocus =
-    !viewportIsTarget && wnd.top === wnd && ownerDocument.activeElement === targetElement;
+  const activeElm = ownerDocument.activeElement;
+  const setViewportFocus = !viewportIsTarget && wnd.top === wnd && activeElm === targetElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: isTextarea
@@ -241,7 +241,7 @@ export const createStructureSetupElements = (
       insertBefore(_viewport, _viewportArrange);
       push(destroyFns, removeElements.bind(0, _viewportArrange));
     }
-    if (setFocus) {
+    if (setViewportFocus) {
       const ogTabindex = attr(_viewport, tabIndexStr);
 
       attr(_viewport, tabIndexStr, '-1');
@@ -251,6 +251,8 @@ export const createStructureSetupElements = (
         ogTabindex ? attr(_viewport, tabIndexStr, ogTabindex) : removeAttr(_viewport, tabIndexStr);
         off();
       });
+    } else if (activeElm && (activeElm as HTMLElement).focus) {
+      (activeElm as HTMLElement).focus();
     }
 
     // @ts-ignore

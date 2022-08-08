@@ -136,7 +136,7 @@ export const createScrollbarsSetupEvents =
     isHorizontal
   ) => {
     const { _scrollbar } = scrollbarStructure;
-    const [wheelTimeout, clearScrollTimeout] = selfCancelTimeout(500);
+    const [wheelTimeout, clearScrollTimeout] = selfCancelTimeout(333);
     const scrollByFn = !!scrollOffsetElm.scrollBy;
     let wheelScrollBy = true;
 
@@ -153,6 +153,7 @@ export const createScrollbarsSetupEvents =
         (wheelEvent: WheelEvent) => {
           const { deltaX, deltaY, deltaMode } = wheelEvent;
 
+          // the first wheel event is swallowed, simulate scroll to compensate for it
           if (scrollByFn && wheelScrollBy && deltaMode === 0 && parent(_scrollbar) === hostElm) {
             scrollOffsetElm.scrollBy({
               left: deltaX,

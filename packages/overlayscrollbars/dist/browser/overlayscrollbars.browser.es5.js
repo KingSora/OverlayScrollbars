@@ -1313,8 +1313,9 @@ var OverlayScrollbars = function(r) {
     var V = R(He, f, S);
     var k = V === x;
     var q = k && z;
-    var U = !k && M.top === M && P.activeElement === x;
-    var N = {
+    var U = P.activeElement;
+    var N = !k && M.top === M && U === x;
+    var Z = {
       $: x,
       J: A ? R(He, u, p) : x,
       K: V,
@@ -1336,74 +1337,76 @@ var OverlayScrollbars = function(r) {
         return k ? T(V, na, a, e) : (e ? pr : gr)(V, r);
       }
     };
-    var Z = E(N).reduce((function(r, a) {
-      var e = N[a];
+    var $ = E(Z).reduce((function(r, a) {
+      var e = Z[a];
       return y(r, e && !F(e) ? e : false);
     }), []);
-    var $ = function elementIsGenerated(r) {
-      return r ? m(Z, r) > -1 : null;
+    var J = function elementIsGenerated(r) {
+      return r ? m($, r) > -1 : null;
     };
-    var J = N.$, K = N.J, Q = N.rr, rr = N.K, ar = N.ar, er = N.er;
-    var nr = [];
-    var tr = A && $(K);
-    var vr = A ? J : B([ ar, rr, Q, K, J ].find((function(r) {
-      return false === $(r);
+    var K = Z.$, Q = Z.J, rr = Z.rr, ar = Z.K, er = Z.ar, nr = Z.er;
+    var tr = [];
+    var vr = A && J(Q);
+    var ir = A ? K : B([ er, ar, rr, Q, K ].find((function(r) {
+      return false === J(r);
     })));
-    var ir = ar || rr;
-    var or = function appendElements() {
-      var r = Me(K, k ? "viewport" : "host");
-      var a = pr(Q, fa);
-      var e = pr(rr, !k && la);
-      var t = pr(ar, sa);
+    var or = er || ar;
+    var ur = function appendElements() {
+      var r = Me(Q, k ? "viewport" : "host");
+      var a = pr(rr, fa);
+      var e = pr(ar, !k && la);
+      var t = pr(er, sa);
       var v = z ? pr(F(x), da) : Sr;
-      if (tr) {
-        G(J, K);
-        y(nr, (function() {
-          G(K, J);
-          X(K);
+      if (vr) {
+        G(K, Q);
+        y(tr, (function() {
+          G(Q, K);
+          X(Q);
         }));
       }
-      Y(ir, vr);
-      Y(K, Q);
-      Y(Q || K, !k && rr);
-      Y(rr, ar);
-      y(nr, (function() {
+      Y(or, ir);
+      Y(Q, rr);
+      Y(rr || Q, !k && ar);
+      Y(ar, er);
+      y(tr, (function() {
         v();
         r();
-        D(rr, ta);
-        D(rr, va);
-        if ($(ar)) {
+        D(ar, ta);
+        D(ar, va);
+        if (J(er)) {
+          De(er);
+        }
+        if (J(ar)) {
           De(ar);
         }
-        if ($(rr)) {
+        if (J(rr)) {
           De(rr);
-        }
-        if ($(Q)) {
-          De(Q);
         }
         a();
         e();
         t();
       }));
       if (n && !k) {
-        y(nr, gr.bind(0, rr, da));
+        y(tr, gr.bind(0, ar, da));
       }
-      if (er) {
-        W(rr, er);
-        y(nr, X.bind(0, er));
+      if (nr) {
+        W(ar, nr);
+        y(tr, X.bind(0, nr));
       }
-      if (U) {
-        var i = L(rr, Te);
-        L(rr, Te, "-1");
-        rr.focus();
+      if (N) {
+        var i = L(ar, Te);
+        L(ar, Te, "-1");
+        ar.focus();
         var o = Nr(P, "pointerdown keydown", (function() {
-          i ? L(rr, Te, i) : D(rr, Te);
+          i ? L(ar, Te, i) : D(ar, Te);
           o();
         }));
+      } else if (U && U.focus) {
+        U.focus();
       }
-      vr = 0;
+      ir = 0;
     };
-    return [ N, or, O.bind(0, nr) ];
+    return [ Z, ur, O.bind(0, tr) ];
   };
   var Ie = function createTrinsicUpdateSegment(r, a) {
     var e = r.ar;
@@ -2391,7 +2394,7 @@ var OverlayScrollbars = function(r) {
   var yn = function createScrollbarsSetupEvents(r, a) {
     return function(e, n, t, v, i, o) {
       var u = e.Wr;
-      var f = Cr(500), l = f[0], c = f[1];
+      var f = Cr(333), l = f[0], c = f[1];
       var s = !!i.scrollBy;
       var d = true;
       return O.bind(0, [ Nr(u, "pointerenter", (function() {

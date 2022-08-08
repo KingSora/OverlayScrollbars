@@ -1297,8 +1297,9 @@ const createStructureSetupElements = t => {
   const A = x(Ot, i, v);
   const T = A === p;
   const z = T && m;
-  const H = !T && S.top === S && y.activeElement === p;
-  const D = {
+  const H = y.activeElement;
+  const D = !T && S.top === S && H === p;
+  const R = {
     J: p,
     K: b ? x(Ot, l, h) : p,
     Z: A,
@@ -1316,70 +1317,72 @@ const createStructureSetupElements = t => {
     dt: (t, n) => T ? hasAttrClass(A, C, n) : hasClass(A, t),
     ft: (t, n, o) => T ? attrClass(A, C, n, o) : (o ? addClass : removeClass)(A, t)
   };
-  const R = keys(D).reduce(((t, n) => {
-    const o = D[n];
+  const k = keys(R).reduce(((t, n) => {
+    const o = R[n];
     return push(t, o && !parent(o) ? o : false);
   }), []);
-  const elementIsGenerated = t => t ? indexOf(R, t) > -1 : null;
-  const {J: k, K: B, tt: V, Z: j, nt: Y, ot: q} = D;
-  const F = [];
-  const G = b && elementIsGenerated(B);
-  let N = b ? k : contents([ Y, j, V, B, k ].find((t => false === elementIsGenerated(t))));
-  const X = Y || j;
+  const elementIsGenerated = t => t ? indexOf(k, t) > -1 : null;
+  const {J: B, K: V, tt: j, Z: Y, nt: q, ot: F} = R;
+  const G = [];
+  const N = b && elementIsGenerated(V);
+  let X = b ? B : contents([ q, Y, j, V, B ].find((t => false === elementIsGenerated(t))));
+  const U = q || Y;
   const appendElements = () => {
-    const t = addDataAttrHost(B, T ? "viewport" : "host");
-    const n = addClass(V, I);
-    const o = addClass(j, !T && L);
-    const e = addClass(Y, M);
+    const t = addDataAttrHost(V, T ? "viewport" : "host");
+    const n = addClass(j, I);
+    const o = addClass(Y, !T && L);
+    const e = addClass(q, M);
     const c = m ? addClass(parent(p), P) : noop;
-    if (G) {
-      insertAfter(k, B);
-      push(F, (() => {
-        insertAfter(B, k);
-        removeElements(B);
+    if (N) {
+      insertAfter(B, V);
+      push(G, (() => {
+        insertAfter(V, B);
+        removeElements(V);
       }));
     }
-    appendChildren(X, N);
-    appendChildren(B, V);
-    appendChildren(V || B, !T && j);
-    appendChildren(j, Y);
-    push(F, (() => {
+    appendChildren(U, X);
+    appendChildren(V, j);
+    appendChildren(j || V, !T && Y);
+    appendChildren(Y, q);
+    push(G, (() => {
       c();
       t();
-      removeAttr(j, O);
-      removeAttr(j, E);
+      removeAttr(Y, O);
+      removeAttr(Y, E);
+      if (elementIsGenerated(q)) {
+        unwrap(q);
+      }
       if (elementIsGenerated(Y)) {
         unwrap(Y);
       }
       if (elementIsGenerated(j)) {
         unwrap(j);
       }
-      if (elementIsGenerated(V)) {
-        unwrap(V);
-      }
       n();
       o();
       e();
     }));
     if (s && !T) {
-      push(F, removeClass.bind(0, j, P));
+      push(G, removeClass.bind(0, Y, P));
     }
-    if (q) {
-      insertBefore(j, q);
-      push(F, removeElements.bind(0, q));
+    if (F) {
+      insertBefore(Y, F);
+      push(G, removeElements.bind(0, F));
     }
-    if (H) {
-      const t = attr(j, Ct);
-      attr(j, Ct, "-1");
-      j.focus();
+    if (D) {
+      const t = attr(Y, Ct);
+      attr(Y, Ct, "-1");
+      Y.focus();
       const n = on(y, "pointerdown keydown", (() => {
-        t ? attr(j, Ct, t) : removeAttr(j, Ct);
+        t ? attr(Y, Ct, t) : removeAttr(Y, Ct);
         n();
       }));
+    } else if (H && H.focus) {
+      H.focus();
     }
-    N = 0;
+    X = 0;
   };
-  return [ D, appendElements, runEachAndClear.bind(0, F) ];
+  return [ R, appendElements, runEachAndClear.bind(0, G) ];
 };
 
 const createTrinsicUpdateSegment = (t, n) => {
@@ -2363,7 +2366,7 @@ const createDragScrollingEvents = (t, n, o, s, e, c) => {
 
 const createScrollbarsSetupEvents = (t, n) => (o, s, e, c, r, l) => {
   const {Nt: i} = o;
-  const [a, u] = selfCancelTimeout(500);
+  const [a, u] = selfCancelTimeout(333);
   const d = !!r.scrollBy;
   let f = true;
   return runEachAndClear.bind(0, [ on(i, "pointerenter", (() => {
