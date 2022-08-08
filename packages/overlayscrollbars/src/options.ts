@@ -23,7 +23,7 @@ export type ScrollbarAutoHideBehavior = 'never' | 'scroll' | 'leave' | 'move';
 export interface Options {
   paddingAbsolute: boolean;
   showNativeOverlaidScrollbars: boolean;
-  updating: {
+  update: {
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
     attributes: string[] | null;
     debounce: [timeout: number, maxWait: number] | number | null; // (if tuple: [timeout: 0, maxWait: 33], if number: [timeout: number, maxWait: false]) debounce for content Changes
@@ -47,27 +47,26 @@ export interface Options {
 export type ReadonlyOptions = DeepReadonly<Options>;
 
 export const defaultOptions: Options = {
-  // resize: 'none', // none || both  || horizontal || vertical || n || b || h || v
-  paddingAbsolute: false, // true || false
-  showNativeOverlaidScrollbars: false, // true || false
-  updating: {
-    elementEvents: [['img', 'load']], // array of tuples || null
-    debounce: [0, 33], // number || number array || null
-    attributes: null, // string array || null
-    ignoreMutation: null, // () => any || null
+  paddingAbsolute: false,
+  showNativeOverlaidScrollbars: false,
+  update: {
+    elementEvents: [['img', 'load']],
+    debounce: [0, 33],
+    attributes: null,
+    ignoreMutation: null,
   },
   overflow: {
-    x: 'scroll', // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
-    y: 'scroll', // visible-hidden  || visible-scroll || hidden || scroll || v-h || v-s || h || s
+    x: 'scroll',
+    y: 'scroll',
   },
   scrollbars: {
     theme: 'os-theme-dark',
-    visibility: 'auto', // visible || hidden || auto || v || h || a
-    autoHide: 'never', // never || scroll || leave || move || n || s || l || m
-    autoHideDelay: 1300, // number
-    dragScroll: true, // true || false
-    clickScroll: false, // true || false
-    pointers: ['mouse', 'touch', 'pen'], // null || array of supported pointers: https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pointerType
+    visibility: 'auto',
+    autoHide: 'never',
+    autoHideDelay: 1300,
+    dragScroll: true,
+    clickScroll: false,
+    pointers: ['mouse', 'touch', 'pen'],
   },
 };
 

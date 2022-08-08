@@ -27,7 +27,7 @@ const optionsTemplate: OptionsTemplate<Options> = {
   // resize: resizeAllowedValues, // none || both  || horizontal || vertical || n || b ||
   paddingAbsolute: booleanAllowedValues, // true || false
   showNativeOverlaidScrollbars: booleanAllowedValues, // true || false
-  updating: {
+  update: {
     elementEvents: arrayNullValues, // array of tuples || null
     attributes: arrayNullValues,
     debounce: [oTypes.number, oTypes.array, oTypes.null], // number || number array || null

@@ -88,22 +88,30 @@ For example you can appoint an existing element as the `viewport` element. Like 
  ```js
 OverlayScrollbars({ 
   target: document.querySelector('#target'),
-  viewport: document.querySelector('#viewport'),
+  elements: {
+    viewport: document.querySelector('#viewport'),
+  },
 }, {});
 ```
 
 This is very useful if you have a fixed DOM structure and don't want OverlayScrollbars to generate its own elements. Those cases arise very often when you want an other library to work together with OverlayScrollbars.
 
-You can now also decide to which element the scrollbars should be applied to:
+---
+
+You can also decide to which element the scrollbars should be applied to:
 
  ```js
 OverlayScrollbars({ 
   target: document.querySelector('#target'),
-  scrollbarsSlot: document.querySelector('#target').parentElement,
+  scrollbars: {
+    slot: document.querySelector('#target').parentElement,
+  },
 }, {});
 ```
 
-And last but not least you can decide when the library should cancel its initialization:
+---
+
+And last but not least you can decide when the initialization should be canceled:
  ```js
 OverlayScrollbars({ 
   target: document.querySelector('#target'),
@@ -114,14 +122,78 @@ OverlayScrollbars({
 }, {});
 ```
 
-With this `cancel` object the initialization is canceled when the native scrollbars are overlaid or when your target is a `body` element and the plugin determined that a initialization to the `body` element would affect native functionality like `window.scrollTo`.
+In the above example the initialization is canceled when the native scrollbars are overlaid or when your target is a `body` element and the plugin determined that a initialization to the `body` element would affect native functionality like `window.scrollTo`.
 
 </details>
 
+## Options
+
+OverlayScrollbars provides a lot of options which can be changed at any time:
+
+```js
+const defaultOptions = {
+  paddingAbsolute: false,
+  showNativeOverlaidScrollbars: false,
+  update: {
+    elementEvents: [['img', 'load']],
+    debounce: [0, 33],
+    attributes: null,
+    ignoreMutation: null,
+  },
+  overflow: {
+    x: 'scroll',
+    y: 'scroll',
+  },
+  scrollbars: {
+    theme: 'os-theme-dark',
+    visibility: 'auto',
+    autoHide: 'never',
+    autoHideDelay: 1300,
+    dragScroll: true,
+    clickScroll: false,
+    pointers: ['mouse', 'touch', 'pen'],
+  },
+};
+```
+
+<details><summary><h6>Options in depth</h6></summary>
+
+### paddingAbsolute
+
+| type  | default |
+| :--- | :--- |
+| `boolean` | `false` |
+
+Indicates whether the padding for the content shall be absolute.
+
+### showNativeOverlaidScrollbars
+
+| type  | default |
+| :--- | :--- |
+| `boolean` | `false` |
+
+Indicates whether the native overlaid scrollbars shall be visible.
+
+### update.elementEvents
+
+| type  | default |
+| :--- | :--- |
+| `Array<[string, string]> \| null` | `[['img', 'load']]` |
+
+An array of tuples. The first value in the tuple is an `selector` and the second value are `event names`. The plugin will update itself if any of the elements with the specified selector will emit any specified event. The default value can be interpreted as "The plugin will update itself if any `img` element emits an `load` event."
+
+### update.debounce
+
+| type  | default |
+| :--- | :--- |
+| `[number, number] \| number \| null` | `[0, 33]` |
+
+> __Note__ If 0 is used for the timeout, `requestAnimationFrame` instead of `setTimeout` is used for the debounce.
+
+Debounces the `MutationObserver` which tracks changes to the content. If a tuple is passed, the first value is the timeout and second is the max wait. If only a number is passed you specify only the timeout and there is no max wait. With null there is no debounce.
 
 
-
-
+</details>
 
 ## Sponsors
 <table>

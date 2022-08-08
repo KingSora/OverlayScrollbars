@@ -296,13 +296,13 @@ export const createStructureSetupObservers = (
       return updateHints;
     },
     (checkOption) => {
-      const [ignoreMutation] = checkOption<string[] | null>('updating.ignoreMutation');
-      const [attributes, attributesChanged] = checkOption<string[] | null>('updating.attributes');
+      const [ignoreMutation] = checkOption<string[] | null>('update.ignoreMutation');
+      const [attributes, attributesChanged] = checkOption<string[] | null>('update.attributes');
       const [elementEvents, elementEventsChanged] = checkOption<Array<[string, string]> | null>(
-        'updating.elementEvents'
+        'update.elementEvents'
       );
       const [debounceValue, debounceChanged] = checkOption<Array<number> | number | null>(
-        'updating.debounce'
+        'update.debounce'
       );
       const updateContentMutationObserver = elementEventsChanged || attributesChanged;
       const ignoreMutationFromOptions = (mutation: MutationRecord) =>
@@ -343,8 +343,8 @@ export const createStructureSetupObservers = (
         if (isArray(debounceValue)) {
           const timeout = debounceValue[0];
           const maxWait = debounceValue[1];
-          debounceTimeout = isNumber(timeout) ? timeout : false;
-          debounceMaxDelay = isNumber(maxWait) ? maxWait : false;
+          debounceTimeout = isNumber(timeout) && timeout;
+          debounceMaxDelay = isNumber(maxWait) && maxWait;
         } else if (isNumber(debounceValue)) {
           debounceTimeout = debounceValue;
           debounceMaxDelay = false;
