@@ -380,7 +380,9 @@ body > .os-scrollbar {
 }
 
 .os-scrollbar-unusable,
-.os-scrollbar-unusable * {
+.os-scrollbar-unusable *,
+.os-scrollbar-wheel,
+.os-scrollbar-wheel * {
   pointer-events: none !important;
 }
 

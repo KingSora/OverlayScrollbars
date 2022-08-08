@@ -7,20 +7,23 @@ import {
   runEachAndClear,
   stopPropagation,
   XY,
+  selfCancelTimeout,
+  parent,
 } from 'support';
-import { classNamesScrollbarInteraction } from 'classnames';
+import { getEnvironment } from 'environment';
+import { classNamesScrollbarInteraction, classNamesScrollbarWheel } from 'classnames';
 import type { ReadonlyOptions } from 'options';
 import type { StructureSetupState } from 'setups';
 import type {
   ScrollbarsSetupElementsObj,
   ScrollbarStructure,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
-import { getEnvironment } from 'environment';
 
 export type ScrollbarsSetupEvents = (
   scrollbarStructure: ScrollbarStructure,
   scrollbarsAddRemoveClass: ScrollbarsSetupElementsObj['_scrollbarsAddRemoveClass'],
   documentElm: Document,
+  hostElm: HTMLElement,
   scrollOffsetElm: HTMLElement,
   isHorizontal?: boolean
 ) => () => void;
@@ -124,8 +127,18 @@ export const createScrollbarsSetupEvents =
     options: ReadonlyOptions,
     structureSetupState: () => StructureSetupState
   ): ScrollbarsSetupEvents =>
-  (scrollbarStructure, scrollbarsAddRemoveClass, documentElm, scrollOffsetElm, isHorizontal) => {
+  (
+    scrollbarStructure,
+    scrollbarsAddRemoveClass,
+    documentElm,
+    hostElm,
+    scrollOffsetElm,
+    isHorizontal
+  ) => {
     const { _scrollbar } = scrollbarStructure;
+    const [wheelTimeout, clearScrollTimeout] = selfCancelTimeout(500);
+    const scrollByFn = !!scrollOffsetElm.scrollBy;
+    let wheelScrollBy = true;
 
     return runEachAndClear.bind(0, [
       on(_scrollbar, 'pointerenter', () => {
@@ -134,6 +147,31 @@ export const createScrollbarsSetupEvents =
       on(_scrollbar, 'pointerleave pointercancel', () => {
         scrollbarsAddRemoveClass(classNamesScrollbarInteraction);
       }),
+      on(
+        _scrollbar,
+        'wheel',
+        (wheelEvent: WheelEvent) => {
+          const { deltaX, deltaY, deltaMode } = wheelEvent;
+
+          if (scrollByFn && wheelScrollBy && deltaMode === 0 && parent(_scrollbar) === hostElm) {
+            scrollOffsetElm.scrollBy({
+              left: deltaX,
+              top: deltaY,
+              behavior: 'smooth',
+            });
+          }
+
+          wheelScrollBy = false;
+          scrollbarsAddRemoveClass(classNamesScrollbarWheel, true);
+          wheelTimeout(() => {
+            wheelScrollBy = true;
+            scrollbarsAddRemoveClass(classNamesScrollbarWheel);
+          });
+
+          preventDefault(wheelEvent);
+        },
+        { _passive: false, _capture: true }
+      ),
       createRootClickStopPropagationEvents(_scrollbar, documentElm),
       createDragScrollingEvents(
         options,
@@ -143,5 +181,6 @@ export const createScrollbarsSetupEvents =
         structureSetupState,
         isHorizontal
       ),
+      clearScrollTimeout,
     ]);
   };

@@ -203,6 +203,7 @@ export const createScrollbarsSetupElements = (
         result,
         scrollbarsAddRemoveClass,
         _documentElm,
+        _host,
         _scrollOffsetElement,
         isHorizontal
       ),

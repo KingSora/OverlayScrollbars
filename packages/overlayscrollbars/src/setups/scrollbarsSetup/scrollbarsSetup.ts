@@ -1,15 +1,4 @@
-import {
-  rAF,
-  cAF,
-  isFunction,
-  on,
-  runEachAndClear,
-  setT,
-  clearT,
-  parent,
-  scrollLeft,
-  scrollTop,
-} from 'support';
+import { on, runEachAndClear, parent, scrollLeft, scrollTop, selfCancelTimeout } from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
 import { createScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
 import {
@@ -44,20 +33,6 @@ export interface ScrollbarsSetupStaticState {
   _appendElements: () => void;
 }
 
-const createSelfCancelTimeout = (timeout?: number | (() => number)) => {
-  let id: number;
-  const setTFn = timeout ? setT : rAF!;
-  const clearTFn = timeout ? clearT : cAF!;
-  return [
-    (callback: () => any) => {
-      clearTFn(id);
-      // @ts-ignore
-      id = setTFn(callback, isFunction(timeout) ? timeout() : timeout);
-    },
-    () => clearTFn(id),
-  ] as [timeout: (callback: () => any) => void, clear: () => void];
-};
-
 export const createScrollbarsSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions,
@@ -76,11 +51,11 @@ export const createScrollbarsSetup = (
 
   const state = createState({});
   const [getState] = state;
-  const [requestMouseMoveAnimationFrame, cancelMouseMoveAnimationFrame] = createSelfCancelTimeout();
-  const [requestScrollAnimationFrame, cancelScrollAnimationFrame] = createSelfCancelTimeout();
-  const [scrollTimeout, clearScrollTimeout] = createSelfCancelTimeout(100);
-  const [auotHideMoveTimeout, clearAutoHideTimeout] = createSelfCancelTimeout(100);
-  const [auotHideTimeout, clearAutoTimeout] = createSelfCancelTimeout(() => globalAutoHideDelay);
+  const [requestMouseMoveAnimationFrame, cancelMouseMoveAnimationFrame] = selfCancelTimeout();
+  const [requestScrollAnimationFrame, cancelScrollAnimationFrame] = selfCancelTimeout();
+  const [scrollTimeout, clearScrollTimeout] = selfCancelTimeout(100);
+  const [auotHideMoveTimeout, clearAutoHideTimeout] = selfCancelTimeout(100);
+  const [auotHideTimeout, clearAutoTimeout] = selfCancelTimeout(() => globalAutoHideDelay);
   const [elements, appendElements, destroyElements] = createScrollbarsSetupElements(
     target,
     structureSetupState._elements,

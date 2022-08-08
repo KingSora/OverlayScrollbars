@@ -36,5 +36,6 @@ export const classNamesScrollbarTransitionless = `${classNameScrollbar}-transiti
 export const classNamesScrollbarInteraction = `${classNameScrollbar}-interaction`;
 export const classNamesScrollbarUnusable = `${classNameScrollbar}-unusable`;
 export const classNamesScrollbarAutoHidden = `${classNameScrollbar}-auto-hidden`;
+export const classNamesScrollbarWheel = `${classNameScrollbar}-wheel`;
 export const classNamesScrollbarTrackInteractive = `${classNameScrollbarTrack}-interactive`;
 export const classNamesScrollbarHandleInteractive = `${classNameScrollbarHandle}-interactive`;

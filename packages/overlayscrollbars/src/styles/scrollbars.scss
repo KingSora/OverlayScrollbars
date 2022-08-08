@@ -58,7 +58,9 @@ body > .os-scrollbar {
   visibility: hidden;
 }
 .os-scrollbar-unusable,
-.os-scrollbar-unusable * {
+.os-scrollbar-unusable *,
+.os-scrollbar-wheel,
+.os-scrollbar-wheel * {
   pointer-events: none !important;
 }
 .os-scrollbar-unusable .os-scrollbar-handle {

@@ -30,6 +30,20 @@ export interface Debounced<FunctionToDebounce extends (...args: any) => any> {
 
 export const noop = () => {}; // eslint-disable-line
 
+export const selfCancelTimeout = (timeout?: number | (() => number)) => {
+  let id: number;
+  const setTFn = timeout ? setT : rAF!;
+  const clearTFn = timeout ? clearT : cAF!;
+  return [
+    (callback: () => any) => {
+      clearTFn(id);
+      // @ts-ignore
+      id = setTFn(callback, isFunction(timeout) ? timeout() : timeout);
+    },
+    () => clearTFn(id),
+  ] as [timeout: (callback: () => any) => void, clear: () => void];
+};
+
 /**
  * Debounces the given function either with a timeout or a animation frame.
  * @param functionToDebounce The function which shall be debounced.
