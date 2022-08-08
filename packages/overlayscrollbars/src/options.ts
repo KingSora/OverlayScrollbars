@@ -25,8 +25,8 @@ export interface Options {
   showNativeOverlaidScrollbars: boolean;
   update: {
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
-    attributes: string[] | null;
     debounce: [timeout: number, maxWait: number] | number | null; // (if tuple: [timeout: 0, maxWait: 33], if number: [timeout: number, maxWait: false]) debounce for content Changes
+    attributes: string[] | null;
     ignoreMutation: ((mutation: MutationRecord) => any) | null;
   };
   overflow: {

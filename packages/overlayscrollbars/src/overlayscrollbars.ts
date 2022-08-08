@@ -92,7 +92,7 @@ export interface Elements {
 
 export interface OverlayScrollbars {
   options(): Options;
-  options(newOptions?: DeepPartial<Options>): Options;
+  options(newOptions: DeepPartial<Options>): Options;
 
   update(force?: boolean): OverlayScrollbars;
 

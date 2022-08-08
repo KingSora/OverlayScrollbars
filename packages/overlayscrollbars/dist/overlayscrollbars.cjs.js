@@ -697,7 +697,7 @@ const opsStringify = t => JSON.stringify(t, ((t, n) => {
 const m = {
   paddingAbsolute: false,
   showNativeOverlaidScrollbars: false,
-  updating: {
+  update: {
     elementEvents: [ [ "img", "load" ] ],
     debounce: [ 0, 33 ],
     attributes: null,
@@ -851,7 +851,7 @@ const dt = "never scroll leavemove";
 ({
   paddingAbsolute: lt,
   showNativeOverlaidScrollbars: lt,
-  updating: {
+  update: {
     elementEvents: it,
     attributes: it,
     debounce: [ ct.number, ct.array, ct.null ],
@@ -2167,10 +2167,10 @@ const createStructureSetupObservers = (t, n, o) => {
     }
     return t;
   }, t => {
-    const [n] = t("updating.ignoreMutation");
-    const [o, r] = t("updating.attributes");
-    const [l, u] = t("updating.elementEvents");
-    const [d, _] = t("updating.debounce");
+    const [n] = t("update.ignoreMutation");
+    const [o, r] = t("update.attributes");
+    const [l, u] = t("update.elementEvents");
+    const [d, _] = t("update.debounce");
     const h = u || r;
     const ignoreMutationFromOptions = t => isFunction(n) && n(t);
     if (h) {
@@ -2195,8 +2195,8 @@ const createStructureSetupObservers = (t, n, o) => {
       if (isArray(d)) {
         const t = d[0];
         const n = d[1];
-        s = isNumber(t) ? t : false;
-        e = isNumber(n) ? n : false;
+        s = isNumber(t) && t;
+        e = isNumber(n) && n;
       } else if (isNumber(d)) {
         s = d;
         e = false;

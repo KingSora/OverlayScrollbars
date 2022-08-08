@@ -11,51 +11,51 @@
 var OverlayScrollbars = function(r) {
   "use strict";
   function each(r, a) {
-    if (h(r)) {
-      for (var n = 0; n < r.length; n++) {
-        if (false === a(r[n], n, r)) {
+    if (g(r)) {
+      for (var e = 0; e < r.length; e++) {
+        if (false === a(r[e], e, r)) {
           break;
         }
       }
     } else if (r) {
-      each(Object.keys(r), (function(n) {
-        return a(r[n], n, r);
+      each(Object.keys(r), (function(e) {
+        return a(r[e], e, r);
       }));
     }
     return r;
   }
   function style(r, a) {
-    var n = l(a);
-    var e = d(a) || n;
-    if (e) {
-      var t = n ? "" : {};
+    var e = l(a);
+    var n = d(a) || e;
+    if (n) {
+      var t = e ? "" : {};
       if (r) {
         var i = window.getComputedStyle(r, null);
-        t = n ? Ar(r, i, a) : a.reduce((function(a, n) {
-          a[n] = Ar(r, i, n);
+        t = e ? Ar(r, i, a) : a.reduce((function(a, e) {
+          a[e] = Ar(r, i, e);
           return a;
         }), t);
       }
       return t;
     }
-    r && each(E(a), (function(n) {
-      return Pr(r, n, a[n]);
+    r && each(E(a), (function(e) {
+      return Pr(r, e, a[e]);
     }));
   }
   function getDefaultExportFromCjs(r) {
     return r && r.v && Object.prototype.hasOwnProperty.call(r, "default") ? r["default"] : r;
   }
   var a = function createCache(r, a) {
-    var n = r.o, e = r.u, t = r.g;
-    var i = n;
+    var e = r.o, n = r.u, t = r.g;
+    var i = e;
     var v;
     var o = function cacheUpdateContextual(r, a) {
-      var n = i;
+      var e = i;
       var o = r;
-      var u = a || (e ? !e(n, o) : n !== o);
+      var u = a || (n ? !n(e, o) : e !== o);
       if (u || t) {
         i = o;
-        v = n;
+        v = e;
       }
       return [ i, u, v ];
     };
@@ -67,8 +67,8 @@ var OverlayScrollbars = function(r) {
     };
     return [ a ? u : o, f ];
   };
-  var n = Node.ELEMENT_NODE;
-  var e = Object.prototype, t = e.toString, i = e.hasOwnProperty;
+  var e = Node.ELEMENT_NODE;
+  var n = Object.prototype, t = n.toString, i = n.hasOwnProperty;
   var v = function isUndefined(r) {
     return void 0 === r;
   };
@@ -93,25 +93,25 @@ var OverlayScrollbars = function(r) {
   var d = function isArray(r) {
     return Array.isArray(r);
   };
-  var g = function isObject(r) {
+  var h = function isObject(r) {
     return "object" === typeof r && !d(r) && !o(r);
   };
-  var h = function isArrayLike(r) {
+  var g = function isArrayLike(r) {
     var a = !!r && r.length;
-    var n = f(a) && a > -1 && a % 1 == 0;
-    return d(r) || !s(r) && n ? a > 0 && g(r) ? a - 1 in r : true : false;
+    var e = f(a) && a > -1 && a % 1 == 0;
+    return d(r) || !s(r) && e ? a > 0 && h(r) ? a - 1 in r : true : false;
   };
   var p = function isPlainObject(r) {
-    if (!r || !g(r) || "object" !== u(r)) {
+    if (!r || !h(r) || "object" !== u(r)) {
       return false;
     }
     var a;
-    var n = "constructor";
-    var e = r[n];
-    var t = e && e.prototype;
-    var o = i.call(r, n);
+    var e = "constructor";
+    var n = r[e];
+    var t = n && n.prototype;
+    var o = i.call(r, e);
     var f = t && i.call(t, "isPrototypeOf");
-    if (e && !o && !f) {
+    if (n && !o && !f) {
       return false;
     }
     for (a in r) {}
@@ -119,45 +119,45 @@ var OverlayScrollbars = function(r) {
   };
   var b = function isHTMLElement(r) {
     var a = HTMLElement;
-    return r ? a ? r instanceof a : r.nodeType === n : false;
+    return r ? a ? r instanceof a : r.nodeType === e : false;
   };
   var w = function isElement(r) {
     var a = Element;
-    return r ? a ? r instanceof a : r.nodeType === n : false;
+    return r ? a ? r instanceof a : r.nodeType === e : false;
   };
-  var m = function indexOf(r, a, n) {
-    return r.indexOf(a, n);
+  var m = function indexOf(r, a, e) {
+    return r.indexOf(a, e);
   };
-  var y = function push(r, a, n) {
-    !n && !l(a) && h(a) ? Array.prototype.push.apply(r, a) : r.push(a);
+  var y = function push(r, a, e) {
+    !e && !l(a) && g(a) ? Array.prototype.push.apply(r, a) : r.push(a);
     return r;
   };
   var S = function from(r) {
     var a = Array.from;
-    var n = [];
+    var e = [];
     if (a && r) {
       return a(r);
     }
     if (r instanceof Set) {
       r.forEach((function(r) {
-        y(n, r);
+        y(e, r);
       }));
     } else {
       each(r, (function(r) {
-        y(n, r);
+        y(e, r);
       }));
     }
-    return n;
+    return e;
   };
   var C = function isEmptyArray(r) {
     return !!r && 0 === r.length;
   };
-  var O = function runEachAndClear(r, a, n) {
-    var e = function runFn(r) {
+  var O = function runEachAndClear(r, a, e) {
+    var n = function runFn(r) {
       return r && r.apply(void 0, a || []);
     };
-    each(r, e);
-    !n && (r.length = 0);
+    each(r, n);
+    !e && (r.length = 0);
   };
   var x = function hasOwnProperty(r, a) {
     return Object.prototype.hasOwnProperty.call(r, a);
@@ -165,29 +165,29 @@ var OverlayScrollbars = function(r) {
   var E = function keys(r) {
     return r ? Object.keys(r) : [];
   };
-  var A = function assignDeep(r, a, n, e, t, i, v) {
-    var u = [ a, n, e, t, i, v ];
+  var A = function assignDeep(r, a, e, n, t, i, v) {
+    var u = [ a, e, n, t, i, v ];
     if (("object" !== typeof r || o(r)) && !s(r)) {
       r = {};
     }
     each(u, (function(a) {
-      each(E(a), (function(n) {
-        var e = a[n];
-        if (r === e) {
+      each(E(a), (function(e) {
+        var n = a[e];
+        if (r === n) {
           return true;
         }
-        var t = d(e);
-        if (e && (p(e) || t)) {
-          var i = r[n];
+        var t = d(n);
+        if (n && (p(n) || t)) {
+          var i = r[e];
           var v = i;
           if (t && !d(i)) {
             v = [];
           } else if (!t && !p(i)) {
             v = {};
           }
-          r[n] = assignDeep(v, e);
+          r[e] = assignDeep(v, n);
         } else {
-          r[n] = e;
+          r[e] = n;
         }
       }));
     }));
@@ -199,30 +199,30 @@ var OverlayScrollbars = function(r) {
     }
     return true;
   };
-  var z = function getSetProp(r, a, n, e) {
-    if (v(e)) {
-      return n ? n[r] : a;
-    }
-    n && (l(e) || f(e)) && (n[r] = e);
-  };
-  var L = function attr(r, a, n) {
+  var z = function getSetProp(r, a, e, n) {
     if (v(n)) {
+      return e ? e[r] : a;
+    }
+    e && (l(n) || f(n)) && (e[r] = n);
+  };
+  var L = function attr(r, a, e) {
+    if (v(e)) {
       return r ? r.getAttribute(a) : null;
     }
-    r && r.setAttribute(a, n);
+    r && r.setAttribute(a, e);
   };
-  var T = function attrClass(r, a, n, e) {
-    if (n) {
+  var T = function attrClass(r, a, e, n) {
+    if (e) {
       var t = L(r, a) || "";
       var i = new Set(t.split(" "));
-      i[e ? "add" : "delete"](n);
+      i[n ? "add" : "delete"](e);
       L(r, a, S(i).join(" ").trim());
     }
   };
-  var H = function hasAttrClass(r, a, n) {
-    var e = L(r, a) || "";
-    var t = new Set(e.split(" "));
-    return t.has(n);
+  var H = function hasAttrClass(r, a, e) {
+    var n = L(r, a) || "";
+    var t = new Set(n.split(" "));
+    return t.has(e);
   };
   var D = function removeAttr(r, a) {
     r && r.removeAttribute(a);
@@ -235,18 +235,18 @@ var OverlayScrollbars = function(r) {
   };
   var I = Element.prototype;
   var V = function find(r, a) {
-    var n = [];
-    var e = a ? w(a) ? a : null : document;
-    return e ? y(n, e.querySelectorAll(r)) : n;
+    var e = [];
+    var n = a ? w(a) ? a : null : document;
+    return n ? y(e, n.querySelectorAll(r)) : e;
   };
   var k = function findFirst(r, a) {
-    var n = a ? w(a) ? a : null : document;
-    return n ? n.querySelector(r) : null;
+    var e = a ? w(a) ? a : null : document;
+    return e ? e.querySelector(r) : null;
   };
   var j = function is(r, a) {
     if (w(r)) {
-      var n = I.matches || I.msMatchesSelector;
-      return n.call(r, a);
+      var e = I.matches || I.msMatchesSelector;
+      return e.call(r, a);
     }
     return false;
   };
@@ -258,9 +258,9 @@ var OverlayScrollbars = function(r) {
   };
   var q = function closest(r, a) {
     if (w(r)) {
-      var n = I.closest;
-      if (n) {
-        return n.call(r, a);
+      var e = I.closest;
+      if (e) {
+        return e.call(r, a);
       }
       do {
         if (j(r, a)) {
@@ -271,35 +271,35 @@ var OverlayScrollbars = function(r) {
     }
     return null;
   };
-  var U = function liesBetween(r, a, n) {
-    var e = r && q(r, a);
-    var t = r && k(n, e);
-    var i = q(t, a) === e;
-    return e && t ? e === r || t === r || i && q(q(r, n), a) !== e : false;
+  var U = function liesBetween(r, a, e) {
+    var n = r && q(r, a);
+    var t = r && k(e, n);
+    var i = q(t, a) === n;
+    return n && t ? n === r || t === r || i && q(q(r, e), a) !== n : false;
   };
-  var N = function before(r, a, n) {
-    if (n && r) {
-      var e = a;
+  var N = function before(r, a, e) {
+    if (e && r) {
+      var n = a;
       var t;
-      if (h(n)) {
+      if (g(e)) {
         t = document.createDocumentFragment();
-        each(n, (function(r) {
-          if (r === e) {
-            e = r.previousSibling;
+        each(e, (function(r) {
+          if (r === n) {
+            n = r.previousSibling;
           }
           t.appendChild(r);
         }));
       } else {
-        t = n;
+        t = e;
       }
       if (a) {
-        if (!e) {
-          e = r.firstChild;
-        } else if (e !== a) {
-          e = e.nextSibling;
+        if (!n) {
+          n = r.firstChild;
+        } else if (n !== a) {
+          n = n.nextSibling;
         }
       }
-      r.insertBefore(t, e || null);
+      r.insertBefore(t, n || null);
     }
   };
   var Y = function appendChildren(r, a) {
@@ -312,7 +312,7 @@ var OverlayScrollbars = function(r) {
     N(F(r), r && r.nextSibling, a);
   };
   var X = function removeElements(r) {
-    if (h(r)) {
+    if (g(r)) {
       each(S(r), (function(r) {
         return removeElements(r);
       }));
@@ -346,30 +346,30 @@ var OverlayScrollbars = function(r) {
   var Q = [ "-webkit-", "-moz-", "-o-", "-ms-" ];
   var rr = [ "WebKit", "Moz", "O", "MS", "webkit", "moz", "o", "ms" ];
   var ar = {};
-  var nr = {};
-  var er = function cssProperty(r) {
-    var a = nr[r];
-    if (x(nr, r)) {
+  var er = {};
+  var nr = function cssProperty(r) {
+    var a = er[r];
+    if (x(er, r)) {
       return a;
     }
-    var n = J(r);
-    var e = K();
+    var e = J(r);
+    var n = K();
     each(Q, (function(t) {
       var i = t.replace(/-/g, "");
-      var v = [ r, t + r, i + n, J(i) + n ];
+      var v = [ r, t + r, i + e, J(i) + e ];
       return !(a = v.find((function(r) {
-        return void 0 !== e[r];
+        return void 0 !== n[r];
       })));
     }));
-    return nr[r] = a || "";
+    return er[r] = a || "";
   };
   var tr = function jsAPI(r) {
     var a = ar[r] || window[r];
     if (x(ar, r)) {
       return a;
     }
-    each(rr, (function(n) {
-      a = a || window[n + J(r)];
+    each(rr, (function(e) {
+      a = a || window[e + J(r)];
       return !a;
     }));
     ar[r] = a;
@@ -383,26 +383,26 @@ var OverlayScrollbars = function(r) {
   var lr = window.setTimeout;
   var cr = window.clearTimeout;
   var sr = /[^\x20\t\r\n\f]+/g;
-  var dr = function classListAction(r, a, n) {
-    var e = r && r.classList;
+  var dr = function classListAction(r, a, e) {
+    var n = r && r.classList;
     var t;
     var i = 0;
     var v = false;
-    if (e && a && l(a)) {
+    if (n && a && l(a)) {
       var o = a.match(sr) || [];
       v = o.length > 0;
       while (t = o[i++]) {
-        v = !!n(e, t) && v;
+        v = !!e(n, t) && v;
       }
     }
     return v;
   };
-  var gr = function hasClass(r, a) {
+  var hr = function hasClass(r, a) {
     return dr(r, a, (function(r, a) {
       return r.contains(a);
     }));
   };
-  var hr = function removeClass(r, a) {
+  var gr = function removeClass(r, a) {
     dr(r, a, (function(r, a) {
       return r.remove(a);
     }));
@@ -411,14 +411,14 @@ var OverlayScrollbars = function(r) {
     dr(r, a, (function(r, a) {
       return r.add(a);
     }));
-    return hr.bind(0, r, a);
+    return gr.bind(0, r, a);
   };
-  var _r = function equal(r, a, n, e) {
+  var _r = function equal(r, a, e, n) {
     if (r && a) {
       var t = true;
-      each(n, (function(n) {
-        var i = e ? e(r[n]) : r[n];
-        var v = e ? e(a[n]) : a[n];
+      each(e, (function(e) {
+        var i = n ? n(r[e]) : r[e];
+        var v = n ? n(a[e]) : a[e];
         if (i !== v) {
           t = false;
         }
@@ -436,40 +436,40 @@ var OverlayScrollbars = function(r) {
   var mr = function equalTRBL(r, a) {
     return _r(r, a, [ "t", "r", "b", "l" ]);
   };
-  var yr = function equalBCRWH(r, a, n) {
-    return _r(r, a, [ "width", "height" ], n && function(r) {
+  var yr = function equalBCRWH(r, a, e) {
+    return _r(r, a, [ "width", "height" ], e && function(r) {
       return Math.round(r);
     });
   };
   var Sr = function noop() {};
   var Cr = function debounce(r, a) {
-    var n;
     var e;
+    var n;
     var t;
     var i = Sr;
     var v = a || {}, o = v.p, u = v._, l = v.m;
     var c = function invokeFunctionToDebounce(a) {
       i();
-      cr(n);
-      n = e = void 0;
+      cr(e);
+      e = n = void 0;
       i = Sr;
       r.apply(this, a);
     };
     var d = function mergeParms(r) {
-      return l && e ? l(e, r) : r;
+      return l && n ? l(n, r) : r;
     };
-    var g = function flush() {
+    var h = function flush() {
       if (i !== Sr) {
         c(d(t) || t);
       }
     };
-    var h = function debouncedFn() {
+    var g = function debouncedFn() {
       var r = S(arguments);
       var a = s(o) ? o() : o;
       var v = f(a) && a >= 0;
       if (v) {
         var l = s(u) ? u() : u;
-        var h = f(l) && l >= 0;
+        var g = f(l) && l >= 0;
         var p = a > 0 ? lr : fr;
         var b = a > 0 ? cr : ur;
         var w = d(r);
@@ -480,51 +480,51 @@ var OverlayScrollbars = function(r) {
         i = function clear() {
           return b(C);
         };
-        if (h && !n) {
-          n = lr(g, l);
+        if (g && !e) {
+          e = lr(h, l);
         }
-        e = t = m;
+        n = t = m;
       } else {
         c(r);
       }
     };
-    h.S = g;
-    return h;
+    g.S = h;
+    return g;
   };
   var Or = {
     opacity: 1,
     zindex: 1
   };
   var xr = function parseToZeroOrNumber(r, a) {
-    var n = a ? parseFloat(r) : parseInt(r, 10);
-    return n === n ? n : 0;
+    var e = a ? parseFloat(r) : parseInt(r, 10);
+    return e === e ? e : 0;
   };
   var Er = function adaptCSSVal(r, a) {
     return !Or[r.toLowerCase()] && f(a) ? a + "px" : a;
   };
-  var Ar = function getCSSVal(r, a, n) {
-    return null != a ? a[n] || a.getPropertyValue(n) : r.style[n];
+  var Ar = function getCSSVal(r, a, e) {
+    return null != a ? a[e] || a.getPropertyValue(e) : r.style[e];
   };
-  var Pr = function setCSSVal(r, a, n) {
+  var Pr = function setCSSVal(r, a, e) {
     try {
-      var e = r.style;
-      if (!v(e[a])) {
-        e[a] = Er(a, n);
+      var n = r.style;
+      if (!v(n[a])) {
+        n[a] = Er(a, e);
       } else {
-        e.setProperty(a, n);
+        n.setProperty(a, e);
       }
     } catch (t) {}
   };
   var zr = function directionIsRTL(r) {
     return "rtl" === style(r, "direction");
   };
-  var Lr = function topRightBottomLeft(r, a, n) {
-    var e = a ? a + "-" : "";
-    var t = n ? "-" + n : "";
-    var i = e + "top" + t;
-    var v = e + "right" + t;
-    var o = e + "bottom" + t;
-    var u = e + "left" + t;
+  var Lr = function topRightBottomLeft(r, a, e) {
+    var n = a ? a + "-" : "";
+    var t = e ? "-" + e : "";
+    var i = n + "top" + t;
+    var v = n + "right" + t;
+    var o = n + "bottom" + t;
+    var u = n + "left" + t;
     var f = style(r, [ i, v, o, u ]);
     return {
       t: xr(f[i]),
@@ -564,9 +564,9 @@ var OverlayScrollbars = function(r) {
   };
   var Vr = function fractionalSize(r) {
     var a = parseFloat(style(r, "height")) || 0;
-    var n = parseFloat(style(r, "width")) || 0;
+    var e = parseFloat(style(r, "width")) || 0;
     return {
-      w: n - Tr(n),
+      w: e - Tr(e),
       h: a - Tr(a)
     };
   };
@@ -590,29 +590,29 @@ var OverlayScrollbars = function(r) {
   var Fr = function splitEventNames(r) {
     return r.split(" ");
   };
-  var qr = function off(r, a, n, e) {
+  var qr = function off(r, a, e, n) {
     each(Fr(a), (function(a) {
-      r.removeEventListener(a, n, e);
+      r.removeEventListener(a, e, n);
     }));
   };
-  var Ur = function on(r, a, n, e) {
+  var Ur = function on(r, a, e, n) {
     var t;
     var i = Br();
-    var v = null != (t = i && e && e.C) ? t : i;
-    var o = e && e.O || false;
-    var u = e && e.A || false;
+    var v = null != (t = i && n && n.C) ? t : i;
+    var o = n && n.O || false;
+    var u = n && n.A || false;
     var f = [];
     var l = i ? {
       passive: v,
       capture: o
     } : o;
     each(Fr(a), (function(a) {
-      var e = u ? function(t) {
-        r.removeEventListener(a, e, o);
-        n && n(t);
-      } : n;
-      y(f, qr.bind(null, r, a, e, o));
-      r.addEventListener(a, e, l);
+      var n = u ? function(t) {
+        r.removeEventListener(a, n, o);
+        e && e(t);
+      } : e;
+      y(f, qr.bind(null, r, a, n, o));
+      r.addEventListener(a, n, l);
     }));
     return O.bind(0, f);
   };
@@ -638,14 +638,14 @@ var OverlayScrollbars = function(r) {
   };
   var Zr = function createEventListenerHub(r) {
     var a = new Map;
-    var n = function removeEvent(r, n) {
+    var e = function removeEvent(r, e) {
       if (r) {
-        var e = a.get(r);
+        var n = a.get(r);
         Xr((function(r) {
-          if (e) {
-            e[r ? "delete" : "clear"](r);
+          if (n) {
+            n[r ? "delete" : "clear"](r);
           }
-        }), n);
+        }), e);
       } else {
         a.forEach((function(r) {
           r.clear();
@@ -653,19 +653,19 @@ var OverlayScrollbars = function(r) {
         a.clear();
       }
     };
-    var e = function addEvent(r, e) {
+    var n = function addEvent(r, n) {
       var t = a.get(r) || new Set;
       a.set(r, t);
       Xr((function(r) {
         r && t.add(r);
-      }), e);
-      return n.bind(0, r, e);
+      }), n);
+      return e.bind(0, r, n);
     };
-    var t = function triggerEvent(r, n) {
-      var e = a.get(r);
-      each(S(e), (function(r) {
-        if (n && !C(n)) {
-          r.apply(0, n);
+    var t = function triggerEvent(r, e) {
+      var n = a.get(r);
+      each(S(n), (function(r) {
+        if (e && !C(e)) {
+          r.apply(0, e);
         } else {
           r();
         }
@@ -673,9 +673,9 @@ var OverlayScrollbars = function(r) {
     };
     var i = E(r);
     each(i, (function(a) {
-      e(a, r[a]);
+      n(a, r[a]);
     }));
-    return [ e, n, t ];
+    return [ n, e, t ];
   };
   var $r = function opsStringify(r) {
     return JSON.stringify(r, (function(r, a) {
@@ -688,7 +688,7 @@ var OverlayScrollbars = function(r) {
   var Jr = {
     paddingAbsolute: false,
     showNativeOverlaidScrollbars: false,
-    updating: {
+    update: {
       elementEvents: [ [ "img", "load" ] ],
       debounce: [ 0, 33 ],
       attributes: null,
@@ -709,14 +709,14 @@ var OverlayScrollbars = function(r) {
     }
   };
   var Kr = function getOptionsDiff(r, a) {
-    var n = {};
-    var e = E(a).concat(E(r));
-    each(e, (function(e) {
-      var t = r[e];
-      var i = a[e];
-      if (g(t) && g(i)) {
-        A(n[e] = {}, getOptionsDiff(t, i));
-      } else if (x(a, e) && i !== t) {
+    var e = {};
+    var n = E(a).concat(E(r));
+    each(n, (function(n) {
+      var t = r[n];
+      var i = a[n];
+      if (h(t) && h(i)) {
+        A(e[n] = {}, getOptionsDiff(t, i));
+      } else if (x(a, n) && i !== t) {
         var v = true;
         if (d(t) || d(i)) {
           try {
@@ -726,18 +726,18 @@ var OverlayScrollbars = function(r) {
           } catch (o) {}
         }
         if (v) {
-          n[e] = i;
+          e[n] = i;
         }
       }
     }));
-    return n;
+    return e;
   };
   var Qr = "os-environment";
   var ra = Qr + "-flexbox-glue";
   var aa = ra + "-max";
-  var na = "data-overlayscrollbars";
-  var ea = na + "-overflow-x";
-  var ta = na + "-overflow-y";
+  var ea = "data-overlayscrollbars";
+  var na = ea + "-overflow-x";
+  var ta = ea + "-overflow-y";
   var ia = "overflowVisible";
   var va = "scrollbarHidden";
   var oa = "updating";
@@ -747,9 +747,9 @@ var OverlayScrollbars = function(r) {
   var ca = "os-content";
   var sa = fa + "-scrollbar-hidden";
   var da = "os-overflow-visible";
-  var ga = "os-size-observer";
-  var ha = ga + "-appear";
-  var pa = ga + "-listener";
+  var ha = "os-size-observer";
+  var ga = ha + "-appear";
+  var pa = ha + "-listener";
   var _a = pa + "-scroll";
   var ba = pa + "-item";
   var wa = ba + "-final";
@@ -785,10 +785,10 @@ var OverlayScrollbars = function(r) {
     function _extends() {
       r.exports = _extends = Object.assign ? Object.assign.bind() : function(r) {
         for (var a = 1; a < arguments.length; a++) {
-          var n = arguments[a];
-          for (var e in n) {
-            if (Object.prototype.hasOwnProperty.call(n, e)) {
-              r[e] = n[e];
+          var e = arguments[a];
+          for (var n in e) {
+            if (Object.prototype.hasOwnProperty.call(e, n)) {
+              r[n] = e[n];
             }
           }
         }
@@ -808,7 +808,7 @@ var OverlayScrollbars = function(r) {
     function: "__TPL_function_TYPE__",
     null: "__TPL_null_TYPE__"
   };
-  var Fa = function validateRecursive(r, a, n, e) {
+  var Fa = function validateRecursive(r, a, e, n) {
     var t = {};
     var i = ja({}, a);
     var o = E(r).filter((function(r) {
@@ -818,9 +818,9 @@ var OverlayScrollbars = function(r) {
       var f = a[o];
       var c = r[o];
       var s = p(c);
-      var g = e ? e + "." : "";
+      var h = n ? n + "." : "";
       if (s && p(f)) {
-        var h = validateRecursive(c, f, n, g + o), b = h[0], w = h[1];
+        var g = validateRecursive(c, f, e, h + o), b = g[0], w = g[1];
         t[o] = b;
         i[o] = w;
         each([ i, t ], (function(r) {
@@ -836,36 +836,36 @@ var OverlayScrollbars = function(r) {
         var x = !d(c) ? [ c ] : c;
         each(x, (function(r) {
           var a;
-          each(Ba, (function(n, e) {
-            if (n === r) {
-              a = e;
+          each(Ba, (function(e, n) {
+            if (e === r) {
+              a = n;
             }
           }));
-          var n = v(a);
-          if (n && l(f)) {
-            var e = r.split(" ");
-            m = !!e.find((function(r) {
+          var e = v(a);
+          if (e && l(f)) {
+            var n = r.split(" ");
+            m = !!n.find((function(r) {
               return r === f;
             }));
-            y(S, e);
+            y(S, n);
           } else {
             m = Ba[O] === r;
           }
-          y(C, n ? Ba.string : a);
+          y(C, e ? Ba.string : a);
           return !m;
         }));
         if (m) {
           t[o] = f;
-        } else if (n) {
-          console.warn('The option "' + g + o + "\" wasn't set, because it doesn't accept the type [ " + O.toUpperCase() + ' ] with the value of "' + f + '".\r\n' + "Accepted types are: [ " + C.join(", ").toUpperCase() + " ].\r\n" + (S.length > 0 ? "\r\nValid strings are: [ " + S.join(", ") + " ]." : ""));
+        } else if (e) {
+          console.warn('The option "' + h + o + "\" wasn't set, because it doesn't accept the type [ " + O.toUpperCase() + ' ] with the value of "' + f + '".\r\n' + "Accepted types are: [ " + C.join(", ").toUpperCase() + " ].\r\n" + (S.length > 0 ? "\r\nValid strings are: [ " + S.join(", ") + " ]." : ""));
         }
         delete i[o];
       }
     }));
     return [ t, i ];
   };
-  var qa = function validateOptions(r, a, n) {
-    return Fa(r, a, n);
+  var qa = function validateOptions(r, a, e) {
+    return Fa(r, a, e);
   };
   var Ua;
   var Na = Ba.number;
@@ -877,7 +877,7 @@ var OverlayScrollbars = function(r) {
   var $a = {
     paddingAbsolute: Ya,
     showNativeOverlaidScrollbars: Ya,
-    updating: {
+    update: {
       elementEvents: Wa,
       attributes: Wa,
       debounce: [ Ba.number, Ba.array, Ba.null ],
@@ -900,20 +900,20 @@ var OverlayScrollbars = function(r) {
   var Ja = "__osOptionsValidationPlugin";
   Ua = {}, Ua[Ja] = {
     P: function _(r, a) {
-      var n = qa($a, r, a), e = n[0], t = n[1];
-      return ja({}, t, e);
+      var e = qa($a, r, a), n = e[0], t = e[1];
+      return ja({}, t, n);
     }
   }, Ua;
   var Ka;
   var Qa = 3333333;
-  var rn = "scroll";
-  var an = "__osSizeObserverPlugin";
-  var nn = (Ka = {}, Ka[an] = {
-    P: function _(r, a, n) {
-      var e = $('<div class="' + ba + '" dir="ltr"><div class="' + ba + '"><div class="' + wa + '"></div></div><div class="' + ba + '"><div class="' + wa + '" style="width: 200%; height: 200%"></div></div></div>');
-      Y(r, e);
+  var re = "scroll";
+  var ae = "__osSizeObserverPlugin";
+  var ee = (Ka = {}, Ka[ae] = {
+    P: function _(r, a, e) {
+      var n = $('<div class="' + ba + '" dir="ltr"><div class="' + ba + '"><div class="' + wa + '"></div></div><div class="' + ba + '"><div class="' + wa + '" style="width: 200%; height: 200%"></div></div></div>');
+      Y(r, n);
       pr(r, _a);
-      var t = e[0];
+      var t = n[0];
       var i = t.lastChild;
       var v = t.firstChild;
       var o = null == v ? void 0 : v.firstChild;
@@ -934,7 +934,7 @@ var OverlayScrollbars = function(r) {
           a(true === r);
         }
       };
-      var g = function onScroll(r) {
+      var h = function onScroll(r) {
         f = Mr(t);
         l = !r || !br(f, u);
         if (r) {
@@ -948,63 +948,63 @@ var OverlayScrollbars = function(r) {
         }
         s();
       };
-      var h = y([], [ Ur(v, rn, g), Ur(i, rn, g) ]);
+      var g = y([], [ Ur(v, re, h), Ur(i, re, h) ]);
       style(o, {
         width: Qa,
         height: Qa
       });
       fr(s);
-      return [ n ? g.bind(0, false) : s, h ];
+      return [ e ? h.bind(0, false) : s, g ];
     }
   }, Ka);
-  var en;
-  var tn = 0;
-  var vn = Math.round, un = Math.abs;
-  var fn = function getWindowDPR() {
+  var ne;
+  var te = 0;
+  var ie = Math.round, ve = Math.abs;
+  var oe = function getWindowDPR() {
     var r = window.screen.deviceXDPI || 0;
     var a = window.screen.logicalXDPI || 1;
     return window.devicePixelRatio || r / a;
   };
-  var ln = function diffBiggerThanOne(r, a) {
-    var n = un(r);
-    var e = un(a);
-    return !(n === e || n + 1 === e || n - 1 === e);
+  var ue = function diffBiggerThanOne(r, a) {
+    var e = ve(r);
+    var n = ve(a);
+    return !(e === n || e + 1 === n || e - 1 === n);
   };
-  var cn = "__osScrollbarsHidingPlugin";
-  var sn = (en = {}, en[cn] = {
+  var fe = "__osScrollbarsHidingPlugin";
+  var le = (ne = {}, ne[fe] = {
     L: function _createUniqueViewportArrangeElement(r) {
-      var a = r.T, n = r.H, e = r.D;
-      var t = !e && !a && (n.x || n.y);
+      var a = r.T, e = r.H, n = r.D;
+      var t = !n && !a && (e.x || e.y);
       var i = t ? document.createElement("style") : false;
       if (i) {
-        L(i, "id", la + "-" + tn);
-        tn++;
+        L(i, "id", la + "-" + te);
+        te++;
       }
       return i;
     },
-    M: function _overflowUpdateSegment(r, a, n, e, t, i, v) {
+    M: function _overflowUpdateSegment(r, a, e, n, t, i, v) {
       var o = function arrangeViewport(a, i, v, o) {
         if (r) {
           var u = t(), f = u.R;
           var l = a.I, c = a.V;
           var s = c.x, d = c.y;
-          var g = l.x, h = l.y;
+          var h = l.x, g = l.y;
           var p = o ? "paddingRight" : "paddingLeft";
           var b = f[p];
           var w = f.paddingTop;
           var m = i.w + v.w;
           var y = i.h + v.h;
           var S = {
-            w: h && d ? h + m - b + "px" : "",
-            h: g && s ? g + y - w + "px" : ""
+            w: g && d ? g + m - b + "px" : "",
+            h: h && s ? h + y - w + "px" : ""
           };
-          if (e) {
-            var C = e.sheet;
+          if (n) {
+            var C = n.sheet;
             if (C) {
               var O = C.cssRules;
               if (O) {
                 if (!O.length) {
-                  C.insertRule("#" + L(e, "id") + " + ." + la + "::before {}", 0);
+                  C.insertRule("#" + L(n, "id") + " + ." + la + "::before {}", 0);
                 }
                 var x = O[0].style;
                 x.width = S.w;
@@ -1012,7 +1012,7 @@ var OverlayScrollbars = function(r) {
               }
             }
           } else {
-            style(n, {
+            style(e, {
               "--os-vaw": S.w,
               "--os-vah": S.h
             });
@@ -1020,34 +1020,34 @@ var OverlayScrollbars = function(r) {
         }
         return r;
       };
-      var u = function undoViewportArrange(e, o, u) {
+      var u = function undoViewportArrange(n, o, u) {
         if (r) {
-          var f = u || i(e);
+          var f = u || i(n);
           var l = t(), c = l.R;
           var s = f.V;
-          var d = s.x, g = s.y;
-          var h = {};
+          var d = s.x, h = s.y;
+          var g = {};
           var p = function assignProps(r) {
             return each(r.split(" "), (function(r) {
-              h[r] = c[r];
+              g[r] = c[r];
             }));
           };
           if (d) {
             p("marginBottom paddingTop paddingBottom");
           }
-          if (g) {
+          if (h) {
             p("marginLeft marginRight paddingLeft paddingRight");
           }
-          var b = style(n, E(h));
-          hr(n, la);
+          var b = style(e, E(g));
+          gr(e, la);
           if (!a) {
-            h.height = "";
+            g.height = "";
           }
-          style(n, h);
+          style(e, g);
           return [ function() {
             v(f, o, r, b);
-            style(n, b);
-            pr(n, la);
+            style(e, b);
+            pr(e, la);
           }, f ];
         }
         return [ Sr ];
@@ -1060,7 +1060,7 @@ var OverlayScrollbars = function(r) {
         h: 0
       };
       var a = 0;
-      return function(n, e, t) {
+      return function(e, n, t) {
         var i = Dr();
         var v = {
           w: i.w - r.w,
@@ -1070,21 +1070,21 @@ var OverlayScrollbars = function(r) {
           return;
         }
         var o = {
-          w: un(v.w),
-          h: un(v.h)
+          w: ve(v.w),
+          h: ve(v.h)
         };
         var u = {
-          w: un(vn(i.w / (r.w / 100))),
-          h: un(vn(i.h / (r.h / 100)))
+          w: ve(ie(i.w / (r.w / 100))),
+          h: ve(ie(i.h / (r.h / 100)))
         };
-        var f = fn();
+        var f = oe();
         var l = o.w > 2 && o.h > 2;
-        var c = !ln(u.w, u.h);
+        var c = !ue(u.w, u.h);
         var s = f !== a && f > 0;
         var d = l && c && s;
         if (d) {
-          var g = e(), h = g[0], p = g[1];
-          A(n.j, h);
+          var h = n(), g = h[0], p = h[1];
+          A(e.j, g);
           if (p) {
             t();
           }
@@ -1093,80 +1093,80 @@ var OverlayScrollbars = function(r) {
         a = f;
       };
     }
-  }, en);
-  var dn;
-  var gn = function getNativeScrollbarSize(r, a, n, e) {
+  }, ne);
+  var ce;
+  var se = function getNativeScrollbarSize(r, a, e, n) {
     Y(r, a);
     var t = Rr(a);
     var i = Mr(a);
-    var v = Vr(n);
-    e && X(a);
+    var v = Vr(e);
+    n && X(a);
     return {
       x: i.h - t.h + v.h,
       y: i.w - t.w + v.w
     };
   };
-  var hn = function getNativeScrollbarsHiding(r) {
+  var de = function getNativeScrollbarsHiding(r) {
     var a = false;
-    var n = pr(r, sa);
+    var e = pr(r, sa);
     try {
-      a = "none" === style(r, er("scrollbar-width")) || "none" === window.getComputedStyle(r, "::-webkit-scrollbar").getPropertyValue("display");
-    } catch (e) {}
-    n();
+      a = "none" === style(r, nr("scrollbar-width")) || "none" === window.getComputedStyle(r, "::-webkit-scrollbar").getPropertyValue("display");
+    } catch (n) {}
+    e();
     return a;
   };
-  var pn = function getRtlScrollBehavior(r, a) {
-    var n = "hidden";
+  var he = function getRtlScrollBehavior(r, a) {
+    var e = "hidden";
     style(r, {
-      overflowX: n,
-      overflowY: n,
+      overflowX: e,
+      overflowY: e,
       direction: "rtl"
     });
     M(r, 0);
-    var e = Gr(r);
+    var n = Gr(r);
     var t = Gr(a);
     M(r, -999);
     var i = Gr(a);
     return {
-      i: e.x === t.x,
+      i: n.x === t.x,
       n: t.x !== i.x
     };
   };
-  var _n = function getFlexboxGlue(r, a) {
-    var n = pr(r, ra);
-    var e = kr(r);
+  var ge = function getFlexboxGlue(r, a) {
+    var e = pr(r, ra);
+    var n = kr(r);
     var t = kr(a);
-    var i = yr(t, e, true);
+    var i = yr(t, n, true);
     var v = pr(r, aa);
     var o = kr(r);
     var u = kr(a);
     var f = yr(u, o, true);
-    n();
+    e();
     v();
     return i && f;
   };
-  var bn = function createEnvironment() {
-    var r = document, n = r.body;
-    var e = $('<div class="' + Qr + '"><div></div></div>');
-    var t = e[0];
+  var pe = function createEnvironment() {
+    var r = document, e = r.body;
+    var n = $('<div class="' + Qr + '"><div></div></div>');
+    var t = n[0];
     var i = t.firstChild;
     var v = Zr(), o = v[0], u = v[2];
     var f = a({
-      o: gn(n, t, i),
+      o: se(e, t, i),
       u: wr
-    }, gn.bind(0, n, t, i, true)), l = f[0], c = f[1];
+    }, se.bind(0, e, t, i, true)), l = f[0], c = f[1];
     var s = c(), d = s[0];
-    var g = hn(t);
-    var h = {
+    var h = de(t);
+    var g = {
       x: 0 === d.x,
       y: 0 === d.y
     };
     var p = {
       elements: {
         host: null,
-        padding: !g,
+        padding: !h,
         viewport: function viewport(r) {
-          return g && r === r.ownerDocument.body && r;
+          return h && r === r.ownerDocument.body && r;
         },
         content: false
       },
@@ -1181,11 +1181,11 @@ var OverlayScrollbars = function(r) {
     var b = A({}, Jr);
     var w = {
       j: d,
-      H: h,
-      T: g,
+      H: g,
+      T: h,
       D: "-1" === style(t, "zIndex"),
-      B: pn(t, i),
-      F: _n(t, i),
+      B: he(t, i),
+      F: ge(t, i),
       q: function _addListener(r) {
         return o("_", r);
       },
@@ -1202,67 +1202,67 @@ var OverlayScrollbars = function(r) {
     };
     D(t, "style");
     X(t);
-    if (!g && (!h.x || !h.y)) {
+    if (!h && (!g.x || !g.y)) {
       var m;
       window.addEventListener("resize", (function() {
-        var r = Ia()[cn];
+        var r = Ia()[fe];
         m = m || r && r.k();
         m && m(w, l, u.bind(0, "_"));
       }));
     }
     return w;
   };
-  var wn = function getEnvironment() {
-    if (!dn) {
-      dn = bn();
+  var _e = function getEnvironment() {
+    if (!ce) {
+      ce = pe();
     }
-    return dn;
+    return ce;
   };
-  var mn = function resolveInitialization(r, a) {
+  var be = function resolveInitialization(r, a) {
     return s(r) ? r.apply(0, a) : r;
   };
-  var yn = function staticInitializationElement(r, a, n, e) {
-    var t = v(e) ? n : e;
-    var i = mn(t, r);
+  var we = function staticInitializationElement(r, a, e, n) {
+    var t = v(n) ? e : n;
+    var i = be(t, r);
     return i || a();
   };
-  var Sn = function dynamicInitializationElement(r, a, n, e) {
-    var t = v(e) ? n : e;
-    var i = mn(t, r);
+  var me = function dynamicInitializationElement(r, a, e, n) {
+    var t = v(n) ? e : n;
+    var i = be(t, r);
     return !!i && (b(i) ? i : a());
   };
-  var Cn = function cancelInitialization(r, a) {
-    var n = r || {}, e = n.nativeScrollbarsOverlaid, t = n.body;
+  var ye = function cancelInitialization(r, a) {
+    var e = r || {}, n = e.nativeScrollbarsOverlaid, t = e.body;
     var i = a.Z;
-    var u = wn(), f = u.U, l = u.H, c = u.T;
-    var s = f().cancel, d = s.nativeScrollbarsOverlaid, g = s.body;
-    var h = null != e ? e : d;
-    var p = v(t) ? g : t;
-    var b = (l.x || l.y) && h;
+    var u = _e(), f = u.U, l = u.H, c = u.T;
+    var s = f().cancel, d = s.nativeScrollbarsOverlaid, h = s.body;
+    var g = null != n ? n : d;
+    var p = v(t) ? h : t;
+    var b = (l.x || l.y) && g;
     var w = i && (o(p) ? !c : p);
     return !!b || !!w;
   };
-  var On = new WeakMap;
-  var xn = function addInstance(r, a) {
-    On.set(r, a);
+  var Se = new WeakMap;
+  var Ce = function addInstance(r, a) {
+    Se.set(r, a);
   };
-  var En = function removeInstance(r) {
-    On.delete(r);
+  var Oe = function removeInstance(r) {
+    Se.delete(r);
   };
-  var An = function getInstance(r) {
-    return On.get(r);
+  var xe = function getInstance(r) {
+    return Se.get(r);
   };
-  var Pn = function getPropByPath(r, a) {
+  var Ee = function getPropByPath(r, a) {
     return r ? a.split(".").reduce((function(r, a) {
       return r && x(r, a) ? r[a] : void 0;
     }), r) : void 0;
   };
-  var zn = function createOptionCheck(r, a, n) {
-    return function(e) {
-      return [ Pn(r, e), n || void 0 !== Pn(a, e) ];
+  var Ae = function createOptionCheck(r, a, e) {
+    return function(n) {
+      return [ Ee(r, n), e || void 0 !== Ee(a, n) ];
     };
   };
-  var Ln = function createState(r) {
+  var Pe = function createState(r) {
     var a = r;
     return [ function() {
       return a;
@@ -1270,46 +1270,46 @@ var OverlayScrollbars = function(r) {
       a = A({}, a, r);
     } ];
   };
-  var Tn = "tabindex";
-  var Hn = Z.bind(0, "");
-  var Dn = function unwrap(r) {
+  var ze = "tabindex";
+  var Le = Z.bind(0, "");
+  var Te = function unwrap(r) {
     Y(F(r), B(r));
     X(r);
   };
-  var Mn = function addDataAttrHost(r, a) {
-    L(r, na, a);
-    return D.bind(0, r, na);
+  var He = function addDataAttrHost(r, a) {
+    L(r, ea, a);
+    return D.bind(0, r, ea);
   };
-  var Rn = function createStructureSetupElements(r) {
-    var a = wn();
-    var n = a.U, e = a.T;
-    var t = Ia()[cn];
+  var De = function createStructureSetupElements(r) {
+    var a = _e();
+    var e = a.U, n = a.T;
+    var t = Ia()[fe];
     var i = t && t.L;
-    var v = n(), o = v.elements;
+    var v = e(), o = v.elements;
     var u = o.host, f = o.viewport, l = o.padding, c = o.content;
     var s = b(r);
     var d = s ? {} : r;
-    var g = d.elements;
-    var h = g || {}, p = h.host, w = h.padding, S = h.viewport, C = h.content;
+    var h = d.elements;
+    var g = h || {}, p = g.host, w = g.padding, S = g.viewport, C = g.content;
     var x = s ? r : d.target;
     var A = j(x, "textarea");
     var P = x.ownerDocument;
     var z = x === P.body;
     var M = P.defaultView;
-    var R = yn.bind(0, [ x ]);
-    var I = Sn.bind(0, [ x ]);
-    var V = R(Hn, f, S);
+    var R = we.bind(0, [ x ]);
+    var I = me.bind(0, [ x ]);
+    var V = R(Le, f, S);
     var k = V === x;
     var q = k && z;
     var U = !k && M.top === M && P.activeElement === x;
     var N = {
       $: x,
-      J: A ? R(Hn, u, p) : x,
+      J: A ? R(Le, u, p) : x,
       K: V,
-      rr: !k && I(Hn, l, w),
-      ar: !k && I(Hn, c, C),
-      nr: !k && !e && i && i(a),
-      er: q ? P.documentElement : V,
+      rr: !k && I(Le, l, w),
+      ar: !k && I(Le, c, C),
+      er: !k && !n && i && i(a),
+      nr: q ? P.documentElement : V,
       tr: q ? P : V,
       ir: M,
       vr: P,
@@ -1318,35 +1318,35 @@ var OverlayScrollbars = function(r) {
       lr: s,
       cr: k,
       sr: function _viewportHasClass(r, a) {
-        return k ? H(V, na, a) : gr(V, r);
+        return k ? H(V, ea, a) : hr(V, r);
       },
-      dr: function _viewportAddRemoveClass(r, a, n) {
-        return k ? T(V, na, a, n) : (n ? pr : hr)(V, r);
+      dr: function _viewportAddRemoveClass(r, a, e) {
+        return k ? T(V, ea, a, e) : (e ? pr : gr)(V, r);
       }
     };
     var Z = E(N).reduce((function(r, a) {
-      var n = N[a];
-      return y(r, n && !F(n) ? n : false);
+      var e = N[a];
+      return y(r, e && !F(e) ? e : false);
     }), []);
     var $ = function elementIsGenerated(r) {
       return r ? m(Z, r) > -1 : null;
     };
-    var J = N.$, K = N.J, Q = N.rr, rr = N.K, ar = N.ar, nr = N.nr;
-    var er = [];
+    var J = N.$, K = N.J, Q = N.rr, rr = N.K, ar = N.ar, er = N.er;
+    var nr = [];
     var tr = A && $(K);
     var ir = A ? J : B([ ar, rr, Q, K, J ].find((function(r) {
       return false === $(r);
     })));
     var vr = ar || rr;
     var or = function appendElements() {
-      var r = Mn(K, k ? "viewport" : "host");
+      var r = He(K, k ? "viewport" : "host");
       var a = pr(Q, ua);
-      var n = pr(rr, !k && fa);
+      var e = pr(rr, !k && fa);
       var t = pr(ar, ca);
       var i = z ? pr(F(x), sa) : Sr;
       if (tr) {
         G(J, K);
-        y(er, (function() {
+        y(nr, (function() {
           G(K, J);
           X(K);
         }));
@@ -1355,54 +1355,54 @@ var OverlayScrollbars = function(r) {
       Y(K, Q);
       Y(Q || K, !k && rr);
       Y(rr, ar);
-      y(er, (function() {
+      y(nr, (function() {
         i();
         r();
-        D(rr, ea);
+        D(rr, na);
         D(rr, ta);
         if ($(ar)) {
-          Dn(ar);
+          Te(ar);
         }
         if ($(rr)) {
-          Dn(rr);
+          Te(rr);
         }
         if ($(Q)) {
-          Dn(Q);
+          Te(Q);
         }
         a();
-        n();
+        e();
         t();
       }));
-      if (e && !k) {
-        y(er, hr.bind(0, rr, sa));
+      if (n && !k) {
+        y(nr, gr.bind(0, rr, sa));
       }
-      if (nr) {
-        W(rr, nr);
-        y(er, X.bind(0, nr));
+      if (er) {
+        W(rr, er);
+        y(nr, X.bind(0, er));
       }
       if (U) {
-        var v = L(rr, Tn);
-        L(rr, Tn, "-1");
+        var v = L(rr, ze);
+        L(rr, ze, "-1");
         rr.focus();
         var o = Ur(P, "pointerdown keydown", (function() {
-          v ? L(rr, Tn, v) : D(rr, Tn);
+          v ? L(rr, ze, v) : D(rr, ze);
           o();
         }));
       }
       ir = 0;
     };
-    return [ N, or, O.bind(0, er) ];
+    return [ N, or, O.bind(0, nr) ];
   };
-  var In = function createTrinsicUpdateSegment(r, a) {
-    var n = r.ar;
-    var e = a[0];
+  var Me = function createTrinsicUpdateSegment(r, a) {
+    var e = r.ar;
+    var n = a[0];
     return function(r) {
-      var a = wn(), t = a.F;
-      var i = e(), v = i.gr;
-      var o = r.hr;
-      var u = (n || !t) && o;
+      var a = _e(), t = a.F;
+      var i = n(), v = i.hr;
+      var o = r.gr;
+      var u = (e || !t) && o;
       if (u) {
-        style(n, {
+        style(e, {
           height: v ? "" : "100%"
         });
       }
@@ -1412,28 +1412,28 @@ var OverlayScrollbars = function(r) {
       };
     };
   };
-  var Vn = function createPaddingUpdateSegment(r, n) {
-    var e = n[0], t = n[1];
+  var Re = function createPaddingUpdateSegment(r, e) {
+    var n = e[0], t = e[1];
     var i = r.J, v = r.rr, o = r.K, u = r.cr;
     var f = a({
       u: mr,
       o: Lr()
     }, Lr.bind(0, i, "padding", "")), l = f[0], c = f[1];
-    return function(r, a, n) {
-      var i = c(n), f = i[0], s = i[1];
-      var d = wn(), g = d.T, h = d.F;
-      var p = e(), b = p.br;
+    return function(r, a, e) {
+      var i = c(e), f = i[0], s = i[1];
+      var d = _e(), h = d.T, g = d.F;
+      var p = n(), b = p.br;
       var w = r.pr, m = r._r, y = r.wr;
       var S = a("paddingAbsolute"), C = S[0], O = S[1];
-      var x = !h && m;
+      var x = !g && m;
       if (w || s || x) {
-        var E = l(n);
+        var E = l(e);
         f = E[0];
         s = E[1];
       }
       var P = !u && (O || y || s);
       if (P) {
-        var z = !C || !v && !g;
+        var z = !C || !v && !h;
         var L = f.r + f.l;
         var T = f.t + f.b;
         var H = {
@@ -1464,84 +1464,84 @@ var OverlayScrollbars = function(r) {
       };
     };
   };
-  var kn = Math.max;
-  var jn = kn.bind(0, 0);
-  var Bn = "visible";
-  var Fn = "hidden";
-  var qn = 42;
-  var Un = {
+  var Ie = Math.max;
+  var Ve = Ie.bind(0, 0);
+  var ke = "visible";
+  var je = "hidden";
+  var Be = 42;
+  var Fe = {
     u: br,
     o: {
       w: 0,
       h: 0
     }
   };
-  var Nn = {
+  var qe = {
     u: wr,
     o: {
-      x: Fn,
-      y: Fn
+      x: je,
+      y: je
     }
   };
-  var Yn = function getOverflowAmount(r, a) {
-    var n = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
-    var e = {
-      w: jn(r.w - a.w),
-      h: jn(r.h - a.h)
+  var Ue = function getOverflowAmount(r, a) {
+    var e = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
+    var n = {
+      w: Ve(r.w - a.w),
+      h: Ve(r.h - a.h)
     };
     return {
-      w: e.w > n ? e.w : 0,
-      h: e.h > n ? e.h : 0
+      w: n.w > e ? n.w : 0,
+      h: n.h > e ? n.h : 0
     };
   };
-  var Wn = function conditionalClass(r, a, n) {
-    return n ? pr(r, a) : hr(r, a);
+  var Ne = function conditionalClass(r, a, e) {
+    return e ? pr(r, a) : gr(r, a);
   };
-  var Gn = function overflowIsVisible(r) {
-    return 0 === r.indexOf(Bn);
+  var Ye = function overflowIsVisible(r) {
+    return 0 === r.indexOf(ke);
   };
-  var Xn = function createOverflowUpdateSegment(r, n) {
-    var e = n[0], t = n[1];
-    var i = r.J, v = r.rr, o = r.K, u = r.nr, f = r.cr, l = r.dr, c = r.Z, s = r.ir;
-    var d = wn(), g = d.j, h = d.F, p = d.T, b = d.H;
-    var w = Ia()[cn];
+  var We = function createOverflowUpdateSegment(r, e) {
+    var n = e[0], t = e[1];
+    var i = r.J, v = r.rr, o = r.K, u = r.er, f = r.cr, l = r.dr, c = r.Z, s = r.ir;
+    var d = _e(), h = d.j, g = d.F, p = d.T, b = d.H;
+    var w = Ia()[fe];
     var m = !f && !p && (b.x || b.y);
     var y = c && f;
-    var S = a(Un, Vr.bind(0, o)), C = S[0], O = S[1];
-    var x = a(Un, Ir.bind(0, o)), E = x[0], A = x[1];
-    var P = a(Un), z = P[0], H = P[1];
-    var D = a(Un), M = D[0], R = D[1];
-    var I = a(Nn), V = I[0];
+    var S = a(Fe, Vr.bind(0, o)), C = S[0], O = S[1];
+    var x = a(Fe, Ir.bind(0, o)), E = x[0], A = x[1];
+    var P = a(Fe), z = P[0], H = P[1];
+    var D = a(Fe), M = D[0], R = D[1];
+    var I = a(qe), V = I[0];
     var k = function fixFlexboxGlue(r, a) {
       style(o, {
         height: ""
       });
       if (a) {
-        var n = e(), t = n.mr, v = n.rr;
+        var e = n(), t = e.mr, v = e.rr;
         var u = r.Sr, f = r.I;
         var l = Vr(i);
         var c = Rr(i);
         var s = "content-box" === style(o, "boxSizing");
         var d = t || s ? v.b + v.t : 0;
-        var g = !(b.x && s);
+        var h = !(b.x && s);
         style(o, {
-          height: c.h + l.h + (u.x && g ? f.x : 0) - d
+          height: c.h + l.h + (u.x && h ? f.x : 0) - d
         });
       }
     };
     var j = function getViewportOverflowState(r, a) {
-      var n = !p && !r ? qn : 0;
-      var e = function getStatePerAxis(r, e, t) {
+      var e = !p && !r ? Be : 0;
+      var n = function getStatePerAxis(r, n, t) {
         var i = style(o, r);
         var v = a ? a[r] : i;
         var u = "scroll" === v;
-        var f = e ? n : t;
+        var f = n ? e : t;
         var l = u && !p ? f : 0;
-        var c = e && !!n;
+        var c = n && !!e;
         return [ i, u, l, c ];
       };
-      var t = e("overflowX", b.x, g.x), i = t[0], v = t[1], u = t[2], f = t[3];
-      var l = e("overflowY", b.y, g.y), c = l[0], s = l[1], d = l[2], h = l[3];
+      var t = n("overflowX", b.x, h.x), i = t[0], v = t[1], u = t[2], f = t[3];
+      var l = n("overflowY", b.y, h.y), c = l[0], s = l[1], d = l[2], g = l[3];
       return {
         Cr: {
           x: i,
@@ -1557,95 +1557,95 @@ var OverlayScrollbars = function(r) {
         },
         V: {
           x: f,
-          y: h
+          y: g
         }
       };
     };
-    var B = function setViewportOverflowState(r, a, n, e) {
+    var B = function setViewportOverflowState(r, a, e, n) {
       var t = function setAxisOverflowStyle(r, a) {
-        var n = Gn(r);
-        var e = a && n && r.replace(Bn + "-", "") || "";
-        return [ a && !n ? r : "", Gn(e) ? "hidden" : e ];
+        var e = Ye(r);
+        var n = a && e && r.replace(ke + "-", "") || "";
+        return [ a && !e ? r : "", Ye(n) ? "hidden" : n ];
       };
-      var i = t(n.x, a.x), v = i[0], o = i[1];
-      var u = t(n.y, a.y), f = u[0], l = u[1];
-      e.overflowX = o && f ? o : v;
-      e.overflowY = l && v ? l : f;
-      return j(r, e);
+      var i = t(e.x, a.x), v = i[0], o = i[1];
+      var u = t(e.y, a.y), f = u[0], l = u[1];
+      n.overflowX = o && f ? o : v;
+      n.overflowY = l && v ? l : f;
+      return j(r, n);
     };
-    var F = function hideNativeScrollbars(r, a, n, t) {
+    var F = function hideNativeScrollbars(r, a, e, t) {
       var i = r.I, v = r.V;
       var o = v.x, u = v.y;
       var f = i.x, l = i.y;
-      var c = e(), s = c.R;
+      var c = n(), s = c.R;
       var d = a ? "marginLeft" : "marginRight";
-      var g = a ? "paddingLeft" : "paddingRight";
-      var h = s[d];
+      var h = a ? "paddingLeft" : "paddingRight";
+      var g = s[d];
       var p = s.marginBottom;
-      var b = s[g];
+      var b = s[h];
       var w = s.paddingBottom;
-      t.width = "calc(100% + " + (l + -1 * h) + "px)";
-      t[d] = -l + h;
+      t.width = "calc(100% + " + (l + -1 * g) + "px)";
+      t[d] = -l + g;
       t.marginBottom = -f + p;
-      if (n) {
-        t[g] = b + (u ? l : 0);
+      if (e) {
+        t[h] = b + (u ? l : 0);
         t.paddingBottom = w + (o ? f : 0);
       }
     };
-    var q = w ? w.M(m, h, o, u, e, j, F) : [ function() {
+    var q = w ? w.M(m, g, o, u, n, j, F) : [ function() {
       return m;
     }, function() {
       return [ Sr ];
     } ], U = q[0], N = q[1];
-    return function(r, a, n) {
-      var u = r.pr, c = r.Or, d = r._r, g = r.yr, w = r.hr, m = r.wr;
-      var S = e(), x = S.gr, P = S.br;
+    return function(r, a, e) {
+      var u = r.pr, c = r.Or, d = r._r, h = r.yr, w = r.gr, m = r.wr;
+      var S = n(), x = S.hr, P = S.br;
       var D = a("showNativeOverlaidScrollbars"), I = D[0], q = D[1];
       var Y = a("overflow"), W = Y[0], G = Y[1];
       var X = I && b.x && b.y;
-      var Z = !f && !h && (u || d || c || q || w);
-      var $ = Gn(W.x);
-      var J = Gn(W.y);
+      var Z = !f && !g && (u || d || c || q || w);
+      var $ = Ye(W.x);
+      var J = Ye(W.y);
       var K = $ || J;
-      var Q = O(n);
-      var rr = A(n);
-      var ar = H(n);
-      var nr = R(n);
-      var er;
+      var Q = O(e);
+      var rr = A(e);
+      var ar = H(e);
+      var er = R(e);
+      var nr;
       if (q && p) {
         l(sa, va, !X);
       }
       if (Z) {
-        er = j(X);
-        k(er, x);
+        nr = j(X);
+        k(nr, x);
       }
-      if (u || g || d || m || q) {
+      if (u || h || d || m || q) {
         if (K) {
           l(da, ia, false);
         }
-        var tr = N(X, P, er), ir = tr[0], vr = tr[1];
-        var or = Q = C(n), ur = or[0], fr = or[1];
-        var lr = rr = E(n), cr = lr[0], sr = lr[1];
+        var tr = N(X, P, nr), ir = tr[0], vr = tr[1];
+        var or = Q = C(e), ur = or[0], fr = or[1];
+        var lr = rr = E(e), cr = lr[0], sr = lr[1];
         var dr = Rr(o);
-        var gr = cr;
-        var hr = dr;
+        var hr = cr;
+        var gr = dr;
         ir();
         if ((sr || fr || q) && vr && !X && U(vr, cr, ur, P)) {
-          hr = Rr(o);
-          gr = Ir(o);
+          gr = Rr(o);
+          hr = Ir(o);
         }
         var pr = {
-          w: jn(kn(cr.w, gr.w) + ur.w),
-          h: jn(kn(cr.h, gr.h) + ur.h)
+          w: Ve(Ie(cr.w, hr.w) + ur.w),
+          h: Ve(Ie(cr.h, hr.h) + ur.h)
         };
         var _r = {
-          w: jn(y ? s.innerWidth : hr.w + jn(dr.w - cr.w) + ur.w),
-          h: jn(y ? s.innerHeight : hr.h + jn(dr.h - cr.h) + ur.h)
+          w: Ve(y ? s.innerWidth : gr.w + Ve(dr.w - cr.w) + ur.w),
+          h: Ve(y ? s.innerHeight : gr.h + Ve(dr.h - cr.h) + ur.h)
         };
-        nr = M(_r);
-        ar = z(Yn(pr, _r), n);
+        er = M(_r);
+        ar = z(Ue(pr, _r), e);
       }
-      var br = nr, wr = br[0], mr = br[1];
+      var br = er, wr = br[0], mr = br[1];
       var yr = ar, Sr = yr[0], Cr = yr[1];
       var Or = rr, xr = Or[0], Er = Or[1];
       var Ar = Q, Pr = Ar[0], zr = Ar[1];
@@ -1654,7 +1654,7 @@ var OverlayScrollbars = function(r) {
         y: Sr.h > 0
       };
       var Tr = $ && J && (Lr.x || Lr.y) || $ && Lr.x && !Lr.y || J && Lr.y && !Lr.x;
-      if (g || m || zr || Er || mr || Cr || G || q || Z) {
+      if (h || m || zr || Er || mr || Cr || G || q || Z) {
         var Hr = {
           marginRight: 0,
           marginBottom: 0,
@@ -1672,15 +1672,15 @@ var OverlayScrollbars = function(r) {
           k(Dr, x);
         }
         if (f) {
-          L(i, ea, Hr.overflowX);
+          L(i, na, Hr.overflowX);
           L(i, ta, Hr.overflowY);
         } else {
           style(o, Hr);
         }
       }
-      T(i, na, ia, Tr);
-      Wn(v, da, Tr);
-      !f && Wn(o, da, K);
+      T(i, ea, ia, Tr);
+      Ne(v, da, Tr);
+      !f && Ne(o, da, K);
       var Vr = V(j(X).Cr), kr = Vr[0], jr = Vr[1];
       t({
         Cr: kr,
@@ -1701,28 +1701,28 @@ var OverlayScrollbars = function(r) {
       };
     };
   };
-  var Zn = function prepareUpdateHints(r, a, n) {
-    var e = {};
+  var Ge = function prepareUpdateHints(r, a, e) {
+    var n = {};
     var t = a || {};
     var i = E(r).concat(E(t));
     each(i, (function(a) {
       var i = r[a];
       var v = t[a];
-      e[a] = !!(n || i || v);
+      n[a] = !!(e || i || v);
     }));
-    return e;
+    return n;
   };
-  var $n = function createStructureSetupUpdate(r, a) {
-    var n = r.$, e = r.K, t = r.dr, i = r.cr;
-    var v = wn(), o = v.T, u = v.H, f = v.F;
+  var Xe = function createStructureSetupUpdate(r, a) {
+    var e = r.$, n = r.K, t = r.dr, i = r.cr;
+    var v = _e(), o = v.T, u = v.H, f = v.F;
     var l = !o && (u.x || u.y);
-    var c = [ In(r, a), Vn(r, a), Xn(r, a) ];
+    var c = [ Me(r, a), Re(r, a), We(r, a) ];
     return function(r, a, v) {
-      var o = Zn(A({
+      var o = Ge(A({
         pr: false,
         yr: false,
         wr: false,
-        hr: false,
+        gr: false,
         Lr: false,
         Tr: false,
         zr: false,
@@ -1730,69 +1730,69 @@ var OverlayScrollbars = function(r) {
         _r: false
       }, a), {}, v);
       var u = l || !f;
-      var s = u && M(e);
-      var d = u && R(e);
+      var s = u && M(n);
+      var d = u && R(n);
       t("", oa, true);
-      var g = o;
+      var h = o;
       each(c, (function(a) {
-        g = Zn(g, a(g, r, !!v) || {}, v);
+        h = Ge(h, a(h, r, !!v) || {}, v);
       }));
-      M(e, s);
-      R(e, d);
+      M(n, s);
+      R(n, d);
       t("", oa);
       if (!i) {
-        M(n, 0);
-        R(n, 0);
+        M(e, 0);
+        R(e, 0);
       }
-      return g;
+      return h;
     };
   };
-  var Jn = 3333333;
-  var Kn = function domRectHasDimensions(r) {
+  var Ze = 3333333;
+  var $e = function domRectHasDimensions(r) {
     return r && (r.height || r.width);
   };
-  var Qn = function createSizeObserver(r, n, e) {
-    var t = e || {}, i = t.Hr, v = void 0 === i ? false : i, o = t.Dr, u = void 0 === o ? false : o;
-    var f = Ia()[an];
-    var l = wn(), s = l.B;
-    var h = $('<div class="' + ga + '"><div class="' + pa + '"></div></div>');
-    var p = h[0];
+  var Je = function createSizeObserver(r, e, n) {
+    var t = n || {}, i = t.Hr, v = void 0 === i ? false : i, o = t.Dr, u = void 0 === o ? false : o;
+    var f = Ia()[ae];
+    var l = _e(), s = l.B;
+    var g = $('<div class="' + ha + '"><div class="' + pa + '"></div></div>');
+    var p = g[0];
     var b = p.firstChild;
     var w = zr.bind(0, r);
     var m = a({
       o: void 0,
       g: true,
       u: function _equal(r, a) {
-        return !(!r || !Kn(r) && Kn(a));
+        return !(!r || !$e(r) && $e(a));
       }
     }), S = m[0];
     var C = function onSizeChangedCallbackProxy(r) {
-      var a = d(r) && r.length > 0 && g(r[0]);
-      var e = !a && c(r[0]);
+      var a = d(r) && r.length > 0 && h(r[0]);
+      var n = !a && c(r[0]);
       var t = false;
       var i = false;
       var o = true;
       if (a) {
         var u = S(r.pop().contentRect), f = u[0], l = u[2];
-        var h = Kn(f);
-        var b = Kn(l);
-        t = !l || !h;
-        i = !b && h;
+        var g = $e(f);
+        var b = $e(l);
+        t = !l || !g;
+        i = !b && g;
         o = !t;
-      } else if (e) {
+      } else if (n) {
         o = r[1];
       } else {
         i = true === r;
       }
       if (v && o) {
-        var w = e ? r[0] : zr(p);
-        M(p, w ? s.n ? -Jn : s.i ? 0 : Jn : Jn);
-        R(p, Jn);
+        var w = n ? r[0] : zr(p);
+        M(p, w ? s.n ? -Ze : s.i ? 0 : Ze : Ze);
+        R(p, Ze);
       }
       if (!t) {
-        n({
-          pr: !e,
-          Mr: e ? r : void 0,
+        e({
+          pr: !n,
+          Mr: n ? r : void 0,
           Dr: !!i
         });
       }
@@ -1804,13 +1804,13 @@ var OverlayScrollbars = function(r) {
       X(p);
     }, function() {
       if (or) {
-        var n = new or(C);
-        n.observe(b);
+        var e = new or(C);
+        e.observe(b);
         y(x, (function() {
-          n.disconnect();
+          e.disconnect();
         }));
       } else if (f) {
-        var e = f.P(b, C, u), t = e[0], i = e[1];
+        var n = f.P(b, C, u), t = n[0], i = n[1];
         E = t;
         y(x, i);
       }
@@ -1820,10 +1820,10 @@ var OverlayScrollbars = function(r) {
         }, w), l = o[0];
         y(x, Ur(p, "scroll", (function(r) {
           var a = l();
-          var n = a[0], e = a[1];
-          if (e) {
-            hr(b, "ltr rtl");
-            if (n) {
+          var e = a[0], n = a[1];
+          if (n) {
+            gr(b, "ltr rtl");
+            if (e) {
               pr(b, "rtl");
             } else {
               pr(b, "ltr");
@@ -1834,7 +1834,7 @@ var OverlayScrollbars = function(r) {
         })));
       }
       if (E) {
-        pr(p, ha);
+        pr(p, ga);
         y(x, Ur(p, "animationstart", E, {
           A: !!or
         }));
@@ -1842,11 +1842,11 @@ var OverlayScrollbars = function(r) {
       Y(r, p);
     } ];
   };
-  var re = function isHeightIntrinsic(r) {
+  var Ke = function isHeightIntrinsic(r) {
     return 0 === r.h || r.isIntersecting || r.intersectionRatio > 0;
   };
-  var ae = function createTrinsicObserver(r, n) {
-    var e;
+  var Qe = function createTrinsicObserver(r, e) {
+    var n;
     var t = Z(ma);
     var i = [];
     var v = a({
@@ -1854,11 +1854,11 @@ var OverlayScrollbars = function(r) {
     }), o = v[0];
     var u = function triggerOnTrinsicChangedCallback(r, a) {
       if (r) {
-        var e = o(re(r));
-        var t = e[1];
+        var n = o(Ke(r));
+        var t = n[1];
         if (t) {
-          !a && n(e);
-          return [ e ];
+          !a && e(n);
+          return [ n ];
         }
       }
     };
@@ -1872,45 +1872,45 @@ var OverlayScrollbars = function(r) {
       X(t);
     }, function() {
       if (vr) {
-        e = new vr((function(r) {
+        n = new vr((function(r) {
           return f(r);
         }), {
           root: r
         });
-        e.observe(t);
+        n.observe(t);
         y(i, (function() {
-          e.disconnect();
+          n.disconnect();
         }));
       } else {
         var a = function onSizeChanged() {
           var r = Mr(t);
           u(r);
         };
-        var n = Qn(t, a), v = n[0], o = n[1];
+        var e = Je(t, a), v = e[0], o = e[1];
         y(i, v);
         o();
         a();
       }
       Y(r, t);
     }, function() {
-      if (e) {
-        return f(e.takeRecords(), true);
+      if (n) {
+        return f(n.takeRecords(), true);
       }
     } ];
   };
-  var ne = function createEventContentChange(r, a, n) {
-    var e;
+  var rn = function createEventContentChange(r, a, e) {
+    var n;
     var t = false;
     var i = function destroy() {
       t = true;
     };
     var v = function updateElements(i) {
-      if (n) {
-        var v = n.reduce((function(a, n) {
-          if (n) {
-            var e = n[0];
-            var t = n[1];
-            var v = t && e && (i ? i(e) : V(e, r));
+      if (e) {
+        var v = e.reduce((function(a, e) {
+          if (e) {
+            var n = e[0];
+            var t = e[1];
+            var v = t && n && (i ? i(n) : V(n, r));
             if (v && v.length && t && l(t)) {
               y(a, [ v, t.trim() ], true);
             }
@@ -1918,9 +1918,9 @@ var OverlayScrollbars = function(r) {
           return a;
         }), []);
         each(v, (function(r) {
-          return each(r[0], (function(n) {
+          return each(r[0], (function(e) {
             var i = r[1];
-            var v = e.get(n);
+            var v = n.get(e);
             if (v) {
               var o = v[0];
               var u = v[1];
@@ -1928,37 +1928,37 @@ var OverlayScrollbars = function(r) {
                 u();
               }
             }
-            var f = Ur(n, i, (function(r) {
+            var f = Ur(e, i, (function(r) {
               if (t) {
                 f();
-                e.delete(n);
+                n.delete(e);
               } else {
                 a(r);
               }
             }));
-            e.set(n, [ i, f ]);
+            n.set(e, [ i, f ]);
           }));
         }));
       }
     };
-    if (n) {
-      e = new WeakMap;
+    if (e) {
+      n = new WeakMap;
       v();
     }
     return [ i, v ];
   };
-  var ee = function createDOMObserver(r, a, n, e) {
+  var an = function createDOMObserver(r, a, e, n) {
     var t = false;
-    var i = e || {}, v = i.Rr, o = i.Ir, u = i.Vr, f = i.kr, c = i.jr, s = i.Br;
+    var i = n || {}, v = i.Rr, o = i.Ir, u = i.Vr, f = i.kr, c = i.jr, s = i.Br;
     var d = Cr((function() {
       if (t) {
-        n(true);
+        e(true);
       }
     }), {
       p: 33,
       _: 99
     });
-    var g = ne(r, d, u), h = g[0], p = g[1];
+    var h = rn(r, d, u), g = h[0], p = h[1];
     var b = v || [];
     var w = o || [];
     var S = b.concat(w);
@@ -1967,11 +1967,11 @@ var OverlayScrollbars = function(r) {
       var o = s || Sr;
       var u = [];
       var d = [];
-      var g = false;
       var h = false;
+      var g = false;
       var b = false;
-      each(t, (function(n) {
-        var t = n.attributeName, i = n.target, c = n.type, s = n.oldValue, p = n.addedNodes;
+      each(t, (function(e) {
+        var t = e.attributeName, i = e.target, c = e.type, s = e.oldValue, p = e.addedNodes;
         var S = "attributes" === c;
         var C = "childList" === c;
         var O = r === i;
@@ -1983,31 +1983,31 @@ var OverlayScrollbars = function(r) {
           var z = S && A;
           var T = z && f && j(i, f);
           var H = T ? !v(i, t, s, x) : P || z;
-          var D = H && !o(n, !!T, r, e);
+          var D = H && !o(e, !!T, r, n);
           y(d, p);
-          h = h || D;
+          g = g || D;
           b = b || C;
         }
         if (!a && O && E && !v(i, t, s, x)) {
           y(u, t);
-          g = g || A;
+          h = h || A;
         }
       }));
       if (b && !C(d)) {
         p((function(r) {
-          return d.reduce((function(a, n) {
-            y(a, V(r, n));
-            return j(n, r) ? y(a, n) : a;
+          return d.reduce((function(a, e) {
+            y(a, V(r, e));
+            return j(e, r) ? y(a, e) : a;
           }), []);
         }));
       }
       if (a) {
-        !i && h && n(false);
+        !i && g && e(false);
         return [ false ];
       }
-      if (!C(u) || g) {
-        !i && n(u, g);
-        return [ u, g ];
+      if (!C(u) || h) {
+        !i && e(u, h);
+        return [ u, h ];
       }
     };
     var x = new ir((function(r) {
@@ -2024,7 +2024,7 @@ var OverlayScrollbars = function(r) {
     t = true;
     return [ function() {
       if (t) {
-        h();
+        g();
         x.disconnect();
         t = false;
       }
@@ -2036,18 +2036,18 @@ var OverlayScrollbars = function(r) {
       }
     } ];
   };
-  var te = "[" + na + "]";
-  var ie = "." + fa;
-  var ve = [ "tabindex" ];
-  var oe = [ "wrap", "cols", "rows" ];
-  var ue = [ "id", "class", "style", "open" ];
-  var fe = function createStructureSetupObservers(r, n, e) {
+  var en = "[" + ea + "]";
+  var nn = "." + fa;
+  var tn = [ "tabindex" ];
+  var vn = [ "wrap", "cols", "rows" ];
+  var un = [ "id", "class", "style", "open" ];
+  var fn = function createStructureSetupObservers(r, e, n) {
     var t;
     var i;
     var v;
-    var o = n[1];
-    var u = r.J, c = r.K, g = r.ar, h = r.ur, p = r.cr, b = r.sr, w = r.dr;
-    var S = wn(), C = S.F;
+    var o = e[1];
+    var u = r.J, c = r.K, h = r.ar, g = r.ur, p = r.cr, b = r.sr, w = r.dr;
+    var S = _e(), C = S.F;
     var O = a({
       u: br,
       o: {
@@ -2057,26 +2057,26 @@ var OverlayScrollbars = function(r) {
     }, (function() {
       var r = b(da, ia);
       var a = b(la, "");
-      var n = a && M(c);
-      var e = a && R(c);
+      var e = a && M(c);
+      var n = a && R(c);
       w(da, ia);
       w(la, "");
       w("", oa, true);
-      var t = Ir(g);
+      var t = Ir(h);
       var i = Ir(c);
       var v = Vr(c);
       w(da, ia, r);
       w(la, "", a);
       w("", oa);
-      M(c, n);
-      R(c, e);
+      M(c, e);
+      R(c, n);
       return {
         w: i.w + t.w + v.w,
         h: i.h + t.h + v.h
       };
     })), x = O[0];
-    var P = h ? oe : ue.concat(oe);
-    var z = Cr(e, {
+    var P = g ? vn : un.concat(vn);
+    var z = Cr(n, {
       p: function _timeout() {
         return t;
       },
@@ -2084,17 +2084,17 @@ var OverlayScrollbars = function(r) {
         return i;
       },
       m: function _mergeParams(r, a) {
-        var n = r[0];
-        var e = a[0];
-        return [ E(n).concat(E(e)).reduce((function(r, a) {
-          r[a] = n[a] || e[a];
+        var e = r[0];
+        var n = a[0];
+        return [ E(e).concat(E(n)).reduce((function(r, a) {
+          r[a] = e[a] || n[a];
           return r;
         }), {}) ];
       }
     });
     var T = function updateViewportAttrsFromHost(r) {
-      each(r || ve, (function(r) {
-        if (m(ve, r) > -1) {
+      each(r || tn, (function(r) {
+        if (m(tn, r) > -1) {
           var a = L(u, r);
           if (l(a)) {
             L(c, r, a);
@@ -2105,22 +2105,22 @@ var OverlayScrollbars = function(r) {
       }));
     };
     var H = function onTrinsicChanged(r, a) {
-      var n = r[0], t = r[1];
+      var e = r[0], t = r[1];
       var i = {
-        hr: t
+        gr: t
       };
       o({
-        gr: n
+        hr: e
       });
-      !a && e(i);
+      !a && n(i);
       return i;
     };
     var I = function onSizeChanged(r) {
-      var a = r.pr, n = r.Mr, t = r.Dr;
-      var i = !a || t ? e : z;
+      var a = r.pr, e = r.Mr, t = r.Dr;
+      var i = !a || t ? n : z;
       var v = false;
-      if (n) {
-        var u = n[0], f = n[1];
+      if (e) {
+        var u = e[0], f = e[1];
         v = f;
         o({
           br: u
@@ -2132,35 +2132,35 @@ var OverlayScrollbars = function(r) {
       });
     };
     var V = function onContentMutation(r, a) {
-      var n = x(), t = n[1];
+      var e = x(), t = e[1];
       var i = {
         _r: t
       };
-      var v = r ? e : z;
+      var v = r ? n : z;
       if (t) {
         !a && v(i);
       }
       return i;
     };
-    var k = function onHostMutation(r, a, n) {
-      var e = {
+    var k = function onHostMutation(r, a, e) {
+      var n = {
         Or: a
       };
       if (a) {
-        !n && z(e);
+        !e && z(n);
       } else if (!p) {
         T(r);
       }
-      return e;
+      return n;
     };
-    var j = g || !C ? ae(u, H) : [ Sr, Sr, Sr ], B = j[0], F = j[1], N = j[2];
-    var Y = !p ? Qn(u, I, {
+    var j = h || !C ? Qe(u, H) : [ Sr, Sr, Sr ], B = j[0], F = j[1], N = j[2];
+    var Y = !p ? Je(u, I, {
       Dr: true,
       Hr: true
     }) : [ Sr, Sr ], W = Y[0], G = Y[1];
-    var X = ee(u, false, k, {
-      Ir: ue,
-      Rr: ue.concat(ve)
+    var X = an(u, false, k, {
+      Ir: un,
+      Rr: un.concat(tn)
     }), Z = X[0], $ = X[1];
     var J = p && or && new or(I.bind(0, {
       pr: true
@@ -2179,41 +2179,41 @@ var OverlayScrollbars = function(r) {
     }, function() {
       var r = {};
       var a = $();
-      var n = N();
-      var e = v && v[1]();
+      var e = N();
+      var n = v && v[1]();
       if (a) {
         A(r, k.apply(0, y(a, true)));
       }
-      if (n) {
-        A(r, H.apply(0, y(n, true)));
-      }
       if (e) {
-        A(r, V.apply(0, y(e, true)));
+        A(r, H.apply(0, y(e, true)));
+      }
+      if (n) {
+        A(r, V.apply(0, y(n, true)));
       }
       return r;
     }, function(r) {
-      var a = r("updating.ignoreMutation"), n = a[0];
-      var e = r("updating.attributes"), o = e[0], u = e[1];
-      var l = r("updating.elementEvents"), h = l[0], b = l[1];
-      var w = r("updating.debounce"), m = w[0], y = w[1];
+      var a = r("update.ignoreMutation"), e = a[0];
+      var n = r("update.attributes"), o = n[0], u = n[1];
+      var l = r("update.elementEvents"), g = l[0], b = l[1];
+      var w = r("update.debounce"), m = w[0], y = w[1];
       var S = b || u;
       var C = function ignoreMutationFromOptions(r) {
-        return s(n) && n(r);
+        return s(e) && e(r);
       };
       if (S) {
         if (v) {
           v[1]();
           v[0]();
         }
-        v = ee(g || c, true, V, {
+        v = an(h || c, true, V, {
           Ir: P.concat(o || []),
           Rr: P.concat(o || []),
-          Vr: h,
-          kr: te,
+          Vr: g,
+          kr: en,
           Br: function _ignoreContentChange(r, a) {
-            var n = r.target, e = r.attributeName;
-            var t = !a && e && !p ? U(n, te, ie) : false;
-            return t || !!q(n, "." + ya) || !!C(r);
+            var e = r.target, n = r.attributeName;
+            var t = !a && n && !p ? U(e, en, nn) : false;
+            return t || !!q(e, "." + ya) || !!C(r);
           }
         });
       }
@@ -2222,8 +2222,8 @@ var OverlayScrollbars = function(r) {
         if (d(m)) {
           var O = m[0];
           var x = m[1];
-          t = f(O) ? O : false;
-          i = f(x) ? x : false;
+          t = f(O) && O;
+          i = f(x) && x;
         } else if (f(m)) {
           t = m;
           i = false;
@@ -2234,11 +2234,11 @@ var OverlayScrollbars = function(r) {
       }
     } ];
   };
-  var le = {
+  var ln = {
     x: 0,
     y: 0
   };
-  var ce = {
+  var cn = {
     rr: {
       t: 0,
       r: 0,
@@ -2255,8 +2255,8 @@ var OverlayScrollbars = function(r) {
       paddingBottom: 0,
       paddingLeft: 0
     },
-    Er: le,
-    Ar: le,
+    Er: ln,
+    Ar: ln,
     Cr: {
       x: "hidden",
       y: "hidden"
@@ -2265,73 +2265,73 @@ var OverlayScrollbars = function(r) {
       x: false,
       y: false
     },
-    gr: false,
+    hr: false,
     br: false
   };
-  var se = function createStructureSetup(r, a) {
-    var n = zn(a, {});
-    var e = Ln(ce);
+  var sn = function createStructureSetup(r, a) {
+    var e = Ae(a, {});
+    var n = Pe(cn);
     var t = Zr(), i = t[0], v = t[1], o = t[2];
-    var u = e[0];
-    var f = Rn(r), l = f[0], c = f[1], s = f[2];
-    var d = $n(l, e);
-    var g = function triggerUpdateEvent(r, a, n) {
-      var e = E(r).some((function(a) {
+    var u = n[0];
+    var f = De(r), l = f[0], c = f[1], s = f[2];
+    var d = Xe(l, n);
+    var h = function triggerUpdateEvent(r, a, e) {
+      var n = E(r).some((function(a) {
         return r[a];
       }));
-      if (e || !P(a) || n) {
-        o("u", [ r, a, n ]);
+      if (n || !P(a) || e) {
+        o("u", [ r, a, e ]);
       }
     };
-    var h = fe(l, e, (function(r) {
-      g(d(n, r), {}, false);
-    })), p = h[0], b = h[1], w = h[2], m = h[3];
+    var g = fn(l, n, (function(r) {
+      h(d(e, r), {}, false);
+    })), p = g[0], b = g[1], w = g[2], m = g[3];
     var y = u.bind(0);
     y.Fr = function(r) {
       i("u", r);
     };
     y.qr = function() {
       var r = l.$, a = l.K;
-      var n = M(r);
-      var e = R(r);
+      var e = M(r);
+      var n = R(r);
       b();
       c();
-      M(a, n);
-      R(a, e);
+      M(a, e);
+      R(a, n);
     };
     y.Ur = l;
-    return [ function(r, n) {
-      var e = zn(a, r, n);
-      m(e);
-      g(d(e, w(), n), r, !!n);
+    return [ function(r, e) {
+      var n = Ae(a, r, e);
+      m(n);
+      h(d(n, w(), e), r, !!e);
     }, y, function() {
       v();
       p();
       s();
     } ];
   };
-  var de = Math.round;
-  var ge = function getClientOffset(r) {
+  var dn = Math.round;
+  var hn = function getClientOffset(r) {
     return {
       x: r.clientX,
       y: r.clientY
     };
   };
-  var he = function getScale(r) {
-    var a = kr(r), n = a.width, e = a.height;
+  var gn = function getScale(r) {
+    var a = kr(r), e = a.width, n = a.height;
     var t = Mr(r), i = t.w, v = t.h;
     return {
-      x: de(n) / i || 1,
-      y: de(e) / v || 1
+      x: dn(e) / i || 1,
+      y: dn(n) / v || 1
     };
   };
-  var pe = function continuePointerDown(r, a, n) {
-    var e = a.scrollbars;
+  var pn = function continuePointerDown(r, a, e) {
+    var n = a.scrollbars;
     var t = r.button, i = r.isPrimary, v = r.pointerType;
-    var o = e.pointers;
-    return 0 === t && i && e[n] && (o || []).includes(v);
+    var o = n.pointers;
+    return 0 === t && i && n[e] && (o || []).includes(v);
   };
-  var _e = function createRootClickStopPropagationEvents(r, a) {
+  var _n = function createRootClickStopPropagationEvents(r, a) {
     return Ur(r, "mousedown", Ur.bind(0, a, "click", Nr, {
       A: true,
       O: true
@@ -2339,32 +2339,32 @@ var OverlayScrollbars = function(r) {
       O: true
     });
   };
-  var be = function createDragScrollingEvents(r, a, n, e, t, i) {
-    var v = wn(), o = v.B;
-    var u = n.Nr, f = n.Yr, l = n.Wr;
+  var bn = function createDragScrollingEvents(r, a, e, n, t, i) {
+    var v = _e(), o = v.B;
+    var u = e.Nr, f = e.Yr, l = e.Wr;
     var c = "scroll" + (i ? "Left" : "Top");
     var s = i ? "x" : "y";
     var d = i ? "w" : "h";
-    var g = function createOnPointerMoveHandler(r, a, n) {
+    var h = function createOnPointerMoveHandler(r, a, e) {
       return function(v) {
-        var g = t(), h = g.Ar;
-        var p = (ge(v)[s] - a) * n;
+        var h = t(), g = h.Ar;
+        var p = (hn(v)[s] - a) * e;
         var b = Mr(f)[d] - Mr(u)[d];
         var w = p / b;
-        var m = w * h[s];
+        var m = w * g[s];
         var y = zr(l);
         var S = y && i ? o.n || o.i ? 1 : -1 : 1;
-        e[c] = r + m * S;
+        n[c] = r + m * S;
       };
     };
-    return Ur(u, "pointerdown", (function(n) {
-      if (pe(n, r, "dragScroll")) {
+    return Ur(u, "pointerdown", (function(e) {
+      if (pn(e, r, "dragScroll")) {
         var t = Ur(a, "selectstart", (function(r) {
           return Yr(r);
         }), {
           C: false
         });
-        var i = Ur(u, "pointermove", g(e[c] || 0, ge(n)[s], 1 / he(e)[s]));
+        var i = Ur(u, "pointermove", h(n[c] || 0, hn(e)[s], 1 / gn(n)[s]));
         Ur(u, "pointerup", (function(r) {
           t();
           i();
@@ -2372,96 +2372,96 @@ var OverlayScrollbars = function(r) {
         }), {
           A: true
         });
-        u.setPointerCapture(n.pointerId);
+        u.setPointerCapture(e.pointerId);
       }
     }));
   };
-  var we = function createScrollbarsSetupEvents(r, a) {
-    return function(n, e, t, i, v) {
-      var o = n.Wr;
+  var wn = function createScrollbarsSetupEvents(r, a) {
+    return function(e, n, t, i, v) {
+      var o = e.Wr;
       return O.bind(0, [ Ur(o, "pointerenter", (function() {
-        e(La, true);
+        n(La, true);
       })), Ur(o, "pointerleave pointercancel", (function() {
-        e(La);
-      })), _e(o, t), be(r, t, n, i, a, v) ]);
+        n(La);
+      })), _n(o, t), bn(r, t, e, i, a, v) ]);
     };
   };
-  var me = Math.min, ye = Math.max, Se = Math.abs, Ce = Math.round;
-  var Oe = function getScrollbarHandleLengthRatio(r, a, n, e) {
-    if (e) {
-      var t = n ? "x" : "y";
-      var i = e.Ar, v = e.Er;
+  var mn = Math.min, yn = Math.max, Sn = Math.abs, Cn = Math.round;
+  var On = function getScrollbarHandleLengthRatio(r, a, e, n) {
+    if (n) {
+      var t = e ? "x" : "y";
+      var i = n.Ar, v = n.Er;
       var o = v[t];
       var u = i[t];
-      return ye(0, me(1, o / (o + u)));
+      return yn(0, mn(1, o / (o + u)));
     }
-    var f = n ? "w" : "h";
+    var f = e ? "w" : "h";
     var l = Mr(r)[f];
     var c = Mr(a)[f];
-    return ye(0, me(1, l / c));
+    return yn(0, mn(1, l / c));
   };
-  var xe = function getScrollbarHandleOffsetRatio(r, a, n, e, t, i) {
-    var v = wn(), o = v.B;
+  var xn = function getScrollbarHandleOffsetRatio(r, a, e, n, t, i) {
+    var v = _e(), o = v.B;
     var u = i ? "x" : "y";
     var f = i ? "Left" : "Top";
-    var l = e.Ar;
-    var c = Ce(l[u]);
-    var s = Se(n["scroll" + f]);
+    var l = n.Ar;
+    var c = Cn(l[u]);
+    var s = Sn(e["scroll" + f]);
     var d = i && t;
-    var g = o.i ? s : c - s;
-    var h = d ? g : s;
-    var p = me(1, h / c);
-    var b = Oe(r, a, i);
+    var h = o.i ? s : c - s;
+    var g = d ? h : s;
+    var p = mn(1, g / c);
+    var b = On(r, a, i);
     return 1 / b * (1 - b) * p;
   };
-  var Ee = function createScrollbarsSetupElements(r, a, n) {
-    var e = wn(), t = e.U;
+  var En = function createScrollbarsSetupElements(r, a, e) {
+    var n = _e(), t = n.U;
     var i = t(), v = i.scrollbars;
     var o = v.slot;
-    var u = a.vr, f = a.$, l = a.J, s = a.K, d = a.lr, g = a.er;
-    var h = d ? {} : r, p = h.scrollbars;
+    var u = a.vr, f = a.$, l = a.J, s = a.K, d = a.lr, h = a.nr;
+    var g = d ? {} : r, p = g.scrollbars;
     var b = p || {}, w = b.slot;
-    var m = Sn([ f, l, s ], (function() {
+    var m = me([ f, l, s ], (function() {
       return l;
     }), o, w);
-    var S = function scrollbarStructureAddRemoveClass(r, a, n) {
-      var e = n ? pr : hr;
+    var S = function scrollbarStructureAddRemoveClass(r, a, e) {
+      var n = e ? pr : gr;
       each(r, (function(r) {
-        e(r.Wr, a);
+        n(r.Wr, a);
       }));
     };
     var x = function scrollbarsHandleStyle(r, a) {
       each(r, (function(r) {
-        var n = a(r), e = n[0], t = n[1];
-        style(e, t);
+        var e = a(r), n = e[0], t = e[1];
+        style(n, t);
       }));
     };
-    var E = function scrollbarStructureRefreshHandleLength(r, a, n) {
+    var E = function scrollbarStructureRefreshHandleLength(r, a, e) {
       x(r, (function(r) {
-        var e;
+        var n;
         var t = r.Nr, i = r.Yr;
-        return [ t, (e = {}, e[n ? "width" : "height"] = (100 * Oe(t, i, n, a)).toFixed(3) + "%", 
-        e) ];
+        return [ t, (n = {}, n[e ? "width" : "height"] = (100 * On(t, i, e, a)).toFixed(3) + "%", 
+        n) ];
       }));
     };
-    var A = function scrollbarStructureRefreshHandleOffset(r, a, n) {
-      var e = n ? "X" : "Y";
+    var A = function scrollbarStructureRefreshHandleOffset(r, a, e) {
+      var n = e ? "X" : "Y";
       x(r, (function(r) {
         var t = r.Nr, i = r.Yr, v = r.Wr;
-        var o = xe(t, i, g, a, zr(v), n);
+        var o = xn(t, i, h, a, zr(v), e);
         var u = o === o;
         return [ t, {
-          transform: u ? "translate" + e + "(" + (100 * o).toFixed(3) + "%)" : ""
+          transform: u ? "translate" + n + "(" + (100 * o).toFixed(3) + "%)" : ""
         } ];
       }));
     };
     var P = [];
     var z = [];
     var L = [];
-    var T = function scrollbarsAddRemoveClass(r, a, n) {
-      var e = c(n);
-      var t = e ? n : true;
-      var i = e ? !n : true;
+    var T = function scrollbarsAddRemoveClass(r, a, e) {
+      var n = c(e);
+      var t = n ? e : true;
+      var i = n ? !e : true;
       t && S(z, r, a);
       i && S(L, r, a);
     };
@@ -2475,8 +2475,8 @@ var OverlayScrollbars = function(r) {
     };
     var M = function generateScrollbarDOM(r) {
       var a = r ? Ca : Oa;
-      var e = r ? z : L;
-      var t = C(e) ? za : "";
+      var n = r ? z : L;
+      var t = C(n) ? za : "";
       var i = Z(ya + " " + a + " " + t);
       var v = Z(xa);
       var o = Z(Ea);
@@ -2487,8 +2487,8 @@ var OverlayScrollbars = function(r) {
       };
       Y(i, v);
       Y(v, o);
-      y(e, f);
-      y(P, [ X.bind(0, i), n(f, T, u, g, r) ]);
+      y(n, f);
+      y(P, [ X.bind(0, i), e(f, T, u, h, r) ]);
       return f;
     };
     var R = M.bind(0, true);
@@ -2518,43 +2518,43 @@ var OverlayScrollbars = function(r) {
       }
     }, V, O.bind(0, P) ];
   };
-  var Ae = function createSelfCancelTimeout(r) {
+  var An = function createSelfCancelTimeout(r) {
     var a;
-    var n = r ? lr : fr;
-    var e = r ? cr : ur;
+    var e = r ? lr : fr;
+    var n = r ? cr : ur;
     return [ function(t) {
-      e(a);
-      a = n(t, s(r) ? r() : r);
+      n(a);
+      a = e(t, s(r) ? r() : r);
     }, function() {
-      return e(a);
+      return n(a);
     } ];
   };
-  var Pe = function createScrollbarsSetup(r, a, n) {
-    var e;
+  var Pn = function createScrollbarsSetup(r, a, e) {
+    var n;
     var t;
     var i;
     var v;
     var o;
     var u = 0;
-    var f = Ln({});
+    var f = Pe({});
     var l = f[0];
-    var c = Ae(), s = c[0], d = c[1];
-    var g = Ae(), h = g[0], p = g[1];
-    var b = Ae(100), w = b[0], m = b[1];
-    var y = Ae(100), S = y[0], C = y[1];
-    var x = Ae((function() {
+    var c = An(), s = c[0], d = c[1];
+    var h = An(), g = h[0], p = h[1];
+    var b = An(100), w = b[0], m = b[1];
+    var y = An(100), S = y[0], C = y[1];
+    var x = An((function() {
       return u;
     })), E = x[0], A = x[1];
-    var P = Ee(r, n.Ur, we(a, n)), z = P[0], L = P[1], T = P[2];
-    var H = n.Ur, D = H.J, I = H.K, V = H.er, k = H.tr, j = H.cr, B = H.Z;
+    var P = En(r, e.Ur, wn(a, e)), z = P[0], L = P[1], T = P[2];
+    var H = e.Ur, D = H.J, I = H.K, V = H.nr, k = H.tr, j = H.cr, B = H.Z;
     var q = z.$r, U = z.ra, N = z.Zr, Y = z.Gr, W = z.Xr;
     var G = q.Qr;
     var X = U.Qr;
     var Z = function styleScrollbarPosition(r) {
       var a = r.Wr;
-      var n = j && !B && F(a) === I && a;
-      return [ n, {
-        transform: n ? "translate(" + M(V) + "px, " + R(V) + "px)" : ""
+      var e = j && !B && F(a) === I && a;
+      return [ e, {
+        transform: e ? "translate(" + M(V) + "px, " + R(V) + "px)" : ""
       } ];
     };
     var $ = function manageScrollbarsAutoHide(r, a) {
@@ -2562,13 +2562,13 @@ var OverlayScrollbars = function(r) {
       if (r) {
         N(Ha);
       } else {
-        var n = function hide() {
+        var e = function hide() {
           return N(Ha, true);
         };
         if (u > 0 && !a) {
-          E(n);
+          E(e);
         } else {
-          n();
+          e();
         }
       }
     };
@@ -2582,16 +2582,16 @@ var OverlayScrollbars = function(r) {
       v = false;
       t && $(false);
     })), Ur(D, "pointermove", (function() {
-      e && s((function() {
+      n && s((function() {
         m();
         $(true);
         S((function() {
-          e && $(false);
+          n && $(false);
         }));
       }));
     })), Ur(k, "scroll", (function() {
-      h((function() {
-        W(n());
+      g((function() {
+        W(e());
         i && $(true);
         w((function() {
           i && !v && $(false);
@@ -2605,21 +2605,21 @@ var OverlayScrollbars = function(r) {
     Q.qr = L;
     return [ function(r, v, f) {
       var l = f.Lr, c = f.Tr, s = f.zr, d = f.wr;
-      var g = zn(a, r, v);
-      var h = n();
-      var p = h.Ar, b = h.Cr, w = h.br;
-      var m = g("scrollbars.theme"), y = m[0], S = m[1];
-      var C = g("scrollbars.visibility"), O = C[0], x = C[1];
-      var E = g("scrollbars.autoHide"), A = E[0], P = E[1];
-      var z = g("scrollbars.autoHideDelay"), L = z[0];
-      var T = g("scrollbars.dragScroll"), H = T[0], D = T[1];
-      var M = g("scrollbars.clickScroll"), R = M[0], I = M[1];
+      var h = Ae(a, r, v);
+      var g = e();
+      var p = g.Ar, b = g.Cr, w = g.br;
+      var m = h("scrollbars.theme"), y = m[0], S = m[1];
+      var C = h("scrollbars.visibility"), O = C[0], x = C[1];
+      var E = h("scrollbars.autoHide"), A = E[0], P = E[1];
+      var z = h("scrollbars.autoHideDelay"), L = z[0];
+      var T = h("scrollbars.dragScroll"), H = T[0], D = T[1];
+      var M = h("scrollbars.clickScroll"), R = M[0], I = M[1];
       var V = l || c || d || v;
       var k = s || x || v;
       var j = function setScrollbarVisibility(r, a) {
-        var n = "visible" === O || "auto" === O && "scroll" === r;
-        N(Aa, n, a);
-        return n;
+        var e = "visible" === O || "auto" === O && "scroll" === r;
+        N(Aa, e, a);
+        return e;
       };
       u = L;
       if (S) {
@@ -2628,7 +2628,7 @@ var OverlayScrollbars = function(r) {
         o = y;
       }
       if (P) {
-        e = "move" === A;
+        n = "move" === A;
         t = "leave" === A;
         i = "never" !== A;
         $(!i, true);
@@ -2646,38 +2646,38 @@ var OverlayScrollbars = function(r) {
         N(Pa, !U);
       }
       if (V) {
-        Y(h);
-        W(h);
+        Y(g);
+        W(g);
         N(Ta, !p.x, true);
         N(Ta, !p.y, false);
         N(Sa, w && !B);
       }
     }, Q, O.bind(0, K) ];
   };
-  var ze = function OverlayScrollbars(r, a, n) {
-    var e = wn(), t = e.Y, i = e.q;
+  var zn = function OverlayScrollbars(r, a, e) {
+    var n = _e(), t = n.Y, i = n.q;
     var v = Ia();
     var o = b(r);
     var u = o ? r : r.target;
-    var f = An(u);
+    var f = xe(u);
     if (a && !f) {
       var l = false;
       var c = v[Ja];
       var d = function validateOptions(r) {
         var a = r || {};
-        var n = c && c.P;
-        return n ? n(a, true) : a;
+        var e = c && c.P;
+        return e ? e(a, true) : a;
       };
-      var g = A({}, t(), d(a));
-      var h = Zr(n), p = h[0], w = h[1], m = h[2];
-      var y = se(r, g), S = y[0], C = y[1], O = y[2];
-      var x = Pe(r, g, C), z = x[0], L = x[1], T = x[2];
+      var h = A({}, t(), d(a));
+      var g = Zr(e), p = g[0], w = g[1], m = g[2];
+      var y = sn(r, h), S = y[0], C = y[1], O = y[2];
+      var x = Pn(r, h, C), z = x[0], L = x[1], T = x[2];
       var H = function update(r, a) {
         S(r, !!a);
       };
       var D = i(H.bind(0, {}, true));
       var M = function destroy(r) {
-        En(u);
+        Oe(u);
         D();
         T();
         O();
@@ -2688,24 +2688,24 @@ var OverlayScrollbars = function(r) {
       var R = {
         options: function options(r) {
           if (r) {
-            var a = Kr(g, d(r));
+            var a = Kr(h, d(r));
             if (!P(a)) {
-              A(g, a);
+              A(h, a);
               H(a);
             }
           }
-          return A({}, g);
+          return A({}, h);
         },
         on: p,
         off: function off(r, a) {
           r && a && w(r, a);
         },
         state: function state() {
-          var r = C(), a = r.Er, n = r.Ar, e = r.Cr, t = r.Pr, i = r.rr, v = r.mr, o = r.br;
+          var r = C(), a = r.Er, e = r.Ar, n = r.Cr, t = r.Pr, i = r.rr, v = r.mr, o = r.br;
           return A({}, {
             overflowEdge: a,
-            overflowAmount: n,
-            overflowStyle: e,
+            overflowAmount: e,
+            overflowStyle: n,
             hasOverflow: t,
             padding: i,
             paddingAbsolute: v,
@@ -2714,22 +2714,22 @@ var OverlayScrollbars = function(r) {
           });
         },
         elements: function elements() {
-          var r = C.Ur, a = r.$, n = r.J, e = r.rr, t = r.K, i = r.ar, v = r.er, o = r.tr;
+          var r = C.Ur, a = r.$, e = r.J, n = r.rr, t = r.K, i = r.ar, v = r.nr, o = r.tr;
           var u = L.Ur, f = u.$r, l = u.ra;
           var c = function translateScrollbarStructure(r) {
-            var a = r.Nr, n = r.Yr, e = r.Wr;
+            var a = r.Nr, e = r.Yr, n = r.Wr;
             return {
-              scrollbar: e,
-              track: n,
+              scrollbar: n,
+              track: e,
               handle: a
             };
           };
           var s = function translateScrollbarsSetupElement(r) {
-            var a = r.Jr, n = r.Kr;
-            var e = c(a[0]);
-            return A({}, e, {
+            var a = r.Jr, e = r.Kr;
+            var n = c(a[0]);
+            return A({}, n, {
               clone: function clone() {
-                var r = c(n());
+                var r = c(e());
                 z({}, true, {});
                 return r;
               }
@@ -2737,8 +2737,8 @@ var OverlayScrollbars = function(r) {
           };
           return A({}, {
             target: a,
-            host: n,
-            padding: e || t,
+            host: e,
+            padding: n || t,
             viewport: t,
             content: i || t,
             scrollOffsetElement: v,
@@ -2753,8 +2753,8 @@ var OverlayScrollbars = function(r) {
         },
         destroy: M.bind(0)
       };
-      C.Fr((function(r, a, n) {
-        z(a, n, r);
+      C.Fr((function(r, a, e) {
+        z(a, e, r);
       }));
       each(E(v), (function(r) {
         var a = v[r];
@@ -2762,19 +2762,19 @@ var OverlayScrollbars = function(r) {
           a(OverlayScrollbars, R);
         }
       }));
-      if (Cn(!o && r.cancel, C.Ur)) {
+      if (ye(!o && r.cancel, C.Ur)) {
         M(true);
         return R;
       }
       C.qr();
       L.qr();
-      xn(u, R);
+      Ce(u, R);
       m("initialized", [ R ]);
-      C.Fr((function(r, a, n) {
-        var e = r.pr, t = r.wr, i = r.hr, v = r.Lr, o = r.Tr, u = r.zr, f = r._r, l = r.Or;
+      C.Fr((function(r, a, e) {
+        var n = r.pr, t = r.wr, i = r.gr, v = r.Lr, o = r.Tr, u = r.zr, f = r._r, l = r.Or;
         m("updated", [ R, {
           updateHints: {
-            sizeChanged: e,
+            sizeChanged: n,
             directionChanged: t,
             heightIntrinsicChanged: i,
             overflowEdgeChanged: v,
@@ -2784,25 +2784,25 @@ var OverlayScrollbars = function(r) {
             hostMutation: l
           },
           changedOptions: a,
-          force: n
+          force: e
         } ]);
       }));
       return R.update(true);
     }
     return f;
   };
-  ze.plugin = Va;
-  ze.valid = function(r) {
+  zn.plugin = Va;
+  zn.valid = function(r) {
     var a = r && r.elements;
-    var n = s(a) && a();
-    return p(n) && !!An(n.target);
+    var e = s(a) && a();
+    return p(e) && !!xe(e.target);
   };
-  ze.env = function() {
-    var r = wn(), a = r.j, n = r.H, e = r.T, t = r.B, i = r.F, v = r.D, o = r.G, u = r.X, f = r.U, l = r.N, c = r.Y, s = r.W;
+  zn.env = function() {
+    var r = _e(), a = r.j, e = r.H, n = r.T, t = r.B, i = r.F, v = r.D, o = r.G, u = r.X, f = r.U, l = r.N, c = r.Y, s = r.W;
     return A({}, {
       scrollbarsSize: a,
-      scrollbarsOverlaid: n,
-      scrollbarsHiding: e,
+      scrollbarsOverlaid: e,
+      scrollbarsHiding: n,
       rtlScrollBehavior: t,
       flexboxGlue: i,
       cssCustomProperties: v,
@@ -2814,9 +2814,9 @@ var OverlayScrollbars = function(r) {
       setDefaultOptions: s
     });
   };
-  r.OverlayScrollbars = ze;
-  r.scrollbarsHidingPlugin = sn;
-  r.sizeObserverPlugin = nn;
+  r.OverlayScrollbars = zn;
+  r.scrollbarsHidingPlugin = le;
+  r.sizeObserverPlugin = ee;
   Object.defineProperty(r, "v", {
     value: true
   });

@@ -37,10 +37,10 @@ declare type ScrollbarAutoHideBehavior = 'never' | 'scroll' | 'leave' | 'move';
 interface Options {
     paddingAbsolute: boolean;
     showNativeOverlaidScrollbars: boolean;
-    updating: {
+    update: {
         elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
-        attributes: string[] | null;
         debounce: [timeout: number, maxWait: number] | number | null;
+        attributes: string[] | null;
         ignoreMutation: ((mutation: MutationRecord) => any) | null;
     };
     overflow: {
@@ -249,7 +249,7 @@ interface Elements {
 }
 interface OverlayScrollbars {
     options(): Options;
-    options(newOptions?: DeepPartial<Options>): Options;
+    options(newOptions: DeepPartial<Options>): Options;
     update(force?: boolean): OverlayScrollbars;
     destroy(): void;
     state(): State;

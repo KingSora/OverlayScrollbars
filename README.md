@@ -21,7 +21,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - High browser compatibility - <b>Firefox</b>, <b>Chrome</b>, <b>Opera</b>, <b>Edge</b>, <b>Safari 10+</b> and <b>IE 11</b>
  - Tested on various devices - <b>Mobile</b>, <b>Desktop</b> and <b>Tablet</b>
  - Tested with various (and mixed) inputs - <b>Mouse</b>, <b>touch</b> and <b>pen</b>
- - Plugin based features with <b>Treeshaking</b> - bundle only what you really need
+ - <b>Treeshaking</b> - bundle only what you really need 
  - Automatic update detection - <b>no polling</b>
  - Usage of latest browser features - best <b>performance</b> in new browsers
  - Bidirectional - LTR or RTL direction support
@@ -128,8 +128,18 @@ In the above example the initialization is canceled when the native scrollbars a
 
 ## Options
 
-OverlayScrollbars provides a lot of options which can be changed at any time:
+You can initialize OverlayScrollbars with an initial set of options, which can be changed at any time with the `options` method:
+```js
+OverlayScrollbars(document.querySelector('#myElement'), {
+  overflow: {
+    x: 'hidden',
+  },
+});
+```
 
+<details><summary><h6>Options in depth</h6></summary>
+
+The default options are:
 ```js
 const defaultOptions = {
   paddingAbsolute: false,
@@ -156,9 +166,7 @@ const defaultOptions = {
 };
 ```
 
-<details><summary><h6>Options in depth</h6></summary>
-
-### paddingAbsolute
+### `paddingAbsolute`
 
 | type  | default |
 | :--- | :--- |
@@ -166,7 +174,7 @@ const defaultOptions = {
 
 Indicates whether the padding for the content shall be absolute.
 
-### showNativeOverlaidScrollbars
+### `showNativeOverlaidScrollbars`
 
 | type  | default |
 | :--- | :--- |
@@ -174,7 +182,7 @@ Indicates whether the padding for the content shall be absolute.
 
 Indicates whether the native overlaid scrollbars shall be visible.
 
-### update.elementEvents
+### `update.elementEvents`
 
 | type  | default |
 | :--- | :--- |
@@ -182,7 +190,7 @@ Indicates whether the native overlaid scrollbars shall be visible.
 
 An array of tuples. The first value in the tuple is an `selector` and the second value are `event names`. The plugin will update itself if any of the elements with the specified selector will emit any specified event. The default value can be interpreted as "The plugin will update itself if any `img` element emits an `load` event."
 
-### update.debounce
+### `update.debounce`
 
 | type  | default |
 | :--- | :--- |
@@ -190,10 +198,196 @@ An array of tuples. The first value in the tuple is an `selector` and the second
 
 > __Note__ If 0 is used for the timeout, `requestAnimationFrame` instead of `setTimeout` is used for the debounce.
 
-Debounces the `MutationObserver` which tracks changes to the content. If a tuple is passed, the first value is the timeout and second is the max wait. If only a number is passed you specify only the timeout and there is no max wait. With null there is no debounce.
+Debounces the `MutationObserver` which tracks changes to the content. If a **tuple** is passed, the first value is the timeout and second is the max wait. If only a **number** is passed you specify only the timeout and there is no max wait. With **null** there is no debounce. **Usefull to fine-tune performance.**
 
+### `update.attributes`
+
+| type  | default |
+| :--- | :--- |
+| `string[] \| null` | `null` |
+
+> __Note__ There is a base array of attributes that the `MutationObserver` always observes, even if this option is `null`.
+
+An array of additional attributes that the `MutationObserver` should observe for the content. 
+
+### `update.ignoreMutation`
+
+| type  | default |
+| :--- | :--- |
+| `((mutation) => any) \| null` | `null` |
+
+A function which receives a [`MutationRecord`](https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord) as an argument. If the function returns a truthy value the mutation will be ignored and the plugin won't update. **Usefull to fine-tune performance.**
+
+### `overflow.x`
+
+| type  | default |
+| :--- | :--- |
+| `string` | `'scroll'` |
+
+> __Note__ Valid values are: `'hidden'`, `'scroll'`, `'visible'`, `'visible-hidden'` and `'visible-scroll'`.
+
+The overflow behavior for the horizontal (x) axis.
+
+### `overflow.y`
+
+| type  | default |
+| :--- | :--- |
+| `string` | `'scroll'` |
+
+> __Note__ Valid values are: `'hidden'`, `'scroll'`, `'visible'`, `'visible-hidden'` and `'visible-scroll'`.
+
+The overflow behavior for the vertical (y) axis.
+
+### `scrollbars.theme`
+
+| type  | default |
+| :--- | :--- |
+| `string \| null` | `'os-theme-dark'` |
+
+Applies the specified theme (classname) to the scrollbars.
+
+### `scrollbars.visibility`
+
+| type  | default |
+| :--- | :--- |
+| `string` | `'auto'` |
+
+> __Note__ Valid values are: `'visible'`, `'hidden'`, and `'auto'`.
+
+The base visibility of the scrollbars.
+
+### `scrollbars.autoHide`
+
+| type  | default |
+| :--- | :--- |
+| `string` | `'never'` |
+
+> __Note__ Valid values are: `'never'`, `'scroll'`, `'leave'` and `'move'`.
+
+The possibility to hide visible scrollbars automatically after a certain user action.
+
+### `scrollbars.autoHideDelay`
+
+| type  | default |
+| :--- | :--- |
+| `number` | `1300` |
+
+The delay in milliseconds before the scrollbars are hidden automatically.
+
+### `scrollbars.dragScroll`
+
+| type  | default |
+| :--- | :--- |
+| `boolean` | `true` |
+
+Indicates whether you can drag the scrollbar handles for scrolling.
+
+### `scrollbars.clickScroll`
+
+| type  | default |
+| :--- | :--- |
+| `boolean` | `false` |
+
+Indicates whether you can click on the scrollbar track for scrolling.
+
+### `scrollbars.pointers`
+
+| type  | default |
+| :--- | :--- |
+| `string[] \| null` | `['mouse', 'touch', 'pen']` |
+
+The [`PointerTypes`](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pointerType) the plugin should react to.
 
 </details>
+
+## Events
+
+You can initialize OverlayScrollbars with an initial set of events, which can be managed at any time with the `on` and `off` methods:
+```js
+OverlayScrollbars(document.querySelector('#myElement'), {}, {
+  updated(osInstance, onUpdatedArgs) {
+    // ...
+  }
+});
+```
+
+<details><summary><h6>Events in depth</h6></summary>
+
+> __Note__ Every event receives the `instance` from which it was fired as the first argument. Always.
+
+### `initialized`
+
+| arguments  | description |
+| :--- | :--- |
+| `instance` | The instance which fired the event. |
+
+Is fired after all generated elements, observers and events were appended to the DOM.
+
+### `updated`
+
+| arguments  | description |
+| :--- | :--- |
+| `instance` | The instance which fired the event. |
+| `onUpdatedArgs` | An `object` which describes the update in detail. |
+
+> __Note__ If an update was triggered but nothing changed, the event won't be fired.
+
+Is fired after the instace was updated. 
+
+### `destroyed`
+
+| arguments  | description |
+| :--- | :--- |
+| `instance` | The instance which fired the event. |
+| `canceled` | An `boolean` which indicates whether the initialization was canceled and thus destroyed. |
+
+Is fired after all generated elements, observers and events were removed from the DOM.
+
+</details>
+
+## Instance Methods
+
+> __Note__ For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
+
+```ts
+interface OverlayScrollbars {
+  options(): Options;
+  options(newOptions: DeepPartial<Options>): Options;
+
+  update(force?: boolean): OverlayScrollbars;
+
+  destroy(): void;
+
+  state(): State;
+
+  elements(): Elements;
+
+  on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): () => void;
+  on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): () => void;
+
+  off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): void;
+  off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): void;
+}
+```
+
+## Static Methods
+
+> __Note__ For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
+
+```ts
+interface OverlayScrollbarsStatic {
+  (target: InitializationTarget): OverlayScrollbars | undefined;
+  (
+    target: InitializationTarget,
+    options: DeepPartial<Options>,
+    eventListeners?: InitialEventListeners
+  ): OverlayScrollbars;
+
+  plugin(plugin: Plugin | Plugin[]): void;
+  valid(osInstance: any): boolean;
+  env(): Environment;
+}
+```
 
 ## Sponsors
 <table>
@@ -208,3 +402,13 @@ Debounces the `MutationObserver` which tracks changes to the content. If a tuple
         </td>
     </tr>
 </table>
+
+## Future Plans
+
+ - Provide plugin based support for missing features. (treeshakeable)
+ - Frequent updates in terms of bug-fixes and enhancements. (always use latest browser features)
+ - Improve tests. (unit & browser tests)
+
+## License
+
+MIT 

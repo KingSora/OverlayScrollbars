@@ -585,7 +585,7 @@ const OverlayScrollbars = function(t) {
   const S = {
     paddingAbsolute: false,
     showNativeOverlaidScrollbars: false,
-    updating: {
+    update: {
       elementEvents: [ [ "img", "load" ] ],
       debounce: [ 0, 33 ],
       attributes: null,
@@ -691,7 +691,7 @@ const OverlayScrollbars = function(t) {
   ({
     paddingAbsolute: it,
     showNativeOverlaidScrollbars: it,
-    updating: {
+    update: {
       elementEvents: at,
       attributes: at,
       debounce: [ rt.number, rt.array, rt.null ],
@@ -1945,10 +1945,10 @@ const OverlayScrollbars = function(t) {
       }
       return t;
     }, t => {
-      const [n] = t("updating.ignoreMutation");
-      const [o, r] = t("updating.attributes");
-      const [l, u] = t("updating.elementEvents");
-      const [d, _] = t("updating.debounce");
+      const [n] = t("update.ignoreMutation");
+      const [o, r] = t("update.attributes");
+      const [l, u] = t("update.elementEvents");
+      const [d, _] = t("update.debounce");
       const h = u || r;
       const ignoreMutationFromOptions = t => isFunction(n) && n(t);
       if (h) {
@@ -1973,8 +1973,8 @@ const OverlayScrollbars = function(t) {
         if (isArray(d)) {
           const t = d[0];
           const n = d[1];
-          s = isNumber(t) ? t : false;
-          e = isNumber(n) ? n : false;
+          s = isNumber(t) && t;
+          e = isNumber(n) && n;
         } else if (isNumber(d)) {
           s = d;
           e = false;
