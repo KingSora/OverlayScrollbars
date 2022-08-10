@@ -892,7 +892,7 @@ const gt = "scroll";
 
 const vt = "__osSizeObserverPlugin";
 
-const wt = {
+const wt = /* @__PURE__ */ (() => ({
   [vt]: {
     A: (t, n, o) => {
       const s = createDOM(`<div class="${j}" dir="ltr"><div class="${j}"><div class="${Y}"></div></div><div class="${j}"><div class="${Y}" style="width: 200%; height: 200%"></div></div></div>`);
@@ -942,7 +942,7 @@ const wt = {
       return [ o ? onScroll.bind(0, false) : reset, h ];
     }
   }
-};
+}))();
 
 let pt = 0;
 
@@ -962,7 +962,7 @@ const diffBiggerThanOne = (t, n) => {
 
 const mt = "__osScrollbarsHidingPlugin";
 
-const St = {
+const St = /* @__PURE__ */ (() => ({
   [mt]: {
     T: t => {
       const {I: n, L: o, H: s} = t;
@@ -1084,7 +1084,7 @@ const St = {
       };
     }
   }
-};
+}))();
 
 let xt;
 

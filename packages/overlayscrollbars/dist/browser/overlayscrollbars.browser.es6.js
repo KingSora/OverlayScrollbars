@@ -725,7 +725,7 @@ const OverlayScrollbars = function(t) {
   const gt = 3333333;
   const vt = "scroll";
   const wt = "__osSizeObserverPlugin";
-  const pt = {
+  const pt = /* @__PURE__ */ (() => ({
     [wt]: {
       O: (t, n, o) => {
         const s = createDOM(`<div class="${Y}" dir="ltr"><div class="${Y}"><div class="${q}"></div></div><div class="${Y}"><div class="${q}" style="width: 200%; height: 200%"></div></div></div>`);
@@ -775,7 +775,7 @@ const OverlayScrollbars = function(t) {
         return [ o ? onScroll.bind(0, false) : reset, h ];
       }
     }
-  };
+  }))();
   let bt = 0;
   const {round: yt, abs: mt} = Math;
   const getWindowDPR = () => {
@@ -789,7 +789,7 @@ const OverlayScrollbars = function(t) {
     return !(o === s || o + 1 === s || o - 1 === s);
   };
   const St = "__osScrollbarsHidingPlugin";
-  const $t = {
+  const $t = /* @__PURE__ */ (() => ({
     [St]: {
       A: t => {
         const {T: n, I: o, L: s} = t;
@@ -911,7 +911,7 @@ const OverlayScrollbars = function(t) {
         };
       }
     }
-  };
+  }))();
   let xt;
   const getNativeScrollbarSize = (t, n, o, s) => {
     appendChildren(t, n);
