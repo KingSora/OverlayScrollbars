@@ -391,12 +391,14 @@ body > .os-scrollbar {
   opacity: 0 !important;
 }
 
-.os-scrollbar.os-scrollbar-horizontal.os-scrollbar-cornerless {
+.os-scrollbar.os-scrollbar-horizontal.os-scrollbar-cornerless,
+.os-scrollbar.os-scrollbar-horizontal.os-scrollbar-cornerless.os-scrollbar-rtl {
   left: 0;
   right: 0;
 }
 
-.os-scrollbar.os-scrollbar-vertical.os-scrollbar-cornerless {
+.os-scrollbar.os-scrollbar-vertical.os-scrollbar-cornerless,
+.os-scrollbar.os-scrollbar-vertical.os-scrollbar-cornerless.os-scrollbar-rtl {
   top: 0;
   bottom: 0;
 }
