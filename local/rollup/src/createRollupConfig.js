@@ -107,22 +107,30 @@ const createConfig = (userOptions = {}) => {
   const options = mergeAndResolveOptions(userOptions);
   const { project, mode, extractTypes, extractStyles, verbose } = options;
   const isBuild = mode === 'build';
-
-  if (verbose) {
-    console.log('');
-    console.log('PROJECT : ', project);
-    console.log('OPTIONS : ', options);
-  }
+  let result;
 
   if (isBuild) {
     const styles = extractStyles && pipelineStyles(resolve, options);
     const types = extractTypes && pipelineTypes(resolve, options);
     const js = pipelineBuild(resolve, options);
 
-    return [styles, types, js].flat().filter((build) => !!build);
+    result = [styles, types, js].flat().filter((build) => !!build);
+  } else {
+    result = [pipelineDev(resolve, options)];
   }
 
-  return [pipelineDev(resolve, options)];
+  if (verbose) {
+    result[0].plugins.push({
+      name: 'PROJECT',
+      buildStart() {
+        console.log('');
+        console.log('PROJECT : ', project);
+        console.log('OPTIONS : ', options);
+      },
+    });
+  }
+
+  return result;
 };
 
 module.exports = createConfig;

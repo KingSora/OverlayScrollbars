@@ -61,10 +61,6 @@ module.exports = (resolve, options) => {
       return {
         input,
         output,
-        treeshake: {
-          propertyReadSideEffects: false,
-          moduleSideEffects: false,
-        },
         ...rollupOptions,
         plugins: [
           rollupLicense(banner, sourcemap),

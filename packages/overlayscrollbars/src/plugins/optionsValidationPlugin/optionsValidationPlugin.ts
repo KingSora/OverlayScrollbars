@@ -61,11 +61,12 @@ export type OptionsValidationPluginInstance = {
 
 export const optionsValidationPluginName = '__osOptionsValidationPlugin';
 
-export const optionsValidationPlugin: Plugin<OptionsValidationPluginInstance> = {
-  [optionsValidationPluginName]: {
-    _: (options: DeepPartial<Options>, doWriteErrors?: boolean) => {
-      const [validated, foreign] = validateOptions(optionsTemplate, options, doWriteErrors);
-      return { ...foreign, ...validated };
+export const optionsValidationPlugin: Plugin<OptionsValidationPluginInstance> =
+  /* @__PURE__ */ (() => ({
+    [optionsValidationPluginName]: {
+      _: (options: DeepPartial<Options>, doWriteErrors?: boolean) => {
+        const [validated, foreign] = validateOptions(optionsTemplate, options, doWriteErrors);
+        return { ...foreign, ...validated };
+      },
     },
-  },
-};
+  }))();

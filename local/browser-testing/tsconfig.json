@@ -2,6 +2,7 @@
   "extends": "@~local/tsconfig",
   "compilerOptions": {
     "outDir": "./dist/",
-    "baseUrl": "./src/"
+    "baseUrl": "./src/",
+    "typeRoots": []
   }
 }

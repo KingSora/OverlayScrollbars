@@ -87,7 +87,7 @@ module.exports = {
         ['@babel/plugin-proposal-private-methods', { loose: true }],
       ],
       babelHelpers: 'runtime',
-      shouldPrintComment: () => false,
+      shouldPrintComment: (comment) => /@__PURE__/.test(comment),
       caller: {
         name: 'babel-rollup-build',
       },

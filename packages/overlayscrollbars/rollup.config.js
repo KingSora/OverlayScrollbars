@@ -70,6 +70,8 @@ Released under the MIT license.`,
             max_line_len: 80, // eslint-disable-line camelcase
             braces: true,
             indent_level: 2, // eslint-disable-line camelcase
+            comments: 'all',
+            preserve_annotations: true, // eslint-disable-line camelcase
           },
         }),
       ],
@@ -85,5 +87,10 @@ Released under the MIT license.`,
         totalHigh: 35000,
       }),
     ],
+    treeshake: {
+      propertyReadSideEffects: false,
+      moduleSideEffects: false,
+      annotations: false,
+    },
   },
 });

@@ -5,7 +5,7 @@ describe('options', () => {
     expect(defaultOptions).toEqual({
       paddingAbsolute: false,
       showNativeOverlaidScrollbars: false,
-      updating: {
+      update: {
         elementEvents: [['img', 'load']],
         debounce: [0, 33],
         attributes: null,

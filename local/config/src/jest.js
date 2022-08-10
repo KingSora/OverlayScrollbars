@@ -5,14 +5,27 @@ const resolve = require('./resolve');
 // https://jestjs.io/docs/en/configuration.html
 
 module.exports = {
-  clearMocks: true,
   coverageDirectory: './.coverage/jest',
-  coverageProvider: 'babel',
-  testEnvironment: 'jsdom',
-  moduleDirectories: resolve.directories,
-  moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),
-  testPathIgnorePatterns: ['\\\\node_modules\\\\'],
-  displayName: 'jest',
-  setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
-  testMatch: ['**/tests/jest/**/*.test.[jt]s?(x)'],
+  projects: [
+    {
+      displayName: 'node',
+      testMatch: ['**/tests/jest-node/**/*.test.[jt]s?(x)'],
+      testEnvironment: 'node',
+      clearMocks: true,
+      moduleDirectories: resolve.directories,
+      moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),
+      testPathIgnorePatterns: ['\\\\node_modules\\\\'],
+      setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
+    },
+    {
+      displayName: 'jsdom',
+      testMatch: ['**/tests/jest-jsdom/**/*.test.[jt]s?(x)'],
+      testEnvironment: 'jsdom',
+      clearMocks: true,
+      moduleDirectories: resolve.directories,
+      moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),
+      testPathIgnorePatterns: ['\\\\node_modules\\\\'],
+      setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
+    },
+  ],
 };

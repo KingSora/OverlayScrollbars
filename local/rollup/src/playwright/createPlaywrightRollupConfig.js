@@ -75,7 +75,6 @@ module.exports = (testDir, mode = 'dev', onListening = null) => {
       output: {
         sourcemap: true,
       },
-      treeshake: true,
       plugins: [
         rollupPluginStyles(),
         rollupPluginHtml(`Playwright: ${name}`, htmlName, () =>
