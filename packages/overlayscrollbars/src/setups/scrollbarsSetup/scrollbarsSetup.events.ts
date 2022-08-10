@@ -103,11 +103,13 @@ const createInteractiveScrollEvents = (
   const { _rtlScrollBehavior } = getEnvironment();
   const { _handle, _track, _scrollbar } = scrollbarStructure;
   const scrollLeftTopKey = `scroll${isHorizontal ? 'Left' : 'Top'}`;
+  const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}`; // for pointer event (can't use xy because of IE11)
   const widthHeightKey = isHorizontal ? 'width' : 'height';
+  const leftTopKey = isHorizontal ? 'left' : 'top'; // for BCR (can't use xy because of IE11)
   const whKey = isHorizontal ? 'w' : 'h';
   const xyKey = isHorizontal ? 'x' : 'y';
   const getHandleOffset = (handleRect: DOMRect, trackRect: DOMRect) =>
-    handleRect[xyKey] - trackRect[xyKey];
+    handleRect[leftTopKey] - trackRect[leftTopKey];
   const createRelativeHandleMove =
     (mouseDownScroll: number, invertedScale: number) => (deltaMovement: number) => {
       const { _overflowAmount } = structureSetupState();
@@ -131,12 +133,12 @@ const createInteractiveScrollEvents = (
         scrollOffsetElement[scrollLeftTopKey] || 0,
         1 / getScale(scrollOffsetElement)[xyKey]
       );
-      const pointerDownOffset = pointerDownEvent[xyKey];
+      const pointerDownOffset = pointerDownEvent[clientXYKey];
       const handleRect = getBoundingClientRect(_handle);
       const trackRect = getBoundingClientRect(_track);
       const handleLength = handleRect[widthHeightKey];
       const handleCenter = getHandleOffset(handleRect, trackRect) + handleLength / 2;
-      const relativeTrackPointerOffset = pointerDownOffset - trackRect[xyKey];
+      const relativeTrackPointerOffset = pointerDownOffset - trackRect[leftTopKey];
       const startOffset = isDragScroll ? 0 : relativeTrackPointerOffset - handleCenter;
 
       const offFns = [
@@ -144,7 +146,7 @@ const createInteractiveScrollEvents = (
           _passive: false,
         }),
         on(_track, 'pointermove', (pointerMoveEvent: PointerEvent) => {
-          const relativeMovement = pointerMoveEvent[xyKey] - pointerDownOffset;
+          const relativeMovement = pointerMoveEvent[clientXYKey] - pointerDownOffset;
 
           if (isDragScroll || instantClickScroll) {
             moveHandleRelative(startOffset + relativeMovement);

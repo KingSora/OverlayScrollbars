@@ -135,10 +135,17 @@ if (!useContentElement) {
 const initObj = hasClass(document.body, 'tvp')
   ? {
       target: target!,
-      viewport: target!,
-      content: useContentElement,
+      elements: {
+        viewport: target!,
+        content: useContentElement,
+      },
     }
-  : { target: target!, content: useContentElement };
+  : {
+      target: target!,
+      elements: {
+        content: useContentElement,
+      },
+    };
 
 let updateCount = 0;
 // @ts-ignore

@@ -61,11 +61,17 @@ module.exports = (testDir, mode = 'dev', onListening = null) => {
       dist,
     },
     versions: [
-      {
-        format: 'esm',
-        generatedCode: 'es2015',
-        minifiedVersion: false,
-      },
+      mode === 'dev'
+        ? {
+            format: 'esm',
+            generatedCode: 'es2015',
+            minifiedVersion: false,
+          }
+        : {
+            format: 'iife',
+            generatedCode: 'es5',
+            minifiedVersion: false,
+          },
     ],
     extractStyle: false,
     rollup: {
