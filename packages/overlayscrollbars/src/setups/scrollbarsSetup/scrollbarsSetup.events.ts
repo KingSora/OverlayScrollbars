@@ -9,9 +9,18 @@ import {
   XY,
   selfCancelTimeout,
   parent,
+  closest,
+  rAF,
+  cAF,
+  push,
+  noop,
 } from 'support';
 import { getEnvironment } from 'environment';
-import { classNamesScrollbarInteraction, classNamesScrollbarWheel } from 'classnames';
+import {
+  classNameScrollbarHandle,
+  classNamesScrollbarInteraction,
+  classNamesScrollbarWheel,
+} from 'classnames';
 import type { ReadonlyOptions } from 'options';
 import type { StructureSetupState } from 'setups';
 import type {
@@ -28,11 +37,31 @@ export type ScrollbarsSetupEvents = (
   isHorizontal?: boolean
 ) => () => void;
 
-const { round } = Math;
-const getClientOffset = (event: PointerEvent): XY<number> => ({
-  x: event.clientX,
-  y: event.clientY,
-});
+const { round, max, sign } = Math;
+const animationCurrentTime = () => performance.now();
+const animateNumber = (
+  from: number,
+  to: number,
+  duration: number,
+  onFrame: (progress: number, completed: boolean) => any
+) => {
+  let animationFrameId = 0;
+  const timeStart = animationCurrentTime();
+  const frame = () => {
+    const timeNow = animationCurrentTime();
+    const timeElapsed = timeNow - timeStart;
+    const stopAnimation = timeElapsed >= duration;
+    const percent = 1 - (max(0, timeStart + duration - timeNow) / duration || 0);
+    const progress = (to - from) * percent + from;
+    const animationCompleted = stopAnimation || percent === 1;
+
+    onFrame(progress, animationCompleted);
+
+    animationFrameId = animationCompleted ? 0 : rAF!(frame);
+  };
+  frame();
+  return () => cAF!(animationFrameId);
+};
 const getScale = (element: HTMLElement): XY<number> => {
   const { width, height } = getBoundingClientRect(element);
   const { w, h } = offsetSize(element);
@@ -44,7 +73,7 @@ const getScale = (element: HTMLElement): XY<number> => {
 const continuePointerDown = (
   event: PointerEvent,
   options: ReadonlyOptions,
-  scrollType: 'dragScroll' | 'clickScroll'
+  isDragScroll: boolean
 ) => {
   const scrollbarOptions = options.scrollbars;
   const { button, isPrimary, pointerType } = event;
@@ -52,7 +81,7 @@ const continuePointerDown = (
   return (
     button === 0 &&
     isPrimary &&
-    scrollbarOptions[scrollType] &&
+    scrollbarOptions[isDragScroll ? 'dragScroll' : 'clickScroll'] &&
     (pointers || []).includes(pointerType)
   );
 };
@@ -63,7 +92,7 @@ const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentEl
     on.bind(0, documentElm, 'click', stopPropagation, { _once: true, _capture: true }),
     { _capture: true }
   );
-const createDragScrollingEvents = (
+const createInteractiveScrollEvents = (
   options: ReadonlyOptions,
   doc: Document,
   scrollbarStructure: ScrollbarStructure,
@@ -73,51 +102,107 @@ const createDragScrollingEvents = (
 ) => {
   const { _rtlScrollBehavior } = getEnvironment();
   const { _handle, _track, _scrollbar } = scrollbarStructure;
-  const scrollOffsetKey = `scroll${isHorizontal ? 'Left' : 'Top'}`;
-  const xyKey = `${isHorizontal ? 'x' : 'y'}`;
-  const whKey = `${isHorizontal ? 'w' : 'h'}`;
-  const createOnPointerMoveHandler =
-    (mouseDownScroll: number, mouseDownClientOffset: number, mouseDownInvertedScale: number) =>
-    (event: PointerEvent) => {
+  const scrollLeftTopKey = `scroll${isHorizontal ? 'Left' : 'Top'}`;
+  const widthHeightKey = isHorizontal ? 'width' : 'height';
+  const whKey = isHorizontal ? 'w' : 'h';
+  const xyKey = isHorizontal ? 'x' : 'y';
+  const getHandleOffset = (handleRect: DOMRect, trackRect: DOMRect) =>
+    handleRect[xyKey] - trackRect[xyKey];
+  const createRelativeHandleMove =
+    (mouseDownScroll: number, invertedScale: number) => (deltaMovement: number) => {
       const { _overflowAmount } = structureSetupState();
-      const movement =
-        (getClientOffset(event)[xyKey] - mouseDownClientOffset) * mouseDownInvertedScale;
       const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
-      const scrollDeltaPercent = movement / handleTrackDiff;
+      const scrollDeltaPercent = (invertedScale * deltaMovement) / handleTrackDiff;
       const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
       const isRTL = directionIsRTL(_scrollbar);
       const negateMultiplactor =
         isRTL && isHorizontal ? (_rtlScrollBehavior.n || _rtlScrollBehavior.i ? 1 : -1) : 1;
 
-      scrollOffsetElement[scrollOffsetKey] = mouseDownScroll + scrollDelta * negateMultiplactor;
+      scrollOffsetElement[scrollLeftTopKey] = mouseDownScroll + scrollDelta * negateMultiplactor;
     };
 
-  return on(_handle, 'pointerdown', (pointerDownEvent: PointerEvent) => {
-    if (continuePointerDown(pointerDownEvent, options, 'dragScroll')) {
-      const offSelectStart = on(doc, 'selectstart', (event: Event) => preventDefault(event), {
-        _passive: false,
-      });
-      const offPointerMove = on(
-        _handle,
-        'pointermove',
-        createOnPointerMoveHandler(
-          scrollOffsetElement[scrollOffsetKey] || 0,
-          getClientOffset(pointerDownEvent)[xyKey],
-          1 / getScale(scrollOffsetElement)[xyKey]
-        )
+  return on(_track, 'pointerdown', (pointerDownEvent: PointerEvent) => {
+    const isDragScroll =
+      closest(pointerDownEvent.target as Node, `.${classNameScrollbarHandle}`) === _handle;
+
+    if (continuePointerDown(pointerDownEvent, options, isDragScroll)) {
+      const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
+      const moveHandleRelative = createRelativeHandleMove(
+        scrollOffsetElement[scrollLeftTopKey] || 0,
+        1 / getScale(scrollOffsetElement)[xyKey]
       );
+      const pointerDownOffset = pointerDownEvent[xyKey];
+      const handleRect = getBoundingClientRect(_handle);
+      const trackRect = getBoundingClientRect(_track);
+      const handleLength = handleRect[widthHeightKey];
+      const handleCenter = getHandleOffset(handleRect, trackRect) + handleLength / 2;
+      const relativeTrackPointerOffset = pointerDownOffset - trackRect[xyKey];
+      const startOffset = isDragScroll ? 0 : relativeTrackPointerOffset - handleCenter;
+
+      const offFns = [
+        on(doc, 'selectstart', (event: Event) => preventDefault(event), {
+          _passive: false,
+        }),
+        on(_track, 'pointermove', (pointerMoveEvent: PointerEvent) => {
+          const relativeMovement = pointerMoveEvent[xyKey] - pointerDownOffset;
+
+          if (isDragScroll || instantClickScroll) {
+            moveHandleRelative(startOffset + relativeMovement);
+          }
+        }),
+      ];
+
+      if (instantClickScroll) {
+        moveHandleRelative(startOffset);
+      } else if (!isDragScroll) {
+        // click scroll animation
+        let iteration = 0;
+        let clear = noop;
+        const animateClickScroll = (clickScrollProgress: number) => {
+          clear = animateNumber(
+            clickScrollProgress,
+            clickScrollProgress + handleLength * sign(startOffset),
+            133,
+            (animationProgress, animationCompleted) => {
+              moveHandleRelative(animationProgress);
+              const handleStartBound = getHandleOffset(getBoundingClientRect(_handle), trackRect);
+              const handleEndBound = handleStartBound + handleLength;
+              const mouseBetweenHandleBounds =
+                relativeTrackPointerOffset >= handleStartBound &&
+                relativeTrackPointerOffset <= handleEndBound;
+
+              if (animationCompleted && !mouseBetweenHandleBounds) {
+                if (iteration) {
+                  animateClickScroll(animationProgress);
+                } else {
+                  const firstIterationPauseTimeout = setTimeout(() => {
+                    animateClickScroll(animationProgress);
+                  }, 222);
+                  clear = () => {
+                    clearTimeout(firstIterationPauseTimeout);
+                  };
+                }
+                iteration++;
+              }
+            }
+          );
+        };
+
+        animateClickScroll(0);
+
+        push(offFns, () => clear());
+      }
 
       on(
-        _handle,
+        _track,
         'pointerup',
         (pointerUpEvent: PointerEvent) => {
-          offSelectStart();
-          offPointerMove();
-          _handle.releasePointerCapture(pointerUpEvent.pointerId);
+          runEachAndClear(offFns);
+          _track.releasePointerCapture(pointerUpEvent.pointerId);
         },
         { _once: true }
       );
-      _handle.setPointerCapture(pointerDownEvent.pointerId);
+      _track.setPointerCapture(pointerDownEvent.pointerId);
     }
   });
 };
@@ -174,7 +259,7 @@ export const createScrollbarsSetupEvents =
         { _passive: false, _capture: true }
       ),
       createRootClickStopPropagationEvents(_scrollbar, documentElm),
-      createDragScrollingEvents(
+      createInteractiveScrollEvents(
         options,
         documentElm,
         scrollbarStructure,

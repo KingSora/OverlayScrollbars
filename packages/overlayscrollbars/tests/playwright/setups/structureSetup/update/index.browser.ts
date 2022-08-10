@@ -43,6 +43,11 @@ window.OverlayScrollbars = OverlayScrollbars;
 OverlayScrollbars.env().setDefaultInitialization({
   cancel: { nativeScrollbarsOverlaid: false },
 });
+OverlayScrollbars.env().setDefaultOptions({
+  scrollbars: {
+    clickScroll: true,
+  },
+});
 
 interface Metrics {
   offset: {
