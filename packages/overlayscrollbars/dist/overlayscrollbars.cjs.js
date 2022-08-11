@@ -791,9 +791,9 @@ const B = `${R}-listener`;
 
 const V = `${B}-scroll`;
 
-const j = `${B}-item`;
+const Y = `${B}-item`;
 
-const Y = `${j}-final`;
+const j = `${Y}-final`;
 
 const q = "os-trinsic-observer";
 
@@ -895,7 +895,7 @@ const vt = "__osSizeObserverPlugin";
 const wt = /* @__PURE__ */ (() => ({
   [vt]: {
     T: (t, n, o) => {
-      const s = createDOM(`<div class="${j}" dir="ltr"><div class="${j}"><div class="${Y}"></div></div><div class="${j}"><div class="${Y}" style="width: 200%; height: 200%"></div></div></div>`);
+      const s = createDOM(`<div class="${Y}" dir="ltr"><div class="${Y}"><div class="${j}"></div></div><div class="${Y}"><div class="${j}" style="width: 200%; height: 200%"></div></div></div>`);
       appendChildren(t, s);
       addClass(t, V);
       const e = s[0];
@@ -1180,8 +1180,8 @@ const createEnvironment = () => {
     I: a,
     H: "-1" === style(o, "zIndex"),
     V: getRtlScrollBehavior(o, s),
-    j: getFlexboxGlue(o, s),
-    Y: t => e("_", t),
+    Y: getFlexboxGlue(o, s),
+    j: t => e("_", t),
     q: assignDeep.bind(0, {}, d),
     F(t) {
       assignDeep(d, t);
@@ -1322,15 +1322,15 @@ const createStructureSetupElements = t => {
     return push(t, o && !parent(o) ? o : false);
   }), []);
   const elementIsGenerated = t => t ? indexOf(k, t) > -1 : null;
-  const {J: B, K: V, tt: j, Z: Y, nt: q, ot: F} = R;
+  const {J: B, K: V, tt: Y, Z: j, nt: q, ot: F} = R;
   const G = [];
   const N = b && elementIsGenerated(V);
-  let X = b ? B : contents([ q, Y, j, V, B ].find((t => false === elementIsGenerated(t))));
-  const U = q || Y;
+  let X = b ? B : contents([ q, j, Y, V, B ].find((t => false === elementIsGenerated(t))));
+  const U = q || j;
   const appendElements = () => {
     const t = addDataAttrHost(V, A ? "viewport" : "host");
-    const n = addClass(j, I);
-    const o = addClass(Y, !A && L);
+    const n = addClass(Y, I);
+    const o = addClass(j, !A && L);
     const e = addClass(q, M);
     const c = y ? addClass(parent(p), P) : noop;
     if (N) {
@@ -1341,40 +1341,40 @@ const createStructureSetupElements = t => {
       }));
     }
     appendChildren(U, X);
-    appendChildren(V, j);
-    appendChildren(j || V, !A && Y);
-    appendChildren(Y, q);
+    appendChildren(V, Y);
+    appendChildren(Y || V, !A && j);
+    appendChildren(j, q);
     push(G, (() => {
       c();
       t();
-      removeAttr(Y, O);
-      removeAttr(Y, T);
+      removeAttr(j, O);
+      removeAttr(j, T);
       if (elementIsGenerated(q)) {
         unwrap(q);
       }
-      if (elementIsGenerated(Y)) {
-        unwrap(Y);
-      }
       if (elementIsGenerated(j)) {
         unwrap(j);
+      }
+      if (elementIsGenerated(Y)) {
+        unwrap(Y);
       }
       n();
       o();
       e();
     }));
     if (s && !A) {
-      push(G, removeClass.bind(0, Y, P));
+      push(G, removeClass.bind(0, j, P));
     }
     if (F) {
-      insertBefore(Y, F);
+      insertBefore(j, F);
       push(G, removeElements.bind(0, F));
     }
     if (D) {
-      const t = attr(Y, Ct);
-      attr(Y, Ct, "-1");
-      Y.focus();
+      const t = attr(j, Ct);
+      attr(j, Ct, "-1");
+      j.focus();
       const n = on(m, "pointerdown keydown", (() => {
-        t ? attr(Y, Ct, t) : removeAttr(Y, Ct);
+        t ? attr(j, Ct, t) : removeAttr(j, Ct);
         n();
       }));
     } else if (H && H.focus) {
@@ -1389,7 +1389,7 @@ const createTrinsicUpdateSegment = (t, n) => {
   const {nt: o} = t;
   const [s] = n;
   return t => {
-    const {j: n} = getEnvironment();
+    const {Y: n} = getEnvironment();
     const {_t: e} = s();
     const {ht: c} = t;
     const r = (o || !n) && c;
@@ -1414,7 +1414,7 @@ const createPaddingUpdateSegment = (t, n) => {
   }, topRightBottomLeft.bind(0, e, "padding", ""));
   return (t, n, e) => {
     let [u, d] = a(e);
-    const {I: f, j: _} = getEnvironment();
+    const {I: f, Y: _} = getEnvironment();
     const {wt: h} = o();
     const {gt: g, vt: v, bt: w} = t;
     const [p, b] = n("paddingAbsolute");
@@ -1501,7 +1501,7 @@ const overflowIsVisible = t => 0 === t.indexOf(At);
 const createOverflowUpdateSegment = (t, n) => {
   const [o, s] = n;
   const {K: e, tt: c, Z: r, ot: l, ut: i, ft: a, W: u, ct: d} = t;
-  const {B: f, j: _, I: h, L: g} = getEnvironment();
+  const {B: f, Y: _, I: h, L: g} = getEnvironment();
   const v = getPlugins()[yt];
   const w = !i && !h && (g.x || g.y);
   const p = u && i;
@@ -1594,10 +1594,10 @@ const createOverflowUpdateSegment = (t, n) => {
   return (t, n, l) => {
     const {gt: u, Ct: f, vt: v, St: w, ht: R, bt: k} = t;
     const {_t: B, wt: V} = o();
-    const [j, Y] = n("showNativeOverlaidScrollbars");
+    const [Y, j] = n("showNativeOverlaidScrollbars");
     const [q, F] = n("overflow");
-    const G = j && g.x && g.y;
-    const N = !i && !_ && (u || v || f || Y || R);
+    const G = Y && g.x && g.y;
+    const N = !i && !_ && (u || v || f || j || R);
     const X = overflowIsVisible(q.x);
     const U = overflowIsVisible(q.y);
     const W = X || U;
@@ -1606,14 +1606,14 @@ const createOverflowUpdateSegment = (t, n) => {
     let Z = $(l);
     let Q = I(l);
     let tt;
-    if (Y && h) {
+    if (j && h) {
       a(P, A, !G);
     }
     if (N) {
       tt = getViewportOverflowState(G);
       fixFlexboxGlue(tt, B);
     }
-    if (u || w || v || k || Y) {
+    if (u || w || v || k || j) {
       if (W) {
         a(D, E, false);
       }
@@ -1624,7 +1624,7 @@ const createOverflowUpdateSegment = (t, n) => {
       let u = e;
       let f = i;
       t();
-      if ((c || s || Y) && n && !G && H(n, e, o, V)) {
+      if ((c || s || j) && n && !G && H(n, e, o, V)) {
         f = clientSize(r);
         u = scrollSize(r);
       }
@@ -1648,7 +1648,7 @@ const createOverflowUpdateSegment = (t, n) => {
       y: st.h > 0
     };
     const ut = X && U && (at.x || at.y) || X && at.x && !at.y || U && at.y && !at.x;
-    if (w || k || it || rt || ot || et || F || Y || N) {
+    if (w || k || it || rt || ot || et || F || j || N) {
       const t = {
         marginRight: 0,
         marginBottom: 0,
@@ -1710,7 +1710,7 @@ const prepareUpdateHints = (t, n, o) => {
 
 const createStructureSetupUpdate = (t, n) => {
   const {J: o, Z: s, ft: e, ut: c} = t;
-  const {I: r, L: l, j: i} = getEnvironment();
+  const {I: r, L: l, Y: i} = getEnvironment();
   const a = !r && (l.x || l.y);
   const u = [ createTrinsicUpdateSegment(t, n), createPaddingUpdateSegment(t, n), createOverflowUpdateSegment(t, n) ];
   return (t, n, r) => {
@@ -2042,7 +2042,7 @@ const createStructureSetupObservers = (t, n, o) => {
   let c;
   const [, r] = n;
   const {K: l, Z: i, nt: a, lt: d, ut: f, dt: _, ft: h} = t;
-  const {j: g} = getEnvironment();
+  const {Y: g} = getEnvironment();
   const [v] = createCache({
     _: equalWH,
     u: {
@@ -2228,7 +2228,7 @@ const Vt = {
   y: 0
 };
 
-const jt = {
+const Yt = {
   tt: {
     t: 0,
     r: 0,
@@ -2261,7 +2261,7 @@ const jt = {
 
 const createStructureSetup = (t, n) => {
   const o = createOptionCheck(n, {});
-  const s = createState(jt);
+  const s = createState(Yt);
   const [e, c, r] = createEventListenerHub();
   const [l] = s;
   const [i, a, u] = createStructureSetupElements(t);
@@ -2276,10 +2276,10 @@ const createStructureSetup = (t, n) => {
     triggerUpdateEvent(d(o, t), {}, false);
   }));
   const v = l.bind(0);
-  v.jt = t => {
+  v.Yt = t => {
     e("u", t);
   };
-  v.Yt = () => {
+  v.jt = () => {
     const {J: t, Z: n} = i;
     const o = scrollLeft(t);
     const s = scrollTop(t);
@@ -2300,7 +2300,7 @@ const createStructureSetup = (t, n) => {
   } ];
 };
 
-const {round: Yt, max: qt, sign: Ft} = Math;
+const {round: jt, max: qt, sign: Ft} = Math;
 
 const animationCurrentTime = () => performance.now();
 
@@ -2325,8 +2325,8 @@ const getScale = t => {
   const {width: n, height: o} = getBoundingClientRect(t);
   const {w: s, h: e} = offsetSize(t);
   return {
-    x: Yt(n) / s || 1,
-    y: Yt(o) / e || 1
+    x: jt(n) / s || 1,
+    y: jt(o) / e || 1
   };
 };
 
@@ -2348,15 +2348,17 @@ const createInteractiveScrollEvents = (t, n, o, s, e, c) => {
   const {V: r} = getEnvironment();
   const {Ft: l, Gt: i, Nt: a} = o;
   const u = `scroll${c ? "Left" : "Top"}`;
-  const d = c ? "width" : "height";
-  const f = c ? "w" : "h";
-  const _ = c ? "x" : "y";
+  const d = `client${c ? "X" : "Y"}`;
+  const f = c ? "width" : "height";
+  const _ = c ? "left" : "top";
+  const h = c ? "w" : "h";
+  const g = c ? "x" : "y";
   const getHandleOffset = (t, n) => t[_] - n[_];
   const createRelativeHandleMove = (t, n) => o => {
     const {Tt: d} = e();
-    const h = offsetSize(i)[f] - offsetSize(l)[f];
-    const g = n * o / h;
-    const v = g * d[_];
+    const f = offsetSize(i)[h] - offsetSize(l)[h];
+    const _ = n * o / f;
+    const v = _ * d[g];
     const w = directionIsRTL(a);
     const p = w && c ? r.n || r.i ? 1 : -1 : 1;
     s[u] = t + v * p;
@@ -2365,33 +2367,33 @@ const createInteractiveScrollEvents = (t, n, o, s, e, c) => {
     const e = closest(o.target, `.${W}`) === l;
     if (continuePointerDown(o, t, e)) {
       const t = !e && o.shiftKey;
-      const c = createRelativeHandleMove(s[u] || 0, 1 / getScale(s)[_]);
-      const r = o[_];
+      const c = createRelativeHandleMove(s[u] || 0, 1 / getScale(s)[g]);
+      const r = o[d];
       const a = getBoundingClientRect(l);
-      const f = getBoundingClientRect(i);
-      const h = a[d];
-      const g = getHandleOffset(a, f) + h / 2;
-      const v = r - f[_];
-      const w = e ? 0 : v - g;
-      const p = [ on(n, "selectstart", (t => preventDefault(t)), {
+      const h = getBoundingClientRect(i);
+      const v = a[f];
+      const w = getHandleOffset(a, h) + v / 2;
+      const p = r - h[_];
+      const b = e ? 0 : p - w;
+      const m = [ on(n, "selectstart", (t => preventDefault(t)), {
         $: false
       }), on(i, "pointermove", (n => {
-        const o = n[_] - r;
+        const o = n[d] - r;
         if (e || t) {
-          c(w + o);
+          c(b + o);
         }
       })) ];
       if (t) {
-        c(w);
+        c(b);
       } else if (!e) {
         let t = 0;
         let n = noop;
         const animateClickScroll = o => {
-          n = animateNumber(o, o + h * Ft(w), 133, ((o, s) => {
+          n = animateNumber(o, o + v * Ft(b), 133, ((o, s) => {
             c(o);
-            const e = getHandleOffset(getBoundingClientRect(l), f);
-            const r = e + h;
-            const i = v >= e && v <= r;
+            const e = getHandleOffset(getBoundingClientRect(l), h);
+            const r = e + v;
+            const i = p >= e && p <= r;
             if (s && !i) {
               if (t) {
                 animateClickScroll(o);
@@ -2408,10 +2410,10 @@ const createInteractiveScrollEvents = (t, n, o, s, e, c) => {
           }));
         };
         animateClickScroll(0);
-        push(p, (() => n()));
+        push(m, (() => n()));
       }
       on(i, "pointerup", (t => {
-        runEachAndClear(p);
+        runEachAndClear(m);
         i.releasePointerCapture(t.pointerId);
       }), {
         O: true
@@ -2655,7 +2657,7 @@ const createScrollbarsSetup = (t, n, o) => {
   })) ];
   const k = u.bind(0);
   k.qt = y;
-  k.Yt = S;
+  k.jt = S;
   return [ (t, r, a) => {
     const {zt: u, It: d, At: f, bt: _} = a;
     const h = createOptionCheck(n, t, r);
@@ -2709,7 +2711,7 @@ const createScrollbarsSetup = (t, n, o) => {
 };
 
 const OverlayScrollbars = (t, n, o) => {
-  const {G: s, Y: e} = getEnvironment();
+  const {G: s, j: e} = getEnvironment();
   const c = getPlugins();
   const r = isHTMLElement(t);
   const l = r ? t : t.target;
@@ -2807,7 +2809,7 @@ const OverlayScrollbars = (t, n, o) => {
       },
       destroy: destroy.bind(0)
     };
-    g.jt(((t, n, o) => {
+    g.Yt(((t, n, o) => {
       w(n, o, t);
     }));
     each(keys(c), (t => {
@@ -2820,11 +2822,11 @@ const OverlayScrollbars = (t, n, o) => {
       destroy(true);
       return y;
     }
-    g.Yt();
-    p.Yt();
+    g.jt();
+    p.jt();
     addInstance(l, y);
     _("initialized", [ y ]);
-    g.jt(((t, n, o) => {
+    g.Yt(((t, n, o) => {
       const {gt: s, bt: e, ht: c, zt: r, It: l, At: i, vt: a, Ct: u} = t;
       _("updated", [ y, {
         updateHints: {
@@ -2855,7 +2857,7 @@ OverlayScrollbars.valid = t => {
 };
 
 OverlayScrollbars.env = () => {
-  const {B: t, L: n, I: o, V: s, j: e, H: c, X: r, U: l, q: i, F: a, G: u, N: d} = getEnvironment();
+  const {B: t, L: n, I: o, V: s, Y: e, H: c, X: r, U: l, q: i, F: a, G: u, N: d} = getEnvironment();
   return assignDeep({}, {
     scrollbarsSize: t,
     scrollbarsOverlaid: n,
