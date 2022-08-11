@@ -86,9 +86,8 @@ const mergeAndResolveOptions = (userOptions) => {
       },
     },
   };
-  const { src, dist, types, styles } = mergedOptions.paths;
+  const { dist, types, styles } = mergedOptions.paths;
 
-  mergedOptions.paths.src = resolvePath(projectPath, src);
   mergedOptions.paths.dist = resolvePath(projectPath, dist);
   mergedOptions.paths.types = resolvePath(projectPath, types);
   mergedOptions.paths.styles = resolvePath(projectPath, styles);
