@@ -1,0 +1,33 @@
+<div id="controls">
+  <button id="ioPolyfill">IntersectionObserver polyfill</button>
+  <button id="roPolyfill">ResizeObserver polyfill</button><br />
+  <label for="display">display</label>
+  <select name="display" id="display">
+    <option value="displayBlock">block</option>
+    <option value="displayNone">none</option>
+  </select>
+  <label for="envHeight">envHeight</label>
+  <select name="envHeight" id="envHeight">
+    <option value="envHeightAuto">auto</option>
+    <option value="envHeightHundred">100%</option>
+    <option value="envHeight200">200px</option>
+  </select>
+  <label for="targetHeight">targetHeight</label>
+  <select name="targetHeight" id="targetHeight">
+    <option value="targetHeightAuto">auto</option>
+    <option value="targetHeightHundred">100%</option>
+    <option value="targetHeight200">200px</option>
+  </select>
+
+  <button id="start">start</button>
+  <span>Detected changes: <span id="changes">0</span></span>
+</div>
+<div id="stage">
+  <div>
+    <div id="env">
+      <div id="target">
+        <div id="check"></div>
+      </div>
+    </div>
+  </div>
+</div>

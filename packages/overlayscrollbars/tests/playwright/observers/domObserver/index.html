@@ -1,0 +1,147 @@
+<div id="controls">
+  <button id="addRemoveTargetElms">Target Elements</button>
+  <button id="addRemoveTargetContentElms">Content Elements</button>
+  <button id="addRemoveTargetContentBetweenElms">Content Between Elements</button>
+  <button id="addRemoveImgElms">Image Elements</button>
+  <button id="addRemoveTransitionElms">Transition Elements</button>
+  <button id="ignoreTargetChange">Change Ignored Attribute</button>
+
+  <label for="setTargetAttr">setTargetAttr</label>
+  <select name="setTargetAttr" id="setTargetAttr">
+    <option value="id">id</option>
+    <option value="class">class</option>
+    <option value="style">style</option>
+    <option value="data-target">data-target</option>
+  </select>
+
+  <label for="setFilteredTargetAttr">setFilteredTargetAttr</label>
+  <select name="setFilteredTargetAttr" id="setFilteredTargetAttr">
+    <option value="data-something-a">data-something-a</option>
+    <option value="data-something-b">data-something-b</option>
+    <option value="data-something-c">data-something-c</option>
+  </select>
+
+  <label for="setContentAttr">setContentAttr</label>
+  <select name="setContentAttr" id="setContentAttr">
+    <option value="id">id</option>
+    <option value="class">class</option>
+    <option value="style">style</option>
+    <option value="data-target">data-target</option>
+  </select>
+
+  <label for="setFilteredContentAttr">setFilteredContentAttr</label>
+  <select name="setFilteredContentAttr" id="setFilteredContentAttr">
+    <option value="data-something-a">data-something-a</option>
+    <option value="data-something-b">data-something-b</option>
+    <option value="data-something-c">data-something-c</option>
+  </select>
+
+  <label for="setContentBetweenAttr">setContentBetweenAttr</label>
+  <select name="setContentBetweenAttr" id="setContentBetweenAttr">
+    <option value="id">id</option>
+    <option value="class">class</option>
+    <option value="style">style</option>
+    <option value="data-target">data-target</option>
+  </select>
+
+  <label for="setFilteredContentBetweenAttr">setFilteredContentBetweenAttr</label>
+  <select name="setFilteredContentBetweenAttr" id="setFilteredContentBetweenAttr">
+    <option value="data-something-a">data-something-a</option>
+    <option value="data-something-b">data-something-b</option>
+    <option value="data-something-c">data-something-c</option>
+  </select>
+
+  <label for="setContentHostElmAttr">setContentHostElmAttr</label>
+  <select name="setContentHostElmAttr" id="setContentHostElmAttr">
+    <option value="id">id</option>
+    <option value="class">class</option>
+    <option value="style">style</option>
+    <option value="data-target">data-target</option>
+  </select>
+
+  <label for="setFilteredContentHostElmAttr">setFilteredContentHostElmAttr</label>
+  <select name="setFilteredContentHostElmAttr" id="setFilteredContentHostElmAttr">
+    <option value="data-something-a">data-something-a</option>
+    <option value="data-something-b">data-something-b</option>
+    <option value="data-something-c">data-something-c</option>
+  </select>
+
+  <button id="start">start</button>
+  <span>Detected target changes: <span id="targetChanges">0</span></span>
+  <span>Detected content changes: <span id="contentChanges">0</span></span>
+</div>
+<div id="stage">
+  <div>
+    <div id="target" class="host">
+      <div class="host-nest">
+        <div class="host-nest-item"></div>
+      </div>
+      <div class="padding">
+        <div class="padding-nest">
+          <div class="padding-nest-item"></div>
+        </div>
+        <div class="viewport">
+          <div class="viewport-nest">
+            <div class="viewport-nest-item"></div>
+          </div>
+          <div class="content">
+            <div class="content-nest">
+              <div class="content-nest-item">
+                <div id="content-nest-item-host" class="host">
+                  <div class="host-nest">
+                    <div class="host-nest-item"></div>
+                  </div>
+                  <div class="padding">
+                    <div class="padding-nest">
+                      <div class="padding-nest-item"></div>
+                    </div>
+                    <div class="viewport">
+                      <div class="viewport-nest">
+                        <div class="viewport-nest-item"></div>
+                      </div>
+                      <div class="content">
+                        <div class="content-nest">
+                          <div class="content-nest-item">
+                            <details>
+                              <summary id="summary-content">Triggers DOM Change</summary>
+                              <p>DOM Content Change should be triggered</p>
+                            </details>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="content-host" class="host">
+              <div class="host-nest">
+                <div class="host-nest-item"></div>
+              </div>
+              <div class="padding">
+                <div class="padding-nest">
+                  <div class="padding-nest-item">
+                    <details>
+                      <summary id="summary-between">Won't trigger DOM Change</summary>
+                      <p>DOM Content Change shouldn't be triggered</p>
+                    </details>
+                  </div>
+                </div>
+                <div class="viewport">
+                  <div class="viewport-nest">
+                    <div class="viewport-nest-item"></div>
+                  </div>
+                  <div class="content">
+                    <div class="content-nest">
+                      <div class="content-nest-item"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

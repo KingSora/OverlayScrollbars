@@ -1,0 +1,100 @@
+body {
+  display: flex;
+  flex-direction: column;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+#canvas > div {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#target {
+  overflow: hidden;
+  resize: both;
+  position: relative;
+  // prevent container from reaching 0x0 dimensions for testing purposes
+  min-width: 50px;
+  min-height: 50px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.padding0 {
+  padding: 0;
+}
+.padding10 {
+  padding: 10px;
+}
+.padding50 {
+  padding: 50px;
+}
+
+.border2 {
+  border: 2px solid red;
+}
+.border10 {
+  border: 10px solid red;
+}
+.border0 {
+  border: none;
+}
+
+.heightAuto {
+  height: auto;
+}
+.height200 {
+  height: 200px;
+}
+.heightHundred {
+  height: 100%;
+}
+
+.widthAuto {
+  width: auto;
+  float: left;
+}
+.width200 {
+  width: 200px;
+}
+.widthHundred {
+  width: 100%;
+}
+
+.boxSizingBorderBox {
+  box-sizing: border-box;
+}
+.boxSizingContentBox {
+  box-sizing: content-box;
+}
+
+.displayNone {
+  display: none;
+}
+.displayBlock {
+  display: block;
+}
+
+.directionltr {
+  direction: ltr;
+}
+.directionRTL {
+  direction: rtl;
+}

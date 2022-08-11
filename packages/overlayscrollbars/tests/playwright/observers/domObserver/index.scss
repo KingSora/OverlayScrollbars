@@ -1,0 +1,109 @@
+body {
+  display: flex;
+  flex-direction: column;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+#canvas > div {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.addedElm {
+  height: 20px;
+  width: 20px;
+  background: yellow;
+}
+
+.host {
+  color: black;
+  border: 1px solid red;
+  background: red;
+  & > .host-nest {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.3);
+    & > .host-nest-item {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+  & > .padding {
+    border: 1px solid green;
+    background: green;
+    & > .padding-nest {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.3);
+      & > .padding-nest-item {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+    & > .viewport {
+      border: 1px solid blue;
+      background: blue;
+      & > .viewport-nest {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.3);
+        & > .viewport-nest-item {
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 0.3);
+        }
+      }
+      & > .content {
+        border: 1px solid black;
+        background: black;
+        color: white;
+      }
+    }
+  }
+}
+
+.img {
+  display: inline-block;
+  background: lime;
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
+
+  img {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.transition {
+  width: 0;
+  height: 50px;
+  background: gray;
+
+  &.highlight {
+    background: cyan;
+  }
+
+  &.resetTransition {
+    transition: none;
+  }
+
+  &.active {
+    transition: width 2s ease;
+    width: 100%;
+  }
+}

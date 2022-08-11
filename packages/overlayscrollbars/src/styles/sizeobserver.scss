@@ -1,0 +1,118 @@
+@use 'sass:math';
+
+$inflate-margin: 133px;
+$shrink-scale: 0.1;
+
+.os-size-observer,
+.os-size-observer-listener {
+  direction: inherit;
+  pointer-events: none;
+  overflow: hidden;
+  visibility: hidden;
+  box-sizing: border-box;
+}
+
+.os-size-observer,
+.os-size-observer-listener,
+.os-size-observer-listener-item,
+.os-size-observer-listener-item-final {
+  writing-mode: horizontal-tb;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.os-size-observer {
+  z-index: -1;
+  contain: strict;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  padding: inherit;
+  border: inherit;
+  box-sizing: inherit;
+  margin: -$inflate-margin;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: scale($shrink-scale);
+
+  &::before {
+    content: '';
+    flex: none;
+    box-sizing: inherit;
+    padding: 10px;
+    width: 10px;
+    height: 10px;
+  }
+}
+
+.os-size-observer-appear {
+  // "forwards" is important for older browsers
+  animation: os-size-observer-appear-animation 1ms forwards;
+}
+
+.os-size-observer-listener {
+  box-sizing: border-box;
+  position: relative;
+  flex: auto;
+  padding: inherit;
+  border: inherit;
+  margin: -$inflate-margin;
+  transform: scale(
+    math.div(1, $shrink-scale)
+  ); // scale(calc(1 / #{$shrink-scale})) not supported in ie11
+
+  &.ltr {
+    margin-right: -$inflate-margin * 2;
+    margin-left: 0;
+  }
+  &.rtl {
+    margin-left: -$inflate-margin * 2;
+    margin-right: 0;
+  }
+
+  &:empty::before {
+    content: '';
+    width: 100%;
+    height: 100%;
+  }
+
+  &:empty::before,
+  & > .os-size-observer-listener-item {
+    display: block;
+    position: relative;
+    padding: inherit;
+    border: inherit;
+    box-sizing: content-box;
+    flex: auto;
+  }
+}
+
+.os-size-observer-listener-scroll {
+  box-sizing: border-box;
+  display: flex;
+}
+
+.os-size-observer-listener-item {
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  direction: ltr;
+  flex: none;
+}
+
+.os-size-observer-listener-item-final {
+  transition: none;
+}
+
+// choose the most lightweight animatable css prop: https://csstriggers.com/
+@keyframes os-size-observer-appear-animation {
+  from {
+    cursor: auto;
+  }
+  to {
+    cursor: none;
+  }
+}

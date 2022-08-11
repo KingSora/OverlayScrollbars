@@ -1,0 +1,100 @@
+<div id="controls">
+  <button id="nss">Without Native Scrollbar Styling</button>
+  <button id="fbg">Without Flexbox Glue</button>
+  <button id="ccp">Without CSS Custom Props</button>
+  <button id="po">Partially Overlaid</button>
+  <button id="fo">Fully Overlaid</button>
+  <button id="tvp">Target Is Viewport</button>
+  <br />
+  <label for="envHeight">envHeight</label>
+  <select name="envHeight" id="envHeight">
+    <option value="envHeightHundred">100%</option>
+    <option value="envHeightAuto">auto</option>
+  </select>
+  <label for="envWidth">envWidth</label>
+  <select name="envWidth" id="envWidth">
+    <option value="envWidthHundred">100%</option>
+    <option value="envWidthAuto">auto</option>
+  </select>
+  <label for="height">height</label>
+  <select name="height" id="height">
+    <option value="heightAuto">auto</option>
+    <option value="heightHundred">100%</option>
+    <option value="height200">200px</option>
+  </select>
+  <label for="width">width</label>
+  <select name="width" id="width">
+    <option value="widthAuto">auto</option>
+    <option value="widthHundred">100%</option>
+    <option value="width200">200px</option>
+  </select>
+  <label for="float">float</label>
+  <select name="float" id="float">
+    <option value="floatNone">none</option>
+    <option value="floatLeft">left</option>
+    <option value="floatRight">right</option>
+  </select>
+  <label for="padding">padding</label>
+  <select name="padding" id="padding">
+    <option value="paddingNone">none</option>
+    <option value="paddingSmall">small</option>
+    <option value="paddingLarge">large</option>
+  </select>
+  <label for="border">border</label>
+  <select name="border" id="border">
+    <option value="borderNone">none</option>
+    <option value="borderSmall">small</option>
+    <option value="borderLarge">large</option>
+  </select>
+  <label for="margin">margin</label>
+  <select name="margin" id="margin">
+    <option value="marginNone">none</option>
+    <option value="marginSmall">small</option>
+    <option value="marginLarge">large</option>
+  </select>
+  <label for="boxSizing">boxSizing</label>
+  <select name="boxSizing" id="boxSizing">
+    <option value="boxSizingBorderBox">border-box</option>
+    <option value="boxSizingContentBox">content-box</option>
+  </select>
+  <label for="direction">direction</label>
+  <select name="direction" id="direction">
+    <option value="directionLTR">ltr</option>
+    <option value="directionRTL">rtl</option>
+  </select>
+  <label for="minMax">minMax</label>
+  <select name="minMax" id="minMax">
+    <option value="minMaxFixed">fixed</option>
+    <option value="minMaxNone">none</option>
+  </select>
+  <br />
+  <button id="start">start</button>
+  <span>UsedOptions: <span id="options">0</span></span>
+  <span>Detected updates: <span id="updates">0</span></span>
+</div>
+<div id="stage">
+  <div>
+    <div class="columns">
+      <div class="column">
+        <div class="env">
+          <div id="target" class="container">
+            <div class="resize">Resize</div>
+            <div class="percent">50%</div>
+            <div class="end">End</div>
+          </div>
+        </div>
+        <pre id="targetMetrics" class="metrics"></pre>
+      </div>
+      <div class="column">
+        <div class="env">
+          <div id="comparison" class="container">
+            <div class="resize">Resize</div>
+            <div class="percent">50%</div>
+            <div class="end">End</div>
+          </div>
+        </div>
+        <pre id="comparisonMetrics" class="metrics"></pre>
+      </div>
+    </div>
+  </div>
+</div>

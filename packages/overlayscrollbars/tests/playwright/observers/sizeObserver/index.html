@@ -1,0 +1,50 @@
+<div id="controls">
+  <button id="roPolyfill">ResizeObserver polyfill</button><br />
+  <label for="height">height</label>
+  <select name="height" id="height">
+    <option value="heightAuto">auto</option>
+    <option value="heightHundred">100%</option>
+    <option value="height200">200px</option>
+  </select>
+  <label for="width">width</label>
+  <select name="width" id="width">
+    <option value="widthAuto">auto</option>
+    <option value="widthHundred">100%</option>
+    <option value="width200">200px</option>
+  </select>
+  <label for="padding">padding</label>
+  <select name="padding" id="padding">
+    <option value="padding0">0</option>
+    <option value="padding10">10px</option>
+    <option value="padding50">50px</option>
+  </select>
+  <label for="border">border</label>
+  <select name="border" id="border">
+    <option value="border2">2px</option>
+    <option value="border10">10px</option>
+    <option value="border0">0</option>
+  </select>
+  <label for="boxSizing">boxSizing</label>
+  <select name="boxSizing" id="boxSizing">
+    <option value="boxSizingBorderBox">border-box</option>
+    <option value="boxSizingContentBox">content-box</option>
+  </select>
+  <label for="display">display</label>
+  <select name="display" id="display">
+    <option value="displayBlock">block</option>
+    <option value="displayNone">none</option>
+  </select>
+  <label for="direction">direction</label>
+  <select name="direction" id="direction">
+    <option value="directionLTR">ltr</option>
+    <option value="directionRTL">rtl</option>
+  </select>
+
+  <button id="start">start</button>
+  <span>Detected resizes: <span id="resizes">0</span></span>
+</div>
+<div id="stage">
+  <div>
+    <div id="target">test</div>
+  </div>
+</div>

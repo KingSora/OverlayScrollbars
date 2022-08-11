@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "@~local/playwright-tooling",
+  "main": "./src/index.js",
+  "bin": {
+    "playwright-merge-coverage": "./bin/mergeCoverage.js"
+  },
+  "types": "index.d.ts",
+  "version": "0.0.0"
+}

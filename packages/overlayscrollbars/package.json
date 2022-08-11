@@ -1,0 +1,53 @@
+{
+  "name": "overlayscrollbars",
+  "version": "2.0.0-beta.0",
+  "description": "A scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.",
+  "author": "Rene Haas | KingSora",
+  "license": "MIT",
+  "homepage": "https://kingsora.github.io/OverlayScrollbars",
+  "bugs": "https://github.com/KingSora/OverlayScrollbars/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KingSora/OverlayScrollbars.git",
+    "directory": "packages/overlayscrollbars"
+  },
+  "keywords": [
+    "overlayscrollbars",
+    "custom",
+    "styleable",
+    "scrollbar",
+    "scrollbars",
+    "scroll",
+    "frontend",
+    "browser"
+  ],
+  "files": [
+    "src",
+    "dist",
+    "types",
+    "styles",
+    "README.md"
+  ],
+  "main": "dist/overlayscrollbars.cjs.js",
+  "module": "dist/overlayscrollbars.esm.js",
+  "types": "types/overlayscrollbars.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/overlayscrollbars.cjs.js",
+      "import": "./dist/overlayscrollbars.esm.js",
+      "types": "./types/overlayscrollbars.d.ts"
+    },
+    "./overlayscrollbars.css": "./styles/overlayscrollbars.css"
+  },
+  "sideEffects": ["*.css", "*.scss", "*.sass"],
+  "scripts": {
+    "build": "rollup -c",
+    "jest": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
+    "postjest": "full-coverage",
+    "jest:node": "jest --runInBand --detectOpenHandles --selectProjects node --testPathPattern",
+    "jest:jsdom": "jest --runInBand --detectOpenHandles --selectProjects jsdom --testPathPattern",
+    "playwright": "playwright test --quiet",
+    "postplaywright": "playwright-merge-coverage && full-coverage",
+    "playwright:dev": "playwright test --workers 1"
+  }
+}

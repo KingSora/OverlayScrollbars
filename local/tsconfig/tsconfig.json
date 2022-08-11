@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "ESNext",
+    "sourceMap": true,
+    "jsx": "react",
+    "declaration": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "removeComments": false
+  }
+}

@@ -1,0 +1,355 @@
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+#canvas > div {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.columns {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.column {
+  width: 100%;
+  height: 100%;
+  font-size: 0;
+  line-height: 0;
+  flex: none;
+  position: relative;
+}
+
+.metrics {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: initial;
+  line-height: initial;
+
+  &:hover {
+    background: #fff;
+  }
+}
+
+#comparisonMetrics {
+  left: 0;
+  right: auto;
+}
+
+.env {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#target,
+#comparison {
+  position: relative;
+  background: rgba(0, 0, 0, 0.1);
+
+  .os-viewport::after,
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    border: 2px dotted red;
+    top: 0.5px;
+    right: 0.5px;
+    bottom: 0.5px;
+    left: 0.5px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  * {
+    font-size: medium;
+    line-height: normal;
+  }
+}
+
+#target[data-overlayscrollbars~='host']::after {
+  display: none;
+}
+
+#target[data-overlayscrollbars~='viewport'],
+#comparison {
+  z-index: 0;
+  overflow: hidden;
+}
+
+.resize {
+  overflow: hidden;
+  background: blue;
+  border: 1px solid black;
+  padding: 10px;
+}
+
+.percent {
+  height: 50%;
+  background: purple;
+  border: 1px solid black;
+  padding: 10px;
+}
+
+.end {
+  position: relative;
+  background: green;
+  border: 1px solid black;
+  padding: 10px;
+  margin: 10px;
+}
+
+.end::before {
+  content: '';
+  position: absolute;
+  display: block;
+  top: -11px;
+  right: -11px;
+  bottom: -11px;
+  left: -11px;
+  background: green;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+.resizer {
+  position: relative;
+}
+
+.resizeBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 20px;
+  width: 20px;
+  background: red;
+  opacity: 0.3;
+}
+
+.widthAuto > .container,
+.envWidthAuto {
+  width: auto;
+  display: inline-block;
+}
+.widthAuto > #target[data-overlayscrollbars~='host'] {
+  display: inline-flex;
+}
+.widthHundred > .container,
+.envWidthHundred {
+  width: 100%;
+}
+
+.heightAuto > .container,
+.envHeightAuto {
+  height: auto;
+}
+.heightHundred > .container,
+.envHeightHundred {
+  height: 100%;
+}
+
+.width200 > .container {
+  width: 200px;
+}
+.height200 > .container {
+  height: 200px;
+}
+
+.floatNone > .container {
+  float: none;
+}
+
+.floatLeft > .container {
+  float: left;
+}
+
+.floatRight > .container {
+  float: right;
+}
+
+.paddingNone > .container {
+  padding: 0;
+}
+
+.paddingSmall > .container {
+  padding: 5px 50px 15px 20px;
+}
+
+.paddingLarge > .container {
+  padding: 12px 22px 53px 33px;
+}
+
+.borderNone > .container {
+  border: none;
+}
+
+.borderSmall > .container {
+  border-color: darkorange;
+  border-style: solid;
+  border-width: 2px 5px 3px 4px;
+}
+
+.borderLarge > .container {
+  border-color: darkorange;
+  border-style: solid;
+  border-width: 9px 6px 7px 3px;
+}
+
+.marginNone > .container {
+  margin: 0;
+}
+
+.marginSmall > .container {
+  margin: 21px 16px 4px 33px;
+}
+
+.marginLarge > .container {
+  margin: 33px 46px 69px 23px;
+}
+
+.boxSizingBorderBox > .container {
+  box-sizing: border-box;
+
+  .os-viewport * {
+    box-sizing: border-box;
+  }
+}
+
+.boxSizingContentBox > .container {
+  box-sizing: content-box;
+
+  .os-viewport * {
+    box-sizing: content-box;
+  }
+}
+
+.directionLTR > .container {
+  direction: ltr;
+}
+
+.directionRTL > .container {
+  direction: rtl;
+}
+
+.minMaxFixed > .container {
+  min-height: 180.5px;
+  min-width: 180.5px;
+  max-height: 420.3px;
+  max-width: 420.8px;
+}
+
+.minMaxNone > .container {
+  min-height: 0;
+  min-width: 0;
+  max-height: none;
+  max-width: none;
+}
+
+// ie11 doesn't respect percentage max-width in display: inline-block elements, they can always expand to infinity
+.msie11 {
+  .column {
+    min-width: 900px;
+  }
+  .minMaxNone.widthAuto > .container {
+    max-width: 700px;
+  }
+}
+
+.intrinsicHack {
+  &.heightAuto,
+  &.envHeightAuto {
+    .percent {
+      height: auto;
+    }
+  }
+}
+
+.comparisonContent {
+  height: 100%;
+}
+
+.heightAuto {
+  .comparisonContent {
+    height: auto;
+  }
+}
+
+// disable native scrollbar styling detection
+.nss {
+  .os-viewport-scrollbar-hidden.os-environment {
+    scrollbar-width: auto !important;
+  }
+  .os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar,
+  .os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar-corner {
+    display: block !important;
+  }
+}
+
+// disable flexboxglue detection
+.fbg {
+  .os-environment-flexbox-glue.os-environment {
+    display: block !important;
+  }
+}
+
+// disable css custom props detection
+.ccp {
+  .os-environment {
+    z-index: 0 !important;
+  }
+}
+
+// fully overlaid
+.fo {
+  .os-environment::-webkit-scrollbar,
+  .os-viewport::-webkit-scrollbar,
+  .os-environment::-webkit-scrollbar-corner,
+  .os-viewport::-webkit-scrollbar-corner {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+    visibility: hidden !important;
+    background: transparent !important;
+  }
+
+  .os-environment,
+  .os-viewport {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+}
+
+// partially overlaid (chrome only)
+.po {
+  .os-environment::-webkit-scrollbar,
+  .os-viewport::-webkit-scrollbar,
+  .os-environment::-webkit-scrollbar-corner,
+  .os-viewport::-webkit-scrollbar-corner {
+    display: block !important;
+    width: 10px !important;
+    height: 0 !important;
+    background: red !important;
+  }
+}

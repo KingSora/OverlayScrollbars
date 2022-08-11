@@ -1,0 +1,27 @@
+.os-trinsic-observer {
+  flex: none;
+  box-sizing: border-box;
+  position: relative;
+  max-width: 0px;
+  max-height: 1px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  overflow: hidden;
+  z-index: -1;
+  height: 0;
+  top: calc(100% + 1px);
+  contain: strict;
+
+  &:not(:empty) {
+    height: calc(100% + 1px);
+    top: -1px;
+
+    & > .os-size-observer {
+      width: 1000%;
+      height: 1000%;
+      min-height: 1px;
+      min-width: 1px;
+    }
+  }
+}

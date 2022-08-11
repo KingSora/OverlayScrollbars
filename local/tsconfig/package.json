@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "name": "@~local/tsconfig",
+  "main": "./tsconfig.json",
+  "version": "0.0.0"
+}
