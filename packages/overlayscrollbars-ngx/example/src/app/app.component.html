@@ -1,0 +1,90 @@
+<div class="header">
+  <code>
+    <span class="code-keyword">import</span>
+    <span class="code-char">{{ " { " }}</span>
+    <span class="code-variable">OverlayScrollbarsComponent</span>
+    <span class="code-char">{{ " } " }}</span>
+    <span class="code-keyword">from</span>
+    <span class="code-string">{{ " 'overlayscrollbars-ngx'" }}</span>
+    <span class="code-char">;</span>
+  </code>
+</div>
+<div class="content">
+  <div class="content-section skew">
+    <div class="content-section-content content-section-content-framework">
+      <span class="framework-logo"></span>
+      <span>+</span>
+      <span class="os-logo"></span>
+    </div>
+  </div>
+  <div class="content-section">
+    <div class="content-section-title">
+      <h2>Component</h2>
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <span>Class:</span>
+            </td>
+            <td>
+              <span>{{ componentClass }}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span>Description:</span>
+            </td>
+            <td>OverlayScrollbars as a {{ framework }}-Component.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="content-section-content">
+      <overlay-scrollbars
+        #osComponentRef1
+        [options]="osComponentOptions"
+        [ngStyle]="{ maxHeight: '350px' }"
+        [ngClass]="[framework, hasCustomClassName ? customClassName : '']"
+      >
+        <div class="bonus-content">{{ componentContent }}</div>
+        {{ loremIpsumShort }}
+        <overlay-scrollbars
+          #osComponentRef2
+          [options]="osComponentOptions"
+          [ngStyle]="{ maxHeight: '150px' }"
+          [ngClass]="[hasCustomClassName ? customClassName : '']"
+        >
+          <div class="bonus-content">{{ componentContent }}</div>
+          {{ loremIpsumLong }}
+          <br />
+          <br />
+          {{ loremIpsumShort }}
+        </overlay-scrollbars>
+        {{ loremIpsumMedium }}
+        <br />
+        <br />
+        {{ loremIpsumShort }}
+        <br />
+        <br />
+        {{ loremIpsumLong }}
+        <div *ngFor="let item of loremList; let i = index" [attr.data-key]="i">
+          <br />
+          {{ item }}
+        </div>
+      </overlay-scrollbars>
+
+      <div class="buttons">
+        <button
+          (click)="
+            onBtnScrollRandom($event, [osComponentRef1, osComponentRef2])
+          "
+        >
+          Scroll
+        </button>
+        <button (click)="onBtnChangeOptions()">Change Options</button>
+        <button (click)="onBtnChangeContent()">Change Content</button>
+        <button (click)="onBtnLog()">Log</button>
+      </div>
+    </div>
+  </div>
+</div>

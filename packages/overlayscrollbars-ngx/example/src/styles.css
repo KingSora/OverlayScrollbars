@@ -1,0 +1,14 @@
+@import "~overlayscrollbars/css/OverlayScrollbars.css";
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  font-size: 11pt;
+  color: #31485b;
+  box-sizing: border-box;
+}
+* {
+  box-sizing: inherit;
+}

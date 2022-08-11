@@ -1,0 +1,57 @@
+{
+  "name": "overlayscrollbars-ngx",
+  "version": "0.2.3",
+  "description": "OverlayScrollbars wrapper for Angular.",
+  "keywords": [
+    "overlayscrollbars",
+    "ngx",
+    "angular"
+  ],
+  "files": [
+    "src",
+    "dist"
+  ],
+  "homepage": "https://kingsora.github.io/OverlayScrollbars",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KingSora/OverlayScrollbars"
+  },
+  "bugs": {
+    "url": "https://github.com/KingSora/OverlayScrollbars/issues"
+  },
+  "main": "./dist/overlayscrollbars-ngx.js",
+  "module": "./dist/overlayscrollbars-ngx.esm.js",
+  "typings": "./dist/types/index.d.ts",
+  "author": "KingSora | Rene Haas",
+  "license": "MIT",
+  "devDependencies": {
+    "@angular/compiler": ">=7.0.0",
+    "@angular/compiler-cli": ">=7.0.0",
+    "@angular/core": ">=7.0.0",
+    "@types/overlayscrollbars": "^1.9.0",
+    "chalk": "^2.4.2",
+    "gulp": "^4.0.2",
+    "gulp-json-editor": "^2.5.4",
+    "overlayscrollbars": "^1.11.0",
+    "rollup": "^1.32.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.22.0",
+    "rxjs": "^6.5.4",
+    "shelljs": "0.7.7",
+    "tsickle": "^0.34.0",
+    "typescript": "3.1.6",
+    "zone.js": "^0.8.26"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=7.0.0",
+    "overlayscrollbars": "^1.10.0"
+  },
+  "scripts": {
+    "setup": "npm i && cd example && npm i && cd ..",
+    "build": "node build.js",
+    "example": "cd example && npx ng serve",
+    "build-example": "cd example && npx ng build --prod --base-href \"/OverlayScrollbars/frameworks/angular/\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
