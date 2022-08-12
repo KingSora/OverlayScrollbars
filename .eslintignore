@@ -1,6 +1,4 @@
 node_modules
-dist
-types
 .build
 .coverage
 .nyc_output
