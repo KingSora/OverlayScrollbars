@@ -7,7 +7,10 @@
     <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square" alt="Downloads"></a>
     <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version"></a>
     <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
+    <a href="https://bundlephobia.com/package/overlayscrollbars"><img src="https://img.shields.io/bundlephobia/minzip/overlayscrollbars?color=%2345ADA8%20&label=max.%20bundle%20size&style=flat-square" alt="Max. Bundle Size"></a>
 </h6>
+
+
 
 > OverlayScrollbars is a javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.
 
