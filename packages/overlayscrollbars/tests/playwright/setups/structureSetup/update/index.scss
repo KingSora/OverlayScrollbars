@@ -189,18 +189,6 @@ body {
   float: right;
 }
 
-.paddingNone > .container {
-  padding: 0;
-}
-
-.paddingSmall > .container {
-  padding: 5px 50px 15px 20px;
-}
-
-.paddingLarge > .container {
-  padding: 12px 22px 53px 33px;
-}
-
 .borderNone > .container {
   border: none;
 }
@@ -227,6 +215,18 @@ body {
 
 .marginLarge > .container {
   margin: 33px 46px 69px 23px;
+}
+
+.paddingNone > .container {
+  padding: 0;
+}
+
+.paddingSmall > .container {
+  padding: 5px 50px 15px 20px;
+}
+
+.paddingLarge > .container {
+  padding: 12px 22px 53px 33px;
 }
 
 .boxSizingBorderBox > .container {
@@ -297,7 +297,7 @@ body {
 }
 
 // disable native scrollbar styling detection
-.nss {
+body.nsh {
   .os-viewport-scrollbar-hidden.os-environment {
     scrollbar-width: auto !important;
   }
@@ -308,21 +308,21 @@ body {
 }
 
 // disable flexboxglue detection
-.fbg {
+body.fbg {
   .os-environment-flexbox-glue.os-environment {
     display: block !important;
   }
 }
 
 // disable css custom props detection
-.ccp {
+body.ccp {
   .os-environment {
     z-index: 0 !important;
   }
 }
 
 // fully overlaid
-.fo {
+body.fo {
   .os-environment::-webkit-scrollbar,
   .os-viewport::-webkit-scrollbar,
   .os-environment::-webkit-scrollbar-corner,
@@ -342,7 +342,7 @@ body {
 }
 
 // partially overlaid (chrome only)
-.po {
+body.po {
   .os-environment::-webkit-scrollbar,
   .os-viewport::-webkit-scrollbar,
   .os-environment::-webkit-scrollbar-corner,
@@ -352,4 +352,12 @@ body {
     height: 0 !important;
     background: red !important;
   }
+}
+
+// padding absolute
+body.pa #comparison {
+  display: flex;
+}
+body.pa .widthAuto > #comparison {
+  display: inline-flex;
 }

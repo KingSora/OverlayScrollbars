@@ -5,7 +5,16 @@ import { addClass } from 'support';
   const url = new URL(window.location.toString());
   const params = url.searchParams;
 
-  ['nss', 'fbg', 'ccp', 'po', 'fo', 'tvp'].forEach((param) => {
+  /**
+   * nsh: native scrollbar hiding
+   * fbg: flexbox glue
+   * ccp: css custom props
+   * po: partially overlaid
+   * fo: fully overlaid
+   * vpt: viewport is target
+   * pa: padding absolute
+   */
+  ['nsh', 'fbg', 'ccp', 'po', 'fo', 'vpt', 'pa'].forEach((param) => {
     const paramValue = Boolean(params.get(param));
 
     if (paramValue) {

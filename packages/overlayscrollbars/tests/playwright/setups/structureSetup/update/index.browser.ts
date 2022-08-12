@@ -2,6 +2,7 @@ import 'index.scss';
 import './index.scss';
 import './handleEnvironment';
 import { OverlayScrollbars } from 'overlayscrollbars';
+import { classNameViewport } from 'classnames';
 import should from 'should';
 import {
   generateClassChangeSelectCallback,
@@ -25,6 +26,7 @@ import {
   appendChildren,
   createDOM,
   hasClass,
+  createDiv,
 } from 'support';
 import { Options } from 'options';
 import { DeepPartial } from 'typings';
@@ -100,6 +102,7 @@ const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
 
+const paddingAbsolute = hasClass(document.body, 'pa');
 const useContentElement = false;
 const fixedDigits = msie11 ? 1 : 3;
 const fixedDigitsOffset = 3;
@@ -118,21 +121,9 @@ const comparisonEnd: HTMLElement | null = document.querySelector('#comparison .e
 const targetOptionsSlot: HTMLElement | null = document.querySelector('#options');
 const targetUpdatesSlot: HTMLElement | null = document.querySelector('#updates');
 const comparisonContentElm: HTMLElement = document.createElement('div');
-
 const envElms = document.querySelectorAll<HTMLElement>('.env');
 
-if (!useContentElement) {
-  envElms.forEach((elm) => {
-    addClass(elm, 'intrinsicHack');
-  });
-} else {
-  const elms = contents(comparison);
-  addClass(comparisonContentElm, 'comparisonContent');
-  appendChildren(comparison, comparisonContentElm);
-  appendChildren(comparisonContentElm, elms);
-}
-
-const initObj = hasClass(document.body, 'tvp')
+const initObj = hasClass(document.body, 'vpt')
   ? {
       target: target!,
       elements: {
@@ -148,12 +139,15 @@ const initObj = hasClass(document.body, 'tvp')
     };
 
 let updateCount = 0;
+
 // @ts-ignore
 const osInstance =
   // @ts-ignore
   (window.os = OverlayScrollbars(
     initObj,
-    {},
+    {
+      paddingAbsolute,
+    },
     {
       updated() {
         updateCount++;
@@ -162,16 +156,25 @@ const osInstance =
             targetUpdatesSlot.textContent = `${updateCount}`;
           }
           if (targetOptionsSlot) {
-            targetOptionsSlot.textContent = JSON.stringify(osInstance.options().overflow, null, 2);
+            targetOptionsSlot.textContent = JSON.stringify(
+              assignDeep({}, osInstance.options().overflow, {
+                paddingAbsolute: osInstance.options().paddingAbsolute,
+              }),
+              null,
+              2
+            );
           }
         });
       },
     }
   ));
 
+const getComparisonViewport = () =>
+  paddingAbsolute ? (comparison!.firstElementChild as HTMLElement) : comparison;
 const getMetrics = (elm: HTMLElement): Metrics => {
   // const rounding = isFractionalPixelRatio() ? Math.round : (num: number) => num;
   const elmIsTarget = elm === target;
+  const comparisonViewport = getComparisonViewport();
   const comparisonEnvBCR = getBoundingClientRect(parent(elm!) as HTMLElement);
   const comparisonBCR = getBoundingClientRect(elm!);
   const comparisonPercentBCR = getBoundingClientRect(elm!.querySelector('.percent')!);
@@ -179,9 +182,10 @@ const getMetrics = (elm: HTMLElement): Metrics => {
   const scrollMeasure = () => {
     const condition = (raw: number) => (window.devicePixelRatio % 1 !== 0 ? raw > 1 : raw > 0);
     const amount = {
-      width: Math.max(0, comparison!.scrollWidth - comparison!.clientWidth),
-      height: Math.max(0, comparison!.scrollHeight - comparison!.clientHeight),
+      width: Math.max(0, comparisonViewport!.scrollWidth - comparisonViewport!.clientWidth),
+      height: Math.max(0, comparisonViewport!.scrollHeight - comparisonViewport!.clientHeight),
     };
+    console.log(elm, amount, comparisonViewport);
     return {
       width: condition(amount.width) ? amount.width : 0,
       height: condition(amount.height) ? amount.height : 0,
@@ -604,12 +608,6 @@ const iterateMinMax = async (afterEach?: () => any) => {
 };
 
 const overflowTest = async (osOptions?: DeepPartial<Options>) => {
-  const additiveOverflow = () => {
-    if (isFractionalPixelRatio()) {
-      return 1;
-    }
-    return 1;
-  };
   const contentBox = (elm: HTMLElement | null): WH<number> => {
     if (elm) {
       const computedStyle = window.getComputedStyle(elm);
@@ -640,13 +638,14 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
     const { maxWidth, maxHeight } = style(comparison, ['maxWidth', 'maxHeight']);
 
     if (maxWidth !== 'none' && maxHeight !== 'none') {
-      const addOverflow = additiveOverflow();
+      const addOverflow = 1;
       const before: CheckComparisonObj = {
         updCount: updateCount,
         metrics: getMetrics(comparison!),
       };
       const { paddingRight, paddingBottom } = style(comparison, ['paddingRight', 'paddingBottom']);
-      const comparisonContentBox = contentBox(comparison);
+      const comparisonViewport = getComparisonViewport();
+      const comparisonContentBox = contentBox(comparisonViewport);
       const widthOverflow = width ? comparisonContentBox.w + addOverflow : 0;
       const heightOverflow = height ? comparisonContentBox.h + addOverflow : 0;
       const styleObj = { width: widthOverflow, height: heightOverflow };
@@ -654,8 +653,8 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
       style(comparisonResize, styleObj);
 
       const overflowAmount = {
-        width: comparison!.scrollWidth - comparison!.clientWidth,
-        height: comparison!.scrollHeight - comparison!.clientHeight,
+        width: comparisonViewport!.scrollWidth - comparisonViewport!.clientWidth,
+        height: comparisonViewport!.scrollHeight - comparisonViewport!.clientHeight,
       };
 
       if (width && overflowAmount.width <= 0) {
@@ -668,22 +667,28 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
       style(comparisonResize, styleObj);
 
       if (width) {
-        while (comparison!.scrollWidth - comparison!.clientWidth <= addOverflow - 1) {
+        while (
+          comparisonViewport!.scrollWidth - comparisonViewport!.clientWidth <=
+          addOverflow - 1
+        ) {
           styleObj.width += addOverflow;
           style(comparisonResize, styleObj);
         }
       }
 
       if (height) {
-        while (comparison!.scrollHeight - comparison!.clientHeight <= addOverflow - 1) {
+        while (
+          comparisonViewport!.scrollHeight - comparisonViewport!.clientHeight <=
+          addOverflow - 1
+        ) {
           styleObj.height += addOverflow;
           style(comparisonResize, styleObj);
         }
       }
 
       const overflowAmountCheck = {
-        width: comparison!.scrollWidth - comparison!.clientWidth,
-        height: comparison!.scrollHeight - comparison!.clientHeight,
+        width: comparisonViewport!.scrollWidth - comparisonViewport!.clientWidth,
+        height: comparisonViewport!.scrollHeight - comparisonViewport!.clientHeight,
       };
 
       await waitForOrFailTest(() => {
@@ -724,7 +729,8 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
       updCount: updateCount,
       metrics: getMetrics(comparison!),
     };
-    const comparisonContentBox = contentBox(comparison);
+    const comparisonViewport = getComparisonViewport();
+    const comparisonContentBox = contentBox(comparisonViewport);
     const widthOverflow = width ? comparisonContentBox.w + 1000 : 0;
     const heightOverflow = height ? comparisonContentBox.h + 1000 : 0;
     const styleObj = { width: widthOverflow, height: heightOverflow };
@@ -825,3 +831,21 @@ const start = async () => {
 };
 
 startBtn?.addEventListener('click', start);
+
+if (!useContentElement) {
+  envElms.forEach((elm) => {
+    addClass(elm, 'intrinsicHack');
+  });
+} else {
+  const elms = contents(comparison);
+  addClass(comparisonContentElm, 'comparisonContent');
+  appendChildren(comparison, comparisonContentElm);
+  appendChildren(comparisonContentElm, elms);
+}
+
+if (paddingAbsolute) {
+  const absoluteWrapper = createDiv(classNameViewport);
+  appendChildren(absoluteWrapper, contents(comparison));
+
+  appendChildren(comparison, absoluteWrapper);
+}
