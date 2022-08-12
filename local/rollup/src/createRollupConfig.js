@@ -6,10 +6,7 @@ const path = require('path');
 const glob = require('glob');
 const resolve = require('@~local/config/resolve');
 const defaultOptions = require('./defaultOptions');
-const pipelineBuild = require('./pipeline.build');
-const pipelineDev = require('./pipeline.dev');
-const pipelineStyles = require('./pipeline.styles');
-const pipelineTypes = require('./pipeline.types');
+const pipelineDefault = require('./pipeline.default');
 
 const workspaceRoot = path.dirname(execSync('npm root').toString());
 const pkg = require(`${workspaceRoot}/package.json`);
@@ -33,7 +30,6 @@ const resolvePath = (basePath, pathToResolve, appendExt) => {
 
 const mergeAndResolveOptions = (userOptions) => {
   const {
-    mode: defaultMode,
     paths: defaultPaths,
     versions: defaultVersions,
     alias: defaultAlias,
@@ -42,10 +38,10 @@ const mergeAndResolveOptions = (userOptions) => {
     extractTypes: defaultExtractTypes,
     verbose: defaultVerbose,
     banner: defaultBanner,
+    useEsbuild: defaultUseEsbuild,
   } = defaultOptions;
   const {
     project,
-    mode: rawMode,
     paths: rawPaths = {},
     alias: rawAlias = {},
     rollup: rawRollup = {},
@@ -54,6 +50,7 @@ const mergeAndResolveOptions = (userOptions) => {
     extractTypes: rawExtractTypes,
     verbose: rawVerbose,
     banner: rawBanner,
+    useEsbuild: rawUseEsbuild,
   } = userOptions;
   const projectPath = process.cwd();
   const workspaces = pkg.workspaces
@@ -61,12 +58,12 @@ const mergeAndResolveOptions = (userOptions) => {
     .flat();
   const mergedOptions = {
     project: project || path.basename(projectPath),
-    mode: rawMode || defaultMode,
     extractStyles: rawExtractStyles ?? defaultExtractStyles,
     extractTypes: rawExtractTypes ?? defaultExtractTypes,
     verbose: rawVerbose ?? defaultVerbose,
     banner: rawBanner ?? defaultBanner,
     versions: rawVersions ?? defaultVersions,
+    useEsbuild: rawUseEsbuild ?? defaultUseEsbuild,
     paths: {
       ...defaultPaths,
       ...rawPaths,
@@ -104,22 +101,12 @@ const mergeAndResolveOptions = (userOptions) => {
 
 const createConfig = (userOptions = {}) => {
   const options = mergeAndResolveOptions(userOptions);
-  const { project, mode, extractTypes, extractStyles, verbose } = options;
-  const isBuild = mode === 'build';
-  let result;
-
-  if (isBuild) {
-    const styles = extractStyles && pipelineStyles(resolve, options);
-    const types = extractTypes && pipelineTypes(resolve, options);
-    const js = pipelineBuild(resolve, options);
-
-    result = [styles, types, js].flat().filter((build) => !!build);
-  } else {
-    result = [pipelineDev(resolve, options)];
-  }
+  const { project, useEsbuild, verbose } = options;
+  const result = pipelineDefault(resolve, options, useEsbuild);
+  const resultArr = Array.isArray(result) ? result : [result];
 
   if (verbose) {
-    result[0].plugins.push({
+    resultArr[0].plugins.push({
       name: 'PROJECT',
       buildStart() {
         console.log('');
@@ -129,7 +116,7 @@ const createConfig = (userOptions = {}) => {
     });
   }
 
-  return result;
+  return resultArr;
 };
 
 module.exports = createConfig;

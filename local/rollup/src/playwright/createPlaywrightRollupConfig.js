@@ -4,35 +4,53 @@ const fs = require('fs');
 const path = require('path');
 const rollupPluginStyles = require('rollup-plugin-styles');
 const rollupPluginServe = require('rollup-plugin-serve');
-// const rollupPluginLivereload = require('rollup-plugin-livereload');
+const rollupPluginLivereload = require('rollup-plugin-livereload');
 
 const rollupPluginHtml = require('./rollup.pluginHtml');
 const createRollupConfig = require('../createRollupConfig');
-// const rollupAdditionalWatchFiles = require('./rollup.pluginAdditionalWatchFiles');
+const rollupAdditionalWatchFiles = require('./rollup.pluginAdditionalWatchFiles');
 
 const portRange = {
   min: 20000,
   max: 60000,
 };
 
-const meta = {
+const paths = {
   dist: './.build',
-  html: './index.html',
   input: './index.browser',
+  html: './index.html',
 };
 
-module.exports = (testDir, mode = 'dev', onListening = null) => {
-  const name = path.basename(testDir);
-  const htmlFilePath = path.resolve(testDir, meta.html);
-  const dist = path.resolve(testDir, meta.dist);
-  const htmlName = `${name}.html`;
-  const { min, max } = portRange;
-  const port = Math.floor(Math.random() * (max - min + 1) + min);
+module.exports = (testDir, useEsbuild, dev) => {
+  const testPaths = Object.keys(paths).reduce((obj, key) => {
+    obj[key] = path.resolve(testDir, paths[key]);
+    return obj;
+  }, {});
 
-  return createRollupConfig({
+  const { min, max } = portRange;
+  const { dist, input, html: htmlPath } = testPaths;
+  const name = path.basename(testDir);
+  const htmlName = `${name}.html`;
+  const port = Math.floor(Math.random() * (max - min + 1) + min);
+  const isDev = !!dev;
+  let server;
+
+  const config = createRollupConfig({
+    useEsbuild,
     project: name,
-    mode,
-    banner: `${testDir}`,
+    banner: testDir,
+    extractStyle: false,
+    extractTypes: false,
+    paths: {
+      dist,
+    },
+    versions: [
+      {
+        format: 'iife',
+        generatedCode: 'es5',
+        minifiedVersion: false,
+      },
+    ],
     // if the import would be 'overlayscrollbars' and the package name is also 'overlayscrollbars' esbuild needs an alias to resolve it correctly
     alias: (workspaceRoot, workspaces, resolvePath) =>
       workspaces.reduce((obj, resolvedPath) => {
@@ -57,55 +75,38 @@ module.exports = (testDir, mode = 'dev', onListening = null) => {
         } catch {}
         return obj;
       }, {}),
-    paths: {
-      dist,
-    },
-    versions: [
-      mode === 'dev'
-        ? {
-            format: 'esm',
-            generatedCode: 'es2015',
-            minifiedVersion: false,
-          }
-        : {
-            format: 'iife',
-            generatedCode: 'es5',
-            minifiedVersion: false,
-          },
-    ],
-    extractStyle: false,
     rollup: {
-      input: path.resolve(testDir, meta.input),
+      input,
       context: 'this',
       moduleContext: () => 'this',
       output: {
-        sourcemap: true,
+        sourcemap: isDev,
       },
       plugins: [
         rollupPluginStyles(),
         rollupPluginHtml(`Playwright: ${name}`, htmlName, () =>
-          fs.existsSync(htmlFilePath) ? fs.readFileSync(htmlFilePath, 'utf8') : null
+          fs.existsSync(htmlPath) ? fs.readFileSync(htmlPath, 'utf8') : null
         ),
-        ...(onListening
-          ? [
-              // rollupAdditionalWatchFiles([htmlFilePath]),
-              rollupPluginServe({
-                contentBase: dist,
-                historyApiFallback: `/${htmlName}`,
-                host: '127.0.0.1',
-                port,
-                onListening,
-              }),
-              /*
-              rollupPluginLivereload({
-                watch: dist,
-                port: port - 1,
-                verbose: false,
-              }),
-              */
-            ]
-          : []),
+        rollupPluginServe({
+          port,
+          contentBase: dist,
+          historyApiFallback: `/${htmlName}`,
+          host: '127.0.0.1',
+          verbose: isDev,
+          onListening: (srv) => {
+            server = srv;
+          },
+        }),
+        isDev && rollupAdditionalWatchFiles([htmlPath]),
+        isDev &&
+          rollupPluginLivereload({
+            watch: dist,
+            port: port - 1,
+            verbose: false,
+          }),
       ],
     },
   });
+
+  return [config, () => server];
 };

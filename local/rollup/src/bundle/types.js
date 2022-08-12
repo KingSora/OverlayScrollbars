@@ -2,7 +2,8 @@ const fs = require('fs');
 const { basename } = require('path');
 const path = require('path');
 const rollupDts = require('rollup-plugin-dts');
-const { rollupTs } = require('./pipeline.common.plugins');
+
+const { rollupTs } = require('./plugins');
 
 module.exports = (resolve, options) => {
   const { rollup, paths } = options;

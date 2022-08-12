@@ -1,10 +1,5 @@
 const path = require('path');
-const {
-  rollupAlias,
-  rollupResolve,
-  rollupScss,
-  rollupEsBuild,
-} = require('./pipeline.common.plugins');
+const { rollupAlias, rollupResolve, rollupScss, rollupEsBuild } = require('./plugins');
 
 module.exports = (resolve, options) => {
   const { rollup, alias, paths, banner, extractStyles } = options;

@@ -5,7 +5,7 @@ const {
   rollupResolve,
   rollupAlias,
   rollupScss,
-} = require('./pipeline.common.plugins');
+} = require('./plugins');
 
 module.exports = (resolve, options) => {
   const { rollup, paths, alias, extractStyles } = options;
@@ -20,6 +20,7 @@ module.exports = (resolve, options) => {
     format: 'esm',
     generatedCode: 'es2015',
     file: path.resolve(distPath, `${file}.js`),
+    plugins: (outputConfig.plugins || []).filter(Boolean),
   };
 
   return {

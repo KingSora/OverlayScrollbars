@@ -46,8 +46,8 @@
     "postjest": "full-coverage",
     "jest:node": "jest --runInBand --detectOpenHandles --selectProjects node --testPathPattern",
     "jest:jsdom": "jest --runInBand --detectOpenHandles --selectProjects jsdom --testPathPattern",
-    "playwright": "playwright test --quiet",
+    "playwright": "playwright test",
     "postplaywright": "playwright-merge-coverage && full-coverage",
-    "playwright:dev": "playwright test --workers 1"
+    "playwright:dev": "playwright test --workers 1 --timeout 0 --global-timeout 0"
   }
 }

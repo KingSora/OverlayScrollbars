@@ -1,8 +1,8 @@
 module.exports = {
   project: null,
-  mode: 'build',
   verbose: false,
   banner: null,
+  useEsbuild: false,
   paths: {
     dist: './dist',
     types: './types',

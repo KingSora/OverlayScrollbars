@@ -8,7 +8,7 @@ const {
   rollupAlias,
   rollupScss,
   rollupLicense,
-} = require('./pipeline.common.plugins');
+} = require('./plugins');
 
 const moduleFormats = ['es', 'esm', 'module'];
 const createMinifiedOutput = (baseOutput) => ({
@@ -53,6 +53,7 @@ module.exports = (resolve, options) => {
         format,
         generatedCode,
         file: typeof filePathOverride === 'function' ? filePathOverride(filePath) : filePath,
+        plugins: (outputConfig.plugins || []).filter(Boolean),
       };
       const output = [baseOutput, minifiedVersion && createMinifiedOutput(baseOutput)].filter(
         Boolean
