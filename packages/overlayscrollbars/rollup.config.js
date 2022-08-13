@@ -49,6 +49,7 @@ Released under the MIT license.`,
   rollup: {
     external: Object.keys(devDependencies || {}).concat(Object.keys(peerDependencies || {})),
     output: {
+      name: 'OverlayScrollbarsGlobal',
       exports: 'auto',
       sourcemap: true,
       plugins: [
