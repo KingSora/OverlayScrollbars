@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://kingsora.github.io/OverlayScrollbars">
-    <a href="https://kingsora.github.io/OverlayScrollbars"><img src="../../logo/logo.png" width="200" height="200" alt="OverlayScrollbars"></a>
+    <a href="https://kingsora.github.io/OverlayScrollbars"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="200" height="200" alt="OverlayScrollbars"></a>
   </a>
 </p>
 <h6 align="center">
