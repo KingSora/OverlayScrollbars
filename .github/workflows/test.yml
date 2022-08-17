@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '18'
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --install-links
       - name: Run Jest
         run: npm run jest
       - uses: codecov/codecov-action@v3
