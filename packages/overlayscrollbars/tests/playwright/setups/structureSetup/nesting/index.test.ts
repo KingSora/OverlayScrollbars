@@ -5,7 +5,6 @@ playwrightRollup();
 
 test.describe('StructureSetup.nesting', () => {
   test('nesting updates', async ({ page }) => {
-    await page.click('#start');
     await expectSuccess(page);
   });
 });

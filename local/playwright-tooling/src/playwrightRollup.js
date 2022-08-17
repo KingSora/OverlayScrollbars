@@ -25,7 +25,7 @@ const createRollupBundle = async (testDir, useEsbuild, dev) => {
         }
       }
       if (code === 'BUNDLE_END') {
-        bundleOutput = output;
+        bundleOutput = output[0];
         if (result) {
           result.close();
         }
@@ -59,26 +59,32 @@ module.exports = (useEsbuild = true) => {
   let close;
   let output;
 
+  const isDev = (config, timeout) =>
+    config.globalTimeout === 0 && timeout === 0 && config.workers === 1;
+
   // eslint-disable-next-line no-empty-pattern
   test.beforeAll(async ({}, { file, config, timeout }) => {
-    const isDev = config.globalTimeout === 0 && timeout === 0 && config.workers === 1;
-
-    if (isDev) {
+    if (isDev(config, timeout)) {
       test.setTimeout(0);
     }
 
-    ({ close, url, output } = await createRollupBundle(dirname(file), useEsbuild, isDev));
+    ({ close, url, output } = await createRollupBundle(
+      dirname(file),
+      useEsbuild,
+      isDev(config, timeout)
+    ));
   });
 
-  test.beforeEach(async ({ page, browserName }, { config }) => {
-    await page.goto(url);
-    if (browserName === 'chromium' && config.quiet) {
+  test.beforeEach(async ({ page, browserName }, { config, timeout }) => {
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(500);
+    if (browserName === 'chromium' && !isDev(config, timeout)) {
       await page.coverage.startJSCoverage();
     }
   });
 
-  test.afterEach(async ({ page, browserName }, { file, config }) => {
-    if (browserName === 'chromium' && config.quiet) {
+  test.afterEach(async ({ page, browserName }, { file, config, timeout }) => {
+    if (browserName === 'chromium' && !isDev(config, timeout)) {
       const coverage = await page.coverage.stopJSCoverage();
       await collectCoverage(originalCwd, dirname(output), coverage, file);
     }

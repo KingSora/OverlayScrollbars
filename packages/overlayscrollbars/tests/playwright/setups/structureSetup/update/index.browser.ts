@@ -830,7 +830,7 @@ const start = async () => {
   setTestResult(true);
 };
 
-startBtn?.addEventListener('click', start);
+startBtn!.addEventListener('click', start);
 
 if (!useContentElement) {
   envElms.forEach((elm) => {

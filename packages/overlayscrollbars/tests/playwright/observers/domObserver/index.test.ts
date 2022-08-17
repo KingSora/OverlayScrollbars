@@ -5,7 +5,6 @@ playwrightRollup();
 
 test.describe('DOMObserver', () => {
   test('test', async ({ page }) => {
-    await page.click('#start');
     await expectSuccess(page);
   });
 });
