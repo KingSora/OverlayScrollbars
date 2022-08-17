@@ -1,3 +1,4 @@
+/*
 import { playwrightRollup, expectSuccess } from '@~local/playwright-tooling';
 import { test } from '@playwright/test';
 
@@ -9,3 +10,4 @@ test.describe('StructureSetup.elements', () => {
     await expectSuccess(page);
   });
 });
+*/

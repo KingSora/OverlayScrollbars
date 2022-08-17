@@ -1,3 +1,4 @@
+/*
 import { playwrightRollup } from '@~local/playwright-tooling';
 import { test } from '@playwright/test';
 import { InternalEnvironment } from 'environment';
@@ -12,3 +13,4 @@ test.describe('Environment', () => {
     await expect(page.title()).resolves.toMatch('environment');
   });
 });
+*/

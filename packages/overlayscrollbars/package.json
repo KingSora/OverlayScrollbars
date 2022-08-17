@@ -42,6 +42,7 @@
   "sideEffects": ["*.css", "*.scss", "*.sass"],
   "scripts": {
     "build": "rollup -c",
+    "test": "jest --coverage --runInBand --detectOpenHandles && playwright test",
     "jest": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
     "postjest": "full-coverage",
     "jest:node": "jest --runInBand --detectOpenHandles --selectProjects node --testPathPattern",

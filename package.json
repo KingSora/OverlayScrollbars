@@ -70,6 +70,7 @@
     "webpack": "^5.74.0"
   },
   "scripts": {
+    "test": "npm run test --workspace=overlayscrollbars",
     "jest": "npm run jest --workspace=overlayscrollbars",
     "playwright": "npm run playwright --workspace=overlayscrollbars",
     "playwright:dev": "npm run test:playwright:dev --workspace=overlayscrollbars",
