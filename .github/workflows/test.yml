@@ -25,10 +25,11 @@ jobs:
         run: npm run jest
       - uses: codecov/codecov-action@v3
         with:
-          flags: unittests
-      # - name: Run Playwright
-      #   run: npm run playwright
-      # - uses: codecov/codecov-action@v3
-      #   with:
-      #     files: ./coverage1.xml,./coverage2.xml
-      #     flags: uitests
+          flags: unit
+          files: "**\"jest\"coverage-final.json"
+      - name: Run Playwright
+        run: npm run playwright
+      - uses: codecov/codecov-action@v3
+        with:
+          flags: ui
+          files: "**\"playwright\"coverage-final.json"
