@@ -26,10 +26,10 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           flags: unit
-          files: "**\jest\coverage-final.json"
+          files: "**/jest/coverage*.json"
       - name: Run Playwright
         run: npm run playwright
       - uses: codecov/codecov-action@v3
         with:
           flags: ui
-          files: "**\playwright\coverage-final.json"
+          files: "**/playwright/coverage*.json"
