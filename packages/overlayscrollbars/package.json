@@ -42,13 +42,14 @@
   "sideEffects": ["*.css", "*.scss", "*.sass"],
   "scripts": {
     "build": "rollup -c",
-    "test": "jest --coverage --runInBand --detectOpenHandles && playwright test",
-    "jest": "jest --coverage --runInBand --detectOpenHandles --testPathPattern",
-    "postjest": "full-coverage",
-    "jest:node": "jest --runInBand --detectOpenHandles --selectProjects node --testPathPattern",
-    "jest:jsdom": "jest --runInBand --detectOpenHandles --selectProjects jsdom --testPathPattern",
+    "test": "jest --coverage && playwright test",
+    "jest": "jest --coverage --testPathPattern",
+    "jest:node": "jest --selectProjects node --testPathPattern",
+    "jest:jsdom": "jest --selectProjects jsdom --testPathPattern",
     "playwright": "playwright test",
-    "postplaywright": "playwright-merge-coverage && full-coverage",
-    "playwright:dev": "playwright test --workers 1 --timeout 0 --global-timeout 0"
+    "playwright:dev": "playwright test --workers 1 --timeout 0 --global-timeout 0",
+    "posttest": "playwright-merge-coverage && full-coverage",
+    "postjest": "full-coverage",
+    "postplaywright": "playwright-merge-coverage && full-coverage"
   }
 }

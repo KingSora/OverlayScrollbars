@@ -28,7 +28,7 @@ jobs:
           flags: unit
           files: "**/jest/coverage*.json"
       - name: Run Playwright
-        run: xvfb-run npm run playwright
+        run: xvfb-run npm run playwright sizeObserver
       - uses: codecov/codecov-action@v3
         with:
           flags: ui
