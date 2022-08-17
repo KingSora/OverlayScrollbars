@@ -1,19 +1,36 @@
-// @ts-ignore
-import {
-  createDiv,
-  appendChildren,
-  parent,
-  style,
-  on,
-  off,
-  addClass,
-  WH,
-  XY,
-  clientSize,
-  each,
-} from './support';
-
 type ResizeListener = (width: number, height: number) => void;
+interface WH<T = number> {
+  w: T;
+  h: T;
+}
+interface XY<T = number> {
+  x: T;
+  y: T;
+}
+
+const splitEventNames = (eventNames: string) => eventNames.split(' ');
+const on = <T extends Event = Event>(
+  target: EventTarget,
+  eventNames: string,
+  listener: (event: T) => any
+): void => {
+  splitEventNames(eventNames).forEach((eventName) => {
+    target.addEventListener(eventName, listener as EventListener);
+  });
+};
+const off = <T extends Event = Event>(
+  target: EventTarget,
+  eventNames: string,
+  listener: (event: T) => any
+): void => {
+  splitEventNames(eventNames).forEach((eventName) => {
+    target.removeEventListener(eventName, listener as EventListener);
+  });
+};
+const clientSize = (elm: HTMLElement): WH => ({
+  w: elm.clientWidth,
+  h: elm.clientHeight,
+});
 
 export const resize = (element: HTMLElement) => {
   const resizeListeners: ResizeListener[] = [];
@@ -23,9 +40,10 @@ export const resize = (element: HTMLElement) => {
   const strSelectStartEvent = 'selectstart';
   const dragStartSize: WH<number> = { w: 0, h: 0 };
   const dragStartPosition: XY<number> = { x: 0, y: 0 };
-  const resizeBtn = createDiv('resizeBtn');
-  appendChildren(element, resizeBtn);
-  addClass(element, 'resizer');
+  const resizeBtn = document.createElement('div');
+  resizeBtn.classList.add('resizeBtn');
+  element.append(resizeBtn);
+  element.classList.add('resizer');
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let dragResizeBtn: HTMLElement | undefined;
@@ -47,14 +65,14 @@ export const resize = (element: HTMLElement) => {
       height: dragStartSize.h + mouseOffsetHolder.pageY - dragStartPosition.y,
     };
 
-    style(dragResizer, sizeStyle);
+    dragResizer!.style.width = `${sizeStyle.width}px`;
+    dragResizer!.style.height = `${sizeStyle.height}px`;
 
-    each(resizeListeners, (listener: ResizeListener) => {
+    resizeListeners.forEach((listener: ResizeListener) => {
       if (listener) {
         listener(sizeStyle.width, sizeStyle.height);
       }
     });
-
     event.stopPropagation();
   };
 
@@ -67,38 +85,33 @@ export const resize = (element: HTMLElement) => {
     dragResizeBtn = undefined;
   };
 
-  on(
-    resizeBtn,
-    strMouseTouchDownEvent,
-    (event: MouseEvent | TouchEvent) => {
-      const { currentTarget } = event;
-      const correctButton = (event as MouseEvent).buttons === 1 || event.which === 1;
-      const isTouchEvent = (event as TouchEvent).touches !== undefined;
-      const mouseOffsetHolder = isTouchEvent
-        ? (event as TouchEvent).touches[0]
-        : (event as MouseEvent);
+  on(resizeBtn, strMouseTouchDownEvent, (event: MouseEvent | TouchEvent) => {
+    const { currentTarget } = event;
+    const correctButton = (event as MouseEvent).buttons === 1 || event.which === 1;
+    const isTouchEvent = (event as TouchEvent).touches !== undefined;
+    const mouseOffsetHolder = isTouchEvent
+      ? (event as TouchEvent).touches[0]
+      : (event as MouseEvent);
 
-      if (correctButton || isTouchEvent) {
-        dragStartPosition.x = mouseOffsetHolder.pageX;
-        dragStartPosition.y = mouseOffsetHolder.pageY;
+    if (correctButton || isTouchEvent) {
+      dragStartPosition.x = mouseOffsetHolder.pageX;
+      dragStartPosition.y = mouseOffsetHolder.pageY;
 
-        dragResizeBtn = currentTarget as HTMLElement;
-        dragResizer = parent(currentTarget as HTMLElement) as HTMLElement;
+      dragResizeBtn = currentTarget as HTMLElement;
+      dragResizer = (currentTarget as HTMLElement).parentElement as HTMLElement;
 
-        const cSize = clientSize(element);
-        dragStartSize.w = cSize.w;
-        dragStartSize.h = cSize.h;
+      const cSize = clientSize(element);
+      dragStartSize.w = cSize.w;
+      dragStartSize.h = cSize.h;
 
-        on(document, strSelectStartEvent, onSelectStart, { _passive: false });
-        on(document, strMouseTouchMoveEvent, resizerResize, { _passive: false });
-        on(document, strMouseTouchUpEvent, resizerResized, { _passive: false });
+      on(document, strSelectStartEvent, onSelectStart);
+      on(document, strMouseTouchMoveEvent, resizerResize);
+      on(document, strMouseTouchUpEvent, resizerResized);
 
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    },
-    { _passive: false }
-  );
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  });
 
   return {
     addResizeListener(listener: ResizeListener) {
