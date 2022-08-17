@@ -4,7 +4,7 @@ const startSelector = '#start';
 const resultSelector = '#testResult';
 
 // default timeout = // 10mins
-module.exports = async (page, timeout = 10 * 60 * 1000) => {
+module.exports = async (page, timeout = 10 * 60 * 2000) => {
   await page.waitForLoadState('domcontentloaded', { timeout: 5000 });
   await page.click(startSelector, { timeout: 1000 });
 
