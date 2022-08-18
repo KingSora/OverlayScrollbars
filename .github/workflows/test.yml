@@ -23,12 +23,12 @@ jobs:
         run: npm ci --install-links
       - name: Run Jest
         run: npm run jest
-      - name: Run Playwright
-        run: xvfb-run npm run playwright
       - uses: codecov/codecov-action@v3
         with:
           flags: unit
           files: "**/jest/coverage*.json"
+      - name: Run Playwright
+        run: xvfb-run npm run playwright
       - uses: codecov/codecov-action@v3
         with:
           flags: ui
