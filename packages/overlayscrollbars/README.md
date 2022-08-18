@@ -7,14 +7,14 @@
     <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square" alt="Downloads"></a>
     <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version"></a>
     <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
+    <a href="https://app.codecov.io/gh/KingSora/OverlayScrollbars"><img src="https://img.shields.io/codecov/c/github/KingSora/OverlayScrollbars?style=flat-square" alt="Code Coverage"></a>
     <a href="https://bundlephobia.com/package/overlayscrollbars"><img src="https://img.shields.io/bundlephobia/minzip/overlayscrollbars?label=max.%20bundle%20size&style=flat-square" alt="Max. Bundle Size"></a>
 </h6>
-
-
 
 > OverlayScrollbars is a javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.
 
 > This is the documentation for version `2.x`. which is currently in beta. You can read the version `1.x` docs [here](https://github.com/KingSora/OverlayScrollbars/tree/v1.x) or on the [website](https://kingsora.github.io/OverlayScrollbars/#!overview).  
+
 ## Why
 
 I've created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.

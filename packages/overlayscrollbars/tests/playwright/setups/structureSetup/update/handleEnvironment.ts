@@ -6,6 +6,7 @@ import { addClass } from 'support';
   const params = url.searchParams;
 
   /**
+   * fast: faster but not so accurate run
    * nsh: native scrollbar hiding
    * fbg: flexbox glue
    * ccp: css custom props
@@ -14,7 +15,7 @@ import { addClass } from 'support';
    * vpt: viewport is target
    * pa: padding absolute
    */
-  ['nsh', 'fbg', 'ccp', 'po', 'fo', 'vpt', 'pa'].forEach((param) => {
+  ['fast', 'nsh', 'fbg', 'ccp', 'po', 'fo', 'vpt', 'pa'].forEach((param) => {
     const paramValue = Boolean(params.get(param));
 
     if (paramValue) {

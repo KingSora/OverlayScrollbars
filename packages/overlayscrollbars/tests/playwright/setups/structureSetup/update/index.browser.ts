@@ -27,6 +27,8 @@ import {
   createDOM,
   hasClass,
   createDiv,
+  removeElements,
+  removeClass,
 } from 'support';
 import { Options } from 'options';
 import { DeepPartial } from 'typings';
@@ -77,7 +79,6 @@ interface Metrics {
     height: number;
   };
 }
-
 interface CheckComparisonObj {
   updCount: number;
   metrics: Metrics;
@@ -102,7 +103,8 @@ const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
 
-const paddingAbsolute = hasClass(document.body, 'pa');
+const initialPaddingAbsolute = hasClass(document.body, 'pa');
+const isFastTestRun = hasClass(document.body, 'fast');
 const useContentElement = false;
 const fixedDigits = msie11 ? 1 : 3;
 const fixedDigitsOffset = 3;
@@ -122,6 +124,8 @@ const targetOptionsSlot: HTMLElement | null = document.querySelector('#options')
 const targetUpdatesSlot: HTMLElement | null = document.querySelector('#updates');
 const comparisonContentElm: HTMLElement = document.createElement('div');
 const envElms = document.querySelectorAll<HTMLElement>('.env');
+const getComparisonViewport = () =>
+  (comparison?.querySelector(`.${classNameViewport}`) || comparison) as HTMLElement;
 
 const initObj = hasClass(document.body, 'vpt')
   ? {
@@ -146,19 +150,37 @@ const osInstance =
   (window.os = OverlayScrollbars(
     initObj,
     {
-      paddingAbsolute,
+      paddingAbsolute: initialPaddingAbsolute,
     },
     {
-      updated() {
+      updated(instance) {
         updateCount++;
+        const { paddingAbsolute, overflow } = instance.options();
+        const comparisonViewport = getComparisonViewport();
+
+        if (paddingAbsolute) {
+          if (comparisonViewport === comparison) {
+            addClass(document.body, 'pa');
+            const absoluteWrapper = createDiv(classNameViewport);
+            appendChildren(absoluteWrapper, contents(comparison));
+
+            appendChildren(comparison, absoluteWrapper);
+          }
+        } else if (comparisonViewport !== comparison) {
+          removeClass(document.body, 'pa');
+          appendChildren(comparison, contents(comparisonViewport));
+          removeElements(comparisonViewport);
+        }
+
         requestAnimationFrame(() => {
           if (targetUpdatesSlot) {
             targetUpdatesSlot.textContent = `${updateCount}`;
           }
           if (targetOptionsSlot) {
             targetOptionsSlot.textContent = JSON.stringify(
-              assignDeep({}, osInstance.options().overflow, {
-                paddingAbsolute: osInstance.options().paddingAbsolute,
+              assignDeep({}, overflow, {
+                paddingAbsolute,
+                viewportIsTarget: instance.elements().viewport === target,
               }),
               null,
               2
@@ -169,8 +191,6 @@ const osInstance =
     }
   ));
 
-const getComparisonViewport = () =>
-  paddingAbsolute ? (comparison!.firstElementChild as HTMLElement) : comparison;
 const getMetrics = (elm: HTMLElement): Metrics => {
   // const rounding = isFractionalPixelRatio() ? Math.round : (num: number) => num;
   const elmIsTarget = elm === target;
@@ -185,7 +205,6 @@ const getMetrics = (elm: HTMLElement): Metrics => {
       width: Math.max(0, comparisonViewport!.scrollWidth - comparisonViewport!.clientWidth),
       height: Math.max(0, comparisonViewport!.scrollHeight - comparisonViewport!.clientHeight),
     };
-    console.log(elm, amount, comparisonViewport);
     return {
       width: condition(amount.width) ? amount.width : 0,
       height: condition(amount.height) ? amount.height : 0,
@@ -348,8 +367,6 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
       const scrollWidth = targetMetrics.scroll.width - comparisonMetrics.scroll.width;
       const scrollHeight = targetMetrics.scroll.height - comparisonMetrics.scroll.height;
       if (scrollWidth !== 0 || scrollHeight !== 0) {
-        console.log(scrollWidth);
-        console.log(scrollHeight);
         roundingElm!.textContent = `${(parseInt(roundingElm!.textContent || '0', 10) || 0) + 1}`;
       }
     } else {
@@ -550,10 +567,10 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
 const iterate = async (
   select: HTMLSelectElement | null,
   afterEach?: () => any,
-  skippedItems?: string[]
+  skippedItems?: string[] | false | null
 ) => {
   await iterateSelect<CheckComparisonObj>(select, {
-    filter: (item: string) => !skippedItems?.includes(item),
+    filter: skippedItems ? (item: string) => !skippedItems?.includes(item) : undefined,
     beforeEach() {
       const metrics = getMetrics(comparison!);
       return {
@@ -575,10 +592,10 @@ const iterateEnvHeight = async (afterEach?: () => any) => {
   await iterate(envHeightSelect, afterEach);
 };
 */
-const iterateHeight = async (afterEach?: () => any, skippedItems?: string[]) => {
+const iterateHeight = async (afterEach?: () => any, skippedItems?: string[] | false | null) => {
   await iterate(containerHeightSelect, afterEach, skippedItems);
 };
-const iterateWidth = async (afterEach?: () => any, skippedItems?: string[]) => {
+const iterateWidth = async (afterEach?: () => any, skippedItems?: string[] | false | null) => {
   await iterate(containerWidthSelect, afterEach, skippedItems);
 };
 /*
@@ -586,10 +603,10 @@ const iterateFloat = async (afterEach?: () => any) => {
   await iterate(containerFloatSelect, afterEach);
 };
 */
-const iteratePadding = async (afterEach?: () => any, skippedItems?: string[]) => {
+const iteratePadding = async (afterEach?: () => any, skippedItems?: string[] | false | null) => {
   await iterate(containerPaddingSelect, afterEach, skippedItems);
 };
-const iterateBorder = async (afterEach?: () => any, skippedItems?: string[]) => {
+const iterateBorder = async (afterEach?: () => any, skippedItems?: string[] | false | null) => {
   await iterate(containerBorderSelect, afterEach, skippedItems);
 };
 /*
@@ -765,45 +782,34 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
     removeAttr(comparisonEnd, 'style');
   };
 
+  const withSkippedItems = osOptions || isFastTestRun;
+
   if (osOptions) {
     osInstance.options(osOptions);
-
-    await iterateMinMax(async () => {
-      await iterateBoxSizing(async () => {
-        await iterateHeight(async () => {
-          await iterateWidth(async () => {
-            await iterateBorder(async () => {
-              await iteratePadding(async () => {
-                await iterateOverflow();
-              }, ['paddingLarge']);
-            }, ['borderSmall']);
-          }, ['widthHundred']);
-        }, ['heightHundred']);
-      });
-    });
-  } else {
-    await iterateMinMax(async () => {
-      await iterateBoxSizing(async () => {
-        await iterateHeight(async () => {
-          await iterateWidth(async () => {
-            await iterateBorder(async () => {
-              // assume this part isn't critical
-              /*
-            await iterateFloat(async () => {
-              await iterateMargin();
-            });
-            */
-
-              await iteratePadding(async () => {
-                await iterateOverflow();
-              });
-              await iterateDirection();
-            });
-          });
-        });
-      });
-    });
   }
+
+  await iterateMinMax(async () => {
+    await iterateBoxSizing(async () => {
+      await iterateHeight(async () => {
+        await iterateWidth(async () => {
+          await iterateBorder(async () => {
+            // assume this part isn't critical
+            // await iterateFloat(async () => {
+            //   await iterateMargin();
+            // });
+            await iteratePadding(async () => {
+              await iterateOverflow();
+            }, withSkippedItems && ['paddingLarge']);
+
+            // assume this part isn't critical for special options
+            if (!osOptions) {
+              await iterateDirection();
+            }
+          }, withSkippedItems && ['borderSmall']);
+        }, withSkippedItems && ['widthHundred']);
+      }, withSkippedItems && ['heightHundred']);
+    });
+  });
 };
 
 const start = async () => {
@@ -812,17 +818,28 @@ const start = async () => {
   target?.removeAttribute('style');
   try {
     await overflowTest();
+
+    osInstance.options({ paddingAbsolute: !initialPaddingAbsolute });
+
+    await overflowTest();
+
+    osInstance.options({ paddingAbsolute: initialPaddingAbsolute });
+
     await overflowTest({ overflow: { x: 'visible', y: 'visible' } });
-    await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
-    await overflowTest({ overflow: { x: 'visible-hidden', y: 'hidden' } });
-    await overflowTest({ overflow: { x: 'visible', y: 'visible-scroll' } });
-    await overflowTest({ overflow: { x: 'scroll', y: 'visible-scroll' } });
     await overflowTest({ overflow: { x: 'hidden', y: 'scroll' } });
-    await overflowTest({ overflow: { x: 'scroll', y: 'hidden' } });
-    await overflowTest({ overflow: { x: 'visible', y: 'scroll' } });
-    await overflowTest({ overflow: { x: 'scroll', y: 'visible' } });
-    await overflowTest({ overflow: { x: 'visible', y: 'hidden' } });
-    await overflowTest({ overflow: { x: 'hidden', y: 'visible' } });
+    await overflowTest({ overflow: { x: 'visible-hidden', y: 'scroll' } });
+    await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
+
+    if (!isFastTestRun) {
+      await overflowTest({ overflow: { x: 'hidden', y: 'visible' } });
+      await overflowTest({ overflow: { x: 'visible', y: 'scroll' } });
+      await overflowTest({ overflow: { x: 'visible-hidden', y: 'hidden' } });
+      await overflowTest({ overflow: { x: 'visible', y: 'visible-scroll' } });
+      await overflowTest({ overflow: { x: 'scroll', y: 'visible-scroll' } });
+      await overflowTest({ overflow: { x: 'scroll', y: 'hidden' } });
+      await overflowTest({ overflow: { x: 'scroll', y: 'visible' } });
+      await overflowTest({ overflow: { x: 'visible', y: 'hidden' } });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -841,11 +858,4 @@ if (!useContentElement) {
   addClass(comparisonContentElm, 'comparisonContent');
   appendChildren(comparison, comparisonContentElm);
   appendChildren(comparisonContentElm, elms);
-}
-
-if (paddingAbsolute) {
-  const absoluteWrapper = createDiv(classNameViewport);
-  appendChildren(absoluteWrapper, contents(comparison));
-
-  appendChildren(comparison, absoluteWrapper);
 }

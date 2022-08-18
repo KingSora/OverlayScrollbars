@@ -1,14 +1,14 @@
 import { createEventListenerHub } from 'support/eventListeners';
 
 type EventMap = {
-  onBoolean: [boolean, string];
+  onBoolean: [a: boolean, b: string];
   onUndefined: [];
 };
 
 describe('eventListeners', () => {
   describe('createEventListenerHub', () => {
     test('initialization', () => {
-      const onBooleanA = jest.fn();
+      const onBooleanA = jest.fn((a: boolean, b: string) => a + b);
       const onBooleanB = jest.fn();
       const onUndefined = jest.fn();
       const [, , triggerEvent] = createEventListenerHub<EventMap>({
@@ -28,7 +28,7 @@ describe('eventListeners', () => {
     });
 
     test('addEvent', () => {
-      const onBooleanA = jest.fn();
+      const onBooleanA = jest.fn((a: boolean, b: string) => a + b);
       const onBooleanB = jest.fn();
       const onUndefinedA = jest.fn();
       const onUndefinedB = jest.fn();

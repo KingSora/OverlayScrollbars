@@ -91,7 +91,9 @@ export const iterateSelect = async <T>(
   if (select) {
     const { beforeEach = noop, check = noop, afterEach = noop, filter } = options || {};
     const selectOptions = getSelectOptions(select);
-    const selectOptionsReversed = getSelectOptions(select).reverse();
+    const selectOptionsReversed = getSelectOptions(select)
+      .reverse()
+      .filter((_, i) => i > 0);
     const iterateOptions = [...selectOptions, ...selectOptionsReversed].filter(
       filter || (() => true)
     );
