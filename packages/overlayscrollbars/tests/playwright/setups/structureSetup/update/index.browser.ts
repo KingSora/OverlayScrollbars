@@ -841,6 +841,8 @@ const start = async () => {
       await overflowTest({ overflow: { x: 'scroll', y: 'visible' } });
       await overflowTest({ overflow: { x: 'visible', y: 'hidden' } });
     }
+
+    setTestResult(true);
   } catch (e: any) {
     console.error(e.message, {
       expected: e.expected,
@@ -848,7 +850,6 @@ const start = async () => {
       operator: e.operator,
     });
   }
-  setTestResult(true);
 };
 
 startBtn!.addEventListener('click', start);
