@@ -2,15 +2,14 @@ const { expect } = require('@playwright/test');
 
 const startSelector = '#start';
 const resultSelector = '#testResult';
-const logError = (page, msg) => {
+const logError = async (page, msg) => {
   const title = await page.title();
   // eslint-disable-next-line no-console
   console.error(title, msg);
-}
+};
 
 // default timeout = // 10mins
 module.exports = async (page, timeout = 10 * 60 * 2000) => {
-  
   page.on('pageerror', (err) => {
     logError(page, err.message);
   });
