@@ -844,11 +844,18 @@ const start = async () => {
 
     setTestResult(true);
   } catch (e: any) {
-    console.error(e.message, {
-      expected: e.expected,
-      actual: e.actual,
-      operator: e.operator,
-    });
+    console.error(
+      e.message,
+      {
+        expected: e.expected,
+        actual: e.actual,
+        operator: e.operator,
+      },
+      {
+        updateCount,
+        info: targetOptionsSlot!.textContent,
+      }
+    );
   }
 };
 
