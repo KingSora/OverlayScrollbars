@@ -29,9 +29,9 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: overlayscrollbars,unit
-          files: "overlayscrollbars/**/jest/coverage*.json"
+          files: "**/overlayscrollbars/**/jest/coverage*.json"
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
           flags: overlayscrollbars,ui
-          files: "overlayscrollbars/**/playwright/coverage*.json"
+          files: "**/overlayscrollbars/**/playwright/coverage*.json"

@@ -3,8 +3,6 @@ import { test, Page } from '@playwright/test';
 
 playwrightRollup();
 
-test.describe.configure({ mode: 'parallel' });
-
 const createTests = (fast?: boolean) => {
   [false, true].forEach((viewportIsTarget) => {
     const isOrIsNot = viewportIsTarget ? 'is' : 'is not';
