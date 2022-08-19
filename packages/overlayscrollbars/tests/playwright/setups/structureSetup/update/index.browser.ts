@@ -817,30 +817,37 @@ const start = async () => {
 
   target?.removeAttribute('style');
 
-  await overflowTest();
+  try {
+    await overflowTest();
 
-  osInstance.options({ paddingAbsolute: !initialPaddingAbsolute });
+    osInstance.options({ paddingAbsolute: !initialPaddingAbsolute });
 
-  await overflowTest();
+    await overflowTest();
 
-  osInstance.options({ paddingAbsolute: initialPaddingAbsolute });
+    osInstance.options({ paddingAbsolute: initialPaddingAbsolute });
 
-  await overflowTest({ overflow: { x: 'visible', y: 'visible' } });
-  await overflowTest({ overflow: { x: 'hidden', y: 'scroll' } });
-  await overflowTest({ overflow: { x: 'visible-hidden', y: 'scroll' } });
-  await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
+    await overflowTest({ overflow: { x: 'visible', y: 'visible' } });
+    await overflowTest({ overflow: { x: 'hidden', y: 'scroll' } });
+    await overflowTest({ overflow: { x: 'visible-hidden', y: 'scroll' } });
+    await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
 
-  if (!isFastTestRun) {
-    await overflowTest({ overflow: { x: 'hidden', y: 'visible' } });
-    await overflowTest({ overflow: { x: 'visible', y: 'scroll' } });
-    await overflowTest({ overflow: { x: 'visible-hidden', y: 'hidden' } });
-    await overflowTest({ overflow: { x: 'visible', y: 'visible-scroll' } });
-    await overflowTest({ overflow: { x: 'scroll', y: 'visible-scroll' } });
-    await overflowTest({ overflow: { x: 'scroll', y: 'hidden' } });
-    await overflowTest({ overflow: { x: 'scroll', y: 'visible' } });
-    await overflowTest({ overflow: { x: 'visible', y: 'hidden' } });
+    if (!isFastTestRun) {
+      await overflowTest({ overflow: { x: 'hidden', y: 'visible' } });
+      await overflowTest({ overflow: { x: 'visible', y: 'scroll' } });
+      await overflowTest({ overflow: { x: 'visible-hidden', y: 'hidden' } });
+      await overflowTest({ overflow: { x: 'visible', y: 'visible-scroll' } });
+      await overflowTest({ overflow: { x: 'scroll', y: 'visible-scroll' } });
+      await overflowTest({ overflow: { x: 'scroll', y: 'hidden' } });
+      await overflowTest({ overflow: { x: 'scroll', y: 'visible' } });
+      await overflowTest({ overflow: { x: 'visible', y: 'hidden' } });
+    }
+  } catch (e: any) {
+    console.error(e.message, {
+      expected: e.expected,
+      actual: e.actual,
+      operator: e.operator,
+    });
   }
-
   setTestResult(true);
 };
 
