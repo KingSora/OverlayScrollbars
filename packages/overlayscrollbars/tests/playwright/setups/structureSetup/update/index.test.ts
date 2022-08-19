@@ -28,11 +28,12 @@ const createTests = (fast?: boolean) => {
           }
         };
 
+        // Viewport is target should only be initialized when nativeScrollbarHiding is supported thus tests with this combo doesnt make sense
+        if (!nativeScrollbarHiding && viewportIsTarget) {
+          return;
+        }
+
         test.beforeEach(async ({ page }) => {
-          test.skip(
-            !nativeScrollbarHiding && viewportIsTarget,
-            'Viewport is target should only be initialized when nativeScrollbarHiding is supported.'
-          );
           await setFast(page);
           await setTargetIsVp(page);
           await nsh(page);
@@ -72,10 +73,14 @@ const createTests = (fast?: boolean) => {
   });
 };
 
-test.describe('StructureSetup.update @special', () => {
-  createTests();
-});
+test.describe.configure({ mode: 'parallel' });
 
 test.describe('StructureSetup.update', () => {
-  createTests(true);
+  test.describe('default', () => {
+    createTests(true);
+  });
+
+  test.describe('@special', () => {
+    createTests();
+  });
 });

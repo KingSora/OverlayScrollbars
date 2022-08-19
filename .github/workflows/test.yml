@@ -23,13 +23,15 @@ jobs:
         run: npm ci --install-links
       - name: Run Jest
         run: npm run jest
-      - uses: codecov/codecov-action@v3
-        with:
-          flags: unit
-          files: "**/jest/coverage*.json"
       - name: Run Playwright
         run: xvfb-run npm run playwright
-      - uses: codecov/codecov-action@v3
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
         with:
-          flags: ui
-          files: "**/playwright/coverage*.json"
+          flags: overlayscrollbars,unit
+          files: "overlayscrollbars/**/jest/coverage*.json"
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          flags: overlayscrollbars,ui
+          files: "overlayscrollbars/**/playwright/coverage*.json"

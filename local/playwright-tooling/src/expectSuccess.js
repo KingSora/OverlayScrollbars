@@ -8,8 +8,8 @@ const logError = async (page, ...args) => {
   console.log(title, ...args);
 };
 
-// default timeout = // 10mins
-module.exports = async (page, timeout = 10 * 60 * 2000) => {
+// default timeout = // 15mins
+module.exports = async (page, timeout = 10 * 60 * 1500) => {
   page.on('pageerror', (err) => {
     logError(page, err.message);
   });

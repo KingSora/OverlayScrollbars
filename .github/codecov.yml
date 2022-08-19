@@ -1,0 +1,16 @@
+codecov: require_ci_to_pass: no;
+notify: wait_for_ci: no;
+
+coverage:
+  status:
+    project: off
+    patch: off
+
+
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: overlayscrollbars
+      paths:
+        - packages/overlayscrollbars
