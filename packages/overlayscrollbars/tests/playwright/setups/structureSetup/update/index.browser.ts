@@ -131,7 +131,7 @@ const initObj = hasClass(document.body, 'vpt')
   ? {
       target: target!,
       elements: {
-        viewport: target!,
+        viewport: OverlayScrollbars.env().scrollbarsHiding && target!,
         content: useContentElement,
       },
     }
@@ -844,6 +844,8 @@ const start = async () => {
 
     setTestResult(true);
   } catch (e: any) {
+    const { scrollbarsSize, scrollbarsOverlaid, scrollbarsHiding, rtlScrollBehavior, flexboxGlue } =
+      OverlayScrollbars.env();
     console.error(
       e.message,
       {
@@ -853,7 +855,16 @@ const start = async () => {
       },
       {
         updateCount,
-        info: targetOptionsSlot!.textContent,
+        env: {
+          scrollbarsSize,
+          scrollbarsOverlaid,
+          scrollbarsHiding,
+          rtlScrollBehavior,
+          flexboxGlue,
+        },
+        opts: targetOptionsSlot!.textContent,
+        flags: document.body.getAttribute('class'),
+        devicePixelRatio: window.devicePixelRatio,
       }
     );
   }

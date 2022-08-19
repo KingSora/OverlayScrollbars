@@ -5,7 +5,9 @@ module.exports = {
   timeout: 10 * 60 * 2000,
   navigationTimeout: 1000,
   retries: 0,
+  maxFailures: 0,
   workers: 4,
+  fullyParallel: true,
   projects: [
     {
       name: 'Chromium',

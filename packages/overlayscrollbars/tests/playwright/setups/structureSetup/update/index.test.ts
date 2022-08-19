@@ -3,38 +3,42 @@ import { test, Page } from '@playwright/test';
 
 playwrightRollup();
 
+test.describe.configure({ mode: 'parallel' });
+
 const createTests = (fast?: boolean) => {
-  [false, true].forEach((targetIsViewport) => {
-    const isOrIsNot = targetIsViewport ? 'is' : 'is not';
+  [false, true].forEach((viewportIsTarget) => {
+    const isOrIsNot = viewportIsTarget ? 'is' : 'is not';
     const setTargetIsVp = async (page: Page) => {
-      if (targetIsViewport) {
+      if (viewportIsTarget) {
         await page.click('#vpt');
       }
     };
     const setFast = async (page: Page) => {
-      if (fast || targetIsViewport) {
+      if (fast || viewportIsTarget) {
         await page.click('#fast');
       }
     };
 
     test.describe(`target ${isOrIsNot} viewport`, () => {
-      [false, true].forEach((nativeScrollbarStyling) => {
-        const withText = nativeScrollbarStyling ? 'with' : 'without';
+      [false, true].forEach((nativeScrollbarHiding) => {
+        const withText = nativeScrollbarHiding ? 'with' : 'without';
         const nsh = async (page: Page) => {
-          if (!nativeScrollbarStyling) {
+          if (!nativeScrollbarHiding) {
             await page.click('#nsh');
           }
         };
 
         test.beforeEach(async ({ page }) => {
+          test.skip(
+            !nativeScrollbarHiding && viewportIsTarget,
+            'Viewport is target should only be initialized when nativeScrollbarHiding is supported.'
+          );
           await setFast(page);
           await setTargetIsVp(page);
           await nsh(page);
         });
 
         test.describe(`${withText} native scrollbar styling`, () => {
-          // test.describe.configure({ mode: 'parallel' });
-
           test('default', async ({ page }) => {
             await expectSuccess(page);
           });
