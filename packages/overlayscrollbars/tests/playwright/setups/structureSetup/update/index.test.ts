@@ -31,13 +31,13 @@ const createTests = (fast?: boolean) => {
           return;
         }
 
-        test.beforeEach(async ({ page }) => {
-          await setFast(page);
-          await setTargetIsVp(page);
-          await nsh(page);
-        });
-
         test.describe(`${withText} native scrollbar styling`, () => {
+          test.beforeEach(async ({ page }) => {
+            await setFast(page);
+            await setTargetIsVp(page);
+            await nsh(page);
+          });
+
           test('default', async ({ page }) => {
             await expectSuccess(page);
           });
@@ -65,6 +65,16 @@ const createTests = (fast?: boolean) => {
 
             await expectSuccess(page);
           });
+
+          if (!nativeScrollbarHiding) {
+            test('with fully overlaid scrollbars and flexbox glue', async ({ page }) => {
+              await page.click('#fo');
+              await page.click('#fbg');
+              await page.click('#ccp');
+
+              await expectSuccess(page);
+            });
+          }
         });
       });
     });

@@ -829,9 +829,10 @@ const start = async () => {
     await overflowTest({ overflow: { x: 'visible', y: 'visible' } });
     await overflowTest({ overflow: { x: 'hidden', y: 'scroll' } });
     await overflowTest({ overflow: { x: 'visible-hidden', y: 'scroll' } });
-    await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
+    await overflowTest({ overflow: { x: 'scroll', y: 'visible-scroll' } });
 
     if (!isFastTestRun) {
+      await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
       await overflowTest({ overflow: { x: 'hidden', y: 'visible' } });
       await overflowTest({ overflow: { x: 'visible', y: 'scroll' } });
       await overflowTest({ overflow: { x: 'visible-hidden', y: 'hidden' } });
