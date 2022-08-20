@@ -5,10 +5,12 @@ const path = require('path');
 const rollupPluginStyles = require('rollup-plugin-styles');
 const rollupPluginServe = require('rollup-plugin-serve');
 const rollupPluginLivereload = require('rollup-plugin-livereload');
+const resolve = require('@~local/config/resolve');
 
 const rollupPluginHtml = require('./rollup.pluginHtml');
 const createRollupConfig = require('../createRollupConfig');
 const rollupAdditionalWatchFiles = require('./rollup.pluginAdditionalWatchFiles');
+const rollupIstanbul = require('./rollup.pluginIstanbul');
 
 const portRange = {
   min: 20000,
@@ -80,7 +82,7 @@ module.exports = (testDir, useEsbuild, dev) => {
       context: 'this',
       moduleContext: () => 'this',
       output: {
-        sourcemap: isDev,
+        sourcemap: !isDev,
       },
       plugins: [
         rollupPluginStyles(),
@@ -103,6 +105,11 @@ module.exports = (testDir, useEsbuild, dev) => {
             watch: dist,
             port: port - 1,
             verbose: false,
+          }),
+        !isDev &&
+          rollupIstanbul({
+            include: resolve.extensions.map((extension) => `/**/*${extension}`).flat(),
+            exclude: ['**/node_modules/**', `**/${path.relative(process.cwd(), testDir)}/**`],
           }),
       ],
     },

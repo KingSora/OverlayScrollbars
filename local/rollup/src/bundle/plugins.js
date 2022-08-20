@@ -59,8 +59,9 @@ module.exports = {
           });
     }
   },
-  rollupEsBuild: () =>
+  rollupEsBuild: (sourceMap) =>
     rollupPluginEsBuild({
+      sourceMap,
       include: /\.[jt]sx?$/,
       target: 'es6',
     }),

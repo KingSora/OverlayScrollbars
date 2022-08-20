@@ -20,7 +20,7 @@ module.exports = (resolve, options) => {
         banner,
         minified
       ),
-      rollupEsBuild(),
+      rollupEsBuild(false),
       rollupResolve(resolve, (module) =>
         resolve.styleExtensions.some((ext) => module.endsWith(ext))
       ),

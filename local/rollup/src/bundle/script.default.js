@@ -53,7 +53,6 @@ module.exports = (resolve, options) => {
         format,
         generatedCode,
         file: typeof filePathOverride === 'function' ? filePathOverride(filePath) : filePath,
-        plugins: (outputConfig.plugins || []).filter(Boolean),
       };
       const output = [baseOutput, minifiedVersion && createMinifiedOutput(baseOutput)].filter(
         Boolean
@@ -72,7 +71,7 @@ module.exports = (resolve, options) => {
           rollupCommonjs(sourcemap, resolve),
           rollupBabel(resolve, generatedCode === 'es2015'),
           ...plugins,
-        ].filter(Boolean),
+        ],
       };
     })
     .flat();

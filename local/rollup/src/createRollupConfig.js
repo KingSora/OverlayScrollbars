@@ -84,6 +84,8 @@ const mergeAndResolveOptions = (userOptions) => {
     },
   };
   const { dist, types, styles } = mergedOptions.paths;
+  const pluginFromFn = (plugin) =>
+    typeof plugin === 'function' ? plugin(mergedOptions, workspaceRoot, workspaces) : plugin;
 
   mergedOptions.paths.dist = resolvePath(projectPath, dist);
   mergedOptions.paths.types = resolvePath(projectPath, types);
@@ -95,6 +97,10 @@ const mergeAndResolveOptions = (userOptions) => {
     name: mergedOptions.rollup.output?.name || mergedOptions.project,
     file: mergedOptions.rollup.output?.file || mergedOptions.project.toLocaleLowerCase(),
   };
+  mergedOptions.rollup.plugins =
+    mergedOptions.rollup.plugins?.map(pluginFromFn).filter(Boolean) || [];
+  mergedOptions.rollup.output.plugins =
+    mergedOptions.rollup.output?.plugins?.map(pluginFromFn).filter(Boolean) || [];
 
   return mergedOptions;
 };

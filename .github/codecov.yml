@@ -15,4 +15,4 @@ flag_management:
   individual_flags:
     - name: overlayscrollbars
       paths:
-        - packages/overlayscrollbars
+        - 'packages/overlayscrollbars/**'

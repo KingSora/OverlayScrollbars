@@ -54,10 +54,8 @@ const createRollupBundle = async (testDir, useEsbuild, dev) => {
 };
 
 module.exports = (useEsbuild = true) => {
-  const originalCwd = process.cwd();
   let url;
   let close;
-  let output;
 
   const isDev = (config, timeout) =>
     config.globalTimeout === 0 && timeout === 0 && config.workers === 1;
@@ -68,25 +66,20 @@ module.exports = (useEsbuild = true) => {
       test.setTimeout(0);
     }
 
-    ({ close, url, output } = await createRollupBundle(
-      dirname(file),
-      useEsbuild,
-      isDev(config, timeout)
-    ));
+    ({ close, url } = await createRollupBundle(dirname(file), useEsbuild, isDev(config, timeout)));
   });
 
-  test.beforeEach(async ({ page, browserName }, { config, timeout }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto(url, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(500);
-    if (browserName === 'chromium' && !isDev(config, timeout)) {
-      await page.coverage.startJSCoverage();
-    }
   });
 
   test.afterEach(async ({ page, browserName }, { file, config, timeout }) => {
     if (browserName === 'chromium' && !isDev(config, timeout)) {
-      const coverage = await page.coverage.stopJSCoverage();
-      await collectCoverage(originalCwd, dirname(output), coverage, file);
+      const coverageJSON = await page
+        .evaluate(() => JSON.stringify(window.__coverage__))
+        .catch(() => null);
+      await collectCoverage(process.cwd(), coverageJSON, file);
     }
   });
 

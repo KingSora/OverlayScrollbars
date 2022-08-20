@@ -5,10 +5,11 @@ const {
   rollupResolve,
   rollupAlias,
   rollupScss,
+  rollupLicense,
 } = require('./plugins');
 
 module.exports = (resolve, options) => {
-  const { rollup, paths, alias, extractStyles } = options;
+  const { rollup, paths, alias, extractStyles, banner } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { file, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
   const { dist: distPath } = paths;
@@ -16,11 +17,10 @@ module.exports = (resolve, options) => {
 
   const output = {
     ...outputConfig,
-    sourcemap: true,
+    sourcemap,
     format: 'esm',
     generatedCode: 'es2015',
     file: path.resolve(distPath, `${file}.js`),
-    plugins: (outputConfig.plugins || []).filter(Boolean),
   };
 
   return {
@@ -28,12 +28,13 @@ module.exports = (resolve, options) => {
     output,
     ...rollupOptions,
     plugins: [
+      rollupLicense(banner, sourcemap),
       rollupAlias(alias),
       rollupScss(resolve, sourcemap, extractStyles, false),
-      rollupEsBuild(),
+      rollupEsBuild(sourcemap),
       rollupCommonjs(sourcemap, resolve),
       rollupResolve(resolve),
       ...plugins,
-    ].filter(Boolean),
+    ],
   };
 };

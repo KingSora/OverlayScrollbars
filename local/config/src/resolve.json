@@ -1,5 +1,5 @@
 {
-  "extensions": [".json", ".js", "jsx", ".mjs", ".ts", ".tsx"],
+  "extensions": [".json", ".js", ".jsx", ".cjs", ".mjs", ".ts", ".tsx"],
   "directories": ["node_modules", "src"],
   "styleExtensions": [".scss", ".sass", ".css"]
 }
