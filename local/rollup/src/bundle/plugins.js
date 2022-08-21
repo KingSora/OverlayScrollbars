@@ -10,8 +10,8 @@ const rollupPluginIgnoreImport = require('rollup-plugin-ignore-import');
 const rollupPluginCommonjs = require('@rollup/plugin-commonjs');
 const rollupPluginAlias = require('@rollup/plugin-alias');
 const rollupPluginTs = require('rollup-plugin-typescript2');
-const { default: rollupPluginEsBuild } = require('rollup-plugin-esbuild');
 const rollupPluginLicense = require('rollup-plugin-license');
+const rollupPluginEsBuild = require('../plugins/esbuild');
 const babelConfigEs5 = require('./babel.config.es5');
 const babelConfigEs6 = require('./babel.config.es2015');
 
@@ -59,10 +59,9 @@ module.exports = {
           });
     }
   },
-  rollupEsBuild: (sourceMap) =>
+  rollupEsBuild: (sourcemap) =>
     rollupPluginEsBuild({
-      sourceMap,
-      include: /\.[jt]sx?$/,
+      sourcemap,
       target: 'es6',
     }),
   rollupBabel: (resolve, es6) =>

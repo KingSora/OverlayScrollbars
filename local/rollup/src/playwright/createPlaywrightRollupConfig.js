@@ -7,10 +7,10 @@ const rollupPluginServe = require('rollup-plugin-serve');
 const rollupPluginLivereload = require('rollup-plugin-livereload');
 const resolve = require('@~local/config/resolve');
 
-const rollupPluginHtml = require('./rollup.pluginHtml');
+const rollupPluginHtml = require('../plugins/html');
+const rollupAdditionalWatchFiles = require('../plugins/additionalWatchFiles');
+const rollupIstanbul = require('../plugins/istanbul');
 const createRollupConfig = require('../createRollupConfig');
-const rollupAdditionalWatchFiles = require('./rollup.pluginAdditionalWatchFiles');
-const rollupIstanbul = require('./rollup.pluginIstanbul');
 
 const portRange = {
   min: 20000,
