@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   test:
-    name: Run Tests
+    name: OverlayScrollbars Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -25,12 +25,12 @@ jobs:
         run: npm run jest
       - name: Run Playwright
         run: xvfb-run npm run playwright
-      - name: Upload coverage reports
+      - name: Upload Jest Coverage
         uses: codecov/codecov-action@v3
         with:
           flags: overlayscrollbars,unit
           files: "**/overlayscrollbars/**/jest/coverage*.json"
-      - name: Upload coverage reports
+      - name: Upload Playwright Coverage
         uses: codecov/codecov-action@v3
         with:
           flags: overlayscrollbars,ui
