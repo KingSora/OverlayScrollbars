@@ -1,5 +1,5 @@
-import { noop, debounce } from 'support/utils/function';
-import { rAF, setT } from 'support/compatibility/apis';
+import { noop, debounce, selfClearTimeout } from 'support/utils/function';
+import { rAF, cAF, setT, clearT } from 'support/compatibility/apis';
 
 jest.useFakeTimers();
 
@@ -316,6 +316,107 @@ describe('function', () => {
 
         expect(i).toBe(3 * 3);
       });
+    });
+  });
+
+  describe('selfClearTimeout', () => {
+    test('without timeout', () => {
+      let i = 0;
+      const [timeout, clear] = selfClearTimeout();
+
+      expect(rAF).not.toHaveBeenCalled();
+      expect(cAF).not.toHaveBeenCalled();
+      expect(setT).not.toHaveBeenCalled();
+      expect(clearT).not.toHaveBeenCalled();
+
+      timeout(() => {
+        i += 1;
+      });
+      clear();
+
+      expect(rAF).toHaveBeenCalledTimes(1);
+      expect(cAF).toHaveBeenCalledTimes(2);
+      expect(setT).not.toHaveBeenCalled();
+      expect(clearT).not.toHaveBeenCalled();
+
+      expect(i).toBe(0);
+      timeout(() => {
+        i += 1;
+      });
+      timeout(() => {
+        i += 1;
+      });
+      timeout(() => {
+        i += 1;
+      });
+      jest.runAllTimers();
+      expect(i).toBe(1);
+    });
+
+    test('with timeout', () => {
+      let i = 0;
+      const [timeout, clear] = selfClearTimeout(100);
+
+      expect(rAF).not.toHaveBeenCalled();
+      expect(cAF).not.toHaveBeenCalled();
+      expect(setT).not.toHaveBeenCalled();
+      expect(clearT).not.toHaveBeenCalled();
+
+      timeout(() => {
+        i += 1;
+      });
+      clear();
+
+      expect(rAF).not.toHaveBeenCalled();
+      expect(cAF).not.toHaveBeenCalled();
+      expect(setT).toHaveBeenCalledTimes(1);
+      expect(clearT).toHaveBeenCalledTimes(2);
+
+      expect(i).toBe(0);
+      timeout(() => {
+        i += 1;
+      });
+      timeout(() => {
+        i += 1;
+      });
+      timeout(() => {
+        i += 1;
+      });
+      jest.runAllTimers();
+      expect(i).toBe(1);
+    });
+
+    test('with timeout function', () => {
+      let i = 0;
+      const [timeout, clear] = selfClearTimeout(() => 100);
+
+      expect(rAF).not.toHaveBeenCalled();
+      expect(cAF).not.toHaveBeenCalled();
+      expect(setT).not.toHaveBeenCalled();
+      expect(clearT).not.toHaveBeenCalled();
+
+      timeout(() => {
+        i += 1;
+      });
+      clear();
+
+      expect(rAF).not.toHaveBeenCalled();
+      expect(cAF).not.toHaveBeenCalled();
+      expect(setT).toHaveBeenCalledTimes(1);
+      expect(clearT).toHaveBeenCalledTimes(2);
+
+      expect(i).toBe(0);
+      timeout(() => {
+        i += 1;
+      });
+      timeout(() => {
+        i += 1;
+      });
+      timeout(() => {
+        i += 1;
+      });
+      jest.runAllTimers();
+      expect(i).toBe(1);
     });
   });
 });

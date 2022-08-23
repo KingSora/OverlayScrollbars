@@ -30,7 +30,12 @@ export interface Debounced<FunctionToDebounce extends (...args: any) => any> {
 
 export const noop = () => {}; // eslint-disable-line
 
-export const selfCancelTimeout = (timeout?: number | (() => number)) => {
+/**
+ * Creates a timeout and cleartimeout tuple. The timeout function always clears the previously created timeout before it runs.
+ * @param timeout The timeout in ms. If no timeout (or 0) is passed requestAnimationFrame is used instead of setTimeout.
+ * @returns A tuple with the timeout function as the first value and the clearTimeout function as the second value.
+ */
+export const selfClearTimeout = (timeout?: number | (() => number)) => {
   let id: number;
   const setTFn = timeout ? setT : rAF!;
   const clearTFn = timeout ? clearT : cAF!;

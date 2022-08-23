@@ -7,7 +7,7 @@ import {
   runEachAndClear,
   stopPropagation,
   XY,
-  selfCancelTimeout,
+  selfClearTimeout,
   parent,
   closest,
   rAF,
@@ -223,7 +223,7 @@ export const createScrollbarsSetupEvents =
     isHorizontal
   ) => {
     const { _scrollbar } = scrollbarStructure;
-    const [wheelTimeout, clearScrollTimeout] = selfCancelTimeout(333);
+    const [wheelTimeout, clearScrollTimeout] = selfClearTimeout(333);
     const scrollByFn = !!scrollOffsetElm.scrollBy;
     let wheelScrollBy = true;
 

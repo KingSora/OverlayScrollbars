@@ -1,14 +1,19 @@
 import { isFunction, isHTMLElement, isNull, isUndefined } from 'support';
 import { getEnvironment } from 'environment';
-import { DeepPartial } from 'typings';
-import { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
+import type { DeepPartial } from 'typings';
 
 type StaticInitialization = HTMLElement | false | null;
 type DynamicInitialization = HTMLElement | boolean | null;
-
-type FallbackInitializtationElement<
-  InitElm extends StaticInitializationElement<any> | DynamicInitializationElement<any>
-> = Extract<InitElm, (...args: any[]) => any> extends (...args: infer P) => any
+type FallbackStaticInitializtationElement<Args extends any[]> = Extract<
+  StaticInitializationElement<Args>,
+  (...args: Args) => any
+> extends (...args: infer P) => any
+  ? (...args: P) => HTMLElement
+  : never;
+type FallbackDynamicInitializtationElement<Args extends any[]> = Extract<
+  DynamicInitializationElement<Args>,
+  (...args: Args) => any
+> extends (...args: infer P) => any
   ? (...args: P) => HTMLElement
   : never;
 
@@ -59,30 +64,30 @@ export type InitializationTarget = InitializationTargetElement | InitializationT
 const resolveInitialization = <T>(value: any, args: any): T =>
   isFunction(value) ? value.apply(0, args) : value;
 
-export const staticInitializationElement = <T extends StaticInitializationElement<any>>(
-  args: Parameters<Extract<T, (...initializationFnArgs: any[]) => any>>,
-  fallbackStaticInitializationElement: FallbackInitializtationElement<T>,
-  defaultStaticInitializationElementStrategy: T,
-  staticInitializationElementValue?: T
+export const staticInitializationElement = <Args extends any[]>(
+  args: Args,
+  fallbackStaticInitializationElement: FallbackStaticInitializtationElement<Args>,
+  defaultStaticInitializationElement: StaticInitializationElement<Args>,
+  staticInitializationElementValue?: StaticInitializationElement<Args>
 ): HTMLElement => {
   const staticInitialization = isUndefined(staticInitializationElementValue)
-    ? defaultStaticInitializationElementStrategy
+    ? defaultStaticInitializationElement
     : staticInitializationElementValue;
   const resolvedInitialization = resolveInitialization<StaticInitialization>(
     staticInitialization,
     args
   );
-  return resolvedInitialization || fallbackStaticInitializationElement();
+  return resolvedInitialization || fallbackStaticInitializationElement.apply(0, args);
 };
 
-export const dynamicInitializationElement = <T extends DynamicInitializationElement<any>>(
-  args: Parameters<Extract<T, (...initializationFnArgs: any[]) => any>>,
-  fallbackDynamicInitializationElement: FallbackInitializtationElement<T>,
-  defaultDynamicInitializationElementStrategy: T,
-  dynamicInitializationElementValue?: T
+export const dynamicInitializationElement = <Args extends any[]>(
+  args: Args,
+  fallbackDynamicInitializationElement: FallbackDynamicInitializtationElement<Args>,
+  defaultDynamicInitializationElement: DynamicInitializationElement<Args>,
+  dynamicInitializationElementValue?: DynamicInitializationElement<Args>
 ): HTMLElement | false => {
   const dynamicInitialization = isUndefined(dynamicInitializationElementValue)
-    ? defaultDynamicInitializationElementStrategy
+    ? defaultDynamicInitializationElement
     : dynamicInitializationElementValue;
   const resolvedInitialization = resolveInitialization<DynamicInitialization>(
     dynamicInitialization,
@@ -92,20 +97,19 @@ export const dynamicInitializationElement = <T extends DynamicInitializationElem
     !!resolvedInitialization &&
     (isHTMLElement(resolvedInitialization)
       ? resolvedInitialization
-      : fallbackDynamicInitializationElement())
+      : fallbackDynamicInitializationElement.apply(0, args))
   );
 };
 
 export const cancelInitialization = (
-  cancelInitializationValue: DeepPartial<Initialization['cancel']> | false | null | undefined,
-  structureSetupElements: StructureSetupElementsObj
+  isBody: boolean,
+  defaultCancelInitialization: Initialization['cancel'],
+  cancelInitializationValue?: DeepPartial<Initialization['cancel']> | false | null | undefined
 ): boolean => {
   const { nativeScrollbarsOverlaid, body } = cancelInitializationValue || {};
-  const { _isBody } = structureSetupElements;
-  const { _getDefaultInitialization, _nativeScrollbarsOverlaid, _nativeScrollbarsHiding } =
-    getEnvironment();
+  const { _nativeScrollbarsOverlaid, _nativeScrollbarsHiding } = getEnvironment();
   const { nativeScrollbarsOverlaid: defaultNativeScrollbarsOverlaid, body: defaultbody } =
-    _getDefaultInitialization().cancel;
+    defaultCancelInitialization;
 
   const resolvedNativeScrollbarsOverlaid =
     nativeScrollbarsOverlaid ?? defaultNativeScrollbarsOverlaid;
@@ -115,7 +119,7 @@ export const cancelInitialization = (
     (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y) &&
     resolvedNativeScrollbarsOverlaid;
   const finalDocumentScrollingElement =
-    _isBody &&
+    isBody &&
     (isNull(resolvedDocumentScrollingElement)
       ? !_nativeScrollbarsHiding
       : resolvedDocumentScrollingElement);

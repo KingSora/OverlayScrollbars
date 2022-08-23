@@ -115,7 +115,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   options?: DeepPartial<Options>,
   eventListeners?: InitialEventListeners
 ) => {
-  const { _getDefaultOptions, _addListener: addEnvListener } = getEnvironment();
+  const {
+    _getDefaultOptions,
+    _getDefaultInitialization,
+    _addListener: addEnvListener,
+  } = getEnvironment();
   const plugins = getPlugins();
   const targetIsElement = isHTMLElement(target);
   const instanceTarget = targetIsElement ? target : target.target;
@@ -271,7 +275,13 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       }
     });
 
-    if (cancelInitialization(!targetIsElement && target.cancel, structureState._elements)) {
+    if (
+      cancelInitialization(
+        structureState._elements._isBody,
+        _getDefaultInitialization().cancel,
+        !targetIsElement && target.cancel
+      )
+    ) {
       destroy(true);
       return instance;
     }

@@ -28,14 +28,14 @@ import {
   getScrollbarHandleOffsetRatio,
 } from 'setups/scrollbarsSetup/scrollbarsSetup.calculations';
 import type {
-  Initialization,
   InitializationTarget,
+  InitializationTargetElement,
   InitializationTargetObject,
 } from 'initialization';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
 import type { ScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
 import type { StyleObject } from 'typings';
-import { StructureSetupState } from 'setups';
+import type { StructureSetupState } from 'setups';
 
 export interface ScrollbarStructure {
   _scrollbar: HTMLElement;
@@ -84,7 +84,7 @@ export const createScrollbarsSetupElements = (
   const { scrollbars: scrollbarsInit } = (_targetIsElm ? {} : target) as InitializationTargetObject;
   const { slot: initScrollbarsSlot } = scrollbarsInit || {};
   const evaluatedScrollbarSlot = generalDynamicInitializationElement<
-    Initialization['scrollbars']['slot']
+    [InitializationTargetElement, HTMLElement, HTMLElement]
   >([_target, _host, _viewport], () => _host, defaultInitScrollbarsSlot, initScrollbarsSlot);
   const scrollbarStructureAddRemoveClass = (
     scrollbarStructures: ScrollbarStructure[],

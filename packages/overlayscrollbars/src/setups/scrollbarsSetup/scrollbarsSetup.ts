@@ -1,4 +1,4 @@
-import { on, runEachAndClear, parent, scrollLeft, scrollTop, selfCancelTimeout } from 'support';
+import { on, runEachAndClear, parent, scrollLeft, scrollTop, selfClearTimeout } from 'support';
 import { createState, createOptionCheck } from 'setups/setups';
 import { createScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
 import {
@@ -51,11 +51,11 @@ export const createScrollbarsSetup = (
 
   const state = createState({});
   const [getState] = state;
-  const [requestMouseMoveAnimationFrame, cancelMouseMoveAnimationFrame] = selfCancelTimeout();
-  const [requestScrollAnimationFrame, cancelScrollAnimationFrame] = selfCancelTimeout();
-  const [scrollTimeout, clearScrollTimeout] = selfCancelTimeout(100);
-  const [auotHideMoveTimeout, clearAutoHideTimeout] = selfCancelTimeout(100);
-  const [auotHideTimeout, clearAutoTimeout] = selfCancelTimeout(() => globalAutoHideDelay);
+  const [requestMouseMoveAnimationFrame, cancelMouseMoveAnimationFrame] = selfClearTimeout();
+  const [requestScrollAnimationFrame, cancelScrollAnimationFrame] = selfClearTimeout();
+  const [scrollTimeout, clearScrollTimeout] = selfClearTimeout(100);
+  const [auotHideMoveTimeout, clearAutoHideTimeout] = selfClearTimeout(100);
+  const [auotHideTimeout, clearAutoTimeout] = selfClearTimeout(() => globalAutoHideDelay);
   const [elements, appendElements, destroyElements] = createScrollbarsSetupElements(
     target,
     structureSetupState._elements,

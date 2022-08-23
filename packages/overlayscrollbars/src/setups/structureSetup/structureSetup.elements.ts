@@ -39,7 +39,6 @@ import {
   dynamicInitializationElement as generalDynamicInitializationElement,
 } from 'initialization';
 import type {
-  Initialization,
   InitializationTarget,
   InitializationTargetElement,
   InitializationTargetObject,
@@ -117,10 +116,10 @@ export const createStructureSetupElements = (
   const isBody = targetElement === ownerDocument.body;
   const wnd = ownerDocument.defaultView as Window;
   const staticInitializationElement = generalStaticInitializationElement<
-    Initialization['elements']['viewport']
+    [InitializationTargetElement]
   >.bind(0, [targetElement]);
   const dynamicInitializationElement = generalDynamicInitializationElement<
-    Initialization['elements']['content']
+    [InitializationTargetElement]
   >.bind(0, [targetElement]);
   const viewportElement = staticInitializationElement(
     createNewDiv,
