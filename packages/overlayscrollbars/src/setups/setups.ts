@@ -4,11 +4,11 @@ import type { DeepPartial } from 'typings';
 
 export type SetupElements<T extends Record<string, any>> = [elements: T, destroy: () => void];
 
-export type SetupUpdate<T extends any[]> = (
+export type SetupUpdate<Args extends any[], R> = (
   changedOptions: DeepPartial<Options>,
   force: boolean,
-  ...args: T
-) => void;
+  ...args: Args
+) => R;
 
 export type SetupUpdateCheckOption = <T>(path: string) => [value: T, changed: boolean];
 
@@ -26,8 +26,9 @@ export type SetupState<T extends Record<string, any>> = [
 export type Setup<
   DynamicState,
   StaticState extends Record<string, any> = Record<string, any>,
-  A extends any[] = []
-> = [update: SetupUpdate<A>, state: (() => DynamicState) & StaticState, destroy: () => void];
+  Args extends any[] = [],
+  R = void
+> = [update: SetupUpdate<Args, R>, state: (() => DynamicState) & StaticState, destroy: () => void];
 
 const getPropByPath = <T>(obj: any, path: string): T =>
   obj

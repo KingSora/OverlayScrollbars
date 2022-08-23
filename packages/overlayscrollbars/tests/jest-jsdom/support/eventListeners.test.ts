@@ -2,6 +2,7 @@ import { createEventListenerHub } from 'support/eventListeners';
 
 type EventMap = {
   onBoolean: [a: boolean, b: string];
+  onString: [a: string];
   onUndefined: [];
 };
 
@@ -10,18 +11,26 @@ describe('eventListeners', () => {
     test('initialization', () => {
       const onBooleanA = jest.fn((a: boolean, b: string) => a + b);
       const onBooleanB = jest.fn();
+      const onString = jest.fn();
       const onUndefined = jest.fn();
       const [, , triggerEvent] = createEventListenerHub<EventMap>({
         onBoolean: [onBooleanA, onBooleanB],
+        onString: [onString, onString], // multiple equal listeners are treated as one
         onUndefined,
       });
       triggerEvent('onBoolean', [true, 'hi']);
+      triggerEvent('onString', ['hi']);
       triggerEvent('onUndefined');
 
       expect(onBooleanA).toHaveBeenCalledTimes(1);
       expect(onBooleanA).toHaveBeenLastCalledWith(true, 'hi');
+
       expect(onBooleanB).toHaveBeenCalledTimes(1);
       expect(onBooleanB).toHaveBeenLastCalledWith(true, 'hi');
+
+      // even though onString was registered twice, its only called once
+      expect(onString).toHaveBeenCalledTimes(1);
+      expect(onString).toHaveBeenLastCalledWith('hi');
 
       expect(onUndefined).toHaveBeenCalledTimes(1);
       expect(onUndefined).toHaveBeenLastCalledWith();
@@ -30,6 +39,7 @@ describe('eventListeners', () => {
     test('addEvent', () => {
       const onBooleanA = jest.fn((a: boolean, b: string) => a + b);
       const onBooleanB = jest.fn();
+      const onString = jest.fn();
       const onUndefinedA = jest.fn();
       const onUndefinedB = jest.fn();
       const [addEvent, , triggerEvent] = createEventListenerHub<EventMap>();
@@ -68,6 +78,14 @@ describe('eventListeners', () => {
       expect(onUndefinedB).toHaveBeenCalledTimes(2);
       expect(onUndefinedB).toHaveBeenLastCalledWith();
 
+      // multiple equal listeners are treated as one
+      addEvent('onString', [onString, onString]);
+      triggerEvent('onString', ['hi']);
+
+      // even though onString was registered twice, its only called once
+      expect(onString).toHaveBeenCalledTimes(1);
+      expect(onString).toHaveBeenLastCalledWith('hi');
+
       const something = jest.fn();
       // @ts-ignore
       addEvent('something', something);
@@ -79,6 +97,7 @@ describe('eventListeners', () => {
     test('removeEvent', () => {
       const onBooleanA = jest.fn();
       const onBooleanB = jest.fn();
+      const onString = jest.fn();
       const onUndefinedA = jest.fn();
       const onUndefinedB = jest.fn();
       const [addEvent, removeEvent, triggerEvent] = createEventListenerHub<EventMap>({
@@ -148,6 +167,17 @@ describe('eventListeners', () => {
       expect(onBooleanB).toHaveBeenCalledTimes(5);
       expect(onUndefinedA).toHaveBeenCalledTimes(4);
       expect(onUndefinedB).toHaveBeenCalledTimes(4);
+
+      addEvent('onString', [onString, onString]);
+      triggerEvent('onString', ['hi']);
+
+      expect(onString).toHaveBeenCalledTimes(1);
+
+      // even though onString was registered twice, its treated as a single listener because multiple equal listeners are treated as one
+      removeEvent('onString', onString);
+      triggerEvent('onString', ['hi']);
+
+      expect(onString).toHaveBeenCalledTimes(1);
 
       // @ts-ignore
       const something = jest.fn();

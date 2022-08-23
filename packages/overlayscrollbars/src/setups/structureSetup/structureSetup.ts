@@ -68,34 +68,33 @@ const initialStructureSetupUpdateState: StructureSetupState = {
 export const createStructureSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions
-): Setup<StructureSetupState, StructureSetupStaticState> => {
+): Setup<StructureSetupState, StructureSetupStaticState, [], boolean> => {
   const checkOptionsFallback = createOptionCheck(options, {});
   const state = createState(initialStructureSetupUpdateState);
   const [addEvent, removeEvent, triggerEvent] = createEventListenerHub<StructureSetupEventMap>();
   const [getState] = state;
   const [elements, appendStructureElements, destroyElements] = createStructureSetupElements(target);
   const updateStructure = createStructureSetupUpdate(elements, state);
-  const triggerUpdateEvent: (...args: StructureSetupEventMap['u']) => void = (
+  const triggerUpdateEvent: (...args: StructureSetupEventMap['u']) => boolean = (
     updateHints,
     changedOptions,
     force
   ) => {
     const truthyUpdateHints = keys(updateHints).some((key) => updateHints[key]);
-
-    if (truthyUpdateHints || !isEmptyObject(changedOptions) || force) {
+    const changed = truthyUpdateHints || !isEmptyObject(changedOptions) || force;
+    if (changed) {
       triggerEvent('u', [updateHints, changedOptions, force]);
     }
+    return changed;
   };
   const [destroyObservers, appendObserverElements, updateObservers, updateObserversOptions] =
-    createStructureSetupObservers(elements, state, (updateHints) => {
-      triggerUpdateEvent(updateStructure(checkOptionsFallback, updateHints), {}, false);
-    });
+    createStructureSetupObservers(elements, state, (updateHints) =>
+      triggerUpdateEvent(updateStructure(checkOptionsFallback, updateHints), {}, false)
+    );
 
   const structureSetupState = getState.bind(0) as (() => StructureSetupState) &
     StructureSetupStaticState;
-  structureSetupState._addOnUpdatedListener = (listener) => {
-    addEvent('u', listener);
-  };
+  structureSetupState._addOnUpdatedListener = (listener) => addEvent('u', listener);
   structureSetupState._appendElements = () => {
     const { _target, _viewport } = elements;
     const initialScrollLeft = scrollLeft(_target);
@@ -113,7 +112,7 @@ export const createStructureSetup = (
     (changedOptions, force?) => {
       const checkOption = createOptionCheck(options, changedOptions, force);
       updateObserversOptions(checkOption);
-      triggerUpdateEvent(
+      return triggerUpdateEvent(
         updateStructure(checkOption, updateObservers(), force),
         changedOptions,
         !!force

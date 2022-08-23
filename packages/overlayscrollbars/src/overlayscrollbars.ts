@@ -37,7 +37,7 @@ export interface OverlayScrollbarsStatic {
   ): OverlayScrollbars;
 
   plugin(plugin: Plugin | Plugin[]): void;
-  valid(osInstance: any): boolean;
+  valid(osInstance: any): osInstance is OverlayScrollbars;
   env(): Environment;
 }
 
@@ -94,19 +94,19 @@ export interface OverlayScrollbars {
   options(): Options;
   options(newOptions: DeepPartial<Options>): Options;
 
-  update(force?: boolean): OverlayScrollbars;
-
-  destroy(): void;
-
-  state(): State;
-
-  elements(): Elements;
-
   on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): () => void;
   on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): () => void;
 
   off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): void;
   off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): void;
+
+  update(force?: boolean): boolean;
+
+  state(): State;
+
+  elements(): Elements;
+
+  destroy(): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
@@ -115,11 +115,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   options?: DeepPartial<Options>,
   eventListeners?: InitialEventListeners
 ) => {
-  const {
-    _getDefaultOptions,
-    _getDefaultInitialization,
-    _addListener: addEnvListener,
-  } = getEnvironment();
+  const { _getDefaultOptions, _getDefaultInitialization, _addListener } = getEnvironment();
   const plugins = getPlugins();
   const targetIsElement = isHTMLElement(target);
   const instanceTarget = targetIsElement ? target : target.target;
@@ -149,10 +145,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       currentOptions,
       structureState
     );
-    const update = (changedOptions: DeepPartial<Options>, force?: boolean) => {
+    const update = (changedOptions: DeepPartial<Options>, force?: boolean): boolean =>
       updateStructure(changedOptions, !!force);
-    };
-    const removeEnvListener = addEnvListener(update.bind(0, {}, true));
+    const removeEnvListener = _addListener(update.bind(0, {}, true));
     const destroy = (canceled?: boolean) => {
       removeInstance(instanceTarget);
       removeEnvListener();
@@ -257,10 +252,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           }
         );
       },
-      update(force?: boolean) {
-        update({}, force);
-        return instance;
-      },
+      update: (force?: boolean) => update({}, force),
       destroy: destroy.bind(0),
     };
 
@@ -323,13 +315,15 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       ]);
     });
 
-    return instance.update(true);
+    instance.update(true);
+
+    return instance;
   }
   return potentialInstance!;
 };
 
 OverlayScrollbars.plugin = addPlugin;
-OverlayScrollbars.valid = (osInstance: any) => {
+OverlayScrollbars.valid = (osInstance: any): osInstance is OverlayScrollbars => {
   const hasElmsFn = osInstance && (osInstance as OverlayScrollbars).elements;
   const elements = isFunction(hasElmsFn) && hasElmsFn();
   return isPlainObject(elements) && !!getInstance(elements.target);
