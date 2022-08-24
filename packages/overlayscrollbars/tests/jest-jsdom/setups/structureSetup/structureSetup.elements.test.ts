@@ -1,6 +1,11 @@
 import { hasClass, is, isFunction, isHTMLElement } from 'support';
-import { dataAttributeHost } from 'classnames';
-import { InternalEnvironment } from 'environment';
+import {
+  dataAttributeHost,
+  classNamePadding,
+  classNameViewport,
+  classNameContent,
+} from 'classnames';
+import { getEnvironment, InternalEnvironment } from 'environment';
 import {
   createStructureSetupElements,
   StructureSetupElementsObj,
@@ -12,9 +17,8 @@ import type {
   InitializationTargetObject,
 } from 'initialization';
 
-const mockGetEnvironment = jest.fn();
 jest.mock('environment', () => ({
-  getEnvironment: jest.fn().mockImplementation(() => mockGetEnvironment()),
+  getEnvironment: jest.fn(),
 }));
 
 jest.mock('support/compatibility/apis', () => {
@@ -81,10 +85,10 @@ const clearBody = () => {
 
 const getElements = (targetType: TargetType) => {
   const target = getTarget(targetType);
-  const host = document.querySelector('[data-overlayscrollbars]')!;
-  const padding = document.querySelector('.os-padding')!;
-  const viewport = document.querySelector('.os-viewport')!;
-  const content = document.querySelector('.os-content')!;
+  const host = document.querySelector(`[${dataAttributeHost}]`)!;
+  const padding = document.querySelector(`.${classNamePadding}`)!;
+  const viewport = document.querySelector(`.${classNameViewport}`)!;
+  const content = document.querySelector(`.${classNameContent}`)!;
 
   return {
     target,
@@ -133,7 +137,9 @@ const assertCorrectDOMStructure = (targetType: TargetType, viewportIsTarget: boo
   }
 };
 
-const createStructureSetupProxy = (target: InitializationTarget): StructureSetupElementsProxy => {
+const createStructureSetupElementsProxy = (
+  target: InitializationTarget
+): StructureSetupElementsProxy => {
   const [elements, appendElements, destroy] = createStructureSetupElements(target);
   appendElements();
   return {
@@ -422,8 +428,14 @@ const envInitStrategyViewportIsTarget = {
   },
 };
 
-describe('structureSetup', () => {
+describe('structureSetup.elements', () => {
   afterEach(() => clearBody());
+
+  beforeEach(() => {
+    (getEnvironment as jest.Mock).mockImplementation(() =>
+      jest.requireActual('environment').getEnvironment()
+    );
+  });
 
   [
     envDefault,
@@ -436,8 +448,8 @@ describe('structureSetup', () => {
   ].forEach((envWithName) => {
     const { env: currEnv, name } = envWithName;
     describe(`Environment: ${name}`, () => {
-      beforeAll(() => {
-        mockGetEnvironment.mockImplementation(() => currEnv);
+      beforeEach(() => {
+        (getEnvironment as jest.Mock).mockImplementation(() => currEnv);
       });
 
       (['element', 'textarea', 'body'] as TargetType[]).forEach((targetType) => {
@@ -447,7 +459,7 @@ describe('structureSetup', () => {
               const snapshot = fillBody(targetType);
               const [elements, destroy] = assertCorrectSetupElements(
                 targetType,
-                createStructureSetupProxy(getTarget(targetType)),
+                createStructureSetupElementsProxy(getTarget(targetType)),
                 currEnv
               );
               assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
@@ -458,7 +470,7 @@ describe('structureSetup', () => {
               const snapshot = fillBody(targetType);
               const [elements, destroy] = assertCorrectSetupElements(
                 targetType,
-                createStructureSetupProxy({ target: getTarget(targetType) }),
+                createStructureSetupElementsProxy({ target: getTarget(targetType) }),
                 currEnv
               );
               assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
@@ -476,7 +488,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -497,7 +509,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: () => document.querySelector<HTMLElement>('#host'),
@@ -518,7 +530,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -541,7 +553,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -564,7 +576,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: () => document.querySelector<HTMLElement>('#host'),
@@ -586,7 +598,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -608,7 +620,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -628,7 +640,7 @@ describe('structureSetup', () => {
                 const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       padding: false,
@@ -644,7 +656,7 @@ describe('structureSetup', () => {
                 const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       content: () => false,
@@ -662,7 +674,7 @@ describe('structureSetup', () => {
                 const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       padding: () => true,
@@ -678,7 +690,7 @@ describe('structureSetup', () => {
                 const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       content: true,
@@ -696,7 +708,7 @@ describe('structureSetup', () => {
                 const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       padding: false,
@@ -715,7 +727,7 @@ describe('structureSetup', () => {
                 const snapshot = fillBody(targetType);
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       padding: true,
@@ -738,7 +750,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -761,7 +773,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -784,7 +796,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -807,7 +819,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -830,7 +842,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -852,7 +864,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -874,7 +886,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -896,7 +908,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -918,7 +930,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -941,7 +953,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -964,7 +976,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -986,7 +998,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: () => document.querySelector<HTMLElement>('#host'),
@@ -1008,7 +1020,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -1030,7 +1042,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -1052,7 +1064,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: document.querySelector<HTMLElement>('#host'),
@@ -1075,7 +1087,7 @@ describe('structureSetup', () => {
                 );
                 const [elements, destroy] = assertCorrectSetupElements(
                   targetType,
-                  createStructureSetupProxy({
+                  createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
                       host: () => document.querySelector<HTMLElement>('#host'),
@@ -1093,6 +1105,52 @@ describe('structureSetup', () => {
           });
         });
       });
+    });
+  });
+
+  describe('focus', () => {
+    describe('shift tabindex to viewport', () => {
+      test('with pointerdown on body', () => {
+        const { elements } = createStructureSetupElementsProxy(document.body);
+        expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
+        expect(document.activeElement).toBe(elements._viewport);
+
+        elements._documentElm.dispatchEvent(new Event('pointerdown'));
+
+        expect(elements._viewport.getAttribute('tabindex')).toBe(null);
+      });
+
+      test('with keydown on element', () => {
+        document.body.innerHTML = '<div tabindex="123"></div>';
+        const target = document.body.firstElementChild as HTMLElement;
+        target.focus();
+
+        const { elements } = createStructureSetupElementsProxy(target);
+        expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
+        expect(document.activeElement).toBe(elements._viewport);
+
+        elements._documentElm.dispatchEvent(new Event('keydown'));
+
+        expect(elements._viewport.getAttribute('tabindex')).toBe(null);
+      });
+    });
+
+    test('shift tabindex back to original activeElement', () => {
+      document.body.innerHTML = '<input type="text" value="hi"></input>';
+      const input = document.querySelector('input') as HTMLInputElement;
+      const target = document.body;
+
+      input.focus();
+      const preInitFocus = document.activeElement;
+
+      const { elements } = createStructureSetupElementsProxy(target);
+
+      expect(preInitFocus).toBe(document.activeElement);
+
+      elements._documentElm.dispatchEvent(new Event('pointerdown'));
+      elements._documentElm.dispatchEvent(new Event('keydown'));
+
+      expect(preInitFocus).toBe(document.activeElement);
     });
   });
 });

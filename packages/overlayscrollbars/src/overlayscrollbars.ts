@@ -13,7 +13,7 @@ import { getEnvironment } from 'environment';
 import { cancelInitialization } from 'initialization';
 import { addInstance, getInstance, removeInstance } from 'instances';
 import { createStructureSetup, createScrollbarsSetup } from 'setups';
-import { getPlugins, addPlugin, optionsValidationPluginName } from 'plugins';
+import { getPlugins, addPlugin, optionsValidationPluginName, PluginInstance } from 'plugins';
 import type { XY, TRBL } from 'support';
 import type { Options, ReadonlyOptions } from 'options';
 import type { Plugin, OptionsValidationPluginInstance } from 'plugins';
@@ -109,6 +109,16 @@ export interface OverlayScrollbars {
   destroy(): void;
 }
 
+const invokePluginInstance = (
+  pluginInstance: PluginInstance,
+  staticObj?: OverlayScrollbarsStatic | false | null | undefined | 0,
+  instanceObj?: OverlayScrollbars | false | null | undefined | 0
+) => {
+  if (isFunction(pluginInstance)) {
+    pluginInstance(staticObj || undefined, instanceObj || undefined);
+  }
+};
+
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target: InitializationTarget,
@@ -122,13 +132,12 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   const potentialInstance = getInstance(instanceTarget);
   if (options && !potentialInstance) {
     let destroyed = false;
-    const optionsValidationPlugin = plugins[
-      optionsValidationPluginName
-    ] as OptionsValidationPluginInstance;
-    const validateOptions = (newOptions?: DeepPartial<Options>) => {
-      const opts = newOptions || {};
+    const validateOptions = (newOptions: DeepPartial<Options>) => {
+      const optionsValidationPlugin = getPlugins()[
+        optionsValidationPluginName
+      ] as OptionsValidationPluginInstance;
       const validate = optionsValidationPlugin && optionsValidationPlugin._;
-      return validate ? validate(opts, true) : opts;
+      return validate ? validate(newOptions, true) : newOptions;
     };
     const currentOptions: ReadonlyOptions = assignDeep(
       {},
@@ -166,7 +175,6 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       options(newOptions?: DeepPartial<Options>) {
         if (newOptions) {
           const changedOptions = getOptionsDiff(currentOptions, validateOptions(newOptions));
-
           if (!isEmptyObject(changedOptions)) {
             assignDeep(currentOptions, changedOptions);
             update(changedOptions);
@@ -260,12 +268,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       updateScrollbars(changedOptions, force, updateHints);
     });
 
-    each(keys(plugins), (pluginName) => {
-      const pluginInstance = plugins[pluginName];
-      if (isFunction(pluginInstance)) {
-        pluginInstance(OverlayScrollbars, instance);
-      }
-    });
+    // valid inside plugins
+    addInstance(instanceTarget, instance);
+
+    // init plugins
+    each(keys(plugins), (pluginName) => invokePluginInstance(plugins[pluginName], 0, instance));
 
     if (
       cancelInitialization(
@@ -281,7 +288,6 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     structureState._appendElements();
     scrollbarsState._appendElements();
 
-    addInstance(instanceTarget, instance);
     triggerEvent('initialized', [instance]);
 
     structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
@@ -322,7 +328,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   return potentialInstance!;
 };
 
-OverlayScrollbars.plugin = addPlugin;
+OverlayScrollbars.plugin = (plugins: Plugin | Plugin[]) => {
+  each(addPlugin(plugins), (pluginInstance) =>
+    invokePluginInstance(pluginInstance, OverlayScrollbars)
+  );
+};
 OverlayScrollbars.valid = (osInstance: any): osInstance is OverlayScrollbars => {
   const hasElmsFn = osInstance && (osInstance as OverlayScrollbars).elements;
   const elements = isFunction(hasElmsFn) && hasElmsFn();

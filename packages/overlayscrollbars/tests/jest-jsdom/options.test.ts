@@ -41,6 +41,7 @@ describe('options', () => {
         b: 0,
       };
 
+      expect(getOptionsDiff(options, options)).toEqual({});
       expect(getOptionsDiff(options, changed)).toEqual(changed);
 
       expect(
@@ -74,6 +75,7 @@ describe('options', () => {
         },
       };
 
+      expect(getOptionsDiff(options, options)).toEqual({});
       expect(getOptionsDiff(options, changed)).toEqual(changed);
 
       expect(

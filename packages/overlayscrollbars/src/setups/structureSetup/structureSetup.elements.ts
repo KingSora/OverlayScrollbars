@@ -45,7 +45,7 @@ import type {
 } from 'initialization';
 
 export type StructureSetupElements = [
-  targetObj: StructureSetupElementsObj,
+  elements: StructureSetupElementsObj,
   appendElements: () => void,
   destroy: () => void
 ];

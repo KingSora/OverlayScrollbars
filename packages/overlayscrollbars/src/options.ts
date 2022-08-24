@@ -1,4 +1,13 @@
-import { assignDeep, each, isObject, keys, isArray, hasOwnProperty, isFunction } from 'support';
+import {
+  assignDeep,
+  each,
+  isObject,
+  keys,
+  isArray,
+  hasOwnProperty,
+  isFunction,
+  isEmptyObject,
+} from 'support';
 import { DeepPartial, DeepReadonly } from 'typings';
 
 const opsStringify = (value: any) =>
@@ -80,6 +89,10 @@ export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): D
 
     if (isObject(currOptionValue) && isObject(newOptionValue)) {
       assignDeep((diff[optionKey] = {}), getOptionsDiff(currOptionValue, newOptionValue));
+      // delete empty nested objects
+      if (isEmptyObject(diff[optionKey])) {
+        delete diff[optionKey];
+      }
     } else if (hasOwnProperty(newOptions, optionKey) && newOptionValue !== currOptionValue) {
       let isDiff = true;
 

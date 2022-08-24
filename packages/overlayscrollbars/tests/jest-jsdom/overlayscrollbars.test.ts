@@ -1,6 +1,7 @@
 import { DeepPartial } from 'typings';
 import { defaultOptions, Options } from 'options';
 import { assignDeep } from 'support';
+import { optionsValidationPlugin } from 'plugins';
 import { OverlayScrollbars as originalOverlayScrollbars } from '../../src/overlayscrollbars';
 
 const bodyElm = document.body;
@@ -155,26 +156,144 @@ describe('overlayscrollbars', () => {
       });
     });
 
-    test('options', () => {
-      const customOptions: DeepPartial<Options> = {
-        paddingAbsolute: !defaultOptions.paddingAbsolute,
-        overflow: { x: 'hidden' },
-      };
-      const osInstance = OverlayScrollbars(div, {});
-      expect(osInstance.options()).not.toBe(defaultOptions);
-      expect(osInstance.options()).toEqual(defaultOptions);
-      OverlayScrollbars(div)!.destroy();
+    describe('elements', () => {
+      test('get elements', () => {
+        const osInstance = OverlayScrollbars(div, {});
+        const elements = osInstance.elements();
+        const elementsObj = {
+          target: div,
+          host: div,
+          padding: expect.any(HTMLElement),
+          viewport: expect.any(HTMLElement),
+          content: expect.any(HTMLElement),
+          scrollOffsetElement: expect.any(HTMLElement),
+          scrollEventElement: expect.any(HTMLElement),
+          scrollbarHorizontal: {
+            scrollbar: expect.any(HTMLElement),
+            track: expect.any(HTMLElement),
+            handle: expect.any(HTMLElement),
+            clone: expect.any(Function),
+          },
+          scrollbarVertical: {
+            scrollbar: expect.any(HTMLElement),
+            track: expect.any(HTMLElement),
+            handle: expect.any(HTMLElement),
+            clone: expect.any(Function),
+          },
+        };
 
-      expect(OverlayScrollbars(div, customOptions).options()).toEqual(
-        assignDeep({}, defaultOptions, customOptions)
-      );
-      OverlayScrollbars(div)!.destroy();
+        expect(elements).not.toBe(osInstance.elements());
+        // clone function identity is always different
+        expect(
+          assignDeep({}, elements, {
+            scrollbarHorizontal: {
+              clone: null,
+            },
+            scrollbarVertical: {
+              clone: null,
+            },
+          })
+        ).toEqual(
+          assignDeep({}, osInstance.elements(), {
+            scrollbarHorizontal: {
+              clone: null,
+            },
+            scrollbarVertical: {
+              clone: null,
+            },
+          })
+        );
+        expect(elements).toEqual(elementsObj);
 
-      const osInstance2 = OverlayScrollbars(div, {});
-      expect(osInstance2.options(customOptions)).toEqual(
-        assignDeep({}, defaultOptions, customOptions)
-      );
-      expect(osInstance2.options()).toEqual(assignDeep({}, defaultOptions, customOptions));
+        osInstance.destroy();
+
+        expect(elements).toEqual(elementsObj);
+      });
+
+      test('clone scrollbars', () => {
+        const osInstance = OverlayScrollbars(div, {});
+        const elements = osInstance.elements();
+
+        const hClone = elements.scrollbarHorizontal.clone();
+        const vClone = elements.scrollbarVertical.clone();
+
+        expect(hClone).toEqual({
+          scrollbar: expect.any(HTMLElement),
+          track: expect.any(HTMLElement),
+          handle: expect.any(HTMLElement),
+        });
+        expect(vClone).toEqual({
+          scrollbar: expect.any(HTMLElement),
+          track: expect.any(HTMLElement),
+          handle: expect.any(HTMLElement),
+        });
+
+        div.append(hClone.scrollbar);
+        div.append(vClone.scrollbar);
+
+        osInstance.destroy();
+
+        expect(div.innerHTML).toBe('');
+      });
+    });
+
+    describe('options', () => {
+      [false, true].forEach((withValidationPlugin) => {
+        describe(`${withValidationPlugin ? 'with' : 'without'} optionsValidationPlugin`, () => {
+          beforeEach(() => {
+            if (withValidationPlugin) {
+              OverlayScrollbars.plugin(optionsValidationPlugin);
+            }
+          });
+
+          test('equality', () => {
+            const osInstance = OverlayScrollbars(div, {});
+            expect(osInstance.options()).not.toBe(defaultOptions);
+            expect(osInstance.options()).toEqual(defaultOptions);
+            OverlayScrollbars(div)!.destroy();
+          });
+
+          test('initial options', () => {
+            const customOptions: DeepPartial<Options> = {
+              paddingAbsolute: !defaultOptions.paddingAbsolute,
+              overflow: { x: 'hidden' },
+            };
+
+            const osInstance = OverlayScrollbars(div, customOptions);
+            expect(osInstance.options()).toEqual(assignDeep({}, defaultOptions, customOptions));
+          });
+
+          test('changed options', () => {
+            const customOptions: DeepPartial<Options> = {
+              paddingAbsolute: !defaultOptions.paddingAbsolute,
+              overflow: { x: 'hidden' },
+            };
+
+            const osInstance = OverlayScrollbars(div, {});
+            expect(osInstance.options(customOptions)).toEqual(
+              assignDeep({}, defaultOptions, customOptions)
+            );
+            expect(osInstance.options()).toEqual(assignDeep({}, defaultOptions, customOptions));
+            osInstance.destroy();
+          });
+
+          test('unchanged wont trigger update', () => {
+            const updated = jest.fn();
+            const initialOpts: DeepPartial<Options> = {
+              paddingAbsolute: true,
+              overflow: {
+                y: 'hidden',
+              },
+            };
+            const osInstance4 = OverlayScrollbars(div, initialOpts, {
+              updated,
+            });
+            expect(updated).toHaveBeenCalledTimes(1);
+            osInstance4.options(initialOpts);
+            expect(updated).toHaveBeenCalledTimes(1);
+          });
+        });
+      });
     });
 
     test('on', () => {
@@ -296,59 +415,6 @@ describe('overlayscrollbars', () => {
       );
     });
 
-    test('elements', () => {
-      const osInstance = OverlayScrollbars(div, {});
-      const elements = osInstance.elements();
-      const elementsObj = {
-        target: div,
-        host: div,
-        padding: expect.any(HTMLElement),
-        viewport: expect.any(HTMLElement),
-        content: expect.any(HTMLElement),
-        scrollOffsetElement: expect.any(HTMLElement),
-        scrollEventElement: expect.any(HTMLElement),
-        scrollbarHorizontal: {
-          scrollbar: expect.any(HTMLElement),
-          track: expect.any(HTMLElement),
-          handle: expect.any(HTMLElement),
-          clone: expect.any(Function),
-        },
-        scrollbarVertical: {
-          scrollbar: expect.any(HTMLElement),
-          track: expect.any(HTMLElement),
-          handle: expect.any(HTMLElement),
-          clone: expect.any(Function),
-        },
-      };
-
-      expect(elements).not.toBe(osInstance.elements());
-      // clone function identity is always different
-      expect(
-        assignDeep({}, elements, {
-          scrollbarHorizontal: {
-            clone: null,
-          },
-          scrollbarVertical: {
-            clone: null,
-          },
-        })
-      ).toEqual(
-        assignDeep({}, osInstance.elements(), {
-          scrollbarHorizontal: {
-            clone: null,
-          },
-          scrollbarVertical: {
-            clone: null,
-          },
-        })
-      );
-      expect(elements).toEqual(elementsObj);
-
-      osInstance.destroy();
-
-      expect(elements).toEqual(elementsObj);
-    });
-
     test('update', () => {
       const osInstance = OverlayScrollbars(div, {});
       expect(osInstance.update()).toBe(false);
@@ -404,5 +470,65 @@ describe('overlayscrollbars', () => {
       osInstance.destroy();
       expect(OverlayScrollbars.valid(osInstance)).toBe(false);
     });
+  });
+
+  test('plugins', () => {
+    const staticPluginFn = jest.fn();
+    const staticObjPluginFn = jest.fn();
+    const instanceObjPluginFn = jest.fn();
+    const staticPlugin = {
+      staticPlugin: {
+        staticFn: staticPluginFn,
+      },
+    };
+    expect(
+      OverlayScrollbars.plugin([
+        {
+          expect: (staticObj, instanceObj) => {
+            if (instanceObj) {
+              expect(staticObj).toBe(undefined);
+              expect(OverlayScrollbars.valid(instanceObj)).toBe(true);
+            }
+            if (staticObj) {
+              expect(staticObj).toBe(OverlayScrollbars);
+              expect(instanceObj).toBe(undefined);
+            }
+          },
+        },
+        {
+          staticPlugin,
+          staticObjPlugin: (staticObj, instanceObj) => {
+            if (staticObj) {
+              expect(instanceObj).toBe(undefined);
+              // @ts-ignore
+              staticObj.staticObjPluginFn = staticObjPluginFn;
+            }
+          },
+          instanceObjPlugin: (_, instanceObj) => {
+            if (instanceObj) {
+              // @ts-ignore
+              instanceObj.instanceObjPluginFn = instanceObjPluginFn;
+            }
+          },
+        },
+      ])
+    ).toBe(undefined);
+
+    expect(staticPluginFn).not.toHaveBeenCalled();
+    // @ts-ignore
+    staticPlugin.staticPlugin.staticFn();
+    expect(staticPluginFn).toHaveBeenCalledTimes(1);
+
+    // staticObj plugin must be available before any initialization
+    expect(staticObjPluginFn).not.toHaveBeenCalled();
+    // @ts-ignore
+    OverlayScrollbars.staticObjPluginFn();
+    expect(staticObjPluginFn).toHaveBeenCalledTimes(1);
+
+    const osInstance = OverlayScrollbars(div, {});
+    expect(instanceObjPluginFn).not.toHaveBeenCalled();
+    // @ts-ignore
+    osInstance.instanceObjPluginFn();
+    expect(instanceObjPluginFn).toHaveBeenCalledTimes(1);
   });
 });
