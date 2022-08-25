@@ -22,7 +22,7 @@ import {
   on,
 } from 'support';
 
-import { createDOMObserver } from 'observers/domObserver';
+import { createDOMObserver } from 'observers';
 
 type DOMContentObserverResult = {
   contentChange: boolean;
@@ -168,7 +168,6 @@ const createContentDomOserver = (
       });
     },
     {
-      _styleChangingAttributes: attrs,
       _attributes: attrs,
       _eventContentChange: eventContentChange,
       _nestedTargetSelector: hostSelector,

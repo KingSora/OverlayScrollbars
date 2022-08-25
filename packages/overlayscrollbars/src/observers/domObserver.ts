@@ -11,6 +11,8 @@ import {
   is,
   find,
   push,
+  from,
+  runEachAndClear,
 } from 'support';
 
 type DOMContentObserverCallback = (contentChangedTroughEvent: boolean) => any;
@@ -19,7 +21,6 @@ type DOMTargetObserverCallback = (targetChangedAttrs: string[], targetStyleChang
 
 interface DOMObserverOptionsBase {
   _attributes?: string[];
-  _styleChangingAttributes?: string[];
   /**
    * A function which can ignore a changed attribute if it returns true.
    * for DOMTargetObserver this applies to the changes to the observed target
@@ -34,7 +35,13 @@ interface DOMContentObserverOptions extends DOMObserverOptionsBase {
   _ignoreContentChange?: DOMObserverIgnoreContentChange; // function which will prevent marking certain dom changes as content change if it returns true
 }
 
-type DOMTargetObserverOptions = DOMObserverOptionsBase;
+interface DOMTargetObserverOptions extends DOMObserverOptionsBase {
+  /**
+   * Marks certain attributes as style changing, should be a subset of the _attributes prop.
+   * Used to set the "targetStyleChanged" param in the DOMTargetObserverCallback.
+   */
+  _styleChangingAttributes?: string[];
+}
 
 type ContentChangeArrayItem = [selector?: string, eventNames?: string] | null | undefined;
 
@@ -71,7 +78,10 @@ export type DOMObserver<ContentObserver extends boolean> = [
   update: () => void | false | Parameters<DOMObserverCallback<ContentObserver>>
 ];
 
-type EventContentChangeUpdateElement = (getElements?: (selector: string) => Node[]) => void;
+type EventContentChangeUpdateElement = (
+  getElements?: (selector: string) => Node[],
+  removed?: boolean
+) => void;
 type EventContentChange = [destroy: () => void, updateElements: EventContentChangeUpdateElement];
 
 /**
@@ -82,21 +92,20 @@ type EventContentChange = [destroy: () => void, updateElements: EventContentChan
  * @returns A object which contains a set of helper functions to destroy and update the observation of elements.
  */
 const createEventContentChange = (
-  target: Element,
+  target: HTMLElement,
   callback: (...args: any) => any,
   eventContentChange?: DOMObserverEventContentChange
 ): EventContentChange => {
-  let map: WeakMap<Node, [string, () => any]> | undefined; // weak map to prevent memory leak for detached elements
+  let map: WeakMap<Node, (() => any)[]> | undefined; // weak map to prevent memory leak for detached elements
   let destroyed = false;
   const destroy = () => {
     destroyed = true;
   };
-  const updateElements: EventContentChangeUpdateElement = (getElements?) => {
+  const updateElements: EventContentChangeUpdateElement = (getElements) => {
     if (eventContentChange) {
       const eventElmList = eventContentChange.reduce<Array<[Node[], string]>>((arr, item) => {
         if (item) {
-          const selector = item[0];
-          const eventNames = item[1];
+          const [selector, eventNames] = item;
           const elements =
             eventNames &&
             selector &&
@@ -112,27 +121,23 @@ const createEventContentChange = (
       each(eventElmList, (item) =>
         each(item[0], (elm) => {
           const eventNames = item[1];
-          const entry = map!.get(elm);
+          const entries = map!.get(elm) || [];
+          const isTargetChild = target.contains(elm);
 
-          if (entry) {
-            const entryEventNames = entry[0];
-            const entryOff = entry[1];
-
-            // in case an already registered element is registered again, unregister the previous events
-            if (entryEventNames === eventNames) {
-              entryOff();
-            }
+          if (isTargetChild) {
+            const off = on(elm, eventNames, (event: Event) => {
+              if (destroyed) {
+                off();
+                map!.delete(elm);
+              } else {
+                callback(event);
+              }
+            });
+            map!.set(elm, push(entries, off));
+          } else {
+            runEachAndClear(entries);
+            map!.delete(elm);
           }
-
-          const off = on(elm, eventNames, (event: Event) => {
-            if (destroyed) {
-              off();
-              map!.delete(elm);
-            } else {
-              callback(event);
-            }
-          });
-          map!.set(elm, [eventNames, off]);
         })
       );
     }
@@ -193,13 +198,21 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   ): void | Parameters<DOMObserverCallback<ContentObserver>> => {
     const ignoreTargetChange = _ignoreTargetChange || noop;
     const ignoreContentChange = _ignoreContentChange || noop;
-    const targetChangedAttrs: string[] = [];
-    const totalAddedNodes: Node[] = [];
+    const totalChangedNodes: Set<Node> = new Set();
+    const targetChangedAttrs: Set<string> = new Set();
     let targetStyleChanged = false;
     let contentChanged = false;
     let childListChanged = false;
+
     each(mutations, (mutation) => {
-      const { attributeName, target: mutationTarget, type, oldValue, addedNodes } = mutation;
+      const {
+        attributeName,
+        target: mutationTarget,
+        type,
+        oldValue,
+        addedNodes,
+        removedNodes,
+      } = mutation;
       const isAttributesType = type === 'attributes';
       const isChildListType = type === 'childList';
       const targetIsMutationTarget = target === mutationTarget;
@@ -212,9 +225,9 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
 
       // if is content observer and something changed in children
-      if (isContentObserver && !targetIsMutationTarget) {
+      if (isContentObserver && (isChildListType || !targetIsMutationTarget)) {
         const notOnlyAttrChanged = !isAttributesType;
-        const contentAttrChanged = isAttributesType && styleChangingAttrChanged;
+        const contentAttrChanged = isAttributesType && attributeChanged;
         const isNestedTarget =
           contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
         const baseAssertion = isNestedTarget
@@ -223,7 +236,8 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         const contentFinalChanged =
           baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
 
-        push(totalAddedNodes, addedNodes);
+        each(addedNodes, (node) => totalChangedNodes.add(node));
+        each(removedNodes, (node) => totalChangedNodes.add(node));
 
         contentChanged = contentChanged || contentFinalChanged;
         childListChanged = childListChanged || isChildListType;
@@ -235,15 +249,15 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         attributeChanged &&
         !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue)
       ) {
-        push(targetChangedAttrs, attributeName!);
+        targetChangedAttrs.add(attributeName!);
         targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
       }
     });
 
-    if (childListChanged && !isEmptyArray(totalAddedNodes)) {
-      // adds / removes the new elements from the event content change
-      updateEventContentChangeElements((selector) =>
-        totalAddedNodes.reduce<Node[]>((arr, node) => {
+    // adds / removes the new elements from the event content change
+    if (totalChangedNodes.size > 0) {
+      updateEventContentChangeElements((selector: string) =>
+        from(totalChangedNodes).reduce<Node[]>((arr, node) => {
           push(arr, find(selector, node));
           return is(node, selector) ? push(arr, node) : arr;
         }, [])
@@ -254,12 +268,15 @@ export const createDOMObserver = <ContentObserver extends boolean>(
       !fromRecords && contentChanged && (callback as DOMContentObserverCallback)(false);
       return [false] as Parameters<DOMObserverCallback<ContentObserver>>;
     }
-    if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
-      !fromRecords &&
-        (callback as DOMTargetObserverCallback)(targetChangedAttrs, targetStyleChanged);
-      return [targetChangedAttrs, targetStyleChanged] as Parameters<
-        DOMObserverCallback<ContentObserver>
-      >;
+
+    if (targetChangedAttrs.size > 0 || targetStyleChanged) {
+      const args: Parameters<DOMTargetObserverCallback> = [
+        from(targetChangedAttrs),
+        targetStyleChanged,
+      ];
+      !fromRecords && (callback as DOMTargetObserverCallback).apply(0, args);
+
+      return args as Parameters<DOMObserverCallback<ContentObserver>>;
     }
   };
   const mutationObserver: MutationObserver = new MutationObserverConstructor!((mutations) =>

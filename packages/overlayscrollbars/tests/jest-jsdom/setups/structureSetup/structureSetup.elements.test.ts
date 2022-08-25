@@ -80,7 +80,7 @@ const fillBody = (
   return getSnapshot();
 };
 const clearBody = () => {
-  document.body.innerHTML = '';
+  document.body.outerHTML = '';
 };
 
 const getElements = (targetType: TargetType) => {

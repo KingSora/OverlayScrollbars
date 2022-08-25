@@ -11,7 +11,7 @@ import {
   waitForOrFailTest,
 } from '@~local/browser-testing';
 import { offsetSize } from 'support';
-import { createTrinsicObserver } from 'observers/trinsicObserver';
+import { createTrinsicObserver } from 'observers';
 import { addPlugin, sizeObserverPlugin } from 'plugins';
 
 if (!window.ResizeObserver) {

@@ -12,7 +12,7 @@ import {
 } from '@~local/browser-testing';
 import { hasDimensions, offsetSize, WH, style } from 'support';
 import { addPlugin, sizeObserverPlugin } from 'plugins';
-import { createSizeObserver } from 'observers/sizeObserver';
+import { createSizeObserver } from 'observers';
 
 if (!window.ResizeObserver) {
   addPlugin(sizeObserverPlugin);

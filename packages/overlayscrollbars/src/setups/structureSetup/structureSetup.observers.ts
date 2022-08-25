@@ -34,9 +34,13 @@ import {
   classNameScrollbar,
   classNameViewportArrange,
 } from 'classnames';
-import { createSizeObserver, SizeObserverCallbackParams } from 'observers/sizeObserver';
-import { createTrinsicObserver } from 'observers/trinsicObserver';
-import { createDOMObserver, DOMObserver } from 'observers/domObserver';
+import {
+  createSizeObserver,
+  createTrinsicObserver,
+  createDOMObserver,
+  DOMObserver,
+  SizeObserverCallbackParams,
+} from 'observers';
 import type { SetupState, SetupUpdateCheckOption } from 'setups';
 import type { StructureSetupState } from 'setups/structureSetup';
 import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
@@ -318,7 +322,6 @@ export const createStructureSetupObservers = (
           true,
           onContentMutation,
           {
-            _styleChangingAttributes: contentMutationObserverAttr.concat(attributes || []),
             _attributes: contentMutationObserverAttr.concat(attributes || []),
             _eventContentChange: elementEvents,
             _nestedTargetSelector: hostSelector,
