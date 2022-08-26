@@ -24,7 +24,8 @@ import {
   classNameSizeObserverAppear,
   classNameSizeObserverListener,
 } from 'classnames';
-import { getPlugins, SizeObserverPluginInstance, sizeObserverPluginName } from 'plugins';
+import { getPlugins, sizeObserverPluginName } from 'plugins';
+import type { SizeObserverPluginInstance } from 'plugins';
 
 export interface SizeObserverOptions {
   _direction?: boolean;
@@ -207,7 +208,9 @@ export const createSizeObserver = (
         );
       }
 
-      appendChildren(target, sizeObserver);
+      if (ResizeObserverConstructor || sizeObserverPlugin) {
+        appendChildren(target, sizeObserver);
+      }
     },
   ];
 };

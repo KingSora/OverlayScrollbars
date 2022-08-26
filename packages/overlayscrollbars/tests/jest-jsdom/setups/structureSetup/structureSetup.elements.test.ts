@@ -21,14 +21,6 @@ jest.mock('environment', () => ({
   getEnvironment: jest.fn(),
 }));
 
-jest.mock('support/compatibility/apis', () => {
-  const originalModule = jest.requireActual('support/compatibility/apis');
-  return {
-    ...originalModule,
-    ResizeObserverConstructor: true,
-  };
-});
-
 addPlugin(scrollbarsHidingPlugin);
 
 interface StructureSetupElementsProxy {
