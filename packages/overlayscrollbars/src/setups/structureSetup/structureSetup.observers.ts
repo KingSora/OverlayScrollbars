@@ -186,13 +186,13 @@ export const createStructureSetupObservers = (
 
     updateFn({ _sizeChanged, _directionChanged: directionChanged });
   };
-  const onContentMutation = (contentChangedTroughEvent: boolean, fromRecords?: true) => {
+  const onContentMutation = (contentChangedThroughEvent: boolean, fromRecords?: true) => {
     const [, contentSizeChanged] = updateContentSizeCache();
     const updateHints: Partial<StructureSetupUpdateHints> = {
       _contentMutation: contentSizeChanged,
     };
-    // if contentChangedTroughEvent is true its already debounced
-    const updateFn = contentChangedTroughEvent
+    // if contentChangedThroughEvent is true its already debounced
+    const updateFn = contentChangedThroughEvent
       ? structureSetupUpdate
       : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
 

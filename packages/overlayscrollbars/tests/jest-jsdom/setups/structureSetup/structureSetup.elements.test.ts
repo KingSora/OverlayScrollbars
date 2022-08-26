@@ -130,9 +130,14 @@ const assertCorrectDOMStructure = (targetType: TargetType, viewportIsTarget: boo
 };
 
 const createStructureSetupElementsProxy = (
-  target: InitializationTarget
+  target: InitializationTarget,
+  tabindex?: boolean
 ): StructureSetupElementsProxy => {
   const [elements, appendElements, destroy] = createStructureSetupElements(target);
+  // simulate tabindex inheritance from host via mutation observer
+  if (tabindex) {
+    elements._viewport.setAttribute('tabindex', elements._target.getAttribute('tabindex')!);
+  }
   appendElements();
   return {
     input: target,
@@ -1117,13 +1122,13 @@ describe('structureSetup.elements', () => {
         const target = document.body.firstElementChild as HTMLElement;
         target.focus();
 
-        const { elements } = createStructureSetupElementsProxy(target);
+        const { elements } = createStructureSetupElementsProxy(target, true);
         expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
         expect(document.activeElement).toBe(elements._viewport);
 
         elements._documentElm.dispatchEvent(new Event('keydown'));
 
-        expect(elements._viewport.getAttribute('tabindex')).toBe(null);
+        expect(elements._viewport.getAttribute('tabindex')).toBe('123');
       });
     });
 

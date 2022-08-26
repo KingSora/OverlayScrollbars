@@ -15,7 +15,7 @@ import {
   runEachAndClear,
 } from 'support';
 
-type DOMContentObserverCallback = (contentChangedTroughEvent: boolean) => any;
+type DOMContentObserverCallback = (contentChangedThroughEvent: boolean) => any;
 
 type DOMTargetObserverCallback = (targetChangedAttrs: string[], targetStyleChanged: boolean) => any;
 

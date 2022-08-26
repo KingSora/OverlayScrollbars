@@ -33,11 +33,11 @@ import {
 } from 'classnames';
 import { getEnvironment } from 'environment';
 import { getPlugins, scrollbarsHidingPluginName } from 'plugins';
-import type { ScrollbarsHidingPluginInstance } from 'plugins/scrollbarsHidingPlugin';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
 } from 'initialization';
+import type { ScrollbarsHidingPluginInstance } from 'plugins/scrollbarsHidingPlugin';
 import type {
   InitializationTarget,
   InitializationTargetElement,
