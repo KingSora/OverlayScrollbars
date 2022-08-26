@@ -72,7 +72,7 @@ export const createStructureSetup = (
   const checkOptionsFallback = createOptionCheck(options, {});
   const state = createState(initialStructureSetupUpdateState);
   const [addEvent, removeEvent, triggerEvent] = createEventListenerHub<StructureSetupEventMap>();
-  const [getState] = state;
+  const [getState, setState] = state;
   const [elements, appendStructureElements, destroyElements] = createStructureSetupElements(target);
   const updateStructure = createStructureSetupUpdate(elements, state);
   const triggerUpdateEvent: (...args: StructureSetupEventMap['u']) => boolean = (
@@ -88,7 +88,7 @@ export const createStructureSetup = (
     return changed;
   };
   const [destroyObservers, appendObserverElements, updateObservers, updateObserversOptions] =
-    createStructureSetupObservers(elements, state, (updateHints) =>
+    createStructureSetupObservers(elements, setState, (updateHints) =>
       triggerUpdateEvent(updateStructure(checkOptionsFallback, updateHints), {}, false)
     );
 

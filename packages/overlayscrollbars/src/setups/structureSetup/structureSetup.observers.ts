@@ -75,7 +75,7 @@ const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
 
 export const createStructureSetupObservers = (
   structureSetupElements: StructureSetupElementsObj,
-  state: SetupState<StructureSetupState>,
+  setState: SetupState<StructureSetupState>[1],
   structureSetupUpdate: (
     ...args: ExcludeFromTuple<Parameters<StructureSetupUpdate>, Parameters<StructureSetupUpdate>[0]>
   ) => any
@@ -83,7 +83,6 @@ export const createStructureSetupObservers = (
   let debounceTimeout: number | false | undefined;
   let debounceMaxDelay: number | false | undefined;
   let contentMutationObserver: DOMObserver<true> | undefined;
-  const [, setState] = state;
   const {
     _host,
     _viewport,
