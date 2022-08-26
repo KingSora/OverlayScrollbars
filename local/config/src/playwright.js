@@ -8,6 +8,7 @@ module.exports = {
   maxFailures: 0,
   workers: 4,
   fullyParallel: true,
+  reporter: 'list',
   projects: [
     {
       name: 'Chromium',
