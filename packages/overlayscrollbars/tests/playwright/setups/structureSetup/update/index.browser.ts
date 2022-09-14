@@ -32,7 +32,9 @@ import {
 } from 'support';
 import { Options } from 'options';
 import { DeepPartial } from 'typings';
-import { addPlugin, scrollbarsHidingPlugin, sizeObserverPlugin } from 'plugins';
+import { addPlugin, scrollbarsHidingPlugin, sizeObserverPlugin, clickScrollPlugin } from 'plugins';
+
+addPlugin(clickScrollPlugin);
 
 if (!window.ResizeObserver) {
   addPlugin(sizeObserverPlugin);

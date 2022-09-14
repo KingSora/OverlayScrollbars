@@ -17,8 +17,8 @@ const normalizePath = (pathName) =>
 
 const fixturesDir = path.join(__dirname, '.fixtures');
 const libraryFixturePath = normalizePath(path.join(fixturesDir, 'lib.js'));
-const unshakedFixturePath = normalizePath(path.join(fixturesDir, 'unshaked.js'));
-const shakedFixturePath = normalizePath(path.join(fixturesDir, 'shaked.js'));
+const normalFixturePath = normalizePath(path.join(fixturesDir, 'nromal.js'));
+const treeshakedFixturePath = normalizePath(path.join(fixturesDir, 'treeshaked.js'));
 
 const unshakedFixtureContent = `
   export * as os from '${libraryFixturePath}';
@@ -89,18 +89,24 @@ const bundleFunctions = {
 const testBundler = (bundlerName) => async () => {
   const bundleFunction = bundleFunctions[bundlerName];
   const outputDir = path.join(__dirname, `.${bundlerName}`);
-  const unshaked = await bundleFunction(unshakedFixturePath, path.join(outputDir, 'unshaked.js'));
-  const shaked = await bundleFunction(shakedFixturePath, path.join(outputDir, 'shaked.js'));
+  const normal = await bundleFunction(
+    normalFixturePath,
+    path.join(outputDir, path.basename(normalFixturePath))
+  );
+  const treeshaked = await bundleFunction(
+    treeshakedFixturePath,
+    path.join(outputDir, path.basename(treeshakedFixturePath))
+  );
 
   cleanBundle && fs.rmSync(outputDir, { recursive: true });
 
   console.info(`${bundlerName} size`, {
-    unshaked,
-    shaked,
-    diff: unshaked - shaked,
+    normal,
+    treeshaked,
+    diff: normal - treeshaked,
   });
 
-  expect(unshaked - shaked).toBeGreaterThan(expectedBundleDiff);
+  expect(normal - treeshaked).toBeGreaterThan(expectedBundleDiff);
 };
 
 describe('tree shaking', () => {
@@ -131,8 +137,8 @@ describe('tree shaking', () => {
       fs.mkdirSync(fixturesDir);
     }
 
-    fs.writeFileSync(unshakedFixturePath, unshakedFixtureContent);
-    fs.writeFileSync(shakedFixturePath, shakedFixtureContent);
+    fs.writeFileSync(normalFixturePath, unshakedFixtureContent);
+    fs.writeFileSync(treeshakedFixturePath, shakedFixtureContent);
   }, 60000 * 2);
 
   // clean the fixture

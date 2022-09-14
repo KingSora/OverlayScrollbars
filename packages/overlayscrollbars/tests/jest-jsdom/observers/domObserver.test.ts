@@ -9,9 +9,11 @@ jest.mock('support/compatibility/apis', () => {
     ...originalModule,
     // @ts-ignore
     rAF: jest.fn().mockImplementation((...args) => mockRAF(...args)),
+    // @ts-ignore
     cAF: jest.fn().mockImplementation((...args) => clearTimeout(...args)),
     // @ts-ignore
     setT: jest.fn().mockImplementation((...args) => setTimeout(...args)),
+    // @ts-ignore
     clearT: jest.fn().mockImplementation((...args) => clearTimeout(...args)),
   };
 });

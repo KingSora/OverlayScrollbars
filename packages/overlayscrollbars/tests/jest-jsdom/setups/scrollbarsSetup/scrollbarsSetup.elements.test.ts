@@ -26,6 +26,7 @@ jest.mock('support/compatibility/apis', () => {
     ...originalModule,
     // @ts-ignore
     setT: jest.fn().mockImplementation((...args) => setTimeout(...args)),
+    // @ts-ignore
     clearT: jest.fn().mockImplementation((...args) => clearTimeout(...args)),
   };
 });

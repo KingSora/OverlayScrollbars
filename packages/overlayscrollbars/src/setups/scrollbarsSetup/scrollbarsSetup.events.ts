@@ -10,17 +10,16 @@ import {
   selfClearTimeout,
   parent,
   closest,
-  rAF,
-  cAF,
   push,
-  noop,
 } from 'support';
+import { getPlugins, clickScrollPluginName } from 'plugins';
 import { getEnvironment } from 'environment';
 import {
   classNameScrollbarHandle,
   classNamesScrollbarInteraction,
   classNamesScrollbarWheel,
 } from 'classnames';
+import type { ClickScrollPluginInstance } from 'plugins';
 import type { ReadonlyOptions } from 'options';
 import type { StructureSetupState } from 'setups';
 import type {
@@ -37,31 +36,7 @@ export type ScrollbarsSetupEvents = (
   isHorizontal?: boolean
 ) => () => void;
 
-const { round, max, sign } = Math;
-const animationCurrentTime = () => performance.now();
-const animateNumber = (
-  from: number,
-  to: number,
-  duration: number,
-  onFrame: (progress: number, completed: boolean) => any
-) => {
-  let animationFrameId = 0;
-  const timeStart = animationCurrentTime();
-  const frame = () => {
-    const timeNow = animationCurrentTime();
-    const timeElapsed = timeNow - timeStart;
-    const stopAnimation = timeElapsed >= duration;
-    const percent = 1 - (max(0, timeStart + duration - timeNow) / duration || 0);
-    const progress = (to - from) * percent + from;
-    const animationCompleted = stopAnimation || percent === 1;
-
-    onFrame(progress, animationCompleted);
-
-    animationFrameId = animationCompleted ? 0 : rAF!(frame);
-  };
-  frame();
-  return () => cAF!(animationFrameId);
-};
+const { round } = Math;
 const getScale = (element: HTMLElement): XY<number> => {
   const { width, height } = getBoundingClientRect(element);
   const { w, h } = offsetSize(element);
@@ -108,8 +83,7 @@ const createInteractiveScrollEvents = (
   const leftTopKey = isHorizontal ? 'left' : 'top'; // for BCR (can't use xy because of IE11)
   const whKey = isHorizontal ? 'w' : 'h';
   const xyKey = isHorizontal ? 'x' : 'y';
-  const getHandleOffset = (handleRect: DOMRect, trackRect: DOMRect) =>
-    handleRect[leftTopKey] - trackRect[leftTopKey];
+
   const createRelativeHandleMove =
     (mouseDownScroll: number, invertedScale: number) => (deltaMovement: number) => {
       const { _overflowAmount } = structureSetupState();
@@ -129,13 +103,17 @@ const createInteractiveScrollEvents = (
 
     if (continuePointerDown(pointerDownEvent, options, isDragScroll)) {
       const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
+      const getHandleRect = () => getBoundingClientRect(_handle);
+      const getTrackRect = () => getBoundingClientRect(_track);
+      const getHandleOffset = (handleRect?: DOMRect, trackRect?: DOMRect) =>
+        (handleRect || getHandleRect())[leftTopKey] - (trackRect || getTrackRect())[leftTopKey];
       const moveHandleRelative = createRelativeHandleMove(
         scrollOffsetElement[scrollLeftTopKey] || 0,
         1 / getScale(scrollOffsetElement)[xyKey]
       );
       const pointerDownOffset = pointerDownEvent[clientXYKey];
-      const handleRect = getBoundingClientRect(_handle);
-      const trackRect = getBoundingClientRect(_track);
+      const handleRect = getHandleRect();
+      const trackRect = getTrackRect();
       const handleLength = handleRect[widthHeightKey];
       const handleCenter = getHandleOffset(handleRect, trackRect) + handleLength / 2;
       const relativeTrackPointerOffset = pointerDownOffset - trackRect[leftTopKey];
@@ -157,42 +135,22 @@ const createInteractiveScrollEvents = (
       if (instantClickScroll) {
         moveHandleRelative(startOffset);
       } else if (!isDragScroll) {
-        // click scroll animation
-        let iteration = 0;
-        let clear = noop;
-        const animateClickScroll = (clickScrollProgress: number) => {
-          clear = animateNumber(
-            clickScrollProgress,
-            clickScrollProgress + handleLength * sign(startOffset),
-            133,
-            (animationProgress, animationCompleted) => {
-              moveHandleRelative(animationProgress);
-              const handleStartBound = getHandleOffset(getBoundingClientRect(_handle), trackRect);
-              const handleEndBound = handleStartBound + handleLength;
-              const mouseBetweenHandleBounds =
-                relativeTrackPointerOffset >= handleStartBound &&
-                relativeTrackPointerOffset <= handleEndBound;
+        const sizeObserverPlugin = getPlugins()[clickScrollPluginName] as
+          | ClickScrollPluginInstance
+          | undefined;
 
-              if (animationCompleted && !mouseBetweenHandleBounds) {
-                if (iteration) {
-                  animateClickScroll(animationProgress);
-                } else {
-                  const firstIterationPauseTimeout = setTimeout(() => {
-                    animateClickScroll(animationProgress);
-                  }, 222);
-                  clear = () => {
-                    clearTimeout(firstIterationPauseTimeout);
-                  };
-                }
-                iteration++;
-              }
-            }
+        if (sizeObserverPlugin) {
+          push(
+            offFns,
+            sizeObserverPlugin._(
+              moveHandleRelative,
+              getHandleOffset,
+              startOffset,
+              handleLength,
+              relativeTrackPointerOffset
+            )
           );
-        };
-
-        animateClickScroll(0);
-
-        push(offFns, () => clear());
+        }
       }
 
       on(
