@@ -1,14 +1,24 @@
-<p align="center">
+<div align="center">
   <a href="https://kingsora.github.io/OverlayScrollbars">
-    <a href="https://kingsora.github.io/OverlayScrollbars"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="200" height="200" alt="OverlayScrollbars"></a>
+    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
   </a>
-</p>
+</div>
 <h6 align="center">
-    <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square" alt="Downloads"></a>
-    <a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version"></a>
-    <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
-    <a href="https://app.codecov.io/gh/KingSora/OverlayScrollbars"><img src="https://img.shields.io/codecov/c/github/KingSora/OverlayScrollbars?style=flat-square" alt="Code Coverage"></a>
-    <a href="https://bundlephobia.com/package/overlayscrollbars"><img src="https://img.shields.io/bundlephobia/minzip/overlayscrollbars?label=max.%20bundle%20size&style=flat-square" alt="Max. Bundle Size"></a>
+    <a href="https://www.npmjs.com/package/overlayscrollbars">
+      <img src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square" alt="Downloads">
+    </a>
+    <a href="https://www.npmjs.com/package/overlayscrollbars">
+      <img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version">
+    </a>
+    <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE">
+      <img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License">
+    </a>
+    <a href="https://app.codecov.io/gh/KingSora/OverlayScrollbars">
+      <img src="https://img.shields.io/codecov/c/github/KingSora/OverlayScrollbars?style=flat-square" alt="Code Coverage">
+    </a>
+    <a href="https://bundlephobia.com/package/overlayscrollbars">
+      <img src="https://img.shields.io/bundlephobia/minzip/overlayscrollbars?label=max.%20bundle%20size&style=flat-square" alt="Max. Bundle Size">
+    </a>
 </h6>
 
 > OverlayScrollbars is a javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.
