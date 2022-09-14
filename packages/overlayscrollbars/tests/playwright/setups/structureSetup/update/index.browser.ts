@@ -32,15 +32,15 @@ import {
 } from 'support';
 import { Options } from 'options';
 import { DeepPartial } from 'typings';
-import { addPlugin, scrollbarsHidingPlugin, sizeObserverPlugin, clickScrollPlugin } from 'plugins';
+import { addPlugin, ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from 'plugins';
 
-addPlugin(clickScrollPlugin);
+addPlugin(ClickScrollPlugin);
 
 if (!window.ResizeObserver) {
-  addPlugin(sizeObserverPlugin);
+  addPlugin(SizeObserverPlugin);
 }
 if (!OverlayScrollbars.env().scrollbarsHiding) {
-  addPlugin(scrollbarsHidingPlugin);
+  addPlugin(ScrollbarsHidingPlugin);
 }
 
 // @ts-ignore

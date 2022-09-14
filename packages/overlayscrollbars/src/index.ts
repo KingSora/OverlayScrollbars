@@ -1,7 +1,7 @@
 import 'index.scss';
 
 export { OverlayScrollbars } from 'overlayscrollbars';
-export { scrollbarsHidingPlugin, sizeObserverPlugin } from 'plugins';
+export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from 'plugins';
 
 export type {
   Options,

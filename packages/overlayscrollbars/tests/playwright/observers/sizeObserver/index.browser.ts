@@ -11,11 +11,11 @@ import {
   waitForOrFailTest,
 } from '@~local/browser-testing';
 import { hasDimensions, offsetSize, WH, style } from 'support';
-import { addPlugin, sizeObserverPlugin } from 'plugins';
+import { addPlugin, SizeObserverPlugin } from 'plugins';
 import { createSizeObserver } from 'observers';
 
 if (!window.ResizeObserver) {
-  addPlugin(sizeObserverPlugin);
+  addPlugin(SizeObserverPlugin);
 }
 
 let sizeIterations = 0;

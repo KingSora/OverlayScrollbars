@@ -1,7 +1,7 @@
 import { DeepPartial } from 'typings';
 import { defaultOptions, Options } from 'options';
 import { assignDeep } from 'support';
-import { optionsValidationPlugin } from 'plugins';
+import { OptionsValidationPlugin } from 'plugins';
 import { OverlayScrollbars as originalOverlayScrollbars } from '../../src/overlayscrollbars';
 
 const bodyElm = document.body;
@@ -242,7 +242,7 @@ describe('overlayscrollbars', () => {
         describe(`${withValidationPlugin ? 'with' : 'without'} optionsValidationPlugin`, () => {
           beforeEach(() => {
             if (withValidationPlugin) {
-              OverlayScrollbars.plugin(optionsValidationPlugin);
+              OverlayScrollbars.plugin(OptionsValidationPlugin);
             }
           });
 

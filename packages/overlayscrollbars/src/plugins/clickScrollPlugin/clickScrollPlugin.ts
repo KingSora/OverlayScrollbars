@@ -13,7 +13,7 @@ export type ClickScrollPluginInstance = {
 
 export const clickScrollPluginName = '__osClickScrollPlugin';
 
-export const clickScrollPlugin: Plugin<ClickScrollPluginInstance> = /* @__PURE__ */ (() => ({
+export const ClickScrollPlugin: Plugin<ClickScrollPluginInstance> = /* @__PURE__ */ (() => ({
   [clickScrollPluginName]: {
     _: (
       moveHandleRelative,

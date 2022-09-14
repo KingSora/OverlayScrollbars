@@ -10,7 +10,7 @@ import {
   createStructureSetupElements,
   StructureSetupElementsObj,
 } from 'setups/structureSetup/structureSetup.elements';
-import { addPlugin, scrollbarsHidingPlugin } from 'plugins';
+import { addPlugin, ScrollbarsHidingPlugin } from 'plugins';
 import type {
   Initialization,
   InitializationTarget,
@@ -21,7 +21,7 @@ jest.mock('environment', () => ({
   getEnvironment: jest.fn(),
 }));
 
-addPlugin(scrollbarsHidingPlugin);
+addPlugin(ScrollbarsHidingPlugin);
 
 interface StructureSetupElementsProxy {
   input: InitializationTarget;

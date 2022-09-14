@@ -79,7 +79,7 @@ const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
 
 export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';
 
-export const scrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
+export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
   /* @__PURE__ */ (() => ({
     [scrollbarsHidingPluginName]: {
       _createUniqueViewportArrangeElement: (env: InternalEnvironment) => {

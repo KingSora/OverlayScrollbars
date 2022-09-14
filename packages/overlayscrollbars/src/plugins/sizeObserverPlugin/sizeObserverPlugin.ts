@@ -32,7 +32,7 @@ const scrollAmount = 3333333;
 const scrollEventName = 'scroll';
 export const sizeObserverPluginName = '__osSizeObserverPlugin';
 
-export const sizeObserverPlugin: Plugin<SizeObserverPluginInstance> = /* @__PURE__ */ (() => ({
+export const SizeObserverPlugin: Plugin<SizeObserverPluginInstance> = /* @__PURE__ */ (() => ({
   [sizeObserverPluginName]: {
     _: (listenerElement, onSizeChangedCallback, observeAppearChange) => {
       const observerElementChildren = createDOM(

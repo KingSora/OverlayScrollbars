@@ -61,7 +61,7 @@ export type OptionsValidationPluginInstance = {
 
 export const optionsValidationPluginName = '__osOptionsValidationPlugin';
 
-export const optionsValidationPlugin: Plugin<OptionsValidationPluginInstance> =
+export const OptionsValidationPlugin: Plugin<OptionsValidationPluginInstance> =
   /* @__PURE__ */ (() => ({
     [optionsValidationPluginName]: {
       _: (options: DeepPartial<Options>, doWriteErrors?: boolean) => {

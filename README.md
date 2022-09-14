@@ -64,7 +64,7 @@ Embedd OverlayScrollbars manually in your HTML:
 
 ## Initialization
 
-> __Note__ During initialization its expected that the <b>CSS file is loaded and parsed</b> by the browser.
+> __Note__: During initialization its expected that the <b>CSS file is loaded and parsed</b> by the browser.
 
 You can initialize either directly with an `Element` or with an `Object` where you have more control over the initialization process. 
 
@@ -75,7 +75,7 @@ const osInstance = OverlayScrollbars(document.querySelector('#myElement'), {});
 
 <details><summary><h6>Initialization with an Object</h6></summary>
 
-> __Note__ For now please refer to the <b>TypeScript definitions</b> for a more detailed description of all possibilities.
+> __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description of all possibilities.
 
 The only required field is the `target` field. This is the field to which the plugin is applied to.  
 If you use the object initialization only with the `target` field, the outcome is equivalent to the element initialization:
@@ -200,7 +200,7 @@ An array of tuples. The first value in the tuple is an `selector` and the second
 | :--- | :--- |
 | `[number, number] \| number \| null` | `[0, 33]` |
 
-> __Note__ If 0 is used for the timeout, `requestAnimationFrame` instead of `setTimeout` is used for the debounce.
+> __Note__: If 0 is used for the timeout, `requestAnimationFrame` instead of `setTimeout` is used for the debounce.
 
 Debounces the `MutationObserver` which tracks changes to the content. If a **tuple** is passed, the first value is the timeout and second is the max wait. If only a **number** is passed you specify only the timeout and there is no max wait. With **null** there is no debounce. **Usefull to fine-tune performance.**
 
@@ -210,7 +210,7 @@ Debounces the `MutationObserver` which tracks changes to the content. If a **tup
 | :--- | :--- |
 | `string[] \| null` | `null` |
 
-> __Note__ There is a base array of attributes that the `MutationObserver` always observes, even if this option is `null`.
+> __Note__: There is a base array of attributes that the `MutationObserver` always observes, even if this option is `null`.
 
 An array of additional attributes that the `MutationObserver` should observe for the content. 
 
@@ -228,7 +228,7 @@ A function which receives a [`MutationRecord`](https://developer.mozilla.org/en-
 | :--- | :--- |
 | `string` | `'scroll'` |
 
-> __Note__ Valid values are: `'hidden'`, `'scroll'`, `'visible'`, `'visible-hidden'` and `'visible-scroll'`.
+> __Note__: Valid values are: `'hidden'`, `'scroll'`, `'visible'`, `'visible-hidden'` and `'visible-scroll'`.
 
 The overflow behavior for the horizontal (x) axis.
 
@@ -238,7 +238,7 @@ The overflow behavior for the horizontal (x) axis.
 | :--- | :--- |
 | `string` | `'scroll'` |
 
-> __Note__ Valid values are: `'hidden'`, `'scroll'`, `'visible'`, `'visible-hidden'` and `'visible-scroll'`.
+> __Note__: Valid values are: `'hidden'`, `'scroll'`, `'visible'`, `'visible-hidden'` and `'visible-scroll'`.
 
 The overflow behavior for the vertical (y) axis.
 
@@ -256,7 +256,7 @@ Applies the specified theme (classname) to the scrollbars.
 | :--- | :--- |
 | `string` | `'auto'` |
 
-> __Note__ Valid values are: `'visible'`, `'hidden'`, and `'auto'`.
+> __Note__: Valid values are: `'visible'`, `'hidden'`, and `'auto'`.
 
 The base visibility of the scrollbars.
 
@@ -266,7 +266,7 @@ The base visibility of the scrollbars.
 | :--- | :--- |
 | `string` | `'never'` |
 
-> __Note__ Valid values are: `'never'`, `'scroll'`, `'leave'` and `'move'`.
+> __Note__: Valid values are: `'never'`, `'scroll'`, `'leave'` and `'move'`.
 
 The possibility to hide visible scrollbars automatically after a certain user action.
 
@@ -317,7 +317,7 @@ OverlayScrollbars(document.querySelector('#myElement'), {}, {
 
 <details><summary><h6>Events in depth</h6></summary>
 
-> __Note__ Every event receives the `instance` from which it was fired as the first argument. Always.
+> __Note__: Every event receives the `instance` from which it was fired as the first argument. Always.
 
 ### `initialized`
 
@@ -334,7 +334,7 @@ Is fired after all generated elements, observers and events were appended to the
 | `instance` | The instance which fired the event. |
 | `onUpdatedArgs` | An `object` which describes the update in detail. |
 
-> __Note__ If an update was triggered but nothing changed, the event won't be fired.
+> __Note__: If an update was triggered but nothing changed, the event won't be fired.
 
 Is fired after the instace was updated. 
 
@@ -351,7 +351,7 @@ Is fired after all generated elements, observers and events were removed from th
 
 ## Instance Methods
 
-> __Note__ For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
+> __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
 
 ```ts
 interface OverlayScrollbars {
@@ -376,7 +376,7 @@ interface OverlayScrollbars {
 
 ## Static Methods
 
-> __Note__ For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
+> __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
 
 ```ts
 interface OverlayScrollbarsStatic {
@@ -392,6 +392,36 @@ interface OverlayScrollbarsStatic {
   env(): Environment;
 }
 ```
+
+## Plugins
+
+Everything thats considered not core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are treeshaken and thus won't end up in your final bundle. OverlayScrollbars comes with the following plugins:
+
+- **ScrollbarsHidingPlugin**: Is needed for old browsers which aren't supporting nativ scrollbar styling features. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=scrollbar%20styling) (note that even though `iOS Safari >= 14` is marked as unsupported you only need this plugin for `iOS < 7.1`).
+- **SizeObserverPlugin**: Is needed for old browsers which aren't supporting the `ResizeObserver` api. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=ResizeObserver)
+- **ClickScrollPlugin**: If you want to use the option `scrollbars: { clickScroll: true }`.
+
+#### Consuming Plugins
+
+You can consume plugins like:
+```ts
+import { 
+  OverlayScrollbars, 
+  ScrollbarsHidingPlugin, 
+  SizeObserverPlugin, 
+  ClickScrollPlugin 
+} from 'overlayscrollbars';
+
+// single plugin
+OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
+
+// multiple plugins
+OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
+```
+
+#### Writing Plugins
+
+You can write and publish your own Plugins. This section is a work in progress.
 
 ## Sponsors
 <table>

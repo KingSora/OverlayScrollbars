@@ -1,12 +1,12 @@
 import { defaultOptions } from 'options';
 import {
-  optionsValidationPlugin,
+  OptionsValidationPlugin,
   optionsValidationPluginName,
 } from 'plugins/optionsValidationPlugin';
 
 const getValidationFn = () => {
-  const name = Object.keys(optionsValidationPlugin)[0];
-  const instance = optionsValidationPlugin[name];
+  const name = Object.keys(OptionsValidationPlugin)[0];
+  const instance = OptionsValidationPlugin[name];
   const validationFn = instance._;
 
   expect(name).toBe(optionsValidationPluginName);

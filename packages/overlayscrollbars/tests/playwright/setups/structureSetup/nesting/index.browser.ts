@@ -4,13 +4,13 @@ import should from 'should';
 import { timeout, setTestResult, waitForOrFailTest, resize } from '@~local/browser-testing';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { addClass, each, isArray, removeAttr, style } from 'support';
-import { addPlugin, scrollbarsHidingPlugin, sizeObserverPlugin } from 'plugins';
+import { addPlugin, ScrollbarsHidingPlugin, SizeObserverPlugin } from 'plugins';
 
 if (!window.ResizeObserver) {
-  addPlugin(sizeObserverPlugin);
+  addPlugin(SizeObserverPlugin);
 }
 if (!OverlayScrollbars.env().scrollbarsHiding) {
-  addPlugin(scrollbarsHidingPlugin);
+  addPlugin(ScrollbarsHidingPlugin);
 }
 
 // @ts-ignore

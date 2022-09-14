@@ -2,7 +2,7 @@ import { DeepPartial } from 'typings';
 import { defaultOptions, Options } from 'options';
 import { Initialization } from 'initialization';
 import { getEnvironment } from 'environment';
-import { scrollbarsHidingPlugin, scrollbarsHidingPluginName } from 'plugins';
+import { ScrollbarsHidingPlugin, scrollbarsHidingPluginName } from 'plugins';
 
 const defaultInitialization = {
   elements: {
@@ -145,7 +145,7 @@ describe('environment', () => {
     test('with scrollbarsHidingPlugin registered before environment was created', async () => {
       const { getPlugins } = await import('plugins');
       (getPlugins as jest.Mock).mockImplementation(() => ({
-        [scrollbarsHidingPluginName]: scrollbarsHidingPlugin[scrollbarsHidingPluginName],
+        [scrollbarsHidingPluginName]: ScrollbarsHidingPlugin[scrollbarsHidingPluginName],
       }));
 
       const { _addListener } = getEnv();
@@ -165,7 +165,7 @@ describe('environment', () => {
 
       const { getPlugins } = await import('plugins');
       (getPlugins as jest.Mock).mockImplementation(() => ({
-        [scrollbarsHidingPluginName]: scrollbarsHidingPlugin[scrollbarsHidingPluginName],
+        [scrollbarsHidingPluginName]: ScrollbarsHidingPlugin[scrollbarsHidingPluginName],
       }));
 
       window.dispatchEvent(new Event('resize'));

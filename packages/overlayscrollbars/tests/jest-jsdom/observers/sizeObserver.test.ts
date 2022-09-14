@@ -1,5 +1,5 @@
 import { createSizeObserver as originalCreateSizeObserver } from 'observers';
-import { sizeObserverPlugin, sizeObserverPluginName } from 'plugins';
+import { SizeObserverPlugin, sizeObserverPluginName } from 'plugins';
 
 let createSizeObserver = originalCreateSizeObserver;
 
@@ -59,7 +59,7 @@ describe('createSizeObserver', () => {
   describe('with sizeObserverPlugin', () => {
     const mockSizeObserverPlugin = jest.fn((...a) => [
       // @ts-ignore
-      sizeObserverPlugin[sizeObserverPluginName]._(...a),
+      SizeObserverPlugin[sizeObserverPluginName]._(...a),
     ]);
 
     beforeEach(() => {
