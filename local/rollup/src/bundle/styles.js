@@ -10,6 +10,12 @@ module.exports = (resolve, options) => {
 
   const pipeline = (cssFilename, minified) => ({
     input,
+    external: (id, parentId) => {
+      if (!parentId) {
+        return false;
+      }
+      return !resolve.styleExtensions.find((ext) => id.endsWith(ext));
+    },
     plugins: [
       rollupAlias(resolve, alias),
       rollupScss(
@@ -21,9 +27,7 @@ module.exports = (resolve, options) => {
         minified
       ),
       rollupEsBuild(false),
-      rollupResolve(resolve, (module) =>
-        resolve.styleExtensions.some((ext) => module.endsWith(ext))
-      ),
+      rollupResolve(resolve),
       {
         generateBundle() {
           process.stdout.write = () => {
