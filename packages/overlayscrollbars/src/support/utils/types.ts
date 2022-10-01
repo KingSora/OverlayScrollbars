@@ -1,4 +1,4 @@
-import { PlainObject } from 'typings';
+import type { PlainObject } from '~/typings';
 
 const ElementNodeType = Node.ELEMENT_NODE;
 const { toString, hasOwnProperty } = Object.prototype;

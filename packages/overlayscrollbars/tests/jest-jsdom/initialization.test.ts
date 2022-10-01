@@ -1,13 +1,13 @@
+import type { Initialization } from '~/initialization';
 import {
   staticInitializationElement,
   dynamicInitializationElement,
   cancelInitialization,
-  Initialization,
-} from 'initialization';
-import { getEnvironment } from 'environment';
+} from '~/initialization';
+import { getEnvironment } from '~/environment';
 
-jest.mock('environment', () => ({
-  getEnvironment: jest.fn(() => jest.requireActual('environment').getEnvironment()),
+jest.mock('~/environment', () => ({
+  getEnvironment: jest.fn(() => jest.requireActual('~/environment').getEnvironment()),
 }));
 
 const createDiv = () => document.createElement('div');
@@ -422,7 +422,7 @@ describe('initialization', () => {
               },
             ].forEach((env) => {
               (getEnvironment as jest.Mock).mockImplementation(() => ({
-                ...jest.requireActual('environment').getEnvironment(),
+                ...jest.requireActual('~/environment').getEnvironment(),
                 ...env,
               }));
               const hasOverlaidScrollbars =
@@ -474,7 +474,7 @@ describe('initialization', () => {
             },
           ].forEach((env) => {
             (getEnvironment as jest.Mock).mockImplementation(() => ({
-              ...jest.requireActual('environment').getEnvironment(),
+              ...jest.requireActual('~/environment').getEnvironment(),
               ...env,
             }));
             const hasOverlaidScrollbars =
@@ -521,7 +521,7 @@ describe('initialization', () => {
                 (env) => {
                   [false, true].forEach((isBody) => {
                     (getEnvironment as jest.Mock).mockImplementation(() => ({
-                      ...jest.requireActual('environment').getEnvironment(),
+                      ...jest.requireActual('~/environment').getEnvironment(),
                       ...env,
                     }));
                     const defaultBody = defaultCancelInitialization.body;
@@ -561,7 +561,7 @@ describe('initialization', () => {
           [{ _nativeScrollbarsHiding: false }, { _nativeScrollbarsHiding: true }].forEach((env) => {
             [false, true].forEach((isBody) => {
               (getEnvironment as jest.Mock).mockImplementation(() => ({
-                ...jest.requireActual('environment').getEnvironment(),
+                ...jest.requireActual('~/environment').getEnvironment(),
                 ...env,
               }));
               const defaultBody = defaultCancelInitialization.body;

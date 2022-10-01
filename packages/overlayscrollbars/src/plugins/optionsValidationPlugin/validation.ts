@@ -1,6 +1,6 @@
-import { each, hasOwnProperty, keys, push, isEmptyObject } from 'support/utils';
-import { type, isArray, isUndefined, isPlainObject, isString } from 'support/utils/types';
-import { PlainObject, DeepPartial } from 'typings';
+import { each, hasOwnProperty, keys, push, isEmptyObject } from '~/support/utils';
+import { type, isArray, isUndefined, isPlainObject, isString } from '~/support/utils/types';
+import type { PlainObject, DeepPartial } from '~/typings';
 
 export type OptionsObjectType = Record<string, unknown>;
 export type OptionsFunctionType = (this: any, ...args: any[]) => any;

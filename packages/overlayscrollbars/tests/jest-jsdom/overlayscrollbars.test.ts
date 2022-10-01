@@ -1,8 +1,9 @@
-import { DeepPartial } from 'typings';
-import { defaultOptions, Options } from 'options';
-import { assignDeep } from 'support';
-import { OptionsValidationPlugin } from 'plugins';
-import { OverlayScrollbars as originalOverlayScrollbars } from '../../src/overlayscrollbars';
+import type { DeepPartial } from '~/typings';
+import type { Options } from '~/options';
+import { defaultOptions } from '~/options';
+import { assignDeep } from '~/support';
+import { OptionsValidationPlugin } from '~/plugins';
+import { OverlayScrollbars as originalOverlayScrollbars } from '~/overlayscrollbars';
 
 const bodyElm = document.body;
 const div = document.createElement('div');
@@ -14,7 +15,7 @@ let OverlayScrollbars = originalOverlayScrollbars;
 describe('overlayscrollbars', () => {
   beforeEach(async () => {
     jest.resetModules();
-    ({ OverlayScrollbars } = await import('../../src/overlayscrollbars'));
+    ({ OverlayScrollbars } = await import('~/overlayscrollbars'));
   });
 
   afterEach(() => {

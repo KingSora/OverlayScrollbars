@@ -1,6 +1,6 @@
+import '~/index.scss';
 import './index.scss';
-import 'index.scss';
-import { OverlayScrollbars } from 'overlayscrollbars';
+import { OverlayScrollbars } from '~/overlayscrollbars';
 
 // test with different cancel values for body
 

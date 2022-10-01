@@ -1,5 +1,5 @@
-import { isNumber, isPlainObject } from 'support/utils/types';
-import { createDiv } from 'support/dom/create';
+import { isNumber, isPlainObject } from '~/support/utils/types';
+import { createDiv } from '~/support/dom/create';
 import {
   windowSize,
   offsetSize,
@@ -8,7 +8,7 @@ import {
   fractionalSize,
   getBoundingClientRect,
   hasDimensions,
-} from 'support/dom/dimensions';
+} from '~/support/dom/dimensions';
 
 describe('dom dimensions', () => {
   describe('offsetSize', () => {

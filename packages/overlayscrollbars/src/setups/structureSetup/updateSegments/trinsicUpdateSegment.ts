@@ -1,6 +1,6 @@
-import { style } from 'support';
-import { getEnvironment } from 'environment';
-import type { CreateStructureUpdateSegment } from 'setups/structureSetup/structureSetup.update';
+import { style } from '~/support';
+import { getEnvironment } from '~/environment';
+import type { CreateStructureUpdateSegment } from '~/setups/structureSetup/structureSetup.update';
 
 /**
  * Lifecycle with the responsibility to adjust the trinsic behavior of the content element.

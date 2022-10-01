@@ -1,4 +1,4 @@
-import { getBoundingClientRect } from 'support/dom/dimensions';
+import { getBoundingClientRect } from '~/support/dom/dimensions';
 
 export interface XY<T = number> {
   x: T;

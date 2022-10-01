@@ -12,7 +12,7 @@ import {
   runEachAndClear,
   setT,
   style,
-} from 'support';
+} from '~/support';
 import {
   classNameScrollbar,
   classNameScrollbarHorizontal,
@@ -20,22 +20,22 @@ import {
   classNameScrollbarTrack,
   classNameScrollbarHandle,
   classNamesScrollbarTransitionless,
-} from 'classnames';
-import { getEnvironment } from 'environment';
-import { dynamicInitializationElement as generalDynamicInitializationElement } from 'initialization';
+} from '~/classnames';
+import { getEnvironment } from '~/environment';
+import { dynamicInitializationElement as generalDynamicInitializationElement } from '~/initialization';
 import {
   getScrollbarHandleLengthRatio,
   getScrollbarHandleOffsetRatio,
-} from 'setups/scrollbarsSetup/scrollbarsSetup.calculations';
+} from '~/setups/scrollbarsSetup/scrollbarsSetup.calculations';
 import type {
   InitializationTarget,
   InitializationTargetElement,
   InitializationTargetObject,
-} from 'initialization';
-import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
-import type { ScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
-import type { StyleObject } from 'typings';
-import type { StructureSetupState } from 'setups';
+} from '~/initialization';
+import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
+import type { ScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
+import type { StyleObject } from '~/typings';
+import type { StructureSetupState } from '~/setups';
 
 export interface ScrollbarStructure {
   _scrollbar: HTMLElement;

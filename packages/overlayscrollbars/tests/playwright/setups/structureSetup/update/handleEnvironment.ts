@@ -1,4 +1,4 @@
-import { addClass } from 'support';
+import { addClass } from '~/support';
 
 {
   const { body } = document;

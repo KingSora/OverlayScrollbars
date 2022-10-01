@@ -1,1 +1,1 @@
-export * from 'plugins/optionsValidationPlugin/optionsValidationPlugin';
+export * from '~/plugins/optionsValidationPlugin/optionsValidationPlugin';

@@ -1,5 +1,5 @@
-import { assignDeep, keys, hasOwnProperty, isEmptyObject } from 'support/utils/object';
-import { isPlainObject } from 'support/utils/types';
+import { assignDeep, keys, hasOwnProperty, isEmptyObject } from '~/support/utils/object';
+import { isPlainObject } from '~/support/utils/types';
 
 describe('object utilities', () => {
   // https://github.com/jquery/jquery/blob/master/test/unit/core.js#L965
@@ -28,7 +28,13 @@ describe('object utilities', () => {
       let settings: Settings = { xnumber1: 5, xnumber2: 7, xstring1: 'peter', xstring2: 'pan' };
       const options: Settings = { xnumber2: 1, xstring2: 'x', xxx: 'newstring' };
       const optionsCopy: Settings = { xnumber2: 1, xstring2: 'x', xxx: 'newstring' };
-      const merged: Settings = { xnumber1: 5, xnumber2: 1, xstring1: 'peter', xstring2: 'x', xxx: 'newstring' };
+      const merged: Settings = {
+        xnumber1: 5,
+        xnumber2: 1,
+        xstring1: 'peter',
+        xstring2: 'x',
+        xxx: 'newstring',
+      };
 
       assignDeep(settings, options);
       expect(settings).toEqual(merged);
@@ -134,7 +140,13 @@ describe('object utilities', () => {
       const options1Copy = { xnumber2: 1, xstring2: 'x' };
       const options2 = { xstring2: 'xx', xxx: 'newstringx' };
       const options2Copy = { xstring2: 'xx', xxx: 'newstringx' };
-      const merged2 = { xnumber1: 5, xnumber2: 1, xstring1: 'peter', xstring2: 'xx', xxx: 'newstringx' };
+      const merged2 = {
+        xnumber1: 5,
+        xnumber2: 1,
+        xstring1: 'peter',
+        xstring2: 'xx',
+        xxx: 'newstringx',
+      };
 
       settings = assignDeep({}, defaults, options1, options2);
       expect(settings).toEqual(merged2);
@@ -143,8 +155,14 @@ describe('object utilities', () => {
       expect(options2).toEqual(options2Copy);
 
       expect(assignDeep('', { foo: 1 })).toEqual({ foo: 1 });
-      expect(assignDeep(null, { foo: null, deep: { foo: null } })).toEqual({ foo: null, deep: { foo: null } });
-      expect(assignDeep(12, { foo: 1, deep: { foo: null, text: '' } })).toEqual({ foo: 1, deep: { foo: null, text: '' } });
+      expect(assignDeep(null, { foo: null, deep: { foo: null } })).toEqual({
+        foo: null,
+        deep: { foo: null },
+      });
+      expect(assignDeep(12, { foo: 1, deep: { foo: null, text: '' } })).toEqual({
+        foo: 1,
+        deep: { foo: null, text: '' },
+      });
     });
   });
 

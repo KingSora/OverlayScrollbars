@@ -1,23 +1,22 @@
-import { hasClass, is, isFunction, isHTMLElement } from 'support';
+import { hasClass, is, isFunction, isHTMLElement } from '~/support';
 import {
   dataAttributeHost,
   classNamePadding,
   classNameViewport,
   classNameContent,
-} from 'classnames';
-import { getEnvironment, InternalEnvironment } from 'environment';
-import {
-  createStructureSetupElements,
-  StructureSetupElementsObj,
-} from 'setups/structureSetup/structureSetup.elements';
-import { addPlugin, ScrollbarsHidingPlugin } from 'plugins';
+} from '~/classnames';
+import type { InternalEnvironment } from '~/environment';
+import { getEnvironment } from '~/environment';
+import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
+import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
+import { addPlugin, ScrollbarsHidingPlugin } from '~/plugins';
 import type {
   Initialization,
   InitializationTarget,
   InitializationTargetObject,
-} from 'initialization';
+} from '~/initialization';
 
-jest.mock('environment', () => ({
+jest.mock('~/environment', () => ({
   getEnvironment: jest.fn(),
 }));
 
@@ -343,7 +342,7 @@ const assertCorrectDestroy = (snapshot: string, destroy: () => void) => {
   expect(snapshot).toBe(getSnapshot());
 };
 
-const env: InternalEnvironment = jest.requireActual('environment').getEnvironment();
+const env: InternalEnvironment = jest.requireActual('~/environment').getEnvironment();
 const envDefault = {
   name: 'default',
   env,
@@ -430,7 +429,7 @@ describe('structureSetup.elements', () => {
 
   beforeEach(() => {
     (getEnvironment as jest.Mock).mockImplementation(() =>
-      jest.requireActual('environment').getEnvironment()
+      jest.requireActual('~/environment').getEnvironment()
     );
   });
 

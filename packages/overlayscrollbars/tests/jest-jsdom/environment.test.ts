@@ -1,8 +1,9 @@
-import { DeepPartial } from 'typings';
-import { defaultOptions, Options } from 'options';
-import { Initialization } from 'initialization';
-import { getEnvironment } from 'environment';
-import { ScrollbarsHidingPlugin, scrollbarsHidingPluginName } from 'plugins';
+import type { DeepPartial } from '~/typings';
+import type { Options } from '~/options';
+import { defaultOptions } from '~/options';
+import type { Initialization } from '~/initialization';
+import { getEnvironment } from '~/environment';
+import { ScrollbarsHidingPlugin, scrollbarsHidingPluginName } from '~/plugins';
 
 const defaultInitialization = {
   elements: {
@@ -25,8 +26,8 @@ let getEnv = getEnvironment;
 describe('environment', () => {
   beforeEach(async () => {
     jest.resetModules();
-    jest.doMock('support', () => {
-      const originalModule = jest.requireActual('support');
+    jest.doMock('~/support', () => {
+      const originalModule = jest.requireActual('~/support');
       let i = 0;
       return {
         ...originalModule,
@@ -37,15 +38,15 @@ describe('environment', () => {
         clientSize: jest.fn().mockImplementation(() => ({ w: 90, h: 90 })),
       };
     });
-    jest.doMock('plugins', () => {
-      const originalModule = jest.requireActual('plugins');
+    jest.doMock('~/plugins', () => {
+      const originalModule = jest.requireActual('~/plugins');
       return {
         ...originalModule,
         getPlugins: jest.fn(() => originalModule.getPlugins()),
       };
     });
 
-    ({ getEnvironment: getEnv } = await import('environment'));
+    ({ getEnvironment: getEnv } = await import('~/environment'));
   });
 
   test('singleton behavior', () => {
@@ -143,7 +144,7 @@ describe('environment', () => {
 
   describe('addListener', () => {
     test('with scrollbarsHidingPlugin registered before environment was created', async () => {
-      const { getPlugins } = await import('plugins');
+      const { getPlugins } = await import('~/plugins');
       (getPlugins as jest.Mock).mockImplementation(() => ({
         [scrollbarsHidingPluginName]: ScrollbarsHidingPlugin[scrollbarsHidingPluginName],
       }));
@@ -163,7 +164,7 @@ describe('environment', () => {
 
       _addListener(listener);
 
-      const { getPlugins } = await import('plugins');
+      const { getPlugins } = await import('~/plugins');
       (getPlugins as jest.Mock).mockImplementation(() => ({
         [scrollbarsHidingPluginName]: ScrollbarsHidingPlugin[scrollbarsHidingPluginName],
       }));

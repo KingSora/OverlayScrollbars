@@ -1,7 +1,7 @@
-import { each } from 'support/utils/array';
-import { attr } from 'support/dom/attribute';
-import { contents } from 'support/dom/traversal';
-import { removeElements } from 'support/dom/manipulation';
+import { each } from '~/support/utils/array';
+import { attr } from '~/support/dom/attribute';
+import { contents } from '~/support/dom/traversal';
+import { removeElements } from '~/support/dom/manipulation';
 
 /**
  * Creates a div DOM node.

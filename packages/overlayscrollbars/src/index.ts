@@ -1,20 +1,20 @@
-import 'index.scss';
+import '~/index.scss';
 
-export { OverlayScrollbars } from 'overlayscrollbars';
-export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from 'plugins';
+export { OverlayScrollbars } from '~/overlayscrollbars';
+export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~/plugins';
 
 export type {
   Options,
   OverflowBehavior,
   ScrollbarVisibilityBehavior,
   ScrollbarAutoHideBehavior,
-} from 'options';
+} from '~/options';
 export type {
   EventListenerMap,
   EventListener,
   InitialEventListeners,
   OnUpdatedEventListenerArgs,
-} from 'eventListeners';
+} from '~/eventListeners';
 export type {
   Initialization,
   InitializationTarget,
@@ -22,5 +22,5 @@ export type {
   InitializationTargetObject,
   StaticInitializationElement,
   DynamicInitializationElement,
-} from 'initialization';
-export type { Plugin, PluginInstance } from 'plugins';
+} from '~/initialization';
+export type { Plugin, PluginInstance } from '~/plugins';

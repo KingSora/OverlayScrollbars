@@ -1,5 +1,5 @@
-import { each, isArray, keys, push } from 'support';
-import { OverlayScrollbars, OverlayScrollbarsStatic } from 'overlayscrollbars';
+import { each, isArray, keys, push } from '~/support';
+import type { OverlayScrollbars, OverlayScrollbarsStatic } from '~/overlayscrollbars';
 
 export type PluginInstance =
   | Record<string, unknown>

@@ -1,6 +1,6 @@
-import { isArrayLike } from 'support/utils/types';
-import { each, from } from 'support/utils/array';
-import { parent } from 'support/dom/traversal';
+import { isArrayLike } from '~/support/utils/types';
+import { each, from } from '~/support/utils/array';
+import { parent } from '~/support/dom/traversal';
 
 type NodeCollection = ArrayLike<Node> | Node | false | null | undefined;
 

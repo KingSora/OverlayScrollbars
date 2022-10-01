@@ -1,4 +1,4 @@
-import { createCache } from 'support/cache';
+import { createCache } from '~/support/cache';
 
 const createUpdater = <T>(updaterReturn: (i: number) => T) => {
   let index = 0;

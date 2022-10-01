@@ -1,7 +1,6 @@
 import {
   keys,
   attr,
-  WH,
   style,
   addClass,
   removeClass,
@@ -9,19 +8,18 @@ import {
   each,
   assignDeep,
   windowSize,
-  UpdateCache,
-  XY,
-} from 'support';
-import { classNameViewportArrange } from 'classnames';
-import type { StyleObject } from 'typings';
-import type { StructureSetupState } from 'setups/structureSetup';
+} from '~/support';
+import { classNameViewportArrange } from '~/classnames';
+import type { WH, UpdateCache, XY } from '~/support';
+import type { StyleObject } from '~/typings';
+import type { StructureSetupState } from '~/setups/structureSetup';
 import type {
   ViewportOverflowState,
   GetViewportOverflowState,
   HideNativeScrollbars,
-} from 'setups/structureSetup/updateSegments/overflowUpdateSegment';
-import type { InternalEnvironment } from 'environment';
-import type { Plugin } from 'plugins';
+} from '~/setups/structureSetup/updateSegments/overflowUpdateSegment';
+import type { InternalEnvironment } from '~/environment';
+import type { Plugin } from '~/plugins';
 
 export type ArrangeViewport = (
   viewportOverflowState: ViewportOverflowState,

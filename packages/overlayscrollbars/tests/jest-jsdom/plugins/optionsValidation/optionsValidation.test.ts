@@ -1,8 +1,8 @@
-import { defaultOptions } from 'options';
+import { defaultOptions } from '~/options';
 import {
   OptionsValidationPlugin,
   optionsValidationPluginName,
-} from 'plugins/optionsValidationPlugin';
+} from '~/plugins/optionsValidationPlugin';
 
 const getValidationFn = () => {
   const name = Object.keys(OptionsValidationPlugin)[0];

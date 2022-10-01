@@ -6,7 +6,7 @@ import {
   val,
   scrollLeft,
   scrollTop,
-} from 'support/dom/attribute';
+} from '~/support/dom/attribute';
 
 const testElm = document.body;
 const getAttribute = (name: string) => testElm.getAttribute(name);

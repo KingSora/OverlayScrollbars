@@ -1,4 +1,4 @@
-import { createTrinsicObserver } from 'observers';
+import { createTrinsicObserver } from '~/observers';
 
 describe('createTrinsicObserver', () => {
   beforeEach(() => {

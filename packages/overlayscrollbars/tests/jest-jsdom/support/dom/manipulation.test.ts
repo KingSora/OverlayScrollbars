@@ -1,5 +1,13 @@
-import { createDiv, contents, appendChildren, prependChildren, insertBefore, insertAfter, removeElements } from 'support/dom';
-import { each, isArray, isHTMLElement } from 'support/utils';
+import {
+  createDiv,
+  contents,
+  appendChildren,
+  prependChildren,
+  insertBefore,
+  insertAfter,
+  removeElements,
+} from '~/support/dom';
+import { each, isArray, isHTMLElement } from '~/support/utils';
 
 const slotElm = document.body;
 const fillSlotElm = () => {
@@ -19,7 +27,7 @@ const compareToNative = (
   method: string,
   snapshot: Array<Node>,
   elms: Element | Node | Array<Element> | Array<Node>,
-  compareIds = false,
+  compareIds = false
 ) => {
   if (!compareIds) {
     if (!isArray(elms)) {
@@ -47,7 +55,12 @@ const compareToNative = (
           if (isHTMLElement(elm) && child.getAttribute('id') === elm.getAttribute('id')) {
             realElms.push(child);
           }
-          if (compareIds && target !== slotElm && isHTMLElement(target) && child.getAttribute('id') === target.getAttribute('id')) {
+          if (
+            compareIds &&
+            target !== slotElm &&
+            isHTMLElement(target) &&
+            child.getAttribute('id') === target.getAttribute('id')
+          ) {
             target = child;
           }
         }

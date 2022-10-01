@@ -1,7 +1,7 @@
-import { createCache, topRightBottomLeft, equalTRBL, style, assignDeep } from 'support';
-import { StyleObject } from 'typings';
-import { getEnvironment } from 'environment';
-import type { CreateStructureUpdateSegment } from 'setups/structureSetup/structureSetup.update';
+import { createCache, topRightBottomLeft, equalTRBL, style, assignDeep } from '~/support';
+import { getEnvironment } from '~/environment';
+import type { StyleObject } from '~/typings';
+import type { CreateStructureUpdateSegment } from '~/setups/structureSetup/structureSetup.update';
 
 /**
  * Lifecycle with the responsibility to adjust the padding styling of the padding and viewport element.

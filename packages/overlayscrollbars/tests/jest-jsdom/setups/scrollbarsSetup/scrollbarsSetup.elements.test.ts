@@ -1,13 +1,11 @@
-import {
-  createScrollbarsSetupElements,
+import type {
   ScrollbarsSetupElement,
   ScrollbarsSetupElementsObj,
   ScrollbarStructure,
-} from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
-import {
-  createStructureSetupElements,
-  StructureSetupElementsObj,
-} from 'setups/structureSetup/structureSetup.elements';
+} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
+import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
+import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
+import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
 import {
   classNameScrollbar,
   classNameScrollbarHorizontal,
@@ -15,13 +13,13 @@ import {
   classNameScrollbarTrack,
   classNameScrollbarHandle,
   classNamesScrollbarTransitionless,
-} from 'classnames';
-import type { InitializationTarget } from 'initialization';
+} from '~/classnames';
+import type { InitializationTarget } from '~/initialization';
 
 jest.useFakeTimers();
 
-jest.mock('support/compatibility/apis', () => {
-  const originalModule = jest.requireActual('support/compatibility/apis');
+jest.mock('~/support/compatibility/apis', () => {
+  const originalModule = jest.requireActual('~/support/compatibility/apis');
   return {
     ...originalModule,
     // @ts-ignore

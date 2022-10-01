@@ -1,4 +1,4 @@
-import { jsAPI } from 'support/compatibility/vendors';
+import { jsAPI } from '~/support/compatibility/vendors';
 
 export const MutationObserverConstructor = jsAPI<typeof MutationObserver>('MutationObserver');
 export const IntersectionObserverConstructor =

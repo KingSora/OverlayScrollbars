@@ -1,5 +1,5 @@
-import { animateNumber, noop } from 'support';
-import type { Plugin } from 'plugins';
+import { animateNumber, noop } from '~/support';
+import type { Plugin } from '~/plugins';
 
 export type ClickScrollPluginInstance = {
   _: (

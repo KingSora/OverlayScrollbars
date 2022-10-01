@@ -1,9 +1,9 @@
+import type { OptionsTemplate } from '~/plugins/optionsValidationPlugin/validation';
 import {
   validateOptions,
   optionsTemplateTypes as oTypes,
-  OptionsTemplate,
-} from 'plugins/optionsValidationPlugin/validation';
-import { assignDeep } from 'support/utils';
+} from '~/plugins/optionsValidationPlugin/validation';
+import { assignDeep } from '~/support/utils';
 
 type TestOptionsObj = { propA: 'propA'; null: null };
 type TestOptionsEnum = 'A' | 'B' | 'C';

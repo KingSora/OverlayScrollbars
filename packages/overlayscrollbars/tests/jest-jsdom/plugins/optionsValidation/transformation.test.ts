@@ -1,12 +1,8 @@
-import { PlainObject } from 'typings';
-import {
-  optionsTemplateTypes as oTypes,
-  OptionsTemplate,
-} from 'plugins/optionsValidationPlugin/validation';
-import {
-  transformOptions,
-  OptionsWithOptionsTemplate,
-} from 'plugins/optionsValidationPlugin/transformation';
+import type { PlainObject } from '~/typings';
+import type { OptionsTemplate } from '~/plugins/optionsValidationPlugin/validation';
+import { optionsTemplateTypes as oTypes } from '~/plugins/optionsValidationPlugin/validation';
+import type { OptionsWithOptionsTemplate } from '~/plugins/optionsValidationPlugin/transformation';
+import { transformOptions } from '~/plugins/optionsValidationPlugin/transformation';
 
 type TestOptionsObj = { propA: 'propA'; null: null };
 type TestOptionsEnum = 'A' | 'B' | 'C';

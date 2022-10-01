@@ -8,7 +8,6 @@ import {
   absoluteCoordinates,
   offsetSize,
   scrollLeft,
-  XY,
   removeAttr,
   removeElements,
   equalBCRWH,
@@ -18,18 +17,20 @@ import {
   createCache,
   equalXY,
   createEventListenerHub,
-  EventListener,
-} from 'support';
+} from '~/support';
 import {
   classNameEnvironment,
   classNameEnvironmentFlexboxGlue,
   classNameEnvironmentFlexboxGlueMax,
   classNameViewportScrollbarHidden,
-} from 'classnames';
-import { Options, defaultOptions } from 'options';
-import { DeepPartial } from 'typings';
-import { Initialization } from 'initialization';
-import { getPlugins, ScrollbarsHidingPluginInstance, scrollbarsHidingPluginName } from 'plugins';
+} from '~/classnames';
+import { defaultOptions } from '~/options';
+import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
+import type { XY, EventListener } from '~/support';
+import type { Options } from '~/options';
+import type { DeepPartial } from '~/typings';
+import type { ScrollbarsHidingPluginInstance } from '~/plugins';
+import type { Initialization } from '~/initialization';
 
 type EnvironmentEventMap = {
   _: [];
@@ -178,15 +179,17 @@ const createEnvironment = (): InternalEnvironment => {
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
     _addListener: (listener) => addEvent('_', listener),
-    _getDefaultInitialization: assignDeep<Initialization, Initialization>.bind(
-      0,
-      {} as Initialization,
-      staticDefaultInitialization
-    ),
+    _getDefaultInitialization: (
+      assignDeep as typeof assignDeep<Initialization, Initialization>
+    ).bind(0, {} as Initialization, staticDefaultInitialization),
     _setDefaultInitialization(newInitializationStrategy) {
       assignDeep(staticDefaultInitialization, newInitializationStrategy);
     },
-    _getDefaultOptions: assignDeep<Options, Options>.bind(0, {} as Options, staticDefaultOptions),
+    _getDefaultOptions: (assignDeep as typeof assignDeep<Options, Options>).bind(
+      0,
+      {} as Options,
+      staticDefaultOptions
+    ),
     _setDefaultOptions(newDefaultOptions) {
       assignDeep(staticDefaultOptions, newDefaultOptions);
     },

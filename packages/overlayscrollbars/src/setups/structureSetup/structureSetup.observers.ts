@@ -7,13 +7,11 @@ import {
   isString,
   attr,
   removeAttr,
-  CacheValues,
   keys,
   liesBetween,
   scrollSize,
   equalWH,
   createCache,
-  WH,
   fractionalSize,
   isFunction,
   ResizeObserverConstructor,
@@ -23,8 +21,8 @@ import {
   scrollLeft,
   scrollTop,
   noop,
-} from 'support';
-import { getEnvironment } from 'environment';
+} from '~/support';
+import { getEnvironment } from '~/environment';
 import {
   dataAttributeHost,
   dataValueHostOverflowVisible,
@@ -33,21 +31,17 @@ import {
   classNameOverflowVisible,
   classNameScrollbar,
   classNameViewportArrange,
-} from 'classnames';
-import {
-  createSizeObserver,
-  createTrinsicObserver,
-  createDOMObserver,
-  DOMObserver,
-  SizeObserverCallbackParams,
-} from 'observers';
-import type { SetupState, SetupUpdateCheckOption } from 'setups';
-import type { StructureSetupState } from 'setups/structureSetup';
-import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
+} from '~/classnames';
+import { createSizeObserver, createTrinsicObserver, createDOMObserver } from '~/observers';
+import type { DOMObserver, SizeObserverCallbackParams } from '~/observers';
+import type { CacheValues, WH } from '~/support';
+import type { SetupState, SetupUpdateCheckOption } from '~/setups';
+import type { StructureSetupState } from '~/setups/structureSetup';
+import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import type {
   StructureSetupUpdate,
   StructureSetupUpdateHints,
-} from 'setups/structureSetup/structureSetup.update';
+} from '~/setups/structureSetup/structureSetup.update';
 
 export type StructureSetupObserversUpdate = (checkOption: SetupUpdateCheckOption) => void;
 

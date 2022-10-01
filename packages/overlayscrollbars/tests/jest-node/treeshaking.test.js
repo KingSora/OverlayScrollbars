@@ -5,8 +5,8 @@ import { webpack } from 'webpack';
 import { build } from 'esbuild';
 import { terser } from 'rollup-plugin-terser';
 
-import pkg from '../../package.json';
-import rollupConfig from '../../rollup.config';
+import pkg from '~/../package.json';
+import rollupConfig from '~/../rollup.config';
 
 const cleanBundle = true;
 const cleanFixture = true;

@@ -32,13 +32,12 @@
     "eslint": "^8.20.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.1",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^26.8.0",
     "eslint-plugin-json": "^3.1.0",
     "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.30.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "glob": "^7.1.6",
     "istanbul-lib-instrument": "^5.2.0",
     "jest": "^28.1.3",
@@ -74,6 +73,7 @@
     "playwright": "npm run playwright --workspace=overlayscrollbars",
     "playwright:dev": "npm run test:playwright:dev --workspace=overlayscrollbars",
     "build": "npm run build --workspace=overlayscrollbars",
-    "lint": "npx eslint --fix ."
+    "lint": "eslint ./packages/overlayscrollbars/{src,tests}/**/*.{js,jsx,ts,tsx}",
+    "prettier": "prettier --check ./packages/overlayscrollbars/{src,tests}/**/*.{js,jsx,ts,tsx}"
   }
 }

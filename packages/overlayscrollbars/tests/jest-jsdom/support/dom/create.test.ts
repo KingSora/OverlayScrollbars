@@ -1,5 +1,5 @@
-import { each } from 'support/utils';
-import { createDiv, createDOM } from 'support/dom/create';
+import { each } from '~/support/utils';
+import { createDiv, createDOM } from '~/support/dom/create';
 
 const slotElm = document.body;
 const testHTML =

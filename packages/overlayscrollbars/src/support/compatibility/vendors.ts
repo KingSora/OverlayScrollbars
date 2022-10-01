@@ -1,6 +1,6 @@
-import { each } from 'support/utils/array';
-import { hasOwnProperty } from 'support/utils/object';
-import { createDiv } from 'support/dom/create';
+import { each } from '~/support/utils/array';
+import { hasOwnProperty } from '~/support/utils/object';
+import { createDiv } from '~/support/dom/create';
 
 const firstLetterToUpper = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);
 const getDummyStyle = (): CSSStyleDeclaration => createDiv().style;

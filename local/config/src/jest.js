@@ -4,6 +4,7 @@ const resolve = require('./resolve');
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 
+/** @type {import('jest').Config} */
 module.exports = {
   coverageDirectory: './.coverage/jest',
   projects: [
@@ -16,6 +17,7 @@ module.exports = {
       moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),
       testPathIgnorePatterns: ['\\\\node_modules\\\\'],
       setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
+      ...resolve.paths.jest,
     },
     {
       displayName: 'jsdom',
@@ -26,6 +28,7 @@ module.exports = {
       moduleFileExtensions: resolve.extensions.map((ext) => ext.replace(/\./, '')),
       testPathIgnorePatterns: ['\\\\node_modules\\\\'],
       setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
+      ...resolve.paths.jest,
     },
   ],
 };

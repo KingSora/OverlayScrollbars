@@ -21,7 +21,7 @@ import {
   hasAttrClass,
   noop,
   on,
-} from 'support';
+} from '~/support';
 import {
   dataAttributeHost,
   dataAttributeHostOverflowX,
@@ -30,19 +30,19 @@ import {
   classNameViewport,
   classNameContent,
   classNameViewportScrollbarHidden,
-} from 'classnames';
-import { getEnvironment } from 'environment';
-import { getPlugins, scrollbarsHidingPluginName } from 'plugins';
+} from '~/classnames';
+import { getEnvironment } from '~/environment';
+import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
-} from 'initialization';
-import type { ScrollbarsHidingPluginInstance } from 'plugins/scrollbarsHidingPlugin';
+} from '~/initialization';
+import type { ScrollbarsHidingPluginInstance } from '~/plugins/scrollbarsHidingPlugin';
 import type {
   InitializationTarget,
   InitializationTargetElement,
   InitializationTargetObject,
-} from 'initialization';
+} from '~/initialization';
 
 export type StructureSetupElements = [
   elements: StructureSetupElementsObj,

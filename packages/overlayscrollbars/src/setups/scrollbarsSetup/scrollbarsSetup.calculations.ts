@@ -1,6 +1,6 @@
-import { offsetSize } from 'support';
-import { getEnvironment } from 'environment';
-import type { StructureSetupState } from 'setups';
+import { offsetSize } from '~/support';
+import { getEnvironment } from '~/environment';
+import type { StructureSetupState } from '~/setups';
 
 const { min, max, abs, round } = Math;
 

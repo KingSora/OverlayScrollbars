@@ -13,7 +13,7 @@ import {
   push,
   from,
   runEachAndClear,
-} from 'support';
+} from '~/support';
 
 type DOMContentObserverCallback = (contentChangedThroughEvent: boolean) => any;
 

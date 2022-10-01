@@ -1,6 +1,6 @@
-import { each, keys } from 'support/utils';
-import { isString, isNumber, isArray, isUndefined } from 'support/utils/types';
-import { PlainObject, StyleObject } from 'typings';
+import { each, keys } from '~/support/utils';
+import { isString, isNumber, isArray, isUndefined } from '~/support/utils/types';
+import type { PlainObject, StyleObject } from '~/typings';
 
 export interface TRBL {
   t: number;

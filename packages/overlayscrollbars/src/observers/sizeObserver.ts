@@ -1,5 +1,4 @@
 import {
-  CacheValues,
   createCache,
   createDOM,
   scrollLeft,
@@ -17,15 +16,16 @@ import {
   stopPropagation,
   appendChildren,
   directionIsRTL,
-} from 'support';
-import { getEnvironment } from 'environment';
+} from '~/support';
+import { getEnvironment } from '~/environment';
 import {
   classNameSizeObserver,
   classNameSizeObserverAppear,
   classNameSizeObserverListener,
-} from 'classnames';
-import { getPlugins, sizeObserverPluginName } from 'plugins';
-import type { SizeObserverPluginInstance } from 'plugins';
+} from '~/classnames';
+import { getPlugins, sizeObserverPluginName } from '~/plugins';
+import type { CacheValues } from '~/support';
+import type { SizeObserverPluginInstance } from '~/plugins';
 
 export interface SizeObserverOptions {
   _direction?: boolean;

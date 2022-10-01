@@ -1,9 +1,9 @@
-import { createDOMObserver } from 'observers';
+import { createDOMObserver } from '~/observers';
 
 jest.useFakeTimers();
 
-jest.mock('support/compatibility/apis', () => {
-  const originalModule = jest.requireActual('support/compatibility/apis');
+jest.mock('~/support/compatibility/apis', () => {
+  const originalModule = jest.requireActual('~/support/compatibility/apis');
   const mockRAF = (arg: any) => setTimeout(arg, 0);
   return {
     ...originalModule,

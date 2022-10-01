@@ -7,8 +7,8 @@ import {
   hasOwnProperty,
   isFunction,
   isEmptyObject,
-} from 'support';
-import { DeepPartial, DeepReadonly } from 'typings';
+} from '~/support';
+import type { DeepPartial, DeepReadonly } from '~/typings';
 
 const opsStringify = (value: any) =>
   JSON.stringify(value, (_, val) => {

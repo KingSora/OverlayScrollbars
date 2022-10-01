@@ -1,6 +1,6 @@
-import { each } from 'support/utils/array';
-import { WH, XY, TRBL } from 'support/dom';
-import { PlainObject } from 'typings';
+import { each } from '~/support/utils/array';
+import type { WH, XY, TRBL } from '~/support/dom';
+import type { PlainObject } from '~/typings';
 
 /**
  * Compares two objects and returns true if all values of the passed prop names are identical, false otherwise or if one of the two object is falsy.

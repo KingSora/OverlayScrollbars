@@ -1,5 +1,5 @@
-import { isElement } from 'support/utils/types';
-import { push, from } from 'support/utils/array';
+import { isElement } from '~/support/utils/types';
+import { push, from } from '~/support/utils/array';
 
 type InputElementType = Node | Element | Node | false | null | undefined;
 type OutputElementType = Node | Element | null;

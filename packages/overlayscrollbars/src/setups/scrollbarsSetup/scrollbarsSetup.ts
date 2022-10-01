@@ -1,11 +1,7 @@
-import { on, runEachAndClear, parent, scrollLeft, scrollTop, selfClearTimeout } from 'support';
-import { createState, createOptionCheck } from 'setups/setups';
-import { createScrollbarsSetupEvents } from 'setups/scrollbarsSetup/scrollbarsSetup.events';
-import {
-  createScrollbarsSetupElements,
-  ScrollbarsSetupElementsObj,
-  ScrollbarStructure,
-} from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
+import { on, runEachAndClear, parent, scrollLeft, scrollTop, selfClearTimeout } from '~/support';
+import { createState, createOptionCheck } from '~/setups/setups';
+import { createScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
+import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import {
   classNamesScrollbarVisible,
   classNamesScrollbarUnusable,
@@ -14,16 +10,20 @@ import {
   classNamesScrollbarHandleInteractive,
   classNamesScrollbarTrackInteractive,
   classNameScrollbarRtl,
-} from 'classnames';
-import type { StructureSetupUpdateHints } from 'setups/structureSetup/structureSetup.update';
+} from '~/classnames';
+import type {
+  ScrollbarsSetupElementsObj,
+  ScrollbarStructure,
+} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
+import type { StructureSetupUpdateHints } from '~/setups/structureSetup/structureSetup.update';
 import type {
   ReadonlyOptions,
   ScrollbarVisibilityBehavior,
   ScrollbarAutoHideBehavior,
-} from 'options';
-import type { Setup, StructureSetupState, StructureSetupStaticState } from 'setups';
-import type { InitializationTarget } from 'initialization';
-import type { DeepPartial, OverflowStyle, StyleObject } from 'typings';
+} from '~/options';
+import type { Setup, StructureSetupState, StructureSetupStaticState } from '~/setups';
+import type { InitializationTarget } from '~/initialization';
+import type { DeepPartial, OverflowStyle, StyleObject } from '~/typings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}

@@ -1,6 +1,6 @@
-import { isEmptyObject } from 'support/utils/object';
-import { isString, isPlainObject } from 'support/utils/types';
-import { style, topRightBottomLeft, directionIsRTL } from 'support/dom/style';
+import { isEmptyObject } from '~/support/utils/object';
+import { isString, isPlainObject } from '~/support/utils/types';
+import { style, topRightBottomLeft, directionIsRTL } from '~/support/dom/style';
 
 describe('dom style', () => {
   afterEach(() => {

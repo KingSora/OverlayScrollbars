@@ -1,4 +1,4 @@
-import { addClass, removeClass, hasClass, diffClass } from 'support/dom/class';
+import { addClass, removeClass, hasClass, diffClass } from '~/support/dom/class';
 
 const testElm = document.body;
 const removeAllClassNames = () => {

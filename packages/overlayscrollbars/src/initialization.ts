@@ -1,6 +1,6 @@
-import { isFunction, isHTMLElement, isNull, isUndefined } from 'support';
-import { getEnvironment } from 'environment';
-import type { DeepPartial } from 'typings';
+import { isFunction, isHTMLElement, isNull, isUndefined } from '~/support';
+import { getEnvironment } from '~/environment';
+import type { DeepPartial } from '~/typings';
 
 type StaticInitialization = HTMLElement | false | null;
 type DynamicInitialization = HTMLElement | boolean | null;

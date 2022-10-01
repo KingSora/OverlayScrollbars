@@ -1,5 +1,5 @@
-import { isNumber, isPlainObject } from 'support/utils/types';
-import { absoluteCoordinates, offsetCoordinates } from 'support/dom/offset';
+import { isNumber, isPlainObject } from '~/support/utils/types';
+import { absoluteCoordinates, offsetCoordinates } from '~/support/dom/offset';
 
 describe('dom offset', () => {
   describe('absoluteCoordinates', () => {

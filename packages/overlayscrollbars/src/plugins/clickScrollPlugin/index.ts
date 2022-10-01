@@ -1,1 +1,1 @@
-export * from 'plugins/clickScrollPlugin/clickScrollPlugin';
+export * from '~/plugins/clickScrollPlugin/clickScrollPlugin';

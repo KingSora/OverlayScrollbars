@@ -1,13 +1,48 @@
-const resolve = require('@~local/config/resolve');
+const defaultRules = {
+  'func-names': 'off',
+  'no-plusplus': 'off',
+  'no-continue': 'off',
+  'no-param-reassign': 'off',
+  'no-nested-ternary': 'off',
+  'no-underscore-dangle': 'off',
+  'no-multi-assign': 'off',
+  'no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
+  'no-console': ['error', { allow: ['warn', 'error'] }],
+  'no-empty': ['error', { allowEmptyCatch: true }],
+  'no-cond-assign': ['error', 'except-parens'],
+  camelcase: ['error', { allow: ['^__', '^UNSAFE_'] }],
+  'prefer-destructuring': 'off',
+  'consistent-return': 'off',
+  'import/prefer-default-export': 'off',
+  'import/no-extraneous-dependencies': 'off',
+  'import/extensions': [
+    'off',
+    'ignorePackages',
+    {
+      js: 'never',
+      jsx: 'never',
+      ts: 'never',
+      tsx: 'never',
+    },
+  ],
+  'import/order': [
+    'error',
+    {
+      groups: ['builtin', 'external', 'index', 'internal', 'unknown', 'type'],
+      pathGroups: [
+        {
+          pattern: '**/*.{css,scss,sass}',
+          group: 'unknown',
+          position: 'after',
+        },
+      ],
+    },
+  ],
+};
 
 module.exports = {
   extends: ['airbnb', 'prettier'],
-  env: {
-    browser: true,
-    es2020: true,
-    node: true,
-    jest: true,
-  },
+  plugins: ['prettier', 'json', '@typescript-eslint', 'import'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
@@ -16,59 +51,35 @@ module.exports = {
     ecmaVersion: 11,
     sourceType: 'module',
   },
+  env: {
+    browser: true,
+    es2020: true,
+    node: true,
+    jest: true,
+  },
   settings: {
+    'import/parsers': {
+      '@typescript-eslint/parser': ['.ts', '.tsx'],
+    },
     'import/resolver': {
-      node: {
-        extensions: resolve.extensions,
-        moduleDirectory: resolve.directories,
+      typescript: {
+        alwaysTryTypes: true,
+        project: ['./packages/**/tsconfig.json', './local/**/tsconfig.json'],
       },
     },
   },
-  plugins: ['prettier', 'json', 'react', 'jest', 'import', '@typescript-eslint'],
-  rules: {
-    'func-names': 'off',
-    'no-plusplus': 'off',
-    'no-continue': 'off',
-    'no-param-reassign': 'off',
-    'no-nested-ternary': 'off',
-    'no-underscore-dangle': 'off',
-    'no-multi-assign': 'off',
-    'no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
-    'no-console': ['error', { allow: ['warn', 'error'] }],
-    'no-empty': ['error', { allowEmptyCatch: true }],
-    'no-cond-assign': ['error', 'except-parens'],
-    camelcase: ['error', { allow: ['^__', '^UNSAFE_'] }],
-    'prefer-destructuring': 'off',
-    'consistent-return': 'off',
-    'import/prefer-default-export': 'off',
-    'import/no-extraneous-dependencies': 'off',
-    'import/no-unresolved': [
-      'error',
-      {
-        ignore: [`^@/.*`],
-      },
-    ],
-    'import/extensions': [
-      'off',
-      'ignorePackages',
-      {
-        js: 'never',
-        jsx: 'never',
-        ts: 'never',
-        tsx: 'never',
-      },
-    ],
-  },
+  rules: defaultRules,
   overrides: [
     {
       files: ['*.ts', '*.tsx', '*.d.ts'],
-      extends: ['plugin:@typescript-eslint/recommended', 'plugin:react/recommended'],
+      extends: ['plugin:@typescript-eslint/recommended', 'airbnb', 'prettier'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
         tsconfigRootDir: __dirname,
         project: ['./packages/**/tsconfig.json', './local/**/tsconfig.json'],
       },
       rules: {
+        ...defaultRules,
         'no-shadow': 'off',
         '@typescript-eslint/no-shadow': ['error'],
         'no-use-before-define': 'off',
@@ -83,6 +94,7 @@ module.exports = {
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-var-requires': 'off',
         '@typescript-eslint/unbound-method': 'off',
+        '@typescript-eslint/consistent-type-imports': 'warn',
         '@typescript-eslint/no-this-alias': [
           'error',
           {

@@ -1,5 +1,5 @@
-import { isUndefined } from 'support/utils/types';
-import { each, push, runEachAndClear } from 'support/utils/array';
+import { isUndefined } from '~/support/utils/types';
+import { each, push, runEachAndClear } from '~/support/utils/array';
 
 let passiveEventsSupport: boolean;
 const supportPassiveEvents = (): boolean => {

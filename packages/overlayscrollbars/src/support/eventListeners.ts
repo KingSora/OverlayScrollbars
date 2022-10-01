@@ -1,6 +1,6 @@
-import { isArray } from 'support/utils/types';
-import { keys } from 'support/utils/object';
-import { each, from, isEmptyArray } from 'support/utils/array';
+import { isArray } from '~/support/utils/types';
+import { keys } from '~/support/utils/object';
+import { each, from, isEmptyArray } from '~/support/utils/array';
 
 export type EventListener<EventMap extends Record<string, any[]>, N extends keyof EventMap> = (
   ...args: EventMap[N]

@@ -1,14 +1,14 @@
-import { each, scrollLeft, scrollTop, assignDeep, keys } from 'support';
-import { getEnvironment } from 'environment';
-import { dataValueHostUpdating } from 'classnames';
+import { each, scrollLeft, scrollTop, assignDeep, keys } from '~/support';
+import { getEnvironment } from '~/environment';
+import { dataValueHostUpdating } from '~/classnames';
 import {
   createTrinsicUpdateSegment,
   createPaddingUpdateSegment,
   createOverflowUpdateSegment,
-} from 'setups/structureSetup/updateSegments';
-import type { SetupState, SetupUpdateSegment, SetupUpdateCheckOption } from 'setups';
-import type { StructureSetupState } from 'setups/structureSetup';
-import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
+} from '~/setups/structureSetup/updateSegments';
+import type { SetupState, SetupUpdateSegment, SetupUpdateCheckOption } from '~/setups';
+import type { StructureSetupState } from '~/setups/structureSetup';
+import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 
 export type CreateStructureUpdateSegment = (
   structureSetupElements: StructureSetupElementsObj,

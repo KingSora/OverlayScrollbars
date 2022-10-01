@@ -1,4 +1,4 @@
-import { createDOM } from 'support/dom/create';
+import { createDOM } from '~/support/dom/create';
 import {
   type,
   isNumber,
@@ -13,7 +13,7 @@ import {
   isPlainObject,
   isElement,
   isHTMLElement,
-} from 'support/utils/types';
+} from '~/support/utils/types';
 
 const testfn = function () {};
 const testfnAsync = async function () {};

@@ -1,8 +1,6 @@
 import {
   createCache,
   attr,
-  WH,
-  XY,
   style,
   scrollSize,
   fractionalSize,
@@ -13,8 +11,8 @@ import {
   equalXY,
   attrClass,
   noop,
-} from 'support';
-import { getEnvironment } from 'environment';
+} from '~/support';
+import { getEnvironment } from '~/environment';
 import {
   classNameViewportScrollbarHidden,
   classNameOverflowVisible,
@@ -23,16 +21,17 @@ import {
   dataAttributeHostOverflowY,
   dataValueHostScrollbarHidden,
   dataValueHostOverflowVisible,
-} from 'classnames';
-import { getPlugins, scrollbarsHidingPluginName } from 'plugins';
+} from '~/classnames';
+import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
+import type { WH, XY } from '~/support';
 import type {
   ScrollbarsHidingPluginInstance,
   ArrangeViewport,
   UndoArrangeViewport,
-} from 'plugins/scrollbarsHidingPlugin';
-import type { StyleObject, OverflowStyle } from 'typings';
-import type { OverflowBehavior } from 'options';
-import type { CreateStructureUpdateSegment } from 'setups/structureSetup/structureSetup.update';
+} from '~/plugins/scrollbarsHidingPlugin';
+import type { StyleObject, OverflowStyle } from '~/typings';
+import type { OverflowBehavior } from '~/options';
+import type { CreateStructureUpdateSegment } from '~/setups/structureSetup/structureSetup.update';
 
 export interface ViewportOverflowState {
   _scrollbarsHideOffset: XY<number>;

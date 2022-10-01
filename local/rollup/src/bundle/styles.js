@@ -11,7 +11,7 @@ module.exports = (resolve, options) => {
   const pipeline = (cssFilename, minified) => ({
     input,
     plugins: [
-      rollupAlias(alias),
+      rollupAlias(resolve, alias),
       rollupScss(
         resolve,
         sourcemap && !minified,

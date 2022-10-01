@@ -19,9 +19,24 @@ const normalizePath = (pathName) =>
   pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName;
 
 module.exports = {
-  rollupAlias: (aliasEntries) =>
+  rollupAlias: (resolve, aliasEntries) =>
     rollupPluginAlias({
-      entries: aliasEntries,
+      entries: [
+        ...Object.entries(aliasEntries).reduce((arr, [key, value]) => {
+          arr.push({
+            find: key,
+            replacement: value,
+          });
+          return arr;
+        }, []),
+        ...Object.entries(resolve.paths.rollupAlias).reduce((arr, [key, value]) => {
+          arr.push({
+            find: new RegExp(key),
+            replacement: value.replace('<rootDir>', normalizePath(process.cwd())),
+          });
+          return arr;
+        }, []),
+      ],
     }),
   rollupCommonjs: (sourcemap, resolve) =>
     rollupPluginCommonjs({

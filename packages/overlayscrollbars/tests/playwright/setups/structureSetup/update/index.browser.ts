@@ -1,8 +1,8 @@
-import 'index.scss';
+import '~/index.scss';
 import './index.scss';
 import './handleEnvironment';
-import { OverlayScrollbars } from 'overlayscrollbars';
-import { classNameViewport } from 'classnames';
+import { OverlayScrollbars } from '~/overlayscrollbars';
+import { classNameViewport } from '~/classnames';
 import should from 'should';
 import {
   generateClassChangeSelectCallback,
@@ -12,6 +12,7 @@ import {
   setTestResult,
   waitForOrFailTest,
 } from '@~local/browser-testing';
+import type { WH } from '~/support';
 import {
   assignDeep,
   clientSize,
@@ -20,7 +21,6 @@ import {
   style,
   parent,
   addClass,
-  WH,
   removeAttr,
   contents,
   appendChildren,
@@ -29,10 +29,15 @@ import {
   createDiv,
   removeElements,
   removeClass,
-} from 'support';
-import { Options } from 'options';
-import { DeepPartial } from 'typings';
-import { addPlugin, ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from 'plugins';
+} from '~/support';
+import type { Options } from '~/options';
+import type { DeepPartial } from '~/typings';
+import {
+  addPlugin,
+  ScrollbarsHidingPlugin,
+  SizeObserverPlugin,
+  ClickScrollPlugin,
+} from '~/plugins';
 
 addPlugin(ClickScrollPlugin);
 

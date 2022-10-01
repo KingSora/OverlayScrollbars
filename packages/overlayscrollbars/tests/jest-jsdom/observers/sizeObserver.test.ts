@@ -1,17 +1,17 @@
-import { createSizeObserver as originalCreateSizeObserver } from 'observers';
-import { SizeObserverPlugin, sizeObserverPluginName } from 'plugins';
+import { createSizeObserver as originalCreateSizeObserver } from '~/observers';
+import { SizeObserverPlugin, sizeObserverPluginName } from '~/plugins';
 
 let createSizeObserver = originalCreateSizeObserver;
 
 const mockResizeObserverConstructor = async (value: any) => {
   jest.resetModules();
-  jest.unmock('plugins');
-  jest.doMock('support/compatibility/apis', () => ({
-    ...jest.requireActual('support/compatibility/apis'),
+  jest.unmock('~/plugins');
+  jest.doMock('~/support/compatibility/apis', () => ({
+    ...jest.requireActual('~/support/compatibility/apis'),
     ResizeObserverConstructor: value,
   }));
 
-  ({ createSizeObserver } = await import('observers'));
+  ({ createSizeObserver } = await import('~/observers'));
 };
 
 describe('createSizeObserver', () => {
@@ -64,8 +64,8 @@ describe('createSizeObserver', () => {
 
     beforeEach(() => {
       mockResizeObserverConstructor(false);
-      jest.doMock('plugins', () => ({
-        ...jest.requireActual('plugins'),
+      jest.doMock('~/plugins', () => ({
+        ...jest.requireActual('~/plugins'),
         getPlugins: () => ({
           [sizeObserverPluginName]: {
             _: mockSizeObserverPlugin,

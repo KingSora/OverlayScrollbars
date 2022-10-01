@@ -1,17 +1,19 @@
 import {
+  validateOptions,
+  optionsTemplateTypes as oTypes,
+} from '~/plugins/optionsValidationPlugin/validation';
+import type {
   Options,
   OverflowBehavior,
   ScrollbarVisibilityBehavior,
   ScrollbarAutoHideBehavior,
-} from 'options';
-import {
-  validateOptions,
+} from '~/options';
+import type {
   OptionsTemplate,
   OptionsTemplateValue,
-  optionsTemplateTypes as oTypes,
-} from 'plugins/optionsValidationPlugin/validation';
-import type { DeepPartial } from 'typings';
-import type { Plugin } from 'plugins';
+} from '~/plugins/optionsValidationPlugin/validation';
+import type { DeepPartial } from '~/typings';
+import type { Plugin } from '~/plugins';
 
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
 const booleanAllowedValues: OptionsTemplateValue<boolean> = oTypes.boolean;

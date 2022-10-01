@@ -1,4 +1,4 @@
-import { jsAPI, cssProperty, cssPropertyValue } from 'support/compatibility/vendors';
+import { jsAPI, cssProperty, cssPropertyValue } from '~/support/compatibility/vendors';
 
 describe('vendors', () => {
   describe('jsAPI', () => {

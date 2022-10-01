@@ -1,4 +1,4 @@
-import { equal, equalTRBL, equalWH, equalXY, equalBCRWH } from 'support/utils/equal';
+import { equal, equalTRBL, equalWH, equalXY, equalBCRWH } from '~/support/utils/equal';
 
 describe('equal', () => {
   test('equal', () => {

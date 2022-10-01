@@ -12,13 +12,13 @@ import {
   cAF,
   rAF,
   stopPropagation,
-} from 'support';
+} from '~/support';
 import {
   classNameSizeObserverListenerScroll,
   classNameSizeObserverListenerItem,
   classNameSizeObserverListenerItemFinal,
-} from 'classnames';
-import type { Plugin } from 'plugins';
+} from '~/classnames';
+import type { Plugin } from '~/plugins';
 
 export type SizeObserverPluginInstance = {
   _: (

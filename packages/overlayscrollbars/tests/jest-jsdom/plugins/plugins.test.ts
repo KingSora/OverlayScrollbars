@@ -1,4 +1,4 @@
-import { addPlugin, getPlugins } from 'plugins';
+import { addPlugin, getPlugins } from '~/plugins';
 
 describe('plugins', () => {
   test('getPlugins', () => {

@@ -1,15 +1,15 @@
-import { createEventListenerHub, isEmptyObject, keys, scrollLeft, scrollTop } from 'support';
-import { createState, createOptionCheck } from 'setups/setups';
-import { createStructureSetupElements } from 'setups/structureSetup/structureSetup.elements';
-import { createStructureSetupUpdate } from 'setups/structureSetup/structureSetup.update';
-import { createStructureSetupObservers } from 'setups/structureSetup/structureSetup.observers';
-import type { StructureSetupUpdateHints } from 'setups/structureSetup/structureSetup.update';
-import type { StructureSetupElementsObj } from 'setups/structureSetup/structureSetup.elements';
-import type { TRBL, XY, EventListener } from 'support';
-import type { Options, ReadonlyOptions } from 'options';
-import type { Setup } from 'setups';
-import type { InitializationTarget } from 'initialization';
-import type { DeepPartial, StyleObject, OverflowStyle } from 'typings';
+import { createEventListenerHub, isEmptyObject, keys, scrollLeft, scrollTop } from '~/support';
+import { createState, createOptionCheck } from '~/setups/setups';
+import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
+import { createStructureSetupUpdate } from '~/setups/structureSetup/structureSetup.update';
+import { createStructureSetupObservers } from '~/setups/structureSetup/structureSetup.observers';
+import type { StructureSetupUpdateHints } from '~/setups/structureSetup/structureSetup.update';
+import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
+import type { TRBL, XY, EventListener } from '~/support';
+import type { Options, ReadonlyOptions } from '~/options';
+import type { Setup } from '~/setups';
+import type { InitializationTarget } from '~/initialization';
+import type { DeepPartial, StyleObject, OverflowStyle } from '~/typings';
 
 export interface StructureSetupState {
   _padding: TRBL;

@@ -1,4 +1,4 @@
-import 'index.scss';
+import '~/index.scss';
 import './index.scss';
 import './handleEnvironment';
 import should from 'should';
@@ -10,9 +10,9 @@ import {
   setTestResult,
   waitForOrFailTest,
 } from '@~local/browser-testing';
-import { offsetSize } from 'support';
-import { createTrinsicObserver } from 'observers';
-import { addPlugin, SizeObserverPlugin } from 'plugins';
+import { offsetSize } from '~/support';
+import { createTrinsicObserver } from '~/observers';
+import { addPlugin, SizeObserverPlugin } from '~/plugins';
 
 if (!window.ResizeObserver) {
   addPlugin(SizeObserverPlugin);

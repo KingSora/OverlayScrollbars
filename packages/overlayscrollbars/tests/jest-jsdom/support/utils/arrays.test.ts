@@ -1,4 +1,4 @@
-import { push, each, from, indexOf, runEachAndClear, isEmptyArray } from 'support/utils/array';
+import { push, each, from, indexOf, runEachAndClear, isEmptyArray } from '~/support/utils/array';
 
 describe('array utilities', () => {
   describe('push', () => {

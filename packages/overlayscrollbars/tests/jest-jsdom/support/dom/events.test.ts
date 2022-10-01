@@ -1,10 +1,5 @@
-import {
-  off,
-  preventDefault,
-  stopPropagation,
-  stopAndPrevent,
-  OnOptions,
-} from 'support/dom/events';
+import type { OnOptions } from '~/support/dom/events';
+import { off, preventDefault, stopPropagation, stopAndPrevent } from '~/support/dom/events';
 
 const testElm = document.body;
 const mockEventListener = (
@@ -89,7 +84,7 @@ describe('dom events', () => {
     };
 
     beforeEach(() =>
-      import('support/dom/events').then((module) => {
+      import('~/support/dom/events').then((module) => {
         eventsModule = module;
         jest.resetModules();
       })

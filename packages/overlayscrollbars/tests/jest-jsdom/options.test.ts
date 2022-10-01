@@ -1,4 +1,4 @@
-import { defaultOptions, getOptionsDiff } from 'options';
+import { defaultOptions, getOptionsDiff } from '~/options';
 
 describe('options', () => {
   test('defaultOptions', () => {

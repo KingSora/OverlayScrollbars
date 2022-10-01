@@ -1,4 +1,4 @@
-import 'index.scss';
+import '~/index.scss';
 import './index.scss';
 import should from 'should';
 import {
@@ -20,9 +20,8 @@ import {
   removeClass,
   diffClass,
   on,
-} from 'support';
-
-import { createDOMObserver } from 'observers';
+} from '~/support';
+import { createDOMObserver } from '~/observers';
 
 type DOMContentObserverResult = {
   contentChange: boolean;

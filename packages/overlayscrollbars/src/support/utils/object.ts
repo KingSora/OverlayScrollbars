@@ -1,5 +1,5 @@
-import { isArray, isFunction, isPlainObject, isNull } from 'support/utils/types';
-import { each } from 'support/utils/array';
+import { isArray, isFunction, isPlainObject, isNull } from '~/support/utils/types';
+import { each } from '~/support/utils/array';
 
 /**
  * Determines whether the passed object has a property with the passed name.

@@ -1,4 +1,4 @@
-import { createEventListenerHub } from 'support/eventListeners';
+import { createEventListenerHub } from '~/support/eventListeners';
 
 type EventMap = {
   onBoolean: [a: boolean, b: string];

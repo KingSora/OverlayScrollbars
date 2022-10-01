@@ -1,10 +1,10 @@
-import type { OverlayScrollbars } from 'overlayscrollbars';
-import type { DeepPartial } from 'typings';
-import type { Options } from 'options';
+import type { OverlayScrollbars } from '~/overlayscrollbars';
+import type { DeepPartial } from '~/typings';
+import type { Options } from '~/options';
 import type {
   InitialEventListeners as GeneralInitialEventListeners,
   EventListener as GeneralEventListener,
-} from 'support/eventListeners';
+} from '~/support/eventListeners';
 
 export interface OnUpdatedEventListenerArgs {
   updateHints: {

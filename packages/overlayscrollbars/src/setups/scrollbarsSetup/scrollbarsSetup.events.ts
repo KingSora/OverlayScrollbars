@@ -6,26 +6,26 @@ import {
   preventDefault,
   runEachAndClear,
   stopPropagation,
-  XY,
   selfClearTimeout,
   parent,
   closest,
   push,
-} from 'support';
-import { getPlugins, clickScrollPluginName } from 'plugins';
-import { getEnvironment } from 'environment';
+} from '~/support';
+import { getPlugins, clickScrollPluginName } from '~/plugins';
+import { getEnvironment } from '~/environment';
 import {
   classNameScrollbarHandle,
   classNamesScrollbarInteraction,
   classNamesScrollbarWheel,
-} from 'classnames';
-import type { ClickScrollPluginInstance } from 'plugins';
-import type { ReadonlyOptions } from 'options';
-import type { StructureSetupState } from 'setups';
+} from '~/classnames';
+import type { XY } from '~/support';
+import type { ClickScrollPluginInstance } from '~/plugins';
+import type { ReadonlyOptions } from '~/options';
+import type { StructureSetupState } from '~/setups';
 import type {
   ScrollbarsSetupElementsObj,
   ScrollbarStructure,
-} from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
+} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 
 export type ScrollbarsSetupEvents = (
   scrollbarStructure: ScrollbarStructure,

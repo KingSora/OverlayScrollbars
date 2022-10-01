@@ -8,7 +8,7 @@ import {
   createDiv,
   liesBetween,
   createDOM,
-} from 'support/dom';
+} from '~/support/dom';
 
 const slotElm = document.body;
 const testHTML =

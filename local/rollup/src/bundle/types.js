@@ -23,6 +23,7 @@ module.exports = (resolve, options) => {
       output: {
         file: path.resolve(typesPath, `${file}`),
       },
+      external: [...resolve.styleExtensions.map((ext) => new RegExp(`.*\\${ext}`))],
       plugins: [rollupTs(input, true)],
     },
     {
@@ -30,11 +31,17 @@ module.exports = (resolve, options) => {
       output: {
         file: dtsOutput,
       },
+      external: [...resolve.styleExtensions.map((ext) => new RegExp(`.*\\${ext}`))],
       plugins: [
         rollupDts.default({
           respectExternal: true,
           compilerOptions: {
-            baseUrl: typesPath,
+            paths: {
+              ...Object.entries(resolve.paths.rollupTypes).reduce((obj, [key, value]) => {
+                obj[key] = value.map((entry) => entry.replace('<typesDir>', typesPath));
+                return obj;
+              }, {}),
+            },
           },
         }),
         {

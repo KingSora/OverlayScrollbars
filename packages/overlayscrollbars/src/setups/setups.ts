@@ -1,6 +1,6 @@
-import { assignDeep, hasOwnProperty } from 'support';
-import type { Options, ReadonlyOptions } from 'options';
-import type { DeepPartial } from 'typings';
+import { assignDeep, hasOwnProperty } from '~/support';
+import type { Options, ReadonlyOptions } from '~/options';
+import type { DeepPartial } from '~/typings';
 
 export type SetupElements<T extends Record<string, any>> = [elements: T, destroy: () => void];
 
@@ -44,7 +44,7 @@ export const createOptionCheck =
   (path: string) =>
     [getPropByPath(options, path), force || getPropByPath(changedOptions, path) !== undefined];
 
-export const createState = <S>(initialState: S): SetupState<S> => {
+export const createState = <S extends Record<string, any>>(initialState: S): SetupState<S> => {
   let state: S = initialState;
   return [
     () => state,

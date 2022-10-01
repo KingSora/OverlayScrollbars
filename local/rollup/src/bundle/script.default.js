@@ -64,7 +64,7 @@ module.exports = (resolve, options) => {
         ...rollupOptions,
         plugins: [
           rollupLicense(banner, sourcemap),
-          rollupAlias(alias),
+          rollupAlias(resolve, alias),
           rollupScss(resolve, sourcemap, extractStyles, false),
           rollupTs(input),
           rollupResolve(resolve),

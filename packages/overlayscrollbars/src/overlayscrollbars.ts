@@ -7,23 +7,23 @@ import {
   isHTMLElement,
   createEventListenerHub,
   isPlainObject,
-} from 'support';
-import { getOptionsDiff } from 'options';
-import { getEnvironment } from 'environment';
-import { cancelInitialization } from 'initialization';
-import { addInstance, getInstance, removeInstance } from 'instances';
-import { createStructureSetup, createScrollbarsSetup } from 'setups';
-import { getPlugins, addPlugin, optionsValidationPluginName, PluginInstance } from 'plugins';
-import type { XY, TRBL } from 'support';
-import type { Options, ReadonlyOptions } from 'options';
-import type { Plugin, OptionsValidationPluginInstance } from 'plugins';
-import type { InitializationTarget, Initialization } from 'initialization';
-import type { DeepPartial, OverflowStyle } from 'typings';
-import type { EventListenerMap, EventListener, InitialEventListeners } from 'eventListeners';
+} from '~/support';
+import { getOptionsDiff } from '~/options';
+import { getEnvironment } from '~/environment';
+import { cancelInitialization } from '~/initialization';
+import { addInstance, getInstance, removeInstance } from '~/instances';
+import { createStructureSetup, createScrollbarsSetup } from '~/setups';
+import { getPlugins, addPlugin, optionsValidationPluginName } from '~/plugins';
+import type { XY, TRBL } from '~/support';
+import type { Options, ReadonlyOptions } from '~/options';
+import type { Plugin, OptionsValidationPluginInstance, PluginInstance } from '~/plugins';
+import type { InitializationTarget, Initialization } from '~/initialization';
+import type { DeepPartial, OverflowStyle } from '~/typings';
+import type { EventListenerMap, EventListener, InitialEventListeners } from '~/eventListeners';
 import type {
   ScrollbarsSetupElement,
   ScrollbarStructure,
-} from 'setups/scrollbarsSetup/scrollbarsSetup.elements';
+} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 
 // Notes:
 // Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
