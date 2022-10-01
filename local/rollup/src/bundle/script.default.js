@@ -4,7 +4,7 @@ const {
   rollupBabel,
   rollupTs,
   rollupCommonjs,
-  rollupResolve,
+  rollupEsbuildResolve,
   rollupAlias,
   rollupScss,
   rollupLicense,
@@ -64,12 +64,12 @@ module.exports = (resolve, options) => {
         ...rollupOptions,
         plugins: [
           rollupLicense(banner, sourcemap),
+          rollupEsbuildResolve(resolve),
           rollupAlias(resolve, alias),
           rollupScss(resolve, sourcemap, extractStyles, false),
           rollupTs(input),
-          rollupResolve(resolve),
-          rollupCommonjs(sourcemap, resolve),
           rollupBabel(resolve, generatedCode === 'es2015'),
+          rollupCommonjs(sourcemap, resolve),
           ...plugins,
         ],
       };

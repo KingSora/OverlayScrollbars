@@ -1,15 +1,12 @@
 {
-  "extensions": [".json", ".js", ".jsx", ".cjs", ".mjs", ".ts", ".tsx"],
-  "styleExtensions": [".scss", ".sass", ".css"],
+  "extensions": [".tsx", ".ts", ".jsx", ".js", ".json"],
+  "styleExtensions": [".css", ".scss", ".sass"],
   "directories": ["node_modules"],
   "paths": {
     "jest": {
       "moduleNameMapper": {
         "^~/(.*)": "<rootDir>/src/$1"
       }
-    },
-    "rollupAlias": {
-      "^~/(.*)": "<rootDir>/src/$1"
     },
     "rollupTypes": {
       "~/*": ["<typesDir>/*"]

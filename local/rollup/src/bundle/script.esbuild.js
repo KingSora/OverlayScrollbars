@@ -2,7 +2,7 @@ const path = require('path');
 const {
   rollupEsBuild,
   rollupCommonjs,
-  rollupResolve,
+  rollupEsbuildResolve,
   rollupAlias,
   rollupScss,
   rollupLicense,
@@ -28,12 +28,12 @@ module.exports = (resolve, options) => {
     output,
     ...rollupOptions,
     plugins: [
-      rollupLicense(banner, sourcemap),
+      rollupEsbuildResolve(resolve),
       rollupAlias(resolve, alias),
+      rollupLicense(banner, sourcemap),
       rollupScss(resolve, sourcemap, extractStyles, false),
       rollupEsBuild(sourcemap),
       rollupCommonjs(sourcemap, resolve),
-      rollupResolve(resolve),
       ...plugins,
     ],
   };

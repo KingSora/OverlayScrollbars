@@ -12,6 +12,7 @@ const rollupPluginAlias = require('@rollup/plugin-alias');
 const rollupPluginTs = require('rollup-plugin-typescript2');
 const rollupPluginLicense = require('rollup-plugin-license');
 const rollupPluginEsBuild = require('../plugins/esbuild');
+const rollupPluginEsBuildResolve = require('../plugins/esbuild-resolve');
 const babelConfigEs5 = require('./babel.config.es5');
 const babelConfigEs6 = require('./babel.config.es2015');
 
@@ -29,13 +30,6 @@ module.exports = {
           });
           return arr;
         }, []),
-        ...Object.entries(resolve.paths.rollupAlias).reduce((arr, [key, value]) => {
-          arr.push({
-            find: new RegExp(key),
-            replacement: value.replace('<rootDir>', normalizePath(process.cwd())),
-          });
-          return arr;
-        }, []),
       ],
     }),
   rollupCommonjs: (sourcemap, resolve) =>
@@ -50,6 +44,14 @@ module.exports = {
       extensions: resolve.extensions,
       ignoreSideEffectsForRoot: true,
       ...(resolveOnly ? { resolveOnly } : {}),
+    }),
+  rollupEsbuildResolve: (resolve) =>
+    rollupPluginEsBuildResolve({
+      esbuild: {
+        mainFields: ['browser', 'umd:main', 'module', 'main'],
+        nodePaths: resolve.directories,
+        resolveExtensions: resolve.extensions,
+      },
     }),
   rollupScss: (resolve, sourceMap, extract, output, banner, minified) => {
     if (extract) {

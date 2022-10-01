@@ -1,5 +1,5 @@
 const path = require('path');
-const { rollupAlias, rollupResolve, rollupScss, rollupEsBuild } = require('./plugins');
+const { rollupAlias, rollupEsbuildResolve, rollupScss, rollupEsBuild } = require('./plugins');
 
 module.exports = (resolve, options) => {
   const { rollup, alias, paths, banner, extractStyles } = options;
@@ -17,6 +17,7 @@ module.exports = (resolve, options) => {
       return !resolve.styleExtensions.find((ext) => id.endsWith(ext));
     },
     plugins: [
+      rollupEsbuildResolve(resolve),
       rollupAlias(resolve, alias),
       rollupScss(
         resolve,
@@ -27,7 +28,6 @@ module.exports = (resolve, options) => {
         minified
       ),
       rollupEsBuild(false),
-      rollupResolve(resolve),
       {
         generateBundle() {
           process.stdout.write = () => {
