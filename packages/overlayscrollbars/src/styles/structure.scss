@@ -97,6 +97,19 @@ html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
   flex-wrap: nowrap !important;
 }
 
+[data-overlayscrollbars~='grid'],
+[data-overlayscrollbars~='grid'] .os-padding {
+  display: grid;
+  grid-template: 1fr / 1fr;
+}
+
+[data-overlayscrollbars~='grid'] > .os-padding,
+[data-overlayscrollbars~='grid'] > .os-viewport,
+[data-overlayscrollbars~='grid'] > .os-padding > .os-viewport {
+  height: auto !important;
+  width: auto !important;
+}
+
 .os-padding,
 .os-viewport {
   box-sizing: inherit;
