@@ -86,7 +86,7 @@ export type Initialization = {
 };
 
 /** The initialization target element. */
-export type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
+export type InitializationTargetElement = HTMLElement; // | HTMLTextAreaElement;
 
 /**
  * The initialization target object.
