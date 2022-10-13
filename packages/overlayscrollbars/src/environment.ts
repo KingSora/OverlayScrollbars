@@ -36,6 +36,46 @@ type EnvironmentEventMap = {
   _: [];
 };
 
+/**
+ * Describes the OverlayScrollbars environment.
+ */
+export interface Environment {
+  /** The native scrollbars size of the browser / system. */
+  scrollbarsSize: XY<number>;
+  /** Whether the native scrollbars are overlaid. */
+  scrollbarsOverlaid: XY<boolean>;
+  /** Whether the browser supports native scrollbars hiding. */
+  scrollbarsHiding: boolean;
+  /** The rtl scroll behavior of the browser. */
+  rtlScrollBehavior: { n: boolean; i: boolean };
+  /** Whether the browser supports all needed Flexbox features for OverlayScrollbars to work in a more performant way. */
+  flexboxGlue: boolean;
+  /** Whether the browser supports custom css properties. (also known as css variables) */
+  cssCustomProperties: boolean;
+  /** The default Initialization to use if nothing else is specified. */
+  staticDefaultInitialization: Initialization;
+  /** The default Options to use if nothing else is specified. */
+  staticDefaultOptions: Options;
+
+  /** Returns the current default Initialization. */
+  getDefaultInitialization(): Initialization;
+  /** Returns the current default Options. */
+  getDefaultOptions(): Options;
+
+  /**
+   * Sets a new default Initialization.
+   * If the new default Initialization is partially filled, its deeply merged with the current default Initialization.
+   * @param newDefaultInitialization The new default Initialization.
+   */
+  setDefaultInitialization(newDefaultInitialization: DeepPartial<Initialization>): void;
+  /**
+   * Sets new default Options.
+   * If the new default Options are partially filled, they're deeply merged with the current default Options.
+   * @param newDefaultOptions The new default Options.
+   */
+  setDefaultOptions(newDefaultOptions: DeepPartial<Options>): void;
+}
+
 export interface InternalEnvironment {
   readonly _nativeScrollbarsSize: XY;
   readonly _nativeScrollbarsOverlaid: XY<boolean>;

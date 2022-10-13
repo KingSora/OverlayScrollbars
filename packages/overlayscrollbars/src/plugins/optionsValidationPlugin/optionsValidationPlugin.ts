@@ -5,8 +5,8 @@ import {
 import type {
   Options,
   OverflowBehavior,
-  ScrollbarVisibilityBehavior,
-  ScrollbarAutoHideBehavior,
+  ScrollbarsVisibilityBehavior,
+  ScrollbarsAutoHideBehavior,
 } from '~/options';
 import type {
   OptionsTemplate,
@@ -20,9 +20,9 @@ const booleanAllowedValues: OptionsTemplateValue<boolean> = oTypes.boolean;
 const arrayNullValues: OptionsTemplateValue<Array<unknown> | null> = [oTypes.array, oTypes.null];
 const overflowAllowedValues: OptionsTemplateValue<OverflowBehavior> =
   'hidden scroll visible visible-hidden';
-const scrollbarsVisibilityAllowedValues: OptionsTemplateValue<ScrollbarVisibilityBehavior> =
+const scrollbarsVisibilityAllowedValues: OptionsTemplateValue<ScrollbarsVisibilityBehavior> =
   'visible hidden auto';
-const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<ScrollbarAutoHideBehavior> =
+const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<ScrollbarsAutoHideBehavior> =
   'never scroll leavemove';
 
 const optionsTemplate: OptionsTemplate<Options> = {

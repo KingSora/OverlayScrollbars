@@ -14,10 +14,11 @@ import { cancelInitialization } from '~/initialization';
 import { addInstance, getInstance, removeInstance } from '~/instances';
 import { createStructureSetup, createScrollbarsSetup } from '~/setups';
 import { getPlugins, addPlugin, optionsValidationPluginName } from '~/plugins';
+import type { Environment } from '~/environment';
 import type { XY, TRBL } from '~/support';
 import type { Options, ReadonlyOptions } from '~/options';
 import type { Plugin, OptionsValidationPluginInstance, PluginInstance } from '~/plugins';
-import type { InitializationTarget, Initialization } from '~/initialization';
+import type { InitializationTarget } from '~/initialization';
 import type { DeepPartial, OverflowStyle } from '~/typings';
 import type { EventListenerMap, EventListener, InitialEventListeners } from '~/eventListeners';
 import type {
@@ -28,84 +29,184 @@ import type {
 // Notes:
 // Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
 
+/**
+ * The primary entry point to OverlayScrollbars.
+ */
 export interface OverlayScrollbarsStatic {
+  /**
+   * Returns the current OverlayScrollbars instance if the target already has an instance.
+   * @param target The initialization target to from which the instance shall be returned.
+   */
   (target: InitializationTarget): OverlayScrollbars | undefined;
+  /**
+   * Initialized a new OverlayScrollbars instance to the given target
+   * or returns the current OverlayScrollbars instance if the target already has an instance.
+   * @param target The target.
+   * @param options The options. (Can be just an empty object)
+   * @param eventListeners Optional event listeners.
+   */
   (
     target: InitializationTarget,
     options: DeepPartial<Options>,
     eventListeners?: InitialEventListeners
   ): OverlayScrollbars;
 
+  /**
+   * Adds one or multiple plugins.
+   * @param plugin Either a signle or an array of plugins to add.
+   */
   plugin(plugin: Plugin | Plugin[]): void;
+  /**
+   * Checkts whether the passed value is a valid overlayscrollbars instance.
+   * @param osInstance The value which shall be checked.
+   */
   valid(osInstance: any): osInstance is OverlayScrollbars;
+  /**
+   * Returns the overlayscrollbars environment.
+   */
   env(): Environment;
 }
 
-export interface Environment {
-  scrollbarsSize: XY<number>;
-  scrollbarsOverlaid: XY<boolean>;
-  scrollbarsHiding: boolean;
-  rtlScrollBehavior: { n: boolean; i: boolean };
-  flexboxGlue: boolean;
-  cssCustomProperties: boolean;
-  staticDefaultInitialization: Initialization;
-  staticDefaultOptions: Options;
-
-  getDefaultInitialization(): Initialization;
-  setDefaultInitialization(newDefaultInitialization: DeepPartial<Initialization>): void;
-  getDefaultOptions(): Options;
-  setDefaultOptions(newDefaultOptions: DeepPartial<Options>): void;
-}
-
+/**
+ * Describes a OverlayScrollbars instances state.
+ */
 export interface State {
+  /** Describes the current padding in pixel. */
   padding: TRBL;
+  /** Whether the current padding is absolute. */
   paddingAbsolute: boolean;
+  /** The client width (x) & height (y) of the viewport in pixel. */
   overflowEdge: XY<number>;
+  /** The overflow amount in pixel. */
   overflowAmount: XY<number>;
+  /** The css overflow style of the viewport. */
   overflowStyle: XY<OverflowStyle>;
+  /** Whether the viewport has an overflow. */
   hasOverflow: XY<boolean>;
+  /** Whether the direction is considered rtl. */
   directionRTL: boolean;
+  /** Whether the instance is considered destroyed. */
   destroyed: boolean;
 }
 
+/**
+ * Describes the elements of a scrollbar.
+ */
 export interface ScrollbarElements {
+  /**
+   * The root element of the scrollbar.
+   * The HTML structure looks like this:
+   * <scrollbar>
+   *   <track>
+   *     <handle />
+   *   </track>
+   * </scrollbar>
+   */
   scrollbar: HTMLElement;
+  /** The track element of the scrollbar. */
   track: HTMLElement;
+  /** The handle element of the scrollbar. */
   handle: HTMLElement;
 }
 
+/**
+ * Describes the elements of a scrollbar and provides the possibility to clone them.
+ */
 export interface CloneableScrollbarElements extends ScrollbarElements {
+  /**
+   * Clones the current scrollbar and returns the cloned elements.
+   * The returned elements aren't added to the DOM.
+   */
   clone(): ScrollbarElements;
 }
 
+/**
+ * Describes the elements of a OverlayScrollbars instance.
+ */
 export interface Elements {
+  /** The element the instance was applied to. */
   target: HTMLElement;
+  /** The host element. Its the root of all other elements. */
   host: HTMLElement;
+  /**
+   * The element which is responsible to apply correct paddings.
+   * Depending on the Initialization it can be the same as the viewport element.
+   */
   padding: HTMLElement;
+  /** The element which is responsible to do any scrolling. */
   viewport: HTMLElement;
+  /**
+   * The element which is responsible to hold the content.
+   * Depending on the Initialization it can be the same as the viewport element.
+   */
   content: HTMLElement;
+  /**
+   * The element through which you can get the current `scrollLeft` or `scrollTop` offset.
+   * Depending on the target element it can be the same as the viewport element.
+   */
   scrollOffsetElement: HTMLElement;
+  /**
+   * The element through which you can add `scroll` events.
+   * Depending on the target element it can be the same as the viewport element.
+   */
   scrollEventElement: HTMLElement | Document;
+  /** The horizontal scrollbar elements. */
   scrollbarHorizontal: CloneableScrollbarElements;
+  /** The vertical scrollbar elements. */
   scrollbarVertical: CloneableScrollbarElements;
 }
 
+/**
+ * Describes a OverlayScrollbars instance.
+ */
 export interface OverlayScrollbars {
+  /** Get the current options of the instance. */
   options(): Options;
+  /**
+   * Sets the options of the instance.
+   * If the new options are partially filled, they're deeply merged with the current options.
+   * @param newOptions The new options.
+   */
   options(newOptions: DeepPartial<Options>): Options;
 
+  /**
+   * Adds an event listener to the instance.
+   * @param name The name of the event.
+   * @param listener The listener which is invoked on that event.
+   */
   on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): () => void;
+  /**
+   * Adds multiple event listeners to the instance.
+   * @param name The name of the event.
+   * @param listener The listeners which are invoked on that event.
+   */
   on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): () => void;
 
+  /**
+   * Removes an event listener from the instance.
+   * @param name The name of the event.
+   * @param listener The listener which shall be removed.
+   */
   off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): void;
+  /**
+   * Removes multiple event listeners from the instance.
+   * @param name The name of the event.
+   * @param listener The listeners which shall be removed.
+   */
   off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): void;
 
+  /**
+   * Updates the instance.
+   * @param force Whether the update should force the cache to be invalidated.
+   * @returns A boolean which indicates whether the `update` event was triggered through this update.
+   * The update event is only triggered if something changed because of this update.
+   */
   update(force?: boolean): boolean;
-
+  /** Returns the state of the instance. */
   state(): State;
-
+  /** Returns the elements of the instance. */
   elements(): Elements;
-
+  /** Destroys the instance. */
   destroy(): void;
 }
 

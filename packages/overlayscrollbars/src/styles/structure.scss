@@ -1,3 +1,7 @@
+/**
+ * environment setup 
+ */
+
 .os-environment {
   --os-custom-prop: -1;
   position: fixed;
@@ -49,6 +53,10 @@
   }
 }
 
+/**
+ * hide native scrollbars
+ */
+
 .os-environment,
 .os-viewport {
   -ms-overflow-style: scrollbar !important;
@@ -77,6 +85,10 @@ html.os-viewport-scrollbar-hidden::-webkit-scrollbar-corner,
   background: transparent !important;
 }
 
+/**
+ * applied to body 
+ */
+
 html.os-viewport-scrollbar-hidden,
 html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
   box-sizing: border-box;
@@ -85,29 +97,19 @@ html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
   height: 100%;
 }
 
+/**
+ * structure setup 
+ */
+
 [data-overlayscrollbars~='host'],
 .os-padding {
   position: relative;
 }
-
 [data-overlayscrollbars~='host'],
 .os-padding {
   display: flex;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
-}
-
-[data-overlayscrollbars~='grid'],
-[data-overlayscrollbars~='grid'] .os-padding {
-  display: grid;
-  grid-template: 1fr / 1fr;
-}
-
-[data-overlayscrollbars~='grid'] > .os-padding,
-[data-overlayscrollbars~='grid'] > .os-viewport,
-[data-overlayscrollbars~='grid'] > .os-padding > .os-viewport {
-  height: auto !important;
-  width: auto !important;
 }
 
 .os-padding,
@@ -170,4 +172,20 @@ html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
 
 .os-content {
   box-sizing: inherit;
+}
+
+/**
+ * optional & experimental grid mode
+ */
+
+[data-overlayscrollbars-grid],
+[data-overlayscrollbars-grid] .os-padding {
+  display: grid;
+  grid-template: 1fr / 1fr;
+}
+[data-overlayscrollbars-grid] > .os-padding,
+[data-overlayscrollbars-grid] > .os-viewport,
+[data-overlayscrollbars-grid] > .os-padding > .os-viewport {
+  height: auto !important;
+  width: auto !important;
 }

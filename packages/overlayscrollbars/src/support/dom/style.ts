@@ -112,9 +112,9 @@ export const topRightBottomLeft = (
   const left = `${finalPrefix}left${finalSuffix}`;
   const result = style(elm, [top, right, bottom, left]);
   return {
-    t: parseToZeroOrNumber(result[top]),
-    r: parseToZeroOrNumber(result[right]),
-    b: parseToZeroOrNumber(result[bottom]),
-    l: parseToZeroOrNumber(result[left]),
+    t: parseToZeroOrNumber(result[top], true),
+    r: parseToZeroOrNumber(result[right], true),
+    b: parseToZeroOrNumber(result[bottom], true),
+    l: parseToZeroOrNumber(result[left], true),
   };
 };

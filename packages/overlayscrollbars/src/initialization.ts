@@ -19,46 +19,84 @@ type FallbackDynamicInitializtationElement<Args extends any[]> = Extract<
 
 /**
  * Static elements are elements which MUST be present in the final DOM.
- * With false, null or undefined the element will be generated, otherwise the specified element is taken.
+ * If an `HTMLElement` is passed the passed element will be taken as the repsective element.
+ * With `false`, `null` or `undefined` an appropriate element is generated automatically.
  */
 export type StaticInitializationElement<Args extends any[]> =
+  /** A function which returns the the StaticInitialization value. */
   | ((...args: Args) => StaticInitialization)
+  /** The StaticInitialization value. */
   | StaticInitialization;
 
 /**
- * Dynamic element are elements which CAN be present in the final DOM.
- * If its a element the element will be taken as the repsective element.
- * With true the element will be generated.
- * With false, null or undefined the element won't be generated and wont be in the DOM.
+ * Dynamic elements are elements which CAN be present in the final DOM.
+ * If an `HTMLElement`is passed the passed element will be taken as the repsective element.
+ * With `true` an appropriate element is generated automatically.
+ * With `false`, `null` or `undefined` the element won't be in the DOM.
  */
 export type DynamicInitializationElement<Args extends any[]> =
+  /** A function which returns the the DynamicInitialization value. */
   | ((...args: Args) => DynamicInitialization)
+  /** The DynamicInitialization value. */
   | DynamicInitialization;
 
+/**
+ * Describes how a OverlayScrollbar instance should initialize.
+ */
 export type Initialization = {
+  /**
+   * Customizes which elements are generated and used.
+   * If a function is passed to any of the fields, it receives the `target` element as its argument.
+   */
   elements: {
-    host: StaticInitializationElement<[target: InitializationTargetElement]>; // only relevant for textarea
+    /**
+     * Assign a custom element as the host element.
+     * Only relevant if the target element is a Textarea.
+     */
+    host: StaticInitializationElement<[target: InitializationTargetElement]>;
+    /** Assign a custom element as the viewport element. */
     viewport: StaticInitializationElement<[target: InitializationTargetElement]>;
+    /** Assign a custom element as the padding element or force the element not to be generated. */
     padding: DynamicInitializationElement<[target: InitializationTargetElement]>;
+    /** Assign a custom element as the content element or force the element not to be generated. */
     content: DynamicInitializationElement<[target: InitializationTargetElement]>;
   };
+  /**
+   * Customizes elements related to the scrollbars.
+   * If a function is passed, it receives the `target`, `host` and `viewport` element as arguments.
+   */
   scrollbars: {
     slot: DynamicInitializationElement<
       [target: InitializationTargetElement, host: HTMLElement, viewport: HTMLElement]
     >;
   };
+  /**
+   * Customizes the cancelation behavior.
+   */
   cancel: {
+    /** Whether the initialization shall be canceled if the native scrollbars are overlaid. */
     nativeScrollbarsOverlaid: boolean;
+    /**
+     * Whether the initialization shall be canceled if its applied to a body element.
+     * With `true` an initialization is always canceled, with `false` its never canceled.
+     * With `null` the initialization will only be canceled when the initialization would affect the browsers functionality. (window.scrollTo, mobile browser behavior etc.)
+     */
     body: boolean | null;
   };
 };
 
+/** The initialization target element. */
 export type InitializationTargetElement = HTMLElement | HTMLTextAreaElement;
 
+/**
+ * The initialization target object.
+ * OverlayScrollbars({ target: myElement }) is equivalent to OverlayScrollbars(myElement).
+ */
 export type InitializationTargetObject = DeepPartial<Initialization> & {
   target: InitializationTargetElement;
 };
 
+/** The initialization target. */
 export type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
 
 const resolveInitialization = <T>(value: any, args: any): T =>

@@ -18,8 +18,8 @@ import type {
 import type { StructureSetupUpdateHints } from '~/setups/structureSetup/structureSetup.update';
 import type {
   ReadonlyOptions,
-  ScrollbarVisibilityBehavior,
-  ScrollbarAutoHideBehavior,
+  ScrollbarsVisibilityBehavior,
+  ScrollbarsAutoHideBehavior,
 } from '~/options';
 import type { Setup, StructureSetupState, StructureSetupStaticState } from '~/setups';
 import type { InitializationTarget } from '~/initialization';
@@ -164,9 +164,9 @@ export const createScrollbarsSetup = (
       const { _overflowAmount, _overflowStyle, _directionIsRTL } = currStructureSetupState;
       const [theme, themeChanged] = checkOption<string | null>('scrollbars.theme');
       const [visibility, visibilityChanged] =
-        checkOption<ScrollbarVisibilityBehavior>('scrollbars.visibility');
+        checkOption<ScrollbarsVisibilityBehavior>('scrollbars.visibility');
       const [autoHide, autoHideChanged] =
-        checkOption<ScrollbarAutoHideBehavior>('scrollbars.autoHide');
+        checkOption<ScrollbarsAutoHideBehavior>('scrollbars.autoHide');
       const [autoHideDelay] = checkOption<number>('scrollbars.autoHideDelay');
       const [dragScroll, dragScrollChanged] = checkOption<boolean>('scrollbars.dragScroll');
       const [clickScroll, clickScrollChanged] = checkOption<boolean>('scrollbars.clickScroll');

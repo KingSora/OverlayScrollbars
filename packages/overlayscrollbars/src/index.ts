@@ -6,8 +6,8 @@ export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~
 export type {
   Options,
   OverflowBehavior,
-  ScrollbarVisibilityBehavior,
-  ScrollbarAutoHideBehavior,
+  ScrollbarsVisibilityBehavior as ScrollbarVisibilityBehavior,
+  ScrollbarsAutoHideBehavior as ScrollbarAutoHideBehavior,
 } from '~/options';
 export type {
   EventListenerMap,
