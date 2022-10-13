@@ -41,6 +41,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - Bidirectional - LTR or RTL direction support
  - Simple and effective scrollbar styling
  - TypeScript support - fully written in TypeScript
+ - Very well tested - extensive unit & e2e tests
 
 ## Getting started
 
@@ -431,7 +432,14 @@ OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
 
 #### Writing Plugins
 
+> __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
+
 You can write and publish your own Plugins. This section is a work in progress.
+
+## Feature comparison to `v1`
+
+- The `scroll` function is missing. Planned as a `plugin`. (WIP)
+- Initialization to the `textarea` element isn't supported yet. Planned as a `plugin`. (WIP) 
 
 ## Sponsors
 <table>
