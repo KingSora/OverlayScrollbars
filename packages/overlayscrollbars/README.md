@@ -41,7 +41,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - Bidirectional - LTR or RTL direction support
  - Simple and effective scrollbar styling
  - TypeScript support - fully written in TypeScript
- - Very well tested - extensive unit & e2e tests
+ - Incredibly well tested - extensive unit, integration & e2e tests
 
 ## Getting started
 
