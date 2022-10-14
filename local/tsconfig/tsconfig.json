@@ -6,7 +6,6 @@
     "esModuleInterop": true,
     "target": "ESNext",
     "sourceMap": true,
-    "jsx": "react",
     "declaration": true,
     "suppressImplicitAnyIndexErrors": true,
     "module": "ESNext",

@@ -38,11 +38,21 @@ const defaultRules = {
       ],
     },
   ],
+  'react/function-component-definition': [
+    'error',
+    {
+      namedComponents: 'arrow-function',
+      unnamedComponents: 'arrow-function',
+    },
+  ],
+  'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
 };
+const defaultExtends = ['airbnb', 'prettier', 'plugin:react/jsx-runtime'];
+const defaultPlugins = ['prettier', 'json', '@typescript-eslint', 'import', 'react'];
 
 module.exports = {
-  extends: ['airbnb', 'prettier'],
-  plugins: ['prettier', 'json', '@typescript-eslint', 'import'],
+  extends: defaultExtends,
+  plugins: defaultPlugins,
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
@@ -64,7 +74,11 @@ module.exports = {
     'import/resolver': {
       typescript: {
         alwaysTryTypes: true,
-        project: ['./packages/**/tsconfig.json', './local/**/tsconfig.json'],
+        project: [
+          './packages/**/tsconfig.json',
+          './docs/**/tsconfig.json',
+          './local/**/tsconfig.json',
+        ],
       },
     },
   },
@@ -72,11 +86,16 @@ module.exports = {
   overrides: [
     {
       files: ['*.ts', '*.tsx', '*.d.ts'],
-      extends: ['plugin:@typescript-eslint/recommended', 'airbnb', 'prettier'],
+      extends: [...defaultExtends, 'plugin:@typescript-eslint/recommended'],
+      plugins: defaultPlugins,
       parser: '@typescript-eslint/parser',
       parserOptions: {
         tsconfigRootDir: __dirname,
-        project: ['./packages/**/tsconfig.json', './local/**/tsconfig.json'],
+        project: [
+          './packages/**/tsconfig.json',
+          './docs/**/tsconfig.json',
+          './local/**/tsconfig.json',
+        ],
       },
       rules: {
         ...defaultRules,

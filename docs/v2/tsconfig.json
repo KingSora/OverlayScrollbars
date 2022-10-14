@@ -1,0 +1,13 @@
+{
+  "extends": "@~local/tsconfig",
+  "compilerOptions": {
+    "incremental": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "**/node_modules"]
+}
