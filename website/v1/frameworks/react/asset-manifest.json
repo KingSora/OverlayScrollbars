@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/OverlayScrollbars/frameworks/react/static/css/main.957e9a21.chunk.css",
+    "main.js": "/OverlayScrollbars/frameworks/react/static/js/main.1f7f80a4.chunk.js",
+    "main.js.map": "/OverlayScrollbars/frameworks/react/static/js/main.1f7f80a4.chunk.js.map",
+    "runtime~main.js": "/OverlayScrollbars/frameworks/react/static/js/runtime~main.6aaf21d4.js",
+    "runtime~main.js.map": "/OverlayScrollbars/frameworks/react/static/js/runtime~main.6aaf21d4.js.map",
+    "static/css/2.cc8fcf68.chunk.css": "/OverlayScrollbars/frameworks/react/static/css/2.cc8fcf68.chunk.css",
+    "static/js/2.f58e91b4.chunk.js": "/OverlayScrollbars/frameworks/react/static/js/2.f58e91b4.chunk.js",
+    "static/js/2.f58e91b4.chunk.js.map": "/OverlayScrollbars/frameworks/react/static/js/2.f58e91b4.chunk.js.map",
+    "index.html": "/OverlayScrollbars/frameworks/react/index.html",
+    "precache-manifest.38429c8b057febf1cddfa242e6480d10.js": "/OverlayScrollbars/frameworks/react/precache-manifest.38429c8b057febf1cddfa242e6480d10.js",
+    "service-worker.js": "/OverlayScrollbars/frameworks/react/service-worker.js",
+    "static/css/2.cc8fcf68.chunk.css.map": "/OverlayScrollbars/frameworks/react/static/css/2.cc8fcf68.chunk.css.map",
+    "static/css/main.957e9a21.chunk.css.map": "/OverlayScrollbars/frameworks/react/static/css/main.957e9a21.chunk.css.map",
+    "static/media/App.css": "/OverlayScrollbars/frameworks/react/static/media/react.ba7f2cdb.svg"
+  }
+}

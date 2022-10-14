@@ -1,0 +1,88 @@
+/*
+os-theme-thick-dark
+*/
+
+.os-theme-thick-dark > .os-scrollbar {
+    padding: 5px;
+}
+.os-theme-thick-dark > .os-scrollbar:before {
+    content: '';
+    display: block;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    top: 2px;
+    bottom: 2px;
+    right: 2px;
+    left: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.os-theme-thick-dark > .os-scrollbar:hover:before {
+    border: 1px solid rgba(0, 0, 0, 0.16);
+}
+.os-theme-thick-dark > .os-scrollbar.active:before {
+    border: 1px solid rgba(0, 0, 0, 0.24);
+}
+.os-theme-thick-dark > .os-scrollbar-horizontal {
+    right: 18px;
+    height: 18px;
+}
+.os-theme-thick-dark > .os-scrollbar-vertical {
+    bottom: 18px;
+    width: 18px;
+}
+.os-theme-thick-dark.os-host-rtl > .os-scrollbar-horizontal {
+    left: 18px;
+    right: 0;
+}
+.os-theme-thick-dark > .os-scrollbar-corner {
+    height: 18px;
+    width: 18px;
+    background-color: transparent;
+}
+.os-theme-thick-dark > .os-scrollbar > .os-scrollbar-track {
+    background: transparent;
+}
+.os-theme-thick-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 15px;
+}
+.os-theme-thick-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+.os-theme-thick-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle.active {
+    background: rgba(0, 0, 0, 0.8);
+}
+.os-theme-thick-dark > .os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle {
+    min-width: 30px;
+}
+.os-theme-thick-dark > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle {
+    min-height: 30px;
+}
+.os-theme-thick-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -3px;
+    bottom: -5px;
+    display: block;
+}
+.os-theme-thick-dark > .os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle:before {
+    top: -3px;
+    bottom: -5px;
+}
+.os-theme-thick-dark > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle:before {
+    left: -3px;
+    right: -5px;
+}
+.os-theme-thick-dark.os-host-rtl > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle:before {
+    right: -3px;
+    left: -5px;
+}
+.os-theme-thick-dark.os-host-transition > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+    transition: background 0.3s;
+}
+.os-theme-thick-dark.os-host-transition > .os-scrollbar:before {
+    transition: border 0.3s;
+}

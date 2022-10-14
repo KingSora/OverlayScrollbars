@@ -1,0 +1,860 @@
+<div class="content-section skew">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">Frequently Asked Questions</h3>
+			<div class="content-message-content">
+				Here you will hopefully gain answers for questions you'll most likely asking yourself.
+			</div>
+		</div>
+	</div>
+</div>
+<div class="content-section skew">
+	<div class="container">
+		<div class="expander-header" data-expander-key="faq-scrollbar-handle-length">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>Is it possible to limit / adjust the scrollbar-handle length?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-scrollbar-handle-length">
+			<b>Yes.</b> You can adjust the min- or max-length of the scrollbar-handle via CSS.<br>
+			Please read <a data-navigation="documentation/styling" class="inline-btn">this article</a> for further information.
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-scrollbar-sides">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>Is it possible to change the position and length of my scrollbars?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-scrollbar-sides">
+			<b>Yes.</b> You can adjust the position of the scrollbars via CSS.<br>
+			Please read <a data-navigation="documentation/styling" class="inline-btn">this article</a> for further information.
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-click-scrolling">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>Can I click on the scrollbar-track to scroll to a certain offset?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-click-scrolling">
+			<b>Yes.</b> This feature is called <code class="code-inline">clickScrolling</code> and can be activated with the option:
+			<pre><code class="js">scrollbars : { 
+    clickScrolling : true 
+}</code></pre>
+			The default value for this option is <code class="code-inline">false</code>.<br>
+			If you <b>press the left mouse button</b> on the red scrollbar-track, the scroll-offset will be animated until the destination has been reached or you release the button.<br>
+			You can modify the scroll-animation with the following keys:
+			<ul>
+				<li>Press <code class="code-inline">shift</code> while clicking and no animation will occur and the offset changes instantly.</li>
+				<li>Press <code class="code-inline">ctrl</code> and <code class="code-inline">shift</code> while clicking and a animation with fixed (very low) duration will occur and the offset changes nearly instantly.</li>
+			</ul>
+			<div id="faq-click-scrolling-target">
+				<code class="code-inline js">clickScrolling : true</code><br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+			</div>
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-scrollbar-outside">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>How can I achieve space between the scrollbars and my content?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-scrollbar-outside">
+			This is something I get asked very often. For this problem to solve I've created the <code class="code-inline">paddingAbsolute</code> option.<br>
+			Set the option <code class="code-inline js">paddingAbsolute : true</code> and adjust the padding of your target element as you like.<br>
+			Below you have two example elements with <code class="code-inline scss">padding : 20px</code> each. The left element has absolute and the right element has normal padding.<br>
+			<div id="faq-scrollbar-outside-absolute-target">
+				<code class="code-inline js">paddingAbsolute : true</code><br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+			</div>
+			<div id="faq-scrollbar-outside-relative-target">
+				<code class="code-inline js">paddingAbsolute : false</code><br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+				Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.<br>
+				Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<br>
+				Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.<br>
+				Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?<br>
+				Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?<br>
+			</div>
+			<div class="clear"></div>
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-scrollTo">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>Does the plugin provide a "scrollTo" method?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-scrollTo">
+			<b>Yes.</b> The <a data-navigation="documentation/method-scroll" class="inline-btn">scroll method</a> offers such a functionality. The API is a bit different to the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollTo" target="_blank" rel="noopener" class="inline-btn">scrollTo</a> method, but the functionality is the same.<br>
+			Actually, the method is capable of much more than its native counterpart. For example you can use relative coordinates, custom animation-duration, custom animation-easing and more.<br>
+			<pre><code class="js code-noscroll">var element = document.getElementById("box");
+
+//scrolls 50px on the y axis
+instance.scroll({ y : 50 }); 
+
+//scrolls 50px on both axis and performs a smooth scroll animation
+instance.scroll({ y : 50, x : 50 }, 1000); 
+
+//adds 50 pixel to the vertical- and subtracts 50 pixel from the horizontal-scroll-offest
+instance.scroll({ y : "+=50", x : "-=50" }); 
+
+//scrolls to 50% on both axis and performs a smooth scroll animation with custom easing
+instance.scroll({ y : "50%", x : "50%" }, 1000, "easeOutElastic");</code></pre>
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-scrollintoview">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>Does the plugin provide a "scrollIntoView" method?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-scrollintoview">
+			<b>Yes.</b> The <a data-navigation="documentation/method-scroll" class="inline-btn">scroll method</a> offers such a functionality. The API is a bit different to the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView" target="_blank" rel="noopener" class="inline-btn">scrollIntoView</a> method, but the functionality is the same.<br>
+			Actually, the method is capable of much more than its native counterpart, please read the <a data-navigation="documentation/method-scroll" class="inline-btn">documentation</a> to get further information.<br>
+			Below you can see some examples: 
+			<pre><code class="js code-noscroll">var element = document.getElementById("box");
+
+//equivalent to element.scrollIntoView():
+instance.scroll({ el : element, block : { y : "begin", x : "nearest" } });
+
+//equivalent to element.scrollIntoView() but with a smooth animation:
+instance.scroll({ el : element, block : { y : "begin", x : "nearest" } }, 1000); 
+
+//equivalent to element.scrollIntoView(false):
+instance.scroll({ el : element, block : { y : "end", x : "nearest" } });
+
+//equivalent to element.scrollIntoView({ block: "center", inline: "nearest"}):
+instance.scroll({ el : element, block : { y : "center", x : "nearest" } }); 
+
+//equivalent to element.scrollIntoView({ block: "start", inline: "start"}):
+instance.scroll(element); </code></pre>
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-scrollintoviewifneeded">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>Does the plugin provide a "scrollIntoViewIfNeeded" method?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-scrollintoviewifneeded">
+			<b>Yes.</b> The <a data-navigation="documentation/method-scroll" class="inline-btn">scroll method</a> offers such a functionality. The API is a bit different to the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded" target="_blank" rel="noopener" class="inline-btn">scrollIntoViewIfNeeded</a> method, but the functionality is the same.<br>
+			Actually, the method is capable of much more than its native counterpart, please read the <a data-navigation="documentation/method-scroll" class="inline-btn">documentation</a> to get further information.<br>
+			Below you can see some examples: 
+			<pre><code class="js code-noscroll">var element = document.getElementById("box");
+
+//equivalent to element.scrollIntoViewIfNeeded():
+instance.scroll({ el : element, scroll : "ifneeded", block : "nearest" }); 
+
+//equivalent to element.scrollIntoViewIfNeeded() but with a smooth animation:
+instance.scroll({ el : element, scroll : "ifneeded", block : "nearest" }, 500); 
+
+//equivalent to element.scrollIntoViewIfNeeded(true):
+instance.scroll({ el : element, scroll : "ifneeded", block : { y : "nearest", x : "center" }  });</code></pre>
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-scroll-offset">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>How can I get the current scroll position?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-scroll-offset">
+			Next to many other values the scroll offset gets returned by the <a data-navigation="documentation/method-scroll" class="inline-btn">scroll method</a>.<br>
+			<pre><code class="js code-noscroll">var scrollInfo = instance.scroll();
+			
+//equivalent to the scrollLeft value
+var scrollLeft = scrollInfo.position.x;
+
+//equivalent to the scrollTop value
+var scrollTop = scrollInfo.position.y;</code></pre>
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-ifnativescrollbarsareoverlaid">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>If the native scrollbars are already overlaid I don't want the plugin to be initialized.</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-ifnativescrollbarsareoverlaid">
+			If you don't want to initialize the plugin if the native scrollbars are already overlaid (for example like in mobile browsers, or UNIX operating systems), I've created the option <code class="code-inline js">nativeScrollbarsOverlaid.initialize</code>.
+			The default value is <code class="code-inline js">true</code>, but if you set it to <code class="code-inline js">false</code> the plugin won't initialize in such a environment.<br><br>
+			A very important thing to note here is, that if an initialization gets cancelled because of this option, the callback <code class="code-inline">onInitializationWithdrawn</code> will be triggered, in order to make it easier for you to handle this case in your code.
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-animations">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>How do I handle animations correctly?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-animations">
+			The plugin updates the everytime it detects a breaking change in the DOM. Javascript-animations are doing very heavy and frequent DOM changes.<br>
+			In order to gain the maximum performance, call the <a data-navigation="documentation/method-sleep" class="inline-btn">sleep method</a> before your animation begins, so the plugin won't update automatically during the animation.<br>
+			After your animation has ended call the <a data-navigation="documentation/method-update" class="inline-btn">update method</a> to re-activate the plugin.
+		</div>
+		
+		<div class="expander-header" data-expander-key="faq-flexbox">
+			<i class="mdi mdi-chevron-down"></i>
+			<span>How do I use the plugin inside a flexbox layout?</span>
+		</div>
+		<div class="expander-content" data-expander-value="faq-flexbox">
+			It's a bit tricky to make the plugin work in every flexbox layout since the flexbox implementation differs in every browser. I believe the current functionality covers about 90% of all flexbox cases.<br>
+			Please read <a data-navigation="documentation/flexbox" class="inline-btn">this article</a> to get further information about how to use the plugin inside a flexbox-layout correctly.
+		</div>
+	</div>
+</div>
+<div class="content-section skew">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">Plugin Comparison</h3>
+			<div class="content-message-content">
+				On the internet you'll find many scrollbar plugins. Below I've compared the features of a few of them.<br>
+				Hover or click on certain entries to see additional information or a description.<br>
+				If I've made a mistake or if you want to enhance this table, please feel free to open a issue on <a href="https://github.com/KingSora/KingSora.github.io/issues" target="_blank" rel="noopener" class="inline-btn">github</a>.<br><br>
+				The Github information were refreshed on: <b id="github-infos-timestamp">?</b><br>
+				The table was last edited on: <b id="table-infos-timestamp">July 25, 2018 - 16:02</b>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="content-section">
+	<div class="container">
+		<div id="faq-comparison-table" class="split-table">
+			<table class="table-tiles">
+				<thead>
+					<tr>
+						<td><div class="split-table-expand"><i class="mdi mdi-arrow-expand"></i></div></td>
+						<td><a href="https://github.com/KingSora/OverlayScrollbars" target="_blank" rel="noopener" class="inline-btn">OverlayScrollbars</a></td>
+						<td><a href="https://github.com/Grsmto/simplebar" target="_blank" rel="noopener" class="inline-btn">Simplebar</a></td>
+						<td><a href="https://github.com/utatti/perfect-scrollbar" target="_blank" rel="noopener" class="inline-btn">perfect-scrollbar</a></td>
+						<td><a href="https://github.com/noeldelgado/gemini-scrollbar" target="_blank" rel="noopener" class="inline-btn">gemini-scrollbar</a></td>
+						<td><a href="https://github.com/jamesflorentino/nanoScrollerJS" target="_blank" rel="noopener" class="inline-btn">nanoScrollerJS</a></td>
+						<td><a href="https://github.com/idiotWu/smooth-scrollbar" target="_blank" rel="noopener" class="inline-btn">Smooth Scrollbar</a></td>
+						<td><a href="https://github.com/albertogasparin/Optiscroll" target="_blank" rel="noopener" class="inline-btn">Optiscroll</a></td>
+						<td><a href="https://github.com/inuyaksa/jquery.nicescroll" target="_blank" rel="noopener" class="inline-btn">jQuery.NiceScroll</a></td>
+						<td><a href="https://github.com/malihu/malihu-custom-scrollbar-plugin" target="_blank" rel="noopener" class="inline-btn">malihu custom scrollbar plugin</a></td>
+						<td><a href="https://github.com/vitch/jScrollPane" target="_blank" rel="noopener" class="inline-btn">jScrollPane</a></td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="row-caption">
+						<td class="cell-white"><b class="txtc-light">Github:</b></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Github - stars</b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="overlayscrollbars-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="simplebar-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="perfectscrollbar-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="geminiscrollbar-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nanoscrollerjs-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="smoothscrollbar-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="optiscroll-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nicescroll-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="malihu-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="jscrollpane-stars"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Github - open issues</b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="overlayscrollbars-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="simplebar-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="perfectscrollbar-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="geminiscrollbar-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nanoscrollerjs-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="smoothscrollbar-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="optiscroll-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nicescroll-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="malihu-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="jscrollpane-open-issues"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Github - created</b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="overlayscrollbars-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="simplebar-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="perfectscrollbar-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="geminiscrollbar-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nanoscrollerjs-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="smoothscrollbar-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="optiscroll-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nicescroll-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="malihu-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="jscrollpane-created"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Github - is archived</b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="overlayscrollbars-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="simplebar-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="perfectscrollbar-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="geminiscrollbar-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nanoscrollerjs-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="smoothscrollbar-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="optiscroll-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nicescroll-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="malihu-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="jscrollpane-archived"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Github - license</b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="overlayscrollbars-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="simplebar-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="perfectscrollbar-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="geminiscrollbar-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nanoscrollerjs-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="smoothscrollbar-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="optiscroll-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="nicescroll-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="malihu-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+						<td class="cell-white font-weight-semibold nowrap"><b class="jscrollpane-license"><i class="mdi mdi-loading mdi-spin"></i></b></td>
+					</tr>
+					<tr class="row-caption">
+						<td class="cell-white"><b class="txtc-light">Tech:</b></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Browser Support</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 8+ | Firefox | Chrome | Opera | Edge | Safari 6+</span><b>IE 8+</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 11 | Firefox | Chrome | Opera | Edge | Safari<br><a href="https://github.com/Grsmto/simplebar#2-browsers-support" target="_blank" rel="noopener" class="inline-btn">More info for IE10 and below</a></span><b>IE 11+</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 11 | Firefox | Chrome | Opera | Edge | Safari<br><a href="https://github.com/utatti/perfect-scrollbar#ie-support" target="_blank" rel="noopener" class="inline-btn">but may have some issues in IE11"</a></span><b>IE 11+</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 9+ | Firefox | Chrome | Opera | Edge | Safari</span><b>IE 9+</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 7+ | Firefox 3+ | Chrome | Safari 4+ | Opera 11.60+<br><a href="https://github.com/jamesflorentino/nanoScrollerJS#browser-compatibility" target="_blank" rel="noopener" class="inline-btn">check it out here</a></span><b>IE 7+</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 10+ | Firefox 16+ | Chrome 22+ | Safari 8+<br><a href="https://github.com/idiotWu/smooth-scrollbar#browser-compatibility" target="_blank" rel="noopener" class="inline-btn">check it out here</a></span><b>IE 10+</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 11+ | Firefox | Chrome | Opera | Edge | Safari</span><b>IE 11+</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 8+ | Firefox | Chrome | Opera | Edge | Safari</span><b>IE 8+</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 8+ | Firefox | Chrome | Opera | Safari <br><a href="https://github.com/malihu/malihu-custom-scrollbar-plugin#browser-compatibility" target="_blank" rel="noopener" class="inline-btn">check it out here</a></span><b>IE 8+</b></td>
+						<td class="cell-white font-weight-semibold" data-tooltip><span class="tooltip">IE 8+ | Firefox | Chrome | Opera | Edge | Safari</span><b>IE 8+</b></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Dependencyless</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Also has an optional jQuery version.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">jQuery is required</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Can be used with jQuery. (optional)</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">jQuery is required</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">jQuery is required</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Uses native Scrolling</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Uses animated Scrolling</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">The plugin doesn't wrap your content and no special DOM setup is needed.</span><b>Works without content wrapping</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">The plugin doesn't automatically run an infinity loop to check for DOM changes.</span><b>Doesn't require timer or loop for updating</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Options changeable during runtime</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Uses CSS3 Transform to move handle if supported</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Possibility to write Extensions / Plugins</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">Possible to scroll to a element with a certain ID.<br>If you search text, the browser scrolls / jumps directly to the destination.</span><b>Anchor scrolling</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr class="row-caption">
+						<td class="cell-white"><b class="txtc-light">Support:</b></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Supports Textarea-Element</b></td>
+						<td class="cell-white"><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/supportedelements" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></a></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><a href="https://github.com/utatti/perfect-scrollbar/issues/318#issuecomment-91620732" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></a></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><a href="https://github.com/jamesflorentino/nanoScrollerJS/issues/104#issuecomment-12391970" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></a></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><a href="https://github.com/malihu/malihu-custom-scrollbar-plugin/blob/master/examples/textarea_example.html" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></a></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Supports Body-Element</b></td>
+						<td class="cell-white"><a href="https://kingsora.github.io/OverlayScrollbars/#!documentation/supportedelements" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></a></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><a href="https://github.com/utatti/perfect-scrollbar/issues/340#issuecomment-114099116" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></a></td>
+						<td class="cell-white"><a href="https://github.com/noeldelgado/gemini-scrollbar#notes" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></a></td>
+						<td class="cell-white"><a href="https://github.com/jamesflorentino/nanoScrollerJS/issues/335#issuecomment-362910690" target="_blank" rel="noopener"><i class="mdi mdi-help-circle txtc-light"></i></a></td>
+						<td class="cell-white"><i class="mdi mdi-help-circle txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-help-circle txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-help-circle txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-help-circle txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Supports Touch</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">The plugin is able to handle native-overlaid (not space consuming) scrollbars.</span><b>Supports native overlaid scrollbars</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Even provides extra options to handle this case.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The plugin won't initialize if the native scrollbars are overlaid.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Supports Direction-RTL</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-help-circle txtc-light"></i></td>
+						<td class="cell-white"><a href="https://github.com/utatti/perfect-scrollbar/issues/689" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></a></td>
+						<td class="cell-white"><a href="https://github.com/noeldelgado/gemini-scrollbar/issues/20" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></a></td>
+						<td class="cell-white"><a href="https://github.com/jamesflorentino/nanoScrollerJS/issues/87" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></a></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">If you change the native browser zoom.</span><b>Supports Browser Zoom</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The native scrollbars will appear if you zoom.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The native scrollbars will appear if you zoom.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The plugin restricts the Zoom with Ctrl + Scroll.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The native scrollbars will appear if you zoom.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The plugin restricts the Zoom with Ctrl + Scroll.<br>You can only zoom if the scroll position is zero or maximum, else you will scroll.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">You can change the scroll-offset by clicking on the scrollbar-track.</span><b>Supports click-scrolling</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">You can change the scroll-offset by dragging the scrollbar-handle.</span><b>Supports drag-scrolling</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">It's possible to initialize the plugin inside an iFrame from the outside.</span><b>Supports iFrames</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The plugin initializes but it looks messed up and you can't scroll via dragging the handles.<br>It's buggy and you can tell this feature isn't supported.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The plugin initializes and looks alright.<br>But you can't scroll via dragging the handles.<br>iFrame support isn't mentioned anywhere.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The plugin initializes.<br>The plugin deosn't inject its default styles into the iframe.<br>You can't scroll with dragging the handles.<br>iFrame support isn't mentioned anywhere.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The plugin initializes and looks alright.<br>But you can't scroll via dragging the handles.<br>iFrame support isn't mentioned anywhere.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Everything worked, but in my test-case the horizontal scrollbar was out of place.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The plugin won't initialize properly.<br>In older versions the plugin initializes but scrolling is only<br>possible vertically and you can't scroll via dragging the handles.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light" data-tooltip><span class="tooltip">The plugin initializes and looks alright.<br>But you can't scroll with dragging the handles.<br>iFrame support isn't mentioned anywhere.</span></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Supports nesting</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><a href="https://github.com/jamesflorentino/nanoScrollerJS/issues/135#issuecomment-16599587" target="_blank" rel="noopener"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">It works but has one bug if you use a certain option.</span></i></a></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr class="row-caption">
+						<td class="cell-white"><b class="txtc-light">Scrollbar styling:</b></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Adjustable scrollbar handle <u>min</u>-length</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via CSS-styling in all CSS units.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in percent.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-help-circle txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Adjustable scrollbar handle <u>max</u>-length</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via CSS-styling in all CSS units.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in percent.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-help-circle txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options, only in pixels.</span></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Scrollbar handle can have fixed length</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via plugin-options.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Adjustable scrollbar-length</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via CSS-styling in all CSS units.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via CSS-styling in all CSS units.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via CSS-styling in all CSS units.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via CSS-styling in all CSS units.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color" data-tooltip><span class="tooltip">Via CSS-styling in all CSS units.</span></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">The plugin provides a option to hide the scrollbars if the user is inactive or if a certain event happens.</span><b>Scrollbars auto-hide possibility</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">The plugin provides a documented possibility to use arrow buttons in the scrollbars.</span><b>Scrollbar arrow buttons</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+					</tr>
+					<tr class="row-caption">
+						<td class="cell-white"><b class="txtc-light">Goodies:</b></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b><a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollTo" target="_blank" rel="noopener" class="inline-btn">scrollTo</a>-like method</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView" target="_blank" rel="noopener" class="inline-btn">scrollIntoView</a>-like method</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded" target="_blank" rel="noopener" class="inline-btn">scrollIntoViewIfNeeded</a>-like method</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white"><b>Provides <a href="https://www.w3schools.com/cssref/css3_pr_resize.asp" target="_blank" rel="noopener" class="inline-btn">CSS3 resize</a> functionality</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+					<tr>
+						<td class="cell-white" data-tooltip><span class="tooltip">A feedback or an animation if you reached the minimum or maximum scroll offset.</span><b>Overscroll animation / feedback</b></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-marked-circle txtc-primary-color"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+						<td class="cell-white"><i class="mdi mdi-checkbox-blank-circle-outline txtc-light"></i></td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="split-table-side">
+				<div class="split-table-side-head split-table-head">
+				</div>
+				<div class="split-table-side-body split-table-body">
+				</div>
+			</div>
+			<div class="split-table-main">
+				<div class="split-table-main-head split-table-head">
+				</div>
+				<div class="split-table-main-body split-table-body">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

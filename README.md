@@ -40,8 +40,9 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
  - Usage of latest browser features - best <b>performance</b> in new browsers
  - Bidirectional - LTR or RTL direction support
  - Simple and effective scrollbar styling
+ - Highly customizable
  - TypeScript support - fully written in TypeScript
- - Incredibly well tested - extensive unit, integration & e2e tests
+ - Dependency free - 100% self written to ensure small size and best functionality
 
 ## Getting started
 

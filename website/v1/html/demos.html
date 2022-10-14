@@ -1,0 +1,1324 @@
+<div id="content-navigable">
+	<div class="container">
+		<div id="content-navigation">
+			<div class="content-navigation-item content-navigation-item-caption">
+				<span>Demos:</span>
+			</div>
+			<div class="content-navigation-item content-navigation-item-clickable active" data-tab-key="basic" data-navigation="[1]basic">
+				<span>Basic</span>
+			</div>
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="capabilites" data-navigation="[1]capabilites">
+				<span>Capabilites</span>
+			</div>
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="callbacks" data-navigation="[1]callbacks">
+				<span>Callbacks</span>
+			</div>
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="textarea" data-navigation="[1]textarea">
+				<span>Textarea</span>
+			</div>
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="nesting" data-navigation="[1]nesting">
+				<span>Nesting</span>
+			</div>
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="styling" data-navigation="[1]styling">
+				<span>Styling</span>
+			</div>
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="scroll" data-navigation="[1]scroll">
+				<span>Scroll</span>
+			</div>
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="content" data-navigation="[1]content">
+				<span>Content</span>
+			</div>
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="scale" data-navigation="[1]scale">
+				<span>Scale</span>
+			</div>
+			<!--
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="snapping" data-navigation="[1]snapping">
+				<span>Snapping</span>
+			</div>
+			-->
+			<div class="content-navigation-item content-navigation-item-clickable" data-tab-key="iframe" data-navigation="[1]iframe">
+				<span>iFrame</span>
+			</div>
+		</div>
+		<div id="content-navigation-main">
+			<div id="basic" class="active" data-tab-value="basic">
+				<div class="content-navigation-main-caption">Basic Demo</div>
+				The purpose of this demo is to test out different options.<br>
+				Change the options as you please.<br>
+				Read the <a class="inline-btn" data-navigation="documentation/options">options documentation</a> to use this demo properly!<br>
+				<br>
+				<div id="basicdemo-options-codemirror" class="codemirror-host">
+				</div>
+				<div class="txtbox txtbox-yellow">
+					<i class="mdi mdi-information-outline"></i>
+					<span>For visibility purposes the scrollbar-track-elements have a reddish background-color.<br>This behavior is special and only for this demo.</span>
+				</div>
+				
+				<div id="basicdemo-options-codemirror-messages" class="codemirror-messages bc-orange">
+					Warning:
+					<pre class="txtc-orange"></pre>
+				</div>
+				Result:
+				<div id="basicdemo-options-codemirror-result" class="codemirror-result">
+					<div id="basicdemo-options-codemirror-result-target">
+						<div id="basicdemo-options-codemirror-result-target-content">
+							Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod<br>tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+							At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,<br>no sea takimata sanctus est Lorem ipsum dolor sit amet.<br><br>
+							Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod<br>tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br> 
+							At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,<br>no sea takimata sanctus est Lorem ipsum dolor sit amet.<br><br>
+							Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod<br>tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br> 
+							At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,<br>no sea takimata sanctus est Lorem ipsum dolor sit amet.<br><br>
+							Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod<br>tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br> 
+							At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,<br>no sea takimata sanctus est Lorem ipsum dolor sit amet.<br><br>
+							Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod<br>tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br> 
+						</div>
+					</div>
+					<pre class="hidden txtc-red"></pre>
+				</div>
+			</div>
+		
+			<div id="capabilites" data-tab-value="capabilites">
+				<div class="content-navigation-main-caption">Capabilities Demo</div>
+				The purpose of this demo is to demonstrate all the capabilities of the plugin.<br>
+				<br>
+				Below is a bunch of configuration options which will cause major changes to the DOM.<br>
+				On the left side is the container with the plugin and on the right side is the native equivalent.<br>
+				<br>
+				Except of the scrollbars, both containers should look exactly the same, if this is not the case please open a issue on <a href="https://github.com/KingSora/OverlayScrollbars/issues" target="_blank" rel="noopener" class="inline-btn">github</a>.<br>
+				If you are using absolute padding, the containers should differ only in their padding.<br>
+
+				<div class="group-box capabilitiesdemo-options">
+					<div class="group-box-caption">Content:</div>
+					
+					<div class="capabilitiesdemo-options-line">
+						<div id="capabilites-content-absolute" class="button">Toggle "Absolute Container"</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div id="capabilites-content-resize" class="button">Toggle "Resize Container"</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div id="capabilites-content-hundred" class="button">Toggle "100% Container"</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div id="capabilites-content-end"  class="button">Toggle "End Container"</div>
+					</div>
+				</div>
+				
+				<div class="group-box capabilitiesdemo-options">
+					<div class="group-box-caption">Host:</div>
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Direction:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-host-direction" class="dropdown">
+								<div class="dropdown-value">LTR</div>
+								<div class="dropdown-list">
+									<div>LTR</div>
+									<div>RTL</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Box-Sizing:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-host-boxsizing" class="dropdown">
+								<div class="dropdown-value">border-box</div>
+								<div class="dropdown-list">
+									<div>border-box</div>
+									<div>content-box</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Width:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-host-width" class="dropdown">
+								<div class="dropdown-value">Fixed</div>
+								<div class="dropdown-list">
+									<div>Fixed</div>
+									<div>Auto</div>
+									<div>100%</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Height:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-host-height" class="dropdown">
+								<div class="dropdown-value">Fixed</div>
+								<div class="dropdown-list">
+									<div>Fixed</div>
+									<div>Auto</div>
+									<div>100%</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Float:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-host-float" class="dropdown">
+								<div class="dropdown-value">None</div>
+								<div class="dropdown-list">
+									<div>None</div>
+									<div>Left</div>
+									<div>Right</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Border:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-host-border" class="dropdown">
+								<div class="dropdown-value">2px</div>
+								<div class="dropdown-list">
+									<div>2px</div>
+									<div>8px</div>
+									<div>None</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Margin:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-host-margin" class="dropdown">
+								<div class="dropdown-value">0px</div>
+								<div class="dropdown-list">
+									<div>0px</div>
+									<div>10px</div>
+									<div>20px</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Padding:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-host-padding" class="dropdown">
+								<div class="dropdown-value">10px</div>
+								<div class="dropdown-list">
+									<div>10px</div>
+									<div>20px</div>
+									<div>30px</div>
+									<div>0px</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="group-box capabilitiesdemo-options">
+					<div class="group-box-caption">Enviroment:</div>
+
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Width:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-env-width" class="dropdown">
+								<div class="dropdown-value">100%</div>
+								<div class="dropdown-list">
+									<div>100%</div>
+									<div>Auto</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="capabilitiesdemo-options-line">
+						<div class="capabilitiesdemo-options-line-left">Height:</div>
+						<div class="capabilitiesdemo-options-line-right">
+							<div id="capabilites-env-height" class="dropdown">
+								<div class="dropdown-value">100%</div>
+								<div class="dropdown-list">
+									<div>100%</div>
+									<div>Auto</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="clear"></div>
+				
+				<div class="capabilitiesdemo-options-last">
+					<div id="capabilites-reset" class="button">Reset</div>
+					<div id="capabilites-update" class="button">Update</div>
+					<div id="capabilites-run" class="button">Run</div>
+					<label class="checkbox">
+						<input id="capabilites-min-max" type="checkbox">
+						<span></span>
+						<span>Use min- & max- width / height</span>
+					</label>
+					<label class="checkbox">
+						<input id="capabilites-padding-absolute" type="checkbox">
+						<span></span>
+						<span>Absolute Padding</span>
+					</label>
+					<label class="checkbox">
+						<input id="capabilites-clip-always" type="checkbox">
+						<span></span>
+						<span>Clip Always</span>
+					</label>
+				</div>
+				<br>
+				
+				<div class="capabilitiesdemo-slot capabilitiesdemo-slot-1">
+					<b>Plugin:</b>
+					<div class="capabilitiesdemo-slot-content">
+						<div class="capabilitiesdemo-env">
+							<div class="capabilitiesdemo-slot-resizer resizer">
+								<div id="capabilitiesdemo-target">
+									<div class="capabilitiesdemo-absolute resizer">
+										<div class="resizer-handle resizer-handle-x">
+											<i class="mdi mdi-dots-vertical"></i>
+										</div>
+										<div class="resizer-handle resizer-handle-y">
+											<i class="mdi mdi-dots-horizontal"></i>
+										</div>
+										<div class="resizer-handle resizer-handle-xy"></div>
+									</div>
+									<div class="capabilitiesdemo-resize resizer">
+										Resize
+										<div class="resizer-handle resizer-handle-x">
+											<i class="mdi mdi-dots-vertical"></i>
+										</div>
+										<div class="resizer-handle resizer-handle-y">
+											<i class="mdi mdi-dots-horizontal"></i>
+										</div>
+										<div class="resizer-handle resizer-handle-xy"></div>
+									</div>
+									<div class="capabilitiesdemo-hundred">100%</div>
+									<div class="capabilitiesdemo-end">===== end =====</div>
+								</div>
+								<div class="resizer-handle resizer-handle-x">
+									<i class="mdi mdi-dots-vertical"></i>
+								</div>
+								<div class="resizer-handle resizer-handle-y">
+									<i class="mdi mdi-dots-horizontal"></i>
+								</div>
+								<div class="resizer-handle resizer-handle-xy"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="capabilitiesdemo-slot capabilitiesdemo-slot-2">
+					<b>Native:</b>
+					<div class="capabilitiesdemo-slot-content">
+						<div class="capabilitiesdemo-env">
+							<div class="capabilitiesdemo-slot-resizer resizer">
+								<div id="capabilitiesdemo-native" class="native">
+									<div class="capabilitiesdemo-absolute resizer">
+										<div class="resizer-handle resizer-handle-x">
+											<i class="mdi mdi-dots-vertical"></i>
+										</div>
+										<div class="resizer-handle resizer-handle-y">
+											<i class="mdi mdi-dots-horizontal"></i>
+										</div>
+										<div class="resizer-handle resizer-handle-xy"></div>
+									</div>
+									<div class="capabilitiesdemo-resize resizer">
+										Resize
+										<div class="resizer-handle resizer-handle-x">
+											<i class="mdi mdi-dots-vertical"></i>
+										</div>
+										<div class="resizer-handle resizer-handle-y">
+											<i class="mdi mdi-dots-horizontal"></i>
+										</div>
+										<div class="resizer-handle resizer-handle-xy"></div>
+									</div>
+									<div class="capabilitiesdemo-hundred">100%</div>
+									<div class="capabilitiesdemo-end">===== end =====</div>
+								</div>
+								<div class="resizer-handle resizer-handle-x">
+									<i class="mdi mdi-dots-vertical"></i>
+								</div>
+								<div class="resizer-handle resizer-handle-y">
+									<i class="mdi mdi-dots-horizontal"></i>
+								</div>
+								<div class="resizer-handle resizer-handle-xy"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="clear"></div>
+				<div class="capabilitiesdemo-slot capabilitiesdemo-slot-3">
+					<b>Textarea Plugin:</b>
+					<div class="capabilitiesdemo-slot-content">
+						<div class="capabilitiesdemo-env">
+							<div class="capabilitiesdemo-slot-resizer resizer">
+								<textarea id="capabilitiesdemo-target-textarea"></textarea>
+								<div class="resizer-handle resizer-handle-x">
+									<i class="mdi mdi-dots-vertical"></i>
+								</div>
+								<div class="resizer-handle resizer-handle-y">
+									<i class="mdi mdi-dots-horizontal"></i>
+								</div>
+								<div class="resizer-handle resizer-handle-xy"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="capabilitiesdemo-slot capabilitiesdemo-slot-4">
+					<b>Textarea Native:</b>
+					<div class="capabilitiesdemo-slot-content">
+						<div class="capabilitiesdemo-env">
+							<div class="capabilitiesdemo-slot-resizer resizer">
+								<textarea id="capabilitiesdemo-native-textarea" class="native"></textarea>
+								<div class="resizer-handle resizer-handle-x">
+									<i class="mdi mdi-dots-vertical"></i>
+								</div>
+								<div class="resizer-handle resizer-handle-y">
+									<i class="mdi mdi-dots-horizontal"></i>
+								</div>
+								<div class="resizer-handle resizer-handle-xy"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+		
+			<div id="callbacks" data-tab-value="callbacks">
+				<div class="content-navigation-main-caption">Callbacks Demo</div>
+				The purpose of this demo is to show when certain callbacks are called.<br>
+				Change the size of the content / host element and / or scroll to trigger some callbacks.<br>
+				For further information to callbacks, such as arguments and more, please read the <a class="inline-btn" data-navigation="documentation/options">options documentation</a>.<br>
+				<br>
+				<div class="txtbox txtbox-yellow">
+					<i class="mdi mdi-information-outline"></i>
+					<span>Watch the lights on the left side to see which callback was triggered.</span>
+				</div>
+				
+				<div class="callbacks-buttons">
+					<div id="callbacks-reset" class="button">Reset</div>
+					<div id="callbacks-rnd-size" class="button">Random Size</div>
+					<div id="callbacks-change-dir" class="button">Change Direction</div>
+				</div>
+				<div class="callbacks-container-left">
+					<div class="callbacks-container-left-item">
+						<div class="callbacks-container-left-item-left">
+							<div id="callbacks-light-onScrollStart" class="callbacks-container-left-item-left-light">
+								<div></div>
+							</div>
+						</div>
+						<div class="callbacks-container-left-item-right">
+							onScrollStart ( <span id="callbacks-num-onScrollStart">0</span> )
+						</div>
+					</div>
+					<div class="callbacks-container-left-item">
+						<div class="callbacks-container-left-item-left">
+							<div id="callbacks-light-onScroll" class="callbacks-container-left-item-left-light">
+								<div></div>
+							</div>
+						</div>
+						<div class="callbacks-container-left-item-right">
+							onScroll ( <span id="callbacks-num-onScroll">0</span> )
+						</div>
+					</div>
+					<div class="callbacks-container-left-item">
+						<div class="callbacks-container-left-item-left">
+							<div id="callbacks-light-onScrollStop" class="callbacks-container-left-item-left-light">
+								<div></div>
+							</div>
+						</div>
+						<div class="callbacks-container-left-item-right">
+							onScrollStop ( <span id="callbacks-num-onScrollStop">0</span> )
+						</div>
+					</div>
+					<div class="callbacks-container-left-item">
+						<div class="callbacks-container-left-item-left">
+							<div id="callbacks-light-onOverflowChanged" class="callbacks-container-left-item-left-light">
+								<div></div>
+							</div>
+						</div>
+						<div class="callbacks-container-left-item-right">
+							onOverflowChanged ( <span id="callbacks-num-onOverflowChanged">0</span> )
+						</div>
+					</div>
+					<div class="callbacks-container-left-item">
+						<div class="callbacks-container-left-item-left">
+							<div id="callbacks-light-onOverflowAmountChanged" class="callbacks-container-left-item-left-light">
+								<div></div>
+							</div>
+						</div>
+						<div class="callbacks-container-left-item-right">
+							onOverflowAmountChanged ( <span id="callbacks-num-onOverflowAmountChanged">0</span> )
+						</div>
+					</div>
+					<div class="callbacks-container-left-item">
+						<div class="callbacks-container-left-item-left">
+							<div id="callbacks-light-onDirectionChanged" class="callbacks-container-left-item-left-light">
+								<div></div>
+							</div>
+						</div>
+						<div class="callbacks-container-left-item-right">
+							onDirectionChanged ( <span id="callbacks-num-onDirectionChanged">0</span> )
+						</div>
+					</div>
+					<div class="callbacks-container-left-item">
+						<div class="callbacks-container-left-item-left">
+							<div id="callbacks-light-onContentSizeChanged" class="callbacks-container-left-item-left-light">
+								<div></div>
+							</div>
+						</div>
+						<div class="callbacks-container-left-item-right">
+							onContentSizeChanged ( <span id="callbacks-num-onContentSizeChanged">0</span> )
+						</div>
+					</div>
+					<div class="callbacks-container-left-item">
+						<div class="callbacks-container-left-item-left">
+							<div id="callbacks-light-onHostSizeChanged" class="callbacks-container-left-item-left-light">
+								<div></div>
+							</div>
+						</div>
+						<div class="callbacks-container-left-item-right">
+							onHostSizeChanged ( <span id="callbacks-num-onHostSizeChanged">0</span> )
+						</div>
+					</div>
+					<div class="callbacks-container-left-item">
+						<div class="callbacks-container-left-item-left">
+							<div id="callbacks-light-onUpdated" class="callbacks-container-left-item-left-light">
+								<div></div>
+							</div>
+						</div>
+						<div class="callbacks-container-left-item-right">
+							onUpdated ( <span id="callbacks-num-onUpdated">0</span> )
+						</div>
+					</div>
+				</div>
+				<div class="callbacks-container-right">
+					<div id="callbacks-container-right-plugin">
+						<div class="callbacks-resizer resizer">
+							resize me
+							<div class="resizer-handle resizer-handle-x">
+								<i class="mdi mdi-dots-vertical"></i>
+							</div>
+							<div class="resizer-handle resizer-handle-y">
+								<i class="mdi mdi-dots-horizontal"></i>
+							</div>
+							<div class="resizer-handle resizer-handle-xy"></div>
+						</div>
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+		
+			<div id="textarea" data-tab-value="textarea">
+				<div class="content-navigation-main-caption">Textarea Demo</div>
+				The purpose of this demo is to show the extended textarea supported.<br>
+				Furthermore, this demo shall show the functionality of the textarea "dynWidth" and "dynHeight" options.<br>
+				<br>
+				<div class="textarea-demo-buttons">
+					<div id="textarea-demo-reset" class="button">Reset</div>
+					<div id="textarea-demo-full-dynwidth" class="button">Full Dynamic Width</div>
+					<div id="textarea-demo-full-dynheight" class="button">Full Dynamic Height</div>
+				</div>
+				
+				<div class="textarea-demo">
+					<div class="textarea-demo-left">
+						<div class="textarea-demo-left-item">
+							<div class="textarea-demo-left-item-left">Width:</div>
+							<div class="textarea-demo-left-item-right">
+								<div id="textarea-demo-width" class="dropdown">
+									<div class="dropdown-value">Fixed</div>
+									<div class="dropdown-list">
+										<div>Fixed</div>
+										<div>Auto</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="textarea-demo-left-item">
+							<div class="textarea-demo-left-item-left">Height:</div>
+							<div class="textarea-demo-left-item-right">
+								<div id="textarea-demo-height" class="dropdown">
+									<div class="dropdown-value">Fixed</div>
+									<div class="dropdown-list">
+										<div>Fixed</div>
+										<div>Auto</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="textarea-demo-left-item">
+							<div class="textarea-demo-left-item-left">Text Wrap:</div>
+							<div class="textarea-demo-left-item-right">
+								<div id="textarea-demo-wrap" class="dropdown">
+									<div class="dropdown-value">Standard</div>
+									<div class="dropdown-list">
+										<div>Standard</div>
+										<div>Off</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="textarea-demo-left-item">
+							<div class="textarea-demo-left-item-left">Cols:</div>
+							<div class="textarea-demo-left-item-right">
+								<div id="textarea-demo-cols" class="dropdown">
+									<div class="dropdown-value">Standard</div>
+									<div class="dropdown-list">
+										<div>Standard</div>
+										<div>30</div>
+										<div>60</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="textarea-demo-left-item">
+							<div class="textarea-demo-left-item-left">Rows:</div>
+							<div class="textarea-demo-left-item-right">
+								<div id="textarea-demo-rows" class="dropdown">
+									<div class="dropdown-value">Standard</div>
+									<div class="dropdown-list">
+										<div>Standard</div>
+										<div>15</div>
+										<div>30</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="textarea-demo-left-item">
+							<label class="checkbox">
+								<input id="textarea-demo-dynwidth" type="checkbox">
+								<span></span>
+								<span>Use DynWidth Option</span>
+							</label>
+						</div>
+						
+						<div class="textarea-demo-left-item">
+							<label class="checkbox">
+								<input id="textarea-demo-dynheight" type="checkbox">
+								<span></span>
+								<span>Use DynHeight Option</span>
+							</label>
+						</div>
+					</div>
+					<div class="textarea-demo-right">
+						<textarea id="textarea-demo-plugin" class="textarea-demo-plugin"></textarea>
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
+		
+			<div id="nesting" data-tab-value="nesting">
+				<div class="content-navigation-main-caption">Nesting Demo</div>
+				The purpose of this demo is to show that nesting is supported.<br>
+				You can also compare the native nesting behavior with the nesting behavior if the plugin is applied.<br>
+				Both must be exactly the same.
+
+				<div class="content-navigation-sub-caption">Plugin:</div>
+				<div class="nesting-demo-element-plugin nesting-demo-element nesting-demo-first">
+					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+					<div class="nesting-demo-element-plugin nesting-demo-element nesting-demo-second">
+						Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est.
+						<div class="nesting-demo-element-plugin nesting-demo-element nesting-demo-third">
+							But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?<br><br>
+							Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+						</div>
+						Dagegen tadelt und hasst man mit Recht Den, welcher sich durch die Lockungen einer gegenwärtigen Lust erweichen und verführen lässt, ohne in seiner blinden Begierde zu sehen, welche Schmerzen und Unannehmlichkeiten seiner deshalb warten. Gleiche Schuld treffe Die, welche aus geistiger Schwäche, d.h. um der Arbeit und dem Schmerze zu entgehen, ihre Pflichten verabsäumen.<br>
+						The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.<br>
+						Lust zurückweisen und Beschwerden nicht von sich weisen darf. Deshalb trifft der Weise dann eine Auswahl, damit er durch Zurückweisung einer Lust dafür eine grössere erlange oder durch Uebernahme gewisser Schmerzen sich grössere erspare. <br><br>
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+					</div>
+					On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish.<br><br>
+					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+					But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?<br><br>
+					Man kann hier leicht und schnell den richtigen Unterschied treffen; zu einer ruhigen Zeit, wo die Wahl der Entscheidung völlig frei ist und nichts hindert, das zu thun, was den Meisten gefällt, hat man jede Lust zu erfassen und jeden Schmerz abzuhalten.
+				</div>
+
+				<div class="content-navigation-sub-caption">Native:</div>
+				<div class="nesting-demo-element nesting-demo-first">
+					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+					<div class="nesting-demo-element nesting-demo-second">
+						Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est.
+						<div class="nesting-demo-element nesting-demo-third">
+							But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?<br><br>
+							Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+						</div>
+						Dagegen tadelt und hasst man mit Recht Den, welcher sich durch die Lockungen einer gegenwärtigen Lust erweichen und verführen lässt, ohne in seiner blinden Begierde zu sehen, welche Schmerzen und Unannehmlichkeiten seiner deshalb warten. Gleiche Schuld treffe Die, welche aus geistiger Schwäche, d.h. um der Arbeit und dem Schmerze zu entgehen, ihre Pflichten verabsäumen.<br>
+						The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.<br>
+						Lust zurückweisen und Beschwerden nicht von sich weisen darf. Deshalb trifft der Weise dann eine Auswahl, damit er durch Zurückweisung einer Lust dafür eine grössere erlange oder durch Uebernahme gewisser Schmerzen sich grössere erspare. <br><br>
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+					</div>
+					On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish.<br><br>
+					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+					But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?<br><br>
+					Man kann hier leicht und schnell den richtigen Unterschied treffen; zu einer ruhigen Zeit, wo die Wahl der Entscheidung völlig frei ist und nichts hindert, das zu thun, was den Meisten gefällt, hat man jede Lust zu erfassen und jeden Schmerz abzuhalten.
+				</div>
+			</div>
+		
+			<div id="styling" data-tab-value="styling">
+				<div class="content-navigation-main-caption">Styling Demo</div>
+				The purpose of this demo is to show how many possibilities you have to style your scrollbars or the whole container.<br>
+				If you are searching theme templates, please switch to the <a data-navigation="themes" class="inline-btn">themes section</a>.<br>
+				<br>
+				
+				<div class="theme-demo-plugin-caption">
+					<span>Violet:</span>
+					Fixed handle size, the track is visible. The scrollbars look like a slider.<br>
+				</div>
+				
+				<div id="theme-demo-plugin-one" class="theme-demo-plugin">
+					<span>
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+					</span>
+				</div>
+				<br>
+				<div class="theme-demo-plugin-caption">
+					<span>Thin:</span>
+					The scrollbars are only visible if you hover over the host-element. (due to the option: <code class="code-inline js">scrollbars.autoHide : "leave"</code>)<br>
+					Flexible handle size, the track is visible. The handles are very thin in appearance but the usability is still very good.
+				</div>
+				<div id="theme-demo-plugin-two" class="theme-demo-plugin">
+					<span>
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+					</span>
+				</div>
+				<br>
+				<div class="theme-demo-plugin-caption">
+					<span>Minimal:</span>
+					The scrollbars are only visible during scrolling. (due to the option: <code class="code-inline js">scrollbars.autoHide : "scroll"</code>)<br>
+					Flexible handle size, the track is invisible. The handles goes thicker if you hover over or drag them.
+				</div>
+				<div id="theme-demo-plugin-three" class="theme-demo-plugin">
+					<span>
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+					</span>
+				</div>
+				<br>
+				<div class="theme-demo-plugin-caption">
+					<span>JavaScript modifications:</span>
+					The standard theme, but javascript makes changes to the appearance, dependent on the scroll offset.
+				</div>
+				<div id="theme-demo-plugin-four" class="theme-demo-plugin">
+					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+					Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+				</div>
+			</div>
+		
+			<div id="scroll" data-tab-value="scroll">
+				<div class="content-navigation-main-caption">Scroll Demo</div>
+				The purpose of this demo is to show the power of the <a class="inline-btn" data-navigation="documentation/method-scroll">scroll method</a>.<br>
+				<br>
+				You can click on a element to scroll to it, select a option below or type your own scroll method call.
+				<br>
+				<div class="scroll-demo-controls">
+					<div id="scroll-demo-relative" class="button">Relative coordinates</div>
+					<div id="scroll-demo-absolute" class="button">Absolute coordinates</div>
+					<div id="scroll-demo-units" class="button">Coordinates with units</div>
+					<div id="scroll-demo-calc" class="button">Coordinates calculation</div>
+					<div id="scroll-demo-easing" class="button">Easing</div>
+					<div id="scroll-demo-specialeasing" class="button">Special easing</div>
+					<div id="scroll-demo-elementwmargin" class="button">DOM Element with its margin</div>
+					<div id="scroll-demo-elementwomargin" class="button">DOM Element without its margin</div>
+					<div id="scroll-demo-elementcmargin" class="button">DOM Element custom margin</div>
+                    <div id="scroll-demo-blockbegin" class="button">DOM Element block begin</div>
+                    <div id="scroll-demo-blockcenter" class="button">DOM Element block center</div>
+					<div id="scroll-demo-blockend" class="button">DOM Element block end</div>
+					<div id="scroll-demo-blockarr" class="button">DOM Element block array</div>
+					<div id="scroll-demo-yonly" class="button">DOM Element y-axis only</div>
+					<div id="scroll-demo-xonly" class="button">DOM Element x-axis only</div>
+				</div>
+				<div id="scroll-demo-codemirror" class="codemirror-host">
+				</div>
+				<div class="scroll-demo-controls-end">
+					<div id="scroll-demo-reset" class="button">Reset</div>
+					<label class="checkbox">
+						<input id="scroll-demo-rtl" type="checkbox">
+						<span></span>
+						<span>Direction: RTL</span>
+					</label>
+				</div>
+				<div id="scroll-demo-plugin">
+					<div id="scroll-demo-plugin-content">
+						<div class="scroll-demo-item">1</div>
+						<div class="scroll-demo-item">2</div>
+						<div class="scroll-demo-item">3</div>
+						<div class="scroll-demo-item">4</div>
+						<div class="scroll-demo-item">5</div>
+						<div class="scroll-demo-item">6</div>
+						<div class="scroll-demo-item">7</div>
+						<div class="scroll-demo-item">8</div>
+						<div class="scroll-demo-item">9</div>
+						<div class="scroll-demo-item">10</div>
+						<div class="scroll-demo-item">11</div>
+						<div class="scroll-demo-item">12</div>
+						<div class="scroll-demo-item">13</div>
+						<div class="scroll-demo-item">14</div>
+						<div class="scroll-demo-item">15</div>
+						<div class="scroll-demo-item">16</div>
+						<div class="scroll-demo-item">17</div>
+						<div class="scroll-demo-item">18</div>
+						<div class="scroll-demo-item">19</div>
+						<div class="scroll-demo-item">20</div>
+						<div class="scroll-demo-item">21</div>
+						<div class="scroll-demo-item">22</div>
+						<div class="scroll-demo-item">23</div>
+						<div class="scroll-demo-item">24</div>
+						<div class="scroll-demo-item">25</div>
+						<div class="scroll-demo-item">26</div>
+						<div class="scroll-demo-item">27</div>
+						<div class="scroll-demo-item">28</div>
+						<div class="scroll-demo-item">29</div>
+						<div class="scroll-demo-item">30</div>
+						<div class="scroll-demo-item">31</div>
+						<div class="scroll-demo-item">32</div>
+						<div class="scroll-demo-item">33</div>
+						<div class="scroll-demo-item">34</div>
+						<div class="scroll-demo-item">35</div>
+						<div class="scroll-demo-item">36</div>
+						<div class="scroll-demo-item">37</div>
+						<div class="scroll-demo-item">38</div>
+						<div class="scroll-demo-item">39</div>
+						<div class="scroll-demo-item">40</div>
+						<div class="scroll-demo-item">41</div>
+						<div class="scroll-demo-item">42</div>
+						<div class="scroll-demo-item">43</div>
+						<div class="scroll-demo-item">44</div>
+						<div class="scroll-demo-item">45</div>
+						<div class="scroll-demo-item">46</div>
+						<div class="scroll-demo-item">47</div>
+						<div class="scroll-demo-item">48</div>
+						<div class="scroll-demo-item">49</div>
+						<div class="scroll-demo-item">50</div>
+						<div class="scroll-demo-item">51</div>
+						<div class="scroll-demo-item">52</div>
+						<div class="scroll-demo-item">53</div>
+						<div class="scroll-demo-item">54</div>
+						<div class="scroll-demo-item">55</div>
+						<div class="scroll-demo-item">56</div>
+						<div class="scroll-demo-item">57</div>
+						<div class="scroll-demo-item">58</div>
+						<div class="scroll-demo-item">59</div>
+						<div class="scroll-demo-item">60</div>
+						<div class="scroll-demo-item">61</div>
+						<div class="scroll-demo-item">62</div>
+						<div class="scroll-demo-item">63</div>
+						<div class="scroll-demo-item">64</div>
+						<div class="scroll-demo-item">65</div>
+						<div class="scroll-demo-item">66</div>
+						<div class="scroll-demo-item">67</div>
+						<div class="scroll-demo-item">68</div>
+						<div class="scroll-demo-item">69</div>
+						<div class="scroll-demo-item">70</div>
+						<div class="scroll-demo-item">71</div>
+						<div class="scroll-demo-item">72</div>
+						<div class="scroll-demo-item">73</div>
+						<div class="scroll-demo-item">74</div>
+						<div class="scroll-demo-item">75</div>
+						<div class="scroll-demo-item">76</div>
+						<div class="scroll-demo-item">77</div>
+						<div class="scroll-demo-item">78</div>
+						<div class="scroll-demo-item">79</div>
+						<div class="scroll-demo-item">80</div>
+						<div class="scroll-demo-item">81</div>
+						<div class="scroll-demo-item">82</div>
+						<div class="scroll-demo-item">83</div>
+						<div class="scroll-demo-item">84</div>
+						<div class="scroll-demo-item">85</div>
+						<div class="scroll-demo-item">86</div>
+						<div class="scroll-demo-item">87</div>
+						<div class="scroll-demo-item">88</div>
+						<div class="scroll-demo-item">89</div>
+						<div class="scroll-demo-item">90</div>
+						<div class="scroll-demo-item">91</div>
+						<div class="scroll-demo-item">92</div>
+						<div class="scroll-demo-item">93</div>
+						<div class="scroll-demo-item">94</div>
+						<div class="scroll-demo-item">95</div>
+						<div class="scroll-demo-item">96</div>
+						<div class="scroll-demo-item">97</div>
+						<div class="scroll-demo-item">98</div>
+						<div class="scroll-demo-item">99</div>
+						<div class="scroll-demo-item">100</div>
+						<div class="scroll-demo-item">101</div>
+						<div class="scroll-demo-item">102</div>
+						<div class="scroll-demo-item">103</div>
+						<div class="scroll-demo-item">104</div>
+						<div class="scroll-demo-item">105</div>
+						<div class="scroll-demo-item">106</div>
+						<div class="scroll-demo-item">107</div>
+						<div class="scroll-demo-item">108</div>
+						<div class="scroll-demo-item">109</div>
+						<div class="scroll-demo-item">110</div>
+						<div class="scroll-demo-item">111</div>
+						<div class="scroll-demo-item">112</div>
+						<div class="scroll-demo-item">113</div>
+						<div class="scroll-demo-item">114</div>
+						<div class="scroll-demo-item">115</div>
+						<div class="scroll-demo-item">116</div>
+						<div class="scroll-demo-item">117</div>
+						<div class="scroll-demo-item">118</div>
+						<div class="scroll-demo-item">119</div>
+						<div class="scroll-demo-item">120</div>
+						<div class="scroll-demo-item">121</div>
+						<div class="scroll-demo-item">122</div>
+						<div class="scroll-demo-item">123</div>
+						<div class="scroll-demo-item">124</div>
+						<div class="scroll-demo-item">125</div>
+						<div class="scroll-demo-item">126</div>
+						<div class="scroll-demo-item">127</div>
+						<div class="scroll-demo-item">128</div>
+						<div class="scroll-demo-item">129</div>
+						<div class="scroll-demo-item">130</div>
+						<div class="scroll-demo-item">131</div>
+						<div class="scroll-demo-item">132</div>
+						<div class="scroll-demo-item">133</div>
+						<div class="scroll-demo-item">134</div>
+						<div class="scroll-demo-item">135</div>
+						<div class="scroll-demo-item">136</div>
+						<div class="scroll-demo-item">137</div>
+						<div class="scroll-demo-item">138</div>
+						<div class="scroll-demo-item">139</div>
+						<div class="scroll-demo-item">140</div>
+						<div class="scroll-demo-item">141</div>
+						<div class="scroll-demo-item">142</div>
+						<div class="scroll-demo-item">143</div>
+						<div class="scroll-demo-item">144</div>
+						<div class="scroll-demo-item">145</div>
+						<div class="scroll-demo-item">146</div>
+						<div class="scroll-demo-item">147</div>
+						<div class="scroll-demo-item">148</div>
+						<div class="scroll-demo-item">149</div>
+						<div class="scroll-demo-item">150</div>    
+						<div class="scroll-demo-item">151</div>
+						<div class="scroll-demo-item">152</div>
+						<div class="scroll-demo-item">153</div>
+						<div class="scroll-demo-item">154</div>
+						<div class="scroll-demo-item">155</div>
+						<div class="scroll-demo-item">156</div>
+						<div class="scroll-demo-item">157</div>
+						<div class="scroll-demo-item">158</div>
+						<div class="scroll-demo-item">159</div>
+						<div class="scroll-demo-item">160</div>	
+						<div class="scroll-demo-item">161</div>
+						<div class="scroll-demo-item">162</div>
+						<div class="scroll-demo-item">163</div>
+						<div class="scroll-demo-item">164</div>
+						<div class="scroll-demo-item">165</div>
+						<div class="scroll-demo-item">166</div>
+						<div class="scroll-demo-item">167</div>
+						<div class="scroll-demo-item">168</div>
+						<div class="scroll-demo-item">169</div>
+						<div class="scroll-demo-item">170</div>
+						<div class="scroll-demo-item">171</div>
+						<div class="scroll-demo-item">172</div>
+						<div class="scroll-demo-item">173</div>
+						<div class="scroll-demo-item">174</div>
+						<div class="scroll-demo-item">175</div>
+						<div class="scroll-demo-item">176</div>
+						<div class="scroll-demo-item">177</div>
+						<div class="scroll-demo-item">178</div>
+						<div class="scroll-demo-item">179</div>
+						<div class="scroll-demo-item">180</div>
+						<div class="scroll-demo-item">181</div>
+						<div class="scroll-demo-item">182</div>
+						<div class="scroll-demo-item">183</div>
+						<div class="scroll-demo-item">184</div>
+						<div class="scroll-demo-item">185</div>
+						<div class="scroll-demo-item">186</div>
+						<div class="scroll-demo-item">187</div>
+						<div class="scroll-demo-item">188</div>
+						<div class="scroll-demo-item">189</div>
+						<div class="scroll-demo-item">190</div>
+						<div class="scroll-demo-item">191</div>
+						<div class="scroll-demo-item">192</div>
+						<div class="scroll-demo-item">193</div>
+						<div class="scroll-demo-item">194</div>
+						<div class="scroll-demo-item">195</div>
+						<div class="scroll-demo-item">196</div>
+						<div class="scroll-demo-item">197</div>
+						<div class="scroll-demo-item">198</div>
+						<div class="scroll-demo-item">199</div>
+						<div class="scroll-demo-item">200</div>
+						<div class="scroll-demo-item">201</div>
+						<div class="scroll-demo-item">202</div>
+						<div class="scroll-demo-item">203</div>
+						<div class="scroll-demo-item">204</div>
+						<div class="scroll-demo-item">205</div>
+						<div class="scroll-demo-item">206</div>
+						<div class="scroll-demo-item">207</div>
+						<div class="scroll-demo-item">208</div>
+						<div class="scroll-demo-item">209</div>
+						<div class="scroll-demo-item">210</div>
+						<div class="scroll-demo-item">211</div>
+						<div class="scroll-demo-item">212</div>
+						<div class="scroll-demo-item">213</div>
+						<div class="scroll-demo-item">214</div>
+						<div class="scroll-demo-item">215</div>
+						<div class="scroll-demo-item">216</div>
+						<div class="scroll-demo-item">217</div>
+						<div class="scroll-demo-item">218</div>
+						<div class="scroll-demo-item">219</div>
+						<div class="scroll-demo-item">220</div>
+						<div class="scroll-demo-item">221</div>
+						<div class="scroll-demo-item">222</div>
+						<div class="scroll-demo-item">223</div>
+						<div class="scroll-demo-item">224</div>
+						<div class="scroll-demo-item">225</div>
+						<div class="scroll-demo-item">226</div>
+						<div class="scroll-demo-item">227</div>
+						<div class="scroll-demo-item">228</div>
+						<div class="scroll-demo-item">229</div>
+						<div class="scroll-demo-item">230</div>
+						<div class="scroll-demo-item">231</div>
+						<div class="scroll-demo-item">232</div>
+						<div class="scroll-demo-item">233</div>
+						<div class="scroll-demo-item">234</div>
+						<div class="scroll-demo-item">235</div>
+						<div class="scroll-demo-item">236</div>
+						<div class="scroll-demo-item">237</div>
+						<div class="scroll-demo-item">238</div>
+						<div class="scroll-demo-item">239</div>
+						<div class="scroll-demo-item">240</div>
+						<div class="scroll-demo-item">241</div>
+						<div class="scroll-demo-item">242</div>
+						<div class="scroll-demo-item">243</div>
+						<div class="scroll-demo-item">244</div>
+						<div class="scroll-demo-item">245</div>
+						<div class="scroll-demo-item">246</div>
+						<div class="scroll-demo-item">247</div>
+						<div class="scroll-demo-item">248</div>
+						<div class="scroll-demo-item">249</div>
+						<div class="scroll-demo-item">250</div>
+						<div class="scroll-demo-item">251</div>
+						<div class="scroll-demo-item">252</div>
+						<div class="scroll-demo-item">253</div>
+						<div class="scroll-demo-item">254</div>
+						<div class="scroll-demo-item">255</div>
+						<div class="scroll-demo-item">256</div>
+						<div class="scroll-demo-item">257</div>
+						<div class="scroll-demo-item">258</div>
+						<div class="scroll-demo-item">259</div>
+						<div class="scroll-demo-item">260</div>
+						<div class="scroll-demo-item">261</div>
+						<div class="scroll-demo-item">262</div>
+						<div class="scroll-demo-item">263</div>
+						<div class="scroll-demo-item">264</div>
+						<div class="scroll-demo-item">265</div>
+						<div class="scroll-demo-item">266</div>
+						<div class="scroll-demo-item">267</div>
+						<div class="scroll-demo-item">268</div>
+						<div class="scroll-demo-item">269</div>
+						<div class="scroll-demo-item">270</div>
+						<div class="scroll-demo-item">271</div>
+						<div class="scroll-demo-item">272</div>
+						<div class="scroll-demo-item">273</div>
+						<div class="scroll-demo-item">274</div>
+						<div class="scroll-demo-item">275</div>
+						<div class="scroll-demo-item">276</div>
+						<div class="scroll-demo-item">277</div>
+						<div class="scroll-demo-item">278</div>
+						<div class="scroll-demo-item">279</div>
+						<div class="scroll-demo-item">280</div>
+						<div class="scroll-demo-item">281</div>
+						<div class="scroll-demo-item">282</div>
+						<div class="scroll-demo-item">283</div>
+						<div class="scroll-demo-item">284</div>
+						<div class="scroll-demo-item">285</div>
+						<div class="scroll-demo-item">286</div>
+						<div class="scroll-demo-item">287</div>
+						<div class="scroll-demo-item">288</div>
+						<div class="scroll-demo-item">289</div>
+						<div class="scroll-demo-item">290</div>
+						<div class="scroll-demo-item">291</div>
+						<div class="scroll-demo-item">292</div>
+						<div class="scroll-demo-item">293</div>
+						<div class="scroll-demo-item">294</div>
+						<div class="scroll-demo-item">295</div>
+						<div class="scroll-demo-item">296</div>
+						<div class="scroll-demo-item">297</div>
+						<div class="scroll-demo-item">298</div>
+						<div class="scroll-demo-item">299</div>
+						<div class="scroll-demo-item">300</div>
+						<div class="scroll-demo-item">301</div>
+						<div class="scroll-demo-item">302</div>
+						<div class="scroll-demo-item">303</div>
+						<div class="scroll-demo-item">304</div>
+						<div class="scroll-demo-item">305</div>
+						<div class="scroll-demo-item">306</div>
+						<div class="scroll-demo-item">307</div>
+						<div class="scroll-demo-item">308</div>
+						<div class="scroll-demo-item">309</div>
+						<div class="scroll-demo-item">310</div>
+						<div class="scroll-demo-item">311</div>
+						<div class="scroll-demo-item">312</div>
+						<div class="scroll-demo-item">313</div>
+						<div class="scroll-demo-item">314</div>
+						<div class="scroll-demo-item">315</div>
+						<div class="scroll-demo-item">316</div>
+						<div class="scroll-demo-item">317</div>
+						<div class="scroll-demo-item">318</div>
+						<div class="scroll-demo-item">319</div>
+						<div class="scroll-demo-item">320</div>
+						<div class="scroll-demo-item">321</div>
+						<div class="scroll-demo-item">322</div>
+						<div class="scroll-demo-item">323</div>
+						<div class="scroll-demo-item">324</div>
+						<div class="scroll-demo-item">325</div>
+						<div class="scroll-demo-item">326</div>
+						<div class="scroll-demo-item">327</div>
+						<div class="scroll-demo-item">328</div>
+						<div class="scroll-demo-item">329</div>
+						<div class="scroll-demo-item">330</div>
+						<div class="scroll-demo-item">331</div>
+						<div class="scroll-demo-item">332</div>
+						<div class="scroll-demo-item">333</div>
+						<div class="scroll-demo-item">334</div>
+						<div class="scroll-demo-item">335</div>
+						<div class="scroll-demo-item">336</div>
+						<div class="scroll-demo-item">337</div>
+						<div class="scroll-demo-item">338</div>
+						<div class="scroll-demo-item">339</div>
+						<div class="scroll-demo-item">340</div>
+						<div class="scroll-demo-item">341</div>
+						<div class="scroll-demo-item">342</div>
+						<div class="scroll-demo-item">343</div>
+						<div class="scroll-demo-item">344</div>
+						<div class="scroll-demo-item">345</div>
+						<div class="scroll-demo-item">346</div>
+						<div class="scroll-demo-item">347</div>
+						<div class="scroll-demo-item">348</div>
+						<div class="scroll-demo-item">349</div>
+						<div class="scroll-demo-item">350</div>
+						<div class="scroll-demo-item">351</div>
+						<div class="scroll-demo-item">352</div>
+						<div class="scroll-demo-item">353</div>
+						<div class="scroll-demo-item">354</div>
+						<div class="scroll-demo-item">355</div>
+						<div class="scroll-demo-item">356</div>
+						<div class="scroll-demo-item">357</div>
+						<div class="scroll-demo-item">358</div>
+						<div class="scroll-demo-item">359</div>
+						<div class="scroll-demo-item">360</div>
+						<div class="scroll-demo-item">361</div>
+						<div class="scroll-demo-item">362</div>
+						<div class="scroll-demo-item">363</div>
+						<div class="scroll-demo-item">364</div>
+						<div class="scroll-demo-item">365</div>
+						<div class="scroll-demo-item">366</div>
+						<div class="scroll-demo-item">367</div>
+						<div class="scroll-demo-item">368</div>
+						<div class="scroll-demo-item">369</div>
+						<div class="scroll-demo-item">370</div>
+						<div class="scroll-demo-item">371</div>
+						<div class="scroll-demo-item">372</div>
+						<div class="scroll-demo-item">373</div>
+						<div class="scroll-demo-item">374</div>
+						<div class="scroll-demo-item">375</div>
+						<div class="scroll-demo-item">376</div>
+						<div class="scroll-demo-item">377</div>
+						<div class="scroll-demo-item">378</div>
+						<div class="scroll-demo-item">379</div>
+						<div class="scroll-demo-item">380</div>
+						<div class="scroll-demo-item">381</div>
+						<div class="scroll-demo-item">382</div>
+						<div class="scroll-demo-item">383</div>
+						<div class="scroll-demo-item">384</div>
+						<div class="scroll-demo-item">385</div>
+						<div class="scroll-demo-item">386</div>
+						<div class="scroll-demo-item">387</div>
+						<div class="scroll-demo-item">388</div>
+						<div class="scroll-demo-item">389</div>
+						<div class="scroll-demo-item">390</div>
+						<div class="scroll-demo-item">391</div>
+						<div class="scroll-demo-item">392</div>
+						<div class="scroll-demo-item">393</div>
+						<div class="scroll-demo-item">394</div>
+						<div class="scroll-demo-item">395</div>
+						<div class="scroll-demo-item">396</div>
+						<div class="scroll-demo-item">397</div>
+						<div class="scroll-demo-item">398</div>
+						<div class="scroll-demo-item">399</div>
+						<div class="scroll-demo-item">400</div>
+					</div>
+				</div>
+			</div>
+		
+			<div id="content-demo" data-tab-value="content">
+				<div class="content-navigation-main-caption">Content Demo</div>
+				This demo shows that dynamic content can be handled.<br>
+				<br>
+				
+				Write and send a message to increase the content scroll size.
+				<br>
+				
+				<div class="content-demo">
+					<div class="content-demo-chat">
+						<div class="content-demo-chat-content">
+							<div class="content-demo-chat-head">
+								<div class="content-demo-chat-head-datetime"></div>
+								<div class="content-demo-chat-head-users">
+									<div class="content-demo-chat-head-users-user-left content-demo-chat-head-users-user">
+										<div class="content-demo-chat-head-users-user-icon">
+										</div>
+										<div class="content-demo-chat-head-users-user-name">
+										</div>
+									</div>
+									<div class="content-demo-chat-head-users-user-right content-demo-chat-head-users-user">
+										<div class="content-demo-chat-head-users-user-icon">
+										</div>
+										<div class="content-demo-chat-head-users-user-name">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="content-demo-input">
+						<div class="content-demo-input-switch">
+							<i class="mdi mdi-autorenew"></i>
+						</div>
+						<div class="content-demo-input-user-icon">
+						</div>
+						<div class="content-demo-input-textarea">
+							<textarea rows="1" class="content-demo-input-textarea-plugin" placeholder="enter your message..."></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+			<div id="scale" data-tab-value="scale">
+				<div class="content-navigation-main-caption">Scale Demo</div>
+				This demo shows how the plugin is handling a <b>scaled</b> host-element.<br>
+				Change the scale value below and verify the plugins functionality.<br>
+				<br>
+				<div class="scale-demo-control">
+					<div class="scale-demo-control-left">
+						<b>Scale:</b>
+					</div>
+					<div class="scale-demo-control-right">
+						<div id="scale-demo-input-numeric" class="input-numeric" data-input-numeric-min="0.1" data-input-numeric-max="2.5" data-input-numeric-step=".1">
+							<div class="button input-numeric-button input-numeric-button-decrease">
+								<i class="mdi mdi-minus"></i>
+							</div>
+							<div class="button input-numeric-button input-numeric-button-increase">
+								<i class="mdi mdi-plus"></i>
+							</div>
+							<div class="input-numeric-input">
+								<input class="input" type="text" value="1" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="scale-demo-plugin">
+					<div id="scale-demo-plugin-content">
+						<div></div>
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy<br> eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+						At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata<br> sanctus est Lorem ipsum dolor sit amet. <br>
+						<div></div>
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam<br> nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. <br>
+						At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd<br> gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+						<div></div>
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy<br> eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+						At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata<br> sanctus est Lorem ipsum dolor sit amet. <br>
+						<div></div>
+						Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam<br> nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. <br>
+						At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd<br> gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br>
+						<div></div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="snapping" data-tab-value="snapping">
+				<div class="content-navigation-main-caption">Snapping Demo</div>
+				This demo shows how the plugins behavior with CSS scroll snapping.<br>
+				<br>
+				
+				<div id="hi" class="snap-container">
+					<div>
+						<h2>
+						Browser  Support
+					  </h2>
+						<p>
+							This sample should work on Chrome 69+ (Canary, due to be released in September 2018), Firefox, Edge, IE 11, and Safari (iOS).
+						</p>
+					</div>
+					<div>
+						<h2>
+						Chrome
+					  </h2>
+						<p>
+							Chrome version 69 has the most up-to-date CSS snap implementation. It uses <code>scroll-snap-align</code>, while other browsers still use <code>scroll-snap-coordinate</code>.
+						</p>
+					</div>
+					<div>
+						<h2>
+						Safari/iOS
+					  </h2>
+						<p>
+							Safari supports CSS snapping with a couple of caveats (in addition to using the <code>-webkit-</code> prefix):
+						</p>
+						<ul>
+							<li>You must set <code>-webkit-overflow-scrolling: touch;</code>.</li>
+						</ul>
+						<ul>
+							<li>The elements being scrolled must have <code>overflow: none;</code> (the default setting).</li>
+						</ul>
+					</div>
+					<div>
+						<h2>
+						Edge
+					  </h2>
+						<p>
+							On Edge, dragging the scrollbar thumb doesn't cause snapping. Touching or clicking the pagination area in the scroll bar does.
+						</p>
+						<p>
+							Edge requires the <code>-ms-</code> prefix for the CSS properties related to snap points.
+						</p>
+					</div>
+					<div>
+						<h2>
+						IE 11
+					  </h2>
+						<p>
+							On IE11, snapping is supported for touch only.
+						</p>
+						<p>
+							IE11 requires the <code>-ms-</code> prefix for the CSS properties related to snap points.
+						</p>
+					</div>
+					<div>
+						<h2>
+						Touch Support
+					  </h2>
+						<p>
+							CSS snapping works with touch on recent Android and iOS phones and tablets. It is a great option for implementing scroll-based interfaces on narrow screens.
+						</p>
+					</div>
+				</div>
+			</div>
+		
+			<div id="iframe" data-tab-value="iframe">
+				<div class="content-navigation-main-caption">iFrame Demo</div>
+				As small demo which shows how the plugin is working inside a iFrame.<br>
+				The plugin was applied from the current page (outside iFrame) and not from inside with a script tag for example.<br>
+				<div class="txtbox txtbox-yellow">
+					<i class="mdi mdi-information-outline"></i>
+					<span>Your iFrame source has to have the <b>same origin</b> (domain, protocol and port) as your current site, else you won't be able to do that due to the <a class="inline-btn" href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy" target="_blank" rel="noopener">same origin policy</a>.</span>
+				</div>
+                
+				<div class="iframe-demo">
+					<iframe id="iframe-demo-element" 
+					onload="window.osiFrame = OverlayScrollbars(document.getElementById('iframe-demo-element').contentWindow.document.body, { autoUpdate : false, resize: 'both' })" 
+					src="etc/iframe.html" 
+					frameborder="0"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

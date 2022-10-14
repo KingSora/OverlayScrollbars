@@ -1,0 +1,72 @@
+$framework-path: "../_framework/";
+$fonts-path: $framework-path + "fonts/";
+$img-path: $framework-path + "img/";
+
+$primary-color-r:    54;
+$primary-color-g:    190;
+$primary-color-b:    253;
+$primary-color:  rgb($primary-color-r, $primary-color-g, $primary-color-b);
+
+$secondary-color-r: 100;
+$secondary-color-g: 97;
+$secondary-color-b: 246;
+$secondary-color:  rgb($secondary-color-r, $secondary-color-g, $secondary-color-b);
+
+$header-accent-color-r: 42;
+$header-accent-color-g: 239;
+$header-accent-color-b: 255;
+$header-accent-color:  rgb($header-accent-color-r, $header-accent-color-g, $header-accent-color-b);
+
+$content-section-color-r: 246;
+$content-section-color-g: 248;
+$content-section-color-b: 251;
+$content-section-color:  rgb($content-section-color-r, $content-section-color-g, $content-section-color-b);
+
+$control-background-color: #fff;
+$control-boxshadow-color-r: 35;
+$control-boxshadow-color-g: 80;
+$control-boxshadow-color-b: 129;
+$control-boxshadow-color: rgba($control-boxshadow-color-r, $control-boxshadow-color-g, $control-boxshadow-color-b, 0.1);
+
+$header-accent-gradient-1: rgba($header-accent-color-r, $header-accent-color-g, $header-accent-color-b, 1);
+$header-accent-gradient-0: rgba($header-accent-color-r, $header-accent-color-g, $header-accent-color-b, 0);
+
+$header-box-shadow: 0 15px 20px -15px rgba(57, 120, 253, 0.25), 0 55px 50px -35px rgba(47, 78, 249, 0.1);
+$header-content-box-shadow: 0 15px 20px -15px rgba(0, 0, 255, 0.3), 0 55px 50px -35px rgba(0, 0, 255, 0.3);
+$header-content-text-shadow: 0px 1px 3px rgba(0, 0, 255, 0.15);
+
+$text-color-dark: #39547A;//#31485B;
+$text-color-gray: #425E88;//#555E6B;
+$text-color-light: #868FB2; //#A5A5AF;
+
+$border-color: #A9B8D3;
+$border-color-light: #DDE3ED;//#D6D6D6;
+
+$code-inline-background-color: #f0f3f6;
+
+$font-family: 'Raleway', sans-serif;
+$font-weight-bold: 700;
+$font-weight-semibold: 600;
+$font-weight-normal: 400;
+
+$code-font-family: 'Fira Mono', monospace !important;
+$code-font-weight-bold: 500;
+$code-font-weight-normal: 400;
+
+$content-navigation-width: 190px;
+$content-navigation-border-size: 6px;
+
+$footer-color: #323750;
+
+$min-width: 800px;
+$shrink-width: 900px;
+$max-width: 1200px;
+
+$navigation-button-icon-shrink: 6px;
+$navigation-button-icon-stroke: 3px;
+
+$navigation-height: 76px;
+$navigation-height-small: 56px;
+$navigation-sidebar-width: 240px;
+$header-height: 422px;
+$footer-height: 55px;

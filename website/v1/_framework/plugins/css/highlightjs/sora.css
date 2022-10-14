@@ -1,0 +1,104 @@
+/*
+
+Colorbrewer theme
+Original: https://github.com/mbostock/colorbrewer-theme (c) Mike Bostock <mike@ocks.org>
+Ported by Fabrício Tavares de Oliveira
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: #fff;
+}
+
+.hljs,
+.hljs-subst {
+  color: #4D4D4C;
+}
+
+.hljs-string,
+.hljs-meta,
+.hljs-symbol,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-addition {
+  color: #279737;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #7b8eb7;
+}
+
+.hljs-number,
+.hljs-regexp,
+.hljs-literal,
+.hljs-bullet,
+.hljs-link {
+  color: #1876C4;
+}
+.hljs-number {
+	color: #E23E4E;
+}
+.hljs-regexp {
+	color: #F08439;
+}
+
+
+.hljs-deletion,
+.hljs-variable {
+  color: #da5dbd;
+}
+
+
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-title,
+.hljs-section,
+.hljs-built_in,
+.hljs-doctag,
+.hljs-type,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-strong {
+  color: #0059FF;
+}
+
+.hljs-keyword,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-selector-tag {
+	font-weight: 500;
+}
+.hljs-selector-pseudo {
+	color: #F08439;
+}
+.hljs-tag {
+	color: #4D4C6E;
+}
+.hljs-name {
+	color: #4576D5;
+}
+.hljs-attr {
+	color: #556362;
+}
+.hljs-params {
+	color: #3778AD;
+}
+.hljs-params:not(:empty) {
+	padding: 0 5px;
+}
+
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-attribute {
+  color: #446FD0;
+}

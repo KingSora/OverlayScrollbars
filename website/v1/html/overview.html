@@ -1,0 +1,545 @@
+<div id="features" class="content-section skew">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				Main Features
+			</h3>
+			<div class="content-message-content">		
+				<div class="content-message-content-list">
+					<div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-star"></i></p>
+						<p class="content-message-content-list-item-title">Custom design & native functionality</p>
+						<p class="content-message-content-list-item-content">
+							The plugin combines the features of native scrolling <br>
+							(e.g. hotkeys, speed, smoothness, <b>touchsupport</b> etc.) and custom HTML & CSS. It does not replace the native scrollbars, it just hides them to guarantee 100% native scrolling. It also provides additional and highly customizable DOM elements to style your own scrollbars.<br>
+							To check how flexible the styling is, take a look at the examples in the <a class="inline-btn" data-navigation="demos/styling">styling demo</a>.
+						</p>
+					</div>
+					<div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-image-size-select-small"></i></p>
+						<p class="content-message-content-list-item-title">Supports all css size affecting properties</p>
+						<p class="content-message-content-list-item-content">
+							Supported are all size properties (width, height, max-*, min-*)<br>
+							with all units (em, ex, %, px, cm, mm, in, pt, pc, rem).<br>
+							Even <code class="code-inline scss">height: auto</code> and <code class="code-inline scss">width: auto</code> in combination with min-* and max-* size properties.
+							Floating elements in combination with <code class="code-inline scss">width: auto</code> are supported too.
+							The best thing is, any size, padding, margin or border-width changes are detected automatically by the plugin.
+							Please use the <a class="inline-btn" data-navigation="demos/capabilites">capabilities demo</a> to convince yourself.
+						</p>
+					</div>
+					<div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-textbox"></i></p>
+						<p class="content-message-content-list-item-title">Extended support for textarea elements</p>
+						<p class="content-message-content-list-item-content">
+							Textarea elements have extended support. 
+							Dependent on your options, textareas can have dynamic width and height. Which means the size of the textarea is dependent of its content. 
+							For more information please read the <a class="inline-btn" data-navigation="documentation/options">documentation</a> to the textarea options or check out the <a class="inline-btn" data-navigation="demos/textarea">textarea demo</a>.
+							No-auto-wrapping (<code class="code-inline">wrap="off"</code>) textareas are also supported.
+						</p>
+					</div>
+					<div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-format-textdirection-r-to-l"></i></p>
+						<p class="content-message-content-list-item-title">Extended RTL support</p>
+						<p class="content-message-content-list-item-content">
+							Every browser handles RTL scrolling differently. The plugin leaves it up to you whether you want to use the native RTL scroll behavior which differs in each browser or a "normalized" RTL scroll behavior, which works the same way in every browser.
+						</p>
+					</div>
+					<div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-overscan"></i></p>
+						<p class="content-message-content-list-item-title">Extremely powerful scroll method</p>
+						<p class="content-message-content-list-item-content">
+							The plugin offers a scroll method which supports animated scrolling. With this method you can scroll to absolute, relative and calculated coordinates. It's also possible to scroll directly to a passed DOM element. Furthermore it provides the same functionality as the native <a class="inline-btn" href="https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView" target="_blank" rel="noopener">scrollIntoView</a> method. Try the <a class="inline-btn" data-navigation="demos/scroll">demo</a> or read the <a class="inline-btn" data-navigation="documentation/method-scroll">documentation</a> for more info.
+						</p>
+					</div>
+					<div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-puzzle"></i></p>
+						<p class="content-message-content-list-item-title">Supports Extensions for simple customization</p>
+						<p class="content-message-content-list-item-content">
+							In case OverlayScrollbars doesn't support a feature you need, you are able to develop or use extensions. Extensions provide additional functionality to the plugin, to support special or personal cases. The extension-system is simple and powerful. Please read the <a data-navigation="documentation/extensions-basics" class="inline-btn">documentation</a> for more info and check the <a data-navigation="extensions" class="inline-btn">extensions page</a> to see all official extensions.
+						</p>
+					</div>
+					<div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-web"></i></p>
+						<p class="content-message-content-list-item-title">Using modern web technologies</p>
+						<p class="content-message-content-list-item-content">
+							The Web has many useful tools which are only supported in modern browsers. The plugin is using them in modern browsers to ensure maximum performance but uses fallbacks in older browsers to ensure functionality.
+						</p>
+					</div>
+					<div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-auto-fix"></i></p>
+						<p class="content-message-content-list-item-title">Able to hide all types of scrollbars</p>
+						<p class="content-message-content-list-item-content">
+							Similar plugins are not able to hide natively overlaid scrollbars. These are standard on all mobile browsers as well as on many Linux operating systems and MacOS.<br>
+							Moreover it's even possible to hide mixed scrollbars (e.g. vertical scrollbar is overlaid and horizontal isn't) but this case can only happen if your browser is using some skin or theme plugins.
+						</p>
+					</div>
+					<div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-format-text-wrapping-overflow"></i></p>
+						<p class="content-message-content-list-item-title">No clipping without overflow</p>
+						<p class="content-message-content-list-item-content">
+							As long as there is no overflow, the element is <i>not</i> clipped. The clip appears only if a overflow exists.
+							You can not achieve this with CSS because all overflow values except of <code class="code-inline scss">overflow: visible</code> clips the element even if the element has no overflow.
+						</p>
+					</div>
+                    <div class="content-message-content-list-item">
+						<p class="content-message-content-list-item-bullet"><i class="mdi mdi-react"></i></p>
+						<p class="content-message-content-list-item-title">Component wrapper for popular frameworks</p>
+						<p class="content-message-content-list-item-content">
+							If you are using popular component-based web front-end frameworks such as <b>React</b>, <b>Vue</b> or <b>Angular</b>, you can use the corresponding component wrapper.
+                        </p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="content-section">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				Sub Features
+			</h3>
+			<div class="content-message-content">		
+				<ul>
+					<li>Options can be changed at runtime.</li>
+					<li>Supports horizontal and / or vertical scrollbars.</li>
+					<li>Free adjustable handle size.</li>
+					<li>Selectable & searchable content.</li>
+					<li>Support for <code class="code-inline scss">box-sizing: border-box</code> and <code class="code-inline scss">box-sizing: content-box</code>.</li>
+					<li>Two different padding variants.</li>
+					<li>Ability to completely ignore the overflow of a specified axis.</li>
+					<li>Provides callbacks for any situation.</li>
+                    <li>You can use the plugin without any dependencies or with jQuery.</li>
+                    <li>Provides actively maintained <b>TypeScript</b> declarations.</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="browsersupport" class="content-section">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				Browser Support
+			</h3>
+			<div class="content-message-content">		
+				Tested on desktop and mobile browsers as well as on Windows and Linux machines.<br>
+				<br>
+				<div class="browsersupport">
+					<div class="browsersupport-line">
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								<img src="./_framework/img/icons-browser/ie.svg" alt="Internet Explorer">
+								<img src="./_framework/img/icons-browser/ie.svg" alt="Internet Explorer">
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								<img src="./_framework/img/icons-browser/edge.svg" alt="Edge">
+								<img src="./_framework/img/icons-browser/edge.svg" alt="Edge">
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								<img src="./_framework/img/icons-browser/opera.svg" alt="Opera">
+								<img src="./_framework/img/icons-browser/opera.svg" alt="Opera">
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								<img src="./_framework/img/icons-browser/chrome.svg" alt="Chrome">
+								<img src="./_framework/img/icons-browser/chrome.svg" alt="Chrome">
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								<img src="./_framework/img/icons-browser/firefox.svg" alt="Firefox">
+								<img src="./_framework/img/icons-browser/firefox.svg" alt="Firefox">
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								<img src="./_framework/img/icons-browser/safari.svg" alt="Safari">
+								<img src="./_framework/img/icons-browser/safari.svg" alt="Safari">
+							</div>
+						</div>
+					</div>
+					<div class="browsersupport-line">
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Internet Explorer
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Edge
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Opera
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Chrome
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Firefox
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Safari
+							</div>
+						</div>
+					</div>
+					<div class="browsersupport-line">
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								8+
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Yes
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Yes
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Yes
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								Yes
+							</div>
+						</div>
+						<div class="browsersupport-line-item">
+							<div class="browsersupport-line-item-inner">
+								6+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="implementation" class="content-section">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				Implementation
+			</h3>
+			<div class="content-message-content">
+				You can get the plugin by <a class="inline-btn" href="https://github.com/KingSora/OverlayScrollbars/archive/master.zip">downloading</a> it manually, via <a class="inline-btn" target="_blank" rel="noopener" href="https://cdnjs.com/libraries/overlayscrollbars">cdn</a> or via a package manager like <a class="inline-btn" target="_blank" rel="noopener" href="https://www.npmjs.com/package/overlayscrollbars">npm</a>:
+				<pre><code class="sh code-noscroll">npm install overlayscrollbars</code></pre> 
+                <br>
+                The plugin has two versions:
+                <ul>
+					<li>The default version without any dependencies: <b>OverlayScrollbars.js</b></li>
+					<li>The jQuery version with jQuery as dependency: <b>jquery.overlayScrollbars.js</b></li>
+				</ul>
+                Both versions are capable of the same, but the jQuery version is a bit smaller in size.
+                <br>
+                <br>
+                To <b>implement</b> the plugin to your page you have to include all necessary files to the head tag in your HTML document.<br>
+                If you are using jQuery, please use the file prefixed with <code class="code-inline">jquery.</code>.<br>
+                
+                <div class="txtbox txtbox-yellow">
+					<i class="mdi mdi-lightbulb"></i>
+					<span>
+						Make sure to load all CSS file(s) before the JS file(s), to prevent unexpected bugs.
+					</span>
+				</div>
+				<div class="tab-control">
+                    <div class="tab-button-bar">
+                        <div class="tab-button-bar-center">
+                            <div class="tab-button active" data-tab-key="implementation-default">Default</div>
+                            <div class="tab-button" data-tab-key="implementation-jquery">jQuery</div>
+                        </div>
+                    </div>
+                    <div id="implementation-default" class="active" data-tab-value="implementation-default">
+                        <pre><code class="html code-noscroll">&lt;html&gt;
+    &lt;head&gt;
+        &lt;!-- Plugin CSS --&gt;
+        &lt;link type=&quot;text/css&quot; href=&quot;path/to/OverlayScrollbars.css&quot; rel=&quot;stylesheet&quot;/&gt;
+        &lt;!-- Plugin JS --&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;path/to/OverlayScrollbars.js&quot;&gt;&lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>             
+                    </div>
+                    <div id="implementation-jquery" data-tab-value="implementation-jquery">
+                        <pre><code class="html code-noscroll">&lt;html&gt;
+    &lt;head&gt;
+        &lt;!-- Plugin CSS --&gt;
+        &lt;link type=&quot;text/css&quot; href=&quot;path/to/OverlayScrollbars.css&quot; rel=&quot;stylesheet&quot;/&gt;
+        &lt;!-- jQuery JS --&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;path/to/jquery.js&quot;&gt;&lt;/script&gt;
+        &lt;!-- Plugin JS --&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;path/to/jquery.overlayScrollbars.js&quot;&gt;&lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>      
+                    </div>
+                </div>
+				<br>
+				The plugin is now ready to be <b>initialized</b>.<br>
+                
+				<div class="txtbox txtbox-orange">
+					<i class="mdi mdi-alert"></i>
+					<span>
+						Initialize the plugin only after your document has been fully loaded.
+					</span>
+				</div>
+				
+                <div class="tab-control">
+                    <div class="tab-button-bar">
+                        <div class="tab-button-bar-center">
+                            <div class="tab-button active" data-tab-key="initialization-default">Default</div>
+                            <div class="tab-button" data-tab-key="initialization-jquery">jQuery</div>
+                        </div>
+                    </div>
+                    <div id="initialization-default" class="active" data-tab-value="initialization-default">
+                        <pre><code class="js code-noscroll">document.addEventListener("DOMContentLoaded", function() {
+	//The first argument are the elements to which the plugin shall be initialized
+	//The second argument has to be at least a empty object or a object with your desired options
+	OverlayScrollbars(document.querySelectorAll("body"), { });
+});</code></pre>
+                        For further and more detailed information about the initialization and the initialization possibilities please read <a class="inline-btn" data-navigation="documentation/initialization">this section</a> in the documentation.<br>
+                    </div>
+                    <div id="initialization-jquery" data-tab-value="initialization-jquery">
+                        <pre><code class="js code-noscroll">$(function() {
+	//The passed argument has to be at least a empty object or a object with your desired options
+	$("body").overlayScrollbars({ });
+});</code></pre>
+                        For further and more detailed information about the initialization and the initialization possibilities please read <a class="inline-btn" data-navigation="documentation/initialization-jquery">this section</a> in the documentation.<br>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
+</div>
+
+<div class="content-section">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				TypeScript
+			</h3>
+			<div class="content-message-content">		
+				Although OverlayScrollbars isn't written in TypeScript, it provides its own <a class="inline-btn" href="https://www.npmjs.com/package/@types/overlayscrollbars" target="_blank" rel="noopener">TypeScript declarations</a>:
+                <pre><code class="sh code-noscroll">npm install @types/overlayscrollbars</code></pre>
+                I recommend setting these options in your <b>tsconfig.json</b>:
+                <pre><code class="json code-noscroll">{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true
+    }
+}</code></pre>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="content-section">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				Component Wrapper
+			</h3>
+			<div class="content-message-content">		
+				OverlayScrollbars provides its own wrapper components for popular component-based front-end frameworks. Each wrapper is written in <b>TypeScript</b> and actively maintained.
+                <div class="three-col-content">
+                    <div class="three-col-content-item">
+                        <div class="three-col-content-item-content">
+                            <a href="https://github.com/KingSora/OverlayScrollbars/tree/v1.x/packages/overlayscrollbars-react" target="_blank" rel="noopener" class="three-col-content-item-content-framework-wrapper">
+                                <span class="three-col-content-item-content-framework-wrapper-icon three-col-content-item-content-framework-wrapper-icon-react">
+                                    <svg version="1.1" viewBox="515.064 141.508 890.053 792.629" enable-background="new 515.064 141.508 890.053 792.629" xml:space="preserve">
+                                        <g>
+                                            <path fill="#fff" d="M1405.116,537.914c0-58.962-73.838-114.84-187.045-149.491c26.125-115.384,14.514-207.183-36.646-236.573
+                                                c-11.793-6.894-25.581-10.16-40.639-10.16v40.457c8.346,0,15.058,1.633,20.682,4.717c24.674,14.151,35.377,68.033,27.032,137.335
+                                                c-1.995,17.054-5.262,35.015-9.253,53.338c-35.559-8.708-74.383-15.421-115.202-19.774c-24.491-33.563-49.891-64.042-75.471-90.711
+                                                c59.143-54.971,114.658-85.086,152.394-85.086v-40.457c-49.891,0-115.202,35.559-181.24,97.242
+                                                c-66.037-61.32-131.349-96.516-181.239-96.516v40.457c37.554,0,93.251,29.935,152.394,84.542
+                                                c-25.398,26.669-50.798,56.966-74.927,90.529c-41.001,4.354-79.825,11.066-115.384,19.956c-4.173-18.142-7.257-35.74-9.434-52.612
+                                                c-8.527-69.303,1.995-123.185,26.487-137.517c5.442-3.266,12.518-4.717,20.863-4.717v-40.457c-15.239,0-29.027,3.266-41.001,10.16
+                                                c-50.979,29.39-62.409,121.008-36.104,236.029c-112.844,34.832-186.319,90.528-186.319,149.31
+                                                c0,58.962,73.839,114.839,187.046,149.49c-26.125,115.384-14.514,207.184,36.646,236.573c11.793,6.895,25.58,10.16,40.82,10.16
+                                                c49.891,0,115.202-35.559,181.239-97.242c66.037,61.32,131.349,96.517,181.24,96.517c15.239,0,29.027-3.266,41.001-10.16
+                                                c50.979-29.391,62.408-121.008,36.103-236.029C1331.642,652.571,1405.117,596.694,1405.116,537.914L1405.116,537.914z
+                                                 M1168.906,416.906c-6.713,23.402-15.058,47.532-24.491,71.661c-7.438-14.514-15.24-29.027-23.767-43.541
+                                                c-8.346-14.514-17.235-28.665-26.125-42.453C1120.285,406.384,1145.14,411.101,1168.906,416.906L1168.906,416.906z
+                                                 M1085.815,610.119c-14.15,24.492-28.664,47.714-43.723,69.303c-27.031,2.358-54.426,3.629-82.002,3.629
+                                                c-27.395,0-54.789-1.271-81.64-3.447c-15.058-21.589-29.753-44.63-43.904-68.939c-13.788-23.767-26.306-47.896-37.735-72.206
+                                                c11.248-24.311,23.947-48.621,37.555-72.387c14.15-24.492,28.664-47.714,43.723-69.304c27.031-2.358,54.426-3.628,82.002-3.628
+                                                c27.395,0,54.789,1.27,81.64,3.447c15.058,21.589,29.753,44.629,43.903,68.939c13.788,23.767,26.307,47.896,37.736,72.206
+                                                C1111.94,562.043,1099.422,586.354,1085.815,610.119L1085.815,610.119z M1144.415,586.534
+                                                c9.796,24.311,18.142,48.621,25.035,72.206c-23.766,5.806-48.802,10.704-74.745,14.514c8.89-13.97,17.779-28.302,26.125-42.997
+                                                C1129.175,615.743,1136.976,601.048,1144.415,586.534z M960.454,780.111c-16.873-17.417-33.745-36.829-50.436-58.055
+                                                c16.328,0.726,33.019,1.27,49.891,1.27c17.054,0,33.926-0.363,50.436-1.27C994.017,743.282,977.145,762.694,960.454,780.111z
+                                                 M825.477,673.254c-25.763-3.81-50.617-8.527-74.383-14.332c6.712-23.403,15.058-47.532,24.491-71.662
+                                                c7.438,14.514,15.24,29.027,23.767,43.542C807.878,645.315,816.587,659.466,825.477,673.254z M959.546,295.716
+                                                c16.873,17.417,33.745,36.829,50.436,58.055c-16.328-0.726-33.019-1.271-49.891-1.271c-17.054,0-33.926,0.363-50.436,1.271
+                                                C925.983,332.545,942.855,313.133,959.546,295.716z M825.295,402.573c-8.89,13.97-17.779,28.302-26.125,42.997
+                                                c-8.345,14.514-16.146,29.027-23.585,43.541c-9.796-24.311-18.142-48.621-25.035-72.206
+                                                C774.315,411.281,799.352,406.383,825.295,402.573L825.295,402.573z M661.108,629.713
+                                                c-64.223-27.395-105.769-63.316-105.769-91.799c0-28.483,41.546-64.586,105.769-91.8c15.603-6.712,32.656-12.699,50.254-18.323
+                                                c10.341,35.559,23.947,72.568,40.82,110.485c-16.691,37.735-30.116,74.564-40.276,109.941
+                                                C693.946,642.594,676.893,636.426,661.108,629.713L661.108,629.713z M758.713,888.964c-24.673-14.151-35.377-68.033-27.031-137.336
+                                                c1.995-17.054,5.261-35.015,9.252-53.338c35.559,8.708,74.383,15.421,115.203,19.774c24.491,33.563,49.891,64.042,75.471,90.711
+                                                c-59.144,54.971-114.658,85.087-152.394,85.087C771.05,893.681,764.156,892.048,758.713,888.964L758.713,888.964z
+                                                 M1189.044,750.721c8.527,69.303-1.995,123.185-26.487,137.518c-5.442,3.266-12.519,4.717-20.863,4.717
+                                                c-37.554,0-93.251-29.935-152.394-84.543c25.398-26.669,50.798-56.966,74.927-90.528c41.001-4.354,79.825-11.067,115.384-19.957
+                                                C1183.783,716.251,1187.049,733.849,1189.044,750.721z M1258.892,629.713c-15.603,6.713-32.656,12.699-50.254,18.323
+                                                c-10.341-35.559-23.947-72.568-40.82-110.485c16.691-37.735,30.116-74.564,40.276-109.941c17.96,5.624,35.014,11.793,50.979,18.505
+                                                c64.223,27.395,105.768,63.316,105.768,91.8C1364.66,566.396,1323.114,602.5,1258.892,629.713L1258.892,629.713z"/>
+                                            <circle fill="#fff" cx="959.909" cy="537.914" r="82.91"/>
+                                            <path fill="#fff" d="M1140.604,141.69"/>
+                                        </g>
+                                    </svg>
+                                </span>
+                                <h4>React</h4>
+                            </a>
+                        </div>
+                    </div>
+                     <div class="three-col-content-item">
+                        <div class="three-col-content-item-content">
+                            <a href="https://github.com/KingSora/OverlayScrollbars/tree/v1.x/packages/overlayscrollbars-vue" target="_blank" rel="noopener" class="three-col-content-item-content-framework-wrapper">
+                                <span class="three-col-content-item-content-framework-wrapper-icon three-col-content-item-content-framework-wrapper-icon-vue">
+                                    <svg version="1.1" viewBox="0 0 197 170">
+                                        <polygon fill="#ffffff" points="98.16 102.01 42.1757011 5.09911711 39.23 0 0 0 2.94507611 5.10107823 98.16 170.02 196.32 0 157.06 0"/>
+                                        <polygon fill="#ffffff" points="98.16 29.0371525 81.35 2.009956e-14 75.5 2.009956e-14 -6.81139173e-16 2.009956e-14 2.94 5.1 78.4487095 5.1 98.16 39.26 117.879366 5.1 193.38 5.1 196.325 0 120.82 7.80656356e-15 114.973219 2.009956e-14"/>
+                                    </svg>
+                                </span>
+                                <h4>Vue</h4>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="three-col-content-item">
+                        <div class="three-col-content-item-content">
+                            <a href="https://github.com/KingSora/OverlayScrollbars/tree/v1.x/packages/overlayscrollbars-ngx" target="_blank" rel="noopener" class="three-col-content-item-content-framework-wrapper">
+                                <span class="three-col-content-item-content-framework-wrapper-icon three-col-content-item-content-framework-wrapper-icon-angular">
+                                    <svg version="1.1" viewBox="0 0 250 250" style="enable-background:new 0 0 250 250;" xml:space="preserve">
+                                        <g>
+                                            <g>
+                                                <polygon fill="#FFFFFF" points="125,153.4 100.3,153.4 88.6,182.6 88.6,182.6 66.9,182.6 66.8,182.6 125,52.1 125,52.2 125,52.2 
+                                                    125,30 125,30 31.9,63.2 46.1,186.3 125,230 125,230 125,153.4 		"/>
+                                                <polygon fill="#FFFFFF" points="108,135.4 125,135.4 125,135.4 125,94.5 		"/>
+                                            </g>
+                                            <g style="opacity:0.9">
+                                                <polygon fill="#FFFFFF" points="125,153.4 149.7,153.4 161.4,182.6 161.4,182.6 183.1,182.6 183.2,182.6 125,52.1 125,52.2 125,52.2 
+                                                    125,30 125,30 218.1,63.2 203.9,186.3 125,230 125,230 125,153.4 		"/>
+                                                <polygon fill="#FFFFFF" points="142,135.4 125,135.4 125,135.4 125,94.5 		"/>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                </span>
+                                <h4>Angular</h4>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="three-col-content-item">
+                        <div class="three-col-content-item-content">
+                        </div>
+                    </div>
+                </div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="content-section">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				Limitations
+			</h3>
+			<div class="content-message-content">
+				The plugin was tested with great care on many different devices and browsers. The only bug which I've found was on Safari on iOS (i.e. mobile Safari) where sometimes native scrollbars will appear if you've applied the plugin to the body element. I wasnt able to fix this bug until now, because Safari seems to act strange since everything works on Chrome and other mobile browsers.
+				<br><br>
+				If you find a bug, any strange or maybe unintended behavior, please open a issue on <a href="https://github.com/KingSora/OverlayScrollbars/issues" target="_blank" rel="noopener" class="inline-btn">github</a>.
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="sponsors" class="content-section">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				Sponsors
+			</h3>
+			<div class="content-message-content">
+				<div class="sponsors">
+					<div class="sponsors-sponsor">
+						<div class="sponsors-sponsor-logo">
+							<img src="img/browserstack.png" alt="BrowserStack"/>
+						</div>
+						<div class="sponsors-sponsor-text">
+							Thanks to BrowserStack for sponsoring open source projects and letting me test OverlayScrollbars for free.
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="content-section">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				License
+			</h3>
+			<div class="content-message-content">
+				<center><a href="https://en.wikipedia.org/wiki/MIT_License" class="inline-btn" target="_blank" rel="noopener">MIT License</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="content-section">
+	<div class="container">
+		<div class="content-message-full content-message">
+			<h3 class="content-message-title">
+				Epilogue
+			</h3>
+			<div class="content-message-content">
+				I've created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.<br>
+                <br>
+                <div class="logo"></div>
+                <br>
+                This project required very much time and research and I'm very proud that I've managed to implement everything I wanted to. Nonetheless there will be enhancements in the future, either because of the community (bugs and requests) or because of me and my perfectionism. Browsers will evolve too over time and I'll do my best to use always the most recent technologies to ensure maximum efficiency and performance.<br>
+				<br>
+				The future plans are:
+				<ul>
+					<li>Minimize the code as much as possible.</li>
+					<li>Frequent updates in terms of bug-fixes and enhancements.</li>
+					<li>Enhancements on this page to provide the best possible documentation and presentation.</li>
+				</ul>
+				<br>
+				If you like my work and want to support me, feel free to leave me a small donation. You'll definitely make my day.
+				
+				<a href="https://www.paypal.me/ReneHaas" target="_blank" rel="noopener" class="button-dontate">Donate</a>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,79 @@
+/*
+os-theme-minimal-dark
+*/
+
+.os-theme-minimal-dark > .os-scrollbar {
+    padding: 0px;
+}
+.os-theme-minimal-dark > .os-scrollbar-horizontal {
+    right: 16px;
+    height: 16px;
+}
+.os-theme-minimal-dark > .os-scrollbar-vertical {
+    bottom: 16px;
+    width: 16px;
+}
+.os-theme-minimal-dark.os-host-rtl > .os-scrollbar-horizontal {
+    left: 16px;
+    right: 0;
+}
+.os-theme-minimal-dark > .os-scrollbar-corner {
+    height: 16px;
+    width: 16px;
+    background-color: transparent;
+}
+.os-theme-minimal-dark > .os-scrollbar > .os-scrollbar-track,
+.os-theme-minimal-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+    background: transparent;
+}
+.os-theme-minimal-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle:before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: #000;
+    opacity: 0.48;
+}
+.os-theme-minimal-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle:hover:before {
+    opacity: 0.68;
+}
+.os-theme-minimal-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle.active:before {
+    opacity: 0.7;
+}
+.os-theme-minimal-dark > .os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle {
+    min-width: 15px;
+}
+.os-theme-minimal-dark > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle {
+    min-height: 15px;
+}
+.os-theme-minimal-dark > .os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle:before {
+    height: 6px;
+    bottom: 0;
+    top: auto;
+}
+.os-theme-minimal-dark > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle:before {
+    width: 6px;
+    right: 0;
+    left: auto;
+}
+.os-theme-minimal-dark.os-host-rtl > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle:before {
+    left: 0;
+    right: auto;
+}
+.os-theme-minimal-dark > .os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle:hover:before,
+.os-theme-minimal-dark > .os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle.active:before {
+    height: 100%;
+}
+.os-theme-minimal-dark > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle:hover:before,
+.os-theme-minimal-dark > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle.active:before {
+    width: 100%;
+}
+.os-theme-minimal-dark.os-host-transition > .os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle:before {
+    transition: opacity 0.3s, height 0.3s;
+}
+.os-theme-minimal-dark.os-host-transition > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle:before {
+    transition: opacity 0.3s, width 0.3s;
+}

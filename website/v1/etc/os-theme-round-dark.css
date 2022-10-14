@@ -1,0 +1,80 @@
+/*
+os-theme-round-dark
+*/
+
+.os-theme-round-dark > .os-scrollbar {
+    padding: 0;
+}
+.os-theme-round-dark > .os-scrollbar-horizontal {
+    right: 20px;
+    height: 20px;
+}
+.os-theme-round-dark > .os-scrollbar-vertical {
+    bottom: 20px;
+    width: 20px;
+}
+.os-theme-round-dark.os-host-rtl > .os-scrollbar-horizontal {
+    left: 20px;
+    right: 0;
+}
+.os-theme-round-dark > .os-scrollbar-corner {
+    height: 20px;
+    width: 20px;
+    background-color: transparent;
+}
+.os-theme-round-dark > .os-scrollbar > .os-scrollbar-track {
+    background: transparent;
+}
+.os-theme-round-dark > .os-scrollbar-horizontal > .os-scrollbar-track:before,
+.os-theme-round-dark > .os-scrollbar-vertical > .os-scrollbar-track:before {
+    content: '';
+    display: block;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.15);
+}
+.os-theme-round-dark > .os-scrollbar-horizontal > .os-scrollbar-track:before {
+    left: 3px;
+    right: 3px;
+    height: 2px;
+    top: 50%;
+    margin-top: -1px;
+}
+.os-theme-round-dark > .os-scrollbar-vertical > .os-scrollbar-track:before {
+    top: 3px;
+    bottom: 3px;
+    width: 2px;
+    left: 50%;
+    margin-left: -1px;
+}
+.os-theme-round-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+    background: transparent;
+}
+.os-theme-round-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle:before {
+    content: '';
+    display: block;
+    position: absolute;
+    background: #000;
+    border-radius: 100%;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    right: 3px;
+    transform: scale(1);
+}
+.os-theme-round-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle:hover:before,
+.os-theme-round-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle.active:before {
+    transform: scale(1.3);
+}
+.os-theme-round-dark > .os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle {
+    height: 100%;
+    min-width: 20px;
+    max-width: 20px;
+}
+.os-theme-round-dark > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle {
+    width: 100%;
+    min-height: 20px;
+    max-height: 20px;
+}
+.os-theme-round-dark.os-host-transition > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle:before {
+    transition: transform 0.3s;
+}
