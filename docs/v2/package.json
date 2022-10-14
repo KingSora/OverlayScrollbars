@@ -11,8 +11,6 @@
     "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@~local-docs/esbuild": "file:./local/esbuild",
-    "@~local-docs/tailwind": "file:./local/tailwind",
     "@types/node": "18.7.20",
     "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",

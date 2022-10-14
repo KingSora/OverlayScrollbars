@@ -1,6 +1,5 @@
 {
   "private": true,
-  "name": "browser-testing",
   "version": "0.0.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

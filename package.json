@@ -2,15 +2,16 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "docs/*",
-    "local/*"
+    "docs/*"
   ],
   "devDependencies": {
     "@~local/browser-testing": "file:./local/browser-testing",
     "@~local/config": "file:./local/config",
+    "@~local/esbuild": "file:./local/esbuild",
     "@~local/full-coverage": "file:./local/full-coverage",
     "@~local/playwright-tooling": "file:./local/playwright-tooling",
     "@~local/rollup": "file:./local/rollup",
+    "@~local/tailwind": "file:./local/tailwind",
     "@~local/tsconfig": "file:./local/tsconfig",
     "@babel/core": "^7.18.2",
     "@babel/plugin-transform-runtime": "^7.18.2",

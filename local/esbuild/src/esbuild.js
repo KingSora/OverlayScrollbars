@@ -38,7 +38,6 @@ export const esbuild = async (options = {}, { tailwindConfig = './tailwind.confi
       esbuildPluginStyles({
         sassFilesRegex: /\.s[ac]ss$/,
         cssFilesRegex: /\.css$/,
-        cssModulesRegex: /\.module\.\S+$/,
       }),
       esbuildPluginTailwind({
         tailwindConfig,

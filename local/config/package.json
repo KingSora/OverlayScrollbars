@@ -1,6 +1,5 @@
 {
   "private": true,
-  "name": "@~local/config",
   "exports": {
     "./resolve": "./src/resolve.json",
     "./playwright": "./src/playwright.js",

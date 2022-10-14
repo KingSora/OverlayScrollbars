@@ -3,97 +3,32 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import sass from 'sass';
 import esbuild from 'esbuild';
-import { writeOnlyChanges } from '../writeOnlyChanges.js';
+import postcss from 'postcss';
+import autoprefixer from 'autoprefixer';
 
-const externalRegex = /node_modules/;
-const isExtendedLengthPath = /^\\\\\?\\/;
-
-const normalizePathSlashes = (pathToNormalize) =>
-  isExtendedLengthPath.test(pathToNormalize)
-    ? pathToNormalize
-    : pathToNormalize.replace(/\\/g, '/');
+import { normalizePathSlashes } from '../normalizePathSlashes.js';
 
 const getHash = (content) => crypto.createHash('sha1').update(content).digest('hex');
 
 export const esbuildPluginStyles = (options) => {
-  const changesMap = new Map();
   const {
     cssBuildOptions = {},
-    cssModulesRegex = /\.module\.\S+$/,
+    cssModulesRegex = null,
     sassFilesRegex = /\.s[ac]ss$/,
-    cssFilesRegex = /\.css$/,
+    include = /\.(css|scss|sass)$/,
   } = options;
+  const replaceExtensionRegex = /\.[^.]*$/;
   const sassCache = new Map();
+  const postcssCache = new Map();
   const esbuildCache = new Map();
 
-  const replaceExtension = (filePath, replacement = '') => {
-    const replacementRegex = /\.[^.]*$/;
-    return filePath.replace(
-      replacementRegex,
+  const replaceExtension = (filePath, replacement = '') =>
+    filePath.replace(
+      replaceExtensionRegex,
       typeof replacement === 'function'
-        ? replacement((filePath.match(replacementRegex) || [])[0] || '')
+        ? replacement((filePath.match(replaceExtensionRegex) || [])[0] || '')
         : replacement
     );
-  };
-
-  const resolveFile = async (build, onResolveArgs) => {
-    const { resolveDir, importer } = onResolveArgs;
-    const { path: resolvedPath } = await build.resolve(onResolveArgs.path, {
-      resolveDir,
-      importer,
-      kind: 'entry-point',
-      namespace: 'resolve-pls',
-    });
-    const external = externalRegex.test(resolvedPath);
-
-    return [resolvedPath, external];
-  };
-
-  const resolveProcessedCss = (args) => ({
-    path: args.path,
-    namespace: 'css-processed',
-    pluginData: args.pluginData,
-  });
-
-  const setupSassResolve = (build) => {
-    build.onResolve({ filter: sassFilesRegex, namespace: 'file' }, async (args) => {
-      const [resolvedPath, external] = await resolveFile(build, args);
-
-      return external
-        ? {
-            path: args.path,
-            external: true,
-          }
-        : {
-            path: cssModulesRegex.test(resolvedPath)
-              ? `${resolvedPath}.module.css`
-              : `${resolvedPath}.css`,
-            namespace: 'sass',
-            pluginData: {
-              resolvedPath,
-            },
-          };
-    });
-  };
-
-  const setupCssResolve = (build) => {
-    build.onResolve({ filter: cssFilesRegex, namespace: 'file' }, async (args) => {
-      const [resolvedPath, external] = await resolveFile(build, args);
-
-      return external
-        ? {
-            path: args.path,
-            external: true,
-          }
-        : {
-            path: resolvedPath,
-            namespace: 'css',
-            pluginData: {
-              resolvedPath,
-            },
-          };
-    });
-  };
 
   const transpileSass = (css, filePath) => {
     const currHash = getHash(css);
@@ -107,6 +42,25 @@ export const esbuildPluginStyles = (options) => {
     }
 
     return sassCache.get(filePath)[1] || css;
+  };
+
+  const transpilePostCss = async (source, filePath) => {
+    const currHash = getHash(source);
+    const [cacheHash] = postcssCache.get(filePath) || [];
+
+    if (currHash !== cacheHash) {
+      let cssModulesJson;
+      const plugins = [autoprefixer()].filter(Boolean);
+      try {
+        const { css } = await postcss(plugins).process(source, {
+          from: filePath,
+        });
+        const result = [css, cssModulesJson];
+        postcssCache.set(filePath, [currHash, result]);
+      } catch {}
+    }
+
+    return postcssCache.get(filePath)[1] || [source];
   };
 
   const esbuildCss = async (initialBuildOptions, stdin, filePath) => {
@@ -166,13 +120,18 @@ export const esbuildPluginStyles = (options) => {
 
     async setup(build) {
       const initBuildOptions = build.initialOptions;
-
-      setupSassResolve(build);
-      setupCssResolve(build);
+      const assetOutputFiles = new Set();
 
       // move newly crete stub modules to 'css-processed' namespace
-      build.onResolve({ filter: cssFilesRegex, namespace: 'sass' }, resolveProcessedCss);
-      build.onResolve({ filter: cssFilesRegex, namespace: 'css' }, resolveProcessedCss);
+      build.onResolve({ filter: /.*/ }, (args) => {
+        if (args.pluginData?.contents) {
+          return {
+            path: args.path,
+            namespace: 'css-processed',
+            pluginData: args.pluginData,
+          };
+        }
+      });
 
       // resolve asset imports for generated css files
       build.onResolve({ filter: /.*/, namespace: 'css-processed' }, async (args) =>
@@ -183,11 +142,12 @@ export const esbuildPluginStyles = (options) => {
         })
       );
 
-      build.onLoad({ filter: cssFilesRegex }, async (args) => {
-        const { namespace, pluginData } = args;
+      build.onLoad({ filter: include }, async (args) => {
+        const { namespace, pluginData, path: filePath } = args;
 
         if (namespace === 'css-processed') {
           const { contents } = pluginData;
+
           return {
             contents,
             loader: 'copy',
@@ -195,11 +155,17 @@ export const esbuildPluginStyles = (options) => {
           };
         }
 
-        const { resolvedPath } = pluginData;
-        const fileName = path.basename(resolvedPath);
-        const resolveDir = path.dirname(resolvedPath);
-        const css = await fs.promises.readFile(resolvedPath);
-        const source = namespace === 'sass' ? transpileSass(css, resolvedPath) : css;
+        const isSass = sassFilesRegex.test(filePath);
+
+        const isCssMdoule = cssModulesRegex && cssModulesRegex.test(filePath);
+        const fileName = path.basename(filePath);
+        const resolveDir = path.dirname(filePath);
+        const css = await fs.promises.readFile(filePath);
+        const [source, cssModulesJson] = await transpilePostCss(
+          isSass ? transpileSass(css, filePath) : css,
+          filePath,
+          isCssMdoule
+        );
 
         const { outputFiles, entryFile, watchFiles, warnings, errors } = await esbuildCss(
           initBuildOptions,
@@ -209,7 +175,7 @@ export const esbuildPluginStyles = (options) => {
             resolveDir,
             loader: 'css',
           },
-          resolvedPath
+          filePath
         );
 
         if (errors) {
@@ -218,15 +184,33 @@ export const esbuildPluginStyles = (options) => {
           };
         }
 
-        const entryFilePath = path.resolve(
-          path.dirname(entryFile.path),
-          `${path.basename(replaceExtension(args.path))}${path
-            .basename(entryFile.path)
-            .replace('stdin', '')}`
+        const entryFilePath = normalizePathSlashes(
+          path.resolve(
+            path.dirname(entryFile.path),
+            `${path.basename(replaceExtension(args.path, '.css'))}`
+          )
         );
-        const adaptedOutputFiles = outputFiles.filter((file) => file !== entryFile);
 
-        await writeOnlyChanges(adaptedOutputFiles, changesMap);
+        outputFiles.forEach((file) => {
+          if (file !== entryFile) {
+            assetOutputFiles.add(file);
+          }
+        });
+
+        if (isCssMdoule) {
+          return {
+            contents: `
+              export { default as file } from ${JSON.stringify(entryFilePath)};
+              export default ${JSON.stringify(cssModulesJson)};
+            `,
+            resolveDir,
+            watchFiles,
+            warnings,
+            pluginData: {
+              contents: entryFile.contents,
+            },
+          };
+        }
 
         return {
           contents: `export { default } from ${JSON.stringify(entryFilePath)};`,
@@ -237,6 +221,13 @@ export const esbuildPluginStyles = (options) => {
             contents: entryFile.contents,
           },
         };
+      });
+
+      build.onEnd((result) => {
+        const { outputFiles } = result;
+
+        outputFiles.push(...Array.from(assetOutputFiles));
+        assetOutputFiles.clear();
       });
     },
   };

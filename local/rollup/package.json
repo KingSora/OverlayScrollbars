@@ -1,6 +1,5 @@
 {
   "private": true,
-  "name": "@~local/rollup",
   "exports": {
     ".": "./src/createRollupConfig.js",
     "./playwright": "./src/playwright/createPlaywrightRollupConfig.js"

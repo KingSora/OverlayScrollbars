@@ -1,5 +1,5 @@
 import glob from 'fast-glob';
-import { esbuild } from '@~local-docs/esbuild';
+import { esbuild } from '@~local/esbuild';
 
 const processArgs = process.argv.slice(2);
 const watch = processArgs.includes('-w');
