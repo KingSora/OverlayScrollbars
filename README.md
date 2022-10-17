@@ -47,7 +47,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
 
 ## Getting started
 
-#### npm & Node
+### npm & Node
 OverlayScrollbars can be downloaded from [npm](https://www.npmjs.com/package/overlayscrollbars) or the package manager of your choice:
 ```sh
 npm install overlayscrollbars
@@ -58,8 +58,14 @@ import 'overlayscrollbars/overlayscrollbars.css';
 import { OverlayScrollbars } from 'overlayscrollbars';
 ```
 
-<details><summary><h6>Manual download & embedding</h6></summary>
+### Manual download & embedding
 
+<details>
+  <summary>
+    These instructions are for old stacks. Click here to read them.
+  </summary>
+  <br />
+  
 You can use OverlayScrollbars without any bundler or package manager.  
 Simply download it from the [Releases](https://github.com/KingSora/OverlayScrollbars/releases) or use a [CDN](https://cdnjs.com/libraries/overlayscrollbars).
 
@@ -93,8 +99,13 @@ While this period the native scrollbars are still visible and are switched out a
 
 To fix this behavior apply the `data-overlayscrollbars=""` attribute to the target element (and `html` element if the target element is `body`).
 
-<details><summary><h6>Initialization with an Object</h6></summary>
-
+### Initialization with an Object
+<details>
+  <summary>
+    This is a in depth topic. Click here to read it.
+  </summary>
+  <br />
+  
 > __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description of all possibilities.
 
 The only required field is the `target` field. This is the field to which the plugin is applied to.  
@@ -161,7 +172,12 @@ OverlayScrollbars(document.querySelector('#myElement'), {
 });
 ```
 
-<details><summary><h6>Options in depth</h6></summary>
+### Options in depth
+<details>
+  <summary>
+    This is a in depth topic. Click here to read it.
+  </summary>
+  <br />
 
 The default options are:
 ```js
@@ -335,7 +351,13 @@ OverlayScrollbars(document.querySelector('#myElement'), {}, {
 });
 ```
 
-<details><summary><h6>Events in depth</h6></summary>
+### Events in depth
+
+<details>
+  <summary>
+    This is a in depth topic. Click here to read it.
+  </summary>
+  <br />
 
 > __Note__: Every event receives the `instance` from which it was invoked as the first argument. Always.
 
@@ -421,9 +443,9 @@ Everything thats considered not core functionality or old browser compatibility 
 - **SizeObserverPlugin**: Is needed for old browsers which aren't supporting the `ResizeObserver` api. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=ResizeObserver)
 - **ClickScrollPlugin**: If you want to use the option `scrollbars: { clickScroll: true }`.
 
-#### Consuming Plugins
+### Consuming Plugins
 
-You can consume plugins like:
+Plugins are consumed like:
 ```ts
 import { 
   OverlayScrollbars, 
@@ -439,7 +461,7 @@ OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
 ```
 
-#### Writing Plugins
+### Writing Plugins
 
 > __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
 
