@@ -1,4 +1,5 @@
 {
+  "name": "@~local/tailwind",
   "private": true,
   "main": "tailwind.config.js",
   "devDependencies": {

@@ -1,4 +1,5 @@
 {
+  "name": "@~local/config",
   "private": true,
   "exports": {
     "./resolve": "./src/resolve.json",

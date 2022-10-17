@@ -6,7 +6,6 @@
     "start": "node esbuild.mjs && cd next-app && next start"
   },
   "dependencies": {
-    "@~package/overlayscrollbars": "file:../packages/overlayscrollbars",
     "@mdx-js/loader": "^2.1.5",
     "@mdx-js/react": "^2.1.5",
     "@next/mdx": "^12.3.1",

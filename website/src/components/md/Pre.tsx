@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { OverlayScrollbars } from '@~package/overlayscrollbars';
+import { OverlayScrollbars } from 'overlayscrollbars';
 import type { ComponentProps } from 'react';
 
 export const Pre = ({ children }: ComponentProps<'pre'>) => {

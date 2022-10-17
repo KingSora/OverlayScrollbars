@@ -1,4 +1,5 @@
 {
+  "name": "@~local/full-coverage",
   "private": true,
   "bin": {
     "full-coverage": "./bin/generateFullCoverage.js"

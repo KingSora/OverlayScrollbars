@@ -1,8 +1,8 @@
 import '~/assets/css/tailwind.css';
 import '~/assets/css/styles.css';
-import '@~package/overlayscrollbars/overlayscrollbars.css';
+import 'overlayscrollbars/overlayscrollbars.css';
 import { useEffect } from 'react';
-import { OverlayScrollbars } from '@~package/overlayscrollbars';
+import { OverlayScrollbars } from 'overlayscrollbars';
 import Head from 'next/head';
 import { MDXProvider } from '@mdx-js/react';
 import favicon from '~/assets/favicon.ico';

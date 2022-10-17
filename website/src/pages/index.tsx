@@ -1,6 +1,6 @@
 import classnames from 'classnames';
 import { useEffect, useRef } from 'react';
-import { OverlayScrollbars } from '@~package/overlayscrollbars';
+import { OverlayScrollbars } from 'overlayscrollbars';
 import { PageContainer } from '~/components/PageContainer';
 import { Icon } from '~/components/Icon';
 import logo from '~/assets/img/logo.svg';
