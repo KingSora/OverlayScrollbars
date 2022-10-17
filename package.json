@@ -1,8 +1,7 @@
 {
   "private": true,
   "workspaces": [
-    "packages/*",
-    "docs/*"
+    "packages/*"
   ],
   "devDependencies": {
     "@~local/browser-testing": "file:./local/browser-testing",
