@@ -32,6 +32,20 @@ module.exports = {
             strong: {
               fontWeight: theme('fontWeight.medium'),
             },
+            h1: {
+              borderColor: theme('colors.slate[300]'),
+              borderBottomWidth: '1px',
+              borderBottomStyle: 'solid',
+              paddingBottom: theme('padding[2]'),
+            },
+            h2: {
+              borderColor: theme('colors.slate[300]'),
+              borderBottomWidth: '1px',
+              borderBottomStyle: 'solid',
+              paddingBottom: theme('padding[2]'),
+            },
+            h3: {},
+            h4: {},
             h5: {
               color: theme('colors.primary-dark'),
               fontWeight: theme('fontWeight.medium'),
@@ -65,6 +79,7 @@ module.exports = {
             },
             'summary > *:only-child,': {
               display: 'inline-block',
+              margin: 0,
             },
             summary: {
               display: 'inline list-item',
