@@ -17,7 +17,7 @@ module.exports = {
   projects: [
     {
       displayName: 'node',
-      testMatch: ['**/tests/jest-node/**/*.test.[jt]s?(x)'],
+      testMatch: ['**/test/jest-node/**/*.test.[jt]s?(x)'],
       testEnvironment: 'node',
       clearMocks: true,
       moduleDirectories: resolve.directories,
@@ -31,7 +31,7 @@ module.exports = {
     },
     {
       displayName: 'jsdom',
-      testMatch: ['**/tests/jest-jsdom/**/*.test.[jt]s?(x)'],
+      testMatch: ['**/test/jest-jsdom/**/*.test.[jt]s?(x)'],
       testEnvironment: 'jsdom',
       clearMocks: true,
       moduleDirectories: resolve.directories,
