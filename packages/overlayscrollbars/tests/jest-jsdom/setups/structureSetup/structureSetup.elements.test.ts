@@ -130,12 +130,8 @@ const assertCorrectDOMStructure = (targetType: TargetType, viewportIsTarget: boo
 
 const createStructureSetupElementsProxy = (
   target: InitializationTarget,
-  options: { tabindex?: boolean; autoAppend?: boolean } = {
-    tabindex: false,
-    autoAppend: true,
-  }
+  { tabindex = false, autoAppend = true } = {}
 ): StructureSetupElementsProxy => {
-  const { tabindex, autoAppend } = options;
   const [elements, appendElements, destroy] = createStructureSetupElements(target);
   // simulate tabindex inheritance from host via mutation observer
   if (tabindex) {
