@@ -27,12 +27,13 @@
 
 ## Why
 
-I've created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
+I created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
 
 ## Goals & Features
 
  - Simple, powerful and good documented API
  - High browser compatibility - <b>Firefox</b>, <b>Chrome</b>, <b>Opera</b>, <b>Edge</b>, <b>Safari 10+</b> and <b>IE 11</b>
+ - Can be run on the server - <b>SSR</b>, <b>SSG</b> and <b>ISR</b> support
  - Tested on various devices - <b>Mobile</b>, <b>Desktop</b> and <b>Tablet</b>
  - Tested with various (and mixed) inputs - <b>Mouse</b>, <b>touch</b> and <b>pen</b>
  - <b>Treeshaking</b> - bundle only what you really need 
@@ -84,6 +85,13 @@ You can initialize either directly with an `Element` or with an `Object` where y
 // simple initialization with an element
 const osInstance = OverlayScrollbars(document.querySelector('#myElement'), {});
 ```
+
+### Bridging initialization flickering
+
+If you initialize OverlayScrollbars it needs a few milliseconds to create and append all the elements to the DOM.
+While this period the native scrollbars are still visible and are switched out after the initialization is finished. This is perceived as flickering. 
+
+To fix this behavior apply the `data-overlayscrollbars=""` attribute to the target element (and `html` element if the target element is `body`).
 
 <details><summary><h6>Initialization with an Object</h6></summary>
 
@@ -444,6 +452,7 @@ You can write and publish your own Plugins. This section is a work in progress.
 
 ## Sponsors
 <table>
+  <tbody>
     <tr>
         <td>
             <a href="https://www.browserstack.com" target="_blank">
@@ -454,6 +463,7 @@ You can write and publish your own Plugins. This section is a work in progress.
             Thanks to <a href="https://www.browserstack.com" target="_blank">BrowserStack</a> for sponsoring open source projects and letting me test OverlayScrollbars for free.
         </td>
     </tr>
+  </tbody>
 </table>
 
 ## Future Plans

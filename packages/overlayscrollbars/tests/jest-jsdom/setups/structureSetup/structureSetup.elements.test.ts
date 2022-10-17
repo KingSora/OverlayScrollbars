@@ -130,14 +130,20 @@ const assertCorrectDOMStructure = (targetType: TargetType, viewportIsTarget: boo
 
 const createStructureSetupElementsProxy = (
   target: InitializationTarget,
-  tabindex?: boolean
+  options: { tabindex?: boolean; autoAppend?: boolean } = {
+    tabindex: false,
+    autoAppend: true,
+  }
 ): StructureSetupElementsProxy => {
+  const { tabindex, autoAppend } = options;
   const [elements, appendElements, destroy] = createStructureSetupElements(target);
   // simulate tabindex inheritance from host via mutation observer
   if (tabindex) {
     elements._viewport.setAttribute('tabindex', elements._target.getAttribute('tabindex')!);
   }
-  appendElements();
+  if (autoAppend) {
+    appendElements();
+  }
   return {
     input: target,
     elements,
@@ -1121,7 +1127,7 @@ describe('structureSetup.elements', () => {
         const target = document.body.firstElementChild as HTMLElement;
         target.focus();
 
-        const { elements } = createStructureSetupElementsProxy(target, true);
+        const { elements } = createStructureSetupElementsProxy(target, { tabindex: true });
         expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
         expect(document.activeElement).toBe(elements._viewport);
 
@@ -1147,6 +1153,37 @@ describe('structureSetup.elements', () => {
       elements._documentElm.dispatchEvent(new Event('keydown'));
 
       expect(preInitFocus).toBe(document.activeElement);
+    });
+  });
+
+  describe('data-overlayscrollbars attribute', () => {
+    test('already set data-overlayscrollbars attribute is removed', () => {
+      const target = document.body;
+      target.setAttribute(dataAttributeHost, '');
+
+      const { destroy } = createStructureSetupElementsProxy(target);
+      destroy();
+
+      expect(document.body.getAttribute(dataAttributeHost)).toBe(null);
+    });
+
+    test('already set data-overlayscrollbars attribute is removed even if initialization gets canceled', () => {
+      const target = document.body;
+      target.setAttribute(dataAttributeHost, '');
+
+      const { destroy } = createStructureSetupElementsProxy(target, { autoAppend: false });
+      destroy();
+
+      expect(document.body.getAttribute(dataAttributeHost)).toBe(null);
+    });
+
+    test('already set data-overlayscrollbars attribute on html element is removed if target is body', () => {
+      document.documentElement.setAttribute(dataAttributeHost, '');
+
+      const { destroy } = createStructureSetupElementsProxy(document.body);
+      destroy();
+
+      expect(document.documentElement.getAttribute(dataAttributeHost)).toBe(null);
     });
   });
 });

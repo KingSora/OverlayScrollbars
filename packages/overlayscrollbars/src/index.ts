@@ -1,4 +1,4 @@
-import '~/index.scss';
+import './index.scss';
 
 export { OverlayScrollbars } from '~/overlayscrollbars';
 export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~/plugins';

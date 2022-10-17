@@ -1,10 +1,11 @@
+import { isClient } from '~/support/compatibility/server';
 import { isElement } from '~/support/utils/types';
 import { push, from } from '~/support/utils/array';
 
 type InputElementType = Node | Element | Node | false | null | undefined;
 type OutputElementType = Node | Element | null;
 
-const elmPrototype = Element.prototype;
+const getElmPrototype = (isClient() && Element.prototype) as Element; // only Element.prototype wont work on server
 
 /**
  * Find all elements with the passed selector, outgoing (and including) the passed element or the document if no element was provided.
@@ -38,8 +39,9 @@ const is = (elm: InputElementType, selector: string): boolean => {
   if (isElement(elm)) {
     /* istanbul ignore next */
     // eslint-disable-next-line
-    // @ts-ignore
-    const fn: (...args: any) => boolean = elmPrototype.matches || elmPrototype.msMatchesSelector;
+    const fn: (...args: any) => boolean =
+      // @ts-ignore
+      getElmPrototype.matches || getElmPrototype.msMatchesSelector;
     return fn.call(elm, selector);
   }
   return false;
@@ -76,7 +78,7 @@ const parent = (elm: InputElementType): OutputElementType => (elm ? elm.parentEl
 
 const closest = (elm: InputElementType, selector: string): OutputElementType => {
   if (isElement(elm)) {
-    const closestFn = elmPrototype.closest;
+    const closestFn = getElmPrototype.closest;
     if (closestFn) {
       return closestFn.call(elm, selector);
     }

@@ -78,11 +78,6 @@ const unwrap = (elm: HTMLElement | false | null | undefined) => {
   removeElements(elm);
 };
 
-const addDataAttrHost = (elm: HTMLElement, value: string) => {
-  attr(elm, dataAttributeHost, value);
-  return removeAttr.bind(0, elm, dataAttributeHost);
-};
-
 export const createStructureSetupElements = (
   target: InitializationTarget
 ): StructureSetupElements => {
@@ -113,14 +108,11 @@ export const createStructureSetupElements = (
   const targetElement = targetIsElm ? target : targetStructureInitialization.target;
   const isTextarea = is(targetElement, 'textarea');
   const ownerDocument = targetElement.ownerDocument;
+  const docElement = ownerDocument.documentElement;
   const isBody = targetElement === ownerDocument.body;
   const wnd = ownerDocument.defaultView as Window;
-  const staticInitializationElement = generalStaticInitializationElement<
-    [InitializationTargetElement]
-  >.bind(0, [targetElement]);
-  const dynamicInitializationElement = generalDynamicInitializationElement<
-    [InitializationTargetElement]
-  >.bind(0, [targetElement]);
+  const staticInitializationElement = generalStaticInitializationElement.bind(0, [targetElement]);
+  const dynamicInitializationElement = generalDynamicInitializationElement.bind(0, [targetElement]);
   const viewportElement = staticInitializationElement(
     createNewDiv,
     defaultViewportInitialization,
@@ -155,7 +147,7 @@ export const createStructureSetupElements = (
       !_nativeScrollbarsHiding &&
       createUniqueViewportArrangeElement &&
       createUniqueViewportArrangeElement(env),
-    _scrollOffsetElement: viewportIsTargetBody ? ownerDocument.documentElement : viewportElement,
+    _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
     _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
     _windowElm: wnd,
     _documentElm: ownerDocument,
@@ -179,7 +171,15 @@ export const createStructureSetupElements = (
   const elementIsGenerated = (elm: HTMLElement | false) =>
     elm ? indexOf(generatedElements, elm) > -1 : null;
   const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
-  const destroyFns: (() => any)[] = [];
+  const destroyFns: (() => any)[] = [
+    () => {
+      // always remove dataAttributeHost from host and from <html> element if target is body
+      removeAttr(_host, dataAttributeHost);
+      if (isBody) {
+        removeAttr(docElement, dataAttributeHost);
+      }
+    },
+  ];
   const isTextareaHostGenerated = isTextarea && elementIsGenerated(_host);
   let targetContents = isTextarea
     ? _target
@@ -190,7 +190,8 @@ export const createStructureSetupElements = (
       );
   const contentSlot = _content || _viewport;
   const appendElements = () => {
-    const removeHostDataAttr = addDataAttrHost(_host, viewportIsTarget ? 'viewport' : 'host');
+    attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
+
     const removePaddingClass = addClass(_padding, classNamePadding);
     const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
     const removeContentClass = addClass(_content, classNameContent);
@@ -215,7 +216,6 @@ export const createStructureSetupElements = (
 
     push(destroyFns, () => {
       removeHtmlClass();
-      removeHostDataAttr();
       removeAttr(_viewport, dataAttributeHostOverflowX);
       removeAttr(_viewport, dataAttributeHostOverflowY);
 

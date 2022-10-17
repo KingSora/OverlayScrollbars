@@ -31,8 +31,9 @@ const defaultRules = {
       groups: ['builtin', 'external', 'index', 'internal', 'unknown', 'type'],
       pathGroups: [
         {
-          pattern: '**/*.{css,scss,sass}',
+          pattern: '*.{css,scss,sass}',
           group: 'unknown',
+          patternOptions: { matchBase: true },
           position: 'after',
         },
       ],
@@ -46,6 +47,7 @@ const defaultRules = {
     },
   ],
   'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
+  'react/require-default-props': ['off'],
 };
 const defaultExtends = ['airbnb', 'prettier', 'plugin:react/jsx-runtime'];
 const defaultPlugins = ['prettier', 'json', '@typescript-eslint', 'import', 'react'];

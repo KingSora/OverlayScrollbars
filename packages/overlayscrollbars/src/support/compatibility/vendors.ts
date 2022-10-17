@@ -1,4 +1,5 @@
 import { each } from '~/support/utils/array';
+import { isClient } from '~/support/compatibility/server';
 import { hasOwnProperty } from '~/support/utils/object';
 import { createDiv } from '~/support/dom/create';
 
@@ -95,17 +96,19 @@ export const cssPropertyValue = (property: string, values: string, suffix?: stri
  * @param name The name of the JS function, object or constructor.
  */
 export const jsAPI = <T = any>(name: string): T | undefined => {
-  let result: any = jsCache[name] || window[name];
+  if (isClient()) {
+    let result: any = jsCache[name] || window[name];
 
-  if (hasOwnProperty(jsCache, name)) {
+    if (hasOwnProperty(jsCache, name)) {
+      return result;
+    }
+
+    each(jsPrefixes, (prefix: string) => {
+      result = result || window[prefix + firstLetterToUpper(name)];
+      return !result;
+    });
+
+    jsCache[name] = result;
     return result;
   }
-
-  each(jsPrefixes, (prefix: string) => {
-    result = result || window[prefix + firstLetterToUpper(name)];
-    return !result;
-  });
-
-  jsCache[name] = result;
-  return result;
 };

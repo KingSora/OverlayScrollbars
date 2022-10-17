@@ -416,18 +416,16 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       };
       const overflowAmountClientSize = {
         w: max0(
-          viewportIsTargetBody
+          (viewportIsTargetBody
             ? _windowElm.innerWidth
-            : arrangedViewportClientSize.w +
-                max0(viewportclientSize.w - viewportScrollSize.w) +
-                sizeFraction.w
+            : arrangedViewportClientSize.w + max0(viewportclientSize.w - viewportScrollSize.w)) +
+            sizeFraction.w
         ),
         h: max0(
-          viewportIsTargetBody
-            ? _windowElm.innerHeight
-            : arrangedViewportClientSize.h +
-                max0(viewportclientSize.h - viewportScrollSize.h) +
-                sizeFraction.h
+          (viewportIsTargetBody
+            ? _windowElm.innerHeight + sizeFraction.h
+            : arrangedViewportClientSize.h + max0(viewportclientSize.h - viewportScrollSize.h)) +
+            sizeFraction.h
         ),
       };
 
