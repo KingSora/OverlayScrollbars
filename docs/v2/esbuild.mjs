@@ -7,7 +7,7 @@ const minify = processArgs.includes('-p');
 const define = {};
 
 await esbuild({
-  entryPoints: glob.sync('./src/**/*.{ts,tsx,js,jsx}'),
+  entryPoints: glob.sync('./src/**/*.{ts,tsx,js,jsx,md,mdx}'),
   outdir: './next-app/src',
   outbase: 'src',
   platform: 'node',
@@ -23,8 +23,8 @@ await esbuild({
     '.ico': 'copy',
     '.jpeg': 'copy',
     '.jpg': 'copy',
-    '.md': 'jsx',
-    '.mdx': 'jsx',
+    '.md': 'copy',
+    '.mdx': 'copy',
     '.mp3': 'copy',
     '.mp4': 'copy',
     '.ogg': 'copy',

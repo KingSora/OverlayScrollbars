@@ -1,9 +1,11 @@
-import { ReactNode } from 'react';
+import classnames from 'classnames';
+import type { ReactNode } from 'react';
 
 export interface PageContainerProps {
-  children: ReactNode;
+  children?: ReactNode;
+  className?: string;
 }
 
-export const PageContainer = ({ children }: PageContainerProps) => (
-  <div className="container">{children}</div>
+export const PageContainer = ({ children, className }: PageContainerProps) => (
+  <div className={classnames(className, 'sm:container')}>{children}</div>
 );

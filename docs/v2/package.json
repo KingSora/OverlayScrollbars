@@ -6,6 +6,10 @@
     "start": "node esbuild.mjs && cd next-app && next start"
   },
   "dependencies": {
+    "@mdx-js/loader": "^2.1.5",
+    "@mdx-js/react": "^2.1.5",
+    "@next/mdx": "^12.3.1",
+    "classnames": "^2.3.2",
     "next": "12.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
@@ -31,7 +35,11 @@
     "eslint-plugin-tailwindcss": "^3.6.2",
     "fast-glob": "^3.2.12",
     "prettier": "2.7.1",
+    "rehype-pretty-code": "^0.4.0",
+    "rehype-slug": "^5.0.1",
+    "remark-gfm": "^3.0.1",
     "sass": "^1.55.0",
+    "shiki": "^0.11.1",
     "tailwindcss": "^3.1.8",
     "typescript": "4.8.3",
     "wait-on": "^6.0.1"
