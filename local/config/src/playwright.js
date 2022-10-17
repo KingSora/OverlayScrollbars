@@ -1,7 +1,7 @@
 const { devices } = require('@playwright/test');
 
 module.exports = {
-  testMatch: /.*\/tests\/playwright\/.*\.test\.[jt]sx?/,
+  testMatch: /.*\/test\/playwright\/.*\.test\.[jt]sx?/,
   timeout: 10 * 60 * 1500,
   navigationTimeout: 1000,
   retries: 0,
