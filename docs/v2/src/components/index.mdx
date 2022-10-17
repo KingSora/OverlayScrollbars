@@ -324,35 +324,35 @@ OverlayScrollbars(document.querySelector('#myElement'), {}, {
     <h6>Events in depth</h6>
   </summary>
 
-> __Note__: Every event receives the `instance` from which it was fired as the first argument. Always.
+> __Note__: Every event receives the `instance` from which it was invoked as the first argument. Always.
 
 ### `initialized`
 
 | arguments  | description |
 | :--- | :--- |
-| `instance` | The instance which fired the event. |
+| `instance` | The instance which invoked the event. |
 
-Is fired after all generated elements, observers and events were appended to the DOM.
+Is invoked after all generated elements, observers and events were appended to the DOM.
 
 ### `updated`
 
 | arguments  | description |
 | :--- | :--- |
-| `instance` | The instance which fired the event. |
+| `instance` | The instance which invoked the event. |
 | `onUpdatedArgs` | An `object` which describes the update in detail. |
 
-> __Note__: If an update was triggered but nothing changed, the event won't be fired.
+> __Note__: If an update was triggered but nothing changed, the event won't be invoked.
 
-Is fired after the instace was updated. 
+Is invoked after the instace was updated. 
 
 ### `destroyed`
 
 | arguments  | description |
 | :--- | :--- |
-| `instance` | The instance which fired the event. |
+| `instance` | The instance which invoked the event. |
 | `canceled` | An `boolean` which indicates whether the initialization was canceled and thus destroyed. |
 
-Is fired after all generated elements, observers and events were removed from the DOM.
+Is invoked after all generated elements, observers and events were removed from the DOM.
 
 </details>
 
