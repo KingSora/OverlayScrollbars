@@ -51,5 +51,9 @@
     "posttest": "playwright-merge-coverage && full-coverage",
     "postjest": "full-coverage",
     "postplaywright": "playwright-merge-coverage && full-coverage"
+  },
+  "devDependencies": {
+    "rollup-plugin-summary": "^1.4.3",
+    "rollup-plugin-terser": "^7.0.2"
   }
 }

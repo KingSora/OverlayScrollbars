@@ -1,5 +1,28 @@
 {
   "private": true,
+  "dependencies": {
+    "@rollup/plugin-alias": "^3.1.9",
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-html": "^0.2.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "autoprefixer": "^10.4.7",
+    "cssnano": "^5.1.12",
+    "glob": "^7.1.6",
+    "istanbul-lib-instrument": "^5.2.0",
+    "postcss": "^8.4.14",
+    "rollup-plugin-dts": "^4.2.2",
+    "rollup-plugin-esbuild-resolve": "^1.0.0",
+    "rollup-plugin-ignore-import": "^1.3.2",
+    "rollup-plugin-license": "^2.8.1",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-scss": "^3.0.0",
+    "rollup-plugin-serve": "^1.1.0",
+    "rollup-plugin-styles": "^4.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.32.1",
+    "sass": "^1.54.0"
+  },
   "exports": {
     ".": "./src/createRollupConfig.js",
     "./playwright": "./src/playwright/createPlaywrightRollupConfig.js"
