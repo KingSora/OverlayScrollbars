@@ -100,6 +100,7 @@ const testBundler = (bundlerName) => async () => {
 
   cleanBundle && fs.rmSync(outputDir, { recursive: true });
 
+  // eslint-disable-next-line no-console
   console.info(`${bundlerName} size`, {
     normal,
     treeshaked,

@@ -128,12 +128,27 @@ module.exports = {
       },
     },
     {
-      files: ['*.test.*', '**/tests/**'],
+      files: ['*.test.*.ts', '**/test/**/*.ts'],
+      extends: [...defaultExtends, 'plugin:@typescript-eslint/recommended'],
+      plugins: defaultPlugins,
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+        project: [
+          './packages/**/tsconfig.json',
+          './examples/**/tsconfig.json',
+          './website/**/tsconfig.json',
+          './local/**/tsconfig.json',
+        ],
+      },
       rules: {
+        ...defaultRules,
         'no-shadow': 'off',
         'no-use-before-define': 'off',
         'no-restricted-syntax': 'off',
         '@typescript-eslint/ban-ts-comment': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
         '@typescript-eslint/no-empty-function': 'off',
         '@typescript-eslint/ban-types': 'off',
         '@typescript-eslint/no-floating-promises': 'off',
