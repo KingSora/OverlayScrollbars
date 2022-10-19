@@ -63,9 +63,9 @@
     "build:vue": "npm run build --workspace=overlayscrollbars-vue",
     "example:ngx": "npm run build:ngx && cd examples/overlayscrollbars-ngx && npm i --install-links && npm run start",
     "example:vue": "npm run build:vue && cd examples/overlayscrollbars-vue && npm i --install-links && npm run dev",
-    "lint": "eslint ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}",
-    "lint:fix": "eslint --fix ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}",
-    "prettier": "prettier --check ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}",
-    "prettier:fix": "prettier --write ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}"
+    "lint": "eslint ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
+    "lint:fix": "eslint --fix ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
+    "prettier": "prettier --check ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
+    "prettier:fix": "prettier --write ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}"
   }
 }

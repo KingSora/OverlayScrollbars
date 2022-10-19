@@ -1,4 +1,4 @@
-import path from 'node:path';
+import { resolve } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
@@ -6,7 +6,7 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/overlayscrollbars-vue.ts'),
+      entry: resolve(__dirname, 'src/overlayscrollbars-vue.ts'),
       name: 'OverlayScrollbarsVue',
       fileName: (format) => `overlayscrollbars-vue.${format}.js`,
     },
