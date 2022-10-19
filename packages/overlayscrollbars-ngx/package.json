@@ -9,8 +9,8 @@
     "test": "ng test"
   },
   "peerDependencies": {
-    "@angular/common": "^10.0.0",
-    "@angular/core": "^10.0.0"
+    "@angular/common": ">=10.0.0",
+    "@angular/core": ">=10.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.1002.4",

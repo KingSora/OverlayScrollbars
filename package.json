@@ -59,7 +59,7 @@
     "playwright:dev": "npm run test:playwright:dev --workspace=overlayscrollbars",
     "build": "npm run build --workspace=overlayscrollbars",
     "build:ngx": "npm run build --workspace=overlayscrollbars-ngx",
-    "example:ngx": "npm run example --workspace=overlayscrollbars-ngx",
+    "example:ngx": "npm run build:ngx && cd examples/overlayscrollbars-ngx && npm i --install-links && npm run start",
     "lint": "eslint ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}",
     "lint:fix": "eslint --fix ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}",
     "prettier": "prettier --check ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}",

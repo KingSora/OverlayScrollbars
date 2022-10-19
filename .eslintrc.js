@@ -78,6 +78,7 @@ module.exports = {
         alwaysTryTypes: true,
         project: [
           './packages/**/tsconfig.json',
+          './examples/**/tsconfig.json',
           './website/**/tsconfig.json',
           './local/**/tsconfig.json',
         ],
@@ -95,6 +96,7 @@ module.exports = {
         tsconfigRootDir: __dirname,
         project: [
           './packages/**/tsconfig.json',
+          './examples/**/tsconfig.json',
           './website/**/tsconfig.json',
           './local/**/tsconfig.json',
         ],
