@@ -1,15 +1,15 @@
-import { TestBed } from "@angular/core/testing";
-import { OverlayscrollbarsNgxService } from "~/overlayscrollbars-ngx.service";
+import { TestBed } from '@angular/core/testing';
+import { OverlayscrollbarsService } from '~/overlayscrollbars.service';
 
-describe("OverlayscrollbarsNgxService", () => {
-  let service: OverlayscrollbarsNgxService;
+describe('OverlayscrollbarsNgxService', () => {
+  let service: OverlayscrollbarsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(OverlayscrollbarsNgxService);
+    service = TestBed.inject(OverlayscrollbarsService);
   });
 
-  it("should be created", () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 });

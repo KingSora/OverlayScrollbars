@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "example": "ng serve",
+    "example": "ng serve example",
     "build": "ng build",
     "test": "ng test"
   },
@@ -15,7 +15,7 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "0.1002.4",
     "@angular/animations": "^10.0.0",
-    "@angular/cli": "~14.2.6",
+    "@angular/cli": "^10.0.0",
     "@angular/common": "^10.0.0",
     "@angular/compiler": "^10.0.0",
     "@angular/compiler-cli": "^10.0.0",

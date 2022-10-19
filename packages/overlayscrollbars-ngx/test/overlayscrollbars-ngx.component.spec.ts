@@ -1,21 +1,22 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { OverlayscrollbarsNgxComponent } from "~/overlayscrollbars-ngx.component";
+import { TestBed } from '@angular/core/testing';
+import { OverlayscrollbarsComponent } from '~/overlayscrollbars.component';
+import type { ComponentFixture } from '@angular/core/testing';
 
-describe("OverlayscrollbarsNgxComponent", () => {
-  let component: OverlayscrollbarsNgxComponent;
-  let fixture: ComponentFixture<OverlayscrollbarsNgxComponent>;
+describe('OverlayscrollbarsNgxComponent', () => {
+  let component: OverlayscrollbarsComponent;
+  let fixture: ComponentFixture<OverlayscrollbarsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [OverlayscrollbarsNgxComponent],
+      declarations: [OverlayscrollbarsComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(OverlayscrollbarsNgxComponent);
+    fixture = TestBed.createComponent(OverlayscrollbarsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 });
