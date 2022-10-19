@@ -1,0 +1,13 @@
+# Compiled output
+/dist
+/styles
+/types
+
+# Playwright output
+.build/
+
+# Node
+/node_modules
+
+# Miscellaneous
+/.coverage

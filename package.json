@@ -53,11 +53,16 @@
   },
   "scripts": {
     "test": "npm run test --workspace=overlayscrollbars",
+    "test:ngx": "npm run test --workspace=overlayscrollbars-ngx",
     "jest": "npm run jest --workspace=overlayscrollbars",
     "playwright": "npm run playwright --workspace=overlayscrollbars",
     "playwright:dev": "npm run test:playwright:dev --workspace=overlayscrollbars",
     "build": "npm run build --workspace=overlayscrollbars",
-    "lint": "eslint ./packages/overlayscrollbars/{src,tests}/**/*.{js,jsx,ts,tsx}",
-    "prettier": "prettier --check ./packages/overlayscrollbars/{src,tests}/**/*.{js,jsx,ts,tsx}"
+    "build:ngx": "npm run build --workspace=overlayscrollbars-ngx",
+    "example:ngx": "npm run example --workspace=overlayscrollbars-ngx",
+    "lint": "eslint ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}",
+    "lint:fix": "eslint --fix ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}",
+    "prettier": "prettier --check ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}",
+    "prettier:fix": "prettier --write ./packages/**/{src,tests}/**/*.{js,jsx,ts,tsx}"
   }
 }
