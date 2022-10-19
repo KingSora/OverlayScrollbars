@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "example": "ng serve example",
-    "build": "ng build",
+    "example": "ng serve",
+    "build": "ng build overlayscrollbars-ngx",
     "test": "ng test"
   },
   "peerDependencies": {
