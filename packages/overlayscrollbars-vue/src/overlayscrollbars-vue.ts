@@ -1,1 +1,1 @@
-export { default as OverlayScrollbarsComponent } from './overlayscrollbars.vue';
+export { default as OverlayScrollbarsComponent } from './OverlayScrollbarsComponent.vue';

@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "strict": true,
+    "module": "ES2015",
+    "moduleResolution": "node",
+    "jsx": "react-jsx"
+  },
+  "include": ["src/**/*"]
+}

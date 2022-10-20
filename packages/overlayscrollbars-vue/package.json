@@ -17,12 +17,6 @@
       "types": "./dist/overlayscrollbars-vue.d.ts"
     }
   },
-  "scripts": {
-    "build": "run-p build-js build-types",
-    "test": "vitest --environment jsdom",
-    "build-js": "vite build",
-    "build-types": "vue-tsc --emitDeclarationOnly -p tsconfig.types.json --composite false"
-  },
   "peerDependencies": {
     "vue": "^3.2.25"
   },
@@ -40,5 +34,11 @@
     "vitest": "^0.18.1",
     "vue": "^3.2.25",
     "vue-tsc": "^1.0.8"
+  },
+  "scripts": {
+    "build": "run-p build-js build-types",
+    "test": "vitest --environment jsdom",
+    "build-js": "vite build",
+    "build-types": "vue-tsc --emitDeclarationOnly -p tsconfig.types.json --composite false"
   }
 }
