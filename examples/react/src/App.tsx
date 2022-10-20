@@ -1,13 +1,13 @@
-export interface OverlayScrollbarsComponentProps {
-  msg: string;
-}
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import logo from './logo.svg';
+import './App.css';
 
-export const OverlayScrollbarsComponent = (props: OverlayScrollbarsComponentProps) => {
-  const { msg } = props;
+function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>{msg}</p>
+        <img src={logo} className="App-logo" alt="logo" />
+        <OverlayScrollbarsComponent msg="hi" />
         <a
           className="App-link"
           href="https://reactjs.org"
@@ -19,4 +19,6 @@ export const OverlayScrollbarsComponent = (props: OverlayScrollbarsComponentProp
       </header>
     </div>
   );
-};
+}
+
+export default App;
