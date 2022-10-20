@@ -42,7 +42,6 @@ module.exports = {
       },
       testPathIgnorePatterns: ['\\\\node_modules\\\\'],
       setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
-      ...resolve.paths.jest,
     },
   ],
 };
