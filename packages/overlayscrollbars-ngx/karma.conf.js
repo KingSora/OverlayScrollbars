@@ -26,9 +26,9 @@ module.exports = function (config) {
       suppressAll: true, // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './.coverage'),
+      dir: require('path').join(__dirname, './.coverage/unit'),
       subdir: '.',
-      reporters: [{ type: 'json' }, { type: 'text' }],
+      reporters: [{ type: 'json' }, { type: 'html' }, { type: 'text' }],
     },
     reporters: ['progress', 'kjhtml'],
     port: 9876,

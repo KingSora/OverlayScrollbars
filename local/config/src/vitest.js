@@ -11,6 +11,7 @@ module.exports = defineConfig({
     include,
     coverage: {
       reportsDirectory: './.coverage/unit',
+      // without this the setup file or the test files show up in the final coverage on the CI
       exclude: [`**/${setupFileName}`, ...include],
     },
   },
