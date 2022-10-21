@@ -21,17 +21,18 @@ jobs:
           node-version: '16'
       - name: Install dependencies
         run: npm ci
-      - name: Run test
-        run: npm run test
-      - name: Run e2e
-        run: xvfb-run npm run e2e
-      - name: Upload Jest Coverage
+      - name: Run Unit Tests
+        run: npm run ci:test
+      - name: Run e2e Tests
+        run: xvfb-run npm run ci:e2e
+      - name: Upload Unit Tests Coverage
         uses: codecov/codecov-action@v3
         with:
-          flags: overlayscrollbars,unit
-          files: "**/overlayscrollbars/**/jest/coverage*.json"
-      - name: Upload Playwright Coverage
+          flags: unit
+          files: "packages/**/.coverage/unit/coverage*.json"
+      - name: Upload e2e Tests Coverage
         uses: codecov/codecov-action@v3
         with:
-          flags: overlayscrollbars,ui
-          files: "**/overlayscrollbars/**/playwright/coverage*.json"
+          flags: e2e
+          files: "packages/**/.coverage/e2e/coverage*.json"
+

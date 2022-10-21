@@ -60,13 +60,13 @@
     "webpack": "^5.74.0"
   },
   "scripts": {
-    "test": "run-p test:*",
+    "test": "run-s test:*",
     "test:os": "npm run test --workspace=overlayscrollbars",
     "test:react": "npm run test --workspace=overlayscrollbars-react",
     "test:vue": "npm run test --workspace=overlayscrollbars-vue",
     "test:ngx": "npm run test --workspace=overlayscrollbars-ngx",
     "test:svelte": "npm run test --workspace=overlayscrollbars-svelte",
-    "e2e": "run-p e2e:*",
+    "e2e": "run-s e2e:*",
     "e2e:os": "npm run e2e --workspace=overlayscrollbars",
     "e2e:os:dev": "npm run e2e:dev --workspace=overlayscrollbars",
     "build": "run-p build:*",
@@ -82,6 +82,8 @@
     "lint": "eslint ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
     "lint:fix": "eslint --fix ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
     "prettier": "prettier --check ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
-    "prettier:fix": "prettier --write ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}"
+    "prettier:fix": "prettier --write ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
+    "ci:test": "run-p test:*",
+    "ci:e2e": "run-p e2e:*"
   }
 }

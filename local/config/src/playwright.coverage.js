@@ -1,4 +1,4 @@
 module.exports = {
   tmpCoverageDirectory: './.coverage/.nycPlaywright',
-  coverageDirectory: './.coverage/playwright',
+  coverageDirectory: './.coverage/e2e',
 };

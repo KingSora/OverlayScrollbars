@@ -7,7 +7,7 @@ module.exports = defineConfig({
     environment: 'jsdom',
     include: ['test/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     coverage: {
-      reportsDirectory: './.coverage',
+      reportsDirectory: './.coverage/unit',
     },
   },
 });

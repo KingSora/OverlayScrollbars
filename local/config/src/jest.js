@@ -12,7 +12,7 @@ const assetFilesModuleNameMapper = {
 
 /** @type {import('jest').Config} */
 module.exports = {
-  coverageDirectory: './.coverage/jest',
+  coverageDirectory: './.coverage/unit',
   moduleNameMapper: assetFilesModuleNameMapper,
   projects: [
     {
