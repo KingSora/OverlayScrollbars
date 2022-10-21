@@ -5,6 +5,8 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
   build: {
+    sourcemap: true,
+    outDir: 'dist',
     lib: {
       entry: resolve(__dirname, 'src/overlayscrollbars-vue.ts'),
       name: 'OverlayScrollbarsVue',
@@ -13,8 +15,6 @@ export default defineConfig({
     rollupOptions: {
       external: ['vue'],
       output: {
-        sourcemap: true,
-        dir: 'dist',
         globals: {
           vue: 'Vue',
         },

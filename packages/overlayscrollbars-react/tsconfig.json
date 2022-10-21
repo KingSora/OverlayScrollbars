@@ -6,7 +6,10 @@
     "strict": true,
     "module": "ES2015",
     "moduleResolution": "node",
-    "jsx": "react-jsx"
-  },
-  "include": ["src/**/*"]
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  }
 }

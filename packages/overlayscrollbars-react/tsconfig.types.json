@@ -5,5 +5,6 @@
     "outDir": "dist",
     "declaration": true,
     "types": ["react"]
-  }
+  },
+  "include": ["src/**/*"]
 }

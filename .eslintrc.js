@@ -128,9 +128,9 @@ module.exports = {
       },
     },
     {
-      files: ['*.test.*.ts', '**/test/**/*.ts'],
+      files: ['*.test.*', '**/test/**/*'],
       extends: [...defaultExtends, 'plugin:@typescript-eslint/recommended'],
-      plugins: defaultPlugins,
+      plugins: [...defaultPlugins, 'jest-dom'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
         tsconfigRootDir: __dirname,

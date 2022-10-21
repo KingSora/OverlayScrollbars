@@ -7,7 +7,8 @@
     "./playwright.coverage": "./src/playwright.coverage.js",
     "./jest": "./src/jest.js",
     "./jest-babel": "./src/jest.babel.js",
-    "./full-coverage": "./src/full-coverage.js"
+    "./full-coverage": "./src/full-coverage.js",
+    "./vitest": "./src/vitest.js"
   },
   "version": "0.0.0"
 }

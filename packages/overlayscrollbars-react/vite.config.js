@@ -5,6 +5,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   build: {
+    sourcemap: true,
+    outDir: 'dist',
     lib: {
       entry: resolve(__dirname, 'src/overlayscrollbars-react.ts'),
       name: 'OverlayScrollbarsReact',
@@ -13,8 +15,6 @@ export default defineConfig({
     rollupOptions: {
       external: ['react'],
       output: {
-        sourcemap: true,
-        dir: 'dist',
         globals: {
           react: 'React',
         },
