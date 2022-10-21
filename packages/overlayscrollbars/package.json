@@ -42,14 +42,14 @@
   "sideEffects": ["*.css", "*.scss", "*.sass"],
   "scripts": {
     "build": "rollup -c",
-    "test": "jest --coverage && playwright test --grep-invert @special",
+    "test": "jest --coverage",
+    "e2e": "playwright test --grep-invert @special",
+    "e2e:dev": "playwright test --workers 1 --timeout 0 --global-timeout 0",
     "jest": "jest --coverage --testPathPattern",
     "jest:node": "jest --selectProjects node --testPathPattern",
     "jest:jsdom": "jest --selectProjects jsdom --testPathPattern",
-    "playwright": "playwright test --grep-invert @special",
-    "playwright:dev": "playwright test --workers 1 --timeout 0 --global-timeout 0",
     "posttest": "playwright-merge-coverage && full-coverage",
     "postjest": "full-coverage",
-    "postplaywright": "playwright-merge-coverage && full-coverage"
+    "poste2e": "playwright-merge-coverage && full-coverage"
   }
 }
