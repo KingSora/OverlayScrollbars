@@ -53,7 +53,7 @@
     "should": "^13.2.3",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4",
-    "vite": "^3.0.0",
+    "vite": "^3.1.0",
     "vitest": "^0.24.3",
     "webpack": "^5.74.0"
   },
@@ -73,6 +73,7 @@
     "example:react": "npm run build:react && cd examples/react && npm i --install-links && npm run start",
     "example:vue": "npm run build:vue && cd examples/vue && npm i --install-links && npm run dev",
     "example:ngx": "npm run build:ngx && cd examples/angular && npm i --install-links && npm run start",
+    "example:svelte": "npm run build:svelte && cd examples/svelte && npm i --install-links && npm run dev",
     "jest": "npm run jest --workspace=overlayscrollbars",
     "playwright": "npm run playwright --workspace=overlayscrollbars",
     "playwright:dev": "npm run test:playwright:dev --workspace=overlayscrollbars",

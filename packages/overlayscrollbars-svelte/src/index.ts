@@ -1,1 +1,1 @@
-export * from './OverlayScrollbarsComponent.svelte';
+export { default as OverlayScrollbarsComponent } from './OverlayScrollbarsComponent.svelte';
