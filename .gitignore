@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# coverage
+.coverage/
+
 # local env files
 .env.local
 .env.*.local

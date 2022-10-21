@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { cleanup, render } from '@testing-library/svelte';
-import OverlayScrollbarsComponent from '~/OverlayScrollbarsComponent.svelte';
+import { OverlayScrollbarsComponent } from '~/overlayscrollbars-svelte';
 
 describe('Hello.svelte', () => {
   // TODO: @testing-library/svelte claims to add this automatically but it doesn't work without explicit afterEach

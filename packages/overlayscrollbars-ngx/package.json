@@ -36,6 +36,6 @@
   },
   "scripts": {
     "build": "ng build overlayscrollbars-ngx",
-    "test": "ng test --watch=false --sourceMap=false --browsers=ChromeHeadless"
+    "test": "ng test --watch=false --sourceMap=false --browsers=ChromeHeadless --code-coverage"
   }
 }
