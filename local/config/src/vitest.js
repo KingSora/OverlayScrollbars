@@ -10,7 +10,6 @@ module.exports = defineConfig({
     include: ['test/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     coverage: {
       reportsDirectory: './.coverage/unit',
-      exclude: [setupFile],
     },
   },
 });
