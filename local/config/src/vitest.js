@@ -1,16 +1,17 @@
 const { resolve } = require('path');
 const { defineConfig } = require('vitest/config');
 
-const setupFile = resolve(__dirname, 'vitest.setup.js');
+const setupFileName = 'vitest.setup.js';
+const include = ['test/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'];
 
 module.exports = defineConfig({
   test: {
-    setupFiles: setupFile,
+    setupFiles: resolve(__dirname, setupFileName),
     environment: 'jsdom',
-    include: ['test/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include,
     coverage: {
       reportsDirectory: './.coverage/unit',
-      exclude: ['**/vitest.setup.js'],
+      exclude: [`**/${setupFileName}`, ...include],
     },
   },
 });
