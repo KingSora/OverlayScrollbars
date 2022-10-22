@@ -10,13 +10,6 @@
   "main": "./dist/overlayscrollbars-react.umd.js",
   "module": "./dist/overlayscrollbars-react.es.js",
   "types": "./dist/overlayscrollbars-react.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/overlayscrollbars-react.umd.js",
-      "import": "./dist/overlayscrollbars-react.es.js",
-      "types": "./dist/overlayscrollbars-react.d.ts"
-    }
-  },
   "peerDependencies": {
     "react": ">=16.4.0"
   },

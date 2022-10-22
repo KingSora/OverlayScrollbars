@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { cleanup, render } from '@testing-library/svelte';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-svelte';
+import { OverlayScrollbarsComponent } from '~/index'; // eslint-disable-line import/named
 
 describe('Hello.svelte', () => {
   // TODO: @testing-library/svelte claims to add this automatically but it doesn't work without explicit afterEach

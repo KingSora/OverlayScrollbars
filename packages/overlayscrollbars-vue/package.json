@@ -10,13 +10,6 @@
   "main": "./dist/overlayscrollbars-vue.umd.js",
   "module": "./dist/overlayscrollbars-vue.es.js",
   "types": "./dist/overlayscrollbars-vue.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/overlayscrollbars-vue.umd.js",
-      "import": "./dist/overlayscrollbars-vue.es.js",
-      "types": "./dist/overlayscrollbars-vue.d.ts"
-    }
-  },
   "peerDependencies": {
     "vue": "^3.2.25"
   },
