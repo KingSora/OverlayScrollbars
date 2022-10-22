@@ -12,13 +12,13 @@ module.exports = {
     {
       format: 'cjs',
       generatedCode: 'es2015',
-      outputSuffix: '.cjs',
+      extension: '.cjs.js',
       minifiedVersion: true,
     },
     {
       format: 'esm',
       generatedCode: 'es2015',
-      outputSuffix: '.esm',
+      extension: '.esm.js',
       minifiedVersion: true,
     },
   ],

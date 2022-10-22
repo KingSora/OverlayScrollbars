@@ -13,19 +13,31 @@ module.exports = createRollupConfig({
     {
       format: 'cjs',
       generatedCode: 'es2015',
-      outputSuffix: '.cjs',
-      minifiedVersion: true,
+      extension: '.cjs.js',
+      minifiedVersion: false,
     },
     {
       format: 'esm',
       generatedCode: 'es2015',
-      outputSuffix: '.esm',
-      minifiedVersion: true,
+      extension: '.esm.js',
+      minifiedVersion: false,
+    },
+    {
+      format: 'cjs',
+      generatedCode: 'es2015',
+      extension: '.cjs',
+      minifiedVersion: false,
+    },
+    {
+      format: 'esm',
+      generatedCode: 'es2015',
+      extension: '.mjs',
+      minifiedVersion: false,
     },
     {
       format: 'iife',
       generatedCode: 'es2015',
-      outputSuffix: '.browser.es6',
+      extension: '.browser.es6.js',
       minifiedVersion: true,
       file: (originalPath) =>
         `${resolve(dirname(originalPath), 'browser', basename(originalPath))}`,
@@ -33,7 +45,7 @@ module.exports = createRollupConfig({
     {
       format: 'iife',
       generatedCode: 'es5',
-      outputSuffix: '.browser.es5',
+      extension: '.browser.es5.js',
       minifiedVersion: true,
       file: (originalPath) =>
         `${resolve(dirname(originalPath), 'browser', basename(originalPath))}`,

@@ -1,6 +1,6 @@
 {
   "name": "overlayscrollbars",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.3",
   "description": "A scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.",
   "author": "Rene Haas | KingSora",
   "license": "MIT",
@@ -33,8 +33,8 @@
   "types": "types/overlayscrollbars.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/overlayscrollbars.cjs.js",
-      "import": "./dist/overlayscrollbars.esm.js",
+      "require": "./dist/overlayscrollbars.cjs",
+      "import": "./dist/overlayscrollbars.mjs",
       "types": "./types/overlayscrollbars.d.ts"
     },
     "./overlayscrollbars.css": "./styles/overlayscrollbars.css"

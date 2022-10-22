@@ -4,6 +4,6 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["jest"],
+    "types": ["jest", "node"],
   }
 }

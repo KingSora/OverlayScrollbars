@@ -11,24 +11,27 @@ const {
 } = require('./plugins');
 
 const moduleFormats = ['es', 'esm', 'module'];
-const createMinifiedOutput = (baseOutput) => ({
-  ...baseOutput,
-  compact: true,
-  file: baseOutput.file.replace('.js', '.min.js'),
-  sourcemap: false,
-  plugins: [
-    ...(baseOutput.plugins || []),
-    rollupTerser({
-      ecma: baseOutput.generatedCode === 'es2015' ? 2015 : 5,
-      safari10: true,
-      compress: {
-        evaluate: false,
-        module: moduleFormats.includes(baseOutput.format),
-        passes: 3,
-      },
-    }),
-  ],
-});
+const createMinifiedOutput = (baseOutput) => {
+  const extname = path.extname(baseOutput.file);
+  return {
+    ...baseOutput,
+    compact: true,
+    file: baseOutput.file.replace(extname, `.min${extname}`),
+    sourcemap: false,
+    plugins: [
+      ...(baseOutput.plugins || []),
+      rollupTerser({
+        ecma: baseOutput.generatedCode === 'es2015' ? 2015 : 5,
+        safari10: true,
+        compress: {
+          evaluate: false,
+          module: moduleFormats.includes(baseOutput.format),
+          passes: 3,
+        },
+      }),
+    ],
+  };
+};
 
 module.exports = (resolve, options) => {
   const { rollup, paths, versions, alias, extractStyles, banner } = options;
@@ -38,9 +41,9 @@ module.exports = (resolve, options) => {
   const sourcemap = rawSourcemap;
 
   return versions
-    .map(({ format, generatedCode, file: filePathOverride, outputSuffix, minifiedVersion }) => {
+    .map(({ format, generatedCode, file: filePathOverride, extension, minifiedVersion }) => {
       const needsGlobals = format === 'umd' || format === 'iife';
-      const filePath = path.resolve(distPath, `${file}${outputSuffix || ''}.js`);
+      const filePath = path.resolve(distPath, `${file}${extension || '.js'}`);
 
       const baseOutput = {
         ...outputConfig,
