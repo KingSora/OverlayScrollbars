@@ -66,14 +66,16 @@ export interface Environment {
    * Sets a new default Initialization.
    * If the new default Initialization is partially filled, its deeply merged with the current default Initialization.
    * @param newDefaultInitialization The new default Initialization.
+   * @returns The current default Initialization.
    */
-  setDefaultInitialization(newDefaultInitialization: DeepPartial<Initialization>): void;
+  setDefaultInitialization(newDefaultInitialization: DeepPartial<Initialization>): Initialization;
   /**
    * Sets new default Options.
    * If the new default Options are partially filled, they're deeply merged with the current default Options.
    * @param newDefaultOptions The new default Options.
+   * @returns The current default options.
    */
-  setDefaultOptions(newDefaultOptions: DeepPartial<Options>): void;
+  setDefaultOptions(newDefaultOptions: DeepPartial<Options>): Options;
 }
 
 export interface InternalEnvironment {
@@ -87,9 +89,9 @@ export interface InternalEnvironment {
   readonly _staticDefaultOptions: Options;
   _addListener(listener: EventListener<EnvironmentEventMap, '_'>): () => void;
   _getDefaultInitialization(): Initialization;
-  _setDefaultInitialization(newInitialization: DeepPartial<Initialization>): void;
+  _setDefaultInitialization(newInitialization: DeepPartial<Initialization>): Initialization;
   _getDefaultOptions(): Options;
-  _setDefaultOptions(newDefaultOptions: DeepPartial<Options>): void;
+  _setDefaultOptions(newDefaultOptions: DeepPartial<Options>): Options;
 }
 
 let environmentInstance: InternalEnvironment;
@@ -210,6 +212,14 @@ const createEnvironment = (): InternalEnvironment => {
     },
   };
   const staticDefaultOptions = assignDeep({}, defaultOptions);
+  const getDefaultOptions = (assignDeep as typeof assignDeep<Options, Options>).bind(
+    0,
+    {} as Options,
+    staticDefaultOptions
+  );
+  const getDefaultInitialization = (
+    assignDeep as typeof assignDeep<Initialization, Initialization>
+  ).bind(0, {} as Initialization, staticDefaultInitialization);
 
   const env: InternalEnvironment = {
     _nativeScrollbarsSize: nativeScrollbarsSize,
@@ -219,20 +229,13 @@ const createEnvironment = (): InternalEnvironment => {
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
     _addListener: (listener) => addEvent('_', listener),
-    _getDefaultInitialization: (
-      assignDeep as typeof assignDeep<Initialization, Initialization>
-    ).bind(0, {} as Initialization, staticDefaultInitialization),
-    _setDefaultInitialization(newInitializationStrategy) {
-      assignDeep(staticDefaultInitialization, newInitializationStrategy);
-    },
-    _getDefaultOptions: (assignDeep as typeof assignDeep<Options, Options>).bind(
-      0,
-      {} as Options,
-      staticDefaultOptions
-    ),
-    _setDefaultOptions(newDefaultOptions) {
-      assignDeep(staticDefaultOptions, newDefaultOptions);
-    },
+    _getDefaultInitialization: getDefaultInitialization,
+    _setDefaultInitialization: (newInitializationStrategy) =>
+      assignDeep(staticDefaultInitialization, newInitializationStrategy) &&
+      getDefaultInitialization(),
+    _getDefaultOptions: getDefaultOptions,
+    _setDefaultOptions: (newDefaultOptions) =>
+      assignDeep(staticDefaultOptions, newDefaultOptions) && getDefaultOptions(),
     _staticDefaultInitialization: assignDeep({}, staticDefaultInitialization),
     _staticDefaultOptions: assignDeep({}, staticDefaultOptions),
   };

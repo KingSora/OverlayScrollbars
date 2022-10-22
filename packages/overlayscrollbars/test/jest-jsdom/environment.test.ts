@@ -90,7 +90,7 @@ describe('environment', () => {
       expect(_getDefaultOptions()).not.toBe(defaultOptions);
       expect(_getDefaultOptions()).toEqual(defaultOptions);
 
-      _setDefaultOptions(newDefaultOptions);
+      expect(_setDefaultOptions(newDefaultOptions)).toEqual(_getDefaultOptions());
 
       expect(_getDefaultOptions()).toEqual({
         ...defaultOptions,
@@ -125,7 +125,9 @@ describe('environment', () => {
       expect(_getDefaultInitialization()).not.toBe(defaultInitialization);
       expect(_getDefaultInitialization()).toEqual(defaultInitialization);
 
-      _setDefaultInitialization(newDefaultInitialization);
+      expect(_setDefaultInitialization(newDefaultInitialization)).toEqual(
+        _getDefaultInitialization()
+      );
 
       expect(_getDefaultInitialization()).toEqual({
         ...defaultInitialization,

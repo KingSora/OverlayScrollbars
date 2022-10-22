@@ -166,6 +166,7 @@ export interface OverlayScrollbars {
    * Sets the options of the instance.
    * If the new options are partially filled, they're deeply merged with the current options.
    * @param newOptions The new options.
+   * @returns Returns the current options of the instance.
    */
   options(newOptions: DeepPartial<Options>): Options;
 
@@ -173,12 +174,14 @@ export interface OverlayScrollbars {
    * Adds an event listener to the instance.
    * @param name The name of the event.
    * @param listener The listener which is invoked on that event.
+   * @returns Returns a function which removes the added listeners.
    */
   on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): () => void;
   /**
    * Adds multiple event listeners to the instance.
    * @param name The name of the event.
    * @param listener The listeners which are invoked on that event.
+   * @returns Returns a function which removes the added listeners.
    */
   on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): () => void;
 
