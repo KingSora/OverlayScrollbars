@@ -12,7 +12,7 @@ export type {
 export type {
   EventListenerMap,
   EventListener,
-  InitialEventListeners,
+  EventListeners,
   OnUpdatedEventListenerArgs,
 } from '~/eventListeners';
 export type {

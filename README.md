@@ -408,6 +408,7 @@ interface OverlayScrollbars {
 
   elements(): Elements;
 
+  on(eventListeners: EventListeners): () => void;
   on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): () => void;
   on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): () => void;
 

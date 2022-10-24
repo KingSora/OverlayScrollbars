@@ -2,7 +2,7 @@ import type { OverlayScrollbars } from '~/overlayscrollbars';
 import type { DeepPartial } from '~/typings';
 import type { Options } from '~/options';
 import type {
-  InitialEventListeners as GeneralInitialEventListeners,
+  EventListeners as GeneralEventListeners,
   EventListener as GeneralEventListener,
 } from '~/support/eventListeners';
 
@@ -48,13 +48,13 @@ export type EventListenerMap = {
 };
 
 /**
- * An object which describes the initial event listeners.
+ * An object which describes event listeners.
  * Simplified it looks like:
  * {
  *   [eventName: string]: EventListener | EventListener[]
  * }
  */
-export type InitialEventListeners = GeneralInitialEventListeners<EventListenerMap>;
+export type EventListeners = GeneralEventListeners<EventListenerMap>;
 
 /** An event listener. */
 export type EventListener<N extends keyof EventListenerMap> = GeneralEventListener<

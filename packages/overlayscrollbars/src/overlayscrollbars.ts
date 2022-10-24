@@ -20,7 +20,7 @@ import type { Options, ReadonlyOptions } from '~/options';
 import type { Plugin, OptionsValidationPluginInstance, PluginInstance } from '~/plugins';
 import type { InitializationTarget } from '~/initialization';
 import type { DeepPartial, OverflowStyle } from '~/typings';
-import type { EventListenerMap, EventListener, InitialEventListeners } from '~/eventListeners';
+import type { EventListenerMap, EventListener, EventListeners } from '~/eventListeners';
 import type {
   ScrollbarsSetupElement,
   ScrollbarStructure,
@@ -48,7 +48,7 @@ export interface OverlayScrollbarsStatic {
   (
     target: InitializationTarget,
     options: DeepPartial<Options>,
-    eventListeners?: InitialEventListeners
+    eventListeners?: EventListeners
   ): OverlayScrollbars;
 
   /**
@@ -171,6 +171,12 @@ export interface OverlayScrollbars {
   options(newOptions: DeepPartial<Options>): Options;
 
   /**
+   * Adds event listeners to the instance.
+   * @param eventListeners An object which contains the added listeners.
+   * @returns Returns a function which removes the added listeners.
+   */
+  on(eventListeners: EventListeners): () => void;
+  /**
    * Adds an event listener to the instance.
    * @param name The name of the event.
    * @param listener The listener which is invoked on that event.
@@ -227,7 +233,7 @@ const invokePluginInstance = (
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target: InitializationTarget,
   options?: DeepPartial<Options>,
-  eventListeners?: InitialEventListeners
+  eventListeners?: EventListeners
 ) => {
   const { _getDefaultOptions, _getDefaultInitialization, _addListener } = getEnvironment();
   const plugins = getPlugins();
