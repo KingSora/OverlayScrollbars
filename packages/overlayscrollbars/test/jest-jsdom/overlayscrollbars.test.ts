@@ -1,9 +1,9 @@
-import type { DeepPartial } from '~/typings';
-import type { Options } from '~/options';
 import { defaultOptions } from '~/options';
 import { assignDeep } from '~/support';
 import { OptionsValidationPlugin } from '~/plugins';
 import { OverlayScrollbars as originalOverlayScrollbars } from '~/overlayscrollbars';
+import type { Options } from '~/options';
+import type { DeepPartial } from '~/typings';
 
 const bodyElm = document.body;
 const div = document.createElement('div');

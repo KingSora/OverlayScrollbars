@@ -12,7 +12,6 @@ import {
   setTestResult,
   waitForOrFailTest,
 } from '@~local/browser-testing';
-import type { WH } from '~/support';
 import {
   assignDeep,
   clientSize,
@@ -30,14 +29,15 @@ import {
   removeElements,
   removeClass,
 } from '~/support';
-import type { Options } from '~/options';
-import type { DeepPartial } from '~/typings';
 import {
   addPlugin,
   ScrollbarsHidingPlugin,
   SizeObserverPlugin,
   ClickScrollPlugin,
 } from '~/plugins';
+import type { WH } from '~/support';
+import type { Options } from '~/options';
+import type { DeepPartial } from '~/typings';
 
 addPlugin(ClickScrollPlugin);
 

@@ -1,5 +1,5 @@
-import type { OnOptions } from '~/support/dom/events';
 import { off, preventDefault, stopPropagation, stopAndPrevent } from '~/support/dom/events';
+import type { OnOptions } from '~/support/dom/events';
 
 const testElm = document.body;
 const mockEventListener = (

@@ -5,11 +5,11 @@ import {
   classNameViewport,
   classNameContent,
 } from '~/classnames';
-import type { InternalEnvironment } from '~/environment';
 import { getEnvironment } from '~/environment';
-import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
 import { addPlugin, ScrollbarsHidingPlugin } from '~/plugins';
+import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
+import type { InternalEnvironment } from '~/environment';
 import type {
   Initialization,
   InitializationTarget,

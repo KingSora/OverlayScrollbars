@@ -1,9 +1,9 @@
-import type { DeepPartial } from '~/typings';
-import type { Options } from '~/options';
 import { defaultOptions } from '~/options';
-import type { Initialization } from '~/initialization';
 import { getEnvironment } from '~/environment';
 import { ScrollbarsHidingPlugin, scrollbarsHidingPluginName } from '~/plugins';
+import type { DeepPartial } from '~/typings';
+import type { Options } from '~/options';
+import type { Initialization } from '~/initialization';
 
 const defaultInitialization = {
   elements: {

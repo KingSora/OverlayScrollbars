@@ -1,10 +1,4 @@
-import type {
-  ScrollbarsSetupElement,
-  ScrollbarsSetupElementsObj,
-  ScrollbarStructure,
-} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
-import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
 import {
   classNameScrollbar,
@@ -14,6 +8,12 @@ import {
   classNameScrollbarHandle,
   classNamesScrollbarTransitionless,
 } from '~/classnames';
+import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
+import type {
+  ScrollbarsSetupElement,
+  ScrollbarsSetupElementsObj,
+  ScrollbarStructure,
+} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import type { InitializationTarget } from '~/initialization';
 
 jest.useFakeTimers();

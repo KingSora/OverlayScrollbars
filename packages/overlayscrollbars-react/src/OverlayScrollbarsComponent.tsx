@@ -1,5 +1,7 @@
 export interface OverlayScrollbarsComponentProps {
-  msg: string;
+  element?: string;
+  options?: {};
+  events?: {};
 }
 
 export const OverlayScrollbarsComponent = (props: OverlayScrollbarsComponentProps) => {

@@ -1,10 +1,10 @@
-import type { Initialization } from '~/initialization';
 import {
   staticInitializationElement,
   dynamicInitializationElement,
   cancelInitialization,
 } from '~/initialization';
 import { getEnvironment } from '~/environment';
+import type { Initialization } from '~/initialization';
 
 jest.mock('~/environment', () => ({
   getEnvironment: jest.fn(() => jest.requireActual('~/environment').getEnvironment()),

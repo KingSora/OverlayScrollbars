@@ -48,20 +48,49 @@ const defaultRules = {
   ],
   'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
   'react/require-default-props': ['off'],
+  'no-shadow': 'off',
+  '@typescript-eslint/no-shadow': ['error'],
+  'no-use-before-define': 'off',
+  '@typescript-eslint/no-use-before-define': ['error'],
+  'no-redeclare': 'off',
+  '@typescript-eslint/no-redeclare': ['error', { ignoreDeclarationMerge: true }],
+  'no-unused-vars': 'off',
+  '@typescript-eslint/no-unused-vars': ['error'],
+  '@typescript-eslint/ban-ts-comment': 'off',
+  '@typescript-eslint/no-non-null-assertion': 'off',
+  '@typescript-eslint/no-explicit-any': 'off',
+  '@typescript-eslint/explicit-module-boundary-types': 'off',
+  '@typescript-eslint/no-var-requires': 'off',
+  '@typescript-eslint/unbound-method': 'off',
+  '@typescript-eslint/consistent-type-imports': 'warn',
+  '@typescript-eslint/no-this-alias': [
+    'error',
+    {
+      allowDestructuring: true, // Allow `const { props, state } = this`; false by default
+      allowedNames: ['self', '_self'], // Allow `const self = this`; `[]` by default
+    },
+  ],
 };
-const defaultExtends = ['airbnb', 'prettier', 'plugin:react/jsx-runtime'];
 const defaultPlugins = ['prettier', 'json', '@typescript-eslint', 'import', 'react'];
 
 module.exports = {
-  extends: defaultExtends,
+  extends: [
+    'prettier',
+    'eslint:recommended',
+    'plugin:react/jsx-runtime',
+    'plugin:@typescript-eslint/recommended',
+  ],
   plugins: defaultPlugins,
+  ignorePatterns: ['.eslintrc.js'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-    ecmaVersion: 11,
-    sourceType: 'module',
+    tsconfigRootDir: __dirname,
+    project: [
+      './packages/**/tsconfig.json',
+      './examples/**/tsconfig.json',
+      './website/**/tsconfig.json',
+      './local/**/tsconfig.json',
+    ],
   },
   env: {
     browser: true,
@@ -88,59 +117,8 @@ module.exports = {
   rules: defaultRules,
   overrides: [
     {
-      files: ['*.ts', '*.tsx', '*.d.ts'],
-      extends: [...defaultExtends, 'plugin:@typescript-eslint/recommended'],
-      plugins: defaultPlugins,
-      parser: '@typescript-eslint/parser',
-      parserOptions: {
-        tsconfigRootDir: __dirname,
-        project: [
-          './packages/**/tsconfig.json',
-          './examples/**/tsconfig.json',
-          './website/**/tsconfig.json',
-          './local/**/tsconfig.json',
-        ],
-      },
-      rules: {
-        ...defaultRules,
-        'no-shadow': 'off',
-        '@typescript-eslint/no-shadow': ['error'],
-        'no-use-before-define': 'off',
-        '@typescript-eslint/no-use-before-define': ['error'],
-        'no-redeclare': 'off',
-        '@typescript-eslint/no-redeclare': ['error', { ignoreDeclarationMerge: true }],
-        'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': ['error'],
-        '@typescript-eslint/ban-ts-comment': 'off',
-        '@typescript-eslint/no-non-null-assertion': 'off',
-        '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/explicit-module-boundary-types': 'off',
-        '@typescript-eslint/no-var-requires': 'off',
-        '@typescript-eslint/unbound-method': 'off',
-        '@typescript-eslint/consistent-type-imports': 'warn',
-        '@typescript-eslint/no-this-alias': [
-          'error',
-          {
-            allowDestructuring: true, // Allow `const { props, state } = this`; false by default
-            allowedNames: ['self', '_self'], // Allow `const self = this`; `[]` by default
-          },
-        ],
-      },
-    },
-    {
       files: ['*.test.*', '**/test/**/*'],
-      extends: [...defaultExtends, 'plugin:@typescript-eslint/recommended'],
       plugins: [...defaultPlugins, 'jest-dom'],
-      parser: '@typescript-eslint/parser',
-      parserOptions: {
-        tsconfigRootDir: __dirname,
-        project: [
-          './packages/**/tsconfig.json',
-          './examples/**/tsconfig.json',
-          './website/**/tsconfig.json',
-          './local/**/tsconfig.json',
-        ],
-      },
       rules: {
         ...defaultRules,
         'no-shadow': 'off',
@@ -160,7 +138,6 @@ module.exports = {
         'no-void': 'off',
         'no-empty-function': 'off',
         'no-new-func': 'off',
-        'import/order': 'off',
       },
     },
     {

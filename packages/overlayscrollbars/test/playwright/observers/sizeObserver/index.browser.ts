@@ -10,10 +10,10 @@ import {
   setTestResult,
   waitForOrFailTest,
 } from '@~local/browser-testing';
-import type { WH } from '~/support';
 import { hasDimensions, offsetSize, style } from '~/support';
 import { addPlugin, SizeObserverPlugin } from '~/plugins';
 import { createSizeObserver } from '~/observers';
+import type { WH } from '~/support';
 
 if (!window.ResizeObserver) {
   addPlugin(SizeObserverPlugin);
