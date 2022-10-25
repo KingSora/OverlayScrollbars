@@ -349,6 +349,7 @@ describe('overlayscrollbars', () => {
       const onUpdated = jest.fn();
       const onUpdated2 = jest.fn();
       const onDestroyed = jest.fn();
+      const onScroll = jest.fn();
 
       expect(onInitialized).not.toHaveBeenCalled();
       const osInstance = OverlayScrollbars(
@@ -358,6 +359,7 @@ describe('overlayscrollbars', () => {
           initialized: onInitialized,
           updated: [onUpdated, onUpdated, onUpdated2],
           destroyed: onDestroyed,
+          scroll: onScroll,
         }
       );
 
@@ -366,6 +368,14 @@ describe('overlayscrollbars', () => {
 
       expect(onUpdated).toHaveBeenCalledTimes(1);
       expect(onUpdated2).toHaveBeenCalledTimes(1);
+
+      expect(onScroll).not.toHaveBeenCalled();
+      osInstance.elements().scrollEventElement.dispatchEvent(new Event('scroll'));
+      expect(onUpdated).toHaveBeenCalledTimes(1);
+
+      osInstance.off('scroll', onScroll);
+      osInstance.elements().scrollEventElement.dispatchEvent(new Event('scroll'));
+      expect(onUpdated).toHaveBeenCalledTimes(1);
 
       osInstance.update(true);
 
