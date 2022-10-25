@@ -3,12 +3,12 @@
   transition: opacity 0.3s, visibility 0.3s, top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
   pointer-events: none;
   position: absolute;
-  z-index: 99999;
   opacity: 0;
   visibility: hidden;
 }
 body > .os-scrollbar {
   position: fixed;
+  z-index: 99999;
 }
 .os-scrollbar-transitionless {
   transition: none;
