@@ -36,7 +36,8 @@ export interface ScrollbarsSetupStaticState {
 export const createScrollbarsSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions,
-  structureSetupState: (() => StructureSetupState) & StructureSetupStaticState
+  structureSetupState: (() => StructureSetupState) & StructureSetupStaticState,
+  onScroll: (event: Event) => void
 ): Setup<
   ScrollbarsSetupState,
   ScrollbarsSetupStaticState,
@@ -132,7 +133,7 @@ export const createScrollbarsSetup = (
           });
         });
     }),
-    on(_scrollEventElement, 'scroll', () => {
+    on(_scrollEventElement, 'scroll', (event) => {
       requestScrollAnimationFrame(() => {
         _refreshScrollbarsHandleOffset(structureSetupState());
 
@@ -141,6 +142,8 @@ export const createScrollbarsSetup = (
           autoHideNotNever && !mouseInHost && manageScrollbarsAutoHide(false);
         });
       });
+
+      onScroll(event);
 
       _viewportIsTarget && styleHorizontal(styleScrollbarPosition);
       _viewportIsTarget && styleVertical(styleScrollbarPosition);

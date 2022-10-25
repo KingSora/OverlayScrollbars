@@ -4,6 +4,9 @@ import type { Options } from '~/options';
 import type {
   EventListeners as GeneralEventListeners,
   EventListener as GeneralEventListener,
+  AddEvent as GeneralAddEvent,
+  RemoveEvent as GeneralRemoveEvent,
+  TriggerEvent as GeneralTriggerEvent,
 } from '~/support/eventListeners';
 
 /**
@@ -45,6 +48,8 @@ export type EventListenerMap = {
   updated: [instance: OverlayScrollbars, onUpdatedArgs: OnUpdatedEventListenerArgs];
   /** Triggered after all elements, observers and events are destroyed. */
   destroyed: [instance: OverlayScrollbars, canceled: boolean];
+  /** Triggered on scroll. */
+  scroll: [instance: OverlayScrollbars, event: Event];
 };
 
 /**
@@ -61,3 +66,12 @@ export type EventListener<N extends keyof EventListenerMap> = GeneralEventListen
   EventListenerMap,
   N
 >;
+
+/** A function which adds event listeners. */
+export type AddEvent = GeneralAddEvent<EventListenerMap>;
+
+/** A function which removes event listeners. */
+export type RemoveEvent = GeneralRemoveEvent<EventListenerMap>;
+
+/** A function which triggers event listeners. */
+export type TriggerEvent = GeneralTriggerEvent<EventListenerMap>;

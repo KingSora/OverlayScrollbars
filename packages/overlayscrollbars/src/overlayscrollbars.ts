@@ -262,7 +262,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     const [updateScrollbars, scrollbarsState, destroyScrollbars] = createScrollbarsSetup(
       target,
       currentOptions,
-      structureState
+      structureState,
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      (scrollEvent) => triggerEvent('scroll', [instance, scrollEvent])
     );
     const update = (changedOptions: DeepPartial<Options>, force?: boolean): boolean =>
       updateStructure(changedOptions, !!force);
