@@ -302,16 +302,24 @@ describe('overlayscrollbars', () => {
       const onUpdated = jest.fn();
       const onUpdated2 = jest.fn();
       const onDestroyed = jest.fn();
+      const onScroll = jest.fn();
       const osInstance = OverlayScrollbars(div, {});
 
       osInstance.on('initialized', onInitialized);
       osInstance.on('updated', [onUpdated, onUpdated, onUpdated2]);
       osInstance.on('destroyed', onDestroyed);
+      osInstance.on('scroll', onScroll);
 
       expect(onInitialized).not.toHaveBeenCalled();
 
       expect(onUpdated).not.toHaveBeenCalled();
       expect(onUpdated2).not.toHaveBeenCalled();
+
+      expect(onScroll).not.toHaveBeenCalled();
+
+      osInstance.elements().scrollEventElement.dispatchEvent(new Event('scroll'));
+      expect(onScroll).toHaveBeenCalledTimes(1);
+      expect(onScroll).toHaveBeenLastCalledWith(osInstance, expect.any(Object));
 
       osInstance.update();
       expect(onUpdated).not.toHaveBeenCalled();
@@ -330,8 +338,10 @@ describe('overlayscrollbars', () => {
 
       // after destruction no further events are triggered
       osInstance.update(true);
+      osInstance.elements().scrollEventElement.dispatchEvent(new Event('scroll'));
       expect(onUpdated).toHaveBeenCalledTimes(1);
       expect(onUpdated2).toHaveBeenCalledTimes(1);
+      expect(onScroll).toHaveBeenCalledTimes(1);
     });
 
     test('off', () => {
