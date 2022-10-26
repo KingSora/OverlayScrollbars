@@ -1,9 +1,91 @@
-import { test, expect } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
+import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-react';
+import type { RefObject } from 'react';
 
-test('renders learn react link', () => {
-  render(<OverlayScrollbarsComponent msg="hi" />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+describe('OverlayScrollbarsComponent', () => {
+  describe('correct rendering', () => {
+    test('correct root element', () => {
+      const elementA = 'code';
+      const elementB = 'span';
+      const { container, rerender } = render(<OverlayScrollbarsComponent />);
+
+      expect(container).not.toBeEmptyDOMElement();
+      expect(container.querySelector('div')).toBe(container.firstElementChild); // default is div
+
+      rerender(<OverlayScrollbarsComponent element={elementA} />);
+      expect(container.querySelector(elementA)).toBe(container.firstElementChild);
+
+      rerender(<OverlayScrollbarsComponent element={elementB} />);
+      expect(container.querySelector(elementB)).toBe(container.firstElementChild);
+    });
+
+    test('children', () => {
+      render(
+        <OverlayScrollbarsComponent>
+          hello <span>react</span>
+        </OverlayScrollbarsComponent>
+      );
+      expect(screen.getByText(/hello/)).toBeInTheDocument();
+      expect(screen.getByText(/react/)).toBeInTheDocument();
+    });
+
+    test('className', () => {
+      const { container, rerender } = render(
+        <OverlayScrollbarsComponent className="overlay scrollbars" />
+      );
+
+      expect(container.firstElementChild).toHaveClass('overlay', 'scrollbars');
+
+      rerender(<OverlayScrollbarsComponent className="overlay scrollbars react" />);
+
+      expect(container.firstElementChild).toHaveClass('overlay', 'scrollbars', 'react');
+    });
+
+    test('style', () => {
+      const { container, rerender } = render(
+        <OverlayScrollbarsComponent style={{ width: '22px' }} />
+      );
+
+      expect(container.firstElementChild).toHaveStyle({ width: '22px' });
+
+      rerender(<OverlayScrollbarsComponent style={{ height: '33px' }} />);
+
+      expect(container.firstElementChild).toHaveStyle({ height: '33px' });
+    });
+  });
+
+  test('ref', () => {
+    const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
+    const { container } = render(<OverlayScrollbarsComponent ref={ref} />);
+
+    const { osInstance, osTarget } = ref.current!;
+    expect(osInstance).toBeTypeOf('function');
+    expect(osTarget).toBeTypeOf('function');
+    expect(OverlayScrollbars.valid(osInstance())).toBe(true);
+    expect(osTarget()).toBe(container.firstElementChild);
+  });
+
+  test('options', () => {
+    const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
+    const { rerender } = render(
+      <OverlayScrollbarsComponent
+        options={{ paddingAbsolute: true, overflow: { y: 'hidden' } }}
+        ref={ref}
+      />
+    );
+
+    const opts = ref.current!.osInstance()!.options();
+    expect(opts.paddingAbsolute).toBe(true);
+    expect(opts.overflow.y).toBe('hidden');
+
+    rerender(<OverlayScrollbarsComponent options={{ overflow: { x: 'hidden' } }} ref={ref} />);
+
+    const newOpts = ref.current!.osInstance()!.options()!;
+    expect(newOpts.paddingAbsolute).toBe(false); //switches back to default because its not specified in the new options
+    expect(newOpts.overflow.y).toBe('scroll'); //switches back to default because its not specified in the new options
+    expect(newOpts.overflow.x).toBe('hidden');
+  });
 });
