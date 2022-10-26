@@ -4,6 +4,7 @@ import {
 } from '~/plugins/optionsValidationPlugin/validation';
 import type {
   Options,
+  PartialOptions,
   OverflowBehavior,
   ScrollbarsVisibilityBehavior,
   ScrollbarsAutoHideBehavior,
@@ -12,7 +13,6 @@ import type {
   OptionsTemplate,
   OptionsTemplateValue,
 } from '~/plugins/optionsValidationPlugin/validation';
-import type { DeepPartial } from '~/typings';
 import type { Plugin } from '~/plugins';
 
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
@@ -58,7 +58,7 @@ const optionsTemplate: OptionsTemplate<Options> = {
 };
 
 export type OptionsValidationPluginInstance = {
-  _: (options: DeepPartial<Options>, doWriteErrors?: boolean) => DeepPartial<Options>;
+  _: (options: PartialOptions, doWriteErrors?: boolean) => PartialOptions;
 };
 
 export const optionsValidationPluginName = '__osOptionsValidationPlugin';
@@ -66,7 +66,7 @@ export const optionsValidationPluginName = '__osOptionsValidationPlugin';
 export const OptionsValidationPlugin: Plugin<OptionsValidationPluginInstance> =
   /* @__PURE__ */ (() => ({
     [optionsValidationPluginName]: {
-      _: (options: DeepPartial<Options>, doWriteErrors?: boolean) => {
+      _: (options: PartialOptions, doWriteErrors?: boolean) => {
         const [validated, foreign] = validateOptions(optionsTemplate, options, doWriteErrors);
         return { ...foreign, ...validated };
       },

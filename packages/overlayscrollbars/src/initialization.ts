@@ -85,6 +85,8 @@ export type Initialization = {
   };
 };
 
+export type PartialInitialization = DeepPartial<Initialization>;
+
 /** The initialization target element. */
 export type InitializationTargetElement = HTMLElement; // | HTMLTextAreaElement;
 
@@ -92,7 +94,7 @@ export type InitializationTargetElement = HTMLElement; // | HTMLTextAreaElement;
  * The initialization target object.
  * OverlayScrollbars({ target: myElement }) is equivalent to OverlayScrollbars(myElement).
  */
-export type InitializationTargetObject = DeepPartial<Initialization> & {
+export type InitializationTargetObject = PartialInitialization & {
   target: InitializationTargetElement;
 };
 

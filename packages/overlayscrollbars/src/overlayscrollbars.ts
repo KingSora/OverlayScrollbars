@@ -16,10 +16,10 @@ import { createStructureSetup, createScrollbarsSetup } from '~/setups';
 import { getPlugins, addPlugin, optionsValidationPluginName } from '~/plugins';
 import type { Environment } from '~/environment';
 import type { XY, TRBL } from '~/support';
-import type { Options, ReadonlyOptions } from '~/options';
+import type { Options, PartialOptions, ReadonlyOptions } from '~/options';
 import type { Plugin, OptionsValidationPluginInstance, PluginInstance } from '~/plugins';
 import type { InitializationTarget } from '~/initialization';
-import type { DeepPartial, OverflowStyle } from '~/typings';
+import type { OverflowStyle } from '~/typings';
 import type { EventListenerMap, EventListener, EventListeners } from '~/eventListeners';
 import type {
   ScrollbarsSetupElement,
@@ -47,7 +47,7 @@ export interface OverlayScrollbarsStatic {
    */
   (
     target: InitializationTarget,
-    options: DeepPartial<Options>,
+    options: PartialOptions,
     eventListeners?: EventListeners
   ): OverlayScrollbars;
 
@@ -164,11 +164,12 @@ export interface OverlayScrollbars {
   options(): Options;
   /**
    * Sets the options of the instance.
-   * If the new options are partially filled, they're deeply merged with the current options.
+   * If the new options are partially filled, they're deeply merged with either the current options or the current default options.
    * @param newOptions The new options.
+   * @param pure If true the new options will be merged with the current default options instead of the current options.
    * @returns Returns the current options of the instance.
    */
-  options(newOptions: DeepPartial<Options>): Options;
+  options(newOptions: PartialOptions, pure?: boolean): Options;
 
   /**
    * Adds event listeners to the instance.
@@ -232,7 +233,7 @@ const invokePluginInstance = (
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target: InitializationTarget,
-  options?: DeepPartial<Options>,
+  options?: PartialOptions,
   eventListeners?: EventListeners
 ) => {
   const { _getDefaultOptions, _getDefaultInitialization, _addListener } = getEnvironment();
@@ -242,7 +243,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   const potentialInstance = getInstance(instanceTarget);
   if (options && !potentialInstance) {
     let destroyed = false;
-    const validateOptions = (newOptions: DeepPartial<Options>) => {
+    const validateOptions = (newOptions: PartialOptions) => {
       const optionsValidationPlugin = getPlugins()[
         optionsValidationPluginName
       ] as OptionsValidationPluginInstance;
@@ -266,7 +267,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       (scrollEvent) => triggerEvent('scroll', [instance, scrollEvent])
     );
-    const update = (changedOptions: DeepPartial<Options>, force?: boolean): boolean =>
+    const update = (changedOptions: PartialOptions, force?: boolean): boolean =>
       updateStructure(changedOptions, !!force);
     const removeEnvListener = _addListener(update.bind(0, {}, true));
     const destroy = (canceled?: boolean) => {
@@ -284,9 +285,13 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     };
 
     const instance: OverlayScrollbars = {
-      options(newOptions?: DeepPartial<Options>) {
+      options(newOptions?: PartialOptions, pure?: boolean) {
         if (newOptions) {
-          const changedOptions = getOptionsDiff(currentOptions, validateOptions(newOptions));
+          const base = pure ? _getDefaultOptions() : {};
+          const changedOptions = getOptionsDiff(
+            currentOptions,
+            assignDeep(base, validateOptions(newOptions))
+          );
           if (!isEmptyObject(changedOptions)) {
             assignDeep(currentOptions, changedOptions);
             update(changedOptions);

@@ -27,10 +27,9 @@ import {
 import { defaultOptions } from '~/options';
 import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
 import type { XY, EventListener } from '~/support';
-import type { Options } from '~/options';
-import type { DeepPartial } from '~/typings';
+import type { Options, PartialOptions } from '~/options';
 import type { ScrollbarsHidingPluginInstance } from '~/plugins';
-import type { Initialization } from '~/initialization';
+import type { Initialization, PartialInitialization } from '~/initialization';
 
 type EnvironmentEventMap = {
   _: [];
@@ -68,14 +67,14 @@ export interface Environment {
    * @param newDefaultInitialization The new default Initialization.
    * @returns The current default Initialization.
    */
-  setDefaultInitialization(newDefaultInitialization: DeepPartial<Initialization>): Initialization;
+  setDefaultInitialization(newDefaultInitialization: PartialInitialization): Initialization;
   /**
    * Sets new default Options.
    * If the new default Options are partially filled, they're deeply merged with the current default Options.
    * @param newDefaultOptions The new default Options.
    * @returns The current default options.
    */
-  setDefaultOptions(newDefaultOptions: DeepPartial<Options>): Options;
+  setDefaultOptions(newDefaultOptions: PartialOptions): Options;
 }
 
 export interface InternalEnvironment {
@@ -89,9 +88,9 @@ export interface InternalEnvironment {
   readonly _staticDefaultOptions: Options;
   _addListener(listener: EventListener<EnvironmentEventMap, '_'>): () => void;
   _getDefaultInitialization(): Initialization;
-  _setDefaultInitialization(newInitialization: DeepPartial<Initialization>): Initialization;
+  _setDefaultInitialization(newInitialization: PartialInitialization): Initialization;
   _getDefaultOptions(): Options;
-  _setDefaultOptions(newDefaultOptions: DeepPartial<Options>): Options;
+  _setDefaultOptions(newDefaultOptions: PartialOptions): Options;
 }
 
 let environmentInstance: InternalEnvironment;

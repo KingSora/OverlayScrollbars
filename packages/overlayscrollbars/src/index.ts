@@ -5,6 +5,8 @@ export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~
 
 export type {
   Options,
+  PartialOptions,
+  ReadonlyOptions,
   OverflowBehavior,
   ScrollbarsVisibilityBehavior as ScrollbarVisibilityBehavior,
   ScrollbarsAutoHideBehavior as ScrollbarAutoHideBehavior,
@@ -17,6 +19,7 @@ export type {
 } from '~/eventListeners';
 export type {
   Initialization,
+  PartialInitialization,
   InitializationTarget,
   InitializationTargetElement,
   InitializationTargetObject,

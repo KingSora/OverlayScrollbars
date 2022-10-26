@@ -134,6 +134,8 @@ export interface Options {
 
 export type ReadonlyOptions = DeepReadonly<Options>;
 
+export type PartialOptions = DeepPartial<Options>;
+
 export const defaultOptions: Options = {
   paddingAbsolute: false,
   showNativeOverlaidScrollbars: false,

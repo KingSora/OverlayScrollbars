@@ -1,6 +1,5 @@
 import type { OverlayScrollbars } from '~/overlayscrollbars';
-import type { DeepPartial } from '~/typings';
-import type { Options } from '~/options';
+import type { PartialOptions } from '~/options';
 import type {
   EventListeners as GeneralEventListeners,
   EventListener as GeneralEventListener,
@@ -33,7 +32,7 @@ export interface OnUpdatedEventListenerArgs {
     contentMutation: boolean;
   };
   /** The changed options. */
-  changedOptions: DeepPartial<Options>;
+  changedOptions: PartialOptions;
   /** Whether the update happened with and force invalidated cache. */
   force: boolean;
 }

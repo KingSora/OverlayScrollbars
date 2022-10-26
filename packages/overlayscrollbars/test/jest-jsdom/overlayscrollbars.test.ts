@@ -2,8 +2,7 @@ import { defaultOptions } from '~/options';
 import { assignDeep } from '~/support';
 import { OptionsValidationPlugin } from '~/plugins';
 import { OverlayScrollbars as originalOverlayScrollbars } from '~/overlayscrollbars';
-import type { Options } from '~/options';
-import type { DeepPartial } from '~/typings';
+import type { PartialOptions } from '~/options';
 
 const bodyElm = document.body;
 const div = document.createElement('div');
@@ -48,7 +47,7 @@ describe('overlayscrollbars', () => {
             });
 
             test('with custom options', () => {
-              const customOptions: DeepPartial<Options> = {
+              const customOptions: PartialOptions = {
                 paddingAbsolute: false,
                 showNativeOverlaidScrollbars: true,
                 overflow: {
@@ -255,7 +254,7 @@ describe('overlayscrollbars', () => {
           });
 
           test('initial options', () => {
-            const customOptions: DeepPartial<Options> = {
+            const customOptions: PartialOptions = {
               paddingAbsolute: !defaultOptions.paddingAbsolute,
               overflow: { x: 'hidden' },
             };
@@ -265,9 +264,12 @@ describe('overlayscrollbars', () => {
           });
 
           test('changed options', () => {
-            const customOptions: DeepPartial<Options> = {
+            const customOptions: PartialOptions = {
               paddingAbsolute: !defaultOptions.paddingAbsolute,
               overflow: { x: 'hidden' },
+            };
+            const customOptions2: PartialOptions = {
+              overflow: { y: 'hidden' },
             };
 
             const osInstance = OverlayScrollbars(div, {});
@@ -275,23 +277,77 @@ describe('overlayscrollbars', () => {
               assignDeep({}, defaultOptions, customOptions)
             );
             expect(osInstance.options()).toEqual(assignDeep({}, defaultOptions, customOptions));
+            expect(osInstance.options(customOptions2)).toEqual(
+              assignDeep({}, defaultOptions, customOptions, customOptions2)
+            );
+            expect(osInstance.options()).toEqual(
+              assignDeep({}, defaultOptions, customOptions, customOptions2)
+            );
+            osInstance.destroy();
+          });
+
+          test('changed options pure', () => {
+            const customOptions: PartialOptions = {
+              paddingAbsolute: !defaultOptions.paddingAbsolute,
+              overflow: { x: 'hidden' },
+            };
+            const customOptions2: PartialOptions = {
+              overflow: { y: 'hidden' },
+            };
+
+            const osInstance = OverlayScrollbars(div, {});
+            expect(osInstance.options(customOptions, true)).toEqual(
+              assignDeep({}, defaultOptions, customOptions)
+            );
+            expect(osInstance.options()).toEqual(assignDeep({}, defaultOptions, customOptions));
+            expect(osInstance.options(customOptions2, true)).toEqual(
+              assignDeep({}, defaultOptions, customOptions2)
+            );
+            expect(osInstance.options()).toEqual(assignDeep({}, defaultOptions, customOptions2));
             osInstance.destroy();
           });
 
           test('unchanged wont trigger update', () => {
             const updated = jest.fn();
-            const initialOpts: DeepPartial<Options> = {
+            const initialOpts: PartialOptions = {
               paddingAbsolute: true,
               overflow: {
                 y: 'hidden',
               },
             };
-            const osInstance4 = OverlayScrollbars(div, initialOpts, {
+            const osInstance = OverlayScrollbars(div, initialOpts, {
               updated,
             });
             expect(updated).toHaveBeenCalledTimes(1);
-            osInstance4.options(initialOpts);
+            osInstance.options(initialOpts);
+            osInstance.options(initialOpts);
+            osInstance.options({});
+            osInstance.options({});
             expect(updated).toHaveBeenCalledTimes(1);
+            osInstance.options(initialOpts, true);
+            osInstance.options(initialOpts, true);
+            expect(updated).toHaveBeenCalledTimes(1);
+
+            osInstance.options({}, true);
+            osInstance.options({}, true);
+            expect(updated).toHaveBeenCalledTimes(2);
+            osInstance.options(defaultOptions, true);
+            osInstance.options(defaultOptions, true);
+            expect(updated).toHaveBeenCalledTimes(2);
+
+            osInstance.options(initialOpts);
+            osInstance.options(initialOpts);
+            expect(updated).toHaveBeenCalledTimes(3);
+            osInstance.options(defaultOptions);
+            osInstance.options(defaultOptions);
+            expect(updated).toHaveBeenCalledTimes(4);
+
+            osInstance.options(initialOpts, true);
+            osInstance.options(initialOpts, true);
+            expect(updated).toHaveBeenCalledTimes(5);
+            osInstance.options(defaultOptions, true);
+            osInstance.options(defaultOptions, true);
+            expect(updated).toHaveBeenCalledTimes(6);
           });
         });
       });
