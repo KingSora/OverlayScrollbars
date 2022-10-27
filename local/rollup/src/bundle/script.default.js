@@ -37,13 +37,13 @@ module.exports = (resolve, options) => {
   const { rollup, paths, versions, alias, extractStyles, banner } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { name, file, globals, exports, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
-  const { dist: distPath } = paths;
+  const { js: jsPath } = paths;
   const sourcemap = rawSourcemap;
 
   return versions
     .map(({ format, generatedCode, file: filePathOverride, extension, minifiedVersion }) => {
       const needsGlobals = format === 'umd' || format === 'iife';
-      const filePath = path.resolve(distPath, `${file}${extension || '.js'}`);
+      const filePath = path.resolve(jsPath, `${file}${extension || '.js'}`);
 
       const baseOutput = {
         ...outputConfig,

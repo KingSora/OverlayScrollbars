@@ -1,5 +1,4 @@
 const fs = require('fs');
-const { basename } = require('path');
 const path = require('path');
 const rollupDts = require('rollup-plugin-dts');
 
@@ -27,7 +26,7 @@ module.exports = (resolve, options) => {
       plugins: [rollupTs(input, true)],
     },
     {
-      input: path.join(typesPath, `${basename(input).replace('.ts', '.d.ts')}`),
+      input: path.join(typesPath, `${path.basename(input).replace('.ts', '.d.ts')}`),
       output: {
         file: dtsOutput,
       },
@@ -48,7 +47,7 @@ module.exports = (resolve, options) => {
           writeBundle() {
             const filesAndDirs = fs.readdirSync(typesPath);
             filesAndDirs.forEach((fileOrDir) => {
-              if (basename(fileOrDir) !== basename(dtsOutput)) {
+              if (path.basename(fileOrDir) !== path.basename(dtsOutput)) {
                 fs.rmSync(path.join(typesPath, fileOrDir), { recursive: true });
               }
             });

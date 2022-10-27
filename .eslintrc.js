@@ -90,6 +90,7 @@ module.exports = {
       './examples/**/tsconfig.json',
       './website/**/tsconfig.json',
       './local/**/tsconfig.json',
+      './tsconfig.json',
     ],
   },
   env: {

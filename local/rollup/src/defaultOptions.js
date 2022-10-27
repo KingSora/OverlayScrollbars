@@ -3,8 +3,9 @@ module.exports = {
   verbose: false,
   banner: null,
   useEsbuild: false,
+  outDir: './dist',
   paths: {
-    dist: './dist',
+    js: '.',
     types: './types',
     styles: './styles',
   },

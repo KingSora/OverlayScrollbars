@@ -18,7 +18,7 @@ const portRange = {
 };
 
 const paths = {
-  dist: './.build',
+  outDir: './.build',
   input: './index.browser',
   html: './index.html',
 };
@@ -30,7 +30,7 @@ module.exports = (testDir, useEsbuild, dev) => {
   }, {});
 
   const { min, max } = portRange;
-  const { dist, input, html: htmlPath } = testPaths;
+  const { outDir, input, html: htmlPath } = testPaths;
   const name = path.basename(testDir);
   const htmlName = `${name}.html`;
   const port = Math.floor(Math.random() * (max - min + 1) + min);
@@ -43,9 +43,7 @@ module.exports = (testDir, useEsbuild, dev) => {
     banner: testDir,
     extractStyle: false,
     extractTypes: false,
-    paths: {
-      dist,
-    },
+    outDir,
     versions: [
       {
         format: 'iife',
@@ -53,30 +51,6 @@ module.exports = (testDir, useEsbuild, dev) => {
         minifiedVersion: false,
       },
     ],
-    // if the import would be 'overlayscrollbars' and the package name is also 'overlayscrollbars' esbuild needs an alias to resolve it correctly
-    alias: (workspaceRoot, workspaces, resolvePath) =>
-      workspaces.reduce((obj, resolvedPath) => {
-        const absolutePath = path.resolve(workspaceRoot, resolvedPath);
-        try {
-          // eslint-disable-next-line import/no-dynamic-require, global-require
-          const projTsConfig = require(`${path.resolve(
-            workspaceRoot,
-            resolvedPath
-          )}/tsconfig.json`);
-          // eslint-disable-next-line import/no-dynamic-require, global-require
-          const projPackageJson = require(`${path.resolve(
-            workspaceRoot,
-            resolvedPath
-          )}/package.json`);
-
-          const { name: projectName } = projPackageJson;
-          const { compilerOptions } = projTsConfig;
-          const { baseUrl } = compilerOptions;
-
-          obj[projectName] = resolvePath(absolutePath, path.join(baseUrl, projectName), true);
-        } catch {}
-        return obj;
-      }, {}),
     rollup: {
       input,
       context: 'this',
@@ -91,7 +65,7 @@ module.exports = (testDir, useEsbuild, dev) => {
         ),
         rollupPluginServe({
           port,
-          contentBase: dist,
+          contentBase: outDir,
           historyApiFallback: `/${htmlName}`,
           host: '127.0.0.1',
           verbose: isDev,
@@ -102,7 +76,7 @@ module.exports = (testDir, useEsbuild, dev) => {
         isDev && rollupAdditionalWatchFiles([htmlPath]),
         isDev &&
           rollupPluginLivereload({
-            watch: dist,
+            watch: outDir,
             port: port - 1,
             verbose: false,
           }),

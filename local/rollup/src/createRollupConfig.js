@@ -30,6 +30,7 @@ const resolvePath = (basePath, pathToResolve, appendExt) => {
 
 const mergeAndResolveOptions = (userOptions) => {
   const {
+    outDir: defaultOutDir,
     paths: defaultPaths,
     versions: defaultVersions,
     alias: defaultAlias,
@@ -42,6 +43,7 @@ const mergeAndResolveOptions = (userOptions) => {
   } = defaultOptions;
   const {
     project,
+    outDir: rawOutDir,
     paths: rawPaths = {},
     alias: rawAlias = {},
     rollup: rawRollup = {},
@@ -64,6 +66,7 @@ const mergeAndResolveOptions = (userOptions) => {
     banner: rawBanner ?? defaultBanner,
     versions: rawVersions ?? defaultVersions,
     useEsbuild: rawUseEsbuild ?? defaultUseEsbuild,
+    outDir: rawOutDir ?? defaultOutDir,
     paths: {
       ...defaultPaths,
       ...rawPaths,
@@ -83,13 +86,14 @@ const mergeAndResolveOptions = (userOptions) => {
       },
     },
   };
-  const { dist, types, styles } = mergedOptions.paths;
+  const { outDir, paths } = mergedOptions;
+  const { js, types, styles } = paths;
   const pluginFromFn = (plugin) =>
     typeof plugin === 'function' ? plugin(mergedOptions, workspaceRoot, workspaces) : plugin;
 
-  mergedOptions.paths.dist = resolvePath(projectPath, dist);
-  mergedOptions.paths.types = resolvePath(projectPath, types);
-  mergedOptions.paths.styles = resolvePath(projectPath, styles);
+  paths.js = resolvePath(projectPath, path.join(outDir, js));
+  paths.types = resolvePath(projectPath, path.join(outDir, types));
+  paths.styles = resolvePath(projectPath, path.join(outDir, styles));
 
   mergedOptions.rollup.input = resolvePath(projectPath, mergedOptions.rollup.input, true);
   mergedOptions.rollup.output = {

@@ -12,7 +12,7 @@ module.exports = (resolve, options) => {
   const { rollup, paths, alias, extractStyles, banner } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { file, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
-  const { dist: distPath } = paths;
+  const { js: jsPath } = paths;
   const sourcemap = rawSourcemap;
 
   const output = {
@@ -20,7 +20,7 @@ module.exports = (resolve, options) => {
     sourcemap,
     format: 'esm',
     generatedCode: 'es2015',
-    file: path.resolve(distPath, `${file}.js`),
+    file: path.resolve(jsPath, `${file}.js`),
   };
 
   return {
