@@ -3,13 +3,13 @@ const sass = require('sass');
 const postcss = require('postcss');
 const cssnano = require('cssnano');
 const autoprefixer = require('autoprefixer');
-const { nodeResolve: rollupPluginResolve } = require('@rollup/plugin-node-resolve');
 const { babel: rollupBabelInputPlugin } = require('@rollup/plugin-babel');
 const { esbuildResolve: rollupPluginEsBuildResolve } = require('rollup-plugin-esbuild-resolve');
 const rollupPluginScss = require('rollup-plugin-scss');
 const rollupPluginIgnoreImport = require('rollup-plugin-ignore-import');
 const rollupPluginCommonjs = require('@rollup/plugin-commonjs');
 const rollupPluginAlias = require('@rollup/plugin-alias');
+const rollupPluginJson = require('@rollup/plugin-json');
 const rollupPluginTs = require('rollup-plugin-typescript2');
 const rollupPluginLicense = require('rollup-plugin-license');
 const rollupPluginEsBuild = require('../plugins/esbuild');
@@ -36,14 +36,6 @@ module.exports = {
     rollupPluginCommonjs({
       sourceMap: sourcemap,
       extensions: resolve.extensions,
-    }),
-  rollupResolve: (resolve, resolveOnly) =>
-    rollupPluginResolve({
-      mainFields: ['browser', 'umd:main', 'module', 'main'],
-      moduleDirectories: resolve.directories,
-      extensions: resolve.extensions,
-      ignoreSideEffectsForRoot: true,
-      ...(resolveOnly ? { resolveOnly } : {}),
     }),
   rollupEsbuildResolve: (resolve) =>
     rollupPluginEsBuildResolve({
@@ -136,4 +128,5 @@ module.exports = {
         commentStyle: 'ignored',
       },
     }),
+  rollupJson: () => rollupPluginJson(),
 };

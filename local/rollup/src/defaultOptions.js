@@ -25,6 +25,7 @@ module.exports = {
   ],
   extractStyles: false,
   extractTypes: false,
+  extractPackageJson: false,
   alias: {},
   rollup: {
     input: './src/index',

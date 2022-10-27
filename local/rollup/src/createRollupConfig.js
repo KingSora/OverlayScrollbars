@@ -37,6 +37,7 @@ const mergeAndResolveOptions = (userOptions) => {
     rollup: defaultRollup,
     extractStyles: defaultExtractStyles,
     extractTypes: defaultExtractTypes,
+    extractPackageJson: defaultExtractPackageJson,
     verbose: defaultVerbose,
     banner: defaultBanner,
     useEsbuild: defaultUseEsbuild,
@@ -50,6 +51,7 @@ const mergeAndResolveOptions = (userOptions) => {
     versions: rawVersions,
     extractStyles: rawExtractStyles,
     extractTypes: rawExtractTypes,
+    extractPackageJson: rawExtractPackageJson,
     verbose: rawVerbose,
     banner: rawBanner,
     useEsbuild: rawUseEsbuild,
@@ -62,6 +64,7 @@ const mergeAndResolveOptions = (userOptions) => {
     project: project || path.basename(projectPath),
     extractStyles: rawExtractStyles ?? defaultExtractStyles,
     extractTypes: rawExtractTypes ?? defaultExtractTypes,
+    extractPackageJson: rawExtractPackageJson ?? defaultExtractPackageJson,
     verbose: rawVerbose ?? defaultVerbose,
     banner: rawBanner ?? defaultBanner,
     versions: rawVersions ?? defaultVersions,
@@ -95,6 +98,7 @@ const mergeAndResolveOptions = (userOptions) => {
   paths.types = resolvePath(projectPath, path.join(outDir, types));
   paths.styles = resolvePath(projectPath, path.join(outDir, styles));
 
+  mergedOptions.outDir = resolvePath(projectPath, outDir);
   mergedOptions.rollup.input = resolvePath(projectPath, mergedOptions.rollup.input, true);
   mergedOptions.rollup.output = {
     ...(mergedOptions.rollup.output || {}),
@@ -116,6 +120,9 @@ const createConfig = (userOptions = {}) => {
   const resultArr = Array.isArray(result) ? result : [result];
 
   if (verbose) {
+    if (!Array.isArray(resultArr[0].plugins)) {
+      resultArr[0].plugins = [];
+    }
     resultArr[0].plugins.push({
       name: 'PROJECT',
       buildStart() {
