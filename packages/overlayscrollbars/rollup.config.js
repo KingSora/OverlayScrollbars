@@ -9,7 +9,43 @@ module.exports = createRollupConfig({
   verbose: true,
   extractStyles: true,
   extractTypes: true,
-  extractPackageJson: false,
+  extractPackageJson: {
+    json: ({
+      name,
+      version: originalVersion,
+      description,
+      author,
+      license,
+      homepage,
+      bugs,
+      repository,
+      keywords,
+    }) => {
+      return {
+        name,
+        version: originalVersion,
+        description,
+        author,
+        license,
+        homepage,
+        bugs,
+        repository,
+        keywords,
+        main: 'overlayscrollbars.cjs.js',
+        module: 'overlayscrollbars.esm.js',
+        types: 'overlayscrollbars.d.ts',
+        exports: {
+          '.': {
+            require: './overlayscrollbars.cjs',
+            import: './overlayscrollbars.mjs',
+            types: './types/overlayscrollbars.d.ts',
+          },
+          './overlayscrollbars.css': './styles/overlayscrollbars.css',
+        },
+        sideEffects: ['*.css', '*.scss', '*.sass'],
+      };
+    },
+  },
   versions: [
     {
       format: 'cjs',

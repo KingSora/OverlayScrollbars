@@ -9,7 +9,7 @@ const rollupPluginScss = require('rollup-plugin-scss');
 const rollupPluginIgnoreImport = require('rollup-plugin-ignore-import');
 const rollupPluginCommonjs = require('@rollup/plugin-commonjs');
 const rollupPluginAlias = require('@rollup/plugin-alias');
-const rollupPluginJson = require('@rollup/plugin-json');
+const rollupPluginVirtual = require('@rollup/plugin-virtual');
 const rollupPluginTs = require('rollup-plugin-typescript2');
 const rollupPluginLicense = require('rollup-plugin-license');
 const rollupPluginEsBuild = require('../plugins/esbuild');
@@ -128,5 +128,5 @@ module.exports = {
         commentStyle: 'ignored',
       },
     }),
-  rollupJson: () => rollupPluginJson(),
+  rollupVirtual: (modules) => rollupPluginVirtual(modules),
 };

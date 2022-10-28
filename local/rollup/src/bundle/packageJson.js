@@ -1,17 +1,44 @@
 const path = require('path');
-const { terser: rollupTerser } = require('rollup-plugin-terser');
-const { rollupJson } = require('./plugins');
+const { rollupVirtual } = require('./plugins');
 
-module.exports = (resolve, options) => {
-  const { extractPackageJson, outDir, rollup } = options;
+module.exports = (_, options) => {
+  const { extractPackageJson, outDir } = options;
 
-  const { input = './package.json', output = './package.json' } = extractPackageJson;
+  const {
+    input = './package.json',
+    output = './package.json',
+    json,
+  } = typeof extractPackageJson === 'object' ? extractPackageJson : {};
+  const resolvedInput = path.resolve(input);
+  const inputPackageJson = require(resolvedInput);
 
   return {
-    input,
+    input: resolvedInput,
+    onwarn: (warning, warn) => {
+      if (warning.code !== 'EMPTY_BUNDLE') {
+        warn(warning);
+      }
+    },
     output: {
       file: path.resolve(outDir, output),
     },
-    plugins: [rollupJson()],
+    plugins: [
+      rollupVirtual({
+        [resolvedInput]: '',
+      }),
+      {
+        generateBundle(__, bundle) {
+          const bundleKeys = Object.keys(bundle);
+          if (bundleKeys.length > 1) {
+            throw new Error('Unexpected entries length.');
+          }
+          bundle[bundleKeys[0]].code = JSON.stringify(
+            typeof json === 'function' ? json(inputPackageJson) : inputPackageJson,
+            null,
+            2
+          );
+        },
+      },
+    ],
   };
 };

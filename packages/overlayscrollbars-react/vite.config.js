@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
-import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
+import { esbuildResolve } from 'rollup-plugin-esbuild-resolve';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
@@ -21,10 +21,5 @@ export default defineConfig({
       },
     },
   },
-  resolve: {
-    alias: {
-      '~': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
-  plugins: [react({ jsxRuntime: 'classic' })],
+  plugins: [esbuildResolve(), react({ jsxRuntime: 'classic' })],
 });

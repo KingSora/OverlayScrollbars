@@ -1,7 +1,5 @@
 # Compiled output
 /dist
-/styles
-/types
 
 # Playwright output
 .build/
