@@ -6,8 +6,6 @@ import { build } from 'esbuild';
 import { terser } from 'rollup-plugin-terser';
 
 // @ts-ignore
-import pkg from '~/../package.json';
-// @ts-ignore
 import rollupConfig from '~/../rollup.config';
 
 const cleanBundle = true;
@@ -115,13 +113,13 @@ const testBundler = (bundlerName: string) => async () => {
 describe('tree shaking', () => {
   // build the fixture
   beforeAll(async () => {
-    const { module } = pkg;
-    const esmEntryFilename = path.basename(module);
     const config = rollupConfig.find((inputConfig: any) => {
       const { output } = inputConfig;
       if (output) {
         const outputArr = Array.isArray(output) ? output : [output];
-        const outputConfig = outputArr.find(({ file }) => path.basename(file) === esmEntryFilename);
+        const outputConfig = outputArr.find(
+          ({ file }) => path.basename(file) === 'overlayscrollbars.esm.js'
+        );
         if (outputConfig) {
           inputConfig.output = outputConfig;
           inputConfig.output.sourcemap = false;
@@ -134,7 +132,6 @@ describe('tree shaking', () => {
       }
       return false;
     });
-
     const bundle = await rollup(config);
     await bundle.write(config.output);
 
