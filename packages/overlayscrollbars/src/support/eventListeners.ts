@@ -1,4 +1,4 @@
-import { isArray, isString } from '~/support/utils/types';
+import { isArray, isFunction, isString } from '~/support/utils/types';
 import { keys } from '~/support/utils/object';
 import { each, push, from, isEmptyArray, runEachAndClear } from '~/support/utils/array';
 
@@ -7,7 +7,7 @@ export type EventListener<EventMap extends Record<string, any[]>, N extends keyo
 ) => void;
 
 export type EventListeners<EventMap extends Record<string, any[]>> = {
-  [K in keyof EventMap]?: EventListener<EventMap, K> | EventListener<EventMap, K>[];
+  [K in keyof EventMap]?: EventListener<EventMap, K> | EventListener<EventMap, K>[] | null;
 };
 
 export type RemoveEvent<EventMap extends Record<string, any[]>> = {
@@ -73,7 +73,7 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
       events.set(nameOrEventListeners, eventSet);
 
       manageListener((currListener) => {
-        currListener && eventSet.add(currListener);
+        isFunction(currListener) && eventSet.add(currListener);
       }, listener as any);
 
       return removeEvent.bind(0, nameOrEventListeners as any, listener as any);
@@ -82,7 +82,8 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
     const eventListenerKeys = keys(nameOrEventListeners) as (keyof EventListeners<EventMap>)[];
     const offFns: (() => void)[] = [];
     each(eventListenerKeys, (key) => {
-      push(offFns, addEvent(key, (nameOrEventListeners as EventListeners<EventMap>)[key]));
+      const eventListener = (nameOrEventListeners as EventListeners<EventMap>)[key];
+      eventListener && push(offFns, addEvent(key, eventListener));
     });
 
     return runEachAndClear.bind(0, offFns);

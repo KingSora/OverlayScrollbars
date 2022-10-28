@@ -33,7 +33,7 @@ module.exports = createRollupConfig({
         keywords,
         main: 'overlayscrollbars.cjs.js',
         module: 'overlayscrollbars.esm.js',
-        types: 'overlayscrollbars.d.ts',
+        types: 'types/overlayscrollbars.d.ts',
         exports: {
           '.': {
             require: './overlayscrollbars.cjs',

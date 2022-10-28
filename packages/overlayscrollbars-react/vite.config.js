@@ -13,10 +13,11 @@ export default defineConfig({
       fileName: (format) => `overlayscrollbars-react.${format}.js`,
     },
     rollupOptions: {
-      external: ['react'],
+      external: ['react', 'overlayscrollbars'],
       output: {
         globals: {
           react: 'React',
+          overlayscrollbars: 'OverlayScrollbarsGlobal',
         },
       },
     },

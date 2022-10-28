@@ -28,7 +28,7 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
   useEffect(() => {
     const { current: target } = osTargetRef;
     if (target) {
-      const instance = OverlayScrollbars(target as any, options || {});
+      const instance = OverlayScrollbars(target as any, options || {}, events);
       osInstanceRef.current = instance;
 
       return () => instance.destroy();

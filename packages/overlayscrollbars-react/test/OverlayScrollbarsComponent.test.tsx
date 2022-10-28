@@ -1,9 +1,9 @@
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, vitest } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
-import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-react';
 import type { RefObject } from 'react';
+import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-react';
 
 describe('OverlayScrollbarsComponent', () => {
   describe('correct rendering', () => {
@@ -87,5 +87,39 @@ describe('OverlayScrollbarsComponent', () => {
     expect(newOpts.paddingAbsolute).toBe(false); //switches back to default because its not specified in the new options
     expect(newOpts.overflow.y).toBe('scroll'); //switches back to default because its not specified in the new options
     expect(newOpts.overflow.x).toBe('hidden');
+  });
+
+  test('events', () => {
+    const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
+    const onUpdatedInitial = vitest.fn();
+    const onUpdated = vitest.fn();
+    const { rerender } = render(
+      <OverlayScrollbarsComponent events={{ updated: onUpdatedInitial }} ref={ref} />
+    );
+
+    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
+
+    rerender(<OverlayScrollbarsComponent events={{ updated: onUpdated }} ref={ref} />);
+
+    expect(onUpdated).not.toHaveBeenCalled();
+
+    ref.current?.osInstance()?.update(true);
+    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
+    expect(onUpdated).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <OverlayScrollbarsComponent events={{ updated: [onUpdated, onUpdatedInitial] }} ref={ref} />
+    );
+
+    ref.current?.osInstance()?.update(true);
+    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
+    expect(onUpdated).toHaveBeenCalledTimes(2);
+
+    // unregister works with `[]`, `null` or `undefined`
+    rerender(<OverlayScrollbarsComponent events={{ updated: null }} ref={ref} />);
+
+    ref.current?.osInstance()?.update(true);
+    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
+    expect(onUpdated).toHaveBeenCalledTimes(2);
   });
 });

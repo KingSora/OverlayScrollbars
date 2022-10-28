@@ -41,6 +41,10 @@
     "./overlayscrollbars.scss": "./src/index.scss"
   },
   "sideEffects": ["*.css", "*.scss", "*.sass"],
+  "devDependencies": {
+    "rollup-plugin-summary": "^1.4.3",
+    "rollup-plugin-terser": "^7.0.2"
+  },
   "scripts": {
     "build": "rollup -c",
     "test": "jest --coverage",
