@@ -9,11 +9,14 @@ const assetFilesModuleNameMapper = {
     path.resolve(__dirname, 'jest.fileMock.js'),
   '.*\\.(css|less|scss|sass)$': path.resolve(__dirname, 'jest.fileMock.js'),
 };
+const coveragePathIgnorePatterns = [
+  '/node_modules/',
+  '<rootDir>/([^/]*)\\.config\\.(js|mjs|cjs|ts)',
+];
 
 /** @type {import('jest').Config} */
 module.exports = {
   coverageDirectory: './.coverage/unit',
-  moduleNameMapper: assetFilesModuleNameMapper,
   projects: [
     {
       displayName: 'node',
@@ -26,8 +29,9 @@ module.exports = {
         ...assetFilesModuleNameMapper,
         ...resolve.paths.jest.moduleNameMapper,
       },
-      testPathIgnorePatterns: ['\\\\node_modules\\\\'],
+      testPathIgnorePatterns: ['/node_modules/'],
       setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
+      coveragePathIgnorePatterns,
     },
     {
       displayName: 'jsdom',
@@ -40,8 +44,9 @@ module.exports = {
         ...assetFilesModuleNameMapper,
         ...resolve.paths.jest.moduleNameMapper,
       },
-      testPathIgnorePatterns: ['\\\\node_modules\\\\'],
+      testPathIgnorePatterns: ['/node_modules/'],
       setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
+      coveragePathIgnorePatterns,
     },
   ],
 };

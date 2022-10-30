@@ -51,7 +51,7 @@
     "e2e": "playwright test --grep-invert @special",
     "e2e:dev": "playwright test --workers 1 --timeout 0 --global-timeout 0",
     "jest": "jest --coverage --testPathPattern",
-    "jest:node": "jest --selectProjects node --testPathPattern",
+    "jest:node": "jest --coverage --selectProjects node --testPathPattern",
     "jest:jsdom": "jest --selectProjects jsdom --testPathPattern",
     "posttest": "playwright-merge-coverage && full-coverage",
     "postjest": "full-coverage",
