@@ -11,24 +11,36 @@ export type OverlayScrollbarsComponentProps<T extends keyof JSX.IntrinsicElement
   };
 
 export interface OverlayScrollbarsComponentRef<T extends keyof JSX.IntrinsicElements = 'div'> {
-  osInstance(): OverlayScrollbars | null;
-  osTarget(): ElementRef<T> | null;
+  instance(): OverlayScrollbars | null;
+  target(): ElementRef<T> | null;
 }
 
 const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
   props: OverlayScrollbarsComponentProps<T>,
   ref: ForwardedRef<OverlayScrollbarsComponentRef<T>>
 ) => {
-  const { element = 'div', options, events, ...other } = props;
+  const { element = 'div', options, events, children, ...other } = props;
   const Tag = element;
 
   const osTargetRef = useRef<ElementRef<T>>(null);
+  const osChildrenRef = useRef<HTMLDivElement>(null);
   const osInstanceRef = useRef<OverlayScrollbars | null>(null);
 
   useEffect(() => {
-    const { current: target } = osTargetRef;
-    if (target) {
-      const instance = OverlayScrollbars(target as any, options || {}, events);
+    const { current: targetElm } = osTargetRef;
+    const { current: childrenElm } = osChildrenRef;
+    if (targetElm && childrenElm) {
+      const instance = OverlayScrollbars(
+        {
+          target: targetElm as any,
+          elements: {
+            viewport: childrenElm,
+            content: childrenElm,
+          },
+        },
+        options || {},
+        events
+      );
       osInstanceRef.current = instance;
 
       return () => instance.destroy();
@@ -53,15 +65,19 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
     ref,
     () => {
       return {
-        osInstance: () => osInstanceRef.current,
-        osTarget: () => osTargetRef.current,
+        instance: () => osInstanceRef.current,
+        target: () => osTargetRef.current,
       };
     },
     []
   );
 
-  // @ts-ignore
-  return <Tag data-overlayscrollbars="" {...other} ref={osTargetRef} />;
+  return (
+    // @ts-ignore
+    <Tag data-overlayscrollbars="" {...other} ref={osTargetRef}>
+      <div ref={osChildrenRef}>{children}</div>
+    </Tag>
+  );
 };
 
 const OverlayScrollbarsComponentForwardedRef = forwardRef(OverlayScrollbarsComponent) as <

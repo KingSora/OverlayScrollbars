@@ -61,11 +61,11 @@ describe('OverlayScrollbarsComponent', () => {
     const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
     const { container } = render(<OverlayScrollbarsComponent ref={ref} />);
 
-    const { osInstance, osTarget } = ref.current!;
-    expect(osInstance).toBeTypeOf('function');
-    expect(osTarget).toBeTypeOf('function');
-    expect(OverlayScrollbars.valid(osInstance())).toBe(true);
-    expect(osTarget()).toBe(container.firstElementChild);
+    const { instance, target } = ref.current!;
+    expect(instance).toBeTypeOf('function');
+    expect(target).toBeTypeOf('function');
+    expect(OverlayScrollbars.valid(instance())).toBe(true);
+    expect(target()).toBe(container.firstElementChild);
   });
 
   test('options', () => {
@@ -77,13 +77,13 @@ describe('OverlayScrollbarsComponent', () => {
       />
     );
 
-    const opts = ref.current!.osInstance()!.options();
+    const opts = ref.current!.instance()!.options();
     expect(opts.paddingAbsolute).toBe(true);
     expect(opts.overflow.y).toBe('hidden');
 
     rerender(<OverlayScrollbarsComponent options={{ overflow: { x: 'hidden' } }} ref={ref} />);
 
-    const newOpts = ref.current!.osInstance()!.options()!;
+    const newOpts = ref.current!.instance()!.options()!;
     expect(newOpts.paddingAbsolute).toBe(false); //switches back to default because its not specified in the new options
     expect(newOpts.overflow.y).toBe('scroll'); //switches back to default because its not specified in the new options
     expect(newOpts.overflow.x).toBe('hidden');
@@ -103,7 +103,7 @@ describe('OverlayScrollbarsComponent', () => {
 
     expect(onUpdated).not.toHaveBeenCalled();
 
-    ref.current?.osInstance()?.update(true);
+    ref.current!.instance()!.update(true);
     expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(1);
 
@@ -111,14 +111,14 @@ describe('OverlayScrollbarsComponent', () => {
       <OverlayScrollbarsComponent events={{ updated: [onUpdated, onUpdatedInitial] }} ref={ref} />
     );
 
-    ref.current?.osInstance()?.update(true);
+    ref.current!.instance()!.update(true);
     expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
 
     // unregister works with `[]`, `null` or `undefined`
     rerender(<OverlayScrollbarsComponent events={{ updated: null }} ref={ref} />);
 
-    ref.current?.osInstance()?.update(true);
+    ref.current!.instance()!.update(true);
     expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
   });

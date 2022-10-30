@@ -47,6 +47,7 @@ export type Initialization = {
   /**
    * Customizes which elements are generated and used.
    * If a function is passed to any of the fields, it receives the `target` element as its argument.
+   * Any passed function should be a "pure" function. (same input produces same output)
    */
   elements: {
     /**
