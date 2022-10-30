@@ -10,14 +10,14 @@ import rollupConfig from '~/../rollup.config';
 
 const cleanBundle = true;
 const cleanFixture = true;
-const expectedBundleDiff = 2300;
+const expectedBundleDiff = 2400;
 
 const normalizePath = (pathName: string) =>
   pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName;
 
-const fixturesDir = path.join(__dirname, '.treeshakingFixtures');
+const fixturesDir = path.join(__dirname, '.fixtures');
 const libraryFixturePath = normalizePath(path.join(fixturesDir, 'lib.js'));
-const normalFixturePath = normalizePath(path.join(fixturesDir, 'nromal.js'));
+const normalFixturePath = normalizePath(path.join(fixturesDir, 'normal.js'));
 const treeshakedFixturePath = normalizePath(path.join(fixturesDir, 'treeshaked.js'));
 
 const unshakedFixtureContent = `
@@ -88,7 +88,7 @@ const bundleFunctions = {
 
 const testBundler = (bundlerName: string) => async () => {
   const bundleFunction = bundleFunctions[bundlerName];
-  const outputDir = path.join(__dirname, `.${bundlerName}`);
+  const outputDir = path.join(fixturesDir, `.${bundlerName}`);
   const normal = await bundleFunction(
     normalFixturePath,
     path.join(outputDir, path.basename(normalFixturePath))

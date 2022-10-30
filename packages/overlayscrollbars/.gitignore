@@ -1,8 +1,9 @@
 # Compiled output
 /dist
 
-# Playwright output
+# Tests generated output
 .build/
+.fixtures/
 
 # Node
 /node_modules
