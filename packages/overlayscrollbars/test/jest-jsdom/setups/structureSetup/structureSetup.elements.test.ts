@@ -112,12 +112,13 @@ const assertCorrectDOMStructure = (
 ) => {
   const { target, host, padding, viewport, content, children } = getElements(targetType);
   const { _getDefaultInitialization } = env;
-  const { _viewportIsTarget, _viewportIsContent } = elements;
+  const { _viewportIsTarget, _viewportIsContent, _viewport, _content } = elements;
 
   expect(children).toBeDefined();
-  expect(children!.closest(`[${dataAttributeHost}]`)).toBeTruthy();
+  expect((_content || _viewport).contains(children)).toBe(true);
 
   if (_viewportIsTarget) {
+    expect(host.getAttribute(dataAttributeHost)).toBe('viewport');
     expect(_viewportIsContent).toBe(false);
 
     expect(target).toBe(host);
@@ -126,6 +127,8 @@ const assertCorrectDOMStructure = (
     expect(viewport).toBeFalsy();
     expect(content).toBeFalsy();
   } else {
+    expect(host.getAttribute(dataAttributeHost)).toBe('host');
+
     expect(host).toBeTruthy();
     expect(viewport).toBeTruthy();
     expect(viewport.parentElement).toBe(padding || host);
@@ -154,7 +157,7 @@ const assertCorrectDOMStructure = (
   }
 
   if (_viewportIsContent) {
-    const { _target, _content, _viewport } = elements;
+    const { _target } = elements;
     const { elements: defaultInitElements } = _getDefaultInitialization();
     const { content: defaultContentInit } = defaultInitElements;
     const resolvedDefaultContentInit = resolveInitialization([_target], defaultContentInit);
@@ -333,7 +336,7 @@ const assertCorrectSetupElements = (
     }
   };
 
-  if (_nativeScrollbarsHiding || _cssCustomProperties) {
+  if (_nativeScrollbarsHiding || _cssCustomProperties || _viewportIsTarget) {
     expect(styleElm).toBeFalsy();
   } else {
     expect(styleElm).toBeTruthy();
@@ -588,7 +591,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: () => document.querySelector<HTMLElement>('#padding'),
                     },
                   }),
@@ -609,7 +612,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: () => document.querySelector<HTMLElement>('#host'),
+                      host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                     },
                   }),
@@ -630,7 +633,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       content: document.querySelector<HTMLElement>('#content'),
                     },
                   }),
@@ -653,7 +656,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: document.querySelector<HTMLElement>('#padding'),
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                       content: () => document.querySelector<HTMLElement>('#content'),
@@ -676,7 +679,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: () => document.querySelector<HTMLElement>('#host'),
+                      host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: document.querySelector<HTMLElement>('#padding'),
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                     },
@@ -698,7 +701,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: () => document.querySelector<HTMLElement>('#padding'),
                       content: document.querySelector<HTMLElement>('#content'),
                     },
@@ -720,7 +723,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                       content: () => document.querySelector<HTMLElement>('#content'),
                     },
@@ -850,7 +853,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: false,
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                       content: false,
@@ -873,7 +876,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: true,
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                       content: true,
@@ -896,7 +899,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: () => false,
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                       content: () => true,
@@ -919,7 +922,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: true,
                       viewport: () => document.querySelector<HTMLElement>('#viewport'),
                       content: false,
@@ -942,7 +945,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: false,
                       content: document.querySelector<HTMLElement>('#content'),
                     },
@@ -964,7 +967,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: true,
                       content: document.querySelector<HTMLElement>('#content'),
                     },
@@ -986,7 +989,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: () => false,
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                     },
@@ -1008,7 +1011,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: true,
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                     },
@@ -1030,7 +1033,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                       padding: false,
                       content: () => document.querySelector<HTMLElement>('#content'),
@@ -1053,7 +1056,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       viewport: () => document.querySelector<HTMLElement>('#viewport'),
                       padding: true,
                       content: document.querySelector<HTMLElement>('#content'),
@@ -1076,7 +1079,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: document.querySelector<HTMLElement>('#padding'),
                       content: false,
                     },
@@ -1098,7 +1101,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: () => document.querySelector<HTMLElement>('#host'),
+                      host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: document.querySelector<HTMLElement>('#padding'),
                       content: true,
                     },
@@ -1120,7 +1123,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       viewport: () => document.querySelector<HTMLElement>('#viewport'),
                       content: false,
                     },
@@ -1142,7 +1145,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                       content: true,
                     },
@@ -1164,7 +1167,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: document.querySelector<HTMLElement>('#host'),
+                      host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: () => document.querySelector<HTMLElement>('#padding'),
                       viewport: document.querySelector<HTMLElement>('#viewport'),
                       content: () => false,
@@ -1187,7 +1190,7 @@ describe('structureSetup.elements', () => {
                   createStructureSetupElementsProxy({
                     target: getTarget(targetType),
                     elements: {
-                      host: () => document.querySelector<HTMLElement>('#host'),
+                      host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
                       padding: document.querySelector<HTMLElement>('#padding'),
                       viewport: () => document.querySelector<HTMLElement>('#viewport'),
                       content: true,
@@ -1199,63 +1202,109 @@ describe('structureSetup.elements', () => {
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
+          });
 
-            describe('viewport is content', () => {
+          describe('viewport is content', () => {
+            [
+              {
+                testName: 'HTMLElement',
+                getInitializationElements: () => ({
+                  host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                  viewport: document.querySelector<HTMLElement>('#viewportOrContent'),
+                  content: document.querySelector<HTMLElement>('#viewportOrContent'),
+                }),
+              },
+              {
+                testName: 'function',
+                getInitializationElements: () => ({
+                  host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                  viewport: () => document.querySelector<HTMLElement>('#viewportOrContent'),
+                  content: () => document.querySelector<HTMLElement>('#viewportOrContent'),
+                }),
+              },
+              {
+                testName: 'mixed',
+                getInitializationElements: () => ({
+                  host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                  viewport: document.querySelector<HTMLElement>('#viewportOrContent'),
+                  content: () => document.querySelector<HTMLElement>('#viewportOrContent'),
+                }),
+              },
+            ].forEach(({ testName, getInitializationElements }) => {
+              test(testName, () => {
+                const snapshot = fillBody(
+                  targetType,
+                  (content, hostId) =>
+                    `<div id="${hostId}"><div id="viewportOrContent">${content}</div></div>`
+                );
+
+                const [elements, destroy] = assertCorrectSetupElements(
+                  targetType,
+                  createStructureSetupElementsProxy({
+                    target: getTarget(targetType),
+                    elements: getInitializationElements(),
+                  }),
+                  currEnv
+                );
+                if (!elements._viewportIsTarget) {
+                  expect(elements._viewportIsContent).toBe(true);
+                }
+                if (elements._viewportIsContent) {
+                  expect(getElements(targetType).children!.parentElement).toBe(
+                    document.querySelector(`#viewportOrContent`)
+                  );
+                }
+                assertCorrectDOMStructure(targetType, currEnv, elements);
+                assertCorrectDestroy(snapshot, destroy);
+              });
+            });
+          });
+
+          // textarea can't ever be the viewport
+          if (targetType !== 'textarea') {
+            describe('viewport is target', () => {
               [
                 {
-                  testName: 'HTMLElements',
-                  getInitializationElements: () => ({
-                    host: () => document.querySelector<HTMLElement>('#host'),
-                    viewport: document.querySelector<HTMLElement>('#viewportOrContent'),
-                    content: document.querySelector<HTMLElement>('#viewportOrContent'),
+                  testName: 'HTMLElement',
+                  getInitializationElements: (target: HTMLElement) => ({
+                    host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                    viewport: target,
                   }),
                 },
                 {
-                  testName: 'functions',
-                  getInitializationElements: () => ({
-                    host: document.querySelector<HTMLElement>('#host'),
-                    viewport: () => document.querySelector<HTMLElement>('#viewportOrContent'),
-                    content: () => document.querySelector<HTMLElement>('#viewportOrContent'),
-                  }),
-                },
-                {
-                  testName: 'mixed',
-                  getInitializationElements: () => ({
-                    host: () => document.querySelector<HTMLElement>('#host'),
-                    viewport: document.querySelector<HTMLElement>('#viewportOrContent'),
-                    content: () => document.querySelector<HTMLElement>('#viewportOrContent'),
+                  testName: 'function',
+                  getInitializationElements: (target: HTMLElement) => ({
+                    host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                    viewport: () => target,
                   }),
                 },
               ].forEach(({ testName, getInitializationElements }) => {
                 test(testName, () => {
                   const snapshot = fillBody(
                     targetType,
-                    (content, hostId) =>
-                      `<div id="${hostId}"><div id="viewportOrContent">${content}</div></div>`
+                    (content, hostId) => `<div id="${hostId}">${content}</div>`
                   );
 
                   const [elements, destroy] = assertCorrectSetupElements(
                     targetType,
                     createStructureSetupElementsProxy({
                       target: getTarget(targetType),
-                      elements: getInitializationElements(),
+                      elements: getInitializationElements(getTarget(targetType)),
                     }),
                     currEnv
                   );
-                  if (!elements._viewportIsTarget) {
-                    expect(elements._viewportIsContent).toBe(true);
-                  }
-                  if (elements._viewportIsContent) {
-                    expect(getElements(targetType).children!.parentElement).toBe(
-                      document.querySelector(`#viewportOrContent`)
-                    );
-                  }
+                  expect(elements._viewportIsTarget).toBe(true);
+                  expect(elements._host).toBe(elements._target);
+                  expect(elements._padding).toBeFalsy();
+                  expect(elements._viewport).toBe(elements._target);
+                  expect(elements._content).toBeFalsy();
+
                   assertCorrectDOMStructure(targetType, currEnv, elements);
                   assertCorrectDestroy(snapshot, destroy);
                 });
               });
             });
-          });
+          }
         });
       });
     });
