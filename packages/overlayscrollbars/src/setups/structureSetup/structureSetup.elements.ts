@@ -36,6 +36,7 @@ import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
+  resolveInitialization as generalResolveInitialization,
 } from '~/initialization';
 import type { ScrollbarsHidingPluginInstance } from '~/plugins/scrollbarsHidingPlugin';
 import type {
@@ -66,6 +67,7 @@ export interface StructureSetupElementsObj {
   _documentElm: Document;
   _targetIsElm: boolean;
   _viewportIsTarget: boolean;
+  _viewportIsContent: boolean;
   _viewportHasClass: (className: string, attributeClassName: string) => boolean;
   _viewportAddRemoveClass: (className: string, attributeClassName: string, add?: boolean) => void;
 }
@@ -91,8 +93,8 @@ export const createStructureSetupElements = (
   const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
     host: defaultHostInitialization,
-    viewport: defaultViewportInitialization,
     padding: defaultPaddingInitialization,
+    viewport: defaultViewportInitialization,
     content: defaultContentInitialization,
   } = defaultInitElements;
   const targetIsElm = isHTMLElement(target);
@@ -113,13 +115,39 @@ export const createStructureSetupElements = (
   const wnd = ownerDocument.defaultView as Window;
   const staticInitializationElement = generalStaticInitializationElement.bind(0, [targetElement]);
   const dynamicInitializationElement = generalDynamicInitializationElement.bind(0, [targetElement]);
-  const viewportElement = staticInitializationElement(
+  const resolveInitialization = generalResolveInitialization.bind(0, [targetElement]);
+  const generateViewportElement = staticInitializationElement.bind(
+    0,
     createNewDiv,
-    defaultViewportInitialization,
-    viewportInitialization
+    defaultViewportInitialization
   );
-  const viewportIsTarget = viewportElement === targetElement;
+  const generateContentElement = dynamicInitializationElement.bind(
+    0,
+    createNewDiv,
+    defaultContentInitialization
+  );
+  const possibleViewportElement = generateViewportElement(viewportInitialization);
+  const viewportIsTarget = possibleViewportElement === targetElement;
   const viewportIsTargetBody = viewportIsTarget && isBody;
+  const possibleContentElement = !viewportIsTarget && generateContentElement(contentInitialization);
+  // edge case if passed viewportElement is contentElement:
+  // check the default contentElement
+  // if truthy (so the element would be present in the DOM) the passed element is the final content element and viewport is generated
+  // if falsy the passed element is the final viewport element and the content element is generated
+  const viewportIsContent =
+    !viewportIsTarget &&
+    isHTMLElement(possibleViewportElement) &&
+    possibleViewportElement === possibleContentElement;
+  const defaultContentElementPresent =
+    viewportIsContent && !!resolveInitialization(defaultContentInitialization);
+  const viewportIstContentViewport = defaultContentElementPresent
+    ? generateViewportElement()
+    : possibleViewportElement;
+  const viewportIsContentContent = defaultContentElementPresent
+    ? possibleContentElement
+    : generateContentElement();
+  const viewportElement = viewportIsContent ? viewportIstContentViewport : possibleViewportElement;
+  const contentElement = viewportIsContent ? viewportIsContentContent : possibleContentElement;
   const activeElm = ownerDocument.activeElement;
   const setViewportFocus = !viewportIsTarget && wnd.top === wnd && activeElm === targetElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
@@ -135,13 +163,7 @@ export const createStructureSetupElements = (
         defaultPaddingInitialization,
         paddingInitialization
       ),
-    _content:
-      !viewportIsTarget &&
-      dynamicInitializationElement(
-        createNewDiv,
-        defaultContentInitialization,
-        contentInitialization
-      ),
+    _content: contentElement,
     _viewportArrange:
       !viewportIsTarget &&
       !_nativeScrollbarsHiding &&
@@ -155,6 +177,7 @@ export const createStructureSetupElements = (
     _isBody: isBody,
     _targetIsElm: targetIsElm,
     _viewportIsTarget: viewportIsTarget,
+    _viewportIsContent: viewportIsContent,
     _viewportHasClass: (className: string, attributeClassName: string) =>
       viewportIsTarget
         ? hasAttrClass(viewportElement, dataAttributeHost, attributeClassName)
@@ -246,10 +269,14 @@ export const createStructureSetupElements = (
       attr(_viewport, tabIndexStr, '-1');
       _viewport.focus();
 
-      const off = on(ownerDocument, 'pointerdown keydown', () => {
+      const revertViewportTabIndex = () =>
         ogTabindex ? attr(_viewport, tabIndexStr, ogTabindex) : removeAttr(_viewport, tabIndexStr);
+      const off = on(ownerDocument, 'pointerdown keydown', () => {
+        revertViewportTabIndex();
         off();
       });
+
+      push(destroyFns, [revertViewportTabIndex, off]);
     } else if (activeElm && (activeElm as HTMLElement).focus) {
       (activeElm as HTMLElement).focus();
     }

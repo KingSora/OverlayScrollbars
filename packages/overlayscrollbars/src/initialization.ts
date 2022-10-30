@@ -101,8 +101,10 @@ export type InitializationTargetObject = PartialInitialization & {
 /** The initialization target. */
 export type InitializationTarget = InitializationTargetElement | InitializationTargetObject;
 
-const resolveInitialization = <T>(value: any, args: any): T =>
-  isFunction(value) ? value.apply(0, args) : value;
+export const resolveInitialization = <T extends StaticInitialization | DynamicInitialization>(
+  args: any,
+  value: any
+): T => (isFunction(value) ? value.apply(0, args) : value);
 
 export const staticInitializationElement = <Args extends any[]>(
   args: Args,
@@ -114,8 +116,8 @@ export const staticInitializationElement = <Args extends any[]>(
     ? defaultStaticInitializationElement
     : staticInitializationElementValue;
   const resolvedInitialization = resolveInitialization<StaticInitialization>(
-    staticInitialization,
-    args
+    args,
+    staticInitialization
   );
   return resolvedInitialization || fallbackStaticInitializationElement.apply(0, args);
 };
@@ -130,8 +132,8 @@ export const dynamicInitializationElement = <Args extends any[]>(
     ? defaultDynamicInitializationElement
     : dynamicInitializationElementValue;
   const resolvedInitialization = resolveInitialization<DynamicInitialization>(
-    dynamicInitialization,
-    args
+    args,
+    dynamicInitialization
   );
   return (
     !!resolvedInitialization &&

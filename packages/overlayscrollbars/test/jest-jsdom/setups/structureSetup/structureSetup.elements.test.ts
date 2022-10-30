@@ -1,4 +1,5 @@
-import { hasClass, is, isFunction, isHTMLElement } from '~/support';
+import { hasClass, is, isHTMLElement } from '~/support';
+import { resolveInitialization } from '~/initialization';
 import {
   dataAttributeHost,
   classNamePadding,
@@ -35,7 +36,8 @@ type StructureDynamicInitializationElement = Initialization['elements']['content
 const textareaId = 'textarea';
 const textareaHostId = 'host';
 const elementId = 'target';
-const dynamicContent = 'text<p>paragraph</p>';
+const dynamicContentId = 'dynamicContent';
+const dynamicContent = `text<p id="${dynamicContentId}">paragraph</p>`;
 const textareaContent = `<textarea id="${textareaId}">text</textarea>`;
 const getSnapshot = () => document.documentElement.outerHTML;
 const getTarget = (targetType: TargetType) => {
@@ -56,22 +58,30 @@ const fillBody = (
   customDOM?: (content: string, hostId: string) => string
 ) => {
   const textarea = targetType === 'textarea';
+  const hostId = textarea ? textareaHostId : elementId;
   const customDomResult =
-    customDOM &&
-    customDOM(textarea ? textareaContent : dynamicContent, textarea ? textareaHostId : elementId);
+    customDOM && customDOM(textarea ? textareaContent : dynamicContent, hostId);
   const normalDom = textarea ? textareaContent : `<div id="${elementId}">${dynamicContent}</div>`;
-  document.body.innerHTML =
-    targetType === 'body'
-      ? dynamicContent
-      : `
+  document.body.innerHTML = `
     <nav></nav>
     ${customDomResult || normalDom}
     <footer></footer>
   `;
+
+  // unwrap host if target is body
+  if (targetType === 'body') {
+    const target = document.querySelector(`#${hostId}`);
+    if (target) {
+      const { parentElement } = target;
+      parentElement!.append(...target.childNodes);
+      target.remove();
+    }
+  }
+
   return getSnapshot();
 };
 const clearBody = () => {
-  document.body.outerHTML = '';
+  document.body.innerHTML = '';
 };
 
 const getElements = (targetType: TargetType) => {
@@ -80,6 +90,10 @@ const getElements = (targetType: TargetType) => {
   const padding = document.querySelector(`.${classNamePadding}`)!;
   const viewport = document.querySelector(`.${classNameViewport}`)!;
   const content = document.querySelector(`.${classNameContent}`)!;
+  const children =
+    targetType === 'textarea'
+      ? document.querySelector(`#${textareaId}`)
+      : document.querySelector(`#${dynamicContentId}`);
 
   return {
     target,
@@ -87,13 +101,25 @@ const getElements = (targetType: TargetType) => {
     padding,
     viewport,
     content,
+    children,
   };
 };
 
-const assertCorrectDOMStructure = (targetType: TargetType, viewportIsTarget: boolean) => {
-  const { target, host, padding, viewport, content } = getElements(targetType);
+const assertCorrectDOMStructure = (
+  targetType: TargetType,
+  env: InternalEnvironment,
+  elements: StructureSetupElementsObj
+) => {
+  const { target, host, padding, viewport, content, children } = getElements(targetType);
+  const { _getDefaultInitialization } = env;
+  const { _viewportIsTarget, _viewportIsContent } = elements;
 
-  if (viewportIsTarget) {
+  expect(children).toBeDefined();
+  expect(children!.closest(`[${dataAttributeHost}]`)).toBeTruthy();
+
+  if (_viewportIsTarget) {
+    expect(_viewportIsContent).toBe(false);
+
     expect(target).toBe(host);
     expect(host).toBeTruthy();
     expect(padding).toBeFalsy();
@@ -123,7 +149,20 @@ const assertCorrectDOMStructure = (targetType: TargetType, viewportIsTarget: boo
       expect(contentElm.innerHTML).toBe(textareaContent);
     } else {
       expect(target).toBe(host);
-      expect(contentElm.innerHTML).toBe(dynamicContent);
+      expect(contentElm.innerHTML).toContain(dynamicContent);
+    }
+  }
+
+  if (_viewportIsContent) {
+    const { _target, _content, _viewport } = elements;
+    const { elements: defaultInitElements } = _getDefaultInitialization();
+    const { content: defaultContentInit } = defaultInitElements;
+    const resolvedDefaultContentInit = resolveInitialization([_target], defaultContentInit);
+
+    if (resolvedDefaultContentInit) {
+      expect(children!.parentElement).toBe(_content || _viewport);
+    } else {
+      expect(children!.parentElement).toBe(_viewport);
     }
   }
 };
@@ -160,6 +199,7 @@ const assertCorrectSetupElements = (
     _viewport,
     _content,
     _viewportIsTarget,
+    _viewportIsContent,
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = elements;
@@ -215,52 +255,64 @@ const assertCorrectSetupElements = (
   const { _nativeScrollbarsHiding, _cssCustomProperties, _getDefaultInitialization } = environment;
   const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
-    host: hostInitStrategy,
-    viewport: viewportInitStrategy,
-    padding: paddingInitStrategy,
-    content: contentInitStrategy,
+    host: defaultHostInitStrategy,
+    padding: defaultPaddingInitStrategy,
+    viewport: defaultViewportInitStrategy,
+    content: defaultContentInitStrategy,
   } = defaultInitElements;
   const inputIsElement = isHTMLElement(input);
   const inputAsObj = input as InitializationTargetObject;
   const styleElm = document.querySelector('style');
   const checkStrategyDependendElements = (
     elm: Element | null,
-    inputStrategy:
+    initialization:
       | StructureStaticInitializationElement
       | StructureDynamicInitializationElement
       | undefined,
-    isStaticStrategy: boolean,
-    strategy: StructureStaticInitializationElement | StructureDynamicInitializationElement,
+    isStaticInitialization: boolean,
+    defaultInitialization:
+      | StructureStaticInitializationElement
+      | StructureDynamicInitializationElement,
     kind: 'padding' | 'viewport' | 'content' | 'host'
   ) => {
-    const resolvedInputStrategy = isFunction(inputStrategy) ? inputStrategy(target) : inputStrategy;
-    if (resolvedInputStrategy) {
-      if (!_viewportIsTarget) {
+    const resolvedInitialization = resolveInitialization([target], initialization);
+    const resolvedDefaultInitialization = resolveInitialization([target], defaultInitialization);
+    if (resolvedInitialization) {
+      if (!_viewportIsTarget && !_viewportIsContent) {
         expect(elm).toBeTruthy();
       }
+      if (_viewportIsContent) {
+        if (kind === 'content') {
+          if (resolvedDefaultInitialization) {
+            expect(elm).toBeTruthy();
+          } else {
+            expect(elm).toBeFalsy();
+          }
+        } else {
+          expect(elm).toBeTruthy();
+        }
+      }
     } else {
-      if (resolvedInputStrategy === false) {
+      if (resolvedInitialization === false) {
         expect(elm).toBeFalsy();
       }
-      if (resolvedInputStrategy === undefined) {
-        if (isStaticStrategy) {
-          strategy = strategy as StructureStaticInitializationElement;
-          const resultingStrategy = typeof strategy === 'function' ? strategy(target) : strategy;
+      if (resolvedInitialization === undefined) {
+        if (isStaticInitialization) {
+          defaultInitialization = defaultInitialization as StructureStaticInitializationElement;
           if (_viewportIsTarget) {
             if (kind === 'host') {
               expect(elm).toBeTruthy();
             } else {
               expect(elm).toBeFalsy();
             }
-          } else if (resultingStrategy && !isTextarea) {
-            expect(resultingStrategy).toBe(elm);
+          } else if (resolvedDefaultInitialization && !isTextarea) {
+            expect(resolvedDefaultInitialization).toBe(elm);
           } else {
             expect(elm).toBeTruthy();
           }
         } else {
-          strategy = strategy as StructureDynamicInitializationElement;
-          const resultingStrategy = typeof strategy === 'function' ? strategy(target) : strategy;
-          const resultIsBoolean = typeof resultingStrategy === 'boolean';
+          defaultInitialization = defaultInitialization as StructureDynamicInitializationElement;
+          const resultIsBoolean = typeof resolvedDefaultInitialization === 'boolean';
           if (_viewportIsTarget) {
             if (kind === 'host') {
               expect(elm).toBeTruthy();
@@ -268,13 +320,13 @@ const assertCorrectSetupElements = (
               expect(elm).toBeFalsy();
             }
           } else if (resultIsBoolean) {
-            if (resultingStrategy) {
+            if (resolvedDefaultInitialization) {
               expect(elm).toBeTruthy();
             } else {
               expect(elm).toBeFalsy();
             }
-          } else if (resultingStrategy) {
-            expect(elm).toBe(resultingStrategy);
+          } else if (resolvedDefaultInitialization) {
+            expect(elm).toBe(resolvedDefaultInitialization);
           }
         }
       }
@@ -287,23 +339,70 @@ const assertCorrectSetupElements = (
     expect(styleElm).toBeTruthy();
   }
 
+  if (_viewportIsContent) {
+    const { content: defaultContentInit } = defaultInitElements;
+    const resolvedDefaultContentInit = resolveInitialization([_target], defaultContentInit);
+
+    if (resolvedDefaultContentInit) {
+      expect(_content).toBeTruthy();
+    } else {
+      expect(_content).toBeFalsy();
+    }
+  }
+
   if (inputIsElement) {
-    checkStrategyDependendElements(padding, undefined, false, paddingInitStrategy, 'padding');
-    checkStrategyDependendElements(content, undefined, false, contentInitStrategy, 'content');
-    checkStrategyDependendElements(viewport, undefined, true, viewportInitStrategy, 'viewport');
-    checkStrategyDependendElements(host, undefined, true, hostInitStrategy, 'host');
+    checkStrategyDependendElements(
+      padding,
+      undefined,
+      false,
+      defaultPaddingInitStrategy,
+      'padding'
+    );
+    checkStrategyDependendElements(
+      content,
+      undefined,
+      false,
+      defaultContentInitStrategy,
+      'content'
+    );
+    checkStrategyDependendElements(
+      viewport,
+      undefined,
+      true,
+      defaultViewportInitStrategy,
+      'viewport'
+    );
+    checkStrategyDependendElements(host, undefined, true, defaultHostInitStrategy, 'host');
   } else {
     const { elements: inputElements } = inputAsObj;
     const {
-      padding: inputPadding,
-      content: inputContent,
-      viewport: inputViewport,
-      host: inputHost,
+      host: hostInitialization,
+      padding: paddingInitialization,
+      viewport: viewportInitialization,
+      content: contentInitialization,
     } = inputElements || {};
-    checkStrategyDependendElements(padding, inputPadding, false, paddingInitStrategy, 'padding');
-    checkStrategyDependendElements(content, inputContent, false, contentInitStrategy, 'content');
-    checkStrategyDependendElements(viewport, inputViewport, true, viewportInitStrategy, 'viewport');
-    checkStrategyDependendElements(host, inputHost, true, hostInitStrategy, 'host');
+    checkStrategyDependendElements(
+      padding,
+      paddingInitialization,
+      false,
+      defaultPaddingInitStrategy,
+      'padding'
+    );
+    checkStrategyDependendElements(
+      content,
+      contentInitialization,
+      false,
+      defaultContentInitStrategy,
+      'content'
+    );
+    checkStrategyDependendElements(
+      viewport,
+      viewportInitialization,
+      true,
+      defaultViewportInitStrategy,
+      'viewport'
+    );
+    checkStrategyDependendElements(host, hostInitialization, true, defaultHostInitStrategy, 'host');
   }
 
   const className = 'clazz';
@@ -460,7 +559,7 @@ describe('structureSetup.elements', () => {
                 createStructureSetupElementsProxy(getTarget(targetType)),
                 currEnv
               );
-              assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+              assertCorrectDOMStructure(targetType, currEnv, elements);
               assertCorrectDestroy(snapshot, destroy);
             });
 
@@ -471,7 +570,7 @@ describe('structureSetup.elements', () => {
                 createStructureSetupElementsProxy({ target: getTarget(targetType) }),
                 currEnv
               );
-              assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+              assertCorrectDOMStructure(targetType, currEnv, elements);
               assertCorrectDestroy(snapshot, destroy);
             });
           });
@@ -495,7 +594,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -516,7 +615,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -537,7 +636,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
@@ -562,7 +661,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -584,7 +683,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -606,7 +705,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -628,7 +727,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
@@ -646,7 +745,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -662,7 +761,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
@@ -680,7 +779,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -696,7 +795,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
@@ -715,7 +814,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
@@ -734,7 +833,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
             });
@@ -759,7 +858,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -782,7 +881,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -805,7 +904,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -828,7 +927,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -850,7 +949,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -872,7 +971,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -894,7 +993,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -916,7 +1015,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -939,7 +1038,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -962,7 +1061,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -984,7 +1083,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -1006,7 +1105,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -1028,7 +1127,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -1050,7 +1149,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -1073,7 +1172,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
 
@@ -1096,8 +1195,64 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                assertCorrectDOMStructure(targetType, elements._viewportIsTarget);
+                assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
+              });
+            });
+
+            describe('viewport is content', () => {
+              [
+                {
+                  testName: 'HTMLElements',
+                  getInitializationElements: () => ({
+                    host: () => document.querySelector<HTMLElement>('#host'),
+                    viewport: document.querySelector<HTMLElement>('#viewportOrContent'),
+                    content: document.querySelector<HTMLElement>('#viewportOrContent'),
+                  }),
+                },
+                {
+                  testName: 'functions',
+                  getInitializationElements: () => ({
+                    host: document.querySelector<HTMLElement>('#host'),
+                    viewport: () => document.querySelector<HTMLElement>('#viewportOrContent'),
+                    content: () => document.querySelector<HTMLElement>('#viewportOrContent'),
+                  }),
+                },
+                {
+                  testName: 'mixed',
+                  getInitializationElements: () => ({
+                    host: () => document.querySelector<HTMLElement>('#host'),
+                    viewport: document.querySelector<HTMLElement>('#viewportOrContent'),
+                    content: () => document.querySelector<HTMLElement>('#viewportOrContent'),
+                  }),
+                },
+              ].forEach(({ testName, getInitializationElements }) => {
+                test(testName, () => {
+                  const snapshot = fillBody(
+                    targetType,
+                    (content, hostId) =>
+                      `<div id="${hostId}"><div id="viewportOrContent">${content}</div></div>`
+                  );
+
+                  const [elements, destroy] = assertCorrectSetupElements(
+                    targetType,
+                    createStructureSetupElementsProxy({
+                      target: getTarget(targetType),
+                      elements: getInitializationElements(),
+                    }),
+                    currEnv
+                  );
+                  if (!elements._viewportIsTarget) {
+                    expect(elements._viewportIsContent).toBe(true);
+                  }
+                  if (elements._viewportIsContent) {
+                    expect(getElements(targetType).children!.parentElement).toBe(
+                      document.querySelector(`#viewportOrContent`)
+                    );
+                  }
+                  assertCorrectDOMStructure(targetType, currEnv, elements);
+                  assertCorrectDestroy(snapshot, destroy);
+                });
               });
             });
           });
