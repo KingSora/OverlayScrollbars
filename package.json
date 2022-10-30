@@ -71,7 +71,7 @@
     "e2e": "run-s e2e:*",
     "e2e:os": "npm run e2e --workspace=overlayscrollbars",
     "e2e:os:dev": "npm run e2e:dev --workspace=overlayscrollbars",
-    "build": "run-p build:*",
+    "build": "run-s build:*",
     "build:os": "npm run build --workspace=overlayscrollbars",
     "build:react": "npm run build --workspace=overlayscrollbars-react",
     "build:vue": "npm run build --workspace=overlayscrollbars-vue",
