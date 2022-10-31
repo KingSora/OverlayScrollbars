@@ -9,6 +9,7 @@ module.exports = createRollupConfig({
   verbose: true,
   extractStyles: true,
   extractTypes: true,
+  clean: true,
   extractPackageJson: {
     json: ({
       name,

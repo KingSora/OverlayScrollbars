@@ -4,6 +4,7 @@ module.exports = {
   banner: null,
   useEsbuild: false,
   outDir: './dist',
+  clean: false,
   paths: {
     js: '.',
     types: './types',
