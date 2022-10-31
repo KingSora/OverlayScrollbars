@@ -118,7 +118,7 @@ describe('tree shaking', () => {
       if (output) {
         const outputArr = Array.isArray(output) ? output : [output];
         const outputConfig = outputArr.find(
-          ({ file }) => path.basename(file) === 'overlayscrollbars.esm.js'
+          ({ file }) => file && path.basename(file) === 'overlayscrollbars.esm.js'
         );
         if (outputConfig) {
           inputConfig.output = outputConfig;
