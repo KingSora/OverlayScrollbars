@@ -10,10 +10,11 @@ module.exports = createRollupConfig({
   extractStyles: true,
   extractTypes: true,
   clean: true,
+  copy: ['README.md'],
   extractPackageJson: {
     json: ({
       name,
-      version: originalVersion,
+      version: v,
       description,
       author,
       license,
@@ -24,7 +25,7 @@ module.exports = createRollupConfig({
     }) => {
       return {
         name,
-        version: originalVersion,
+        version: v,
         description,
         author,
         license,

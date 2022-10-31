@@ -7,7 +7,6 @@ const glob = require('glob');
 const resolve = require('@~local/config/resolve');
 const defaultOptions = require('./defaultOptions');
 const pipelineDefault = require('./pipeline.default');
-const rollupPluginClean = require('./plugins/clean');
 
 const workspaceRoot = path.dirname(execSync('npm root').toString());
 const pkg = require(`${workspaceRoot}/package.json`);
@@ -32,6 +31,7 @@ const resolvePath = (basePath, pathToResolve, appendExt) => {
 const mergeAndResolveOptions = (userOptions) => {
   const {
     clean: defaultClean,
+    copy: defaultCopy,
     outDir: defaultOutDir,
     paths: defaultPaths,
     versions: defaultVersions,
@@ -47,6 +47,7 @@ const mergeAndResolveOptions = (userOptions) => {
   const {
     project,
     clean: rawClean,
+    copy: rawCopy,
     outDir: rawOutDir,
     paths: rawPaths = {},
     alias: rawAlias = {},
@@ -74,6 +75,7 @@ const mergeAndResolveOptions = (userOptions) => {
     versions: rawVersions ?? defaultVersions,
     useEsbuild: rawUseEsbuild ?? defaultUseEsbuild,
     clean: rawClean ?? defaultClean,
+    copy: rawCopy ?? defaultCopy,
     outDir: rawOutDir ?? defaultOutDir,
     paths: {
       ...defaultPaths,
@@ -120,26 +122,9 @@ const mergeAndResolveOptions = (userOptions) => {
 
 const createConfig = (userOptions = {}) => {
   const options = mergeAndResolveOptions(userOptions);
-  const { project, useEsbuild, verbose, clean, outDir, projectDir } = options;
+  const { useEsbuild } = options;
   const result = pipelineDefault(resolve, options, useEsbuild);
   const resultArr = Array.isArray(result) ? result : [result];
-  const prePlugins = !Array.isArray(resultArr[0].plugins) ? [] : resultArr[0].plugins;
-
-  resultArr[0].plugins = prePlugins;
-
-  if (verbose) {
-    prePlugins.push({
-      name: 'PROJECT',
-      buildStart() {
-        console.log('');
-        console.log('PROJECT : ', project);
-        console.log('OPTIONS : ', options);
-      },
-    });
-  }
-  if (clean && outDir !== projectDir) {
-    prePlugins.push(rollupPluginClean({ paths: [outDir], verbose }));
-  }
 
   return resultArr;
 };

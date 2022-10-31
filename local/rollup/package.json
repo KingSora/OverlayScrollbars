@@ -26,7 +26,9 @@
   },
   "exports": {
     ".": "./src/createRollupConfig.js",
-    "./playwright": "./src/playwright/createPlaywrightRollupConfig.js"
+    "./playwright": "./src/playwright/createPlaywrightRollupConfig.js",
+    "./plugin/copy": "./src/plugins/copy.js",
+    "./plugin/packageJson": "./src/plugins/packageJson.js"
   },
   "version": "0.0.0"
 }

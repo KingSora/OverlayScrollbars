@@ -5,7 +5,7 @@ module.exports = ({ paths = [], verbose = false } = {}) => {
   let cleaned = false;
   return {
     name: 'clean',
-    async buildStart() {
+    buildStart() {
       if (!cleaned) {
         paths.forEach((currPath) => {
           const resolvedPath = path.resolve(currPath);
