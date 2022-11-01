@@ -1,5 +1,7 @@
 import { describe, test, expect, vitest } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
 import type { RefObject } from 'react';
@@ -30,6 +32,40 @@ describe('OverlayScrollbarsComponent', () => {
       );
       expect(screen.getByText(/hello/)).toBeInTheDocument();
       expect(screen.getByText(/react/)).toBeInTheDocument();
+    });
+
+    test('dynamic children', async () => {
+      const Test = () => {
+        const [elements, setElements] = useState(1);
+        return (
+          <>
+            <OverlayScrollbarsComponent>
+              {elements === 0 ? 'empty' : null}
+              {[...Array(elements).keys()].map((i) => (
+                <span key={i}>{i}</span>
+              ))}
+            </OverlayScrollbarsComponent>
+            <button onClick={() => setElements((curr) => curr + 1)}>add</button>
+            <button onClick={() => setElements((curr) => curr - 1)}>remove</button>
+          </>
+        );
+      };
+      render(<Test />);
+
+      const addBtn = screen.getByText('add');
+      const removeBtn = screen.getByText('remove');
+      const initialElement = screen.getByText('0');
+      expect(initialElement).toBeInTheDocument();
+
+      const initialElementParent = initialElement.parentElement;
+      expect(initialElementParent).toBeInTheDocument();
+
+      userEvent.click(addBtn);
+      expect((await screen.findByText('1')).parentElement).toBe(initialElementParent);
+
+      userEvent.click(removeBtn);
+      userEvent.click(removeBtn);
+      expect(await screen.findByText('empty')).toBe(initialElementParent);
     });
 
     test('className', () => {
