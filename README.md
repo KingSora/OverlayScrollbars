@@ -47,7 +47,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
 
 ## Getting started
 
-### npm & Node
+### npm & node
 OverlayScrollbars can be downloaded from [npm](https://www.npmjs.com/package/overlayscrollbars) or the package manager of your choice:
 ```sh
 npm install overlayscrollbars
@@ -57,6 +57,8 @@ After installation it can be imported:
 import 'overlayscrollbars/overlayscrollbars.css';
 import { OverlayScrollbars } from 'overlayscrollbars';
 ```
+
+> __Note__: In older node versions use `'overlayscrollbars/styles/overlayscrollbars.css'` as the import path for the CSS file.
 
 ### Manual download & embedding
 

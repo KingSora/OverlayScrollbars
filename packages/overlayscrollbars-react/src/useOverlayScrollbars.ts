@@ -14,16 +14,16 @@ export type UseOverlayScrollbarsInstance = () => OverlayScrollbars | null;
  * @param events OverlayScrollbars events.
  * @returns A tuple with two values:
  * The first value is the initialization function.
- * The second value is an function which returns the current OverlayScrollbars instance or null if not initialized.
+ * The second value is a function which returns the current OverlayScrollbars instance or null if not initialized.
  */
 export const useOverlayScrollbars = (
   options?: PartialOptions,
   events?: EventListeners
 ): [UseOverlayScrollbarsInitialization, UseOverlayScrollbarsInstance] => {
   const osInstanceRef = useRef<OverlayScrollbars | null>(null);
+  const offInitialEventsRef = useRef<(() => void) | void>();
   const optionsRef = useRef<PartialOptions>();
   const eventsRef = useRef<EventListeners>();
-  const offInitialEventsRef = useRef<(() => void) | void>();
 
   useEffect(() => {
     const { current: instance } = osInstanceRef;
