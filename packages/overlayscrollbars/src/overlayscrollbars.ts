@@ -39,7 +39,7 @@ export interface OverlayScrollbarsStatic {
    */
   (target: InitializationTarget): OverlayScrollbars | undefined;
   /**
-   * Initialized a new OverlayScrollbars instance to the given target
+   * Initializes a new OverlayScrollbars instance to the given target
    * or returns the current OverlayScrollbars instance if the target already has an instance.
    * @param target The target.
    * @param options The options. (Can be just an empty object)
@@ -57,7 +57,7 @@ export interface OverlayScrollbarsStatic {
    */
   plugin(plugin: Plugin | Plugin[]): void;
   /**
-   * Checkts whether the passed value is a valid overlayscrollbars instance.
+   * Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
    * @param osInstance The value which shall be checked.
    */
   valid(osInstance: any): osInstance is OverlayScrollbars;
