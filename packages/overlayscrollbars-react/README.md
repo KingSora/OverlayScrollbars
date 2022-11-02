@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
   </a>
   <a href="https://reactjs.org/">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/examples/react/logo.svg" width="160" height="160" alt="React">
+    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="160" height="160" alt="React">
   </a>
 </div>
 <h6 align="center">
