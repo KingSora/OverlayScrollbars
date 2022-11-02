@@ -17,8 +17,8 @@ export type OverlayScrollbarsComponentProps<T extends keyof JSX.IntrinsicElement
 export interface OverlayScrollbarsComponentRef<T extends keyof JSX.IntrinsicElements = 'div'> {
   /** Returns the OverlayScrollbars instance or null if not initialized. */
   instance(): OverlayScrollbars | null;
-  /** Returns the target element. */
-  target(): ElementRef<T> | null;
+  /** Returns the root element. */
+  element(): ElementRef<T> | null;
 }
 
 const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
@@ -28,13 +28,13 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
   const { element = 'div', options, events, children, ...other } = props;
   const Tag = element;
 
-  const [initialize, instance] = useOverlayScrollbars(options, events);
-  const osTargetRef = useRef<ElementRef<T>>(null);
-  const osChildrenRef = useRef<HTMLDivElement>(null);
+  const [initialize, instance] = useOverlayScrollbars({ options, events });
+  const elementRef = useRef<ElementRef<T>>(null);
+  const childrenRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const { current: targetElm } = osTargetRef;
-    const { current: childrenElm } = osChildrenRef;
+    const { current: targetElm } = elementRef;
+    const { current: childrenElm } = childrenRef;
     if (targetElm && childrenElm) {
       const osInstance = initialize({
         target: targetElm as any,
@@ -46,14 +46,14 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
 
       return () => osInstance.destroy();
     }
-  }, []);
+  }, [initialize]);
 
   useImperativeHandle(
     ref,
     () => {
       return {
         instance,
-        target: () => osTargetRef.current,
+        element: () => elementRef.current,
       };
     },
     []
@@ -61,8 +61,8 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
 
   return (
     // @ts-ignore
-    <Tag data-overlayscrollbars="" {...other} ref={osTargetRef}>
-      <div ref={osChildrenRef}>{children}</div>
+    <Tag data-overlayscrollbars="" {...other} ref={elementRef}>
+      <div ref={childrenRef}>{children}</div>
     </Tag>
   );
 };

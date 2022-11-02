@@ -1,6 +1,13 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import type { PartialOptions, InitializationTarget, EventListeners } from 'overlayscrollbars';
+
+export interface UseOverlayScrollbarsParams {
+  /** OverlayScrollbars options. */
+  options?: PartialOptions;
+  /** OverlayScrollbars events. */
+  events?: EventListeners;
+}
 
 export type UseOverlayScrollbarsInitialization = (
   target: InitializationTarget
@@ -10,16 +17,15 @@ export type UseOverlayScrollbarsInstance = () => OverlayScrollbars | null;
 
 /**
  * Hook for advanced usage of OverlayScrollbars. (When the OverlayScrollbarsComponent is not enough)
- * @param options OverlayScrollbars options.
- * @param events OverlayScrollbars events.
+ * @param params Parameters for customization.
  * @returns A tuple with two values:
- * The first value is the initialization function.
- * The second value is a function which returns the current OverlayScrollbars instance or null if not initialized.
+ * The first value is the initialization function, it takes one argument which is the `InitializationTarget` and returns the OverlayScrollbars instance.
+ * The second value is a function which returns the current OverlayScrollbars instance or `null` if not initialized.
  */
 export const useOverlayScrollbars = (
-  options?: PartialOptions,
-  events?: EventListeners
+  params?: UseOverlayScrollbarsParams
 ): [UseOverlayScrollbarsInitialization, UseOverlayScrollbarsInstance] => {
+  const { options, events } = params || {};
   const osInstanceRef = useRef<OverlayScrollbars | null>(null);
   const offInitialEventsRef = useRef<(() => void) | void>();
   const optionsRef = useRef<PartialOptions>();
@@ -44,26 +50,29 @@ export const useOverlayScrollbars = (
   optionsRef.current = options;
   eventsRef.current = events;
 
-  return [
-    useCallback((target: InitializationTarget): OverlayScrollbars => {
-      // if already initialized return the current instance
-      const presentInstance = osInstanceRef.current;
-      if (OverlayScrollbars.valid(presentInstance)) {
-        return presentInstance;
-      }
+  return useMemo<[UseOverlayScrollbarsInitialization, UseOverlayScrollbarsInstance]>(
+    () => [
+      (target: InitializationTarget): OverlayScrollbars => {
+        // if already initialized return the current instance
+        const presentInstance = osInstanceRef.current;
+        if (OverlayScrollbars.valid(presentInstance)) {
+          return presentInstance;
+        }
 
-      const currOptions = optionsRef.current || {};
-      const currEvents = eventsRef.current || {};
-      const osInstance = (osInstanceRef.current = OverlayScrollbars(
-        target,
-        currOptions,
-        currEvents
-      ));
+        const currOptions = optionsRef.current || {};
+        const currEvents = eventsRef.current || {};
+        const osInstance = (osInstanceRef.current = OverlayScrollbars(
+          target,
+          currOptions,
+          currEvents
+        ));
 
-      offInitialEventsRef.current = osInstance.on(currEvents);
+        offInitialEventsRef.current = osInstance.on(currEvents);
 
-      return osInstance;
-    }, []),
-    useCallback(() => osInstanceRef.current, []),
-  ];
+        return osInstance;
+      },
+      () => osInstanceRef.current,
+    ],
+    []
+  );
 };

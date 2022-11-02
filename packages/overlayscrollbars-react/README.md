@@ -1,46 +1,136 @@
-# Getting Started with Create React App
+<div align="center">
+  <a href="https://kingsora.github.io/OverlayScrollbars">
+    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
+  </a>
+  <a href="https://reactjs.org/">
+    <img src="https://kingsora.github.io/OverlayScrollbars/frameworks/react/logo.svg" width="160" height="160" alt="React">
+  </a>
+</div>
+<h6 align="center">
+    <a href="https://github.com/facebook/react/"><img src="https://img.shields.io/badge/React-%3E=16.8.0-61dafb?style=flat-square&logo=React" alt="React"></a>
+    <a href="https://github.com/KingSora/OverlayScrollbars"><img src="https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-36befd?style=flat-square" alt="OverlayScrollbars"></a>
+    <a href="https://www.npmjs.com/package/overlayscrollbars-react"><img src="https://img.shields.io/npm/dt/overlayscrollbars-react.svg?style=flat-square" alt="Downloads"></a>
+    <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/packages/overlayscrollbars-react/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
+</h6>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# OverlayScrollbars for React
 
-## Available Scripts
+This is the official OverlayScrollbars React wrapper.
 
-In the project directory, you can run:
+## Installation
 
-### `npm start`
+```sh
+npm install overlayscrollbars-react
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Peer Dependencies
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+OverlayScrollbars for React has the following **peer dependencies**:
 
-### `npm test`
+- The vanilla JavaScript library: [overlayscrollbars](https://www.npmjs.com/package/overlayscrollbars)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+npm install overlayscrollbars
+```
 
-### `npm run build`
+- The React framework: [react](https://www.npmjs.com/package/react)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+npm install react
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Usage
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The first step is to import the CSS file into your app:
+```ts
+import 'overlayscrollbars/overlayscrollbars.css';
+```
 
-### `npm run eject`
+> __Note__: In older node versions use `'overlayscrollbars/styles/overlayscrollbars.css'` as the import path for the CSS file.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Component
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The main entry point is the `OverlayScrollbarsComponent` which can be used in your application as a component:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```js
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+// ...
 
-## Learn More
+<OverlayScrollbarsComponent>
+  example content
+</OverlayScrollbarsComponent>
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Properties
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The component accepts all properties which intrinsic JSX elements such as `div` and `span` accept.  
+Additionally it has three optional properties: `element`, `options` and `events`.
+
+- `element`: accepts a `string` which represents the tag of the root element.
+- `options`: accepts an `object` which represents the OverlayScrollbars options.
+- `events`: accepts an `object` which represents the OverlayScrollbars events.
+
+None of these properties has to be memoized.
+
+```jsx
+// example usage
+<OverlayScrollbarsComponent
+  element="span"
+  options={{ scrollbars: { autoHide: 'scroll' } }}
+  events={{ scroll: () => { /* ... */ } }}
+/>
+```
+
+### Ref
+
+The `ref` of the `OverlayScrollbarsComponent` will give you an object with which you can access the OverlayScrollbars `instance` and the root `element` of the component.  
+The ref object has two properties:
+
+- `instance`: a function which returns the OverlayScrollbars instance.
+- `element`: a function which returns the root element.
+
+## Hook
+
+In case the `OverlayScrollbarsComponent` is not enough, you can also use the `useOverlayScrollbars` hook:
+
+```js
+import { useOverlayScrollbars } from "overlayscrollbars-react";
+
+// example
+const Component = () => {
+  const ref = useRef();
+  const [initialize, instance] = useOverlayScrollbars({ options, events });
+  
+  useEffect(() => {
+    const osInstance = initialize(ref.current);
+    return () => osInstance.destroy();
+  }, [initialize]);
+  
+  return <div ref={ref} />
+}
+```
+
+The hook is for advanced usage and lets you control the whole initialization process. This is useful if you want to integrate it with other plugins such as `react-window` or `react-virtualized`.
+
+### Parameters
+
+Parameters are optional and similar to the `OverlayScrollbarsComponent`.
+Its an `object` with two optional properties:
+
+- `options`: accepts an `object` which represents the OverlayScrollbars options.
+- `events`: accepts an `object` which represents the OverlayScrollbars events.
+
+
+### Return
+
+The `useOverlayScrollbars` hook returns a `tuple` with two values:
+
+- The first value is the `initialization` function, it takes one argument which is the `InitializationTarget` and returns the OverlayScrollbars instance.
+- The second value is a function which returns the current OverlayScrollbars instance or `null` if not initialized.
+
+The identity of both functions is stable and won't change, thus they can safely be used in any dependency array.
+
+## License
+
+MIT

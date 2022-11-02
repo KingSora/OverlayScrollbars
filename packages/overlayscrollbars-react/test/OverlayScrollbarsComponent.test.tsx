@@ -97,11 +97,11 @@ describe('OverlayScrollbarsComponent', () => {
     const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
     const { container } = render(<OverlayScrollbarsComponent ref={ref} />);
 
-    const { instance, target } = ref.current!;
+    const { instance, element } = ref.current!;
     expect(instance).toBeTypeOf('function');
-    expect(target).toBeTypeOf('function');
+    expect(element).toBeTypeOf('function');
     expect(OverlayScrollbars.valid(instance())).toBe(true);
-    expect(target()).toBe(container.firstElementChild);
+    expect(element()).toBe(container.firstElementChild);
   });
 
   test('options', () => {
