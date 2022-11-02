@@ -97,7 +97,7 @@ In case the `OverlayScrollbarsComponent` is not enough, you can also use the `us
 ```js
 import { useOverlayScrollbars } from "overlayscrollbars-react";
 
-// example
+// example usage
 const Component = () => {
   const ref = useRef();
   const [initialize, instance] = useOverlayScrollbars({ options, events });
