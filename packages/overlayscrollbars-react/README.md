@@ -3,11 +3,11 @@
     <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
   </a>
   <a href="https://reactjs.org/">
-    <img src="https://kingsora.github.io/OverlayScrollbars/frameworks/react/logo.svg" width="160" height="160" alt="React">
+    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/examples/react/logo.svg" width="160" height="160" alt="React">
   </a>
 </div>
 <h6 align="center">
-    <a href="https://github.com/facebook/react/"><img src="https://img.shields.io/badge/React-%3E=16.8.0-61dafb?style=flat-square&logo=React" alt="React"></a>
+    <a href="https://github.com/facebook/react/"><img src="https://img.shields.io/badge/React-%3E=16.8.0-338EFF?style=flat-square&logo=React" alt="React"></a>
     <a href="https://github.com/KingSora/OverlayScrollbars"><img src="https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-36befd?style=flat-square" alt="OverlayScrollbars"></a>
     <a href="https://www.npmjs.com/package/overlayscrollbars-react"><img src="https://img.shields.io/npm/dt/overlayscrollbars-react.svg?style=flat-square" alt="Downloads"></a>
     <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/packages/overlayscrollbars-react/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
