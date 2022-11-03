@@ -5,6 +5,24 @@ import type { DeepPartial } from '~/typings';
 import type { Options } from '~/options';
 import type { Initialization } from '~/initialization';
 
+jest.useFakeTimers();
+
+jest.mock('~/support/compatibility/apis', () => {
+  const originalModule = jest.requireActual('~/support/compatibility/apis');
+  const mockRAF = (arg: any) => setTimeout(arg, 0);
+  return {
+    ...originalModule,
+    // @ts-ignore
+    rAF: jest.fn().mockImplementation((...args) => mockRAF(...args)),
+    // @ts-ignore
+    cAF: jest.fn().mockImplementation((...args) => clearTimeout(...args)),
+    // @ts-ignore
+    setT: jest.fn().mockImplementation((...args) => setTimeout(...args)),
+    // @ts-ignore
+    clearT: jest.fn().mockImplementation((...args) => clearTimeout(...args)),
+  };
+});
+
 const defaultInitialization = {
   elements: {
     host: null,
@@ -144,27 +162,27 @@ describe('environment', () => {
     });
   });
 
-  describe('addListener', () => {
+  describe('addZoomListener', () => {
     test('with scrollbarsHidingPlugin registered before environment was created', async () => {
       const { getPlugins } = await import('~/plugins');
       (getPlugins as jest.Mock).mockImplementation(() => ({
         [scrollbarsHidingPluginName]: ScrollbarsHidingPlugin[scrollbarsHidingPluginName],
       }));
 
-      const { _addListener } = getEnv();
+      const { _addZoomListener } = getEnv();
       const listener = jest.fn();
 
-      _addListener(listener);
+      _addZoomListener(listener);
       window.dispatchEvent(new Event('resize'));
 
       expect(listener).toHaveBeenCalledTimes(1);
     });
 
     test('with scrollbarsHidingPlugin registered after environment was created', async () => {
-      const { _addListener } = getEnv();
+      const { _addZoomListener } = getEnv();
       const listener = jest.fn();
 
-      _addListener(listener);
+      _addZoomListener(listener);
 
       const { getPlugins } = await import('~/plugins');
       (getPlugins as jest.Mock).mockImplementation(() => ({
@@ -177,13 +195,27 @@ describe('environment', () => {
     });
 
     test('without scrollbarsHidingPlugin', () => {
-      const { _addListener } = getEnv();
+      const { _addZoomListener } = getEnv();
       const listener = jest.fn();
 
-      _addListener(listener);
+      _addZoomListener(listener);
       window.dispatchEvent(new Event('resize'));
 
       expect(listener).toHaveBeenCalledTimes(0);
     });
+  });
+
+  test('addResizeListener', () => {
+    const { _addResizeListener } = getEnv();
+    const listener = jest.fn();
+
+    _addResizeListener(listener);
+    window.dispatchEvent(new Event('resize'));
+
+    expect(listener).not.toHaveBeenCalled();
+
+    jest.runAllTimers();
+
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 });

@@ -4,6 +4,24 @@ import { OptionsValidationPlugin } from '~/plugins';
 import { OverlayScrollbars as originalOverlayScrollbars } from '~/overlayscrollbars';
 import type { PartialOptions } from '~/options';
 
+jest.useFakeTimers();
+
+jest.mock('~/support/compatibility/apis', () => {
+  const originalModule = jest.requireActual('~/support/compatibility/apis');
+  const mockRAF = (arg: any) => setTimeout(arg, 0);
+  return {
+    ...originalModule,
+    // @ts-ignore
+    rAF: jest.fn().mockImplementation((...args) => mockRAF(...args)),
+    // @ts-ignore
+    cAF: jest.fn().mockImplementation((...args) => clearTimeout(...args)),
+    // @ts-ignore
+    setT: jest.fn().mockImplementation((...args) => setTimeout(...args)),
+    // @ts-ignore
+    clearT: jest.fn().mockImplementation((...args) => clearTimeout(...args)),
+  };
+});
+
 const bodyElm = document.body;
 const div = document.createElement('div');
 
@@ -501,6 +519,27 @@ describe('overlayscrollbars', () => {
       // host mutation
       div.style.cursor = 'pointer';
       expect(osInstance.update()).toBe(true);
+    });
+
+    test('environment resize listener', () => {
+      const updated = jest.fn();
+      OverlayScrollbars(
+        div,
+        {},
+        {
+          updated,
+        }
+      );
+
+      expect(updated).toHaveBeenCalledTimes(1);
+
+      window.dispatchEvent(new Event('resize'));
+
+      expect(updated).toHaveBeenCalledTimes(1);
+
+      jest.runAllTimers();
+
+      expect(updated).toHaveBeenCalledTimes(2);
     });
   });
 

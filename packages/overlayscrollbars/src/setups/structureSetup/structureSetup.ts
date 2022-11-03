@@ -1,3 +1,4 @@
+import { getEnvironment } from '~/environment';
 import { createEventListenerHub, isEmptyObject, keys, scrollLeft, scrollTop } from '~/support';
 import { createState, createOptionCheck } from '~/setups/setups';
 import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
@@ -69,6 +70,7 @@ export const createStructureSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions
 ): Setup<StructureSetupState, StructureSetupStaticState, [], boolean> => {
+  const { _addResizeListener } = getEnvironment();
   const checkOptionsFallback = createOptionCheck(options, {});
   const state = createState(initialStructureSetupUpdateState);
   const [addEvent, removeEvent, triggerEvent] = createEventListenerHub<StructureSetupEventMap>();
@@ -87,10 +89,15 @@ export const createStructureSetup = (
     }
     return changed;
   };
+  const updateWithHints = (updateHints: Partial<StructureSetupUpdateHints>) =>
+    triggerUpdateEvent(updateStructure(checkOptionsFallback, updateHints), {}, false);
   const [destroyObservers, appendObserverElements, updateObservers, updateObserversOptions] =
-    createStructureSetupObservers(elements, setState, (updateHints) =>
-      triggerUpdateEvent(updateStructure(checkOptionsFallback, updateHints), {}, false)
-    );
+    createStructureSetupObservers(elements, setState, updateWithHints);
+  const removeResizeListener = _addResizeListener(
+    updateWithHints.bind(0, {
+      _contentMutation: true,
+    })
+  );
 
   const structureSetupState = getState.bind(0) as (() => StructureSetupState) &
     StructureSetupStaticState;
@@ -123,6 +130,7 @@ export const createStructureSetup = (
       removeEvent();
       destroyObservers();
       destroyElements();
+      removeResizeListener();
     },
   ];
 };

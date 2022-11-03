@@ -17,6 +17,7 @@ import {
   createCache,
   equalXY,
   createEventListenerHub,
+  selfClearTimeout,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -32,7 +33,8 @@ import type { ScrollbarsHidingPluginInstance } from '~/plugins';
 import type { Initialization, PartialInitialization } from '~/initialization';
 
 type EnvironmentEventMap = {
-  _: [];
+  z: [];
+  r: [];
 };
 
 /**
@@ -86,7 +88,8 @@ export interface InternalEnvironment {
   readonly _cssCustomProperties: boolean;
   readonly _staticDefaultInitialization: Initialization;
   readonly _staticDefaultOptions: Options;
-  _addListener(listener: EventListener<EnvironmentEventMap, '_'>): () => void;
+  _addZoomListener(listener: EventListener<EnvironmentEventMap, 'z'>): () => void;
+  _addResizeListener(listener: EventListener<EnvironmentEventMap, 'r'>): () => void;
   _getDefaultInitialization(): Initialization;
   _setDefaultInitialization(newInitialization: PartialInitialization): Initialization;
   _getDefaultOptions(): Options;
@@ -180,6 +183,7 @@ const createEnvironment = (): InternalEnvironment => {
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
+  const [requestResizeAnimationFrame] = selfClearTimeout();
   const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventMap>();
   const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache(
     {
@@ -227,7 +231,8 @@ const createEnvironment = (): InternalEnvironment => {
     _cssCustomProperties: style(envElm, 'zIndex') === '-1',
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
-    _addListener: (listener) => addEvent('_', listener),
+    _addZoomListener: addEvent.bind(0, 'z'),
+    _addResizeListener: addEvent.bind(0, 'r'),
     _getDefaultInitialization: getDefaultInitialization,
     _setDefaultInitialization: (newInitializationStrategy) =>
       assignDeep(staticDefaultInitialization, newInitializationStrategy) &&
@@ -238,21 +243,26 @@ const createEnvironment = (): InternalEnvironment => {
     _staticDefaultInitialization: assignDeep({}, staticDefaultInitialization),
     _staticDefaultOptions: assignDeep({}, staticDefaultOptions),
   };
+  const windowAddEventListener = window.addEventListener;
 
   removeAttr(envElm, 'style');
   removeElements(envElm);
 
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
     let resizeFn: undefined | ReturnType<ScrollbarsHidingPluginInstance['_envWindowZoom']>;
-    window.addEventListener('resize', () => {
+    windowAddEventListener('resize', () => {
       const scrollbarsHidingPlugin = getPlugins()[scrollbarsHidingPluginName] as
         | ScrollbarsHidingPluginInstance
         | undefined;
 
       resizeFn = resizeFn || (scrollbarsHidingPlugin && scrollbarsHidingPlugin._envWindowZoom());
-      resizeFn && resizeFn(env, updateNativeScrollbarSizeCache, triggerEvent.bind(0, '_'));
+      resizeFn && resizeFn(env, updateNativeScrollbarSizeCache, triggerEvent.bind(0, 'z', []));
     });
   }
+  // needed in case content has css viewport units
+  windowAddEventListener('resize', () => {
+    requestResizeAnimationFrame(triggerEvent.bind(0, 'r', []));
+  });
 
   return env;
 };
