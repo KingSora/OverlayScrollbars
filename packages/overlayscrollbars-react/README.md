@@ -63,7 +63,7 @@ import 'overlayscrollbars/overlayscrollbars.css';
 
 The main entry point is the `OverlayScrollbarsComponent` which can be used in your application as a component:
 
-```js
+```jsx
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
 // ...
@@ -75,14 +75,14 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
 ### Properties
 
-The component accepts all properties which intrinsic JSX elements such as `div` and `span` accept.  
+The component accepts all properties of intrinsic JSX elements such as `div` and `span`.  
 Additionally it has three optional properties: `element`, `options` and `events`.
 
 - `element`: accepts a `string` which represents the tag of the root element.
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
 
-None of these properties has to be memoized.
+> __Note__: None of these properties has to be memoized.
 
 ```jsx
 // example usage
@@ -105,7 +105,7 @@ The ref object has two properties:
 
 In case the `OverlayScrollbarsComponent` is not enough, you can also use the `useOverlayScrollbars` hook:
 
-```js
+```jsx
 import { useOverlayScrollbars } from "overlayscrollbars-react";
 
 // example usage
@@ -132,7 +132,6 @@ Its an `object` with two optional properties:
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
 
-
 ### Return
 
 The `useOverlayScrollbars` hook returns a `tuple` with two values:
@@ -140,7 +139,7 @@ The `useOverlayScrollbars` hook returns a `tuple` with two values:
 - The first value is the `initialization` function, it takes one argument which is the `InitializationTarget` and returns the OverlayScrollbars instance.
 - The second value is a function which returns the current OverlayScrollbars instance or `null` if not initialized.
 
-The identity of both functions is stable and won't change, thus they can safely be used in any dependency array.
+> __Note__: The identity of both functions is stable and won't change, thus they can safely be used in any dependency array.
 
 ## License
 

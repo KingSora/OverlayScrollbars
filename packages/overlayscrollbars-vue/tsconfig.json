@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]
-    }
+    },
+    "jsx": "preserve",
+    "types": ["jest", "@testing-library/jest-dom"]
   }
 }

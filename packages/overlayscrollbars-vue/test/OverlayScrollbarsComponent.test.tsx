@@ -1,19 +1,17 @@
+import { onMounted, ref, toRefs } from 'vue';
 import { describe, test, expect, vitest } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
-import type { RefObject } from 'react';
-import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-react';
+import { render, screen } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
+import { OverlayScrollbarsComponent } from '~/overlayscrollbars-vue';
 
 describe('OverlayScrollbarsComponent', () => {
   describe('correct rendering', () => {
-    test('correct root element with instance', () => {
+    test('correct root element with instance', async () => {
       const elementA = 'code';
       const elementB = 'span';
       let osInstance;
-      const { container, rerender } = render(<OverlayScrollbarsComponent />);
+      const { container, rerender } = render(OverlayScrollbarsComponent);
 
       expect(container).not.toBeEmptyDOMElement();
       expect(container.querySelector('div')).toBe(container.firstElementChild); // default is div
@@ -23,7 +21,7 @@ describe('OverlayScrollbarsComponent', () => {
       expect(osInstance).toBeDefined();
       expect(OverlayScrollbars.valid(osInstance)).toBe(true);
 
-      rerender(<OverlayScrollbarsComponent element={elementA} />);
+      await rerender({ element: elementA });
       expect(container.querySelector(elementA)).toBe(container.firstElementChild);
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
@@ -31,7 +29,7 @@ describe('OverlayScrollbarsComponent', () => {
       expect(osInstance).toBeDefined();
       expect(OverlayScrollbars.valid(osInstance)).toBe(true);
 
-      rerender(<OverlayScrollbarsComponent element={elementB} />);
+      await rerender({ element: elementB });
       expect(container.querySelector(elementB)).toBe(container.firstElementChild);
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
@@ -41,34 +39,31 @@ describe('OverlayScrollbarsComponent', () => {
     });
 
     test('children', () => {
-      const { container } = render(
-        <OverlayScrollbarsComponent>
-          hello <span>react</span>
-        </OverlayScrollbarsComponent>
-      );
+      const { container } = render(OverlayScrollbarsComponent, {
+        slots: { default: 'hello <span>vue</span>' },
+      });
       expect(screen.getByText(/hello/)).toBeInTheDocument();
-      expect(screen.getByText(/react/)).toBeInTheDocument();
-      expect(screen.getByText(/react/).parentElement).not.toBe(container.firstElementChild);
+      expect(screen.getByText(/vue/)).toBeInTheDocument();
+      expect(screen.getByText(/vue/).parentElement).not.toBe(container.firstElementChild);
     });
 
     test('dynamic children', async () => {
-      const Test = () => {
-        const [elements, setElements] = useState(1);
+      render(() => {
+        const elements = ref(1);
+
         return (
           <>
             <OverlayScrollbarsComponent>
-              {elements === 0 ? 'empty' : null}
-              {[...Array(elements).keys()].map((i) => (
+              {elements.value === 0 ? 'empty' : null}
+              {[...Array(elements.value).keys()].map((i) => (
                 <span key={i}>{i}</span>
               ))}
             </OverlayScrollbarsComponent>
-            <button onClick={() => setElements((curr) => curr + 1)}>add</button>
-            <button onClick={() => setElements((curr) => curr - 1)}>remove</button>
+            <button onClick={() => (elements.value += 1)}>add</button>
+            <button onClick={() => (elements.value -= 1)}>remove</button>
           </>
         );
-      };
-      render(<Test />);
-
+      });
       const addBtn = screen.getByText('add');
       const removeBtn = screen.getByText('remove');
       const initialElement = screen.getByText('0');
@@ -77,65 +72,93 @@ describe('OverlayScrollbarsComponent', () => {
       const initialElementParent = initialElement.parentElement;
       expect(initialElementParent).toBeInTheDocument();
 
-      userEvent.click(addBtn);
+      await userEvent.click(addBtn);
       expect((await screen.findByText('1')).parentElement).toBe(initialElementParent);
 
-      userEvent.click(removeBtn);
-      userEvent.click(removeBtn);
+      await userEvent.click(removeBtn);
+      await userEvent.click(removeBtn);
       expect(await screen.findByText('empty')).toBe(initialElementParent);
     });
 
-    test('className', () => {
-      const { container, rerender } = render(
-        <OverlayScrollbarsComponent className="overlay scrollbars" />
-      );
+    test('className', async () => {
+      const { container, rerender } = render(OverlayScrollbarsComponent, {
+        props: {
+          class: 'overlay scrollbars',
+        },
+      });
 
       expect(container.firstElementChild).toHaveClass('overlay', 'scrollbars');
 
-      rerender(<OverlayScrollbarsComponent className="overlay scrollbars react" />);
+      await rerender({ class: 'overlay scrollbars vue' });
 
-      expect(container.firstElementChild).toHaveClass('overlay', 'scrollbars', 'react');
+      expect(container.firstElementChild).toHaveClass('overlay', 'scrollbars', 'vue');
     });
 
-    test('style', () => {
-      const { container, rerender } = render(
-        <OverlayScrollbarsComponent style={{ width: '22px' }} />
-      );
+    test('style', async () => {
+      const { container, rerender } = render(OverlayScrollbarsComponent, {
+        props: {
+          style: { width: '22px' },
+        },
+      });
 
       expect(container.firstElementChild).toHaveStyle({ width: '22px' });
 
-      rerender(<OverlayScrollbarsComponent style={{ height: '33px' }} />);
+      await rerender({ style: { height: '33px' } });
 
       expect(container.firstElementChild).toHaveStyle({ height: '33px' });
     });
   });
 
   test('ref', () => {
-    const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
-    const { container } = render(<OverlayScrollbarsComponent ref={ref} />);
+    const osRef = ref();
+    const { container } = render({
+      setup() {
+        const componentRef = ref(null);
 
-    const { instance, element } = ref.current!;
+        onMounted(() => {
+          osRef.value = componentRef.value;
+        });
+
+        return () => <OverlayScrollbarsComponent ref={componentRef} />;
+      },
+    });
+
+    const { instance, element } = osRef.value!;
     expect(instance).toBeTypeOf('function');
     expect(element).toBeTypeOf('function');
     expect(OverlayScrollbars.valid(instance())).toBe(true);
     expect(element()).toBe(container.firstElementChild);
   });
 
-  test('options', () => {
-    const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
+  test('options', async () => {
+    const osRef = ref();
     const { rerender } = render(
-      <OverlayScrollbarsComponent
-        options={{ paddingAbsolute: true, overflow: { y: 'hidden' } }}
-        ref={ref}
-      />
+      {
+        setup(props: any) {
+          const { options } = toRefs(props);
+          const componentRef = ref(null);
+
+          onMounted(() => {
+            osRef.value = componentRef.value;
+          });
+
+          return () => <OverlayScrollbarsComponent options={options} ref={componentRef} />;
+        },
+      },
+      {
+        props: {
+          options: { paddingAbsolute: true, overflow: { y: 'hidden' } },
+        },
+      }
     );
-    const instance = ref.current!.instance()!;
+
+    const instance = osRef.value!.instance()!;
 
     const opts = instance.options();
     expect(opts.paddingAbsolute).toBe(true);
     expect(opts.overflow.y).toBe('hidden');
 
-    rerender(<OverlayScrollbarsComponent options={{ overflow: { x: 'hidden' } }} ref={ref} />);
+    await rerender({ options: { overflow: { x: 'hidden' } } });
 
     const newOpts = instance.options();
     expect(newOpts.paddingAbsolute).toBe(false); //switches back to default because its not specified in the new options
@@ -143,17 +166,11 @@ describe('OverlayScrollbarsComponent', () => {
     expect(newOpts.overflow.y).toBe('scroll'); //switches back to default because its not specified in the new options
 
     // instance didn't change
-    expect(instance).toBe(ref.current!.instance());
+    expect(instance).toBe(osRef.value!.instance());
 
-    rerender(
-      <OverlayScrollbarsComponent
-        element="span"
-        options={{ overflow: { x: 'hidden', y: 'hidden' } }}
-        ref={ref as any as RefObject<OverlayScrollbarsComponentRef<'span'>>}
-      />
-    );
+    await rerender({ element: 'span', options: { overflow: { x: 'hidden', y: 'hidden' } } });
 
-    const newElementInstance = ref.current!.instance()!;
+    const newElementInstance = osRef.value!.instance()!;
     const newElementNewOpts = newElementInstance.options();
     expect(newElementInstance).not.toBe(instance);
     expect(newElementNewOpts.paddingAbsolute).toBe(false);
@@ -161,33 +178,44 @@ describe('OverlayScrollbarsComponent', () => {
     expect(newElementNewOpts.overflow.y).toBe('hidden');
 
     // reset options with `undefined`, `null`, `false` or `{}`
-    rerender(
-      <OverlayScrollbarsComponent
-        element="span"
-        options={undefined}
-        ref={ref as any as RefObject<OverlayScrollbarsComponentRef<'span'>>}
-      />
-    );
+    await rerender({ options: undefined });
 
-    const resetOpts = newElementInstance.options();
-    expect(newElementInstance).toBe(ref.current!.instance());
-    expect(resetOpts.paddingAbsolute).toBe(false);
-    expect(resetOpts.overflow.x).toBe('scroll');
-    expect(resetOpts.overflow.y).toBe('scroll');
+    const clearedOpts = newElementInstance.options();
+    expect(osRef.value!.instance()).toBe(newElementInstance);
+    expect(clearedOpts.paddingAbsolute).toBe(false);
+    expect(clearedOpts.overflow.x).toBe('scroll');
+    expect(clearedOpts.overflow.y).toBe('scroll');
   });
 
-  test('events', () => {
+  test('events', async () => {
     const onUpdatedInitial = vitest.fn();
     const onUpdated = vitest.fn();
-    const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
+    const osRef = ref();
     const { rerender } = render(
-      <OverlayScrollbarsComponent events={{ updated: onUpdatedInitial }} ref={ref} />
+      {
+        setup(props: any) {
+          const { events } = toRefs(props);
+          const componentRef = ref(null);
+
+          onMounted(() => {
+            osRef.value = componentRef.value;
+          });
+
+          return () => <OverlayScrollbarsComponent options={events} ref={componentRef} />;
+        },
+      },
+      {
+        props: {
+          events: { updated: onUpdatedInitial },
+        },
+      }
     );
-    const instance = ref.current!.instance()!;
+
+    const instance = osRef.value!.instance()!;
 
     expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
 
-    rerender(<OverlayScrollbarsComponent events={{ updated: onUpdated }} ref={ref} />);
+    await rerender({ events: { updated: onUpdated } });
 
     expect(onUpdated).not.toHaveBeenCalled();
 
@@ -195,48 +223,34 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(1);
 
-    rerender(
-      <OverlayScrollbarsComponent events={{ updated: [onUpdated, onUpdatedInitial] }} ref={ref} />
-    );
+    await rerender({ events: { updated: [onUpdated, onUpdatedInitial] } });
 
     instance.update(true);
     expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
 
     // unregister works with `[]`, `null` or `undefined`
-    rerender(<OverlayScrollbarsComponent events={{ updated: null }} ref={ref} />);
+    await rerender({ events: { updated: null } });
 
     instance.update(true);
     expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
 
     // instance didn't change
-    expect(instance).toBe(ref.current!.instance());
+    expect(instance).toBe(osRef.value!.instance());
 
-    rerender(
-      <OverlayScrollbarsComponent
-        element="span"
-        events={{ updated: [onUpdated, onUpdatedInitial] }}
-        ref={ref as any as RefObject<OverlayScrollbarsComponentRef<'span'>>}
-      />
-    );
+    await rerender({ element: 'span', events: { updated: [onUpdated, onUpdatedInitial] } });
 
-    const newElementInstance = ref.current!.instance()!;
+    const newElementInstance = osRef.value!.instance()!;
     expect(newElementInstance).not.toBe(instance);
     expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
 
     // reset events with `undefined`, `null`, `false` or `{}`
-    rerender(
-      <OverlayScrollbarsComponent
-        element="span"
-        events={undefined}
-        ref={ref as any as RefObject<OverlayScrollbarsComponentRef<'span'>>}
-      />
-    );
+    await rerender({ events: undefined });
 
     newElementInstance.update(true);
-    expect(newElementInstance).toBe(ref.current!.instance());
+    expect(newElementInstance).toBe(osRef.value!.instance());
     expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
   });

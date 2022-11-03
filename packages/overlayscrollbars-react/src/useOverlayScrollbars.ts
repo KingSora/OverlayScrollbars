@@ -1,19 +1,25 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import type { PartialOptions, InitializationTarget, EventListeners } from 'overlayscrollbars';
+import type { InitializationTarget } from 'overlayscrollbars';
+import type {
+  OverlayScrollbarsComponentProps,
+  OverlayScrollbarsComponentRef,
+} from './OverlayScrollbarsComponent';
 
 export interface UseOverlayScrollbarsParams {
   /** OverlayScrollbars options. */
-  options?: PartialOptions;
+  options?: OverlayScrollbarsComponentProps['options'];
   /** OverlayScrollbars events. */
-  events?: EventListeners;
+  events?: OverlayScrollbarsComponentProps['events'];
 }
 
 export type UseOverlayScrollbarsInitialization = (
   target: InitializationTarget
 ) => OverlayScrollbars;
 
-export type UseOverlayScrollbarsInstance = () => OverlayScrollbars | null;
+export type UseOverlayScrollbarsInstance = () => ReturnType<
+  OverlayScrollbarsComponentRef['instance']
+>;
 
 /**
  * Hook for advanced usage of OverlayScrollbars. (When the OverlayScrollbarsComponent is not enough)
@@ -26,24 +32,21 @@ export const useOverlayScrollbars = (
   params?: UseOverlayScrollbarsParams
 ): [UseOverlayScrollbarsInitialization, UseOverlayScrollbarsInstance] => {
   const { options, events } = params || {};
-  const osInstanceRef = useRef<OverlayScrollbars | null>(null);
-  const offInitialEventsRef = useRef<(() => void) | void>();
-  const optionsRef = useRef<PartialOptions>();
-  const eventsRef = useRef<EventListeners>();
+  const osInstanceRef = useRef<ReturnType<UseOverlayScrollbarsInstance>>(null);
+  const optionsRef = useRef(options);
+  const eventsRef = useRef(events);
 
   useEffect(() => {
     const { current: instance } = osInstanceRef;
-    if (OverlayScrollbars.valid(instance) && options) {
-      instance.options(options, true);
+    if (OverlayScrollbars.valid(instance)) {
+      instance.options(options || {}, true);
     }
   }, [options]);
 
   useEffect(() => {
     const { current: instance } = osInstanceRef;
-    const { current: offInitialEvents } = offInitialEventsRef;
-    if (OverlayScrollbars.valid(instance) && events) {
-      offInitialEvents && (offInitialEventsRef.current = offInitialEvents()); // once called assign it to undefined so its not called again
-      return instance.on(events);
+    if (OverlayScrollbars.valid(instance)) {
+      instance.on(events || {}, true);
     }
   }, [events]);
 
@@ -66,8 +69,6 @@ export const useOverlayScrollbars = (
           currOptions,
           currEvents
         ));
-
-        offInitialEventsRef.current = osInstance.on(currEvents);
 
         return osInstance;
       },

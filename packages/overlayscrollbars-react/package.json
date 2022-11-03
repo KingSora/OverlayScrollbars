@@ -22,9 +22,9 @@
     "scrollbars",
     "scroll"
   ],
-  "main": "./dist/overlayscrollbars-react.umd.js",
-  "module": "./dist/overlayscrollbars-react.es.js",
-  "types": "./dist/overlayscrollbars-react.d.ts",
+  "main": "./src/overlayscrollbars-react.ts",
+  "module": "./src/overlayscrollbars-react.ts",
+  "types": "./src/overlayscrollbars-react.ts",
   "peerDependencies": {
     "react": ">=16.8.0",
     "overlayscrollbars": "^2.0.0"

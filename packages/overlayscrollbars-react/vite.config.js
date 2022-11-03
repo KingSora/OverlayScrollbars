@@ -1,9 +1,9 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { esbuildResolve } from 'rollup-plugin-esbuild-resolve';
+import react from '@vitejs/plugin-react';
 import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
 import rollupPluginCopy from '@~local/rollup/plugin/copy';
-import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   build: {

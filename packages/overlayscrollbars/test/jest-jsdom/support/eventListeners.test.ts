@@ -128,6 +128,30 @@ describe('eventListeners', () => {
 
       expect(onUndefined).toHaveBeenCalledTimes(1);
       expect(onUndefined).toHaveBeenLastCalledWith();
+
+      addEvent(
+        {
+          onBoolean: [onBooleanA, onBooleanB],
+          onString: [onString, onString],
+          onUndefined,
+        },
+        true
+      );
+      addEvent(
+        {
+          onUndefined,
+        },
+        true
+      );
+
+      triggerEvent('onBoolean', [true, 'hi']);
+      triggerEvent('onString', ['hi']);
+      triggerEvent('onUndefined');
+
+      expect(onBooleanA).toHaveBeenCalledTimes(1);
+      expect(onBooleanB).toHaveBeenCalledTimes(1);
+      expect(onString).toHaveBeenCalledTimes(1);
+      expect(onUndefined).toHaveBeenCalledTimes(2);
     });
 
     test('removeEvent', () => {

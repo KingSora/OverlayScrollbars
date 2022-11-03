@@ -1,4 +1,4 @@
-import { isArray, isFunction, isString } from '~/support/utils/types';
+import { isArray, isBoolean, isFunction, isString } from '~/support/utils/types';
 import { keys } from '~/support/utils/object';
 import { each, push, from, isEmptyArray, runEachAndClear } from '~/support/utils/array';
 
@@ -20,12 +20,12 @@ export type RemoveEvent<EventMap extends Record<string, any[]>> = {
 };
 
 export type AddEvent<EventMap extends Record<string, any[]>> = {
-  (eventListeners: EventListeners<EventMap>): () => void;
+  (eventListeners: EventListeners<EventMap>, pure?: boolean): () => void;
   <N extends keyof EventMap>(name: N, listener: EventListener<EventMap, N>): () => void;
   <N extends keyof EventMap>(name: N, listener: EventListener<EventMap, N>[]): () => void;
   <N extends keyof EventMap>(
     nameOrEventListeners: N | EventListeners<EventMap>,
-    listener?: EventListener<EventMap, N> | EventListener<EventMap, N>[]
+    listener?: EventListener<EventMap, N> | EventListener<EventMap, N>[] | boolean
   ): () => void;
 };
 
@@ -67,16 +67,25 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
     }
   };
 
-  const addEvent: AddEvent<EventMap> = ((nameOrEventListeners, listener) => {
+  const addEvent: AddEvent<EventMap> = ((
+    nameOrEventListeners: keyof EventMap | EventListeners<EventMap>,
+    listenerOrPure:
+      | EventListener<EventMap, keyof EventMap>
+      | EventListener<EventMap, keyof EventMap>[]
+      | boolean
+  ) => {
     if (isString(nameOrEventListeners)) {
       const eventSet = events.get(nameOrEventListeners) || new Set();
       events.set(nameOrEventListeners, eventSet);
 
       manageListener((currListener) => {
         isFunction(currListener) && eventSet.add(currListener);
-      }, listener as any);
+      }, listenerOrPure as any);
 
-      return removeEvent.bind(0, nameOrEventListeners as any, listener as any);
+      return removeEvent.bind(0, nameOrEventListeners as any, listenerOrPure as any);
+    }
+    if (isBoolean(listenerOrPure) && listenerOrPure) {
+      removeEvent();
     }
 
     const eventListenerKeys = keys(nameOrEventListeners) as (keyof EventListeners<EventMap>)[];

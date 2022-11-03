@@ -9,9 +9,9 @@ export type OverlayScrollbarsComponentProps<T extends keyof JSX.IntrinsicElement
     /** Tag of the root element. */
     element?: T;
     /** OverlayScrollbars options. */
-    options?: PartialOptions;
+    options?: PartialOptions | false | null;
     /** OverlayScrollbars events. */
-    events?: EventListeners;
+    events?: EventListeners | false | null;
   };
 
 export interface OverlayScrollbarsComponentRef<T extends keyof JSX.IntrinsicElements = 'div'> {
@@ -27,17 +27,16 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
 ) => {
   const { element = 'div', options, events, children, ...other } = props;
   const Tag = element;
-
-  const [initialize, instance] = useOverlayScrollbars({ options, events });
   const elementRef = useRef<ElementRef<T>>(null);
   const childrenRef = useRef<HTMLDivElement>(null);
+  const [initialize, instance] = useOverlayScrollbars({ options, events });
 
   useEffect(() => {
-    const { current: targetElm } = elementRef;
+    const { current: elm } = elementRef;
     const { current: childrenElm } = childrenRef;
-    if (targetElm && childrenElm) {
+    if (elm && childrenElm) {
       const osInstance = initialize({
-        target: targetElm as any,
+        target: elm as any,
         elements: {
           viewport: childrenElm,
           content: childrenElm,
@@ -46,7 +45,7 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
 
       return () => osInstance.destroy();
     }
-  }, [initialize]);
+  }, [initialize, element]);
 
   useImperativeHandle(
     ref,
