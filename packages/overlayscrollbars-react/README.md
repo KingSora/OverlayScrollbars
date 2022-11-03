@@ -82,7 +82,7 @@ Additionally it has three optional properties: `element`, `options` and `events`
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
 
-> __Note__: None of these properties has to be memoized.
+> __Note__: None of the properties has to be memoized.
 
 ```jsx
 // example usage
