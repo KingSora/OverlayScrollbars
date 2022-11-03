@@ -19,7 +19,7 @@
     <a href="https://www.npmjs.com/package/overlayscrollbars-vue">
       <img src="https://img.shields.io/npm/v/overlayscrollbars-vue.svg?style=flat-square" alt="Version">
     </a>
-    <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/packages/overlayscrollbars-vue/LICENSE">
+    <a href="#">
       <img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License">
     </a>
 </h6>
