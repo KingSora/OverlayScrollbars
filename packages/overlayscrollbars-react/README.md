@@ -16,7 +16,7 @@
     <a href="https://www.npmjs.com/package/overlayscrollbars-react">
       <img src="https://img.shields.io/npm/dt/overlayscrollbars-react.svg?style=flat-square" alt="Downloads">
     </a>
-    <a href="https://www.npmjs.com/package/overlayscrollbars">
+    <a href="https://www.npmjs.com/package/overlayscrollbars-react">
       <img src="https://img.shields.io/npm/v/overlayscrollbars-react.svg?style=flat-square" alt="Version">
     </a>
     <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/packages/overlayscrollbars-react/LICENSE">
