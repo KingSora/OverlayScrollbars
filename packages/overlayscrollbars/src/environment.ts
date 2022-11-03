@@ -248,6 +248,11 @@ const createEnvironment = (): InternalEnvironment => {
   removeAttr(envElm, 'style');
   removeElements(envElm);
 
+  // needed in case content has css viewport units
+  windowAddEventListener('resize', () => {
+    requestResizeAnimationFrame(triggerEvent.bind(0, 'r', []));
+  });
+
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
     let resizeFn: undefined | ReturnType<ScrollbarsHidingPluginInstance['_envWindowZoom']>;
     windowAddEventListener('resize', () => {
@@ -259,10 +264,6 @@ const createEnvironment = (): InternalEnvironment => {
       resizeFn && resizeFn(env, updateNativeScrollbarSizeCache, triggerEvent.bind(0, 'z', []));
     });
   }
-  // needed in case content has css viewport units
-  windowAddEventListener('resize', () => {
-    requestResizeAnimationFrame(triggerEvent.bind(0, 'r', []));
-  });
 
   return env;
 };
