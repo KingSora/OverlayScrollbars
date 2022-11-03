@@ -249,9 +249,10 @@ const createEnvironment = (): InternalEnvironment => {
   removeElements(envElm);
 
   // needed in case content has css viewport units
-  windowAddEventListener('resize', () => {
-    requestResizeAnimationFrame(triggerEvent.bind(0, 'r', []));
-  });
+  windowAddEventListener(
+    'resize',
+    requestResizeAnimationFrame.bind(0, triggerEvent.bind(0, 'r', []))
+  );
 
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
     let resizeFn: undefined | ReturnType<ScrollbarsHidingPluginInstance['_envWindowZoom']>;
