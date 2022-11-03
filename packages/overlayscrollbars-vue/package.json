@@ -34,15 +34,10 @@
   },
   "devDependencies": {
     "@testing-library/vue": "^6.6.1",
-    "@types/jsdom": "^16.2.14",
-    "@types/node": "^16.11.45",
     "@vitejs/plugin-vue": "^3.1.2",
     "@vitejs/plugin-vue-jsx": "^2.1.0",
-    "@vue/test-utils": "^2.1.0",
     "@vue/tsconfig": "^0.1.3",
     "overlayscrollbars": "file:./../overlayscrollbars/dist",
-    "terser": "^5.14.2",
-    "typescript": "~4.7.4",
     "vue": "^3.2.25",
     "vue-tsc": "^1.0.8"
   },
