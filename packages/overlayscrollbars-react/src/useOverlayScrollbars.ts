@@ -38,6 +38,9 @@ export const useOverlayScrollbars = (
 
   useEffect(() => {
     const { current: instance } = osInstanceRef;
+
+    optionsRef.current = options;
+
     if (OverlayScrollbars.valid(instance)) {
       instance.options(options || {}, true);
     }
@@ -45,13 +48,13 @@ export const useOverlayScrollbars = (
 
   useEffect(() => {
     const { current: instance } = osInstanceRef;
+
+    eventsRef.current = events;
+
     if (OverlayScrollbars.valid(instance)) {
       instance.on(events || {}, true);
     }
   }, [events]);
-
-  optionsRef.current = options;
-  eventsRef.current = events;
 
   return useMemo<[UseOverlayScrollbarsInitialization, UseOverlayScrollbarsInstance]>(
     () => [
