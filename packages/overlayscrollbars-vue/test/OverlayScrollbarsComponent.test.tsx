@@ -1,7 +1,7 @@
 import { onMounted, ref, toRefs } from 'vue';
 import { describe, test, expect, vitest } from 'vitest';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { render, screen } from '@testing-library/vue';
+import { fireEvent, render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbarsComponent } from '~/overlayscrollbars-vue';
 
@@ -253,5 +253,27 @@ describe('OverlayScrollbarsComponent', () => {
     expect(newElementInstance).toBe(osRef.value!.instance());
     expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+  });
+
+  test('emits', async () => {
+    const { emitted, unmount, container } = render(OverlayScrollbarsComponent);
+
+    expect(emitted('initialized')).toEqual([[expect.any(Object)]]);
+    expect(emitted('updated')).toEqual([[expect.any(Object), expect.any(Object)]]);
+    expect(emitted('scroll')).toBeUndefined();
+    expect(emitted('destroyed')).toBeUndefined();
+
+    container.querySelectorAll('*').forEach((e) => {
+      fireEvent.scroll(e);
+    });
+
+    await Promise.resolve();
+
+    expect(emitted('scroll')).toEqual([[expect.any(Object), expect.any(UIEvent)]]);
+    expect(emitted('destroyed')).toBeUndefined();
+
+    unmount();
+
+    expect(emitted('destroyed')).toEqual([[expect.any(Object), false]]);
   });
 });

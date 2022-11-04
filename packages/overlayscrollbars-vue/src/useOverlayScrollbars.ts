@@ -46,14 +46,10 @@ export const useOverlayScrollbars = (
 
   watch(
     () => unref(paramsRef.value.options),
-    () => {
-      const {
-        value: { options: rawOptions },
-      } = paramsRef;
+    (options) => {
       const {
         value: { instance },
       } = variables;
-      const options = unref(rawOptions);
 
       variables.value.options = options;
 
@@ -66,14 +62,10 @@ export const useOverlayScrollbars = (
 
   watch(
     () => unref(paramsRef.value.events),
-    () => {
-      const {
-        value: { events: rawEvents },
-      } = paramsRef;
+    (events) => {
       const {
         value: { instance },
       } = variables;
-      const events = unref(rawEvents);
 
       variables.value.events = events;
 
