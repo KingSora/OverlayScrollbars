@@ -175,6 +175,8 @@ describe('environment', () => {
       _addZoomListener(listener);
       window.dispatchEvent(new Event('resize'));
 
+      jest.advanceTimersByTime(33);
+
       expect(listener).toHaveBeenCalledTimes(1);
     });
 
@@ -190,6 +192,8 @@ describe('environment', () => {
       }));
 
       window.dispatchEvent(new Event('resize'));
+
+      jest.advanceTimersByTime(33);
 
       expect(listener).toHaveBeenCalledTimes(1);
     });
@@ -214,7 +218,7 @@ describe('environment', () => {
 
     expect(listener).not.toHaveBeenCalled();
 
-    jest.runAllTimers();
+    jest.advanceTimersByTime(33);
 
     expect(listener).toHaveBeenCalledTimes(1);
   });
