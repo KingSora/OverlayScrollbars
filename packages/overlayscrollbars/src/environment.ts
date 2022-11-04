@@ -17,7 +17,7 @@ import {
   createCache,
   equalXY,
   createEventListenerHub,
-  selfClearTimeout,
+  debounce,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -183,7 +183,6 @@ const createEnvironment = (): InternalEnvironment => {
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
-  const [requestResizeAnimationFrame] = selfClearTimeout();
   const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventMap>();
   const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache(
     {
@@ -251,7 +250,7 @@ const createEnvironment = (): InternalEnvironment => {
   // needed in case content has css viewport units
   windowAddEventListener(
     'resize',
-    requestResizeAnimationFrame.bind(0, triggerEvent.bind(0, 'r', []))
+    debounce(triggerEvent.bind(0, 'r', []), { _timeout: 33, _maxDelay: 99 })
   );
 
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {

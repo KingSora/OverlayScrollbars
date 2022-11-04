@@ -237,7 +237,8 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   options?: PartialOptions,
   eventListeners?: EventListeners
 ) => {
-  const { _getDefaultOptions, _getDefaultInitialization, _addZoomListener } = getEnvironment();
+  const { _getDefaultOptions, _getDefaultInitialization, _addZoomListener, _addResizeListener } =
+    getEnvironment();
   const plugins = getPlugins();
   const targetIsElement = isHTMLElement(target);
   const instanceTarget = targetIsElement ? target : target.target;
@@ -270,10 +271,13 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     );
     const update = (changedOptions: PartialOptions, force?: boolean): boolean =>
       updateStructure(changedOptions, !!force);
-    const removeZoomListener = _addZoomListener(update.bind(0, {}, true));
+    const forceUpdate = update.bind(0, {}, true);
+    const removeZoomListener = _addZoomListener(forceUpdate);
+    const removeResizeListener = _addResizeListener(forceUpdate);
     const destroy = (canceled?: boolean) => {
       removeInstance(instanceTarget);
       removeZoomListener();
+      removeResizeListener();
 
       destroyScrollbars();
       destroyStructure();
