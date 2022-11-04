@@ -243,15 +243,16 @@ const createEnvironment = (): InternalEnvironment => {
     _staticDefaultOptions: assignDeep({}, staticDefaultOptions),
   };
   const windowAddEventListener = window.addEventListener;
+  const debouncedWindowResize = debounce((zoom: boolean) => triggerEvent(zoom ? 'z' : 'r'), {
+    _timeout: 33,
+    _maxDelay: 99,
+  });
 
   removeAttr(envElm, 'style');
   removeElements(envElm);
 
   // needed in case content has css viewport units
-  windowAddEventListener(
-    'resize',
-    debounce(triggerEvent.bind(0, 'r', []), { _timeout: 33, _maxDelay: 99 })
-  );
+  windowAddEventListener('resize', debouncedWindowResize.bind(0, false));
 
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
     let resizeFn: undefined | ReturnType<ScrollbarsHidingPluginInstance['_envWindowZoom']>;
@@ -261,7 +262,8 @@ const createEnvironment = (): InternalEnvironment => {
         | undefined;
 
       resizeFn = resizeFn || (scrollbarsHidingPlugin && scrollbarsHidingPlugin._envWindowZoom());
-      resizeFn && resizeFn(env, updateNativeScrollbarSizeCache, triggerEvent.bind(0, 'z', []));
+      resizeFn &&
+        resizeFn(env, updateNativeScrollbarSizeCache, debouncedWindowResize.bind(0, true));
     });
   }
 
