@@ -32,12 +32,12 @@ export const useOverlayScrollbars = (
   params?: UseOverlayScrollbarsParams
 ): [UseOverlayScrollbarsInitialization, UseOverlayScrollbarsInstance] => {
   const { options, events } = params || {};
-  const osInstanceRef = useRef<ReturnType<UseOverlayScrollbarsInstance>>(null);
+  const instanceRef = useRef<ReturnType<UseOverlayScrollbarsInstance>>(null);
   const optionsRef = useRef(options);
   const eventsRef = useRef(events);
 
   useEffect(() => {
-    const { current: instance } = osInstanceRef;
+    const { current: instance } = instanceRef;
 
     optionsRef.current = options;
 
@@ -47,7 +47,7 @@ export const useOverlayScrollbars = (
   }, [options]);
 
   useEffect(() => {
-    const { current: instance } = osInstanceRef;
+    const { current: instance } = instanceRef;
 
     eventsRef.current = events;
 
@@ -60,14 +60,14 @@ export const useOverlayScrollbars = (
     () => [
       (target: InitializationTarget): OverlayScrollbars => {
         // if already initialized return the current instance
-        const presentInstance = osInstanceRef.current;
+        const presentInstance = instanceRef.current;
         if (OverlayScrollbars.valid(presentInstance)) {
           return presentInstance;
         }
 
         const currOptions = optionsRef.current || {};
         const currEvents = eventsRef.current || {};
-        const osInstance = (osInstanceRef.current = OverlayScrollbars(
+        const osInstance = (instanceRef.current = OverlayScrollbars(
           target,
           currOptions,
           currEvents
@@ -75,7 +75,7 @@ export const useOverlayScrollbars = (
 
         return osInstance;
       },
-      () => osInstanceRef.current,
+      () => instanceRef.current,
     ],
     []
   );

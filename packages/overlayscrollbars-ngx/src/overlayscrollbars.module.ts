@@ -1,9 +1,8 @@
 import { NgModule } from '@angular/core';
-import { OverlayscrollbarsComponent } from './overlayscrollbars.component';
+import { OverlayScrollbarsComponent } from './overlayscrollbars.component';
 
 @NgModule({
-  declarations: [OverlayscrollbarsComponent],
-  imports: [],
-  exports: [OverlayscrollbarsComponent],
+  declarations: [OverlayScrollbarsComponent],
+  exports: [OverlayScrollbarsComponent],
 })
 export class OverlayscrollbarsModule {}

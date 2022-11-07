@@ -203,7 +203,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
 
-    // unregister works with `[]`, `null` or `undefined`
+    // unregister with `[]`, `null` or `undefined`
     rerender(<OverlayScrollbarsComponent events={{ updated: null }} ref={ref} />);
 
     instance.update(true);
