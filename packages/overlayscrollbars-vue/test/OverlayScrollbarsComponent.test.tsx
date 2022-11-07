@@ -229,7 +229,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
 
-    // unregister works with `[]`, `null` or `undefined`
+    // unregister with `[]`, `null` or `undefined`
     await rerender({ events: { updated: null } });
 
     instance.update(true);
@@ -280,12 +280,12 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('emits', async () => {
-    const { emitted, unmount, container } = render(OverlayScrollbarsComponent);
+    const { emitted, rerender, unmount, container } = render(OverlayScrollbarsComponent);
 
-    expect(emitted('initialized')).toEqual([[expect.any(Object)]]);
-    expect(emitted('updated')).toEqual([[expect.any(Object), expect.any(Object)]]);
-    expect(emitted('scroll')).toBeUndefined();
-    expect(emitted('destroyed')).toBeUndefined();
+    expect(emitted('osInitialized')).toEqual([[expect.any(Object)]]);
+    expect(emitted('osUpdated')).toEqual([[expect.any(Object), expect.any(Object)]]);
+    expect(emitted('osDestroyed')).toBeUndefined();
+    expect(emitted('osScroll')).toBeUndefined();
 
     container.querySelectorAll('*').forEach((e) => {
       fireEvent.scroll(e);
@@ -293,11 +293,19 @@ describe('OverlayScrollbarsComponent', () => {
 
     await Promise.resolve();
 
-    expect(emitted('scroll')).toEqual([[expect.any(Object), expect.any(UIEvent)]]);
-    expect(emitted('destroyed')).toBeUndefined();
+    expect(emitted('osDestroyed')).toBeUndefined();
+    expect(emitted('osScroll')).toEqual([[expect.any(Object), expect.any(Event)]]);
+
+    const initializedCount = emitted('osInitialized').length;
+    const updatedCount = emitted('osUpdated').length;
+
+    await rerender({ element: 'span' });
+
+    expect(emitted('osInitialized').length).toBe(initializedCount + 1);
+    expect(emitted('osUpdated').length).toBe(updatedCount + 1);
 
     unmount();
 
-    expect(emitted('destroyed')).toEqual([[expect.any(Object), false]]);
+    expect(emitted('osDestroyed')).toEqual([[expect.any(Object), false]]);
   });
 });

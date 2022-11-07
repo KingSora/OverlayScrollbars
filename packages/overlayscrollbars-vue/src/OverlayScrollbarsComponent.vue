@@ -8,7 +8,17 @@ import type {
 import type { PropType } from 'vue';
 import type { EventListeners, EventListenerMap } from 'overlayscrollbars';
 
-const emitNames: (keyof EventListenerMap)[] = ['initialized', 'updated', 'destroyed', 'scroll'];
+type EmitName<N extends keyof EventListenerMap = keyof EventListenerMap> = `os${Capitalize<N>}`;
+type EmitEventsMap = {
+  [N in keyof EventListenerMap]: EmitName<N>;
+};
+
+const emitEvents: EmitEventsMap = {
+  initialized: 'osInitialized',
+  updated: 'osUpdated',
+  destroyed: 'osDestroyed',
+  scroll: 'osScroll',
+};
 const props = defineProps({
   element: {
     type: String as PropType<OverlayScrollbarsComponentProps['element']>,
@@ -18,11 +28,11 @@ const props = defineProps({
   events: { type: Object as PropType<OverlayScrollbarsComponentProps['events']> },
 });
 const emits = defineEmits({
-  initialized: (...args: EventListenerMap['initialized']) => true,
-  updated: (...args: EventListenerMap['updated']) => true,
-  destroyed: (...args: EventListenerMap['destroyed']) => true,
-  scroll: (...args: EventListenerMap['scroll']) => true,
-} as Record<keyof EventListenerMap, any>);
+  osInitialized: (...args: EventListenerMap['initialized']) => true,
+  osUpdated: (...args: EventListenerMap['updated']) => true,
+  osDestroyed: (...args: EventListenerMap['destroyed']) => true,
+  osScroll: (...args: EventListenerMap['scroll']) => true,
+} as Record<EmitName, any>);
 
 const elementRef = shallowRef<HTMLElement | null>(null);
 const slotRef = shallowRef<HTMLElement | null>(null);
@@ -58,18 +68,17 @@ watch(
   () => unref(events),
   (rawCurrEvents) => {
     const currEvents = rawCurrEvents || {};
-    combinedEvents.value = emitNames.reduce<EventListeners>(
-      <N extends keyof EventListeners>(obj: EventListeners, name: N) => {
-        const eventListener = currEvents[name];
-        obj[name] = [
-          // @ts-ignore
-          (...args: EventListenerMap[N]) => emits(name, ...args),
-          ...(Array.isArray(eventListener) ? eventListener : [eventListener]).filter(Boolean),
-        ];
-        return obj;
-      },
-      {}
-    );
+    combinedEvents.value = (
+      Object.keys(emitEvents) as (keyof EventListeners)[]
+    ).reduce<EventListeners>(<N extends keyof EventListeners>(obj: EventListeners, name: N) => {
+      const eventListener = currEvents[name];
+      obj[name] = [
+        // @ts-ignore
+        (...args: EventListenerMap[N]) => emits(emitEvents[name], ...args),
+        ...(Array.isArray(eventListener) ? eventListener : [eventListener]).filter(Boolean),
+      ];
+      return obj;
+    }, {});
   },
   { deep: true, immediate: true }
 );
