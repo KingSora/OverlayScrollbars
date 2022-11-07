@@ -70,7 +70,11 @@ export const useOverlayScrollbars = (
       variables.value.events = events;
 
       if (OverlayScrollbars.valid(instance)) {
-        instance.on(events || {}, true);
+        instance.on(
+          /* c8 ignore next */
+          events || {},
+          true
+        );
       }
     },
     { deep: true, immediate: true }

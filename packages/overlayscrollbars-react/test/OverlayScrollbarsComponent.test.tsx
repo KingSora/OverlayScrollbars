@@ -240,4 +240,18 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
   });
+
+  test('destroy', () => {
+    const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
+    const { unmount } = render(<OverlayScrollbarsComponent ref={ref} />);
+
+    const { instance } = ref.current!;
+
+    expect(OverlayScrollbars.valid(instance())).toBe(true);
+
+    unmount();
+
+    expect(instance()).toBeDefined();
+    expect(OverlayScrollbars.valid(instance())).toBe(false);
+  });
 });

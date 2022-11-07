@@ -255,6 +255,30 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdated).toHaveBeenCalledTimes(3);
   });
 
+  test('destroy', () => {
+    const osRef = ref();
+    const { unmount } = render({
+      setup() {
+        const componentRef = ref(null);
+
+        onMounted(() => {
+          osRef.value = componentRef.value;
+        });
+
+        return () => <OverlayScrollbarsComponent ref={componentRef} />;
+      },
+    });
+
+    const { instance } = osRef.value!;
+
+    expect(OverlayScrollbars.valid(instance())).toBe(true);
+
+    unmount();
+
+    expect(instance()).toBeDefined();
+    expect(OverlayScrollbars.valid(instance())).toBe(false);
+  });
+
   test('emits', async () => {
     const { emitted, unmount, container } = render(OverlayScrollbarsComponent);
 
