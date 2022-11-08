@@ -90,6 +90,22 @@ It has three optional properties: `element`, `options` and `events`.
 />
 ```
 
+### Events
+
+Additionally to the `events` property the `OverlayScrollbarsComponent` emits "native" Vue events. To prevent name collisions with DOM events, the events are prefixed with `os`. It doesn't matter whether you use the `events` property, the Vue events or both.
+
+```jsx
+// example usage
+<template>
+  <OverlayScrollbarsComponent
+    @os-initialized="onInitialized"
+    @os-updated="onUpdated"
+    @os-destroyed="onDestroyed"
+    @os-scroll="onScroll"
+  />
+</template>
+```
+
 ### Ref
 
 The `ref` of the `OverlayScrollbarsComponent` will give you an object with which you can access the OverlayScrollbars `instance` and the root `element` of the component.  

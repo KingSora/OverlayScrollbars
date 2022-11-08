@@ -1,7 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "overlayscrollbars-vue": "file:../../packages/overlayscrollbars-vue",
+    "overlayscrollbars-vue": "file:../../packages/overlayscrollbars-vue/dist",
     "vue": "^3.2.38"
   },
   "devDependencies": {

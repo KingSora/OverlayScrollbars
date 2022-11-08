@@ -8,9 +8,8 @@ import type {
 import type { PropType } from 'vue';
 import type { EventListeners, EventListenerMap } from 'overlayscrollbars';
 
-type EmitName<N extends keyof EventListenerMap = keyof EventListenerMap> = `os${Capitalize<N>}`;
 type EmitEventsMap = {
-  [N in keyof EventListenerMap]: EmitName<N>;
+  [N in keyof EventListenerMap]: `os${Capitalize<N>}`;
 };
 
 const emitEvents: EmitEventsMap = {
@@ -27,12 +26,12 @@ const props = defineProps({
   options: { type: Object as PropType<OverlayScrollbarsComponentProps['options']> },
   events: { type: Object as PropType<OverlayScrollbarsComponentProps['events']> },
 });
-const emits = defineEmits({
-  osInitialized: (...args: EventListenerMap['initialized']) => true,
-  osUpdated: (...args: EventListenerMap['updated']) => true,
-  osDestroyed: (...args: EventListenerMap['destroyed']) => true,
-  osScroll: (...args: EventListenerMap['scroll']) => true,
-} as Record<EmitName, any>);
+const emits = defineEmits<{
+  (name: 'osInitialized', ...args: EventListenerMap['initialized']): void;
+  (name: 'osUpdated', ...args: EventListenerMap['updated']): void;
+  (name: 'osDestroyed', ...args: EventListenerMap['destroyed']): void;
+  (name: 'osScroll', ...args: EventListenerMap['scroll']): void;
+}>();
 
 const elementRef = shallowRef<HTMLElement | null>(null);
 const slotRef = shallowRef<HTMLElement | null>(null);
@@ -73,8 +72,12 @@ watch(
     ).reduce<EventListeners>(<N extends keyof EventListeners>(obj: EventListeners, name: N) => {
       const eventListener = currEvents[name];
       obj[name] = [
-        // @ts-ignore
-        (...args: EventListenerMap[N]) => emits(emitEvents[name], ...args),
+        (...args: EventListenerMap[N]) =>
+          emits(
+            emitEvents[name],
+            // @ts-ignore
+            ...args
+          ),
         ...(Array.isArray(eventListener) ? eventListener : [eventListener]).filter(Boolean),
       ];
       return obj;

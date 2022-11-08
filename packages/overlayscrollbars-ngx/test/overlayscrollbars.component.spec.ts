@@ -12,7 +12,7 @@ import type { EventListenerMap } from 'overlayscrollbars';
 @Component({
   template: `
     <div
-      [overlay-scrollbars-component]
+      overlay-scrollbars
       [options]="options"
       [events]="events"
       (osInitialized)="onInitialized($event)"
@@ -70,6 +70,19 @@ class Test {
   }
 }
 
+@Component({
+  template: `
+    <span overlay-scrollbars #span>span</span>
+    <overlay-scrollbars #os>span</overlay-scrollbars>
+  `,
+})
+class TestTag {
+  @ViewChild('span', { read: OverlayScrollbarsComponent })
+  spanRef?: OverlayScrollbarsComponent;
+  @ViewChild('os', { read: OverlayScrollbarsComponent })
+  osRef?: OverlayScrollbarsComponent;
+}
+
 describe('OverlayscrollbarsNgxComponent', () => {
   let component: OverlayScrollbarsComponent;
   let fixture: ComponentFixture<OverlayScrollbarsComponent>;
@@ -77,7 +90,7 @@ describe('OverlayscrollbarsNgxComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       ...new OverlayscrollbarsModule(),
-      declarations: [OverlayScrollbarsComponent, OverlayScrollbarsDirective, Test],
+      declarations: [OverlayScrollbarsComponent, OverlayScrollbarsDirective, Test, TestTag],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OverlayScrollbarsComponent);
@@ -348,5 +361,26 @@ describe('OverlayscrollbarsNgxComponent', () => {
 
     expect(onDestroyed).toHaveBeenCalledTimes(1);
     expect(onDestroyed).toHaveBeenCalledWith([jasmine.any(Object), jasmine.any(Boolean)]);
+  });
+
+  it('has correct tags', async () => {
+    const testFixture = TestBed.createComponent(TestTag);
+    const testInstance = testFixture.componentInstance;
+
+    testFixture.detectChanges();
+
+    const osRef = testInstance.osRef!;
+    const spanRef = testInstance.spanRef!;
+
+    expect(osRef).toBeDefined();
+    expect(spanRef).toBeDefined();
+
+    expect(OverlayScrollbars.valid(osRef.instance())).toBe(true);
+    expect(OverlayScrollbars.valid(spanRef.instance())).toBe(true);
+
+    testFixture.destroy();
+
+    expect(OverlayScrollbars.valid(osRef.instance())).toBe(false);
+    expect(OverlayScrollbars.valid(spanRef.instance())).toBe(false);
   });
 });

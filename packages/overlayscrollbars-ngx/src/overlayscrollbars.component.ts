@@ -10,8 +10,8 @@ import {
   AfterViewInit,
 } from '@angular/core';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsDirective } from '~/overlayscrollbars.directive';
 import type { PartialOptions, EventListeners, EventListenerMap } from 'overlayscrollbars';
+import { OverlayScrollbarsDirective } from './overlayscrollbars.directive';
 
 const mergeEventListeners = (emits: EventListeners, events: EventListeners) =>
   (Object.keys(emits) as (keyof EventListeners)[]).reduce<EventListeners>(
@@ -29,17 +29,12 @@ const mergeEventListeners = (emits: EventListeners, events: EventListeners) =>
   );
 
 @Component({
-  selector: '[overlay-scrollbars-component]', // https://angular.io/guide/styleguide#component-selectors
-  exportAs: 'overlayScrollbars',
+  selector: 'overlay-scrollbars, [overlay-scrollbars]', // https://angular.io/guide/styleguide#component-selectors
   host: { 'data-overlayscrollbars': '' },
-  template: `<div
-    #content
-    [overlayScrollbarsDirective]
-    [options]="options"
-    [events]="mergeEvents(events)"
-  >
+  template: `<div overlayScrollbars [options]="options" [events]="mergeEvents(events)" #content>
     <ng-content></ng-content>
   </div>`,
+  styles: [':host { display: block; }'],
 })
 export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
   @Input('options')
@@ -91,7 +86,7 @@ export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
     this.osDirective?.instance()!.destroy();
   }
 
-  private mergeEvents(originalEvents: OverlayScrollbarsComponent['events']) {
+  mergeEvents(originalEvents: OverlayScrollbarsComponent['events']) {
     return mergeEventListeners(
       {
         initialized: (...args) => this.onInitialized.emit(args),

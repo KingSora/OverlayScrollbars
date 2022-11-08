@@ -5,8 +5,7 @@ import type { InitializationTarget } from 'overlayscrollbars';
 import type { OverlayScrollbarsComponent } from '~/overlayscrollbars.component';
 
 @Directive({
-  selector: '[overlayScrollbarsDirective]', // https://angular.io/guide/styleguide#component-selectors
-  exportAs: 'overlayScrollbars',
+  selector: '[overlayScrollbars]', // https://angular.io/guide/styleguide#directive-selectors
 })
 export class OverlayScrollbarsDirective implements OnChanges {
   private instanceRef: OverlayScrollbars | null = null;
