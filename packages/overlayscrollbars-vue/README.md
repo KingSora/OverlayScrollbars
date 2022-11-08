@@ -92,7 +92,7 @@ It has three optional properties: `element`, `options` and `events`.
 
 ### Events
 
-Additionally to the `events` property the `OverlayScrollbarsComponent` emits "native" Vue events. To prevent name collisions with DOM events, the events are prefixed with `os`. It doesn't matter whether you use the `events` property, the Vue events or both.
+Additionally to the `events` property the `OverlayScrollbarsComponent` emits "native" Vue events. To prevent name collisions with DOM events the events have a `os` prefix. It doesn't matter whether you use the `events` property, the Vue events or both.
 
 ```jsx
 // example usage
