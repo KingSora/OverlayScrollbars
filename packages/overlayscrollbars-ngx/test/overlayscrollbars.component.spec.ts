@@ -1,14 +1,18 @@
 import { Component, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent, OverlayscrollbarsModule } from '~/public-api';
+import {
+  OverlayScrollbarsComponent,
+  OverlayScrollbarsDirective,
+  OverlayscrollbarsModule,
+} from '~/public-api';
 import type { ComponentFixture } from '@angular/core/testing';
 import type { EventListenerMap } from 'overlayscrollbars';
 
 @Component({
   template: `
     <div
-      [overlay-scrollbars]
+      [overlay-scrollbars-component]
       [options]="options"
       [events]="events"
       (osInitialized)="onInitialized($event)"
@@ -17,7 +21,7 @@ import type { EventListenerMap } from 'overlayscrollbars';
       (osScroll)="onScroll($event)"
       [ngClass]="clazz"
       [ngStyle]="style"
-      #ref="overlayScrollbars"
+      #ref
     >
       hello <span>angular</span>
       <div *ngIf="children === 0" id="empty">empty</div>
@@ -73,7 +77,7 @@ describe('OverlayscrollbarsNgxComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       ...new OverlayscrollbarsModule(),
-      declarations: [OverlayScrollbarsComponent, Test],
+      declarations: [OverlayScrollbarsComponent, OverlayScrollbarsDirective, Test],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OverlayScrollbarsComponent);

@@ -7,12 +7,10 @@ import {
   ViewChild,
   ElementRef,
   OnDestroy,
-  OnChanges,
   AfterViewInit,
-  SimpleChanges,
-  NgZone,
 } from '@angular/core';
 import { OverlayScrollbars } from 'overlayscrollbars';
+import { OverlayScrollbarsDirective } from '~/overlayscrollbars.directive';
 import type { PartialOptions, EventListeners, EventListenerMap } from 'overlayscrollbars';
 
 const mergeEventListeners = (emits: EventListeners, events: EventListeners) =>
@@ -31,17 +29,19 @@ const mergeEventListeners = (emits: EventListeners, events: EventListeners) =>
   );
 
 @Component({
-  selector: '[overlay-scrollbars]', // https://angular.io/guide/styleguide#component-selectors
+  selector: '[overlay-scrollbars-component]', // https://angular.io/guide/styleguide#component-selectors
   exportAs: 'overlayScrollbars',
   host: { 'data-overlayscrollbars': '' },
-  template: `<div #content><ng-content></ng-content></div>`,
+  template: `<div
+    #content
+    [overlayScrollbarsDirective]
+    [options]="options"
+    [events]="mergeEvents(events)"
+  >
+    <ng-content></ng-content>
+  </div>`,
 })
-export class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterViewInit {
-  private instanceRef: OverlayScrollbars | null = null;
-
-  @ViewChild('content')
-  private contentRef?: ElementRef<HTMLDivElement>;
-
+export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
   @Input('options')
   options?: PartialOptions | false | null;
   @Input('events')
@@ -56,9 +56,42 @@ export class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterVi
   @Output('osScroll')
   onScroll = new EventEmitter<EventListenerMap['scroll']>();
 
-  constructor(private targetRef: ElementRef<HTMLElement>, private ngZone: NgZone) {}
+  @ViewChild('content')
+  private contentRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('content', { read: OverlayScrollbarsDirective })
+  private osDirective?: OverlayScrollbarsDirective;
 
-  private mergedEvents(originalEvents: OverlayScrollbarsComponent['events']) {
+  constructor(private targetRef: ElementRef<HTMLElement>) {}
+
+  instance(): OverlayScrollbars | null {
+    return this.osDirective!.instance();
+  }
+
+  element(): HTMLElement {
+    return this.targetRef.nativeElement;
+  }
+
+  ngAfterViewInit() {
+    const targetElm = this.element();
+    const contentElm = this.contentRef!.nativeElement;
+
+    /* istanbul ignore else */
+    if (targetElm && contentElm) {
+      this.osDirective!.initialize({
+        target: targetElm,
+        elements: {
+          viewport: contentElm,
+          content: contentElm,
+        },
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    this.osDirective?.instance()!.destroy();
+  }
+
+  private mergeEvents(originalEvents: OverlayScrollbarsComponent['events']) {
     return mergeEventListeners(
       {
         initialized: (...args) => this.onInitialized.emit(args),
@@ -68,53 +101,5 @@ export class OverlayScrollbarsComponent implements OnDestroy, OnChanges, AfterVi
       },
       originalEvents || {}
     );
-  }
-
-  instance(): OverlayScrollbars | null {
-    return this.instanceRef;
-  }
-
-  element(): HTMLElement {
-    return this.targetRef.nativeElement;
-  }
-
-  ngAfterViewInit() {
-    this.ngZone.runOutsideAngular(() => {
-      const targetElm = this.element();
-      const contentElm = this.contentRef!.nativeElement;
-
-      /* istanbul ignore else */
-      if (targetElm && contentElm) {
-        this.instanceRef = OverlayScrollbars(
-          {
-            target: targetElm,
-            elements: {
-              viewport: contentElm,
-              content: contentElm,
-            },
-          },
-          this.options || {},
-          this.mergedEvents(this.events)
-        );
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    this.instanceRef?.destroy();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    const optionsChange = changes.options;
-    const eventsChange = changes.events;
-
-    if (OverlayScrollbars.valid(this.instanceRef)) {
-      if (optionsChange) {
-        this.instanceRef.options(optionsChange.currentValue || {}, true);
-      }
-      if (eventsChange) {
-        this.instanceRef.on(this.mergedEvents(eventsChange.currentValue), true);
-      }
-    }
   }
 }
