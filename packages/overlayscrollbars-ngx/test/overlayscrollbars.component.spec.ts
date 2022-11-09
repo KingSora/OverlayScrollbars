@@ -105,11 +105,13 @@ describe('OverlayscrollbarsNgxComponent', () => {
       expect(OverlayScrollbars.valid(component.instance())).toBe(true);
     });
 
-    it('has data-overlayscrollbars attribute', async () => {
+    it('has data-overlayscrollbars-initialize', async () => {
       const testFixture = TestBed.createComponent(Test);
-      const testOsComponent = testFixture.debugElement.children[0];
+      const testComponent = testFixture.nativeElement as HTMLElement;
 
-      expect(testOsComponent.attributes['data-overlayscrollbars']).toBe('');
+      testFixture.detectChanges();
+
+      expect(testComponent?.querySelector('[data-overlayscrollbars-initialize]')).toBeTruthy();
     });
 
     it('has children', async () => {

@@ -42,6 +42,12 @@ describe('OverlayScrollbarsComponent', () => {
       expect(OverlayScrollbars.valid(osInstance)).toBe(true);
     });
 
+    test('data-overlayscrollbars-initialize', async () => {
+      const { container } = render(<OverlayScrollbarsComponent />);
+
+      expect(container.querySelector('[data-overlayscrollbars-initialize]')).toBeTruthy();
+    });
+
     test('children', () => {
       const { container } = render(
         <OverlayScrollbarsComponent>
