@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
   </a>
 </div>
-<h6 align="center">
+<div align="center">
     <a href="https://www.npmjs.com/package/overlayscrollbars">
       <img src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square" alt="Downloads">
     </a>
@@ -19,7 +19,9 @@
     <a href="https://bundlephobia.com/package/overlayscrollbars">
       <img src="https://img.shields.io/bundlephobia/minzip/overlayscrollbars?label=max.%20bundle%20size&style=flat-square" alt="Max. Bundle Size">
     </a>
-</h6>
+</div>
+
+# OverlayScrollbars
 
 > OverlayScrollbars is a javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.
 
@@ -48,7 +50,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
 
 ## Choose your framework
 
-Additionally to the vanilla JavaScript version you can use the official framework wrappers:
+Additionally to the vanilla JavaScript version you can use the official framework components & utilities:
 
 <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react">
   <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React">
