@@ -44,10 +44,10 @@ OverlayScrollbars for Angular has the following **peer dependencies**:
 npm install overlayscrollbars
 ```
 
-- The Angular framework: [@angular/core](https://www.npmjs.com/package/@angular/core)
+- The Angular framework: [@angular/core](https://www.npmjs.com/package/@angular/core) & [@angular/common](https://www.npmjs.com/package/@angular/common)
 
 ```
-npm install @angular/core
+npm install @angular/core @angular/common
 ```
 
 ## Usage
