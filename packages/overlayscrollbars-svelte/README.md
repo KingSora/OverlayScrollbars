@@ -1,38 +1,22 @@
-# create-svelte
+<div align="center">
+  <a href="https://kingsora.github.io/OverlayScrollbars">
+    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
+  </a>
+  <a href="https://svelte.dev/">
+    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-svelte/logo.svg" width="160" height="160" alt="Svelte">
+  </a>
+</div>
+<h6 align="center">
+    <a href="https://github.com/KingSora/OverlayScrollbars">
+      <img src="https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square" alt="OverlayScrollbars">
+    </a>
+    <a href="https://github.com/sveltejs/svelte">
+      <img src="https://img.shields.io/badge/Svelte-%5E3.44.0-FF3E00?style=flat-square&logo=svelte" alt="Svelte">
+    </a>
+</h6>
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+# OverlayScrollbars for Svelte
 
-## Creating a project
+This is the official OverlayScrollbars Svelte wrapper.
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+# This project is a WIP
