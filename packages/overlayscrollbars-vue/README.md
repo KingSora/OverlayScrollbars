@@ -2,7 +2,7 @@
   <a href="https://kingsora.github.io/OverlayScrollbars">
     <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
   </a>
-  <a href="https://vuejs.org/">
+  <a href="https://vuejs.org">
     <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="160" height="160" alt="Vue">
   </a>
 </div>
@@ -134,7 +134,7 @@ const Component = {
       initialize({ target: div.value });
     });
 
-    onBeforeUnmount(() => {
+    onUnmounted(() => {
       instance().destroy();
     });
 
