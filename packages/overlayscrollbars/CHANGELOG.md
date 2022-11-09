@@ -25,10 +25,10 @@ The rewrite comes with multiple benefits:
 - Browser support changed. The minimal version is now IE11.
 - The `scroll` function is missing. (WIP will be added as a plugin)
 - Initialization to `textarea` element is not suppored. (WIP will be added as a plugin)
-- Because scrollbars can be cloned and positioned anywhere in the DOM, themes which worked in `v1` have to be adapted slightly.
 - `extensions` are replaced with `plugins`. Plugins are more powerful but work nothing like `extensions`.
 - Any helper functions for `extensions` are removed.
 - `TypesScript` definitions changed completely.
+- `CSS` styles changed completely.
 - There is no `jQuery` version anymore and no `jQuery` compat functionality
 - The following changed for the `initialization`:
   - Arrays of elements are not supported anymore. If you want to initialize the plugin to multiple elements, you have to loop over them.
@@ -50,7 +50,20 @@ The rewrite comes with multiple benefits:
   - `scrollbars.touchSupport` is replaced with `scrollbars.pointers`
   - `scrollbars.snapHandle` is removed
   - `textarea` is removed since `textarea` initialization isn't possible yet
-  - `callbacks` is removed / replaced with the `events` concept. You can pass listeners / callback separately to the options.
+  - `callbacks` is removed / replaced with the `events` concept. You can pass listeners / callback separately to the options. The `this` context is now `undefined` as a replacement each event recieves the `instance` as its first argument.
+    - `onInitialized` is replaced with the `initialized` event
+    - `onInitializationWithdrawn` is replaced with the `destroyed` event (if the second argument `canceled` is `true`)
+    - `onDestroyed` is replaced with the `destroyed` event
+    - `onScrollStart` is removed
+    - `onScroll` is replaced with the `scroll` event
+    - `onScrollStop` is removed
+    - `onOverflowChanged` is replaced with the `updated` event (its second argument holds the information whether the overflow changed)
+    - `onOverflowAmountChanged` is replaced with the`updated` event (its second argument holds the information whether the overflow amount changed and how much)
+    - `onDirectionChanged` is replaced with the `updated` event (its second argument holds the information whether the direction changed)
+    - `onContentSizeChanged` is replaced with the `updated` event (its second argument holds the information whether the content got mutated)
+    - `onHostSizeChanged` is replaced with the `updated` event (its second argument holds the information whether the host got mutated / its size changed)
+    - `onUpdated` is replaced with the `updated` the
+
 - The following **instance methods** were removed / replaced / renamed:
   - `sleep()` is removed since it doesn't fit into the new structure and shouldn't be needed anymore
   - `scroll()` is removed (WIP)
@@ -65,3 +78,9 @@ The rewrite comes with multiple benefits:
   - `globals()` is replaced with `env()`
   - `extension()` is removed
 - If you used any fields from the `globals()` result, please refer to the TypeScript definitions for the correct replacement in `env()`
+
+### Theming changes:
+
+- Because scrollbars can be cloned and positioned anywhere in the DOM, themes which worked in `v1` have to be adapted slightly:
+  - `.os-scrollbar` elements now don't rely on its parent element. Selectors like `.os-theme-dark > .os-scrollbar-vertical` are now `.os-theme-dark.os-scrollbar-vertical`
+  - the `.os-host-rtl` class is replaced with `.os-scrollbar-rtl`. Selectors like `.os-theme-dark.os-host-rtl > .os-scrollbar-horizontal` are now `.os-theme-dark.os-scrollbar-rtl.os-scrollbar-horizontal`

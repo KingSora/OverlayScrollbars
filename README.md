@@ -48,6 +48,8 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
 
 ## Choose your framework
 
+Additionally to the vanilla JavaScript version you can use the official framework components & utilities:
+
 <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react">
   <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React">
 </a>
