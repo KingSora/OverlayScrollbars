@@ -83,13 +83,13 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-ngx";
 The component can be used with two different selectors:
 
 ```html
-<div overlay-scrollbars>
-  Like this you can choose the tag
-</div>
-
 <overlay-scrollbars>
-  If the tag isn't important
+  The tag isn't important
 </overlay-scrollbars>
+
+<section overlay-scrollbars>
+  Choose the tag
+</section>
 ```
 
 ### Properties
