@@ -3,6 +3,7 @@
     <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
   </a>
 </div>
+<br />
 <div align="center">
     <a href="https://www.npmjs.com/package/overlayscrollbars">
       <img src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square" alt="Downloads">
