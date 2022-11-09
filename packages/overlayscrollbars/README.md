@@ -48,15 +48,17 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
 
 ## Choose your framework
 
-<a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react">
-  <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React">
-</a>
-<a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue">
-  <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="80" height="80" alt="Vue">
-</a>
-<a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx">
-  <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg" width="80" height="80" alt="Angular">
-</a>
+<div>
+  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react">
+    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React">
+  </a>
+  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue">
+    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="80" height="80" alt="Vue">
+  </a>
+  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx">
+    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg" width="80" height="80" alt="Angular">
+  </a>
+</div>
   
 ## Getting started
 
