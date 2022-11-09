@@ -5,21 +5,13 @@
 </div>
 <br />
 <div align="center">
-    <a href="https://www.npmjs.com/package/overlayscrollbars">
-      <img src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square" alt="Downloads">
-    </a>
-    <a href="https://www.npmjs.com/package/overlayscrollbars">
-      <img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version">
-    </a>
-    <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE">
-      <img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License">
-    </a>
-    <a href="https://app.codecov.io/gh/KingSora/OverlayScrollbars">
-      <img src="https://img.shields.io/codecov/c/github/KingSora/OverlayScrollbars?style=flat-square" alt="Code Coverage">
-    </a>
-    <a href="https://bundlephobia.com/package/overlayscrollbars">
-      <img src="https://img.shields.io/bundlephobia/minzip/overlayscrollbars?label=max.%20bundle%20size&style=flat-square" alt="Max. Bundle Size">
-    </a>
+
+  [![Downloads](https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars)
+  [![Version](https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars)
+  [![License](https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square)](https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE)
+  [![Code Coverage](https://img.shields.io/codecov/c/github/KingSora/OverlayScrollbars?style=flat-square)](https://app.codecov.io/gh/KingSora/OverlayScrollbars)
+  [![Max. Bundle Size](https://img.shields.io/bundlephobia/minzip/overlayscrollbars?label=max.%20bundle%20size&style=flat-square)](https://bundlephobia.com/package/overlayscrollbars)
+  
 </div>
 
 # OverlayScrollbars
@@ -53,15 +45,9 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
 
 Additionally to the vanilla JavaScript version you can use the official framework components & utilities:
 
-<a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react">
-  <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React">
-</a>
-<a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue">
-  <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="80" height="80" alt="Vue">
-</a>
-<a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx">
-  <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg" width="80" height="80" alt="Angular">
-</a>
+<a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React"></a>
+<a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="80" height="80" alt="Vue"></a>
+<a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg" width="80" height="80" alt="Angular"></a>
   
 ## Getting started
 
