@@ -1,13 +1,15 @@
 import { reactive, onMounted, ref, watch, toRaw, watchPostEffect } from 'vue';
-import { describe, test, expect, vitest } from 'vitest';
-import { render, screen } from '@testing-library/vue';
+import { describe, test, afterEach, expect, vitest } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { useOverlayScrollbars } from '~/overlayscrollbars-vue';
 import type { PartialOptions, EventListeners, OverlayScrollbars } from 'overlayscrollbars';
 
 describe('useOverlayScrollbars', () => {
+  afterEach(() => cleanup());
+
   test('re-initialization', () => {
-    const { unmount } = render({
+    render({
       setup() {
         const instanceRef = ref<OverlayScrollbars | null>(null);
         const [initialize, instance] = useOverlayScrollbars();
@@ -40,13 +42,12 @@ describe('useOverlayScrollbars', () => {
     userEvent.click(initializeBtn);
 
     expect(snapshot).toBe(initializeBtn.innerHTML);
-    unmount();
   });
 
   test('reactive params', async () => {
     let osInstance: OverlayScrollbars;
     const onUpdated = vitest.fn();
-    const { unmount } = render({
+    render({
       setup() {
         const div = ref<HTMLElement | null>(null);
         const params = reactive<{ options?: PartialOptions; events?: EventListeners }>({});
@@ -91,13 +92,12 @@ describe('useOverlayScrollbars', () => {
 
     expect(onUpdated).toHaveBeenCalledTimes(1);
     expect(osInstance!.options().paddingAbsolute).toBe(true);
-    unmount();
   });
 
   test('ref params', async () => {
     let osInstance: OverlayScrollbars;
     const onUpdated = vitest.fn();
-    const { unmount } = render({
+    render({
       setup() {
         const div = ref<HTMLElement | null>(null);
         const params = ref<{ options?: PartialOptions; events?: EventListeners }>({});
@@ -138,13 +138,12 @@ describe('useOverlayScrollbars', () => {
 
     expect(onUpdated).toHaveBeenCalledTimes(1);
     expect(osInstance!.options().paddingAbsolute).toBe(true);
-    unmount();
   });
 
   test('ref params fields', async () => {
     let osInstance: OverlayScrollbars;
     const onUpdated = vitest.fn();
-    const { unmount } = render({
+    render({
       setup() {
         const div = ref<HTMLElement | null>(null);
         const options = ref<PartialOptions | undefined>();
@@ -189,6 +188,5 @@ describe('useOverlayScrollbars', () => {
 
     expect(onUpdated).toHaveBeenCalledTimes(1);
     expect(osInstance!.options().paddingAbsolute).toBe(true);
-    unmount();
   });
 });

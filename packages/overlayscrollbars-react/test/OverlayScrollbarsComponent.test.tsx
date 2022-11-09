@@ -1,13 +1,15 @@
-import { describe, test, expect, vitest } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
+import { describe, test, afterEach, expect, vitest } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
 import type { RefObject } from 'react';
 import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-react';
 
 describe('OverlayScrollbarsComponent', () => {
+  afterEach(() => cleanup());
+
   describe('correct rendering', () => {
     test('correct root element with instance', () => {
       const elementA = 'code';

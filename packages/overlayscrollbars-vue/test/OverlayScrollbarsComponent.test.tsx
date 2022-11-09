@@ -1,11 +1,13 @@
 import { onMounted, ref, toRefs } from 'vue';
-import { describe, test, expect, vitest } from 'vitest';
+import { describe, test, afterEach, expect, vitest } from 'vitest';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { fireEvent, render, screen } from '@testing-library/vue';
+import { fireEvent, render, screen, cleanup } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbarsComponent } from '~/overlayscrollbars-vue';
 
 describe('OverlayScrollbarsComponent', () => {
+  afterEach(() => cleanup());
+
   describe('correct rendering', () => {
     test('correct root element with instance', async () => {
       const elementA = 'code';

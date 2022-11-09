@@ -1,11 +1,13 @@
 import { useRef } from 'react';
-import { describe, test, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, test, afterEach, expect } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useOverlayScrollbars } from '~/overlayscrollbars-react';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 
 describe('useOverlayScrollbars', () => {
+  afterEach(() => cleanup());
+
   test('re-initialization', () => {
     const Test = () => {
       const instanceRef = useRef<OverlayScrollbars | null>(null);
