@@ -88,7 +88,7 @@ watch(
 </script>
 
 <template>
-  <component :is="element" ref="elementRef" data-overlayscrollbars="">
+  <component data-overlayscrollbars-initialize="" :is="element" ref="elementRef">
     <div ref="slotRef">
       <slot></slot>
     </div>

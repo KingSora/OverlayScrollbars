@@ -30,7 +30,7 @@ const mergeEventListeners = (emits: EventListeners, events: EventListeners) =>
 
 @Component({
   selector: 'overlay-scrollbars, [overlay-scrollbars]', // https://angular.io/guide/styleguide#component-selectors
-  host: { 'data-overlayscrollbars': '' },
+  host: { 'data-overlayscrollbars-initialize': '' },
   template: `<div overlayScrollbars [options]="options" [events]="mergeEvents(events)" #content>
     <ng-content></ng-content>
   </div>`,

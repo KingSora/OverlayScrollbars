@@ -60,7 +60,7 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
 
   return (
     // @ts-ignore
-    <Tag data-overlayscrollbars="" {...other} ref={elementRef}>
+    <Tag data-overlayscrollbars-initialize="" {...other} ref={elementRef}>
       <div ref={childrenRef}>{children}</div>
     </Tag>
   );

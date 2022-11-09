@@ -61,15 +61,15 @@
 .os-viewport {
   -ms-overflow-style: scrollbar !important;
 }
-[data-overlayscrollbars=''],
+[data-overlayscrollbars-initialize],
 [data-overlayscrollbars~='scrollbarHidden'],
 html.os-viewport-scrollbar-hidden,
 .os-viewport-scrollbar-hidden.os-environment,
 .os-viewport-scrollbar-hidden.os-viewport {
   scrollbar-width: none !important;
 }
-[data-overlayscrollbars='']::-webkit-scrollbar,
-[data-overlayscrollbars='']::-webkit-scrollbar-corner,
+[data-overlayscrollbars-initialize]::-webkit-scrollbar,
+[data-overlayscrollbars-initialize]::-webkit-scrollbar-corner,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar-corner,
 html.os-viewport-scrollbar-hidden::-webkit-scrollbar,
