@@ -21,8 +21,7 @@
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-styles": "^4.0.0",
     "@rollup/plugin-virtual": "^3.0.1",
-    "rollup-plugin-typescript2": "^0.32.1",
-    "sass": "^1.54.0"
+    "rollup-plugin-typescript2": "^0.32.1"
   },
   "exports": {
     ".": "./src/createRollupConfig.js",

@@ -15,6 +15,7 @@ await esbuild({
     '.aac': 'copy',
     '.avif': 'copy',
     '.css': 'copy',
+    '.scss': 'copy',
     '.eot': 'copy',
     '.flac': 'copy',
     '.gif': 'copy',
