@@ -5,7 +5,7 @@
 OverlayScrollbars was rewritten from the ground up in `TypeScript` in a functional manner.
 The rewrite comes with multiple benefits:
 
-- The library is **much** smaller now (about 50% smaller fully treeshaken)
+- The library is **much** smaller now (about **50% smaller** fully treeshaken)
 - Modern browsers benefit greatly because compat code is inside `plugins` which are treeshaken if unused
 - Multiple performance optimizations were made due to the new structure
 - Framework Components benefit of the `pure` parameter for `options` and `events` (same input produces same output)
@@ -13,11 +13,11 @@ The rewrite comes with multiple benefits:
 
 ### New Features:
 
-- If applied to `body` all the native functionality in modern browsers (e.g. swipe down to refresh on mobile, scroll restoration etc.) is preserved (#376, #425, #273, #320) 
-- If you scroll while the cursor hovers a scrollbar element the viewport is now scrolled (#128, #322)
-- The initialization process can be fully customized now. This makes it possible to itegrate with other plugins / libraries (#432, #304, #149, #148, #139, #49)
-- Scrollbars can be cloned and positioned anywhere in the DOM tree. (#404, #323, #158, #17)
-- The update behavior of the `MutationObserver` for the content can be customized with the `update` options. (#307, #183, #23)
+- If applied to `body` all the native functionality in modern browsers (e.g. swipe down to refresh on mobile, scroll restoration etc.) is preserved ([#376](https://github.com/KingSora/OverlayScrollbars/issues/376), [#425](https://github.com/KingSora/OverlayScrollbars/issues/425), [#273](https://github.com/KingSora/OverlayScrollbars/issues/273), [#320](https://github.com/KingSora/OverlayScrollbars/issues/320)) 
+- If you scroll while the cursor hovers a scrollbar element the viewport is now scrolled ([#128](https://github.com/KingSora/OverlayScrollbars/issues/128), [#322](https://github.com/KingSora/OverlayScrollbars/issues/322))
+- The initialization process can be fully customized now. This makes it possible to itegrate with other plugins / libraries ([#432](https://github.com/KingSora/OverlayScrollbars/issues/432), [#304](https://github.com/KingSora/OverlayScrollbars/issues/304), [#149](https://github.com/KingSora/OverlayScrollbars/issues/149), [#148](https://github.com/KingSora/OverlayScrollbars/issues/148), [#139](https://github.com/KingSora/OverlayScrollbars/issues/139), [#49](https://github.com/KingSora/OverlayScrollbars/issues/49))
+- Scrollbars can be cloned and positioned anywhere in the DOM tree. ([#404](https://github.com/KingSora/OverlayScrollbars/issues/404), [#323](https://github.com/KingSora/OverlayScrollbars/issues/323), [#158](https://github.com/KingSora/OverlayScrollbars/issues/158), [#17](https://github.com/KingSora/OverlayScrollbars/issues/17))
+- The update behavior of the `MutationObserver` for the content can be customized with the `update` options. ([#307](https://github.com/KingSora/OverlayScrollbars/issues/307), [#183](https://github.com/KingSora/OverlayScrollbars/issues/183), [#23](https://github.com/KingSora/OverlayScrollbars/issues/23))
 - Works now without adjustments with CSS-Grid, CSS-Flexbox etc.
 - Supports all kind of input devices additionally to `mouse` and `touch`. (Uses native pointer-events now)
 - Exports a `esm` version which can be treeshaken
