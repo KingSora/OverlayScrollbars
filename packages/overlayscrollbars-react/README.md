@@ -1,28 +1,17 @@
 <div align="center">
-  <a href="https://kingsora.github.io/OverlayScrollbars">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
-  </a>
-  <a href="https://reactjs.org">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="160" height="160" alt="React">
-  </a>
+  <a href="https://kingsora.github.io/OverlayScrollbars"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars"></a>
+  <a href="https://reactjs.org"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="160" height="160" alt="React"></a>
 </div>
-<h6 align="center">
-    <a href="https://github.com/KingSora/OverlayScrollbars">
-      <img src="https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square" alt="OverlayScrollbars">
-    </a>
-    <a href="https://github.com/facebook/react/">
-      <img src="https://img.shields.io/badge/React-%3E=16.8.0-61DAFB?style=flat-square&logo=React" alt="React">
-    </a>
-    <a href="https://www.npmjs.com/package/overlayscrollbars-react">
-      <img src="https://img.shields.io/npm/dt/overlayscrollbars-react.svg?style=flat-square" alt="Downloads">
-    </a>
-    <a href="https://www.npmjs.com/package/overlayscrollbars-react">
-      <img src="https://img.shields.io/npm/v/overlayscrollbars-react.svg?style=flat-square" alt="Version">
-    </a>
-    <a href="#">
-      <img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License">
-    </a>
-</h6>
+<br />
+<div align="center">
+
+  [![OverlayScrollbars](https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square)](https://github.com/KingSora/OverlayScrollbars)
+  [![React](https://img.shields.io/badge/React-%3E=16.8.0-61DAFB?style=flat-square&logo=React)](https://github.com/facebook/react/)
+  [![Downloads](https://img.shields.io/npm/dt/overlayscrollbars-react.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-react)
+  [![Version](https://img.shields.io/npm/v/overlayscrollbars-react.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-react)
+  [![License](https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square)](#)
+
+</div>
 
 # OverlayScrollbars for React
 

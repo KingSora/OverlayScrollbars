@@ -1,28 +1,17 @@
 <div align="center">
-  <a href="https://kingsora.github.io/OverlayScrollbars">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
-  </a>
-  <a href="https://github.com/angular/angular">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg" width="160" height="160" alt="Angular">
-  </a>
+  <a href="https://kingsora.github.io/OverlayScrollbars"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars"></a>
+  <a href="https://github.com/angular/angular"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg" width="160" height="160" alt="Angular"></a>
 </div>
-<h6 align="center">
-    <a href="https://github.com/KingSora/OverlayScrollbars">
-      <img src="https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square" alt="OverlayScrollbars">
-    </a>
-    <a href="https://github.com/angular/angular">
-      <img src="https://img.shields.io/badge/Angular-%3E=12.0.0-DD0031?style=flat-square&logo=Angular" alt="Angular">
-    </a>
-    <a href="https://www.npmjs.com/package/overlayscrollbars-ngx">
-      <img src="https://img.shields.io/npm/dt/overlayscrollbars-ngx.svg?style=flat-square" alt="Downloads">
-    </a>
-    <a href="https://www.npmjs.com/package/overlayscrollbars-ngx">
-      <img src="https://img.shields.io/npm/v/overlayscrollbars-ngx.svg?style=flat-square" alt="Version">
-    </a>
-    <a href="#">
-      <img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License">
-    </a>
-</h6>
+<br />
+<div align="center">
+
+  [![OverlayScrollbars](https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square)](https://github.com/KingSora/OverlayScrollbars)
+  [![Angular](https://img.shields.io/badge/Angular-%3E=12.0.0-DD0031?style=flat-square&logo=Angular)](https://github.com/angular/angular)
+  [![Downloads](https://img.shields.io/npm/dt/overlayscrollbars-ngx.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-ngx)
+  [![Version](https://img.shields.io/npm/v/overlayscrollbars-ngx.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-ngx)
+  [![License](https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square)](#)
+
+</div>
 
 # OverlayScrollbars for Angular
 

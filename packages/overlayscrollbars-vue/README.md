@@ -1,28 +1,17 @@
 <div align="center">
-  <a href="https://kingsora.github.io/OverlayScrollbars">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars">
-  </a>
-  <a href="https://vuejs.org">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="160" height="160" alt="Vue">
-  </a>
+  <a href="https://kingsora.github.io/OverlayScrollbars"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png" width="160" height="160" alt="OverlayScrollbars"></a>
+  <a href="https://vuejs.org"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="160" height="160" alt="Vue"></a>
 </div>
-<h6 align="center">
-    <a href="https://github.com/KingSora/OverlayScrollbars">
-      <img src="https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square" alt="OverlayScrollbars">
-    </a>
-    <a href="https://github.com/vuejs/vue">
-      <img src="https://img.shields.io/badge/Vue-%5E3.2.25-41B883?style=flat-square&logo=vue.js" alt="Vue">
-    </a>
-    <a href="https://www.npmjs.com/package/overlayscrollbars-vue">
-      <img src="https://img.shields.io/npm/dt/overlayscrollbars-vue.svg?style=flat-square" alt="Downloads">
-    </a>
-    <a href="https://www.npmjs.com/package/overlayscrollbars-vue">
-      <img src="https://img.shields.io/npm/v/overlayscrollbars-vue.svg?style=flat-square" alt="Version">
-    </a>
-    <a href="#">
-      <img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License">
-    </a>
-</h6>
+<br />
+<div align="center">
+
+  [![OverlayScrollbars](https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square)](https://github.com/KingSora/OverlayScrollbars)
+  [![Vue](https://img.shields.io/badge/Vue-%5E3.2.25-41B883?style=flat-square&logo=vue.js)](https://github.com/vuejs/vue)
+  [![Downloads](https://img.shields.io/npm/dt/overlayscrollbars-vue.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-vue)
+  [![Version](https://img.shields.io/npm/v/overlayscrollbars-vue.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-vue)
+  [![License](https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square)](#)
+
+</div>
 
 # OverlayScrollbars for Vue
 
