@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import type { EventListenerArgs } from 'overlayscrollbars';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,7 @@ import { Component } from '@angular/core';
       />
     </div>
     <h2>Here are some links to help you start:</h2>
-    <overlay-scrollbars></overlay-scrollbars>
+    <div overlay-scrollbars (osUpdated)="onUpdated($event)"></div>
     <ul>
       <li>
         <h2>
@@ -35,4 +36,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'example';
+
+  onUpdated([instance, onUpdatedArgs]: EventListenerArgs['updated']) {
+    // eslint-disable-next-line no-console
+    console.log(instance, onUpdatedArgs);
+  }
 }

@@ -9,6 +9,7 @@
     "@angular/platform-browser": "^14.2.0",
     "@angular/platform-browser-dynamic": "^14.2.0",
     "@angular/router": "^14.2.0",
+    "overlayscrollbars": "file:../../packages/overlayscrollbars/dist",
     "overlayscrollbars-ngx": "file:../../packages/overlayscrollbars-ngx/dist",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
