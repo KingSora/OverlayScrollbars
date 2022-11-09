@@ -23,7 +23,7 @@ export default defineConfig({
         },
       },
       plugins: [
-        rollupPluginCopy({ paths: ['README.md'] }),
+        rollupPluginCopy({ paths: ['README.md', 'CHANGELOG.md'] }),
         rollupPluginPackageJson({
           json: ({
             name,
