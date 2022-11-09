@@ -8,13 +8,13 @@ export type {
   PartialOptions,
   ReadonlyOptions,
   OverflowBehavior,
-  ScrollbarsVisibilityBehavior as ScrollbarVisibilityBehavior,
-  ScrollbarsAutoHideBehavior as ScrollbarAutoHideBehavior,
+  ScrollbarsVisibilityBehavior,
+  ScrollbarsAutoHideBehavior,
 } from '~/options';
 export type {
-  EventListenerMap,
   EventListener,
   EventListeners,
+  EventListenerArgs,
   OnUpdatedEventListenerArgs,
 } from '~/eventListeners';
 export type {

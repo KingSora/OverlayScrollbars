@@ -20,7 +20,7 @@ import type { Options, PartialOptions, ReadonlyOptions } from '~/options';
 import type { Plugin, OptionsValidationPluginInstance, PluginInstance } from '~/plugins';
 import type { InitializationTarget } from '~/initialization';
 import type { OverflowStyle } from '~/typings';
-import type { EventListenerMap, EventListener, EventListeners } from '~/eventListeners';
+import type { EventListenerArgs, EventListener, EventListeners } from '~/eventListeners';
 import type {
   ScrollbarsSetupElement,
   ScrollbarStructure,
@@ -184,27 +184,27 @@ export interface OverlayScrollbars {
    * @param listener The listener which is invoked on that event.
    * @returns Returns a function which removes the added listeners.
    */
-  on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): () => void;
+  on<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>): () => void;
   /**
    * Adds multiple event listeners to the instance.
    * @param name The name of the event.
    * @param listener The listeners which are invoked on that event.
    * @returns Returns a function which removes the added listeners.
    */
-  on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): () => void;
+  on<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): () => void;
 
   /**
    * Removes an event listener from the instance.
    * @param name The name of the event.
    * @param listener The listener which shall be removed.
    */
-  off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): void;
+  off<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>): void;
   /**
    * Removes multiple event listeners from the instance.
    * @param name The name of the event.
    * @param listener The listeners which shall be removed.
    */
-  off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): void;
+  off<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): void;
 
   /**
    * Updates the instance.

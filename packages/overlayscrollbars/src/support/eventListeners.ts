@@ -2,56 +2,56 @@ import { isArray, isBoolean, isFunction, isString } from '~/support/utils/types'
 import { keys } from '~/support/utils/object';
 import { each, push, from, isEmptyArray, runEachAndClear } from '~/support/utils/array';
 
-export type EventListener<EventMap extends Record<string, any[]>, N extends keyof EventMap> = (
-  ...args: EventMap[N]
+export type EventListener<EventArgs extends Record<string, any[]>, N extends keyof EventArgs> = (
+  ...args: EventArgs[N]
 ) => void;
 
-export type EventListeners<EventMap extends Record<string, any[]>> = {
-  [K in keyof EventMap]?: EventListener<EventMap, K> | EventListener<EventMap, K>[] | null;
+export type EventListeners<EventArgs extends Record<string, any[]>> = {
+  [K in keyof EventArgs]?: EventListener<EventArgs, K> | EventListener<EventArgs, K>[] | null;
 };
 
-export type RemoveEvent<EventMap extends Record<string, any[]>> = {
-  <N extends keyof EventMap>(name?: N, listener?: EventListener<EventMap, N>): void;
-  <N extends keyof EventMap>(name?: N, listener?: EventListener<EventMap, N>[]): void;
-  <N extends keyof EventMap>(
+export type RemoveEvent<EventArgs extends Record<string, any[]>> = {
+  <N extends keyof EventArgs>(name?: N, listener?: EventListener<EventArgs, N>): void;
+  <N extends keyof EventArgs>(name?: N, listener?: EventListener<EventArgs, N>[]): void;
+  <N extends keyof EventArgs>(
     name?: N,
-    listener?: EventListener<EventMap, N> | EventListener<EventMap, N>[]
+    listener?: EventListener<EventArgs, N> | EventListener<EventArgs, N>[]
   ): void;
 };
 
-export type AddEvent<EventMap extends Record<string, any[]>> = {
-  (eventListeners: EventListeners<EventMap>, pure?: boolean): () => void;
-  <N extends keyof EventMap>(name: N, listener: EventListener<EventMap, N>): () => void;
-  <N extends keyof EventMap>(name: N, listener: EventListener<EventMap, N>[]): () => void;
-  <N extends keyof EventMap>(
-    nameOrEventListeners: N | EventListeners<EventMap>,
-    listener?: EventListener<EventMap, N> | EventListener<EventMap, N>[] | boolean
+export type AddEvent<EventArgs extends Record<string, any[]>> = {
+  (eventListeners: EventListeners<EventArgs>, pure?: boolean): () => void;
+  <N extends keyof EventArgs>(name: N, listener: EventListener<EventArgs, N>): () => void;
+  <N extends keyof EventArgs>(name: N, listener: EventListener<EventArgs, N>[]): () => void;
+  <N extends keyof EventArgs>(
+    nameOrEventListeners: N | EventListeners<EventArgs>,
+    listener?: EventListener<EventArgs, N> | EventListener<EventArgs, N>[] | boolean
   ): () => void;
 };
 
-export type TriggerEvent<EventMap extends Record<string, any[]>> = {
-  <N extends keyof EventMap>(name: N, args?: EventMap[N]): void;
+export type TriggerEvent<EventArgs extends Record<string, any[]>> = {
+  <N extends keyof EventArgs>(name: N, args?: EventArgs[N]): void;
 };
 
-export type EventListenerHub<EventMap extends Record<string, any[]>> = [
-  AddEvent<EventMap>,
-  RemoveEvent<EventMap>,
-  TriggerEvent<EventMap>
+export type EventListenerHub<EventArgs extends Record<string, any[]>> = [
+  AddEvent<EventArgs>,
+  RemoveEvent<EventArgs>,
+  TriggerEvent<EventArgs>
 ];
 
-const manageListener = <EventMap extends Record<string, any[]>, N extends keyof EventMap>(
-  callback: (listener?: EventListener<EventMap, N>) => void,
-  listener?: EventListener<EventMap, N> | EventListener<EventMap, N>[]
+const manageListener = <EventArgs extends Record<string, any[]>, N extends keyof EventArgs>(
+  callback: (listener?: EventListener<EventArgs, N>) => void,
+  listener?: EventListener<EventArgs, N> | EventListener<EventArgs, N>[]
 ) => {
   each(isArray(listener) ? listener : [listener], callback);
 };
 
-export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
-  initialEventListeners?: EventListeners<EventMap>
-): EventListenerHub<EventMap> => {
-  const events = new Map<keyof EventMap, Set<EventListener<EventMap, keyof EventMap>>>();
+export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
+  initialEventListeners?: EventListeners<EventArgs>
+): EventListenerHub<EventArgs> => {
+  const events = new Map<keyof EventArgs, Set<EventListener<EventArgs, keyof EventArgs>>>();
 
-  const removeEvent: RemoveEvent<EventMap> = (name, listener) => {
+  const removeEvent: RemoveEvent<EventArgs> = (name, listener) => {
     if (name) {
       const eventSet = events.get(name);
       manageListener((currListener) => {
@@ -67,11 +67,11 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
     }
   };
 
-  const addEvent: AddEvent<EventMap> = ((
-    nameOrEventListeners: keyof EventMap | EventListeners<EventMap>,
+  const addEvent: AddEvent<EventArgs> = ((
+    nameOrEventListeners: keyof EventArgs | EventListeners<EventArgs>,
     listenerOrPure:
-      | EventListener<EventMap, keyof EventMap>
-      | EventListener<EventMap, keyof EventMap>[]
+      | EventListener<EventArgs, keyof EventArgs>
+      | EventListener<EventArgs, keyof EventArgs>[]
       | boolean
   ) => {
     if (isString(nameOrEventListeners)) {
@@ -88,22 +88,22 @@ export const createEventListenerHub = <EventMap extends Record<string, any[]>>(
       removeEvent();
     }
 
-    const eventListenerKeys = keys(nameOrEventListeners) as (keyof EventListeners<EventMap>)[];
+    const eventListenerKeys = keys(nameOrEventListeners) as (keyof EventListeners<EventArgs>)[];
     const offFns: (() => void)[] = [];
     each(eventListenerKeys, (key) => {
-      const eventListener = (nameOrEventListeners as EventListeners<EventMap>)[key];
+      const eventListener = (nameOrEventListeners as EventListeners<EventArgs>)[key];
       eventListener && push(offFns, addEvent(key, eventListener));
     });
 
     return runEachAndClear.bind(0, offFns);
-  }) as AddEvent<EventMap>; // sorry!
+  }) as AddEvent<EventArgs>; // sorry!
 
-  const triggerEvent: TriggerEvent<EventMap> = (name, args) => {
+  const triggerEvent: TriggerEvent<EventArgs> = (name, args) => {
     const eventSet = events.get(name);
 
     each(from(eventSet), (event) => {
       if (args && !isEmptyArray(args)) {
-        (event as (...eventArgs: EventMap[keyof EventMap]) => void).apply(0, args as any);
+        (event as (...eventArgs: EventArgs[keyof EventArgs]) => void).apply(0, args as any);
       } else {
         (event as () => void)();
       }

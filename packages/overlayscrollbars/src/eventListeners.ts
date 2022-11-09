@@ -40,7 +40,7 @@ export interface OnUpdatedEventListenerArgs {
 /**
  * A mapping between event names and their listener arguments.
  */
-export type EventListenerMap = {
+export type EventListenerArgs = {
   /** Triggered after all elements are initialized and appended. */
   initialized: [instance: OverlayScrollbars];
   /** Triggered after an update. */
@@ -58,19 +58,19 @@ export type EventListenerMap = {
  *   [eventName: string]: EventListener | EventListener[]
  * }
  */
-export type EventListeners = GeneralEventListeners<EventListenerMap>;
+export type EventListeners = GeneralEventListeners<EventListenerArgs>;
 
 /** An event listener. */
-export type EventListener<N extends keyof EventListenerMap> = GeneralEventListener<
-  EventListenerMap,
+export type EventListener<N extends keyof EventListenerArgs> = GeneralEventListener<
+  EventListenerArgs,
   N
 >;
 
 /** A function which adds event listeners. */
-export type AddEvent = GeneralAddEvent<EventListenerMap>;
+export type AddEvent = GeneralAddEvent<EventListenerArgs>;
 
 /** A function which removes event listeners. */
-export type RemoveEvent = GeneralRemoveEvent<EventListenerMap>;
+export type RemoveEvent = GeneralRemoveEvent<EventListenerArgs>;
 
 /** A function which triggers event listeners. */
-export type TriggerEvent = GeneralTriggerEvent<EventListenerMap>;
+export type TriggerEvent = GeneralTriggerEvent<EventListenerArgs>;

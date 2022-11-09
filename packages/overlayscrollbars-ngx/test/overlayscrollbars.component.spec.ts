@@ -7,7 +7,7 @@ import {
   OverlayscrollbarsModule,
 } from '~/public-api';
 import type { ComponentFixture } from '@angular/core/testing';
-import type { EventListenerMap } from 'overlayscrollbars';
+import type { EventListenerArgs } from 'overlayscrollbars';
 
 @Component({
   template: `
@@ -45,19 +45,19 @@ class Test {
   @ViewChild('ref', { read: OverlayScrollbarsComponent })
   ref?: OverlayScrollbarsComponent;
 
-  onInitialized(args: EventListenerMap['initialized']) {
+  onInitialized(args: EventListenerArgs['initialized']) {
     this.initialized?.(args);
   }
 
-  onUpdated(args: EventListenerMap['updated']) {
+  onUpdated(args: EventListenerArgs['updated']) {
     this.updated?.(args);
   }
 
-  onDestroyed(args: EventListenerMap['destroyed']) {
+  onDestroyed(args: EventListenerArgs['destroyed']) {
     this.destroyed?.(args);
   }
 
-  onScroll(args: EventListenerMap['scroll']) {
+  onScroll(args: EventListenerArgs['scroll']) {
     this.scroll?.(args);
   }
 

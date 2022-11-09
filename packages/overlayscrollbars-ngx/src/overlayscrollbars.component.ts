@@ -10,7 +10,7 @@ import {
   AfterViewInit,
 } from '@angular/core';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import type { PartialOptions, EventListeners, EventListenerMap } from 'overlayscrollbars';
+import type { PartialOptions, EventListeners, EventListenerArgs } from 'overlayscrollbars';
 import { OverlayScrollbarsDirective } from './overlayscrollbars.directive';
 
 const mergeEventListeners = (emits: EventListeners, events: EventListeners) =>
@@ -43,13 +43,13 @@ export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
   events?: EventListeners | false | null;
 
   @Output('osInitialized')
-  onInitialized = new EventEmitter<EventListenerMap['initialized']>();
+  onInitialized = new EventEmitter<EventListenerArgs['initialized']>();
   @Output('osUpdated')
-  onUpdated = new EventEmitter<EventListenerMap['updated']>();
+  onUpdated = new EventEmitter<EventListenerArgs['updated']>();
   @Output('osDestroyed')
-  onDestroyed = new EventEmitter<EventListenerMap['destroyed']>();
+  onDestroyed = new EventEmitter<EventListenerArgs['destroyed']>();
   @Output('osScroll')
-  onScroll = new EventEmitter<EventListenerMap['scroll']>();
+  onScroll = new EventEmitter<EventListenerArgs['scroll']>();
 
   @ViewChild('content')
   private contentRef?: ElementRef<HTMLDivElement>;

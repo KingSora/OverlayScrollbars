@@ -6,10 +6,10 @@ import type {
   OverlayScrollbarsComponentRef,
 } from './OverlayScrollbarsComponent.types';
 import type { PropType } from 'vue';
-import type { EventListeners, EventListenerMap } from 'overlayscrollbars';
+import type { EventListeners, EventListenerArgs } from 'overlayscrollbars';
 
 type EmitEventsMap = {
-  [N in keyof EventListenerMap]: `os${Capitalize<N>}`;
+  [N in keyof EventListenerArgs]: `os${Capitalize<N>}`;
 };
 
 const emitEvents: EmitEventsMap = {
@@ -27,10 +27,10 @@ const props = defineProps({
   events: { type: Object as PropType<OverlayScrollbarsComponentProps['events']> },
 });
 const emits = defineEmits<{
-  (name: 'osInitialized', ...args: EventListenerMap['initialized']): void;
-  (name: 'osUpdated', ...args: EventListenerMap['updated']): void;
-  (name: 'osDestroyed', ...args: EventListenerMap['destroyed']): void;
-  (name: 'osScroll', ...args: EventListenerMap['scroll']): void;
+  (name: 'osInitialized', ...args: EventListenerArgs['initialized']): void;
+  (name: 'osUpdated', ...args: EventListenerArgs['updated']): void;
+  (name: 'osDestroyed', ...args: EventListenerArgs['destroyed']): void;
+  (name: 'osScroll', ...args: EventListenerArgs['scroll']): void;
 }>();
 
 const elementRef = shallowRef<HTMLElement | null>(null);
@@ -72,7 +72,7 @@ watch(
     ).reduce<EventListeners>(<N extends keyof EventListeners>(obj: EventListeners, name: N) => {
       const eventListener = currEvents[name];
       obj[name] = [
-        (...args: EventListenerMap[N]) =>
+        (...args: EventListenerArgs[N]) =>
           emits(
             emitEvents[name],
             // @ts-ignore

@@ -32,7 +32,7 @@ import type { Options, PartialOptions } from '~/options';
 import type { ScrollbarsHidingPluginInstance } from '~/plugins';
 import type { Initialization, PartialInitialization } from '~/initialization';
 
-type EnvironmentEventMap = {
+type EnvironmentEventArgs = {
   z: [];
   r: [];
 };
@@ -88,8 +88,8 @@ export interface InternalEnvironment {
   readonly _cssCustomProperties: boolean;
   readonly _staticDefaultInitialization: Initialization;
   readonly _staticDefaultOptions: Options;
-  _addZoomListener(listener: EventListener<EnvironmentEventMap, 'z'>): () => void;
-  _addResizeListener(listener: EventListener<EnvironmentEventMap, 'r'>): () => void;
+  _addZoomListener(listener: EventListener<EnvironmentEventArgs, 'z'>): () => void;
+  _addResizeListener(listener: EventListener<EnvironmentEventArgs, 'r'>): () => void;
   _getDefaultInitialization(): Initialization;
   _setDefaultInitialization(newInitialization: PartialInitialization): Initialization;
   _getDefaultOptions(): Options;
@@ -183,7 +183,7 @@ const createEnvironment = (): InternalEnvironment => {
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
-  const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventMap>();
+  const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventArgs>();
   const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache(
     {
       _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
