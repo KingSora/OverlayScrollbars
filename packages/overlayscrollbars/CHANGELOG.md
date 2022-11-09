@@ -2,7 +2,7 @@
 
 ## 2.0.0
 
-OverlayScrollbars was rewritten from the ground up in `TypeScript`.
+OverlayScrollbars was rewritten from the ground up in `TypeScript` in a functional manner.
 The rewrite comes with multiple benefits:
 
 - The library is **much** smaller now (about 50% smaller fully treeshaken)
@@ -18,7 +18,9 @@ The rewrite comes with multiple benefits:
 - The initialization process can be fully customized now. This makes it possible to itegrate with other plugins / libraries (#432, #304, #149, #148, #139, #49)
 - Scrollbars can be cloned and positioned anywhere in the DOM tree. (#404, #323, #158, #17)
 - The update behavior of the `MutationObserver` for the content can be customized with the `update` options. (#307, #183, #23)
-- It works now without adjustments with CSS-Grid, CSS-Flexbox etc.
+- Works now without adjustments with CSS-Grid, CSS-Flexbox etc.
+- Supports all kind of input devices additionally to `mouse` and `touch`. (Uses native pointer-events now)
+- Exports a `esm` version which can be treeshaken
 
 ### Breaking changes:
 
@@ -35,48 +37,48 @@ The rewrite comes with multiple benefits:
   - Since the initialization is now fully customizable, the plugin won't have special behavior anymore if it has children with `os-` classnames
   - The third parameter are `events` now instead of `eventsions` since `extensions` are removed
 - The following **options** were removed / replaced / renamed:
-  - `className` is replaced with `scrollbars.theme`
   - `resize` is removed
   - `sizeAutoCapable` is removed (works always now)
   - `clipAlways` is removed (works automatically now)
   - `normalizeRTL` is removed since the `scroll` function isn't implemented yet there is nothing to normalize
   - `autoUpdate` is removed since all browser support the `MutationObserver` api there is no need for customizing a update loop
   - `autoUpdateInterval` is removed
+  - `className` is replaced with `scrollbars.theme`
   - `updateOnLoad` is replaced with `update.elementEvents`
-  - `nativeScrollbarsOverlaid.showNativeScrollbars`: is renamed to `showNativeOverlaidScrollbars`
   - `nativeScrollbarsOverlaid.initialize` is replaced with the `Initialization` concept. You can pass a object as target now where you can specify when to cancel the initialization of the plugin.
+  - `nativeScrollbarsOverlaid.showNativeScrollbars`: is renamed to `showNativeOverlaidScrollbars`
   - `scrollbars.dragScrolling` is renamed to `scrollbars.dragScroll`
   - `scrollbars.clickScrolling` is renamed to `scrollbars.clickScroll` and animates the scroll change only with the `ClickScrollPlugin` otherwise its instant
   - `scrollbars.touchSupport` is replaced with `scrollbars.pointers`
   - `scrollbars.snapHandle` is removed
   - `textarea` is removed since `textarea` initialization isn't possible yet
   - `callbacks` is removed / replaced with the `events` concept. You can pass listeners / callback separately to the options. The `this` context is now `undefined` as a replacement each event recieves the `instance` as its first argument.
-    - `onInitialized` is replaced with the `initialized` event
-    - `onInitializationWithdrawn` is replaced with the `destroyed` event (if the second argument `canceled` is `true`)
-    - `onDestroyed` is replaced with the `destroyed` event
     - `onScrollStart` is removed
-    - `onScroll` is replaced with the `scroll` event
     - `onScrollStop` is removed
+    - `onInitialized` is replaced with the `initialized` event
+    - `onUpdated` is replaced with the `updated` the
+    - `onDestroyed` is replaced with the `destroyed` event
+    - `onScroll` is replaced with the `scroll` event
+    - `onInitializationWithdrawn` is replaced with the `destroyed` event (if the second argument `canceled` is `true`)
     - `onOverflowChanged` is replaced with the `updated` event (its second argument holds the information whether the overflow changed)
     - `onOverflowAmountChanged` is replaced with the`updated` event (its second argument holds the information whether the overflow amount changed and how much)
     - `onDirectionChanged` is replaced with the `updated` event (its second argument holds the information whether the direction changed)
     - `onContentSizeChanged` is replaced with the `updated` event (its second argument holds the information whether the content got mutated)
     - `onHostSizeChanged` is replaced with the `updated` event (its second argument holds the information whether the host got mutated / its size changed)
-    - `onUpdated` is replaced with the `updated` the
 
 - The following **instance methods** were removed / replaced / renamed:
   - `sleep()` is removed since it doesn't fit into the new structure and shouldn't be needed anymore
+  - `ext()` is removed
+  - `addExt()` is removed
+  - `removeExt()` is removed
   - `scroll()` is removed (WIP)
   - `scrollStop()` is removed (WIP)
   - `getElements()` is renamed to `elements()` and doesn't support any argumens anymore.
   - `getState()` is renamed to `state()` and doesn't support any argumens anymore.
-  - `ext()` is removed
-  - `addExt()` is removed
-  - `removeExt()` is removed
 - The following **static methods** were removed / replaced / renamed:
+  - `extension()` is removed
   - `defaultOptions()` is replaced with `env().getDefaultOptions()` and `env().setDefaultOptions()`
   - `globals()` is replaced with `env()`
-  - `extension()` is removed
 - If you used any fields from the `globals()` result, please refer to the TypeScript definitions for the correct replacement in `env()`
 
 ### Theming changes:

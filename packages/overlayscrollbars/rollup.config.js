@@ -10,7 +10,7 @@ module.exports = createRollupConfig({
   extractStyles: true,
   extractTypes: true,
   clean: true,
-  copy: ['README.md'],
+  copy: ['README.md', 'CHANGELOG.md'],
   extractPackageJson: {
     json: ({
       name,
