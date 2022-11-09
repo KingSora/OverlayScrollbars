@@ -44,7 +44,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
  - Highly customizable
  - TypeScript support - fully written in TypeScript
  - Dependency free - 100% self written to ensure small size and best functionality
- - Framework versions for `react`, `vue` and `angular`
+ - High quality and fully typed Framework versions for `react`, `vue` and `angular`
 
 ## Choose your framework
 
