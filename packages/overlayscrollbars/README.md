@@ -44,6 +44,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
  - Highly customizable
  - TypeScript support - fully written in TypeScript
  - Dependency free - 100% self written to ensure small size and best functionality
+ - Framework versions for `react`, `vue` and `angular`
 
 ## Getting started
 
@@ -391,31 +392,40 @@ Is invoked after the instace was updated.
 
 Is invoked after all generated elements, observers and events were removed from the DOM.
 
+### `scroll`
+
+| arguments  | description |
+| :--- | :--- |
+| `instance` | The instance which invoked the event. |
+| `event` | The original `event` argument of the DOM event. |
+
+Is invoked by scrolling the viewport.
+
 </details>
 
-## Instance Methods
+## Instance
 
 > __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
 
 ```ts
 interface OverlayScrollbars {
   options(): Options;
-  options(newOptions: DeepPartial<Options>): Options;
+  options(newOptions: PartialOptions, pure?: boolean): Options;
 
-  update(force?: boolean): OverlayScrollbars;
+  on(eventListeners: EventListeners, pure?: boolean): () => void;
+  on<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>): () => void;
+  on<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): () => void;
 
-  destroy(): void;
+  off<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>): void;
+  off<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): void;
+
+  update(force?: boolean): boolean;
 
   state(): State;
 
   elements(): Elements;
 
-  on(eventListeners: EventListeners): () => void;
-  on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): () => void;
-  on<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): () => void;
-
-  off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>): void;
-  off<N extends keyof EventListenerMap>(name: N, listener: EventListener<N>[]): void;
+  destroy(): void;
 }
 ```
 
@@ -426,14 +436,12 @@ interface OverlayScrollbars {
 ```ts
 interface OverlayScrollbarsStatic {
   (target: InitializationTarget): OverlayScrollbars | undefined;
-  (
-    target: InitializationTarget,
-    options: DeepPartial<Options>,
-    eventListeners?: InitialEventListeners
-  ): OverlayScrollbars;
+  (target: InitializationTarget, options: PartialOptions, eventListeners?: EventListeners): OverlayScrollbars;
 
   plugin(plugin: Plugin | Plugin[]): void;
-  valid(osInstance: any): boolean;
+
+  valid(osInstance: any): osInstance is OverlayScrollbars;
+
   env(): Environment;
 }
 ```
@@ -481,11 +489,11 @@ You can write and publish your own Plugins. This section is a work in progress.
     <tr>
         <td>
             <a href="https://www.browserstack.com" target="_blank">
-                <img align="center" src="https://kingsora.github.io/OverlayScrollbars/img/browserstack.png" width="250">
+              <img align="center" src="https://kingsora.github.io/OverlayScrollbars/img/browserstack.png" width="250">
             </a>
         </td>
         <td>
-            Thanks to <a href="https://www.browserstack.com" target="_blank">BrowserStack</a> for sponsoring open source projects and letting me test OverlayScrollbars for free.
+          Thanks to <a href="https://www.browserstack.com" target="_blank">BrowserStack</a> for sponsoring open source projects and letting me test OverlayScrollbars for free.
         </td>
     </tr>
   </tbody>
