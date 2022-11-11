@@ -109,7 +109,7 @@ import { createOverlayScrollbars } from "overlayscrollbars-solid";
 const Component = () => {
   let div;
   const [params, setParams] = createStore({ options, events });
-  const [initialize, instance] = useOverlayScrollbars(params);
+  const [initialize, instance] = createOverlayScrollbars(params);
 
   /** 
    * or:
