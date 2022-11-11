@@ -25,7 +25,7 @@ npm install overlayscrollbars-svelte
 
 ## Peer Dependencies
 
-OverlayScrollbars for Vue has the following **peer dependencies**:
+OverlayScrollbars for Svelte has the following **peer dependencies**:
 
 - The vanilla JavaScript library: [overlayscrollbars](https://www.npmjs.com/package/overlayscrollbars)
 
@@ -33,7 +33,7 @@ OverlayScrollbars for Vue has the following **peer dependencies**:
 npm install overlayscrollbars
 ```
 
-- The Vue framework: [svelte](https://www.npmjs.com/package/svelte)
+- The Svelte framework: [svelte](https://www.npmjs.com/package/svelte)
 
 ```
 npm install svelte
@@ -53,7 +53,7 @@ import 'overlayscrollbars/overlayscrollbars.css';
 The main entry point is the `OverlayScrollbarsComponent` which can be used in your application as a component:
 
 ```jsx
-import { OverlayScrollbarsComponent } from "overlayscrollbars-vue";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-svelte";
 
 // ...
 
