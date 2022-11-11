@@ -16,9 +16,9 @@ export type OverlayScrollbarsComponentProps<T extends keyof JSX.IntrinsicElement
 
 export interface OverlayScrollbarsComponentRef<T extends keyof JSX.IntrinsicElements = 'div'> {
   /** Returns the OverlayScrollbars instance or null if not initialized. */
-  instance(): OverlayScrollbars | null;
+  osInstance(): OverlayScrollbars | null;
   /** Returns the root element. */
-  element(): ElementRef<T> | null;
+  getElement(): ElementRef<T> | null;
 }
 
 const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
@@ -29,13 +29,13 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
   const Tag = element;
   const elementRef = useRef<ElementRef<T>>(null);
   const childrenRef = useRef<HTMLDivElement>(null);
-  const [initialize, instance] = useOverlayScrollbars({ options, events });
+  const [initialize, osInstance] = useOverlayScrollbars({ options, events });
 
   useEffect(() => {
     const { current: elm } = elementRef;
     const { current: childrenElm } = childrenRef;
     if (elm && childrenElm) {
-      const osInstance = initialize({
+      const instance = initialize({
         target: elm as any,
         elements: {
           viewport: childrenElm,
@@ -43,7 +43,7 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
         },
       });
 
-      return () => osInstance.destroy();
+      return () => instance.destroy();
     }
   }, [initialize, element]);
 
@@ -51,8 +51,8 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
     ref,
     () => {
       return {
-        instance,
-        element: () => elementRef.current,
+        osInstance,
+        getElement: () => elementRef.current,
       };
     },
     []
@@ -60,7 +60,7 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
 
   return (
     // @ts-ignore
-    <Tag data-overlayscrollbars-initialize="" {...other} ref={elementRef}>
+    <Tag data-overlayscrollbars-initialize="" ref={elementRef} {...other}>
       <div ref={childrenRef}>{children}</div>
     </Tag>
   );

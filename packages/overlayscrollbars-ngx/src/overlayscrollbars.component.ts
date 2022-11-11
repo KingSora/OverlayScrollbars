@@ -58,21 +58,21 @@ export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
 
   constructor(private targetRef: ElementRef<HTMLElement>) {}
 
-  instance(): OverlayScrollbars | null {
-    return this.osDirective!.instance();
+  osInstance(): OverlayScrollbars | null {
+    return this.osDirective!.osInstance();
   }
 
-  element(): HTMLElement {
+  getElement(): HTMLElement {
     return this.targetRef.nativeElement;
   }
 
   ngAfterViewInit() {
-    const targetElm = this.element();
+    const targetElm = this.getElement();
     const contentElm = this.contentRef!.nativeElement;
 
     /* istanbul ignore else */
     if (targetElm && contentElm) {
-      this.osDirective!.initialize({
+      this.osDirective!.osInitialize({
         target: targetElm,
         elements: {
           viewport: contentElm,
@@ -83,7 +83,7 @@ export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    this.osDirective?.instance()!.destroy();
+    this.osDirective?.osInstance()!.destroy();
   }
 
   mergeEvents(originalEvents: OverlayScrollbarsComponent['events']) {

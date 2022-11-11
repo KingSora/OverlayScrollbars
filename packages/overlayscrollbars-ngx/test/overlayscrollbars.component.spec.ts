@@ -101,8 +101,8 @@ describe('OverlayscrollbarsNgxComponent', () => {
   describe('correct rendering', () => {
     it('has instance', async () => {
       expect(component).toBeTruthy();
-      expect(component.element()).toBeDefined();
-      expect(OverlayScrollbars.valid(component.instance())).toBe(true);
+      expect(component.getElement()).toBeDefined();
+      expect(OverlayScrollbars.valid(component.osInstance())).toBe(true);
     });
 
     it('has data-overlayscrollbars-initialize', async () => {
@@ -215,10 +215,10 @@ describe('OverlayscrollbarsNgxComponent', () => {
     const ref = testInstance.ref!;
 
     expect(testInstance.ref).toBeDefined();
-    expect(typeof ref.instance).toBe('function');
-    expect(typeof ref.element).toBe('function');
-    expect(OverlayScrollbars.valid(ref.instance())).toBe(true);
-    expect(ref.element()).toBe(testFixture.nativeElement.firstElementChild);
+    expect(typeof ref.osInstance).toBe('function');
+    expect(typeof ref.getElement).toBe('function');
+    expect(OverlayScrollbars.valid(ref.osInstance())).toBe(true);
+    expect(ref.getElement()).toBe(testFixture.nativeElement.firstElementChild);
   });
 
   it('sets options correctly', async () => {
@@ -228,7 +228,7 @@ describe('OverlayscrollbarsNgxComponent', () => {
     testInstance.options = { paddingAbsolute: true, overflow: { y: 'hidden' } };
     testFixture.detectChanges();
 
-    const instance = testInstance.ref!.instance()!;
+    const instance = testInstance.ref!.osInstance()!;
 
     const opts = instance.options();
     expect(opts.paddingAbsolute).toBe(true);
@@ -260,7 +260,7 @@ describe('OverlayscrollbarsNgxComponent', () => {
     expect(clearedOpts.overflow.y).toBe('scroll');
 
     // instance didn't change
-    expect(instance).toBe(testInstance.ref!.instance()!);
+    expect(instance).toBe(testInstance.ref!.osInstance()!);
   });
 
   it('sets events correctly', async () => {
@@ -272,7 +272,7 @@ describe('OverlayscrollbarsNgxComponent', () => {
     testInstance.events = { updated: onUpdatedInitial };
     testFixture.detectChanges();
 
-    const instance = testInstance.ref!.instance()!;
+    const instance = testInstance.ref!.osInstance()!;
 
     expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
 
@@ -316,12 +316,12 @@ describe('OverlayscrollbarsNgxComponent', () => {
     expect(onUpdated).toHaveBeenCalledTimes(3);
 
     // instance didn't change
-    expect(instance).toBe(testInstance.ref!.instance()!);
+    expect(instance).toBe(testInstance.ref!.osInstance()!);
   });
 
   it('destroys correctly', async () => {
     fixture.destroy();
-    expect(OverlayScrollbars.valid(component.instance())).toBe(false);
+    expect(OverlayScrollbars.valid(component.osInstance())).toBe(false);
   });
 
   it('emits events correctly', async () => {
@@ -377,12 +377,12 @@ describe('OverlayscrollbarsNgxComponent', () => {
     expect(osRef).toBeDefined();
     expect(spanRef).toBeDefined();
 
-    expect(OverlayScrollbars.valid(osRef.instance())).toBe(true);
-    expect(OverlayScrollbars.valid(spanRef.instance())).toBe(true);
+    expect(OverlayScrollbars.valid(osRef.osInstance())).toBe(true);
+    expect(OverlayScrollbars.valid(spanRef.osInstance())).toBe(true);
 
     testFixture.destroy();
 
-    expect(OverlayScrollbars.valid(osRef.instance())).toBe(false);
-    expect(OverlayScrollbars.valid(spanRef.instance())).toBe(false);
+    expect(OverlayScrollbars.valid(osRef.osInstance())).toBe(false);
+    expect(OverlayScrollbars.valid(spanRef.osInstance())).toBe(false);
   });
 });

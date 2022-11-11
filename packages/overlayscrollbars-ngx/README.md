@@ -125,8 +125,8 @@ onUpdated([instance, onUpdatedArgs]: EventListenerArgs['updated']) {}
 The `ref` of the `OverlayScrollbarsComponent` will give you an object with which you can access the OverlayScrollbars `instance` and the root `element` of the component.  
 The ref object has two properties:
 
-- `instance`: a function which returns the OverlayScrollbars instance.
-- `element`: a function which returns the root element.
+- `osInstance`: a function which returns the OverlayScrollbars instance.
+- `getElement`: a function which returns the root element.
 
 ## Directive
 
@@ -156,8 +156,8 @@ Properties are optional and similar to the `OverlayScrollbarsComponent`.
 
 The `OverlayScrollbarsDirective` exposes two functions:
 
-- `initialize` takes one argument which is the `InitializationTarget` and returns the OverlayScrollbars instance.
-- `instance` returns the current OverlayScrollbars instance or `null` if not initialized.
+- `osInitialize` takes one argument which is the `InitializationTarget` and returns the OverlayScrollbars instance.
+- `osInstance` returns the current OverlayScrollbars instance or `null` if not initialized.
 
 ## License
 

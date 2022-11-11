@@ -17,7 +17,7 @@ export class OverlayScrollbarsDirective implements OnChanges {
 
   constructor(private ngZone: NgZone) {}
 
-  initialize(target: InitializationTarget): OverlayScrollbars {
+  osInitialize(target: InitializationTarget): OverlayScrollbars {
     this.ngZone.runOutsideAngular(() => {
       this.instanceRef = OverlayScrollbars(
         target,
@@ -29,7 +29,7 @@ export class OverlayScrollbarsDirective implements OnChanges {
     return this.instanceRef!;
   }
 
-  instance(): OverlayScrollbars | null {
+  osInstance(): OverlayScrollbars | null {
     return this.instanceRef;
   }
 

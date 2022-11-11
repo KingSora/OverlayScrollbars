@@ -37,29 +37,29 @@ const elementRef = shallowRef<HTMLElement | null>(null);
 const slotRef = shallowRef<HTMLElement | null>(null);
 const combinedEvents = ref<EventListeners>();
 const { element, options, events } = toRefs(props);
-const [initialize, instance] = useOverlayScrollbars({ options, events: combinedEvents });
+const [initialize, osInstance] = useOverlayScrollbars({ options, events: combinedEvents });
 const exposed: OverlayScrollbarsComponentRef = {
-  instance,
-  element: () => elementRef.value,
+  osInstance,
+  getElement: () => elementRef.value,
 };
 
 defineExpose(exposed);
 
-onUnmounted(() => instance()?.destroy());
+onUnmounted(() => osInstance()?.destroy());
 
 watchPostEffect((onCleanup) => {
   const { value: elm } = elementRef;
   const { value: slotElm } = slotRef;
 
   if (elm && slotElm) {
-    const osInstance = initialize({
+    const instance = initialize({
       target: elm,
       elements: {
         viewport: slotElm,
         content: slotElm,
       },
     });
-    onCleanup(() => osInstance.destroy());
+    onCleanup(() => instance.destroy());
   }
 });
 

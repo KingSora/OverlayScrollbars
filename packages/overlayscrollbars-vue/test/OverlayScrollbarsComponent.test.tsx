@@ -131,11 +131,11 @@ describe('OverlayScrollbarsComponent', () => {
       },
     });
 
-    const { instance, element } = osRef.value!;
-    expect(instance).toBeTypeOf('function');
-    expect(element).toBeTypeOf('function');
-    expect(OverlayScrollbars.valid(instance())).toBe(true);
-    expect(element()).toBe(container.firstElementChild);
+    const { osInstance, getElement } = osRef.value!;
+    expect(osInstance).toBeTypeOf('function');
+    expect(getElement).toBeTypeOf('function');
+    expect(OverlayScrollbars.valid(osInstance())).toBe(true);
+    expect(getElement()).toBe(container.firstElementChild);
   });
 
   test('options', async () => {
@@ -160,7 +160,7 @@ describe('OverlayScrollbarsComponent', () => {
       }
     );
 
-    const instance = osRef.value!.instance()!;
+    const instance = osRef.value!.osInstance()!;
 
     const opts = instance.options();
     expect(opts.paddingAbsolute).toBe(true);
@@ -174,11 +174,11 @@ describe('OverlayScrollbarsComponent', () => {
     expect(newOpts.overflow.y).toBe('scroll'); //switches back to default because its not specified in the new options
 
     // instance didn't change
-    expect(instance).toBe(osRef.value!.instance());
+    expect(instance).toBe(osRef.value!.osInstance());
 
     await rerender({ element: 'span', options: { overflow: { x: 'hidden', y: 'hidden' } } });
 
-    const newElementInstance = osRef.value!.instance()!;
+    const newElementInstance = osRef.value!.osInstance()!;
     const newElementNewOpts = newElementInstance.options();
     expect(newElementInstance).not.toBe(instance);
     expect(newElementNewOpts.paddingAbsolute).toBe(false);
@@ -189,7 +189,7 @@ describe('OverlayScrollbarsComponent', () => {
     await rerender({ options: undefined });
 
     const clearedOpts = newElementInstance.options();
-    expect(osRef.value!.instance()).toBe(newElementInstance);
+    expect(osRef.value!.osInstance()).toBe(newElementInstance);
     expect(clearedOpts.paddingAbsolute).toBe(false);
     expect(clearedOpts.overflow.x).toBe('scroll');
     expect(clearedOpts.overflow.y).toBe('scroll');
@@ -219,7 +219,7 @@ describe('OverlayScrollbarsComponent', () => {
       }
     );
 
-    const instance = osRef.value!.instance()!;
+    const instance = osRef.value!.osInstance()!;
 
     expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
 
@@ -245,11 +245,11 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdated).toHaveBeenCalledTimes(2);
 
     // instance didn't change
-    expect(instance).toBe(osRef.value!.instance());
+    expect(instance).toBe(osRef.value!.osInstance());
 
     await rerender({ element: 'span', events: { updated: [onUpdated, onUpdatedInitial] } });
 
-    const newElementInstance = osRef.value!.instance()!;
+    const newElementInstance = osRef.value!.osInstance()!;
     expect(newElementInstance).not.toBe(instance);
     expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
@@ -258,7 +258,7 @@ describe('OverlayScrollbarsComponent', () => {
     await rerender({ events: undefined });
 
     newElementInstance.update(true);
-    expect(newElementInstance).toBe(osRef.value!.instance());
+    expect(newElementInstance).toBe(osRef.value!.osInstance());
     expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
   });
@@ -277,14 +277,14 @@ describe('OverlayScrollbarsComponent', () => {
       },
     });
 
-    const { instance } = osRef.value!;
+    const { osInstance } = osRef.value!;
 
-    expect(OverlayScrollbars.valid(instance())).toBe(true);
+    expect(OverlayScrollbars.valid(osInstance())).toBe(true);
 
     unmount();
 
-    expect(instance()).toBeDefined();
-    expect(OverlayScrollbars.valid(instance())).toBe(false);
+    expect(osInstance()).toBeDefined();
+    expect(OverlayScrollbars.valid(osInstance())).toBe(false);
   });
 
   test('emits', async () => {

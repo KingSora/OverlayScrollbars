@@ -87,8 +87,8 @@ Additionally it has three optional properties: `element`, `options` and `events`
 The `ref` of the `OverlayScrollbarsComponent` will give you an object with which you can access the OverlayScrollbars `instance` and the root `element` of the component.  
 The ref object has two properties:
 
-- `instance`: a function which returns the OverlayScrollbars instance.
-- `element`: a function which returns the root element.
+- `osInstance`: a function which returns the OverlayScrollbars instance.
+- `getElement`: a function which returns the root element.
 
 ## Hook
 

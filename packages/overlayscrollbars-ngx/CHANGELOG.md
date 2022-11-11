@@ -14,5 +14,4 @@ Depends on `OverlayScrollbars` version `^2.0.0` and `Angular` version `>=12.0.0`
 ### Breaking Changes
 
 - The `extensions` property is removed from `OverlayScrollbarsComponent`
-- The `osInstance()` function from the `OverlayScrollbarsComponent` `ref` is renamed to `instance()`
-- The `osTarget()` function from the `OverlayScrollbarsComponent` `ref` is renamed to `element()`
+- The `osTarget()` function from the `OverlayScrollbarsComponent` `ref` is renamed to `getElement()`

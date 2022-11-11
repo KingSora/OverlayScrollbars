@@ -8,7 +8,7 @@ export interface OverlayScrollbarsComponentProps {
 
 export interface OverlayScrollbarsComponentRef {
   /** Returns the OverlayScrollbars instance or null if not initialized. */
-  instance(): OverlayScrollbars | null;
+  osInstance(): OverlayScrollbars | null;
   /** Returns the root element. */
-  element(): HTMLElement | null;
+  getElement(): HTMLElement | null;
 }

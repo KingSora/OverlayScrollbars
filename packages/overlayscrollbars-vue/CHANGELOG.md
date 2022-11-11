@@ -15,5 +15,4 @@ The component was rewritten using `script setup`.
 ### Breaking Changes
 
 - The `extensions` property is removed from `OverlayScrollbarsComponent`
-- The `osInstance()` function from the `OverlayScrollbarsComponent` `ref` is renamed to `instance()`
-- The `osTarget()` function from the `OverlayScrollbarsComponent` `ref` is renamed to `element()`
+- The `osTarget()` function from the `OverlayScrollbarsComponent` `ref` is renamed to `getElement()`

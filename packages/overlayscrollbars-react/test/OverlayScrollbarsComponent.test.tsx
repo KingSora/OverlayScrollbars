@@ -122,11 +122,11 @@ describe('OverlayScrollbarsComponent', () => {
     const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
     const { container } = render(<OverlayScrollbarsComponent ref={ref} />);
 
-    const { instance, element } = ref.current!;
-    expect(instance).toBeTypeOf('function');
-    expect(element).toBeTypeOf('function');
-    expect(OverlayScrollbars.valid(instance())).toBe(true);
-    expect(element()).toBe(container.firstElementChild);
+    const { osInstance, getElement } = ref.current!;
+    expect(osInstance).toBeTypeOf('function');
+    expect(getElement).toBeTypeOf('function');
+    expect(OverlayScrollbars.valid(osInstance())).toBe(true);
+    expect(getElement()).toBe(container.firstElementChild);
   });
 
   test('options', () => {
@@ -137,7 +137,7 @@ describe('OverlayScrollbarsComponent', () => {
         ref={ref}
       />
     );
-    const instance = ref.current!.instance()!;
+    const instance = ref.current!.osInstance()!;
 
     const opts = instance.options();
     expect(opts.paddingAbsolute).toBe(true);
@@ -151,7 +151,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(newOpts.overflow.y).toBe('scroll'); //switches back to default because its not specified in the new options
 
     // instance didn't change
-    expect(instance).toBe(ref.current!.instance());
+    expect(instance).toBe(ref.current!.osInstance());
 
     rerender(
       <OverlayScrollbarsComponent
@@ -161,7 +161,7 @@ describe('OverlayScrollbarsComponent', () => {
       />
     );
 
-    const newElementInstance = ref.current!.instance()!;
+    const newElementInstance = ref.current!.osInstance()!;
     const newElementNewOpts = newElementInstance.options();
     expect(newElementInstance).not.toBe(instance);
     expect(newElementNewOpts.paddingAbsolute).toBe(false);
@@ -178,7 +178,7 @@ describe('OverlayScrollbarsComponent', () => {
     );
 
     const resetOpts = newElementInstance.options();
-    expect(newElementInstance).toBe(ref.current!.instance());
+    expect(newElementInstance).toBe(ref.current!.osInstance());
     expect(resetOpts.paddingAbsolute).toBe(false);
     expect(resetOpts.overflow.x).toBe('scroll');
     expect(resetOpts.overflow.y).toBe('scroll');
@@ -191,7 +191,7 @@ describe('OverlayScrollbarsComponent', () => {
     const { rerender } = render(
       <OverlayScrollbarsComponent events={{ updated: onUpdatedInitial }} ref={ref} />
     );
-    const instance = ref.current!.instance()!;
+    const instance = ref.current!.osInstance()!;
 
     expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
 
@@ -219,7 +219,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdated).toHaveBeenCalledTimes(2);
 
     // instance didn't change
-    expect(instance).toBe(ref.current!.instance());
+    expect(instance).toBe(ref.current!.osInstance());
 
     rerender(
       <OverlayScrollbarsComponent
@@ -229,7 +229,7 @@ describe('OverlayScrollbarsComponent', () => {
       />
     );
 
-    const newElementInstance = ref.current!.instance()!;
+    const newElementInstance = ref.current!.osInstance()!;
     expect(newElementInstance).not.toBe(instance);
     expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
@@ -244,7 +244,7 @@ describe('OverlayScrollbarsComponent', () => {
     );
 
     newElementInstance.update(true);
-    expect(newElementInstance).toBe(ref.current!.instance());
+    expect(newElementInstance).toBe(ref.current!.osInstance());
     expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
   });
@@ -253,13 +253,13 @@ describe('OverlayScrollbarsComponent', () => {
     const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
     const { unmount } = render(<OverlayScrollbarsComponent ref={ref} />);
 
-    const { instance } = ref.current!;
+    const { osInstance } = ref.current!;
 
-    expect(OverlayScrollbars.valid(instance())).toBe(true);
+    expect(OverlayScrollbars.valid(osInstance())).toBe(true);
 
     unmount();
 
-    expect(instance()).toBeDefined();
-    expect(OverlayScrollbars.valid(instance())).toBe(false);
+    expect(osInstance()).toBeDefined();
+    expect(OverlayScrollbars.valid(osInstance())).toBe(false);
   });
 });

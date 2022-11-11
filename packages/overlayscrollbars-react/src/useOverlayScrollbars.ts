@@ -18,7 +18,7 @@ export type UseOverlayScrollbarsInitialization = (
 ) => OverlayScrollbars;
 
 export type UseOverlayScrollbarsInstance = () => ReturnType<
-  OverlayScrollbarsComponentRef['instance']
+  OverlayScrollbarsComponentRef['osInstance']
 >;
 
 /**
