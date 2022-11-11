@@ -114,16 +114,13 @@ const Component = () => {
   /** 
    * or:
    * 
-   * const [params, setParams] = createSignal<{
-   *   options?: PartialOptions;
-   *   events?: EventListeners;
-   * }>({});
+   * const [params, setParams] = createSignal({});
    * const [initialize, instance] = createOverlayScrollbars(params);
    * 
    * or:
    * 
-   * const [options, setOptions] = createSignal<PartialOptions | undefined>();
-   * const [events, setEvents] = createSignal<EventListeners | undefined>();
+   * const [options, setOptions] = createSignal();
+   * const [events, setEvents] = createSignal();
    * const [initialize, instance] = createOverlayScrollbars({
    *   options,
    *   events,

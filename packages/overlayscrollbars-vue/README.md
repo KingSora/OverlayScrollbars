@@ -122,13 +122,13 @@ const Component = {
     /** 
      * or:
      * 
-     * const params = ref<{ options?: PartialOptions; events?: EventListeners } | undefined>();
+     * const params = ref();
      * const [initialize, instance] = useOverlayScrollbars(params);
      * 
      * or:
      * 
-     * const options = ref<PartialOptions | undefined>();
-     * const events = ref<EventListeners | undefined>();
+     * const options = ref();
+     * const events = ref();
      * const [initialize, instance] = useOverlayScrollbars({
      *   options,
      *   events,
