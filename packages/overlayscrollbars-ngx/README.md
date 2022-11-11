@@ -113,11 +113,13 @@ Additionally to the `events` property the `OverlayScrollbarsComponent` emits "na
 ></div>
 ```
 
+All events are typed, but you can use the `EventListenerArgs` type as utility in case its needed:
+
 ```ts
 import type { EventListenerArgs } from 'overlayscrollbars';
 
 // example listener
-onUpdated([instance, onUpdatedArgs]: EventListenerArgs['updated']) {}
+const onUpdated = ([instance, onUpdatedArgs]: EventListenerArgs['updated']) => {}
 ```
 
 ### Ref

@@ -4,7 +4,8 @@
   "version": "0.4.0",
   "type": "module",
   "peerDependencies": {
-    "svelte": "^3.44.0"
+    "svelte": "^3.44.0",
+    "overlayscrollbars": "^2.0.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "next",
@@ -12,6 +13,7 @@
     "@sveltejs/package": "next",
     "@sveltejs/vite-plugin-svelte": "^1.0.9",
     "@testing-library/svelte": "^3.2.2",
+    "overlayscrollbars": "file:./../overlayscrollbars/dist",
     "svelte": "^3.44.0",
     "svelte-check": "^2.7.1",
     "svelte-preprocess": "^4.10.6",
