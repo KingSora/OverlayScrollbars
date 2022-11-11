@@ -100,7 +100,7 @@ describe('useOverlayScrollbars', () => {
     render({
       setup() {
         const div = ref<HTMLElement | null>(null);
-        const params = ref<{ options?: PartialOptions; events?: EventListeners }>({});
+        const params = ref<{ options?: PartialOptions; events?: EventListeners } | undefined>();
         const [initialize, instance] = useOverlayScrollbars(params);
 
         onMounted(() => {
@@ -108,7 +108,7 @@ describe('useOverlayScrollbars', () => {
         });
 
         watchPostEffect(() => {
-          if (params.value.events?.updated) {
+          if (params.value?.events?.updated) {
             instance()?.update(true);
           }
         });
@@ -118,6 +118,7 @@ describe('useOverlayScrollbars', () => {
             <div ref={div} />
             <button
               onClick={() => {
+                params.value = {};
                 params.value.options = {};
                 params.value.events = {};
                 params.value.options.paddingAbsolute = true;

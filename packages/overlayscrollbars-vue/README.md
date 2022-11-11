@@ -115,9 +115,26 @@ import { useOverlayScrollbars } from "overlayscrollbars-vue";
 // example usage
 const Component = {
   setup() {
+    const div = ref(null);
     const reactiveParams = reactive({ options, events });
     const [initialize, instance] = useOverlayScrollbars(reactiveParams);
-    const div = ref(null);
+
+    /** 
+     * or:
+     * 
+     * const params = ref<{ options?: PartialOptions; events?: EventListeners } | undefined>();
+     * const [initialize, instance] = useOverlayScrollbars(params);
+     * 
+     * or:
+     * 
+     * const options = ref<PartialOptions | undefined>();
+     * const events = ref<EventListeners | undefined>();
+     * const [initialize, instance] = useOverlayScrollbars({
+     *   options,
+     *   events,
+     * });
+     * 
+     */
 
     onMounted(() => {
       initialize({ target: div.value });

@@ -1,20 +1,21 @@
 import { shallowRef, unref, watch } from 'vue';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import type { Ref } from 'vue';
+import type { Ref, UnwrapRef } from 'vue';
 import type { InitializationTarget } from 'overlayscrollbars';
 import type {
   OverlayScrollbarsComponentProps,
   OverlayScrollbarsComponentRef,
 } from './OverlayScrollbarsComponent.types';
 
-type Options = OverlayScrollbarsComponentProps['options'];
-type Events = OverlayScrollbarsComponentProps['events'];
-
 export interface UseOverlayScrollbarsParams {
   /** OverlayScrollbars options. */
-  options?: Options | Ref<Options | undefined>;
+  options?:
+    | OverlayScrollbarsComponentProps['options']
+    | Ref<OverlayScrollbarsComponentProps['options']>;
   /** OverlayScrollbars events. */
-  events?: Events | Ref<Events | undefined>;
+  events?:
+    | OverlayScrollbarsComponentProps['events']
+    | Ref<OverlayScrollbarsComponentProps['events']>;
 }
 
 export type UseOverlayScrollbarsInitialization = (
@@ -33,25 +34,17 @@ export type UseOverlayScrollbarsInstance = () => ReturnType<
  * The second value is a function which returns the current OverlayScrollbars instance or `null` if not initialized.
  */
 export const useOverlayScrollbars = (
-  params?: UseOverlayScrollbarsParams | Ref<UseOverlayScrollbarsParams>
+  params?: UseOverlayScrollbarsParams | Ref<UseOverlayScrollbarsParams | undefined>
 ): [UseOverlayScrollbarsInitialization, UseOverlayScrollbarsInstance] => {
+  let instance: ReturnType<UseOverlayScrollbarsInstance> = null;
+  let options: UnwrapRef<UseOverlayScrollbarsParams['options']>;
+  let events: UnwrapRef<UseOverlayScrollbarsParams['events']>;
   const paramsRef = shallowRef(params || {});
-  const variables = shallowRef<{
-    instance: ReturnType<UseOverlayScrollbarsInstance>;
-    options?: Options;
-    events?: Events;
-  }>({
-    instance: null,
-  });
 
   watch(
-    () => unref(paramsRef.value.options),
-    (options) => {
-      const {
-        value: { instance },
-      } = variables;
-
-      variables.value.options = options;
+    () => unref(paramsRef.value?.options),
+    (currOptions) => {
+      options = currOptions;
 
       if (OverlayScrollbars.valid(instance)) {
         instance.options(options || {}, true);
@@ -61,13 +54,9 @@ export const useOverlayScrollbars = (
   );
 
   watch(
-    () => unref(paramsRef.value.events),
-    (events) => {
-      const {
-        value: { instance },
-      } = variables;
-
-      variables.value.events = events;
+    () => unref(paramsRef.value?.events),
+    (currEvents) => {
+      events = currEvents;
 
       if (OverlayScrollbars.valid(instance)) {
         instance.on(
@@ -83,23 +72,12 @@ export const useOverlayScrollbars = (
   return [
     (target: InitializationTarget): OverlayScrollbars => {
       // if already initialized return the current instance
-      const {
-        value: { instance, options, events },
-      } = variables;
       if (OverlayScrollbars.valid(instance)) {
         return instance;
       }
 
-      const currOptions = options || {};
-      const currEvents = events || {};
-      const osInstance = (variables.value.instance = OverlayScrollbars(
-        target,
-        currOptions,
-        currEvents
-      ));
-
-      return osInstance;
+      return (instance = OverlayScrollbars(target, options || {}, events || {}));
     },
-    () => variables.value.instance,
+    () => instance,
   ];
 };
