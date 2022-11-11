@@ -1,0 +1,49 @@
+{
+  "name": "overlayscrollbars-solid",
+  "private": true,
+  "version": "0.4.0",
+  "description": "OverlayScrollbars for Solid.",
+  "author": "Rene Haas | KingSora",
+  "license": "MIT",
+  "homepage": "https://kingsora.github.io/OverlayScrollbars",
+  "bugs": "https://github.com/KingSora/OverlayScrollbars/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KingSora/OverlayScrollbars.git",
+    "directory": "packages/overlayscrollbars-solid"
+  },
+  "keywords": [
+    "overlayscrollbars",
+    "solid",
+    "solidjs",
+    "component",
+    "hook",
+    "hooks",
+    "primitive",
+    "styleable",
+    "scrollbar",
+    "scrollbars",
+    "scroll"
+  ],
+  "main": "./src/overlayscrollbars-solid.ts",
+  "module": "./src/overlayscrollbars-solid.ts",
+  "types": "./src/overlayscrollbars-solid.ts",
+  "peerDependencies": {
+    "overlayscrollbars": "^2.0.0",
+    "solid-js": "^1.5.1"
+  },
+  "devDependencies": {
+    "overlayscrollbars": "file:./../overlayscrollbars/dist",
+    "solid-js": "^1.5.1",
+    "solid-testing-library": "^0.5.0",
+    "typescript": "^4.8.2",
+    "vite": "^3.0.9",
+    "vite-plugin-solid": "^2.3.0"
+  },
+  "scripts": {
+    "build": "run-p build-js build-types",
+    "test": "vitest run --coverage",
+    "build-js": "vite build",
+    "build-types": "vue-tsc --emitDeclarationOnly -p tsconfig.types.json --composite false"
+  }
+}
