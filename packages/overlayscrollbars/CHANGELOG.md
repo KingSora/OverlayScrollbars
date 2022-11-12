@@ -25,6 +25,8 @@ The rewrite comes with multiple benefits:
 ### Breaking changes:
 
 - Browser support changed. The minimal version is now IE11.
+- There is no default export anymore. The main entry point is now the `OverlayScrollbars` named export.
+- The `styles` are now exported under a different path. Read the docs for more info.
 - The `scroll` function is missing. (WIP will be added as a plugin)
 - Initialization to `textarea` element is not suppored. (WIP will be added as a plugin)
 - `extensions` are replaced with `plugins`. Plugins are more powerful but work nothing like `extensions`.
