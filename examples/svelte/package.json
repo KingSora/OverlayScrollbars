@@ -2,6 +2,7 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
+		"overlayscrollbars": "file:../../packages/overlayscrollbars/dist",
 		"overlayscrollbars-svelte": "file:../../packages/overlayscrollbars-svelte/dist"
 	},
 	"devDependencies": {

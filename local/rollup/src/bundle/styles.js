@@ -21,7 +21,7 @@ module.exports = (resolve, options) => {
       rollupAlias(resolve, alias),
       rollupScss(
         resolve,
-        sourcemap && !minified,
+        false && sourcemap && !minified,
         extractStyles,
         path.resolve(stylesPath, cssFilename),
         banner,

@@ -1,47 +1,16 @@
 <script setup lang="ts">
-import TheWelcome from './components/TheWelcome.vue';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
+import type { PartialOptions } from 'overlayscrollbars';
+
+const options: PartialOptions = {
+  scrollbars: {
+    theme: 'os-theme-light',
+  },
+};
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <OverlayScrollbarsComponent />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <OverlayScrollbarsComponent style="height: 222px; width: 222px" :options="options">
+    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="333" height="333" />
+  </OverlayScrollbarsComponent>
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>

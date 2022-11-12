@@ -1,22 +1,15 @@
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import logo from './logo.svg';
-import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <OverlayScrollbarsComponent msg="hi" />
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <OverlayScrollbarsComponent
+        style={{ width: '222px', height: '222px' }}
+        options={{ scrollbars: { theme: 'os-theme-light' } }}
+      >
+        <img src={logo} className="App-logo" alt="React logo" width="333" height="333" />
+      </OverlayScrollbarsComponent>
     </div>
   );
 }

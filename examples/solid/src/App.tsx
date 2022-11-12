@@ -5,23 +5,12 @@ import logo from './logo.svg';
 
 const App: Component = () => {
   return (
-    <div class={styles.App}>
-      <header class={styles.header}>
-        <img src={logo} class={styles.logo} alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <OverlayScrollbarsComponent element="span" />
-        <a
-          class={styles.link}
-          href="https://github.com/solidjs/solid"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Solid
-        </a>
-      </header>
-    </div>
+    <OverlayScrollbarsComponent
+      style={{ width: '222px', height: '222px' }}
+      options={{ scrollbars: { theme: 'os-theme-light' } }}
+    >
+      <img src={logo} class={styles.logo} alt="logo" width="333" height="333" />
+    </OverlayScrollbarsComponent>
   );
 };
 

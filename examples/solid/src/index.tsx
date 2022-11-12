@@ -1,4 +1,5 @@
 /* @refresh reload */
+import 'overlayscrollbars/overlayscrollbars.css';
 import { render } from 'solid-js/web';
 
 import './index.css';
