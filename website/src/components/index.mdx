@@ -17,22 +17,18 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
  - Highly customizable
  - TypeScript support - fully written in TypeScript
  - Dependency free - 100% self written to ensure small size and best functionality
- - High quality and fully typed Framework versions for `react`, `vue` and `angular`
+ - High quality and fully typed Framework versions for [`react`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react), [`vue`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue), [`angular`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx), [`svelte`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte) and [`solid`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid).
 
 ## Choose your framework
 
 Additionally to the vanilla JavaScript version you can use the official framework components & utilities:
 
-<div className="flex not-prose">
-  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React" className="h-[80px] mx-1" />
-  </a>
-  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="80" height="80" alt="Vue" className="h-[80px] mx-1" />
-  </a>
-  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx">
-    <img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg" width="80" height="80" alt="Angular" className="h-[80px] mx-1" />
-  </a>
+<div className="flex">
+  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react"><img className="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React" /></a>
+  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue"><img className="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="80" height="80" alt="Vue" /></a>
+  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx"><img className="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg" width="80" height="80" alt="Angular" /></a>
+  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte"><img className="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-svelte/logo.svg" width="80" height="80" alt="Svelte" /></a>
+  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid"><img className="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-solid/logo.svg" width="80" height="80" alt="Solid" /></a>
 </div>
 
 ## Getting started
@@ -89,7 +85,7 @@ const osInstance = OverlayScrollbars(document.querySelector('#myElement'), {});
 If you initialize OverlayScrollbars it needs a few milliseconds to create and append all the elements to the DOM.
 While this period the native scrollbars are still visible and are switched out after the initialization is finished. This is perceived as flickering. 
 
-To fix this behavior apply the `data-overlayscrollbars=""` attribute to the target element (and `html` element if the target element is `body`).
+To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (and `html` element if the target element is `body`).
 
 ### Initialization with an Object
 <details>

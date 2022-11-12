@@ -18,8 +18,6 @@
 
 > OverlayScrollbars is a javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.
 
-> This is the documentation for version `2.x`. which is currently in beta. You can read the version `1.x` docs [here](https://github.com/KingSora/OverlayScrollbars/tree/v1.x) or on the [website](https://kingsora.github.io/OverlayScrollbars/#!overview).  
-
 ## Why
 
 I created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
@@ -39,7 +37,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
  - Highly customizable
  - TypeScript support - fully written in TypeScript
  - Dependency free - 100% self written to ensure small size and best functionality
- - High quality and fully typed Framework versions for `react`, `vue`, `angular`, `svelte` and `solid`.
+ - High quality and fully typed Framework versions for [`react`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react), [`vue`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue), [`angular`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx), [`svelte`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte) and [`solid`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid).
 
 ## Choose your framework
 
