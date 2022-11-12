@@ -34,7 +34,6 @@ const mergeEventListeners = (emits: EventListeners, events: EventListeners) =>
   template: `<div overlayScrollbars [options]="options" [events]="mergeEvents(events)" #content>
     <ng-content></ng-content>
   </div>`,
-  styles: [':host { display: block; }'],
 })
 export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
   @Input('options')

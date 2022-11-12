@@ -2,7 +2,7 @@
 import { Directive, Input, OnChanges, SimpleChanges, NgZone } from '@angular/core';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import type { InitializationTarget } from 'overlayscrollbars';
-import type { OverlayScrollbarsComponent } from '~/overlayscrollbars.component';
+import type { OverlayScrollbarsComponent } from './overlayscrollbars.component';
 
 @Directive({
   selector: '[overlayScrollbars]', // https://angular.io/guide/styleguide#directive-selectors
