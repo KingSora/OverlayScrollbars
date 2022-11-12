@@ -1,7 +1,32 @@
 {
   "name": "overlayscrollbars-ngx",
-  "version": "0.4.0",
   "private": true,
+  "version": "0.4.0",
+  "description": "OverlayScrollbars for Angular.",
+  "author": "Rene Haas | KingSora",
+  "license": "MIT",
+  "homepage": "https://kingsora.github.io/OverlayScrollbars",
+  "bugs": "https://github.com/KingSora/OverlayScrollbars/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KingSora/OverlayScrollbars.git",
+    "directory": "packages/overlayscrollbars-ngx"
+  },
+  "keywords": [
+    "overlayscrollbars",
+    "angular",
+    "angular2",
+    "ngx",
+    "component",
+    "directive",
+    "styleable",
+    "scrollbar",
+    "scrollbars",
+    "scroll"
+  ],
+  "main": "./src/public-api.ts",
+  "module": "./src/public-api.ts",
+  "types": "./src/public-api.ts",
   "peerDependencies": {
     "@angular/common": ">=12.0.0",
     "@angular/core": ">=12.0.0",
@@ -39,5 +64,6 @@
   "scripts": {
     "build": "ng build overlayscrollbars-ngx",
     "test": "ng test --watch=false --sourceMap=false --browsers=ChromeHeadlessCI --code-coverage"
-  }
+  },
+  "sideEffects": false
 }

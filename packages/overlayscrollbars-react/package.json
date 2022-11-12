@@ -44,5 +44,6 @@
     "build-js": "vite build",
     "build-types": "tsc --emitDeclarationOnly -p tsconfig.types.json",
     "test": "vitest run --coverage"
-  }
+  },
+  "sideEffects": false
 }

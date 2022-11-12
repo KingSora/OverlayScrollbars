@@ -42,8 +42,9 @@
   },
   "scripts": {
     "build": "run-p build-js build-types",
-    "test": "vitest run --coverage",
     "build-js": "vite build",
-    "build-types": "vue-tsc --emitDeclarationOnly -p tsconfig.types.json --composite false"
-  }
+    "build-types": "tsc --emitDeclarationOnly -p tsconfig.types.json --composite false",
+    "test": "vitest run --coverage"
+  },
+  "sideEffects": false
 }

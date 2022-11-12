@@ -2,6 +2,25 @@
   "name": "overlayscrollbars-svelte",
   "private": true,
   "version": "0.4.0",
+  "description": "OverlayScrollbars for Svelte.",
+  "author": "Rene Haas | KingSora",
+  "license": "MIT",
+  "homepage": "https://kingsora.github.io/OverlayScrollbars",
+  "bugs": "https://github.com/KingSora/OverlayScrollbars/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KingSora/OverlayScrollbars.git",
+    "directory": "packages/overlayscrollbars-svelte"
+  },
+  "keywords": [
+    "overlayscrollbars",
+    "svelte",
+    "component",
+    "styleable",
+    "scrollbar",
+    "scrollbars",
+    "scroll"
+  ],
   "type": "module",
   "peerDependencies": {
     "svelte": "^3.44.0",
@@ -26,5 +45,6 @@
     "prepublishOnly": "echo 'Did you mean to publish `./package/`, instead of `./`?' && exit 1",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
-  }
+  },
+  "sideEffects": false
 }

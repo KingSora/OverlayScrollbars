@@ -47,9 +47,9 @@ export default defineConfig({
               bugs,
               repository,
               keywords,
-              main: 'overlayscrollbars-vue.cjs.js',
-              module: 'overlayscrollbars-vue.es.js',
-              types: 'types/overlayscrollbars-vue.d.ts',
+              main: 'overlayscrollbars-solid.cjs.js',
+              module: 'overlayscrollbars-solid.es.js',
+              types: 'types/overlayscrollbars-solid.d.ts',
               peerDependencies,
               sideEffects: false,
             };
