@@ -17,7 +17,7 @@ export const esbuild = async (options = {}, { tailwindConfig = './tailwind.confi
     bundle: true,
     splitting: true,
     allowOverwrite: true,
-    incremental: true,
+    incremental: options.watch,
     metafile: true,
     write: false,
     format: 'esm',

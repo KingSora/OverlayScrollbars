@@ -77,7 +77,11 @@ const IndexPage: NextPage = () => {
         This page is a work in progress. For now refer to the TypeScript definitions for a more
         detailed documentation.
         <br />
-        Looking for the v1 docs? Follow this link.
+        Looking for the v1 docs?{' '}
+        <a href="/v1" className="text-primary-blue2 underline">
+          Follow this link
+        </a>
+        .
       </p>
       <div className="mx-auto flex sm:flex-row justify-center gap-2 items-center flex-wrap">
         <a href="https://www.npmjs.com/package/overlayscrollbars">

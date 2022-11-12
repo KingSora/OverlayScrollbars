@@ -29,6 +29,10 @@ const nextConfig = {
     unoptimized: true,
   },
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  basePath: '/OverlayScrollbars',
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default withMDX(nextConfig);

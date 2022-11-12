@@ -1,181 +1,208 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta name="description" content="A javascript scrollbar plugin which hides the native scrollbars and provides custom styleable overlay scrollbars." />
-        <meta name="theme-color" content="#36befd">
-        <meta name="msapplication-TileColor" content="#36befd">
-        <meta name="msapplication-navbutton-color" content="#36befd"> 
-        <meta name="application-name" content="Overlay Scrollbars"/> 
-        <meta name="msapplication-tooltip" content="Overlay Scrollbars"/> 
-        <meta name="apple-mobile-web-app-title" content="Overlay Scrollbars"/> 
-        <meta name="viewport" content="width=800, initial-scale=1.0, user-scalable=yes">
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-        <title>Overlay Scrollbars - Javascript scrollbar plugin which hides the native scrollbars and provides custom styleable overlay scrollbars.</title>
-        
-        <!-- Google Scheme Markup as JSON-LD -->
-        <script type="application/ld+json">
-        {
-            "@context" : "http://schema.org",
-            "@type" : "SoftwareSourceCode",
-            "url" : "https://kingsora.github.io/OverlayScrollbars",
-            "name" : "Overlay Scrollbars",
-            "description" : "A javascript scrollbar plugin which hides the native scrollbars and provides custom styleable overlay scrollbars, but keeps the native functionality and feeling.",
-            "disambiguatingDescription" : "javascript overlay scrollbars plugin",
-            "license" : "https://en.wikipedia.org/wiki/MIT_License",
-            "keywords" : "js,javascript,OverlayScrollbars,overlay,scrollbars,custom,scrollbar,plugin,jquery,scrollbars,polyfill",
-            "isAccessibleForFree" : true,
-            "image" : "https://kingsora.github.io/OverlayScrollbars/img/logo.png",
-            "codeRepository" : "https://github.com/KingSora/OverlayScrollbars",
-            "programmingLanguage" : {
-            "@type" : "ComputerLanguage",
-                "name" : "javascript",
-                "alternateName" : "js"
-            }
-        }
-        </script>
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    </head>
-    <body>
-        <div id="header">
-            <div id="header-bg">
-                <span class="header-bg-decoration"></span>
-                <div class="header-bg-shining"></div>
-                <span class="header-bg-decoration"></span>
-            </div>
-            
-            
-            <div class="container">
-                <div class="header-content">
-                    <h1 class="header-content-plugin-name">Overlay Scrollbars</h1>
-                    <br>
-                    <h2 class="header-content-plugin-description">A javascript scrollbar plugin which hides native scrollbars, provides<br>custom styleable overlay scrollbars and keeps the native functionality and feeling.</h2>
-                    <br>
-                    <a href="https://github.com/KingSora/OverlayScrollbars/archive/master.zip" class="header-content-download">
-                        Download
-                    </a>
-                </div>
-            </div>
-            
-            <svg id="header-edge" width="1920px" height="45px" viewBox="0 0 1920 45" enable-background="new 0 0 1920 45" xml:space="preserve" preserveAspectRatio="none">
-                <path fill="#FFFFFF" d="M960,44.5C592.556,44.5,127.279,11.928,0,0v44.5v37h1920v-37V0C1792.721,11.928,1327.444,44.5,960,44.5z"/>
-            </svg>
-        </div>
-        <div id="navigation">
-            <div id="navigation-backdrop">
-            </div>
-            <div id="navigation-menu" class="container">
-                <div class="navigation-menu-lr p-left">
-                </div>
-                <div class="navigation-menu-lr p-right">
-                    <div data-navigation="overview" class="navigation-menu-item">Overview</div>
-                    <div data-navigation="demos" class="navigation-menu-item">Demos</div>
-                    <div data-navigation="documentation" class="navigation-menu-item">Documentation</div>
-                    <div data-navigation="themes" class="navigation-menu-item">Themes</div>
-                    <div data-navigation="extensions" class="navigation-menu-item">Extensions</div>
-                    <div data-navigation="faq" class="navigation-menu-item">FAQ</div>
-                    <a href="https://github.com/KingSora/OverlayScrollbars" target="_blank" rel="noopener" class="navigation-menu-item"><i class="mdi mdi-github-circle"></i></a>
-                </div>
-            </div>
-            <div class="container">
-                <div id="navigation-button">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-                <svg id="navigation-logo" version="1.1" 
-                xmlns="http://www.w3.org/2000/svg" 
-                xmlns:xlink="http://www.w3.org/1999/xlink" 
-                x="0px" y="0px"
-				width="702px" 
-				height="468px" 
-				viewBox="0 0 702 468" 
-				enable-background="new 0 0 702 468" 
-				xml:space="preserve">>
-                     <filter id="dropshadow" height="130%">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="9"/>
-                        <feOffset dx="0" dy="2" result="offsetblur"/>
-                        <feComponentTransfer>
-                            <feFuncA type="linear" slope="0.11"/>
-                        </feComponentTransfer>
-                        <feMerge> 
-                            <feMergeNode/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                    <g id="Stroke" style="filter:url(#dropshadow)">
-                        <path fill="none" stroke="#fff" stroke-width="48" stroke-linecap="round" stroke-miterlimit="10" d="M234.014,337.502
-                            c-9.188,0-18.292-1.193-27.057-3.545c-13.539-3.633-26.531-10.188-37.572-18.955c-10.933-8.682-20.222-19.736-26.863-31.969
-                            c-6.813-12.549-11.024-26.725-12.18-40.996c-1.188-14.668,0.756-29.659,5.62-43.355c4.671-13.151,12.186-25.547,21.73-35.847
-                            c9.515-10.269,21.266-18.694,33.982-24.368c13.146-5.865,27.781-8.966,42.325-8.966c3.586,0,7.203,0.184,10.75,0.547
-                            c14.193,1.452,28.242,5.949,40.627,13.003c12.096,6.889,22.958,16.396,31.414,27.495c8.555,11.229,14.85,24.37,18.203,38.003
-                            c3.509,14.265,3.951,29.467,1.278,43.964c-2.561,13.884-8.109,27.427-16.047,39.163c-7.806,11.541-18.112,21.643-29.805,29.211
-                            c-11.912,7.709-25.592,12.986-39.562,15.258C245.323,337.045,239.656,337.502,234.014,337.502
-                            C234.014,337.502,234.014,337.502,234.014,337.502z M570.998,338h-6.215h-26.65H500.59h-39.085h-31.278h-14.12
-                            c-14.94,0-29.099,6.24-38.846,17.121c-12.376,13.813-16.449,33.305-10.63,50.865c6.084,18.361,22.291,32.152,41.292,35.137
-                            c3.765,0.59,7.247,0.877,10.646,0.877h21.281h35.12h39.608h34.746h20.533c4.154,0,7.918-0.318,11.725-0.674
-                            c11.898-1.107,23.729-4.436,35.166-9.893c21.475-10.246,38.934-27.695,49.156-49.133c10.625-22.271,12.957-47.695,6.57-71.588
-                            c-6.066-22.697-19.951-42.912-39.094-56.922c-17.434-12.762-39.299-19.79-61.566-19.79h-19.836h-37.801h-34.63h-0.238
-                            c-0.064,0-0.128,0-0.192,0c-7.594,0-14.766-0.01-20.863-1.207c-13.334-2.618-25.441-10.797-33.215-22.437
-                            c-3.901-5.841-6.721-12.783-8.154-20.074c-1.492-7.591-0.939-15.579,1.642-23.742c4.497-14.223,14.729-25.905,28.074-32.053
-                            c6.373-2.936,13.886-4.487,21.729-4.487h3.353h22.485h35.71h39.555h34.021h19.109c6.848,0,13.436-1.16,19.578-3.448
-                            c16.672-6.206,29.244-20.975,32.814-38.542c3.609-17.757-2.477-36.397-15.879-48.646C649.65,30.746,637.154,26,623.891,26h-6.633
-                            h-15.867h-23.605h-29.85h-34.594h-37.846h-39.599h-39.858h-38.619h-35.885h-31.655H263.95h-18.707h-9.988
-                            c-13.158,0-23.905,0.728-33.822,2.288c-20.802,3.273-40.457,9.37-58.42,18.12c-18.023,8.778-34.679,20.118-49.506,33.705
-                            c-14.775,13.541-27.499,29.094-37.814,46.228c-10.511,17.454-18.368,36.299-23.354,56.01c-5.159,20.397-7.188,41.485-6.027,62.679
-                            c1.14,20.832,5.375,41.268,12.586,60.732c7.001,18.898,16.719,36.666,28.885,52.811c12.035,15.973,26.277,30.115,42.335,42.037
-                            c16.245,12.059,34.087,21.652,53.04,28.514c19.537,7.074,39.766,11.68,60.63,12.662c3.03,0.145,6.092,0.215,9.211,0.215
-                            c6.56,0,13.266-0.314,20.096-0.945c6.583-0.607,12.544-1.428,18.352-2.508c3.41-0.633,6.481-1.338,9.647-2.152"/>
-                    </g>
-                </svg>
-            </div>
-            <select id="navigation-content-navigation"></select>
-        </div>
-        <div id="content">
-        </div>
-        <div id="footer">
-            <div class="container">
-                <div id="footer-left" class="footer-content">
-                    Copyright © 2017-2022 <b>Rene Haas</b>. All rights reserved.
-                </div>
-                <div id="footer-right" class="footer-content">
-                </div>
-            </div>
-        </div>
-        <div id="loading">
-            <div class="loading-inner">
-                <div class="loading-circle-wrapper">
-                    <div class="loading-circle">
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="modal-debug" class="modal" data-modal="debug" tabindex="-1">
-            <div class="modal-window">
-                <div class="modal-window-header">
-                    <span>Debug</span>
-                    <div class="modal-window-header-close">
-                        <i class="mdi mdi-window-close"></i>
-                    </div>
-                </div>
-                <div  class="modal-window-content container">
-                    <pre id="modal-debug-content" class="content-navigation-sub-caption"></pre>
-                </div>
-                <div class="modal-window-footer">
-                
-                </div>
-            </div>
-        </div>
-
-        <!-- main CSS  -->
-        <link type="text/css" href="https://fonts.googleapis.com/css?family=Raleway:400,600,700" rel="stylesheet">
-        <link type="text/css" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,500" rel="stylesheet"> 
-        <link type="text/css" href="styles.min.css" rel="stylesheet">
-        
-        <!-- main JS -->
-        <script type="text/javascript" src="index.min.js"></script>
-    </body>
-</html>
+<!DOCTYPE html><html lang="en" data-overlayscrollbars-initialize=""><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width"/><title>OverlayScrollbars</title><meta name="description" content="A javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling."/><link rel="icon" href="/OverlayScrollbars/_next/static/media/favicon.7b344e85.ico"/><link rel="shortcut icon" type="image/x-icon" href="/OverlayScrollbars/_next/static/media/favicon.7b344e85.ico"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="theme-color" content="#36befd"/><meta name="msapplication-TileColor" content="#36befd"/><meta name="msapplication-navbutton-color" content="#36befd"/><meta name="application-name" content="OverlayScrollbars"/><meta name="msapplication-tooltip" content="OverlayScrollbars"/><meta name="apple-mobile-web-app-title" content="OverlayScrollbars"/><script type="application/ld+json">{"@context":"http://schema.org","@type":"SoftwareSourceCode","url":"https://kingsora.github.io/OverlayScrollbars","name":"OverlayScrollbars","description":"A javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.","license":"https://en.wikipedia.org/wiki/MIT_License","keywords":"js,javascript,typescript,overlayscrollbars,overlay,scrollbars,custom,scrollbar,plugin,react,vue,angular,treeshaking","isAccessibleForFree":true,"image":"https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/logo/logo.png","codeRepository":"https://github.com/KingSora/OverlayScrollbars","runtimePlatform":"browser","maintainer":{"@type":"Person","name":"Rene Haas","additionalName":"KingSora","url":"https://github.com/KingSora"},"programmingLanguage":{"@type":"ComputerLanguage","name":"javascript","alternateName":"js"}}</script><meta name="next-head-count" content="14"/><link rel="preload" href="/OverlayScrollbars/_next/static/css/6d4acf96faa56924.css" as="style"/><link rel="stylesheet" href="/OverlayScrollbars/_next/static/css/6d4acf96faa56924.css" data-n-g=""/><link rel="preload" href="/OverlayScrollbars/_next/static/css/84d874cedcd57975.css" as="style"/><link rel="stylesheet" href="/OverlayScrollbars/_next/static/css/84d874cedcd57975.css" data-n-p=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/OverlayScrollbars/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js"></script><script src="/OverlayScrollbars/_next/static/chunks/webpack-38447e448aec86dd.js" defer=""></script><script src="/OverlayScrollbars/_next/static/chunks/framework-80c43e603d70cda7.js" defer=""></script><script src="/OverlayScrollbars/_next/static/chunks/main-ea1211b077f8a1ed.js" defer=""></script><script src="/OverlayScrollbars/_next/static/chunks/pages/_app-6150d4a4a7f94bc7.js" defer=""></script><script src="/OverlayScrollbars/_next/static/chunks/pages/index-a72064e276c93e7f.js" defer=""></script><script src="/OverlayScrollbars/_next/static/uqKydCxGYhRFcO96IxR_Z/_buildManifest.js" defer=""></script><script src="/OverlayScrollbars/_next/static/uqKydCxGYhRFcO96IxR_Z/_ssgManifest.js" defer=""></script></head><body data-overlayscrollbars-initialize=""><div id="__next"><div class="font-sans font-normal text-primary-dark"><div class="px-6 sm:container"><div class="mt-8 flex justify-center items-center h-[33vh] min-h-32 max-h-40 xxs:max-h-44"><div class="h-full assets_logo__UC59w"><img src="/OverlayScrollbars/_next/static/media/logo.5dcad24b.svg" class="h-full" alt="Overlay Scrollbars Logo"/></div></div><h1 class="text-center xxs:text-4xl text-2xl font-bold my-11">Overlay Scrollbars</h1><p class="text-center mx-auto max-w-screen-sm my-11 font-medium">A javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.</p><div class="my-6 text-center font-medium text-sm uppercase relative"><span class="p-3 bg-white">used by<div class="absolute block top-1/2 left-1/2 w-[100%] xs:w-[80%] border-t-[1px] border-slate-300 translate-x-[-50%] translate-y-[-50%] z-[-1]"></div></span></div><div><div class="flex my-7 justify-center"><div class="inline-flex  items-center gap-6 py-4 assets_usedBy__FHTGG"><div class="h-11 px-3 flex-grow flex-shrink-0" style="filter:brightness(0.35)"><img class="h-full" src="/OverlayScrollbars/_next/static/media/spotify-logo.0dffbf88.svg" alt=""/></div><div class="h-11 px-3 py-1.5 flex-grow flex-shrink-0"><img class="h-full" src="/OverlayScrollbars/_next/static/media/storybook-logo.e62f5bdf.svg" alt=""/></div><div class="h-11 p-3 flex-grow flex-shrink-0"><img class="h-full" src="/OverlayScrollbars/_next/static/media/adminlte-logo.22257d89.png" alt=""/></div></div></div></div><div class="my-6 text-center font-medium text-sm uppercase relative"><span class="p-3 bg-white"><a href="https://github.com/KingSora/OverlayScrollbars" target="_blank" rel="noreferrer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" class="default:fill-current inline-block w-11 hover:scale-110 text-primary-dark hover:text-primary-blue1 active:text-primary-blue2 transition-transformColor ease-in-out duration-300"><use href="/OverlayScrollbars/_next/static/media/github.f9873dbb.svg#github"></use></svg><span class="sr-only">OverlayScrollbars on Github</span></a><div class="absolute block top-1/2 left-1/2 w-[100%] xs:w-[80%] border-t-[1px] border-slate-300 translate-x-[-50%] translate-y-[-50%] z-[-1]"></div></span></div><p class="text-center text-sm text-primary-gray2 mx-auto max-w-screen-sm my-11 font-medium">This page is a work in progress. For now refer to the TypeScript definitions for a more detailed documentation.<br/>Looking for the v1 docs?<!-- --> <a href="/v1" class="text-primary-blue2 underline">Follow this link</a>.</p><div class="mx-auto flex sm:flex-row justify-center gap-2 items-center flex-wrap"><a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square" alt="Downloads"/></a><a href="https://www.npmjs.com/package/overlayscrollbars"><img src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square" alt="Version"/></a><a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"/></a><a href="https://app.codecov.io/gh/KingSora/OverlayScrollbars"><img src="https://img.shields.io/codecov/c/github/KingSora/OverlayScrollbars?style=flat-square" alt="Code Coverage"/></a><a href="https://bundlephobia.com/package/overlayscrollbars"><img src="https://img.shields.io/bundlephobia/minzip/overlayscrollbars?label=max.%20bundle%20size&amp;style=flat-square" alt="Max. Bundle Size"/></a></div><div class="mt-11 prose prose-primary mx-auto pb-32"><h2>Why</h2>
+<p>I created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven&#x27;t met my requirements in terms of features, quality, simplicity, license or browser support.</p>
+<h2>Goals &amp; Features</h2>
+<ul>
+<li>Simple, powerful and good documented API</li>
+<li>High browser compatibility - <b>Firefox</b>, <b>Chrome</b>, <b>Opera</b>, <b>Edge</b>, <b>Safari 10+</b> and <b>IE 11</b></li>
+<li>Can be run on the server - <b>SSR</b>, <b>SSG</b> and <b>ISR</b> support</li>
+<li>Tested on various devices - <b>Mobile</b>, <b>Desktop</b> and <b>Tablet</b></li>
+<li>Tested with various (and mixed) inputs - <b>Mouse</b>, <b>touch</b> and <b>pen</b></li>
+<li><b>Treeshaking</b> - bundle only what you really need</li>
+<li>Automatic update detection - <b>no polling</b></li>
+<li>Usage of latest browser features - best <b>performance</b> in new browsers</li>
+<li>Bidirectional - LTR or RTL direction support</li>
+<li>Simple and effective scrollbar styling</li>
+<li>Highly customizable</li>
+<li>TypeScript support - fully written in TypeScript</li>
+<li>Dependency free - 100% self written to ensure small size and best functionality</li>
+<li>High quality and fully typed Framework versions for <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react"><code>react</code></a>, <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue"><code>vue</code></a>, <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx"><code>angular</code></a>, <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte"><code>svelte</code></a> and <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid"><code>solid</code></a>.</li>
+</ul>
+<h2>Choose your framework</h2>
+<p>Additionally to the vanilla JavaScript version you can use the official framework components &amp; utilities:</p>
+<div class="flex"><a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react"><img class="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React"/></a><a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue"><img class="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="80" height="80" alt="Vue"/></a><a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx"><img class="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg" width="80" height="80" alt="Angular"/></a><a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte"><img class="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-svelte/logo.svg" width="80" height="80" alt="Svelte"/></a><a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid"><img class="h-[80px] mx-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-solid/logo.svg" width="80" height="80" alt="Solid"/></a></div>
+<h2>Getting started</h2>
+<h3>npm &amp; node</h3>
+<p>OverlayScrollbars can be downloaded from <a href="https://www.npmjs.com/package/overlayscrollbars">npm</a> or the package manager of your choice:</p>
+<div data-rehype-pretty-code-fragment=""><pre><code data-language="sh" data-theme="default"><span class="line"><span style="color:#657B83">npm install overlayscrollbars</span></span></code></pre></div>
+<p>After installation it can be imported:</p>
+<div data-rehype-pretty-code-fragment=""><pre><code data-language="js" data-theme="default"><span class="line"><span style="color:#859900">import</span><span style="color:#657B83"> </span><span style="color:#2AA198">&#x27;overlayscrollbars/overlayscrollbars.css&#x27;</span><span style="color:#657B83">;</span></span>
+<span class="line"><span style="color:#859900">import</span><span style="color:#657B83"> { </span><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83"> } </span><span style="color:#859900">from</span><span style="color:#657B83"> </span><span style="color:#2AA198">&#x27;overlayscrollbars&#x27;</span><span style="color:#657B83">;</span></span></code></pre></div>
+<blockquote>
+<p><strong>Note</strong>: In older node versions use <code>&#x27;overlayscrollbars/styles/overlayscrollbars.css&#x27;</code> as the import path for the CSS file.</p>
+</blockquote>
+<h3>Manual download &amp; embedding</h3>
+<details><summary><p>These instructions are for old stacks. Click here to read them.</p></summary><br/><p>You can use OverlayScrollbars without any bundler or package manager.<br/>
+<!-- -->Simply download it from the <a href="https://github.com/KingSora/OverlayScrollbars/releases">Releases</a> or use a <a href="https://cdnjs.com/libraries/overlayscrollbars">CDN</a>.</p><ul>
+<li>Use the javascript files with the <code>.browser</code> extension.</li>
+<li>If you target old browsers use the <code>.es5</code> javascript file, for new browsers <code>.es6</code>.</li>
+<li>For production use the javascript / stylesheet files with the <code>.min</code> extension.</li>
+</ul><p>Embedd OverlayScrollbars manually in your HTML:</p><div data-rehype-pretty-code-fragment=""><pre><code data-language="html" data-theme="default"><span class="line"><span style="color:#93A1A1">&lt;</span><span style="color:#268BD2">link</span><span style="color:#657B83"> </span><span style="color:#93A1A1">type</span><span style="color:#657B83">=</span><span style="color:#2AA198">&quot;text/css&quot;</span><span style="color:#657B83"> </span><span style="color:#93A1A1">href</span><span style="color:#657B83">=</span><span style="color:#2AA198">&quot;path/to/overlayscrollbars.css&quot;</span><span style="color:#657B83"> </span><span style="color:#93A1A1">rel</span><span style="color:#657B83">=</span><span style="color:#2AA198">&quot;stylesheet&quot;</span><span style="color:#657B83"> </span><span style="color:#93A1A1">/&gt;</span></span>
+<span class="line"><span style="color:#93A1A1">&lt;</span><span style="color:#268BD2">script</span><span style="color:#657B83"> </span><span style="color:#93A1A1">type</span><span style="color:#657B83">=</span><span style="color:#2AA198">&quot;text/javascript&quot;</span><span style="color:#657B83"> </span><span style="color:#93A1A1">src</span><span style="color:#657B83">=</span><span style="color:#2AA198">&quot;path/to/overlayscrollbars.js&quot;</span><span style="color:#657B83"> </span><span style="color:#93A1A1">defer&gt;&lt;/</span><span style="color:#268BD2">script</span><span style="color:#93A1A1">&gt;</span></span></code></pre></div></details>
+<h2>Initialization</h2>
+<blockquote>
+<p><strong>Note</strong>: During initialization its expected that the <b>CSS file is loaded and parsed</b> by the browser.</p>
+</blockquote>
+<p>You can initialize either directly with an <code>Element</code> or with an <code>Object</code> where you have more control over the initialization process.</p>
+<div data-rehype-pretty-code-fragment=""><pre><code data-language="js" data-theme="default"><span class="line"><span style="color:#93A1A1">// simple initialization with an element</span></span>
+<span class="line"><span style="color:#586E75;font-style:italic">const</span><span style="color:#657B83"> </span><span style="color:#268BD2">osInstance</span><span style="color:#657B83"> </span><span style="color:#859900">=</span><span style="color:#657B83"> </span><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">(</span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#myElement&#x27;</span><span style="color:#657B83">), {});</span></span></code></pre></div>
+<h3>Bridging initialization flickering</h3>
+<p>If you initialize OverlayScrollbars it needs a few milliseconds to create and append all the elements to the DOM.
+While this period the native scrollbars are still visible and are switched out after the initialization is finished. This is perceived as flickering.</p>
+<p>To fix this behavior apply the <code>data-overlayscrollbars-initialize</code> attribute to the target element (and <code>html</code> element if the target element is <code>body</code>).</p>
+<h3>Initialization with an Object</h3>
+<details><summary><p>This is a in depth topic. Click here to read it.</p></summary><br/><blockquote>
+<p><strong>Note</strong>: For now please refer to the <b>TypeScript definitions</b> for a more detailed description of all possibilities.</p>
+</blockquote><p>The only required field is the <code>target</code> field. This is the field to which the plugin is applied to.<br/>
+<!-- -->If you use the object initialization only with the <code>target</code> field, the outcome is equivalent to the element initialization:</p><div data-rehype-pretty-code-fragment=""><pre><code data-language="js" data-theme="default"><span class="line"><span style="color:#93A1A1">// Both initializations have the same outcome</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">(</span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#myElement&#x27;</span><span style="color:#657B83">), {});</span></span>
+<span class="line"><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">({ target: </span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#myElement&#x27;</span><span style="color:#657B83">) }, {});</span></span></code></pre></div><p>In the initialization object you can specify how the library is handling generated elements.
+For example you can appoint an existing element as the <code>viewport</code> element. Like this the library won&#x27;t generate it but take the specified element instead:</p><div data-rehype-pretty-code-fragment=""><pre><code data-language="js" data-theme="default"><span class="line"><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">({ </span></span>
+<span class="line"><span style="color:#657B83"> target: </span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#target&#x27;</span><span style="color:#657B83">),</span></span>
+<span class="line"><span style="color:#657B83"> elements: {</span></span>
+<span class="line"><span style="color:#657B83">   viewport: </span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#viewport&#x27;</span><span style="color:#657B83">),</span></span>
+<span class="line"><span style="color:#657B83"> },</span></span>
+<span class="line"><span style="color:#657B83">}, {});</span></span></code></pre></div><p>This is very useful if you have a fixed DOM structure and don&#x27;t want OverlayScrollbars to generate its own elements. Those cases arise very often when you want an other library to work together with OverlayScrollbars.</p><hr/><p>You can also decide to which element the scrollbars should be applied to:</p><div data-rehype-pretty-code-fragment=""><pre><code data-language="js" data-theme="default"><span class="line"><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">({ </span></span>
+<span class="line"><span style="color:#657B83"> target: </span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#target&#x27;</span><span style="color:#657B83">),</span></span>
+<span class="line"><span style="color:#657B83"> scrollbars: {</span></span>
+<span class="line"><span style="color:#657B83">   slot: </span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#target&#x27;</span><span style="color:#657B83">).</span><span style="color:#268BD2">parentElement</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83"> },</span></span>
+<span class="line"><span style="color:#657B83">}, {});</span></span></code></pre></div><hr/><p>And last but not least you can decide when the initialization should be canceled:</p><div data-rehype-pretty-code-fragment=""><pre><code data-language="js" data-theme="default"><span class="line"><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">({ </span></span>
+<span class="line"><span style="color:#657B83"> target: </span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#target&#x27;</span><span style="color:#657B83">),</span></span>
+<span class="line"><span style="color:#657B83"> cancel: {</span></span>
+<span class="line"><span style="color:#657B83">   nativeScrollbarsOverlaid: </span><span style="color:#B58900">true</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">   body: </span><span style="color:#B58900">null</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83"> }</span></span>
+<span class="line"><span style="color:#657B83">}, {});</span></span></code></pre></div><p>In the above example the initialization is canceled when the native scrollbars are overlaid or when your target is a <code>body</code> element and the plugin determined that a initialization to the <code>body</code> element would affect native functionality like <code>window.scrollTo</code>.</p></details>
+<h2>Options</h2>
+<p>You can initialize OverlayScrollbars with an initial set of options, which can be changed at any time with the <code>options</code> method:</p>
+<div data-rehype-pretty-code-fragment=""><pre><code data-language="js" data-theme="default"><span class="line"><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">(</span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#myElement&#x27;</span><span style="color:#657B83">), {</span></span>
+<span class="line"><span style="color:#657B83">  overflow: {</span></span>
+<span class="line"><span style="color:#657B83">    x: </span><span style="color:#2AA198">&#x27;hidden&#x27;</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">  },</span></span>
+<span class="line"><span style="color:#657B83">});</span></span></code></pre></div>
+<h3>Options in depth</h3>
+<details><summary><p>This is a in depth topic. Click here to read it.</p></summary><br/><p>The default options are:</p><div data-rehype-pretty-code-fragment=""><pre><code data-language="js" data-theme="default"><span class="line"><span style="color:#586E75;font-style:italic">const</span><span style="color:#657B83"> </span><span style="color:#268BD2">defaultOptions</span><span style="color:#657B83"> </span><span style="color:#859900">=</span><span style="color:#657B83"> {</span></span>
+<span class="line"><span style="color:#657B83">  paddingAbsolute: </span><span style="color:#B58900">false</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">  showNativeOverlaidScrollbars: </span><span style="color:#B58900">false</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">  update: {</span></span>
+<span class="line"><span style="color:#657B83">    elementEvents: [[</span><span style="color:#2AA198">&#x27;img&#x27;</span><span style="color:#657B83">, </span><span style="color:#2AA198">&#x27;load&#x27;</span><span style="color:#657B83">]],</span></span>
+<span class="line"><span style="color:#657B83">    debounce: [</span><span style="color:#D33682">0</span><span style="color:#657B83">, </span><span style="color:#D33682">33</span><span style="color:#657B83">],</span></span>
+<span class="line"><span style="color:#657B83">    attributes: </span><span style="color:#B58900">null</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">    ignoreMutation: </span><span style="color:#B58900">null</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">  },</span></span>
+<span class="line"><span style="color:#657B83">  overflow: {</span></span>
+<span class="line"><span style="color:#657B83">    x: </span><span style="color:#2AA198">&#x27;scroll&#x27;</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">    y: </span><span style="color:#2AA198">&#x27;scroll&#x27;</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">  },</span></span>
+<span class="line"><span style="color:#657B83">  scrollbars: {</span></span>
+<span class="line"><span style="color:#657B83">    theme: </span><span style="color:#2AA198">&#x27;os-theme-dark&#x27;</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">    visibility: </span><span style="color:#2AA198">&#x27;auto&#x27;</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">    autoHide: </span><span style="color:#2AA198">&#x27;never&#x27;</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">    autoHideDelay: </span><span style="color:#D33682">1300</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">    dragScroll: </span><span style="color:#B58900">true</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">    clickScroll: </span><span style="color:#B58900">false</span><span style="color:#657B83">,</span></span>
+<span class="line"><span style="color:#657B83">    pointers: [</span><span style="color:#2AA198">&#x27;mouse&#x27;</span><span style="color:#657B83">, </span><span style="color:#2AA198">&#x27;touch&#x27;</span><span style="color:#657B83">, </span><span style="color:#2AA198">&#x27;pen&#x27;</span><span style="color:#657B83">],</span></span>
+<span class="line"><span style="color:#657B83">  },</span></span>
+<span class="line"><span style="color:#657B83">};</span></span></code></pre></div><h3><code>paddingAbsolute</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>boolean</code></td><td align="left"><code>false</code></td></tr></tbody></table><p>Indicates whether the padding for the content shall be absolute.</p><h3><code>showNativeOverlaidScrollbars</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>boolean</code></td><td align="left"><code>false</code></td></tr></tbody></table><p>Indicates whether the native overlaid scrollbars shall be visible.</p><h3><code>update.elementEvents</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>Array&lt;[string, string]&gt; | null</code></td><td align="left"><code>[[&#x27;img&#x27;, &#x27;load&#x27;]]</code></td></tr></tbody></table><p>An array of tuples. The first value in the tuple is an <code>selector</code> and the second value are <code>event names</code>. The plugin will update itself if any of the elements with the specified selector will emit any specified event. The default value can be interpreted as &quot;The plugin will update itself if any <code>img</code> element emits an <code>load</code> event.&quot;</p><h3><code>update.debounce</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>[number, number] | number | null</code></td><td align="left"><code>[0, 33]</code></td></tr></tbody></table><blockquote>
+<p><strong>Note</strong>: If 0 is used for the timeout, <code>requestAnimationFrame</code> instead of <code>setTimeout</code> is used for the debounce.</p>
+</blockquote><p>Debounces the <code>MutationObserver</code> which tracks changes to the content. If a <strong>tuple</strong> is passed, the first value is the timeout and second is the max wait. If only a <strong>number</strong> is passed you specify only the timeout and there is no max wait. With <strong>null</strong> there is no debounce. <strong>Usefull to fine-tune performance.</strong></p><h3><code>update.attributes</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>string[] | null</code></td><td align="left"><code>null</code></td></tr></tbody></table><blockquote>
+<p><strong>Note</strong>: There is a base array of attributes that the <code>MutationObserver</code> always observes, even if this option is <code>null</code>.</p>
+</blockquote><p>An array of additional attributes that the <code>MutationObserver</code> should observe for the content.</p><h3><code>update.ignoreMutation</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>((mutation) =&gt; any) | null</code></td><td align="left"><code>null</code></td></tr></tbody></table><p>A function which receives a <a href="https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord"><code>MutationRecord</code></a> as an argument. If the function returns a truthy value the mutation will be ignored and the plugin won&#x27;t update. <strong>Usefull to fine-tune performance.</strong></p><h3><code>overflow.x</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>string</code></td><td align="left"><code>&#x27;scroll&#x27;</code></td></tr></tbody></table><blockquote>
+<p><strong>Note</strong>: Valid values are: <code>&#x27;hidden&#x27;</code>, <code>&#x27;scroll&#x27;</code>, <code>&#x27;visible&#x27;</code>, <code>&#x27;visible-hidden&#x27;</code> and <code>&#x27;visible-scroll&#x27;</code>.</p>
+</blockquote><p>The overflow behavior for the horizontal (x) axis.</p><h3><code>overflow.y</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>string</code></td><td align="left"><code>&#x27;scroll&#x27;</code></td></tr></tbody></table><blockquote>
+<p><strong>Note</strong>: Valid values are: <code>&#x27;hidden&#x27;</code>, <code>&#x27;scroll&#x27;</code>, <code>&#x27;visible&#x27;</code>, <code>&#x27;visible-hidden&#x27;</code> and <code>&#x27;visible-scroll&#x27;</code>.</p>
+</blockquote><p>The overflow behavior for the vertical (y) axis.</p><h3><code>scrollbars.theme</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>string | null</code></td><td align="left"><code>&#x27;os-theme-dark&#x27;</code></td></tr></tbody></table><p>Applies the specified theme (classname) to the scrollbars.</p><h3><code>scrollbars.visibility</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>string</code></td><td align="left"><code>&#x27;auto&#x27;</code></td></tr></tbody></table><blockquote>
+<p><strong>Note</strong>: Valid values are: <code>&#x27;visible&#x27;</code>, <code>&#x27;hidden&#x27;</code>, and <code>&#x27;auto&#x27;</code>.</p>
+</blockquote><p>The base visibility of the scrollbars.</p><h3><code>scrollbars.autoHide</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>string</code></td><td align="left"><code>&#x27;never&#x27;</code></td></tr></tbody></table><blockquote>
+<p><strong>Note</strong>: Valid values are: <code>&#x27;never&#x27;</code>, <code>&#x27;scroll&#x27;</code>, <code>&#x27;leave&#x27;</code> and <code>&#x27;move&#x27;</code>.</p>
+</blockquote><p>The possibility to hide visible scrollbars automatically after a certain user action.</p><h3><code>scrollbars.autoHideDelay</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>number</code></td><td align="left"><code>1300</code></td></tr></tbody></table><p>The delay in milliseconds before the scrollbars are hidden automatically.</p><h3><code>scrollbars.dragScroll</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>boolean</code></td><td align="left"><code>true</code></td></tr></tbody></table><p>Indicates whether you can drag the scrollbar handles for scrolling.</p><h3><code>scrollbars.clickScroll</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>boolean</code></td><td align="left"><code>false</code></td></tr></tbody></table><p>Indicates whether you can click on the scrollbar track for scrolling.</p><h3><code>scrollbars.pointers</code></h3><table><thead><tr><th align="left">type</th><th align="left">default</th></tr></thead><tbody><tr><td align="left"><code>string[] | null</code></td><td align="left"><code>[&#x27;mouse&#x27;, &#x27;touch&#x27;, &#x27;pen&#x27;]</code></td></tr></tbody></table><p>The <a href="https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pointerType"><code>PointerTypes</code></a> the plugin should react to.</p></details>
+<h2>Events</h2>
+<p>You can initialize OverlayScrollbars with an initial set of events, which can be managed at any time with the <code>on</code> and <code>off</code> methods:</p>
+<div data-rehype-pretty-code-fragment=""><pre><code data-language="js" data-theme="default"><span class="line"><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">(</span><span style="color:#268BD2">document</span><span style="color:#657B83">.</span><span style="color:#268BD2">querySelector</span><span style="color:#657B83">(</span><span style="color:#2AA198">&#x27;#myElement&#x27;</span><span style="color:#657B83">), {}, {</span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">updated</span><span style="color:#657B83">(osInstance, onUpdatedArgs) {</span></span>
+<span class="line"><span style="color:#657B83">    </span><span style="color:#93A1A1">// ...</span></span>
+<span class="line"><span style="color:#657B83">  }</span></span>
+<span class="line"><span style="color:#657B83">});</span></span></code></pre></div>
+<h3>Events in depth</h3>
+<details><summary><p>This is a in depth topic. Click here to read it.</p></summary><br/><blockquote>
+<p><strong>Note</strong>: Every event receives the <code>instance</code> from which it was invoked as the first argument. Always.</p>
+</blockquote><h3><code>initialized</code></h3><table><thead><tr><th align="left">arguments</th><th align="left">description</th></tr></thead><tbody><tr><td align="left"><code>instance</code></td><td align="left">The instance which invoked the event.</td></tr></tbody></table><p>Is invoked after all generated elements, observers and events were appended to the DOM.</p><h3><code>updated</code></h3><table><thead><tr><th align="left">arguments</th><th align="left">description</th></tr></thead><tbody><tr><td align="left"><code>instance</code></td><td align="left">The instance which invoked the event.</td></tr><tr><td align="left"><code>onUpdatedArgs</code></td><td align="left">An <code>object</code> which describes the update in detail.</td></tr></tbody></table><blockquote>
+<p><strong>Note</strong>: If an update was triggered but nothing changed, the event won&#x27;t be invoked.</p>
+</blockquote><p>Is invoked after the instace was updated.</p><h3><code>destroyed</code></h3><table><thead><tr><th align="left">arguments</th><th align="left">description</th></tr></thead><tbody><tr><td align="left"><code>instance</code></td><td align="left">The instance which invoked the event.</td></tr><tr><td align="left"><code>canceled</code></td><td align="left">An <code>boolean</code> which indicates whether the initialization was canceled and thus destroyed.</td></tr></tbody></table><p>Is invoked after all generated elements, observers and events were removed from the DOM.</p><h3><code>scroll</code></h3><table><thead><tr><th align="left">arguments</th><th align="left">description</th></tr></thead><tbody><tr><td align="left"><code>instance</code></td><td align="left">The instance which invoked the event.</td></tr><tr><td align="left"><code>event</code></td><td align="left">The original <code>event</code> argument of the DOM event.</td></tr></tbody></table><p>Is invoked by scrolling the viewport.</p></details>
+<h2>Instance</h2>
+<blockquote>
+<p><strong>Note</strong>: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.</p>
+</blockquote>
+<div data-rehype-pretty-code-fragment=""><pre><code data-language="ts" data-theme="default"><span class="line"><span style="color:#586E75;font-style:italic">interface</span><span style="color:#657B83"> </span><span style="color:#CB4B16">OverlayScrollbars</span><span style="color:#657B83"> {</span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">options</span><span style="color:#657B83">()</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">Options</span><span style="color:#657B83">;</span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">options</span><span style="color:#657B83">(newOptions</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">PartialOptions</span><span style="color:#657B83">, pure</span><span style="color:#859900">?:</span><span style="color:#657B83"> </span><span style="color:#859900">boolean</span><span style="color:#657B83">)</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">Options</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">on</span><span style="color:#657B83">(eventListeners</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListeners</span><span style="color:#657B83">, pure</span><span style="color:#859900">?:</span><span style="color:#657B83"> </span><span style="color:#859900">boolean</span><span style="color:#657B83">)</span><span style="color:#859900">:</span><span style="color:#657B83"> () </span><span style="color:#586E75;font-style:italic">=&gt;</span><span style="color:#657B83"> </span><span style="color:#859900">void</span><span style="color:#657B83">;</span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">on</span><span style="color:#657B83">&lt;</span><span style="color:#CB4B16">N</span><span style="color:#657B83"> </span><span style="color:#586E75;font-style:italic">extends</span><span style="color:#657B83"> </span><span style="color:#859900">keyof</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListenerArgs</span><span style="color:#657B83">&gt;(name</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">N</span><span style="color:#657B83">, listener</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListener</span><span style="color:#657B83">&lt;</span><span style="color:#CB4B16">N</span><span style="color:#657B83">&gt;)</span><span style="color:#859900">:</span><span style="color:#657B83"> () </span><span style="color:#586E75;font-style:italic">=&gt;</span><span style="color:#657B83"> </span><span style="color:#859900">void</span><span style="color:#657B83">;</span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">on</span><span style="color:#657B83">&lt;</span><span style="color:#CB4B16">N</span><span style="color:#657B83"> </span><span style="color:#586E75;font-style:italic">extends</span><span style="color:#657B83"> </span><span style="color:#859900">keyof</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListenerArgs</span><span style="color:#657B83">&gt;(name</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">N</span><span style="color:#657B83">, listener</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListener</span><span style="color:#657B83">&lt;</span><span style="color:#CB4B16">N</span><span style="color:#657B83">&gt;[])</span><span style="color:#859900">:</span><span style="color:#657B83"> () </span><span style="color:#586E75;font-style:italic">=&gt;</span><span style="color:#657B83"> </span><span style="color:#859900">void</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">off</span><span style="color:#657B83">&lt;</span><span style="color:#CB4B16">N</span><span style="color:#657B83"> </span><span style="color:#586E75;font-style:italic">extends</span><span style="color:#657B83"> </span><span style="color:#859900">keyof</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListenerArgs</span><span style="color:#657B83">&gt;(name</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">N</span><span style="color:#657B83">, listener</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListener</span><span style="color:#657B83">&lt;</span><span style="color:#CB4B16">N</span><span style="color:#657B83">&gt;)</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#859900">void</span><span style="color:#657B83">;</span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">off</span><span style="color:#657B83">&lt;</span><span style="color:#CB4B16">N</span><span style="color:#657B83"> </span><span style="color:#586E75;font-style:italic">extends</span><span style="color:#657B83"> </span><span style="color:#859900">keyof</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListenerArgs</span><span style="color:#657B83">&gt;(name</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">N</span><span style="color:#657B83">, listener</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListener</span><span style="color:#657B83">&lt;</span><span style="color:#CB4B16">N</span><span style="color:#657B83">&gt;[])</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#859900">void</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">update</span><span style="color:#657B83">(force</span><span style="color:#859900">?:</span><span style="color:#657B83"> </span><span style="color:#859900">boolean</span><span style="color:#657B83">)</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#859900">boolean</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">state</span><span style="color:#657B83">()</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">State</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">elements</span><span style="color:#657B83">()</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">Elements</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">destroy</span><span style="color:#657B83">()</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#859900">void</span><span style="color:#657B83">;</span></span>
+<span class="line"><span style="color:#657B83">}</span></span></code></pre></div>
+<h2>Static Methods</h2>
+<blockquote>
+<p><strong>Note</strong>: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.</p>
+</blockquote>
+<div data-rehype-pretty-code-fragment=""><pre><code data-language="ts" data-theme="default"><span class="line"><span style="color:#586E75;font-style:italic">interface</span><span style="color:#657B83"> </span><span style="color:#CB4B16">OverlayScrollbarsStatic</span><span style="color:#657B83"> {</span></span>
+<span class="line"><span style="color:#657B83">  (target</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">InitializationTarget</span><span style="color:#657B83">)</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">OverlayScrollbars</span><span style="color:#657B83"> </span><span style="color:#859900">|</span><span style="color:#657B83"> </span><span style="color:#859900">undefined</span><span style="color:#657B83">;</span></span>
+<span class="line"><span style="color:#657B83">  (target</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">InitializationTarget</span><span style="color:#657B83">, options</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">PartialOptions</span><span style="color:#657B83">, eventListeners</span><span style="color:#859900">?:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">EventListeners</span><span style="color:#657B83">)</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">OverlayScrollbars</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">plugin</span><span style="color:#657B83">(plugin</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">Plugin</span><span style="color:#657B83"> </span><span style="color:#859900">|</span><span style="color:#657B83"> </span><span style="color:#CB4B16">Plugin</span><span style="color:#657B83">[])</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#859900">void</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">valid</span><span style="color:#657B83">(osInstance</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#859900">any</span><span style="color:#657B83">)</span><span style="color:#859900">:</span><span style="color:#657B83"> osInstance </span><span style="color:#859900">is</span><span style="color:#657B83"> </span><span style="color:#CB4B16">OverlayScrollbars</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">env</span><span style="color:#657B83">()</span><span style="color:#859900">:</span><span style="color:#657B83"> </span><span style="color:#CB4B16">Environment</span><span style="color:#657B83">;</span></span>
+<span class="line"><span style="color:#657B83">}</span></span></code></pre></div>
+<h2>Plugins</h2>
+<p>Everything thats considered not core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are treeshaken and thus won&#x27;t end up in your final bundle. OverlayScrollbars comes with the following plugins:</p>
+<ul>
+<li><strong>ScrollbarsHidingPlugin</strong>: Is needed for old browsers which aren&#x27;t supporting nativ scrollbar styling features. <a href="https://caniuse.com/?search=scrollbar%20styling">You can find the list of browsers where you need this plugin here</a> (note that even though <code>iOS Safari &gt;= 14</code> is marked as unsupported you only need this plugin for <code>iOS &lt; 7.1</code>).</li>
+<li><strong>SizeObserverPlugin</strong>: Is needed for old browsers which aren&#x27;t supporting the <code>ResizeObserver</code> api. <a href="https://caniuse.com/?search=ResizeObserver">You can find the list of browsers where you need this plugin here</a></li>
+<li><strong>ClickScrollPlugin</strong>: If you want to use the option <code>scrollbars: { clickScroll: true }</code>.</li>
+</ul>
+<h3>Consuming Plugins</h3>
+<p>Plugins are consumed like:</p>
+<div data-rehype-pretty-code-fragment=""><pre><code data-language="ts" data-theme="default"><span class="line"><span style="color:#859900">import</span><span style="color:#657B83"> { </span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">, </span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">ScrollbarsHidingPlugin</span><span style="color:#657B83">, </span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">SizeObserverPlugin</span><span style="color:#657B83">, </span></span>
+<span class="line"><span style="color:#657B83">  </span><span style="color:#268BD2">ClickScrollPlugin</span><span style="color:#657B83"> </span></span>
+<span class="line"><span style="color:#657B83">} </span><span style="color:#859900">from</span><span style="color:#657B83"> </span><span style="color:#2AA198">&#x27;overlayscrollbars&#x27;</span><span style="color:#657B83">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#93A1A1">// single plugin</span></span>
+<span class="line"><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">.</span><span style="color:#268BD2">plugin</span><span style="color:#657B83">(</span><span style="color:#268BD2">ScrollbarsHidingPlugin</span><span style="color:#657B83">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#93A1A1">// multiple plugins</span></span>
+<span class="line"><span style="color:#268BD2">OverlayScrollbars</span><span style="color:#657B83">.</span><span style="color:#268BD2">plugin</span><span style="color:#657B83">([</span><span style="color:#268BD2">SizeObserverPlugin</span><span style="color:#657B83">, </span><span style="color:#268BD2">ClickScrollPlugin</span><span style="color:#657B83">]);</span></span></code></pre></div>
+<h3>Writing Plugins</h3>
+<blockquote>
+<p><strong>Note</strong>: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.</p>
+</blockquote>
+<p>You can write and publish your own Plugins. This section is a work in progress.</p>
+<h2>Feature comparison to <code>v1</code></h2>
+<ul>
+<li>The <code>scroll</code> function is missing. Planned as a <code>plugin</code>. (WIP)</li>
+<li>Initialization to the <code>textarea</code> element isn&#x27;t supported yet. Planned as a <code>plugin</code>. (WIP)</li>
+</ul>
+<h2>Future Plans</h2>
+<ul>
+<li>Provide plugin based support for missing features. (treeshakeable)</li>
+<li>Frequent updates in terms of bug-fixes and enhancements. (always use latest browser features)</li>
+<li>Improve tests. (unit &amp; browser tests)</li>
+</ul>
+<h2>License</h2>
+<p>MIT</p></div></div></div></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{}},"page":"/","query":{},"buildId":"uqKydCxGYhRFcO96IxR_Z","assetPrefix":"/OverlayScrollbars","nextExport":true,"autoExport":true,"isFallback":false,"scriptLoader":[]}</script></body></html>
