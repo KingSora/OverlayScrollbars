@@ -78,7 +78,7 @@ const IndexPage: NextPage = () => {
         detailed documentation.
         <br />
         Looking for the v1 docs?{' '}
-        <a href="/v1" className="text-primary-blue2 underline">
+        <a href="v1" className="text-primary-blue2 underline">
           Follow this link
         </a>
         .
