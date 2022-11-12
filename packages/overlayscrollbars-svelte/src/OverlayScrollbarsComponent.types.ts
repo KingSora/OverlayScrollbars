@@ -1,6 +1,7 @@
 import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlayscrollbars';
 
-export interface OverlayScrollbarsComponentProps {
+// Use "$" at the end so the type doesn't collide with generated type by svelte
+export interface OverlayScrollbarsComponentProps$ {
   element?: string;
   options?: PartialOptions | false | null;
   events?: EventListeners | false | null;

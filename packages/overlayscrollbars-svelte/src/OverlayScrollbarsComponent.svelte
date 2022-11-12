@@ -2,20 +2,20 @@
   import { onMount, afterUpdate, createEventDispatcher } from 'svelte';
   import { OverlayScrollbars } from 'overlayscrollbars';
   import type { EventListeners, EventListenerArgs } from 'overlayscrollbars';
-  import type { OverlayScrollbarsComponentProps, OverlayScrollbarsComponentRef } from './OverlayScrollbarsComponent.types';
+  import type { OverlayScrollbarsComponentProps$, OverlayScrollbarsComponentRef } from './OverlayScrollbarsComponent.types';
 
   type EmitEventsMap = {
     [N in keyof EventListenerArgs]: `os${Capitalize<N>}`;
   };
 
-  export let element: OverlayScrollbarsComponentProps["element"] = 'div';
-  export let options: OverlayScrollbarsComponentProps["options"] = undefined;
-  export let events: OverlayScrollbarsComponentProps["events"] = undefined;
+  export let element: OverlayScrollbarsComponentProps$["element"] = 'div';
+  export let options: OverlayScrollbarsComponentProps$["options"] = undefined;
+  export let events: OverlayScrollbarsComponentProps$["events"] = undefined;
 
   let instance: OverlayScrollbars | null = null;
   let elementRef: HTMLElement | null = null;
   let slotRef: HTMLElement | null = null;
-  let combinedEvents: OverlayScrollbarsComponentProps["events"] = undefined;
+  let combinedEvents: OverlayScrollbarsComponentProps$["events"] = undefined;
   let prevElement: string | undefined;
 
   const initialize = () => {
