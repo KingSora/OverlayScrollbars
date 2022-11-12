@@ -3,7 +3,7 @@ import { cleanup, render, screen, fireEvent } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from '~/index'; // eslint-disable-line import/named
-import type { OverlayScrollbarsComponentRef } from '~/OverlayScrollbarsComponent.types'; // eslint-disable-line import/named
+import type { OverlayScrollbarsComponentRef$ } from '~/OverlayScrollbarsComponent.types'; // eslint-disable-line import/named
 import Test from './Test.svelte';
 
 /**
@@ -129,7 +129,7 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('ref', () => {
-    let osRef: OverlayScrollbarsComponentRef | undefined;
+    let osRef: OverlayScrollbarsComponentRef$ | undefined;
     const { container } = render(Test, {
       props: {
         getRef: (ref: any) => {
@@ -149,7 +149,7 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('options', async () => {
-    let osRef: OverlayScrollbarsComponentRef | undefined;
+    let osRef: OverlayScrollbarsComponentRef$ | undefined;
     render(Test, {
       props: {
         options: { paddingAbsolute: true, overflow: { y: 'hidden' } },
@@ -219,7 +219,7 @@ describe('OverlayScrollbarsComponent', () => {
   test('events', async () => {
     const onUpdatedInitial = vitest.fn();
     const onUpdated = vitest.fn();
-    let osRef: OverlayScrollbarsComponentRef | undefined;
+    let osRef: OverlayScrollbarsComponentRef$ | undefined;
     render(Test, {
       props: {
         events: { updated: onUpdatedInitial },
@@ -304,7 +304,7 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('destroy', () => {
-    let osRef: OverlayScrollbarsComponentRef | undefined;
+    let osRef: OverlayScrollbarsComponentRef$ | undefined;
     const { unmount } = render(Test, {
       props: {
         getRef(ref: any) {

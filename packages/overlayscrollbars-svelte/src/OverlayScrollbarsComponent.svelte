@@ -2,7 +2,7 @@
   import { onMount, afterUpdate, createEventDispatcher } from 'svelte';
   import { OverlayScrollbars } from 'overlayscrollbars';
   import type { EventListeners, EventListenerArgs } from 'overlayscrollbars';
-  import type { OverlayScrollbarsComponentProps$, OverlayScrollbarsComponentRef } from './OverlayScrollbarsComponent.types';
+  import type { OverlayScrollbarsComponentProps$, OverlayScrollbarsComponentRef$ } from './OverlayScrollbarsComponent.types';
 
   type EmitEventsMap = {
     [N in keyof EventListenerArgs]: `os${Capitalize<N>}`;
@@ -47,8 +47,8 @@
     osScroll: EventListenerArgs["scroll"];
   }>();
 
-  export const osInstance: OverlayScrollbarsComponentRef["osInstance"] = () => instance;
-  export const getElement: OverlayScrollbarsComponentRef["getElement"] = () => elementRef;
+  export const osInstance: OverlayScrollbarsComponentRef$["osInstance"] = () => instance;
+  export const getElement: OverlayScrollbarsComponentRef$["getElement"] = () => elementRef;
 
   onMount(initialize);
 
