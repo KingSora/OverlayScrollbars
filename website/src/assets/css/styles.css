@@ -17,14 +17,6 @@
   font-style: normal;
 }
 
-/* disable ios bounce on overscroll */
-html,
-body,
-.os-viewport,
-[data-overlayscrollbars='viewport'] {
-  overscroll-behavior: none;
-}
-
 /* elements wont be suddenly cropped after initialization is done */
 [data-overlayscrollbars-initialize]:not([data-overlayscrollbars]):not(html) {
   overflow: auto;
