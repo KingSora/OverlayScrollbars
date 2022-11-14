@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://kingsora.github.io/OverlayScrollbars">
-    <a href="https://kingsora.github.io/OverlayScrollbars"><img src="https://kingsora.github.io/OverlayScrollbars/design/logo.svg" width="200" height="133" alt="OverlayScrollbars"></a>
+    <a href="https://kingsora.github.io/OverlayScrollbars"><img src="https://kingsora.github.io/OverlayScrollbars/v1/design/logo.svg" width="200" height="133" alt="OverlayScrollbars"></a>
   </a>
 </p>
 <h6 align="center">
@@ -47,7 +47,7 @@ I've created this plugin because I hate ugly and space consuming scrollbars. Sim
 
 OverlayScrollbars provides its own wrapper components for popular component-based front-end frameworks:
 
-<img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/react/logo.svg" width="80" height="80" alt="React">
+<img align="left" src="https://kingsora.github.io/OverlayScrollbars/v1/frameworks/react/logo.svg" width="80" height="80" alt="React">
 
 
 <a href="https://www.npmjs.com/package/overlayscrollbars-react"><img src="https://img.shields.io/npm/v/overlayscrollbars-react.svg?style=flat-square" alt="Version"></a>
@@ -58,7 +58,7 @@ OverlayScrollbars provides its own wrapper components for popular component-base
 npm install overlayscrollbars-react
 ```
 
-<img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/vue/logo.svg" width="80" height="80" alt="Vue">
+<img align="left" src="https://kingsora.github.io/OverlayScrollbars/v1/frameworks/vue/logo.svg" width="80" height="80" alt="Vue">
 
 <a href="https://www.npmjs.com/package/overlayscrollbars-vue"><img src="https://img.shields.io/npm/v/overlayscrollbars-vue.svg?style=flat-square" alt="Version"></a>
 <a href="https://www.npmjs.com/package/overlayscrollbars-vue"><img src="https://img.shields.io/npm/dt/overlayscrollbars-vue.svg?style=flat-square" alt="Downloads"></a>
@@ -68,7 +68,7 @@ npm install overlayscrollbars-react
 npm install overlayscrollbars-vue
 ```
 
-<img align="left" src="https://kingsora.github.io/OverlayScrollbars/frameworks/angular/logo.svg" width="80" height="80" alt="Angular">
+<img align="left" src="https://kingsora.github.io/OverlayScrollbars/v1/frameworks/angular/logo.svg" width="80" height="80" alt="Angular">
 
 <a href="https://www.npmjs.com/package/overlayscrollbars-ngx"><img src="https://img.shields.io/npm/v/overlayscrollbars-ngx.svg?style=flat-square" alt="Version"></a>
 <a href="https://www.npmjs.com/package/overlayscrollbars-ngx"><img src="https://img.shields.io/npm/dt/overlayscrollbars-ngx.svg?style=flat-square" alt="Downloads"></a>
