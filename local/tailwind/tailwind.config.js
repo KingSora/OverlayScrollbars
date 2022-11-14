@@ -70,6 +70,7 @@ module.exports = {
               fontWeight: theme('fontWeight.medium'),
               padding: theme('padding[1]'),
               borderRadius: theme('borderRadius.md'),
+              overflowWrap: 'break-word',
             },
             'code::before': {
               content: '',
@@ -78,11 +79,11 @@ module.exports = {
               content: '',
             },
             'summary > *:only-child,': {
-              display: 'inline-block',
+              display: 'inline',
               margin: 0,
             },
             summary: {
-              display: 'inline list-item',
+              display: 'list-item',
               cursor: 'pointer',
             },
           },

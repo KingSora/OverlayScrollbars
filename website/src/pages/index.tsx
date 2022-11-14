@@ -36,18 +36,22 @@ const IndexPage: NextPage = () => {
     <PageContainer className="px-6">
       <div className="mt-8 flex justify-center items-center h-[33vh] min-h-32 max-h-40 xxs:max-h-44">
         <div className={classnames('h-full', styles.logo)}>
-          <img src={logo.src} className="h-full" alt="Overlay Scrollbars Logo" />
+          <img src={logo.src} className="h-full" alt="OverlayScrollbars Logo" />
         </div>
       </div>
-      <h1 className="text-center xxs:text-4xl text-2xl font-bold my-11">Overlay Scrollbars</h1>
+      <h1 className="text-center xxs:text-4xl text-2xl font-bold my-11">
+        Overlay
+        <wbr />
+        Scrollbars
+      </h1>
       <p className="text-center mx-auto max-w-screen-sm my-11 font-medium">
         A javascript scrollbar plugin that hides native scrollbars, provides custom styleable
         overlay scrollbars and keeps the native functionality and feeling.
       </p>
       {separator('used by')}
       <div ref={usedByRef}>
-        <div className="flex my-7 justify-center">
-          <div className={classnames('inline-flex  items-center gap-6 py-4', styles.usedBy)}>
+        <div className="flex justify-center">
+          <div className={classnames('inline-flex  items-center gap-6 py-6', styles.usedBy)}>
             <div
               className="h-11 px-3 flex-grow flex-shrink-0"
               style={{ filter: 'brightness(0.35)' }}>
