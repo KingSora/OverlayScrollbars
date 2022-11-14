@@ -10,15 +10,15 @@
     <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square" alt="License"></a>
 </h6>
 <h3 align="center">
-    <a href="https://kingsora.github.io/OverlayScrollbars">Website</a>
+    <a href="https://kingsora.github.io/OverlayScrollbars/v1">Website</a>
     &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-    <a href="https://kingsora.github.io/OverlayScrollbars/#!documentation">Documentation</a>
+    <a href="https://kingsora.github.io/OverlayScrollbars/v1/#!documentation">Documentation</a>
     &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-    <a href="https://kingsora.github.io/OverlayScrollbars/#!demos">Demos</a>
+    <a href="https://kingsora.github.io/OverlayScrollbars/v1/#!demos">Demos</a>
     &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-    <a href="https://kingsora.github.io/OverlayScrollbars/#!extensions">Extensions</a>
+    <a href="https://kingsora.github.io/OverlayScrollbars/v1/#!extensions">Extensions</a>
     &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-    <a href="https://kingsora.github.io/OverlayScrollbars/#!faq">FAQ</a>
+    <a href="https://kingsora.github.io/OverlayScrollbars/v1/#!faq">FAQ</a>
 </h3>
 
 > OverlayScrollbars is a javascript scrollbar plugin which hides native scrollbars, provides
