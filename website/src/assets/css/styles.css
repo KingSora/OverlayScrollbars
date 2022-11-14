@@ -3,18 +3,21 @@
   src: url('~/assets/font/noto_sans/NotoSans-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
   font-family: Noto Sans;
   src: url('~/assets/font/noto_sans/NotoSans-SemiBold.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
   font-family: Noto Sans;
   src: url('~/assets/font/noto_sans/NotoSans-ExtraBold.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
+  font-display: swap;
 }
 
 /* elements wont be suddenly cropped after initialization is done */

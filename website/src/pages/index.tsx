@@ -1,6 +1,6 @@
 import classnames from 'classnames';
 import { useEffect, useRef } from 'react';
-import { OverlayScrollbars } from 'overlayscrollbars';
+import { useOverlayScrollbarsIdle } from '~/hooks/useOverlayScrollbarsIdle';
 import { PageContainer } from '~/components/PageContainer';
 import { Icon } from '~/components/Icon';
 import logo from '~/assets/img/logo.svg';
@@ -24,11 +24,12 @@ const separator = (children: ReactNode) => (
 
 const IndexPage: NextPage = () => {
   const usedByRef = useRef<HTMLDivElement | null>(null);
+  const [initialize, instance] = useOverlayScrollbarsIdle();
 
   useEffect(() => {
     if (usedByRef.current) {
-      const instance = OverlayScrollbars(usedByRef.current, {});
-      return () => instance.destroy();
+      initialize(usedByRef.current);
+      return () => instance()?.destroy();
     }
   }, []);
 
@@ -36,7 +37,13 @@ const IndexPage: NextPage = () => {
     <PageContainer className="px-6">
       <div className="mt-8 flex justify-center items-center h-[33vh] min-h-32 max-h-40 xxs:max-h-44">
         <div className={classnames('h-full', styles.logo)}>
-          <img src={logo.src} className="h-full" alt="OverlayScrollbars Logo" />
+          <img
+            src={logo.src}
+            className="h-full"
+            alt="OverlayScrollbars Logo"
+            width="200"
+            height="200"
+          />
         </div>
       </div>
       <h1 className="text-center xxs:text-4xl text-2xl font-bold my-11">
@@ -49,7 +56,7 @@ const IndexPage: NextPage = () => {
         overlay scrollbars and keeps the native functionality and feeling.
       </p>
       {separator('used by')}
-      <div ref={usedByRef}>
+      <div ref={usedByRef} data-overlayscrollbars-initialize>
         <div className="flex justify-center">
           <div className={classnames('inline-flex  items-center gap-6 py-6', styles.usedBy)}>
             <div

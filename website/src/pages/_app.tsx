@@ -2,9 +2,9 @@ import '~/assets/css/tailwind.css';
 import '~/assets/css/styles.css';
 import 'overlayscrollbars/overlayscrollbars.css';
 import { useEffect } from 'react';
-import { OverlayScrollbars } from 'overlayscrollbars';
 import Head from 'next/head';
 import { MDXProvider } from '@mdx-js/react';
+import { useOverlayScrollbarsIdle } from '~/hooks/useOverlayScrollbarsIdle';
 import favicon from '~/assets/favicon.ico';
 import { Pre } from '~/components/md/Pre';
 import { Heading } from '~/components/md/Heading';
@@ -18,10 +18,11 @@ const generateHeading = (props: ComponentProps<'h1'>, tag: HeadingProps['tag']) 
 );
 
 const OverlayScrollbarsDocs = ({ Component, pageProps }: AppProps) => {
+  const [initialize, instance] = useOverlayScrollbarsIdle();
+
   useEffect(() => {
-    const bodyInstance = OverlayScrollbars(document.body, {});
-    // @ts-ignore
-    window.osBody = bodyInstance;
+    initialize(document.body);
+    return () => instance()?.destroy();
   }, []);
 
   return (

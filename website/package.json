@@ -12,6 +12,7 @@
     "classnames": "^2.3.2",
     "next": "12.3.1",
     "overlayscrollbars": "file:./../packages/overlayscrollbars/dist",
+    "overlayscrollbars-react": "file:./../packages/overlayscrollbars-react/dist",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
