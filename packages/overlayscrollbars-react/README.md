@@ -74,7 +74,7 @@ Additionally it has three optional properties: `element`, `options` and `events`
 
 > __Note__: None of the properties has to be memoized.
 
-> __Note__: Its **highly recommended** to use the `defer` option whenever possible to defer the initialization of the component to a browser's idle period.
+> __Note__: Its **highly recommended** to use the `defer` option whenever possible to defer the initialization to a browser's idle period.
 
 ```jsx
 // example usage
