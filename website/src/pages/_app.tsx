@@ -4,7 +4,7 @@ import 'overlayscrollbars/overlayscrollbars.css';
 import { useEffect } from 'react';
 import Head from 'next/head';
 import { MDXProvider } from '@mdx-js/react';
-import { useOverlayScrollbarsIdle } from '~/hooks/useOverlayScrollbarsIdle';
+import { useOverlayScrollbars } from 'overlayscrollbars-react';
 import favicon from '~/assets/favicon.ico';
 import { Pre } from '~/components/md/Pre';
 import { Heading } from '~/components/md/Heading';
@@ -18,7 +18,7 @@ const generateHeading = (props: ComponentProps<'h1'>, tag: HeadingProps['tag']) 
 );
 
 const OverlayScrollbarsDocs = ({ Component, pageProps }: AppProps) => {
-  const [initialize, instance] = useOverlayScrollbarsIdle();
+  const [initialize, instance] = useOverlayScrollbars({ defer: true });
 
   useEffect(() => {
     initialize(document.body);

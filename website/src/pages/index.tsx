@@ -1,6 +1,5 @@
 import classnames from 'classnames';
-import { useEffect, useRef } from 'react';
-import { useOverlayScrollbarsIdle } from '~/hooks/useOverlayScrollbarsIdle';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { PageContainer } from '~/components/PageContainer';
 import { Icon } from '~/components/Icon';
 import logo from '~/assets/img/logo.svg';
@@ -23,16 +22,6 @@ const separator = (children: ReactNode) => (
 );
 
 const IndexPage: NextPage = () => {
-  const usedByRef = useRef<HTMLDivElement | null>(null);
-  const [initialize, instance] = useOverlayScrollbarsIdle();
-
-  useEffect(() => {
-    if (usedByRef.current) {
-      initialize(usedByRef.current);
-      return () => instance()?.destroy();
-    }
-  }, []);
-
   return (
     <PageContainer className="px-6">
       <div className="mt-8 flex justify-center items-center h-[33vh] min-h-32 max-h-40 xxs:max-h-44">
@@ -56,7 +45,7 @@ const IndexPage: NextPage = () => {
         overlay scrollbars and keeps the native functionality and feeling.
       </p>
       {separator('used by')}
-      <div ref={usedByRef} data-overlayscrollbars-initialize>
+      <OverlayScrollbarsComponent>
         <div className="flex justify-center">
           <div className={classnames('inline-flex  items-center gap-6 py-6', styles.usedBy)}>
             <div
@@ -72,7 +61,7 @@ const IndexPage: NextPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </OverlayScrollbarsComponent>
 
       {separator(
         <a href="https://github.com/KingSora/OverlayScrollbars" target="_blank" rel="noreferrer">
