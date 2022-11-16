@@ -86,30 +86,35 @@ const IndexPage: NextPage = () => {
       <div className="mx-auto flex sm:flex-row justify-center gap-2 items-center flex-wrap">
         <a href="https://www.npmjs.com/package/overlayscrollbars">
           <img
+            className="min-h-[20px]"
             src="https://img.shields.io/npm/dm/overlayscrollbars.svg?style=flat-square"
             alt="Downloads"
           />
         </a>
         <a href="https://www.npmjs.com/package/overlayscrollbars">
           <img
+            className="min-h-[20px]"
             src="https://img.shields.io/npm/v/overlayscrollbars.svg?style=flat-square"
             alt="Version"
           />
         </a>
         <a href="https://github.com/KingSora/OverlayScrollbars/blob/master/LICENSE">
           <img
+            className="min-h-[20px]"
             src="https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square"
             alt="License"
           />
         </a>
         <a href="https://app.codecov.io/gh/KingSora/OverlayScrollbars">
           <img
+            className="min-h-[20px]"
             src="https://img.shields.io/codecov/c/github/KingSora/OverlayScrollbars?style=flat-square"
             alt="Code Coverage"
           />
         </a>
         <a href="https://bundlephobia.com/package/overlayscrollbars">
           <img
+            className="min-h-[20px]"
             src="https://img.shields.io/bundlephobia/minzip/overlayscrollbars?label=max.%20bundle%20size&style=flat-square"
             alt="Max. Bundle Size"
           />
