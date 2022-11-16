@@ -57,7 +57,7 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
 // ...
 
-<OverlayScrollbarsComponent>
+<OverlayScrollbarsComponent defer>
   example content
 </OverlayScrollbarsComponent>
 ```
@@ -70,12 +70,16 @@ Additionally it has three optional properties: `element`, `options` and `events`
 - `element`: accepts a `string` which represents the tag of the root element.
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
+- `defer`: accepts an `boolean` or `object`. Defers the initialization to a point in time when the browser is idle.
 
 > __Note__: None of the properties has to be memoized.
+
+> __Note__: Its **highly recommended** to use the `defer` option whenever possible to defer the initialization of the component to a browser's idle period.
 
 ```jsx
 // example usage
 <OverlayScrollbarsComponent
+  defer
   element="span"
   options={{ scrollbars: { autoHide: 'scroll' } }}
   events={{ scroll: () => { /* ... */ } }}
@@ -100,11 +104,10 @@ import { useOverlayScrollbars } from "overlayscrollbars-react";
 // example usage
 const Component = () => {
   const ref = useRef();
-  const [initialize, instance] = useOverlayScrollbars({ options, events });
+  const [initialize, instance] = useOverlayScrollbars({ options, events, defer });
   
   useEffect(() => {
-    const osInstance = initialize(ref.current);
-    return () => osInstance.destroy();
+    initialize(ref.current);
   }, [initialize]);
   
   return <div ref={ref} />
@@ -113,6 +116,8 @@ const Component = () => {
 
 The hook is for advanced usage and lets you control the whole initialization process. This is useful if you want to integrate it with other plugins such as `react-window` or `react-virtualized`.
 
+The hook will destroy the instance automatically if the component unmounts.
+
 ### Parameters
 
 Parameters are optional and similar to the `OverlayScrollbarsComponent`.
@@ -120,12 +125,13 @@ Its an `object` with two optional properties:
 
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
+- `defer`: accepts an `boolean` or `object`. Defers the initialization to a point in time when the browser is idle.
 
 ### Return
 
 The `useOverlayScrollbars` hook returns a `tuple` with two values:
 
-- The first value is the `initialization` function, it takes one argument which is the `InitializationTarget` and returns the OverlayScrollbars instance.
+- The first value is the `initialization` function, it takes one argument which is the `InitializationTarget`.
 - The second value is a function which returns the current OverlayScrollbars instance or `null` if not initialized.
 
 > __Note__: The identity of both functions is stable and won't change, thus they can safely be used in any dependency array.

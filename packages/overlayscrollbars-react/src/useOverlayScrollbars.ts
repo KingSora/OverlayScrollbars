@@ -6,35 +6,87 @@ import type {
   OverlayScrollbarsComponentRef,
 } from './OverlayScrollbarsComponent';
 
+type Defer = [
+  requestDefer: (callback: () => any, options?: OverlayScrollbarsComponentProps['defer']) => void,
+  cancelDefer: () => void
+];
+
 export interface UseOverlayScrollbarsParams {
   /** OverlayScrollbars options. */
   options?: OverlayScrollbarsComponentProps['options'];
   /** OverlayScrollbars events. */
   events?: OverlayScrollbarsComponentProps['events'];
+  /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is unsupported) */
+  defer?: OverlayScrollbarsComponentProps['defer'];
 }
 
-export type UseOverlayScrollbarsInitialization = (
-  target: InitializationTarget
-) => OverlayScrollbars;
+export type UseOverlayScrollbarsInitialization = (target: InitializationTarget) => void;
 
 export type UseOverlayScrollbarsInstance = () => ReturnType<
   OverlayScrollbarsComponentRef['osInstance']
 >;
 
+const createDefer = (): Defer => {
+  /* c8 ignore start */
+  if (typeof window === 'undefined') {
+    // mock ssr calls with "noop"
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const noop = () => {};
+    return [noop, noop];
+  }
+  /* c8 ignore end */
+
+  let idleId: number;
+  let rafId: number;
+  const wnd = window;
+  const idleSupported = typeof wnd.requestIdleCallback === 'function';
+  const rAF = wnd.requestAnimationFrame;
+  const cAF = wnd.cancelAnimationFrame;
+  const rIdle = idleSupported ? wnd.requestIdleCallback : rAF;
+  const cIdle = idleSupported ? wnd.cancelIdleCallback : cAF;
+  const clear = () => {
+    cIdle(idleId);
+    cAF(rafId);
+  };
+
+  return [
+    (callback, options) => {
+      clear();
+      idleId = rIdle(
+        idleSupported
+          ? () => {
+              clear();
+              // inside idle its best practice to use rAF to change DOM for best performance
+              rafId = rAF(callback);
+            }
+          : callback,
+        typeof options === 'object' ? options : { timeout: 1500 }
+      );
+    },
+    clear,
+  ];
+};
+
 /**
  * Hook for advanced usage of OverlayScrollbars. (When the OverlayScrollbarsComponent is not enough)
  * @param params Parameters for customization.
  * @returns A tuple with two values:
- * The first value is the initialization function, it takes one argument which is the `InitializationTarget` and returns the OverlayScrollbars instance.
+ * The first value is the initialization function, it takes one argument which is the `InitializationTarget`.
  * The second value is a function which returns the current OverlayScrollbars instance or `null` if not initialized.
  */
 export const useOverlayScrollbars = (
   params?: UseOverlayScrollbarsParams
 ): [UseOverlayScrollbarsInitialization, UseOverlayScrollbarsInstance] => {
-  const { options, events } = params || {};
+  const { options, events, defer } = params || {};
+  const [requestDefer, cancelDefer] = useMemo<Defer>(createDefer, []);
   const instanceRef = useRef<ReturnType<UseOverlayScrollbarsInstance>>(null);
+  const deferRef = useRef(defer);
   const optionsRef = useRef(options);
   const eventsRef = useRef(events);
+
+  useEffect(() => {
+    deferRef.current = defer;
+  }, [defer]);
 
   useEffect(() => {
     const { current: instance } = instanceRef;
@@ -56,24 +108,34 @@ export const useOverlayScrollbars = (
     }
   }, [events]);
 
+  useEffect(
+    () => () => {
+      cancelDefer();
+      instanceRef.current?.destroy();
+    },
+    []
+  );
+
   return useMemo<[UseOverlayScrollbarsInitialization, UseOverlayScrollbarsInstance]>(
     () => [
-      (target: InitializationTarget): OverlayScrollbars => {
-        // if already initialized return the current instance
+      (target) => {
+        // if already initialized do nothing
         const presentInstance = instanceRef.current;
         if (OverlayScrollbars.valid(presentInstance)) {
-          return presentInstance;
+          return;
         }
 
+        const currDefer = deferRef.current;
         const currOptions = optionsRef.current || {};
         const currEvents = eventsRef.current || {};
-        const osInstance = (instanceRef.current = OverlayScrollbars(
-          target,
-          currOptions,
-          currEvents
-        ));
+        const init = () =>
+          (instanceRef.current = OverlayScrollbars(target, currOptions, currEvents));
 
-        return osInstance;
+        if (currDefer) {
+          requestDefer(init, currDefer);
+        } else {
+          init();
+        }
       },
       () => instanceRef.current,
     ],

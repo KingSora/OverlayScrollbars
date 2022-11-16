@@ -1,11 +1,20 @@
 import { useState } from 'react';
-import { describe, test, afterEach, expect, vitest } from 'vitest';
+import { describe, test, afterEach, expect, vitest, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
 import type { RefObject } from 'react';
 import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-react';
+
+vi.useFakeTimers({
+  toFake: [
+    'requestAnimationFrame',
+    'cancelAnimationFrame',
+    'requestIdleCallback',
+    'cancelIdleCallback',
+  ],
+});
 
 describe('OverlayScrollbarsComponent', () => {
   afterEach(() => cleanup());
@@ -115,6 +124,44 @@ describe('OverlayScrollbarsComponent', () => {
       rerender(<OverlayScrollbarsComponent style={{ height: '33px' }} />);
 
       expect(container.firstElementChild).toHaveStyle({ height: '33px' });
+    });
+  });
+
+  describe('deferred initialization', () => {
+    test('basic defer', () => {
+      const { container } = render(<OverlayScrollbarsComponent defer />);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
+    });
+
+    test('options defer', () => {
+      const { container } = render(<OverlayScrollbarsComponent defer={{ timeout: 0 }} />);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
+    });
+
+    test('defer with unsupported Idle', () => {
+      const original = window.requestIdleCallback;
+      // @ts-ignore
+      window.requestIdleCallback = undefined;
+
+      const { container } = render(<OverlayScrollbarsComponent defer />);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
+
+      window.requestIdleCallback = original;
     });
   });
 

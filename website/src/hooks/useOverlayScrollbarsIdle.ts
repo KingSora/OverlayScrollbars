@@ -8,7 +8,7 @@ import type {
 import type { InitializationTarget } from 'overlayscrollbars';
 
 type Defer = [
-  request: (callback: () => any, options?: IdleRequestOptions) => void,
+  defer: (callback: () => any, options?: IdleRequestOptions) => void,
   clear: () => void
 ];
 
@@ -35,8 +35,8 @@ export const useOverlayScrollbarsIdle = (
   (...args: Parameters<UseOverlayScrollbarsInitialization>) => void,
   UseOverlayScrollbarsInstance
 ] => {
-  const [requestIdle, clearIdle] = useMemo<Defer>(() => createDefer(true), []);
-  const [requestRAF, clearRAF] = useMemo<Defer>(() => createDefer(), []);
+  const [deferIdle, clearIdle] = useMemo<Defer>(() => createDefer(true), []);
+  const [deferRAF, clearRAF] = useMemo<Defer>(() => createDefer(), []);
   const [initialize, instance] = useOverlayScrollbars(params);
 
   useEffect(() => {
@@ -50,9 +50,9 @@ export const useOverlayScrollbarsIdle = (
   return useMemo(
     () => [
       (target: InitializationTarget) => {
-        requestIdle(
+        deferIdle(
           () => {
-            requestRAF(() => {
+            deferRAF(() => {
               initialize(target);
             });
           },
