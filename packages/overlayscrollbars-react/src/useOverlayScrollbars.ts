@@ -16,7 +16,7 @@ export interface UseOverlayScrollbarsParams {
   options?: OverlayScrollbarsComponentProps['options'];
   /** OverlayScrollbars events. */
   events?: OverlayScrollbarsComponentProps['events'];
-  /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is unsupported) */
+  /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
   defer?: OverlayScrollbarsComponentProps['defer'];
 }
 
@@ -60,7 +60,7 @@ const createDefer = (): Defer => {
               rafId = rAF(callback);
             }
           : callback,
-        typeof options === 'object' ? options : { timeout: 1500 }
+        typeof options === 'object' ? options : { timeout: 2233 }
       );
     },
     clear,

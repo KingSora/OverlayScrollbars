@@ -12,7 +12,7 @@ export type OverlayScrollbarsComponentProps<T extends keyof JSX.IntrinsicElement
     options?: PartialOptions | false | null;
     /** OverlayScrollbars events. */
     events?: EventListeners | false | null;
-    /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is unsupported) */
+    /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
     defer?: boolean | IdleRequestOptions;
   };
 
