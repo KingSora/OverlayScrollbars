@@ -79,10 +79,10 @@ Additionally it has three optional properties: `element`, `options` and `events`
 ```jsx
 // example usage
 <OverlayScrollbarsComponent
-  defer
   element="span"
   options={{ scrollbars: { autoHide: 'scroll' } }}
   events={{ scroll: () => { /* ... */ } }}
+  defer
 />
 ```
 
