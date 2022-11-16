@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 
 export const Pre = ({ children }: ComponentProps<'pre'>) => (
   <OverlayScrollbarsComponent
+    defer
     element="pre"
     options={{
       paddingAbsolute: true,

@@ -45,7 +45,7 @@ const IndexPage: NextPage = () => {
         overlay scrollbars and keeps the native functionality and feeling.
       </p>
       {separator('used by')}
-      <OverlayScrollbarsComponent>
+      <OverlayScrollbarsComponent defer>
         <div className="flex justify-center">
           <div className={classnames('inline-flex  items-center gap-6 py-6', styles.usedBy)}>
             <div
