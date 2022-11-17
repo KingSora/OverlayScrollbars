@@ -169,16 +169,6 @@ html[data-overlayscrollbars] > body {
   overflow-y: scroll !important;
 }
 
-/**
- * overrides for convenience
- */
-[data-overlayscrollbars~='viewport'] {
-  [style*='overflow:hidden'],
-  [style*='overflow: hidden'] {
-    overflow: hidden !important;
-  }
-}
-
 .os-padding,
 .os-viewport {
   overflow: hidden;
