@@ -96,6 +96,9 @@ body {
 #target[data-overlayscrollbars~='viewport'],
 #comparison {
   z-index: 0;
+}
+
+#comparison {
   overflow: hidden;
 }
 
