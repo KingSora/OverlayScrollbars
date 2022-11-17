@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import Head from 'next/head';
 import { MDXProvider } from '@mdx-js/react';
 import { useOverlayScrollbars } from 'overlayscrollbars-react';
+import UAParser from 'ua-parser-js';
 import favicon from '~/assets/favicon.ico';
 import { Pre } from '~/components/md/Pre';
 import { Heading } from '~/components/md/Heading';
@@ -21,7 +22,14 @@ const OverlayScrollbarsDocs = ({ Component, pageProps }: AppProps) => {
   const [initialize, instance] = useOverlayScrollbars({ defer: true });
 
   useEffect(() => {
-    initialize({ target: document.body, cancel: { nativeScrollbarsOverlaid: true } });
+    const ua = new UAParser();
+    const { type } = ua.getDevice();
+    const cancelDevices = ['console', 'mobile', 'tablet', 'smarttv'];
+
+    initialize({
+      target: document.body,
+      cancel: { nativeScrollbarsOverlaid: !!type && cancelDevices.includes(type) },
+    });
     return () => instance()?.destroy();
   }, []);
 

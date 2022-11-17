@@ -14,12 +14,14 @@
     "overlayscrollbars": "file:./../packages/overlayscrollbars/dist",
     "overlayscrollbars-react": "file:./../packages/overlayscrollbars-react/dist",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "ua-parser-js": "^1.0.32"
   },
   "devDependencies": {
     "@types/node": "18.7.20",
     "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",
+    "@types/ua-parser-js": "^0.7.36",
     "concurrently": "^7.4.0",
     "fast-glob": "^3.2.12",
     "rehype-pretty-code": "^0.4.0",
