@@ -151,22 +151,22 @@ html[data-overlayscrollbars] > body {
 
 [data-overlayscrollbars~='host'],
 [data-overlayscrollbars~='viewport'] {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 [data-overlayscrollbars~='overflowVisible'] {
-  overflow: visible;
+  overflow: visible !important;
 }
 [data-overlayscrollbars-overflow-x='hidden'] {
-  overflow-x: hidden;
+  overflow-x: hidden !important;
 }
 [data-overlayscrollbars-overflow-x='scroll'] {
-  overflow-x: scroll;
+  overflow-x: scroll !important;
 }
 [data-overlayscrollbars-overflow-x='hidden'] {
-  overflow-y: hidden;
+  overflow-y: hidden !important;
 }
 [data-overlayscrollbars-overflow-y='scroll'] {
-  overflow-y: scroll;
+  overflow-y: scroll !important;
 }
 
 .os-padding,
