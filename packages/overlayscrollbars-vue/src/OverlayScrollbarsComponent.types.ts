@@ -4,6 +4,7 @@ export interface OverlayScrollbarsComponentProps {
   element?: string;
   options?: PartialOptions | false | null;
   events?: EventListeners | false | null;
+  defer?: boolean | IdleRequestOptions;
 }
 
 export interface OverlayScrollbarsComponentRef {

@@ -1,9 +1,18 @@
 import { onMounted, ref, toRefs } from 'vue';
-import { describe, test, afterEach, expect, vitest } from 'vitest';
+import { describe, test, afterEach, expect, vitest, vi } from 'vitest';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { fireEvent, render, screen, cleanup } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbarsComponent } from '~/overlayscrollbars-vue';
+
+vi.useFakeTimers({
+  toFake: [
+    'requestAnimationFrame',
+    'cancelAnimationFrame',
+    'requestIdleCallback',
+    'cancelIdleCallback',
+  ],
+});
 
 describe('OverlayScrollbarsComponent', () => {
   afterEach(() => cleanup());
@@ -114,6 +123,44 @@ describe('OverlayScrollbarsComponent', () => {
       await rerender({ style: { height: '33px' } });
 
       expect(container.firstElementChild).toHaveStyle({ height: '33px' });
+    });
+  });
+
+  describe('deferred initialization', () => {
+    test('basic defer', () => {
+      const { container } = render(<OverlayScrollbarsComponent defer />);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
+    });
+
+    test('options defer', () => {
+      const { container } = render(<OverlayScrollbarsComponent defer={{ timeout: 0 }} />);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
+    });
+
+    test('defer with unsupported Idle', () => {
+      const original = window.requestIdleCallback;
+      // @ts-ignore
+      window.requestIdleCallback = undefined;
+
+      const { container } = render(<OverlayScrollbarsComponent defer />);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
+
+      window.requestIdleCallback = original;
     });
   });
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0
+
+### Features
+
+Added the possibility to `defer` the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) 
+- `OverlayScrollbarsComponent` accepts now the `defer` property
+- `useOverlayScrollbars` params accept now the `defer` key
+- `useOverlayScrollbars` will now always try to destroy the instance if the component unmounts.
+
+### Breaking Changes
+
+- Because initialization can be deferred now, the `initialize` function of the `useOverlayScrollbars` composable isn't returning the instance anymore. Use the `instance` function of the `useOverlayScrollbars` composable instead.
+
 ## 0.4.0
 
 Depends on `OverlayScrollbars` version `^2.0.0` and `Vue` version `^3.2.25`.  

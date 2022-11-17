@@ -25,6 +25,7 @@ const props = defineProps({
   },
   options: { type: Object as PropType<OverlayScrollbarsComponentProps['options']> },
   events: { type: Object as PropType<OverlayScrollbarsComponentProps['events']> },
+  defer: { type: [Boolean, Object] as PropType<OverlayScrollbarsComponentProps['defer']> },
 });
 const emits = defineEmits<{
   (name: 'osInitialized', ...args: EventListenerArgs['initialized']): void;
@@ -36,8 +37,8 @@ const emits = defineEmits<{
 const elementRef = shallowRef<HTMLElement | null>(null);
 const slotRef = shallowRef<HTMLElement | null>(null);
 const combinedEvents = ref<EventListeners>();
-const { element, options, events } = toRefs(props);
-const [initialize, osInstance] = useOverlayScrollbars({ options, events: combinedEvents });
+const { element, options, events, defer } = toRefs(props);
+const [initialize, osInstance] = useOverlayScrollbars({ options, events: combinedEvents, defer });
 const exposed: OverlayScrollbarsComponentRef = {
   osInstance,
   getElement: () => elementRef.value,
@@ -45,21 +46,20 @@ const exposed: OverlayScrollbarsComponentRef = {
 
 defineExpose(exposed);
 
-onUnmounted(() => osInstance()?.destroy());
-
 watchPostEffect((onCleanup) => {
   const { value: elm } = elementRef;
   const { value: slotElm } = slotRef;
 
   if (elm && slotElm) {
-    const instance = initialize({
+    initialize({
       target: elm,
       elements: {
         viewport: slotElm,
         content: slotElm,
       },
     });
-    onCleanup(() => instance.destroy());
+
+    onCleanup(() => osInstance()?.destroy());
   }
 });
 

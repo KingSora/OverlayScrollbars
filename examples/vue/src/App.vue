@@ -10,7 +10,7 @@ const options: PartialOptions = {
 </script>
 
 <template>
-  <OverlayScrollbarsComponent style="height: 222px; width: 222px" :options="options">
+  <OverlayScrollbarsComponent style="height: 222px; width: 222px" :options="options" defer>
     <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="333" height="333" />
   </OverlayScrollbarsComponent>
 </template>

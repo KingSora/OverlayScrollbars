@@ -1,15 +1,20 @@
-import { reactive, onMounted, ref, watch, toRaw, watchPostEffect } from 'vue';
+import { reactive, onMounted, ref, toRaw } from 'vue';
 import { describe, test, afterEach, expect, vitest } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
+import { OverlayScrollbars } from 'overlayscrollbars';
 import { useOverlayScrollbars } from '~/overlayscrollbars-vue';
-import type { PartialOptions, EventListeners, OverlayScrollbars } from 'overlayscrollbars';
+import type { PartialOptions, EventListeners } from 'overlayscrollbars';
 
 describe('useOverlayScrollbars', () => {
-  afterEach(() => cleanup());
+  afterEach(() => {
+    try {
+      cleanup();
+    } catch {}
+  });
 
   test('re-initialization', () => {
-    render({
+    const { unmount } = render({
       setup() {
         const instanceRef = ref<OverlayScrollbars | null>(null);
         const [initialize, instance] = useOverlayScrollbars();
@@ -18,12 +23,11 @@ describe('useOverlayScrollbars', () => {
           <>
             <button
               onClick={(event) => {
-                const osInstance = initialize(event.target as HTMLElement);
+                initialize(event.target as HTMLElement);
                 if (instanceRef.value) {
-                  expect(toRaw(instanceRef.value)).toBe(osInstance);
                   expect(toRaw(instanceRef.value)).toBe(instance());
                 }
-                instanceRef.value = osInstance;
+                instanceRef.value = instance();
                 expect(toRaw(instanceRef.value)).toBe(instance());
               }}
             >
@@ -42,40 +46,37 @@ describe('useOverlayScrollbars', () => {
     userEvent.click(initializeBtn);
 
     expect(snapshot).toBe(initializeBtn.innerHTML);
+
+    expect(OverlayScrollbars(initializeBtn)).toBeDefined();
+
+    unmount();
+
+    expect(OverlayScrollbars(initializeBtn)).toBeUndefined();
   });
 
   test('reactive params', async () => {
-    let osInstance: OverlayScrollbars;
+    let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
-    render({
+    const { unmount } = render({
       setup() {
         const div = ref<HTMLElement | null>(null);
         const params = reactive<{ options?: PartialOptions; events?: EventListeners }>({});
         const [initialize, instance] = useOverlayScrollbars(params);
 
         onMounted(() => {
-          osInstance = initialize({ target: div.value! });
+          initialize({ target: div.value! });
+          osInstance = instance();
         });
-
-        watch(
-          () => params,
-          () => {
-            if (params.events!.updated) {
-              instance()?.update(true);
-            }
-          },
-          { deep: true }
-        );
 
         return () => (
           <>
             <div ref={div} />
             <button
               onClick={() => {
-                params.options = {};
                 params.events = {};
-                params.options!.paddingAbsolute = true;
                 params.events!.updated = onUpdated;
+                params.options = {};
+                params.options!.paddingAbsolute = true;
               }}
             >
               trigger
@@ -92,25 +93,22 @@ describe('useOverlayScrollbars', () => {
 
     expect(onUpdated).toHaveBeenCalledTimes(1);
     expect(osInstance!.options().paddingAbsolute).toBe(true);
+
+    unmount();
   });
 
   test('ref params', async () => {
-    let osInstance: OverlayScrollbars;
+    let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
-    render({
+    const { unmount } = render({
       setup() {
         const div = ref<HTMLElement | null>(null);
         const params = ref<{ options?: PartialOptions; events?: EventListeners } | undefined>();
         const [initialize, instance] = useOverlayScrollbars(params);
 
         onMounted(() => {
-          osInstance = initialize({ target: div.value! });
-        });
-
-        watchPostEffect(() => {
-          if (params.value?.events?.updated) {
-            instance()?.update(true);
-          }
+          initialize({ target: div.value! });
+          osInstance = instance();
         });
 
         return () => (
@@ -139,29 +137,28 @@ describe('useOverlayScrollbars', () => {
 
     expect(onUpdated).toHaveBeenCalledTimes(1);
     expect(osInstance!.options().paddingAbsolute).toBe(true);
+
+    unmount();
   });
 
   test('ref params fields', async () => {
-    let osInstance: OverlayScrollbars;
+    let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
-    render({
+    const { unmount } = render({
       setup() {
         const div = ref<HTMLElement | null>(null);
         const options = ref<PartialOptions | undefined>();
         const events = ref<EventListeners | undefined>();
+        const defer = ref<boolean | undefined>();
         const [initialize, instance] = useOverlayScrollbars({
           options,
           events,
+          defer,
         });
 
         onMounted(() => {
-          osInstance = initialize({ target: div.value! });
-        });
-
-        watchPostEffect(() => {
-          if (events.value?.updated) {
-            instance()?.update(true);
-          }
+          initialize({ target: div.value! });
+          osInstance = instance();
         });
 
         return () => (
@@ -169,10 +166,10 @@ describe('useOverlayScrollbars', () => {
             <div ref={div} />
             <button
               onClick={() => {
-                options.value = {};
                 events.value = {};
-                options.value.paddingAbsolute = true;
                 events.value.updated = onUpdated;
+                options.value = {};
+                options.value.paddingAbsolute = true;
               }}
             >
               trigger
@@ -189,5 +186,7 @@ describe('useOverlayScrollbars', () => {
 
     expect(onUpdated).toHaveBeenCalledTimes(1);
     expect(osInstance!.options().paddingAbsolute).toBe(true);
+
+    unmount();
   });
 });
