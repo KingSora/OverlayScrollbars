@@ -21,7 +21,7 @@ const OverlayScrollbarsDocs = ({ Component, pageProps }: AppProps) => {
   const [initialize, instance] = useOverlayScrollbars({ defer: true });
 
   useEffect(() => {
-    initialize(document.body);
+    initialize({ target: document.body, cancel: { nativeScrollbarsOverlaid: true } });
     return () => instance()?.destroy();
   }, []);
 

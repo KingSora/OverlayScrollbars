@@ -19,8 +19,3 @@
   font-style: normal;
   font-display: swap;
 }
-
-/* elements wont be suddenly cropped after initialization is done */
-[data-overlayscrollbars-initialize]:not([data-overlayscrollbars]):not(html) {
-  overflow: auto;
-}
