@@ -65,7 +65,7 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 ### Properties
 
 The component accepts all properties of intrinsic JSX elements such as `div` and `span`.  
-Additionally it has three optional properties: `element`, `options` and `events`.
+Additionally it has custom optional properties:
 
 - `element`: accepts a `string` which represents the tag of the root element.
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
@@ -121,7 +121,7 @@ The hook will destroy the instance automatically if the component unmounts.
 ### Parameters
 
 Parameters are optional and similar to the `OverlayScrollbarsComponent`.
-Its an `object` with two optional properties:
+Its an `object` with optional properties:
 
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
