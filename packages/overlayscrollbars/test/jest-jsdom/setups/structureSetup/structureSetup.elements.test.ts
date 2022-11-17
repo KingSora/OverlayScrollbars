@@ -2,6 +2,7 @@ import { hasClass, is, isHTMLElement } from '~/support';
 import { resolveInitialization } from '~/initialization';
 import {
   dataAttributeHost,
+  dataAttributeInitialize,
   classNamePadding,
   classNameViewport,
   classNameContent,
@@ -112,7 +113,7 @@ const assertCorrectDOMStructure = (
 ) => {
   const { target, host, padding, viewport, content, children } = getElements(targetType);
   const { _getDefaultInitialization } = env;
-  const { _viewportIsTarget, _viewportIsContent, _viewport, _content } = elements;
+  const { _viewportIsTarget, _viewportIsContent, _viewport, _content, _isBody } = elements;
 
   expect(children).toBeDefined();
   expect((_content || _viewport).contains(children)).toBe(true);
@@ -121,7 +122,12 @@ const assertCorrectDOMStructure = (
     expect(host.getAttribute(dataAttributeHost)).toBe('viewport');
     expect(_viewportIsContent).toBe(false);
 
-    expect(target).toBe(host);
+    if (_isBody) {
+      expect(target.parentElement).toBe(host);
+    } else {
+      expect(target).toBe(host);
+    }
+
     expect(host).toBeTruthy();
     expect(padding).toBeFalsy();
     expect(viewport).toBeFalsy();
@@ -228,7 +234,11 @@ const assertCorrectSetupElements = (
   }
 
   if (_viewportIsTarget) {
-    expect(_viewport).toBe(_target);
+    if (isBody) {
+      expect(_viewport).toBe(_target.parentElement);
+    } else {
+      expect(_viewport).toBe(_target);
+    }
   } else if (viewport || _viewport) {
     expect(_viewport).toBe(viewport);
   } else {
@@ -413,8 +423,8 @@ const assertCorrectSetupElements = (
 
   _viewportAddRemoveClass(className, attrName, true);
   if (_viewportIsTarget) {
-    expect(_host.getAttribute(dataAttributeHost)!.indexOf(attrName) >= 0).toBe(true);
     expect(_viewportHasClass('', attrName)).toBe(true);
+    expect(_host.getAttribute(dataAttributeHost)!.indexOf(attrName) >= 0).toBe(true);
   } else {
     expect(hasClass(_viewport, className)).toBe(true);
     expect(_viewportHasClass(className, '')).toBe(true);
@@ -1294,9 +1304,13 @@ describe('structureSetup.elements', () => {
                     currEnv
                   );
                   expect(elements._viewportIsTarget).toBe(true);
-                  expect(elements._host).toBe(elements._target);
+                  expect(elements._host).toBe(
+                    elements._isBody ? elements._target.parentElement : elements._target
+                  );
                   expect(elements._padding).toBeFalsy();
-                  expect(elements._viewport).toBe(elements._target);
+                  expect(elements._viewport).toBe(
+                    elements._isBody ? elements._target.parentElement : elements._target
+                  );
                   expect(elements._content).toBeFalsy();
 
                   assertCorrectDOMStructure(targetType, currEnv, elements);
@@ -1356,34 +1370,34 @@ describe('structureSetup.elements', () => {
     });
   });
 
-  describe('data-overlayscrollbars attribute', () => {
-    test('already set data-overlayscrollbars attribute is removed', () => {
+  describe('data-overlayscrollbars-initialize attribute', () => {
+    test('already set data-overlayscrollbars-initialize attribute is removed', () => {
       const target = document.body;
-      target.setAttribute(dataAttributeHost, '');
+      target.setAttribute(dataAttributeInitialize, '');
 
       const { destroy } = createStructureSetupElementsProxy(target);
       destroy();
 
-      expect(document.body.getAttribute(dataAttributeHost)).toBe(null);
+      expect(document.body.getAttribute(dataAttributeInitialize)).toBe(null);
     });
 
-    test('already set data-overlayscrollbars attribute is removed even if initialization gets canceled', () => {
+    test('already set data-overlayscrollbars-initialize attribute is removed even if initialization gets canceled', () => {
       const target = document.body;
-      target.setAttribute(dataAttributeHost, '');
+      target.setAttribute(dataAttributeInitialize, '');
 
       const { destroy } = createStructureSetupElementsProxy(target, { autoAppend: false });
       destroy();
 
-      expect(document.body.getAttribute(dataAttributeHost)).toBe(null);
+      expect(document.body.getAttribute(dataAttributeInitialize)).toBe(null);
     });
 
-    test('already set data-overlayscrollbars attribute on html element is removed if target is body', () => {
-      document.documentElement.setAttribute(dataAttributeHost, '');
+    test('already set data-overlayscrollbars-initialize attribute on html element is removed if target is body', () => {
+      document.documentElement.setAttribute(dataAttributeInitialize, '');
 
       const { destroy } = createStructureSetupElementsProxy(document.body);
       destroy();
 
-      expect(document.documentElement.getAttribute(dataAttributeHost)).toBe(null);
+      expect(document.documentElement.getAttribute(dataAttributeInitialize)).toBe(null);
     });
   });
 });

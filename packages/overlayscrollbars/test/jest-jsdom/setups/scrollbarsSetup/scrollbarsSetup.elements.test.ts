@@ -6,7 +6,7 @@ import {
   classNameScrollbarVertical,
   classNameScrollbarTrack,
   classNameScrollbarHandle,
-  classNamesScrollbarTransitionless,
+  classNameScrollbarTransitionless,
 } from '~/classnames';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import type {
@@ -93,7 +93,7 @@ const assertCorrectDOMStructure = (
     expect(_track.classList.length).toBe(1);
     expect(_handle.classList.length).toBe(1);
     if (isMainStructure) {
-      expect(domScrollbar.classList.contains(classNamesScrollbarTransitionless)).toBe(true);
+      expect(domScrollbar.classList.contains(classNameScrollbarTransitionless)).toBe(true);
     }
 
     // structure
@@ -348,7 +348,7 @@ describe('scrollbarsSetup.elements', () => {
       expected: boolean
     ) => {
       const { _scrollbar } = setupElement._scrollbarStructures[0];
-      expect(_scrollbar.classList.contains(classNamesScrollbarTransitionless)).toBe(expected);
+      expect(_scrollbar.classList.contains(classNameScrollbarTransitionless)).toBe(expected);
     };
 
     testHasTransitionlessClass(elements._horizontal, true);

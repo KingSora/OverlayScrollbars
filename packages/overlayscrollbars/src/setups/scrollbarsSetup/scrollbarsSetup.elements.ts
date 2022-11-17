@@ -19,7 +19,7 @@ import {
   classNameScrollbarVertical,
   classNameScrollbarTrack,
   classNameScrollbarHandle,
-  classNamesScrollbarTransitionless,
+  classNameScrollbarTransitionless,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { dynamicInitializationElement as generalDynamicInitializationElement } from '~/initialization';
@@ -79,13 +79,26 @@ export const createScrollbarsSetupElements = (
   const { _getDefaultInitialization } = getEnvironment();
   const { scrollbars: defaultInitScrollbars } = _getDefaultInitialization();
   const { slot: defaultInitScrollbarsSlot } = defaultInitScrollbars;
-  const { _documentElm, _target, _host, _viewport, _targetIsElm, _scrollOffsetElement } =
-    structureSetupElements;
+  const {
+    _documentElm,
+    _target,
+    _host,
+    _viewport,
+    _targetIsElm,
+    _scrollOffsetElement,
+    _isBody,
+    _viewportIsTarget,
+  } = structureSetupElements;
   const { scrollbars: scrollbarsInit } = (_targetIsElm ? {} : target) as InitializationTargetObject;
   const { slot: initScrollbarsSlot } = scrollbarsInit || {};
   const evaluatedScrollbarSlot = generalDynamicInitializationElement<
     [InitializationTargetElement, HTMLElement, HTMLElement]
-  >([_target, _host, _viewport], () => _host, defaultInitScrollbarsSlot, initScrollbarsSlot);
+  >(
+    [_target, _host, _viewport],
+    () => (_viewportIsTarget && _isBody ? _target : _host),
+    defaultInitScrollbarsSlot,
+    initScrollbarsSlot
+  );
   const scrollbarStructureAddRemoveClass = (
     scrollbarStructures: ScrollbarStructure[],
     classNames: string | false | null | undefined,
@@ -181,7 +194,7 @@ export const createScrollbarsSetupElements = (
       ? classNameScrollbarHorizontal
       : classNameScrollbarVertical;
     const arrToPush = isHorizontal ? horizontalScrollbars : verticalScrollbars;
-    const transitionlessClass = isEmptyArray(arrToPush) ? classNamesScrollbarTransitionless : '';
+    const transitionlessClass = isEmptyArray(arrToPush) ? classNameScrollbarTransitionless : '';
     const scrollbar = createDiv(
       `${classNameScrollbar} ${scrollbarClassName} ${transitionlessClass}`
     );
@@ -218,7 +231,7 @@ export const createScrollbarsSetupElements = (
     appendChildren(evaluatedScrollbarSlot, verticalScrollbars[0]._scrollbar);
 
     setT(() => {
-      scrollbarsAddRemoveClass(classNamesScrollbarTransitionless);
+      scrollbarsAddRemoveClass(classNameScrollbarTransitionless);
     }, 300);
   };
 

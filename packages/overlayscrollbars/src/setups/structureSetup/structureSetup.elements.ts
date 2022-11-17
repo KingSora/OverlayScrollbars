@@ -24,6 +24,7 @@ import {
 } from '~/support';
 import {
   dataAttributeHost,
+  dataAttributeInitialize,
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
   classNamePadding,
@@ -146,15 +147,20 @@ export const createStructureSetupElements = (
   const viewportIsContentContent = defaultContentElementPresent
     ? possibleContentElement
     : generateContentElement();
-  const viewportElement = viewportIsContent ? viewportIstContentViewport : possibleViewportElement;
+  const nonBodyViewportElement = viewportIsContent
+    ? viewportIstContentViewport
+    : possibleViewportElement;
+  const viewportElement = viewportIsTargetBody ? docElement : nonBodyViewportElement;
+  const nonBodyHostElement = isTextarea
+    ? staticInitializationElement(createNewDiv, defaultHostInitialization, hostInitialization)
+    : (targetElement as HTMLElement);
+  const hostElement = viewportIsTargetBody ? viewportElement : nonBodyHostElement;
   const contentElement = viewportIsContent ? viewportIsContentContent : possibleContentElement;
   const activeElm = ownerDocument.activeElement;
   const setViewportFocus = !viewportIsTarget && wnd.top === wnd && activeElm === targetElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
-    _host: isTextarea
-      ? staticInitializationElement(createNewDiv, defaultHostInitialization, hostInitialization)
-      : (targetElement as HTMLElement),
+    _host: hostElement,
     _viewport: viewportElement,
     _padding:
       !viewportIsTarget &&
@@ -196,10 +202,13 @@ export const createStructureSetupElements = (
   const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [
     () => {
-      // always remove dataAttributeHost from host and from <html> element if target is body
+      // always remove dataAttributeHost & dataAttributeInitialize from host and from <html> element if target is body
       removeAttr(_host, dataAttributeHost);
+      removeAttr(_host, dataAttributeInitialize);
+      removeAttr(_target, dataAttributeInitialize);
       if (isBody) {
         removeAttr(docElement, dataAttributeHost);
+        removeAttr(docElement, dataAttributeInitialize);
       }
     },
   ];
@@ -211,16 +220,17 @@ export const createStructureSetupElements = (
           (elm) => elementIsGenerated(elm) === false
         )
       );
-  const contentSlot = _content || _viewport;
+  const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
   const appendElements = () => {
     attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
 
     const removePaddingClass = addClass(_padding, classNamePadding);
     const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
     const removeContentClass = addClass(_content, classNameContent);
-    const removeHtmlClass = isBody
-      ? addClass(parent(targetElement), classNameViewportScrollbarHidden)
-      : noop;
+    const removeHtmlClass =
+      isBody && !viewportIsTarget
+        ? addClass(parent(targetElement), classNameViewportScrollbarHidden)
+        : noop;
 
     // only insert host for textarea after target if it was generated
     if (isTextareaHostGenerated) {

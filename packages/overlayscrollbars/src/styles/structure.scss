@@ -63,7 +63,6 @@
 }
 [data-overlayscrollbars-initialize],
 [data-overlayscrollbars~='scrollbarHidden'],
-html.os-viewport-scrollbar-hidden,
 .os-viewport-scrollbar-hidden.os-environment,
 .os-viewport-scrollbar-hidden.os-viewport {
   scrollbar-width: none !important;
@@ -72,29 +71,38 @@ html.os-viewport-scrollbar-hidden,
 [data-overlayscrollbars-initialize]::-webkit-scrollbar-corner,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar-corner,
-html.os-viewport-scrollbar-hidden::-webkit-scrollbar,
-html.os-viewport-scrollbar-hidden::-webkit-scrollbar-corner,
 .os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar,
 .os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar-corner,
 .os-viewport-scrollbar-hidden.os-viewport::-webkit-scrollbar,
 .os-viewport-scrollbar-hidden.os-viewport::-webkit-scrollbar-corner {
+  appearance: none !important;
   display: none !important;
-  width: 0px !important;
-  height: 0px !important;
-  visibility: hidden !important;
-  background: transparent !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/**
+ * elements wont suddenly crop after initialization is done
+ */
+
+[data-overlayscrollbars-initialize] {
+  overflow: auto;
 }
 
 /**
  * applied to body 
  */
 
+html[data-overlayscrollbars],
 html.os-viewport-scrollbar-hidden,
-html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
+html.os-viewport-scrollbar-hidden > body {
   box-sizing: border-box;
   margin: 0;
   width: 100%;
   height: 100%;
+}
+html[data-overlayscrollbars] > body {
+  overflow: visible;
 }
 
 /**
@@ -143,22 +151,22 @@ html.os-viewport-scrollbar-hidden > body[data-overlayscrollbars] {
 
 [data-overlayscrollbars~='host'],
 [data-overlayscrollbars~='viewport'] {
-  overflow: hidden !important;
+  overflow: hidden;
 }
 [data-overlayscrollbars~='overflowVisible'] {
-  overflow: visible !important;
+  overflow: visible;
 }
 [data-overlayscrollbars-overflow-x='hidden'] {
-  overflow-x: hidden !important;
+  overflow-x: hidden;
 }
 [data-overlayscrollbars-overflow-x='scroll'] {
-  overflow-x: scroll !important;
+  overflow-x: scroll;
 }
 [data-overlayscrollbars-overflow-x='hidden'] {
-  overflow-y: hidden !important;
+  overflow-y: hidden;
 }
 [data-overlayscrollbars-overflow-y='scroll'] {
-  overflow-y: scroll !important;
+  overflow-y: scroll;
 }
 
 .os-padding,

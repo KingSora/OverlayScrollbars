@@ -15,8 +15,8 @@ import { getPlugins, clickScrollPluginName } from '~/plugins';
 import { getEnvironment } from '~/environment';
 import {
   classNameScrollbarHandle,
-  classNamesScrollbarInteraction,
-  classNamesScrollbarWheel,
+  classNameScrollbarInteraction,
+  classNameScrollbarWheel,
 } from '~/classnames';
 import type { XY } from '~/support';
 import type { ClickScrollPluginInstance } from '~/plugins';
@@ -187,10 +187,10 @@ export const createScrollbarsSetupEvents =
 
     return runEachAndClear.bind(0, [
       on(_scrollbar, 'pointerenter', () => {
-        scrollbarsAddRemoveClass(classNamesScrollbarInteraction, true);
+        scrollbarsAddRemoveClass(classNameScrollbarInteraction, true);
       }),
       on(_scrollbar, 'pointerleave pointercancel', () => {
-        scrollbarsAddRemoveClass(classNamesScrollbarInteraction);
+        scrollbarsAddRemoveClass(classNameScrollbarInteraction);
       }),
       on(
         _scrollbar,
@@ -208,10 +208,10 @@ export const createScrollbarsSetupEvents =
           }
 
           wheelScrollBy = false;
-          scrollbarsAddRemoveClass(classNamesScrollbarWheel, true);
+          scrollbarsAddRemoveClass(classNameScrollbarWheel, true);
           wheelTimeout(() => {
             wheelScrollBy = true;
-            scrollbarsAddRemoveClass(classNamesScrollbarWheel);
+            scrollbarsAddRemoveClass(classNameScrollbarWheel);
           });
 
           preventDefault(wheelEvent);

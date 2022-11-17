@@ -1,14 +1,16 @@
 import { on, runEachAndClear, parent, scrollLeft, scrollTop, selfClearTimeout } from '~/support';
+import { getEnvironment } from '~/environment';
 import { createState, createOptionCheck } from '~/setups/setups';
 import { createScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
 import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import {
-  classNamesScrollbarVisible,
-  classNamesScrollbarUnusable,
-  classNamesScrollbarCornerless,
-  classNamesScrollbarAutoHidden,
-  classNamesScrollbarHandleInteractive,
-  classNamesScrollbarTrackInteractive,
+  classNameScrollbarThemeNone,
+  classNameScrollbarVisible,
+  classNameScrollbarUnusable,
+  classNameScrollbarCornerless,
+  classNameScrollbarAutoHidden,
+  classNameScrollbarHandleInteractive,
+  classNameScrollbarTrackInteractive,
   classNameScrollbarRtl,
 } from '~/classnames';
 import type {
@@ -73,7 +75,7 @@ export const createScrollbarsSetup = (
   const {
     _horizontal,
     _vertical,
-    _scrollbarsAddRemoveClass: scrollbarsAddRemoveClass,
+    _scrollbarsAddRemoveClass,
     _refreshScrollbarsHandleLength,
     _refreshScrollbarsHandleOffset,
   } = elements;
@@ -94,9 +96,9 @@ export const createScrollbarsSetup = (
   const manageScrollbarsAutoHide = (removeAutoHide: boolean, delayless?: boolean) => {
     clearAutoTimeout();
     if (removeAutoHide) {
-      scrollbarsAddRemoveClass(classNamesScrollbarAutoHidden);
+      _scrollbarsAddRemoveClass(classNameScrollbarAutoHidden);
     } else {
-      const hide = () => scrollbarsAddRemoveClass(classNamesScrollbarAutoHidden, true);
+      const hide = () => _scrollbarsAddRemoveClass(classNameScrollbarAutoHidden, true);
       if (globalAutoHideDelay > 0 && !delayless) {
         auotHideTimeout(hide);
       } else {
@@ -162,9 +164,12 @@ export const createScrollbarsSetup = (
         _overflowStyleChanged,
         _directionChanged,
       } = structureUpdateHints;
+      const { _nativeScrollbarsOverlaid } = getEnvironment();
       const checkOption = createOptionCheck(options, changedOptions, force);
       const currStructureSetupState = structureSetupState();
       const { _overflowAmount, _overflowStyle, _directionIsRTL } = currStructureSetupState;
+      const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
+        checkOption<boolean>('showNativeOverlaidScrollbars');
       const [theme, themeChanged] = checkOption<string | null>('scrollbars.theme');
       const [visibility, visibilityChanged] =
         checkOption<ScrollbarsVisibilityBehavior>('scrollbars.visibility');
@@ -174,22 +179,28 @@ export const createScrollbarsSetup = (
       const [dragScroll, dragScrollChanged] = checkOption<boolean>('scrollbars.dragScroll');
       const [clickScroll, clickScrollChanged] = checkOption<boolean>('scrollbars.clickScroll');
 
-      const updateHandle =
-        _overflowEdgeChanged || _overflowAmountChanged || _directionChanged || force;
-      const updateVisibility = _overflowStyleChanged || visibilityChanged || force;
+      const updateHandle = _overflowEdgeChanged || _overflowAmountChanged || _directionChanged;
+      const updateVisibility = _overflowStyleChanged || visibilityChanged;
+      const showNativeOverlaidScrollbars =
+        showNativeOverlaidScrollbarsOption &&
+        _nativeScrollbarsOverlaid.x &&
+        _nativeScrollbarsOverlaid.y;
 
       const setScrollbarVisibility = (overflowStyle: OverflowStyle, isHorizontal: boolean) => {
         const isVisible =
           visibility === 'visible' || (visibility === 'auto' && overflowStyle === 'scroll');
-        scrollbarsAddRemoveClass(classNamesScrollbarVisible, isVisible, isHorizontal);
+        _scrollbarsAddRemoveClass(classNameScrollbarVisible, isVisible, isHorizontal);
         return isVisible;
       };
 
       globalAutoHideDelay = autoHideDelay;
 
+      if (showNativeOverlaidScrollbarsChanged) {
+        _scrollbarsAddRemoveClass(classNameScrollbarThemeNone, showNativeOverlaidScrollbars);
+      }
       if (themeChanged) {
-        scrollbarsAddRemoveClass(prevTheme);
-        scrollbarsAddRemoveClass(theme, true);
+        _scrollbarsAddRemoveClass(prevTheme);
+        _scrollbarsAddRemoveClass(theme, true);
 
         prevTheme = theme;
       }
@@ -200,25 +211,25 @@ export const createScrollbarsSetup = (
         manageScrollbarsAutoHide(!autoHideNotNever, true);
       }
       if (dragScrollChanged) {
-        scrollbarsAddRemoveClass(classNamesScrollbarHandleInteractive, dragScroll);
+        _scrollbarsAddRemoveClass(classNameScrollbarHandleInteractive, dragScroll);
       }
       if (clickScrollChanged) {
-        scrollbarsAddRemoveClass(classNamesScrollbarTrackInteractive, clickScroll);
+        _scrollbarsAddRemoveClass(classNameScrollbarTrackInteractive, clickScroll);
       }
       if (updateVisibility) {
         const xVisible = setScrollbarVisibility(_overflowStyle.x, true);
         const yVisible = setScrollbarVisibility(_overflowStyle.y, false);
         const hasCorner = xVisible && yVisible;
 
-        scrollbarsAddRemoveClass(classNamesScrollbarCornerless, !hasCorner);
+        _scrollbarsAddRemoveClass(classNameScrollbarCornerless, !hasCorner);
       }
       if (updateHandle) {
         _refreshScrollbarsHandleLength(currStructureSetupState);
         _refreshScrollbarsHandleOffset(currStructureSetupState);
 
-        scrollbarsAddRemoveClass(classNamesScrollbarUnusable, !_overflowAmount.x, true);
-        scrollbarsAddRemoveClass(classNamesScrollbarUnusable, !_overflowAmount.y, false);
-        scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL && !_isBody);
+        _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.x, true);
+        _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.y, false);
+        _scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL && !_isBody);
       }
     },
     scrollbarsSetupState,
