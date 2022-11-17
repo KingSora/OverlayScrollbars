@@ -24,7 +24,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
 
 ## Goals & Features
 
- - Simple, powerful and good documented API
+ - Simple, powerful and well documented API
  - High browser compatibility - <b>Firefox</b>, <b>Chrome</b>, <b>Opera</b>, <b>Edge</b>, <b>Safari 10+</b> and <b>IE 11</b>
  - Can be run on the server - <b>SSR</b>, <b>SSG</b> and <b>ISR</b> support
  - Tested on various devices - <b>Mobile</b>, <b>Desktop</b> and <b>Tablet</b>

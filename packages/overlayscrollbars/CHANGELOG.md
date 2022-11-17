@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.1
+
+### Bug Fixes
+
+- The custom scrollbars are now always hidden if the `showNativeOverlaidScrollbars` option is `true`.
+
+### Improvements
+
+- The initialization to the `body` element respects now `overflow: hidden` style overrides of the `html` and `body` element. ([#477](https://github.com/KingSora/OverlayScrollbars/issues/477))
+- `data-overlayscrollbars-initialize` is now automatically removed if the instance is destroyed or canceled.
+- `data-overlayscrollbars-initialize` now always sets `overflow: auto` to prevent elements to be suddenly cropped after initialization.
+- removed obsolete `!important` styles
+
 ## 2.0.0
 
 OverlayScrollbars was rewritten from the ground up in `TypeScript` in a functional manner.
