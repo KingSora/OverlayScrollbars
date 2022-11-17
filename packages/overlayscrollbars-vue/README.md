@@ -145,16 +145,14 @@ const Component = {
       initialize({ target: div.value });
     });
 
-    onUnmounted(() => {
-      instance().destroy();
-    });
-
     return () => <div ref={div} />
   },
 }
 ```
 
 The composable is for advanced usage and lets you control the whole initialization process. This is useful if you want to integrate it with other plugins.
+
+The composable will destroy the instance automatically if the component unmounts.
 
 ### Parameters
 
