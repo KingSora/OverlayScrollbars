@@ -20,8 +20,8 @@ The component was rewritten using `script setup`.
 
 ### Features
 
-- `OverlayScrollbarsComponent` has now the `events` property
-- `OverlayScrollbarsComponent` has now the `element` property
+- `OverlayScrollbarsComponent` accepts now the `events` property
+- `OverlayScrollbarsComponent` accepts now the `element` property
 - `OverlayScrollbarsComponent` emits now all `OverlayScrollbars` events as "native" Vue events
 - The `useOverlayScrollbars` composable was added for advanced usage 
 
