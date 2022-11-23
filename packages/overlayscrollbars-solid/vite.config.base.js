@@ -1,16 +1,14 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { esbuildResolve } from 'rollup-plugin-esbuild-resolve';
-import solidPlugin from 'vite-plugin-solid';
 import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
 import rollupPluginCopy from '@~local/rollup/plugin/copy';
 
-export default defineConfig({
+export const base = defineConfig({
   build: {
     sourcemap: true,
     outDir: 'dist',
     lib: {
-      formats: ['es', 'cjs'],
       entry: resolve(__dirname, 'src/overlayscrollbars-solid.ts'),
       name: 'OverlayScrollbarsSolid',
       fileName: (format) => `overlayscrollbars-solid.${format}.js`,
@@ -58,5 +56,5 @@ export default defineConfig({
       ],
     },
   },
-  plugins: [esbuildResolve(), solidPlugin()],
+  plugins: [esbuildResolve()],
 });

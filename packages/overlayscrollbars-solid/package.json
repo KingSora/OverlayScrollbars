@@ -42,7 +42,7 @@
   },
   "scripts": {
     "build": "run-p build-js build-types",
-    "build-js": "vite build",
+    "build-js": "vite build --config vite.config.client.js && vite build --config vite.config.server.js",
     "build-types": "tsc --emitDeclarationOnly -p tsconfig.types.json --composite false",
     "test": "vitest run --coverage"
   },
