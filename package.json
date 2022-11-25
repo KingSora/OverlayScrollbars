@@ -79,7 +79,7 @@
     "build:ngx": "npm run build --workspace=overlayscrollbars-ngx",
     "build:svelte": "npm run build --workspace=overlayscrollbars-svelte",
     "build:solid": "npm run build --workspace=overlayscrollbars-solid",
-    "example:react": "npm run build:react && cd examples/react && npm i && npm run start",
+    "example:react": "npm run build:react && cd examples/react && npm i && npm run dev",
     "example:vue": "npm run build:vue && cd examples/vue && npm i && npm run dev",
     "example:ngx": "npm run build:ngx && cd examples/angular && npm i && npm run start",
     "example:svelte": "npm run build:svelte && cd examples/svelte && npm i && npm run dev",
