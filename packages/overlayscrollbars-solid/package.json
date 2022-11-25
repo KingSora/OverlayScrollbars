@@ -41,9 +41,7 @@
     "vite-plugin-solid": "^2.3.0"
   },
   "scripts": {
-    "build": "run-p build-js build-types",
-    "build-js": "vite build --config vite.config.client.js && vite build --config vite.config.server.js",
-    "build-types": "tsc --emitDeclarationOnly -p tsconfig.types.json --composite false",
+    "build": "vite build",
     "test": "vitest run --coverage"
   },
   "sideEffects": false
