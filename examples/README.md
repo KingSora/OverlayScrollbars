@@ -6,9 +6,9 @@ Run example applications with `OverlayScrollbars`.
 
 ## Install and Build
 
-Before you can start any application you have to install all dependencies and build the library:
+Before any application can be started, all dependencies have to be installed and the library has to be build:
 
-1. `npm i`
+1. `npm install`
 2. `npm run build:os`
 
 ## Run Example
