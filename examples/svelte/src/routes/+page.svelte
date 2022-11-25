@@ -4,8 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>OverlayScrollbars & Svelte</title>
 </svelte:head>
 
 <OverlayScrollbarsComponent style="height: 222px; width: 222px" :options="options">
