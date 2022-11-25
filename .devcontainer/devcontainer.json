@@ -3,7 +3,7 @@
 {
 	"name": "Node.js & TypeScript",
 	"image": "mcr.microsoft.com/devcontainers/typescript-node:16-bullseye",
-	"postCreateCommand": "npm i && npm run build:os"
+	// "postCreateCommand": "npm i && npm run build:os"
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
