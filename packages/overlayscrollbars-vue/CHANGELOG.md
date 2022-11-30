@@ -6,7 +6,7 @@
 
 Added the possibility to `defer` the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) 
 - `OverlayScrollbarsComponent` accepts now the `defer` property
-- `useOverlayScrollbars` params accept now the `defer` key
+- `useOverlayScrollbars` params accept now the `defer` property
 - `useOverlayScrollbars` will now always try to destroy the instance if the component unmounts.
 
 ### Breaking Changes

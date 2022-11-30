@@ -1,7 +1,7 @@
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import logo from './logo.svg';
 
-function App() {
+const App = () => {
   return (
     <div className="App">
       <OverlayScrollbarsComponent
@@ -13,6 +13,6 @@ function App() {
       </OverlayScrollbarsComponent>
     </div>
   );
-}
+};
 
 export default App;
