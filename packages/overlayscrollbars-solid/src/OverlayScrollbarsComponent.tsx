@@ -25,6 +25,8 @@ export type OverlayScrollbarsComponentProps<T extends keyof JSX.IntrinsicElement
     options?: PartialOptions | false | null;
     /** OverlayScrollbars events. */
     events?: EventListeners | false | null;
+    /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
+    defer?: boolean | IdleRequestOptions;
     /** OverlayScrollbarsComponent ref. */
     ref?: Exclude<Ref<OverlayScrollbarsComponentRef>, OverlayScrollbarsComponentRef>;
   }>;
@@ -41,7 +43,7 @@ export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements
 ) => {
   const [finalProps, other] = splitProps(
     mergeProps({ element: 'div' }, props as OverlayScrollbarsComponentProps),
-    ['element', 'options', 'events', 'ref', 'children']
+    ['element', 'options', 'events', 'defer', 'ref', 'children']
   );
   const [elementRef, setElementRef] = createSignal<HTMLDivElement | undefined>();
   const [childrenRef, setChildrenRef] = createSignal<HTMLDivElement | undefined>();
@@ -52,7 +54,7 @@ export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements
     const currChildrenElement = childrenRef();
 
     if (currElement && currChildrenElement) {
-      const osInstance = initialize({
+      initialize({
         target: currElement,
         elements: {
           viewport: currChildrenElement,
@@ -61,7 +63,7 @@ export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements
       });
 
       onCleanup(() => {
-        osInstance.destroy();
+        instance()?.destroy();
       });
     }
   });
@@ -73,10 +75,6 @@ export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements
         /* c8 ignore next */
         elementRef() || null,
     });
-  });
-
-  onCleanup(() => {
-    instance()?.destroy();
   });
 
   return (

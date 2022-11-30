@@ -1,10 +1,19 @@
-import { describe, test, afterEach, expect, vitest } from 'vitest';
+import { describe, test, afterEach, expect, vitest, vi } from 'vitest';
 import { createSignal, createEffect } from 'solid-js';
 import { render, screen, cleanup, fireEvent } from 'solid-testing-library';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from '~/overlayscrollbars-solid';
 import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-solid';
+
+vi.useFakeTimers({
+  toFake: [
+    'requestAnimationFrame',
+    'cancelAnimationFrame',
+    'requestIdleCallback',
+    'cancelIdleCallback',
+  ],
+});
 
 const createTestComponent =
   (props: any = {}) =>
@@ -197,6 +206,44 @@ describe('OverlayScrollbarsComponent', () => {
       );
 
       expect(container.firstElementChild).toHaveStyle({ height: '33px' });
+    });
+  });
+
+  describe('deferred initialization', () => {
+    test('basic defer', () => {
+      const { container } = render(() => <OverlayScrollbarsComponent defer />);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
+    });
+
+    test('options defer', () => {
+      const { container } = render(() => <OverlayScrollbarsComponent defer={{ timeout: 0 }} />);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
+    });
+
+    test('defer with unsupported Idle', () => {
+      const original = window.requestIdleCallback;
+      // @ts-ignore
+      window.requestIdleCallback = undefined;
+
+      const { container } = render(() => <OverlayScrollbarsComponent defer />);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
+
+      window.requestIdleCallback = original;
     });
   });
 

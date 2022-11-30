@@ -57,18 +57,22 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-solid";
 
 // ...
 
-<OverlayScrollbarsComponent>
+<OverlayScrollbarsComponent defer>
   example content
 </OverlayScrollbarsComponent>
 ```
 
 ### Properties
 
-It has three optional properties: `element`, `options` and `events`.
+The component accepts all properties of intrinsic JSX elements such as `div` and `span`.  
+Additionally it has custom optional properties:
 
 - `element`: accepts a `string` which represents the tag of the root element.
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
+- `defer`: accepts an `boolean` or `object`. Defers the initialization to a point in time when the browser is idle.
+
+> __Note__: Its **highly recommended** to use the `defer` option whenever possible to defer the initialization to a browser's idle period.
 
 ```jsx
 // example usage
@@ -76,6 +80,7 @@ It has three optional properties: `element`, `options` and `events`.
   element="span"
   options={{ scrollbars: { autoHide: 'scroll' } }}
   events={{ scroll: () => { /* ... */ } }}
+  defer
 />
 ```
 
@@ -108,7 +113,7 @@ import { createOverlayScrollbars } from "overlayscrollbars-solid";
 // example usage
 const Component = () => {
   let div;
-  const [params, setParams] = createStore({ options, events });
+  const [params, setParams] = createStore({ options, events, defer });
   const [initialize, instance] = createOverlayScrollbars(params);
 
   /** 
@@ -124,16 +129,13 @@ const Component = () => {
    * const [initialize, instance] = createOverlayScrollbars({
    *   options,
    *   events,
+   *   defer,
    * });
    * 
    */
 
   onMount(() => {
     initialize({ target: div });
-  });
-
-  onCleanup(() => {
-    instance().destroy();
   });
 
   return <div ref={div} />
@@ -145,12 +147,13 @@ The primitive is for advanced usage and lets you control the whole initializatio
 ### Parameters
 
 Parameters are optional and similar to the `OverlayScrollbarsComponent`.
-Its an `object` with two optional properties:
+Its an `object` with optional properties:
 
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
+- `defer`: accepts an `boolean` or `object`. Defers the initialization to a point in time when the browser is idle.
 
-> __Note__: The object can be a normal, `store` or `signal` object. This also applies to the `options` and `events` fields.
+> __Note__: The object can be a normal, `store` or `signal` object. This also applies to all fields.
 
 ### Return
 

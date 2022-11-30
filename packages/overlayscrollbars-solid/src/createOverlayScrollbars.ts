@@ -1,4 +1,4 @@
-import { createRenderEffect } from 'solid-js';
+import { createRenderEffect, onCleanup } from 'solid-js';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import type { Accessor } from 'solid-js';
 import type { Store } from 'solid-js/store';
@@ -7,6 +7,11 @@ import type {
   OverlayScrollbarsComponentProps,
   OverlayScrollbarsComponentRef,
 } from './OverlayScrollbarsComponent';
+
+type Defer = [
+  requestDefer: (callback: () => any, options?: OverlayScrollbarsComponentProps['defer']) => void,
+  cancelDefer: () => void
+];
 
 export interface CreateOverlayScrollbarsParams {
   /** OverlayScrollbars options. */
@@ -17,15 +22,58 @@ export interface CreateOverlayScrollbarsParams {
   events?:
     | OverlayScrollbarsComponentProps['events']
     | Accessor<OverlayScrollbarsComponentProps['events']>;
+  /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
+  defer?:
+    | OverlayScrollbarsComponentProps['defer']
+    | Accessor<OverlayScrollbarsComponentProps['defer']>;
 }
 
-export type CreateOverlayScrollbarsInitialization = (
-  target: InitializationTarget
-) => OverlayScrollbars;
+export type CreateOverlayScrollbarsInitialization = (target: InitializationTarget) => void;
 
 export type CreateOverlayScrollbarsInstance = () => ReturnType<
   OverlayScrollbarsComponentRef['osInstance']
 >;
+
+const createDefer = (): Defer => {
+  /* c8 ignore start */
+  if (typeof window === 'undefined') {
+    // mock ssr calls with "noop"
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const noop = () => {};
+    return [noop, noop];
+  }
+  /* c8 ignore end */
+
+  let idleId: number;
+  let rafId: number;
+  const wnd = window;
+  const idleSupported = typeof wnd.requestIdleCallback === 'function';
+  const rAF = wnd.requestAnimationFrame;
+  const cAF = wnd.cancelAnimationFrame;
+  const rIdle = idleSupported ? wnd.requestIdleCallback : rAF;
+  const cIdle = idleSupported ? wnd.cancelIdleCallback : cAF;
+  const clear = () => {
+    cIdle(idleId);
+    cAF(rafId);
+  };
+
+  return [
+    (callback, options) => {
+      clear();
+      idleId = rIdle(
+        idleSupported
+          ? () => {
+              clear();
+              // inside idle its best practice to use rAF to change DOM for best performance
+              rafId = rAF(callback);
+            }
+          : callback,
+        typeof options === 'object' ? options : { timeout: 2233 }
+      );
+    },
+    clear,
+  ];
+};
 
 const isAccessor = (obj: any): obj is Accessor<any> => typeof obj === 'function';
 const unwrapAccessor = <T>(obj: Accessor<T> | T): T => (isAccessor(obj) ? obj() : obj);
@@ -39,6 +87,12 @@ export const createOverlayScrollbars = (
   let instance: OverlayScrollbars | null = null;
   let options: OverlayScrollbarsComponentProps['options'];
   let events: OverlayScrollbarsComponentProps['events'];
+  let defer: OverlayScrollbarsComponentProps['defer'];
+  const [requestDefer, clearDefer] = createDefer();
+
+  createRenderEffect(() => {
+    defer = unwrapAccessor(unwrapAccessor(params)?.defer);
+  });
 
   createRenderEffect(() => {
     options = unwrapAccessor(unwrapAccessor(params)?.options);
@@ -56,14 +110,25 @@ export const createOverlayScrollbars = (
     }
   });
 
+  onCleanup(() => {
+    clearDefer();
+    instance?.destroy();
+  });
+
   return [
-    (target: InitializationTarget): OverlayScrollbars => {
-      // if already initialized return the current instance
+    (target) => {
+      // if already initialized do nothing
       if (OverlayScrollbars.valid(instance)) {
         return instance;
       }
 
-      return (instance = OverlayScrollbars(target, options || {}, events || {}));
+      const init = () => (instance = OverlayScrollbars(target, options || {}, events || {}));
+
+      if (defer) {
+        requestDefer(init, defer);
+      } else {
+        init();
+      }
     },
     () => instance,
   ];

@@ -3,8 +3,9 @@ import { createSignal, createEffect, onMount } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { render, screen, cleanup } from 'solid-testing-library';
 import userEvent from '@testing-library/user-event';
+import { OverlayScrollbars } from 'overlayscrollbars';
 import { createOverlayScrollbars } from '~/overlayscrollbars-solid';
-import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlayscrollbars';
+import type { PartialOptions, EventListeners } from 'overlayscrollbars';
 
 describe('OverlayScrollbarsComponent', () => {
   afterEach(() => cleanup());
@@ -17,12 +18,11 @@ describe('OverlayScrollbarsComponent', () => {
         <>
           <button
             onClick={(event) => {
-              const osInstance = initialize(event.target as HTMLElement);
+              initialize(event.target as HTMLElement);
               if (instanceRef) {
-                expect(instanceRef).toBe(osInstance);
                 expect(instanceRef).toBe(instance());
               }
-              instanceRef = osInstance;
+              instanceRef = instance();
               expect(instanceRef).toBe(instance());
             }}
           >
@@ -32,7 +32,7 @@ describe('OverlayScrollbarsComponent', () => {
       );
     };
 
-    render(Test);
+    const { unmount } = render(Test);
 
     const initializeBtn = screen.getByRole('button');
     userEvent.click(initializeBtn);
@@ -42,10 +42,16 @@ describe('OverlayScrollbarsComponent', () => {
     userEvent.click(initializeBtn);
 
     expect(snapshot).toBe(initializeBtn.innerHTML);
+
+    expect(OverlayScrollbars(initializeBtn)).toBeDefined();
+
+    unmount();
+
+    expect(OverlayScrollbars(initializeBtn)).toBeUndefined();
   });
 
   test('params store', () => {
-    let osInstance: OverlayScrollbars;
+    let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
     render(() => {
       let div: HTMLDivElement;
@@ -56,7 +62,8 @@ describe('OverlayScrollbarsComponent', () => {
       const [initialize, instance] = createOverlayScrollbars(params);
 
       onMount(() => {
-        osInstance = initialize({ target: div! });
+        initialize({ target: div! });
+        osInstance = instance();
       });
 
       createEffect(() => {
@@ -92,7 +99,7 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('params signal', () => {
-    let osInstance: OverlayScrollbars;
+    let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
     render(() => {
       let div: HTMLDivElement;
@@ -103,7 +110,8 @@ describe('OverlayScrollbarsComponent', () => {
       const [initialize, instance] = createOverlayScrollbars(params);
 
       onMount(() => {
-        osInstance = initialize({ target: div! });
+        initialize({ target: div! });
+        osInstance = instance();
       });
 
       createEffect(() => {
@@ -139,7 +147,7 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('params fields signal', async () => {
-    let osInstance: OverlayScrollbars;
+    let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
     render(() => {
       let div: HTMLDivElement;
@@ -151,7 +159,8 @@ describe('OverlayScrollbarsComponent', () => {
       });
 
       onMount(() => {
-        osInstance = initialize({ target: div! });
+        initialize({ target: div! });
+        osInstance = instance();
       });
 
       createEffect(() => {
