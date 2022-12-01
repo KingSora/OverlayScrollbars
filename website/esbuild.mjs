@@ -11,6 +11,7 @@ await esbuild({
   outdir: './next-app/src',
   outbase: 'src',
   platform: 'node',
+  mainFields: ['module', 'main'],
   loader: {
     '.aac': 'copy',
     '.avif': 'copy',
@@ -45,4 +46,5 @@ await esbuild({
   minify,
   define,
   watch,
+  preserveSymlinks: true,
 });
