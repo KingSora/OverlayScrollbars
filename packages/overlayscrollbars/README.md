@@ -485,33 +485,18 @@ You can write and publish your own Plugins. This section is a work in progress.
 
 <details>
   <summary>
-    How do I <code>get</code> the <code>scroll position</code> of an element I applied the OverlayScrollbars to?
+    How do I <code>get / set</code> the <code>scroll position</code> of an element I applied the OverlayScrollbars to?
   </summary>
   <br />
 
- If you applied `OverlayScrollbars` to the `body` element you can use [`window.scrollX`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollX), [`window.scrollY`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollY) or any other native api.
+ If you applied `OverlayScrollbars` to the `body` element you can use [`window.scrollX`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollX), [`window.scrollY`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollY), [`window.scroll`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scroll), [`window.scrollTo`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollTo), [`window.scrollBy`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollBy) or any other native api. 
 
-If the plugin was applied to any other element you have to get the `instance` first. With the instance you can get the `viewport` element. With this element you can use [`element.scrollTop`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTop), [`element.scrollLeft`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollLeft) or any other native api.
-
-```js
-const { viewport } = osInstance.elements();
-const { scrollLeft, scrollTop } = viewport;
-```
-</details>
-
-<details>
-  <summary>
-    How do I <code>set</code> the <code>scroll position</code> of an element I applied the OverlayScrollbars to?
-  </summary>
-  <br />
-
- If you applied `OverlayScrollbars` to the `body` element you can scroll it with [`window.scroll`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scroll), [`window.scrollTo`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollTo), [`window.scrollBy`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollBy) or any other native api. 
-
-If the plugin was applied to any other element you have to get the `instance` first. With the instance you can get the `viewport` element. With this element you can use [`element.scroll`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scroll), [`element.scrollTo`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo), [`element.scrollBy`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollBy) or any other native api.
+If the plugin was applied to any other element you have to get the `viewport` element with the `instance.elements()` function first. With this element you can use [`element.scrollTop`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTop), [`element.scrollLeft`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollLeft), [`element.scroll`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scroll), [`element.scrollTo`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo), [`element.scrollBy`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollBy) or any other native api.
 
 ```js
 const { viewport } = osInstance.elements();
-viewport.scrollTo({ top: 0 });
+const { scrollLeft, scrollTop } = viewport; // get scroll offset
+viewport.scrollTo({ top: 0 }); // set scroll offset
 ```
 </details>
 
