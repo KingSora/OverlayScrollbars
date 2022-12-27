@@ -68,7 +68,7 @@ import { OverlayScrollbars } from 'overlayscrollbars';
 
 <details>
   <summary>
-    These instructions are for old stacks. Click here to read them.
+    These instructions are for quick prototyping or old stacks. Click here to read them.
   </summary>
   <br />
   
@@ -82,7 +82,13 @@ Simply download it from the [Releases](https://github.com/KingSora/OverlayScroll
 Embedd OverlayScrollbars manually in your HTML:
 ```html
 <link type="text/css" href="path/to/overlayscrollbars.css" rel="stylesheet" />
-<script type="text/javascript" src="path/to/overlayscrollbars.js" defer></script>
+<script type="text/javascript" src="path/to/overlayscrollbars.browser.js" defer></script>
+```
+
+You can use the global variable `OverlayScrollbarsGlobal` to access the api:
+```js
+var OverlayScrollbars = OverlayScrollbarsGlobal.OverlayScrollbars;
+OverlayScrollbars(document.body, {});
 ```
 </details>
 
