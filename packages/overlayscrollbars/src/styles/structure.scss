@@ -109,8 +109,7 @@ html[data-overlayscrollbars] > body {
  * structure setup 
  */
 
-[data-overlayscrollbars~='host'],
-.os-padding {
+[data-overlayscrollbars~='host'] {
   position: relative;
 }
 [data-overlayscrollbars~='host'],
