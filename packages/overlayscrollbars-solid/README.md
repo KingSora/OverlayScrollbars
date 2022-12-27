@@ -126,6 +126,7 @@ const Component = () => {
    * 
    * const [options, setOptions] = createSignal();
    * const [events, setEvents] = createSignal();
+   * const [defer, setDefer] = createSignal();
    * const [initialize, instance] = createOverlayScrollbars({
    *   options,
    *   events,
