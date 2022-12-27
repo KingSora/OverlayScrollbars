@@ -463,6 +463,66 @@ OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
 
 You can write and publish your own Plugins. This section is a work in progress.
 
+## FAQ
+
+<details>
+  <summary>
+    How do I <code>get</code> the <code>scroll position</code> of an element I applied the OverlayScrollbars to?
+  </summary>
+  <br />
+
+ If you applied `OverlayScrollbars` to the `body` element you can use [`window.scrollX`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollX), [`window.scrollY`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollY) or any other native api.
+
+If the plugin was applied to any other element you have to get the `instance` first. With the instance you can get the `viewport` element. With this element you can use [`element.scrollTop`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTop), [`element.scrollLeft`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollLeft) or any other native api.
+
+```js
+const { viewport } = osInstance.elements();
+const { scrollLeft, scrollTop } = viewport;
+```
+</details>
+
+<details>
+  <summary>
+    How do I <code>set</code> the <code>scroll position</code> of an element I applied the OverlayScrollbars to?
+  </summary>
+  <br />
+
+ If you applied `OverlayScrollbars` to the `body` element you can scroll it with [`window.scroll`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scroll), [`window.scrollTo`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollTo), [`window.scrollBy`](https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollBy) or any other native api. 
+
+If the plugin was applied to any other element you have to get the `instance` first. With the instance you can get the `viewport` element. With this element you can use [`element.scroll`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scroll), [`element.scrollTo`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo), [`element.scrollBy`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollBy) or any other native api.
+
+```js
+const { viewport } = osInstance.elements();
+viewport.scrollTo({ top: 0 });
+```
+</details>
+
+<details>
+  <summary>
+    Is it possible to <code>limit / adjust the scrollbar handle length</code>? 
+  </summary>
+  <br />
+
+ You can adjust a scrollbars handle length by setting a `min-width / min-height` and `max-width / max-height` style:
+
+```css
+/* horizontal boundaries */
+.os-scrollbar-horizontal .os-scrollbar-handle {
+  min-width: 50px;
+  max-width: 200px;
+}
+/* vertical boundaries */
+.os-scrollbar-vertical .os-scrollbar-handle {
+  min-height: 40px;
+  max-height: 40px;
+}
+```
+
+  You can assign the same value to both properties to force the scrollbar to be always the same size.  
+  Setting the `width` and `height` properties won't work since those are set by the plugin automatically. 
+
+</details>
+
 ## Feature comparison to `v1`
 
 - The `scroll` function is missing. Planned as a `plugin`. (WIP)

@@ -82,9 +82,16 @@ module.exports = {
               display: 'inline',
               margin: 0,
             },
+            details: {
+              marginTop: theme('margin[4]'),
+              marginBottom: theme('margin[4]'),
+            },
             summary: {
               display: 'list-item',
               cursor: 'pointer',
+            },
+            'summary + br': {
+              display: 'none',
             },
           },
         },
