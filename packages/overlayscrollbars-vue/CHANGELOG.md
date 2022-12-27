@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+The TypeScript interfaces `OverlayScrollbarsProps` and `OverlayScrollbarsRef` are exported from the package.
+
 ## 0.5.0
 
 ### Features

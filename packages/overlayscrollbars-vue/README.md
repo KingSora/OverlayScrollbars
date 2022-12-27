@@ -133,6 +133,7 @@ const Component = {
      * 
      * const options = ref();
      * const events = ref();
+     * const defer = ref();
      * const [initialize, instance] = useOverlayScrollbars({
      *   options,
      *   events,

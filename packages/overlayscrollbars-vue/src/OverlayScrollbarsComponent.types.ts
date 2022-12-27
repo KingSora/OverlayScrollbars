@@ -1,9 +1,13 @@
 import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlayscrollbars';
 
 export interface OverlayScrollbarsComponentProps {
+  /** Tag of the root element. */
   element?: string;
+  /** OverlayScrollbars options. */
   options?: PartialOptions | false | null;
+  /** OverlayScrollbars events. */
   events?: EventListeners | false | null;
+  /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
   defer?: boolean | IdleRequestOptions;
 }
 
