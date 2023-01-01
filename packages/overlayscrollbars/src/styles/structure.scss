@@ -122,6 +122,7 @@ html[data-overlayscrollbars] > body {
 .os-padding,
 .os-viewport {
   box-sizing: inherit;
+  position: relative; // needed for correct padding styles
   flex: auto !important;
   height: auto;
   width: 100%;
@@ -134,10 +135,6 @@ html[data-overlayscrollbars] > body {
 .os-viewport {
   --os-vaw: 0;
   --os-vah: 0;
-
-  &.os-viewport-arrange {
-    position: relative;
-  }
 
   &.os-viewport-arrange::before {
     content: '';
