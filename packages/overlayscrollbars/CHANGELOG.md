@@ -8,13 +8,13 @@ Revert the `viewport` and `padding` style `position: relative` change introduced
 
 ### Bug Fixes
 
-- The `viewport` and `padding` elements won't have the style `position: relative` anymore if its not needed. The style is only needed for older browsers. ([#489](https://github.com/KingSora/OverlayScrollbars/issues/489))
+The `viewport` and `padding` elements won't have the style `position: relative` anymore if its not needed. The style is only needed for older browsers. ([#489](https://github.com/KingSora/OverlayScrollbars/issues/489))
 
 ## 2.0.1
 
 ### Bug Fixes
 
-- The custom scrollbars are now always hidden if the `showNativeOverlaidScrollbars` option is `true`.
+The custom scrollbars are now always hidden if the `showNativeOverlaidScrollbars` option is `true`.
 
 ### Improvements
 
