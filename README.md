@@ -491,7 +491,7 @@ You can write and publish your own Plugins. This section is a work in progress.
 
 <details>
   <summary>
-    How do I <code>get / set</code> the <code>scroll position</code> of an element I applied the OverlayScrollbars to?
+    How do I <code>get / set</code> the <code>scroll position</code> of an element I applied OverlayScrollbars to?
   </summary>
   <br />
 
