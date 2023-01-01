@@ -1,6 +1,10 @@
 # Changelog
 
-## 2.0.1
+## 2.0.3
+
+Revert the `viewport` and `padding` style `position: relative` change introduced in `v2.0.2` due to breaking behavior. [#489](https://github.com/KingSora/OverlayScrollbars/issues/489) is considered a design limitation.
+
+## 2.0.2
 
 ### Bug Fixes
 
