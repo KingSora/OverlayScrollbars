@@ -151,6 +151,52 @@ const initObj = hasClass(document.body, 'vpt')
 
 let updateCount = 0;
 
+resize(target!).addResizeListener((width, height) => {
+  style(comparison, { width, height });
+});
+// resize(comparison!).addResizeListener((width, height) => style(target, { width, height }));
+resize(targetResize!).addResizeListener((width, height) => {
+  style(comparisonResize, { width, height });
+});
+// resize(comparisonRes!).addResizeListener((width, height) => style(targetRes, { width, height }));
+
+const selectCallbackEnv = generateClassChangeSelectCallback(from(envElms));
+const envWidthSelect = document.querySelector<HTMLSelectElement>('#envWidth');
+const envHeightSelect = document.querySelector<HTMLSelectElement>('#envHeight');
+const containerWidthSelect = document.querySelector<HTMLSelectElement>('#width');
+const containerHeightSelect = document.querySelector<HTMLSelectElement>('#height');
+const containerFloatSelect = document.querySelector<HTMLSelectElement>('#float');
+const containerPaddingSelect = document.querySelector<HTMLSelectElement>('#padding');
+const containerBorderSelect = document.querySelector<HTMLSelectElement>('#border');
+const containerMarginSelect = document.querySelector<HTMLSelectElement>('#margin');
+const containerBoxSizingSelect = document.querySelector<HTMLSelectElement>('#boxSizing');
+const containerDirectionSelect = document.querySelector<HTMLSelectElement>('#direction');
+const containerMinMaxSelect = document.querySelector<HTMLSelectElement>('#minMax');
+
+envWidthSelect?.addEventListener('change', selectCallbackEnv);
+envHeightSelect?.addEventListener('change', selectCallbackEnv);
+containerWidthSelect?.addEventListener('change', selectCallbackEnv);
+containerHeightSelect?.addEventListener('change', selectCallbackEnv);
+containerFloatSelect?.addEventListener('change', selectCallbackEnv);
+containerPaddingSelect?.addEventListener('change', selectCallbackEnv);
+containerBorderSelect?.addEventListener('change', selectCallbackEnv);
+containerMarginSelect?.addEventListener('change', selectCallbackEnv);
+containerBoxSizingSelect?.addEventListener('change', selectCallbackEnv);
+containerDirectionSelect?.addEventListener('change', selectCallbackEnv);
+containerMinMaxSelect?.addEventListener('change', selectCallbackEnv);
+
+selectCallbackEnv(envWidthSelect);
+selectCallbackEnv(envHeightSelect);
+selectCallbackEnv(containerWidthSelect);
+selectCallbackEnv(containerHeightSelect);
+selectCallbackEnv(containerFloatSelect);
+selectCallbackEnv(containerPaddingSelect);
+selectCallbackEnv(containerBorderSelect);
+selectCallbackEnv(containerMarginSelect);
+selectCallbackEnv(containerBoxSizingSelect);
+selectCallbackEnv(containerDirectionSelect);
+selectCallbackEnv(containerMinMaxSelect);
+
 // @ts-ignore
 const osInstance =
   // @ts-ignore
@@ -273,58 +319,6 @@ const metricsDimensionsEqual = (a: Metrics, b: Metrics) => {
 
   return JSON.stringify(aDimensions) === JSON.stringify(bDimensions);
 };
-
-osInstance.elements().viewport.addEventListener('scroll', (e) => {
-  const viewport: HTMLElement | null = e.currentTarget as HTMLElement;
-  comparison!.scrollLeft = viewport.scrollLeft;
-  comparison!.scrollTop = viewport.scrollTop;
-});
-
-resize(target!).addResizeListener((width, height) => {
-  style(comparison, { width, height });
-});
-// resize(comparison!).addResizeListener((width, height) => style(target, { width, height }));
-resize(targetResize!).addResizeListener((width, height) => {
-  style(comparisonResize, { width, height });
-});
-// resize(comparisonRes!).addResizeListener((width, height) => style(targetRes, { width, height }));
-
-const selectCallbackEnv = generateClassChangeSelectCallback(from(envElms));
-const envWidthSelect = document.querySelector<HTMLSelectElement>('#envWidth');
-const envHeightSelect = document.querySelector<HTMLSelectElement>('#envHeight');
-const containerWidthSelect = document.querySelector<HTMLSelectElement>('#width');
-const containerHeightSelect = document.querySelector<HTMLSelectElement>('#height');
-const containerFloatSelect = document.querySelector<HTMLSelectElement>('#float');
-const containerPaddingSelect = document.querySelector<HTMLSelectElement>('#padding');
-const containerBorderSelect = document.querySelector<HTMLSelectElement>('#border');
-const containerMarginSelect = document.querySelector<HTMLSelectElement>('#margin');
-const containerBoxSizingSelect = document.querySelector<HTMLSelectElement>('#boxSizing');
-const containerDirectionSelect = document.querySelector<HTMLSelectElement>('#direction');
-const containerMinMaxSelect = document.querySelector<HTMLSelectElement>('#minMax');
-
-envWidthSelect?.addEventListener('change', selectCallbackEnv);
-envHeightSelect?.addEventListener('change', selectCallbackEnv);
-containerWidthSelect?.addEventListener('change', selectCallbackEnv);
-containerHeightSelect?.addEventListener('change', selectCallbackEnv);
-containerFloatSelect?.addEventListener('change', selectCallbackEnv);
-containerPaddingSelect?.addEventListener('change', selectCallbackEnv);
-containerBorderSelect?.addEventListener('change', selectCallbackEnv);
-containerMarginSelect?.addEventListener('change', selectCallbackEnv);
-containerBoxSizingSelect?.addEventListener('change', selectCallbackEnv);
-containerDirectionSelect?.addEventListener('change', selectCallbackEnv);
-containerMinMaxSelect?.addEventListener('change', selectCallbackEnv);
-
-selectCallbackEnv(envWidthSelect);
-selectCallbackEnv(envHeightSelect);
-selectCallbackEnv(containerWidthSelect);
-selectCallbackEnv(containerHeightSelect);
-selectCallbackEnv(containerFloatSelect);
-selectCallbackEnv(containerPaddingSelect);
-selectCallbackEnv(containerBorderSelect);
-selectCallbackEnv(containerMarginSelect);
-selectCallbackEnv(containerBoxSizingSelect);
-selectCallbackEnv(containerDirectionSelect);
-selectCallbackEnv(containerMinMaxSelect);
 
 const checkMetrics = async (checkComparison: CheckComparisonObj) => {
   const {

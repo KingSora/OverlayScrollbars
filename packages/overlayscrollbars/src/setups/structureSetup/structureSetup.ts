@@ -1,4 +1,11 @@
-import { createEventListenerHub, isEmptyObject, keys, scrollLeft, scrollTop } from '~/support';
+import {
+  createEventListenerHub,
+  directionIsRTL,
+  isEmptyObject,
+  keys,
+  scrollLeft,
+  scrollTop,
+} from '~/support';
 import { createState, createOptionCheck } from '~/setups/setups';
 import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
 import { createStructureSetupUpdate } from '~/setups/structureSetup/structureSetup.update';
@@ -34,7 +41,9 @@ type StructureSetupEventMap = {
 };
 
 const initialXYNumber = { x: 0, y: 0 };
-const initialStructureSetupUpdateState: StructureSetupState = {
+const createInitialStructureSetupUpdateState = (
+  elements: StructureSetupElementsObj
+): StructureSetupState => ({
   _padding: {
     t: 0,
     r: 0,
@@ -62,18 +71,18 @@ const initialStructureSetupUpdateState: StructureSetupState = {
     y: false,
   },
   _heightIntrinsic: false,
-  _directionIsRTL: false,
-};
+  _directionIsRTL: directionIsRTL(elements._host),
+});
 
 export const createStructureSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions
 ): Setup<StructureSetupState, StructureSetupStaticState, [], boolean> => {
   const checkOptionsFallback = createOptionCheck(options, {});
-  const state = createState(initialStructureSetupUpdateState);
   const [addEvent, removeEvent, triggerEvent] = createEventListenerHub<StructureSetupEventMap>();
-  const [getState, setState] = state;
   const [elements, appendStructureElements, destroyElements] = createStructureSetupElements(target);
+  const state = createState(createInitialStructureSetupUpdateState(elements));
+  const [getState, setState] = state;
   const updateStructure = createStructureSetupUpdate(elements, state);
   const triggerUpdateEvent: (...args: StructureSetupEventMap['u']) => boolean = (
     updateHints,

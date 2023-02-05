@@ -1,0 +1,311 @@
+.os-scrollbar {
+  // The size of the scrollbar
+  --os-size: 0;
+  // The axis-perpedicular padding of the scrollbar (horizontal: padding-y, vertical: padding-x)
+  --os-padding-perpendicular: 0;
+  // The axis padding of the scrollbar (horizontal: padding-x, vertical: padding-y)
+  --os-padding-axis: 0;
+  // The border radius of the scrollbar track
+  --os-track-border-radius: 0;
+  // The background of the scrollbar track
+  --os-track-bg: none;
+  // The :hover background of the scrollbar track
+  --os-track-bg-hover: none;
+  // The :active background of the scrollbar track
+  --os-track-bg-active: none;
+  // The border of the scrollbar track
+  --os-track-border: none;
+  // The :hover background of the scrollbar track
+  --os-track-border-hover: none;
+  // The :active background of the scrollbar track
+  --os-track-border-active: none;
+  // The border radius of the scrollbar handle
+  --os-handle-border-radius: 0;
+  // The background of the scrollbar handle
+  --os-handle-bg: none;
+  // The :hover background of the scrollbar handle
+  --os-handle-bg-hover: none;
+  // The :active background of the scrollbar handle
+  --os-handle-bg-active: none;
+  // The border of the scrollbar handle
+  --os-handle-border: none;
+  // The :hover border of the scrollbar handle
+  --os-handle-border-hover: none;
+  // The :active border of the scrollbar handle
+  --os-handle-border-active: none;
+  // The min size of the scrollbar handle
+  --os-handle-min-size: 33px;
+  // The max size of the scrollbar handle
+  --os-handle-max-size: none;
+  // The axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+  --os-handle-perpendicular-size: 100%;
+  // The :hover axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+  --os-handle-perpendicular-size-hover: 100%;
+  // The :active axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+  --os-handle-perpendicular-size-active: 100%;
+  // Increases the interactive area of the scrollbar handle.
+  --os-handle-interactive-area-offset: 0;
+}
+
+.os-scrollbar {
+  .os-scrollbar-track {
+    border: var(--os-track-border);
+    border-radius: var(--os-track-border-radius);
+    background: var(--os-track-bg);
+    transition: opacity 0.15s, background-color 0.15s, border-color 0.15s;
+  }
+  .os-scrollbar-handle {
+    border: var(--os-handle-border);
+    border-radius: var(--os-handle-border-radius);
+    background: var(--os-handle-bg);
+
+    &:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      display: block;
+    }
+  }
+  &:hover {
+    .os-scrollbar-track {
+      border: var(--os-track-border-hover);
+      background: var(--os-track-bg-hover);
+    }
+
+    .os-scrollbar-handle {
+      border: var(--os-handle-border-hover);
+      background: var(--os-handle-bg-hover);
+    }
+  }
+  &:active {
+    .os-scrollbar-track {
+      border: var(--os-track-border-active);
+      background: var(--os-track-bg-active);
+    }
+
+    .os-scrollbar-handle {
+      border: var(--os-handle-border-active);
+      background: var(--os-handle-bg-active);
+    }
+  }
+}
+
+.os-scrollbar-horizontal {
+  padding: var(--os-padding-perpendicular) var(--os-padding-axis);
+  right: var(--os-size);
+  height: var(--os-size);
+
+  &.os-scrollbar-rtl {
+    left: var(--os-size);
+    right: 0;
+  }
+
+  .os-scrollbar-handle {
+    min-width: var(--os-handle-min-size);
+    max-width: var(--os-handle-max-size);
+    height: var(--os-handle-perpendicular-size);
+    transition: opacity 0.15s, background-color 0.15s, border-color 0.15s, height 0.15s;
+
+    &:before {
+      top: calc((var(--os-padding-perpendicular) + var(--os-handle-interactive-area-offset)) * -1);
+      bottom: calc(var(--os-padding-perpendicular) * -1);
+    }
+  }
+
+  &:hover {
+    .os-scrollbar-handle {
+      height: var(--os-handle-perpendicular-size-hover);
+    }
+  }
+
+  &:active {
+    .os-scrollbar-handle {
+      height: var(--os-handle-perpendicular-size-active);
+    }
+  }
+}
+
+.os-scrollbar-vertical {
+  padding: var(--os-padding-axis) var(--os-padding-perpendicular);
+  bottom: var(--os-size);
+  width: var(--os-size);
+
+  .os-scrollbar-handle {
+    min-height: var(--os-handle-min-size);
+    max-height: var(--os-handle-max-size);
+    width: var(--os-handle-perpendicular-size);
+    transition: opacity 0.15s, background-color 0.15s, border-color 0.15s, width 0.15s;
+
+    &:before {
+      left: calc((var(--os-padding-perpendicular) + var(--os-handle-interactive-area-offset)) * -1);
+      right: calc(var(--os-padding-perpendicular) * -1);
+    }
+  }
+
+  &.os-scrollbar-rtl .os-scrollbar-handle:before {
+    right: calc((var(--os-padding-perpendicular) + var(--os-handle-interactive-area-offset)) * -1);
+    left: calc(var(--os-padding-perpendicular) * -1);
+  }
+
+  &:hover {
+    .os-scrollbar-handle {
+      width: var(--os-handle-perpendicular-size-hover);
+    }
+  }
+
+  &:active {
+    .os-scrollbar-handle {
+      width: var(--os-handle-perpendicular-size-active);
+    }
+  }
+}
+
+/* NONE THEME: */
+[data-overlayscrollbars~='updating'] > .os-scrollbar,
+.os-theme-none.os-scrollbar {
+  display: none !important;
+}
+
+/* DARK & LIGHT THEME: */
+$os-theme-dark-light-size: 10px;
+$os-theme-dark-light-padding-perpendicular: 2px;
+$os-theme-dark-light-padding-axis: 2px;
+$os-theme-dark-light-track-border-radius: 10px;
+$os-theme-dark-light-handle-border-radius: 10px;
+$os-theme-dark-light-handle-min-size: 33px;
+$os-theme-dark-light-handle-max-size: none;
+$os-theme-dark-light-handle-interactive-area-offset: 4px;
+
+$os-theme-dark-handle-bg: rgba(0, 0, 0, 0.44);
+$os-theme-dark-handle-bg-hover: rgba(0, 0, 0, 0.55);
+$os-theme-dark-handle-bg-active: rgba(0, 0, 0, 0.66);
+
+$os-theme-light-handle-bg: rgba(255, 255, 255, 0.44);
+$os-theme-light-handle-bg-hover: rgba(255, 255, 255, 0.55);
+$os-theme-light-handle-bg-active: rgba(255, 255, 255, 0.66);
+
+.os-theme-dark,
+.os-theme-light {
+  --os-size: $os-theme-dark-light-size;
+  --os-padding-perpendicular: $os-theme-dark-light-padding-perpendicular;
+  --os-padding-axis: $os-theme-dark-light-padding-axis;
+  --os-track-border-radius: $os-theme-dark-light-track-border-radius;
+  --os-handle-interactive-area-offset: $os-theme-dark-light-handle-interactive-area-offset;
+  --os-handle-border-radius: $os-theme-dark-light-handle-border-radius;
+}
+.os-theme-dark {
+  --os-handle-bg: $os-theme-dark-handle-bg;
+  --os-handle-bg-hover: $os-theme-dark-handle-bg-hover;
+  --os-handle-bg-active: $os-theme-dark-handle-bg-active;
+}
+.os-theme-light {
+  --os-handle-bg: $os-theme-light-handle-bg;
+  --os-handle-bg-hover: $os-theme-light-handle-bg-hover;
+  --os-handle-bg-active: $os-theme-light-handle-bg-active;
+}
+
+// ie11 support for default light and dark theme
+.os-no-css-vars {
+  &.os-theme-dark,
+  &.os-theme-light {
+    &.os-scrollbar {
+      .os-scrollbar-handle {
+        border-radius: $os-theme-dark-light-handle-border-radius;
+      }
+      .os-scrollbar-track {
+        border-radius: $os-theme-dark-light-track-border-radius;
+      }
+      .os-scrollbar-handle {
+        border-radius: $os-theme-dark-light-handle-border-radius;
+      }
+    }
+
+    &.os-scrollbar-horizontal {
+      padding: $os-theme-dark-light-padding-perpendicular $os-theme-dark-light-padding-axis;
+      right: $os-theme-dark-light-size;
+      height: $os-theme-dark-light-size;
+
+      &.os-scrollbar-rtl {
+        left: $os-theme-dark-light-size;
+        right: 0;
+      }
+
+      .os-scrollbar-handle {
+        min-width: $os-theme-dark-light-handle-min-size;
+        max-width: $os-theme-dark-light-handle-max-size;
+
+        &:before {
+          top: calc(
+            (
+                #{$os-theme-dark-light-padding-perpendicular} + #{$os-theme-dark-light-handle-interactive-area-offset}
+              ) * -1
+          );
+          bottom: calc(#{$os-theme-dark-light-padding-perpendicular} * -1);
+        }
+      }
+    }
+
+    &.os-scrollbar-vertical {
+      padding: $os-theme-dark-light-padding-axis $os-theme-dark-light-padding-perpendicular;
+      bottom: $os-theme-dark-light-size;
+      width: $os-theme-dark-light-size;
+
+      .os-scrollbar-handle {
+        min-height: $os-theme-dark-light-handle-min-size;
+        max-height: $os-theme-dark-light-handle-max-size;
+
+        &:before {
+          left: calc(
+            (
+                #{$os-theme-dark-light-padding-perpendicular} + #{$os-theme-dark-light-handle-interactive-area-offset}
+              ) * -1
+          );
+          right: calc(#{$os-theme-dark-light-padding-perpendicular} * -1);
+        }
+      }
+
+      &.os-scrollbar-rtl .os-scrollbar-handle:before {
+        right: calc(
+          (
+              #{$os-theme-dark-light-padding-perpendicular} + #{$os-theme-dark-light-handle-interactive-area-offset}
+            ) * -1
+        );
+        left: calc(#{$os-theme-dark-light-padding-perpendicular} * -1);
+      }
+    }
+  }
+
+  &.os-theme-dark {
+    .os-scrollbar-handle {
+      background: $os-theme-dark-handle-bg;
+    }
+    &:hover {
+      .os-scrollbar-handle {
+        background: $os-theme-dark-handle-bg-hover;
+      }
+    }
+    &:active {
+      .os-scrollbar-handle {
+        background: $os-theme-dark-handle-bg-active;
+      }
+    }
+  }
+  &.os-theme-light {
+    .os-scrollbar-handle {
+      background: $os-theme-light-handle-bg;
+    }
+    &:hover {
+      .os-scrollbar-handle {
+        background: $os-theme-light-handle-bg-hover;
+      }
+    }
+    &:active {
+      .os-scrollbar-handle {
+        background: $os-theme-light-handle-bg-active;
+      }
+    }
+  }
+}

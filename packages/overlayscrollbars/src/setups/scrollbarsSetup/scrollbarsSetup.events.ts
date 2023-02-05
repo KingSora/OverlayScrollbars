@@ -135,14 +135,14 @@ const createInteractiveScrollEvents = (
       if (instantClickScroll) {
         moveHandleRelative(startOffset);
       } else if (!isDragScroll) {
-        const sizeObserverPlugin = getPlugins()[clickScrollPluginName] as
+        const clickScrollPlugin = getPlugins()[clickScrollPluginName] as
           | ClickScrollPluginInstance
           | undefined;
 
-        if (sizeObserverPlugin) {
+        if (clickScrollPlugin) {
           push(
             offFns,
-            sizeObserverPlugin._(
+            clickScrollPlugin._(
               moveHandleRelative,
               getHandleOffset,
               startOffset,

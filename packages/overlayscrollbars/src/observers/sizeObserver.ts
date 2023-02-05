@@ -170,7 +170,7 @@ export const createSizeObserver = (
       if (observeDirectionChange) {
         const [updateDirectionIsRTLCache] = createCache(
           {
-            _initialValue: !getIsDirectionRTL(), // invert current value to trigger initial change
+            _initialValue: undefined,
           },
           getIsDirectionRTL
         );
@@ -179,8 +179,8 @@ export const createSizeObserver = (
           offListeners,
           on(sizeObserver, 'scroll', (event: Event) => {
             const directionIsRTLCacheValues = updateDirectionIsRTLCache();
-            const [directionIsRTLCache, directionIsRTLCacheChanged] = directionIsRTLCacheValues;
-
+            const [directionIsRTLCache, directionIsRTLCacheChanged, directionIsRTLCachePrevious] =
+              directionIsRTLCacheValues;
             if (directionIsRTLCacheChanged) {
               removeClass(listenerElement, 'ltr rtl');
               if (directionIsRTLCache) {
@@ -188,7 +188,12 @@ export const createSizeObserver = (
               } else {
                 addClass(listenerElement, 'ltr');
               }
-              onSizeChangedCallbackProxy(directionIsRTLCacheValues);
+
+              onSizeChangedCallbackProxy([
+                !!directionIsRTLCache,
+                directionIsRTLCacheChanged,
+                directionIsRTLCachePrevious,
+              ]);
             }
 
             stopPropagation(event);

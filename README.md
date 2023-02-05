@@ -25,7 +25,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
 ## Goals & Features
 
  - Simple, powerful and well documented API
- - High browser compatibility - <b>Firefox</b>, <b>Chrome</b>, <b>Opera</b>, <b>Edge</b>, <b>Safari 10+</b> and <b>IE 11</b>
+ - High browser compatibility - <b>Firefox 59+</b>, <b>Chrome 55+</b>, <b>Opera 42+</b>, <b>Edge 12+</b>, <b>Safari 10+</b> and <b>IE 11</b>
  - Can be run on the server - <b>SSR</b>, <b>SSG</b> and <b>ISR</b> support
  - Tested on various devices - <b>Mobile</b>, <b>Desktop</b> and <b>Tablet</b>
  - Tested with various (and mixed) inputs - <b>Mouse</b>, <b>touch</b> and <b>pen</b>
@@ -33,11 +33,12 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
  - Automatic update detection - <b>no polling</b>
  - Usage of latest browser features - best <b>performance</b> in new browsers
  - Bidirectional - LTR or RTL direction support
+ - Supports usage on the `body` element
  - Simple and effective scrollbar styling
  - Highly customizable
  - TypeScript support - fully written in TypeScript
  - Dependency free - 100% self written to ensure small size and best functionality
- - High quality and fully typed Framework versions for [`react`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react), [`vue`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue), [`angular`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx), [`svelte`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte) and [`solid`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid).
+ - High quality and fully typed framework versions for [`react`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react), [`vue`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue), [`angular`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx), [`svelte`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte) and [`solid`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid).
 
 ## Choose your framework
 
@@ -339,6 +340,8 @@ Indicates whether you can drag the scrollbar handles for scrolling.
 | type  | default |
 | :--- | :--- |
 | `boolean` | `false` |
+
+> __Note__: This options requires the **ClickScrollPlugin** to work.
 
 Indicates whether you can click on the scrollbar track for scrolling.
 

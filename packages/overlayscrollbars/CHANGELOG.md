@@ -1,20 +1,33 @@
 # Changelog
 
+## W.I.P
+
+### Bug Fixes
+
+- Fix a bug where initial `RTL` direction wasn't detected properly.
+
+### Improvements
+
+- Introduce `CSS Custom Properties` to improve theming and styling of scrollbars.
+- Improve the README documentation with a styling section.
+
 ## 2.0.3
 
-Revert the `viewport` and `padding` style `position: relative` change introduced in `v2.0.2` due to breaking behavior. [#489](https://github.com/KingSora/OverlayScrollbars/issues/489) is considered a design limitation.
+### Bug Fixes
+
+- Revert the `viewport` and `padding` style `position: relative` change introduced in `v2.0.2` due to breaking behavior. [#489](https://github.com/KingSora/OverlayScrollbars/issues/489) is considered a design limitation.
 
 ## 2.0.2
 
 ### Bug Fixes
 
-The `viewport` and `padding` elements won't have the style `position: relative` anymore if its not needed. The style is only needed for older browsers. ([#489](https://github.com/KingSora/OverlayScrollbars/issues/489))
+- The `viewport` and `padding` elements won't have the style `position: relative` anymore if its not needed. The style is only needed for older browsers. ([#489](https://github.com/KingSora/OverlayScrollbars/issues/489))
 
 ## 2.0.1
 
 ### Bug Fixes
 
-The custom scrollbars are now always hidden if the `showNativeOverlaidScrollbars` option is `true`.
+- The custom scrollbars are now always hidden if the `showNativeOverlaidScrollbars` option is `true`.
 
 ### Improvements
 

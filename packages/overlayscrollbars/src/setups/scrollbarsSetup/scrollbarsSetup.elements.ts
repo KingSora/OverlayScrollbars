@@ -20,6 +20,7 @@ import {
   classNameScrollbarTrack,
   classNameScrollbarHandle,
   classNameScrollbarTransitionless,
+  classNameScrollbarNoCssCustomProps,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { dynamicInitializationElement as generalDynamicInitializationElement } from '~/initialization';
@@ -76,7 +77,7 @@ export const createScrollbarsSetupElements = (
   structureSetupElements: StructureSetupElementsObj,
   scrollbarsSetupEvents: ScrollbarsSetupEvents
 ): ScrollbarsSetupElements => {
-  const { _getDefaultInitialization } = getEnvironment();
+  const { _getDefaultInitialization, _cssCustomProperties } = getEnvironment();
   const { scrollbars: defaultInitScrollbars } = _getDefaultInitialization();
   const { slot: defaultInitScrollbarsSlot } = defaultInitScrollbars;
   const {
@@ -205,6 +206,10 @@ export const createScrollbarsSetupElements = (
       _track: track,
       _handle: handle,
     };
+
+    if (!_cssCustomProperties) {
+      addClass(scrollbar, classNameScrollbarNoCssCustomProps);
+    }
 
     appendChildren(scrollbar, track);
     appendChildren(track, handle);

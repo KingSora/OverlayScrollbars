@@ -1,6 +1,7 @@
 .os-scrollbar {
-  contain: strict;
-  transition: opacity 0.3s, visibility 0.3s, top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
+  contain: size layout;
+  contain: size layout style;
+  transition: opacity 0.15s, visibility 0.15s, top 0.15s, right 0.15s, bottom 0.15s, left 0.15s;
   pointer-events: none;
   position: absolute;
   opacity: 0;
@@ -66,6 +67,16 @@ body > .os-scrollbar {
 .os-scrollbar-unusable .os-scrollbar-handle {
   opacity: 0 !important;
 }
+.os-scrollbar-horizontal .os-scrollbar-handle {
+  bottom: 0;
+}
+.os-scrollbar-vertical .os-scrollbar-handle {
+  right: 0;
+}
+.os-scrollbar-rtl.os-scrollbar-vertical .os-scrollbar-handle {
+  right: auto;
+  left: 0;
+}
 .os-scrollbar.os-scrollbar-horizontal.os-scrollbar-cornerless,
 .os-scrollbar.os-scrollbar-horizontal.os-scrollbar-cornerless.os-scrollbar-rtl {
   left: 0;
@@ -75,106 +86,4 @@ body > .os-scrollbar {
 .os-scrollbar.os-scrollbar-vertical.os-scrollbar-cornerless.os-scrollbar-rtl {
   top: 0;
   bottom: 0;
-}
-
-/* NONE THEME: */
-[data-overlayscrollbars~='updating'] > .os-scrollbar,
-.os-theme-none.os-scrollbar {
-  display: none !important;
-}
-/* DARK & LIGHT THEME: */
-.os-theme-dark.os-scrollbar-horizontal,
-.os-theme-light.os-scrollbar-horizontal {
-  right: 10px;
-  height: 10px;
-}
-.os-theme-dark.os-scrollbar-vertical,
-.os-theme-light.os-scrollbar-vertical {
-  bottom: 10px;
-  width: 10px;
-}
-.os-theme-dark.os-scrollbar-rtl.os-scrollbar-horizontal,
-.os-theme-light.os-scrollbar-rtl.os-scrollbar-horizontal {
-  left: 10px;
-  right: 0;
-}
-.os-theme-dark.os-scrollbar,
-.os-theme-light.os-scrollbar {
-  padding: 2px;
-  box-sizing: border-box;
-  background: transparent;
-}
-.os-theme-dark.os-scrollbar-unusable,
-.os-theme-light.os-scrollbar-unusable {
-  background: transparent;
-}
-.os-theme-dark.os-scrollbar > .os-scrollbar-track,
-.os-theme-light.os-scrollbar > .os-scrollbar-track {
-  background: transparent;
-}
-.os-theme-dark.os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle,
-.os-theme-light.os-scrollbar-horizontal > .os-scrollbar-track > .os-scrollbar-handle {
-  min-width: 30px;
-}
-.os-theme-dark.os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle,
-.os-theme-light.os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle {
-  min-height: 30px;
-}
-.os-theme-dark.os-scrollbar-transition > .os-scrollbar-track > .os-scrollbar-handle,
-.os-theme-light.os-scrollbar-transition > .os-scrollbar-track > .os-scrollbar-handle {
-  transition: background-color 0.3s;
-}
-.os-theme-dark.os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle,
-.os-theme-light.os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle,
-.os-theme-dark.os-scrollbar > .os-scrollbar-track,
-.os-theme-light.os-scrollbar > .os-scrollbar-track {
-  border-radius: 10px;
-}
-.os-theme-dark.os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
-  background: rgba(0, 0, 0, 0.4);
-}
-.os-theme-light.os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
-  background: rgba(255, 255, 255, 0.4);
-}
-.os-theme-dark.os-scrollbar:hover > .os-scrollbar-track > .os-scrollbar-handle {
-  background: rgba(0, 0, 0, 0.55);
-}
-.os-theme-light.os-scrollbar:hover > .os-scrollbar-track > .os-scrollbar-handle {
-  background: rgba(255, 255, 255, 0.55);
-}
-.os-theme-dark.os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle.active {
-  background: rgba(0, 0, 0, 0.7);
-}
-.os-theme-light.os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle.active {
-  background: rgba(255, 255, 255, 0.7);
-}
-.os-theme-dark.os-scrollbar-horizontal .os-scrollbar-handle:before,
-.os-theme-dark.os-scrollbar-vertical .os-scrollbar-handle:before,
-.os-theme-light.os-scrollbar-horizontal .os-scrollbar-handle:before,
-.os-theme-light.os-scrollbar-vertical .os-scrollbar-handle:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  display: block;
-}
-.os-theme-dark.os-host-scrollbar-hidden > .os-scrollbar-handle:before {
-  display: none;
-}
-.os-theme-dark.os-scrollbar-horizontal .os-scrollbar-handle:before,
-.os-theme-light.os-scrollbar-horizontal .os-scrollbar-handle:before {
-  top: -6px;
-  bottom: -2px;
-}
-.os-theme-dark.os-scrollbar-vertical .os-scrollbar-handle:before,
-.os-theme-light.os-scrollbar-vertical .os-scrollbar-handle:before {
-  left: -6px;
-  right: -2px;
-}
-.os-theme-dark.os-scrollbar-rtl.os-scrollbar-vertical .os-scrollbar-handle:before,
-.os-theme-light.os-scrollbar-rtl.os-scrollbar-vertical .os-scrollbar-handle:before {
-  right: -6px;
-  left: -2px;
 }
