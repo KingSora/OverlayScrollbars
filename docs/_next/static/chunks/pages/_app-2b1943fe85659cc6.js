@@ -1,6 +1,6 @@
 (self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[888],{785:function(e,t,r){"use strict";r.d(t,{E:function(){return rI},A:function(){return rM}});var i=r(7378);/*!
  * OverlayScrollbars
- * Version: 2.0.2
+ * Version: 2.0.3
  *
  * Copyright (c) Rene Haas | KingSora.
  * https://github.com/KingSora
