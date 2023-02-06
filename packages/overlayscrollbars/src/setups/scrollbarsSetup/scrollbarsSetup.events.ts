@@ -100,6 +100,7 @@ const createInteractiveScrollEvents = (
   return on(_track, 'pointerdown', (pointerDownEvent: PointerEvent) => {
     const isDragScroll =
       closest(pointerDownEvent.target as Node, `.${classNameScrollbarHandle}`) === _handle;
+    const pointerCaptureElement = isDragScroll ? _handle : _track;
 
     if (continuePointerDown(pointerDownEvent, options, isDragScroll)) {
       const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
@@ -158,11 +159,11 @@ const createInteractiveScrollEvents = (
         'pointerup',
         (pointerUpEvent: PointerEvent) => {
           runEachAndClear(offFns);
-          _track.releasePointerCapture(pointerUpEvent.pointerId);
+          pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
         },
         { _once: true }
       );
-      _track.setPointerCapture(pointerDownEvent.pointerId);
+      pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);
     }
   });
 };

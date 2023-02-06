@@ -458,6 +458,132 @@ interface OverlayScrollbarsStatic {
 }
 ```
 
+## Styling
+
+OverlayScrollbars comes with two themes called `os-theme-dark` and `os-theme-light`. You can use the `scrollbars.theme` option to change the theme.
+
+Custom themes can be done in multiple ways. The easiest and fastest is to use the predefined set of `CSS Custom Properties` aka. CSS variables. In case those aren't enought you can add custom class names or add custom styling to the existing class names.  
+
+### Styling in depth
+
+<details>
+  <summary>
+    This is a in depth topic. Click here to read it.
+  </summary>
+
+  ### CSS Custom properties
+
+  OverlayScrollbars provides a set of `CSS Custom Properties` which makes scrollbar styling easy and fast:
+  ```scss
+  .os-scrollbar {
+    // The size of the scrollbar
+    --os-size: 0;
+    // The axis-perpedicular padding of the scrollbar (horizontal: padding-y, vertical: padding-x)
+    --os-padding-perpendicular: 0;
+    // The axis padding of the scrollbar (horizontal: padding-x, vertical: padding-y)
+    --os-padding-axis: 0;
+    // The border radius of the scrollbar track
+    --os-track-border-radius: 0;
+    // The background of the scrollbar track
+    --os-track-bg: none;
+    // The :hover background of the scrollbar track
+    --os-track-bg-hover: none;
+    // The :active background of the scrollbar track
+    --os-track-bg-active: none;
+    // The border of the scrollbar track
+    --os-track-border: none;
+    // The :hover background of the scrollbar track
+    --os-track-border-hover: none;
+    // The :active background of the scrollbar track
+    --os-track-border-active: none;
+    // The border radius of the scrollbar handle
+    --os-handle-border-radius: 0;
+    // The background of the scrollbar handle
+    --os-handle-bg: none;
+    // The :hover background of the scrollbar handle
+    --os-handle-bg-hover: none;
+    // The :active background of the scrollbar handle
+    --os-handle-bg-active: none;
+    // The border of the scrollbar handle
+    --os-handle-border: none;
+    // The :hover border of the scrollbar handle
+    --os-handle-border-hover: none;
+    // The :active border of the scrollbar handle
+    --os-handle-border-active: none;
+    // The min size of the scrollbar handle
+    --os-handle-min-size: 33px;
+    // The max size of the scrollbar handle
+    --os-handle-max-size: none;
+    // The axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+    --os-handle-perpendicular-size: 100%;
+    // The :hover axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+    --os-handle-perpendicular-size-hover: 100%;
+    // The :active axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+    --os-handle-perpendicular-size-active: 100%;
+    // Increases the interactive area of the scrollbar handle.
+    --os-handle-interactive-area-offset: 0;
+  }
+  ```
+
+  You can alter the properties either for both scrollbars at once or per scrollbar axis:
+
+  ```scss
+  // horizontal and vertical scrollbar are 10px 
+  .os-theme-custom {
+    --os-size: 10px;
+  }
+
+  // horizontal scrollbar is 10px
+  .os-theme-custom.os-scrollbar-horizontal {
+    --os-size: 10px;
+  }
+  // vertical scrollbar is 20px
+  .os-theme-custom.os-scrollbar-vertical {
+    --os-size: 20px;
+  }
+  ```
+
+  Since scrollbar styles are usually simple, this set of options should be enough to get your desired styling.
+  In case you need more freedom you can create your own styles by adding styling to the base class names described in the next section.
+
+  ### Scrollbars structure and CSS class names
+
+  The scrollbars HTML markup looks like:
+
+  ```html
+  <div class="os-scrollbar os-scrollbar-horizontal">
+      <div class="os-scrollbar-track">
+          <div class="os-scrollbar-handle">
+          </div>
+      </div>
+  </div>
+  <div class="os-scrollbar os-scrollbar-vertical">
+      <div class="os-scrollbar-track">
+          <div class="os-scrollbar-handle">
+          </div>
+      </div>
+  </div>
+  ```
+
+  The class names are simplified, in a real application the `.os-scrollbar` element can have additional class names which modify the appearance (mostly visibility and alignment).  
+
+  Below is a list of the most important class names you will encounter:
+
+  | CSS class name | description |
+| :--- | :--- |
+| `.os-scrollbar` | The root element of a scrollbar. |
+| `.os-scrollbar-rtl` | Indicates a `RTL` direction of the host element the scrollbar belongs to. |
+| `.os-scrollbar-horizontal` | The root element of a horizontal scrollbar. |
+| `.os-scrollbar-vertical` | The root element of a vertical scrollbar. |
+| `.os-scrollbar-handle-interactive` | Indicates that the handle inside the scrollbar is interactive (`scrollbars.dragScroll` is `true`). |
+| `.os-scrollbar-track-interactive` | Indicates that the track inside the scrollbar is interactive (`scrollbars.clickScroll` is `true`). |
+| `.os-scrollbar-track` | The track element. This is the track of the nested handle element. If `scrollbars.clickScroll` is `true` this is the element users can click to change the scroll offset. |
+| `.os-scrollbar-handle` | The handle element. If `scrollbars.dragScroll` is `true` this is the handle users can drag to change the scroll offset. |
+
+  If you create your own theme, please only use the classes listed above. All other classes are modifier classes used to change visibility, alignment and pointer-events of the scrollbars.
+
+</details>
+
 ## Plugins
 
 Everything thats considered not core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are treeshaken and thus won't end up in your final bundle. OverlayScrollbars comes with the following plugins:

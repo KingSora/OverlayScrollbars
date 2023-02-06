@@ -53,6 +53,16 @@
     border-radius: var(--os-track-border-radius);
     background: var(--os-track-bg);
     transition: opacity 0.15s, background-color 0.15s, border-color 0.15s;
+
+    &:hover {
+      border: var(--os-track-border-hover);
+      background: var(--os-track-bg-hover);
+    }
+
+    &:active {
+      border: var(--os-track-border-active);
+      background: var(--os-track-bg-active);
+    }
   }
   .os-scrollbar-handle {
     border: var(--os-handle-border);
@@ -68,25 +78,13 @@
       bottom: 0;
       display: block;
     }
-  }
-  &:hover {
-    .os-scrollbar-track {
-      border: var(--os-track-border-hover);
-      background: var(--os-track-bg-hover);
-    }
 
-    .os-scrollbar-handle {
+    &:hover {
       border: var(--os-handle-border-hover);
       background: var(--os-handle-bg-hover);
     }
-  }
-  &:active {
-    .os-scrollbar-track {
-      border: var(--os-track-border-active);
-      background: var(--os-track-bg-active);
-    }
 
-    .os-scrollbar-handle {
+    &:active {
       border: var(--os-handle-border-active);
       background: var(--os-handle-bg-active);
     }
@@ -189,25 +187,25 @@ $os-theme-light-handle-bg-active: rgba(255, 255, 255, 0.66);
 
 .os-theme-dark,
 .os-theme-light {
-  --os-size: $os-theme-dark-light-size;
-  --os-padding-perpendicular: $os-theme-dark-light-padding-perpendicular;
-  --os-padding-axis: $os-theme-dark-light-padding-axis;
-  --os-track-border-radius: $os-theme-dark-light-track-border-radius;
-  --os-handle-interactive-area-offset: $os-theme-dark-light-handle-interactive-area-offset;
-  --os-handle-border-radius: $os-theme-dark-light-handle-border-radius;
+  --os-size: #{$os-theme-dark-light-size};
+  --os-padding-perpendicular: #{$os-theme-dark-light-padding-perpendicular};
+  --os-padding-axis: #{$os-theme-dark-light-padding-axis};
+  --os-track-border-radius: #{$os-theme-dark-light-track-border-radius};
+  --os-handle-interactive-area-offset: #{$os-theme-dark-light-handle-interactive-area-offset};
+  --os-handle-border-radius: #{$os-theme-dark-light-handle-border-radius};
 }
 .os-theme-dark {
-  --os-handle-bg: $os-theme-dark-handle-bg;
-  --os-handle-bg-hover: $os-theme-dark-handle-bg-hover;
-  --os-handle-bg-active: $os-theme-dark-handle-bg-active;
+  --os-handle-bg: #{$os-theme-dark-handle-bg};
+  --os-handle-bg-hover: #{$os-theme-dark-handle-bg-hover};
+  --os-handle-bg-active: #{$os-theme-dark-handle-bg-active};
 }
 .os-theme-light {
-  --os-handle-bg: $os-theme-light-handle-bg;
-  --os-handle-bg-hover: $os-theme-light-handle-bg-hover;
-  --os-handle-bg-active: $os-theme-light-handle-bg-active;
+  --os-handle-bg: #{$os-theme-light-handle-bg};
+  --os-handle-bg-hover: #{$os-theme-light-handle-bg-hover};
+  --os-handle-bg-active: #{$os-theme-light-handle-bg-active};
 }
 
-// ie11 support for default light and dark theme
+// ie11 support for theme light and dark
 .os-no-css-vars {
   &.os-theme-dark,
   &.os-theme-light {

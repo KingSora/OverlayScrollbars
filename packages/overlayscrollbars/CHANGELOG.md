@@ -1,14 +1,18 @@
 # Changelog
 
-## W.I.P
+## 2.1.0
 
 ### Bug Fixes
 
 - Fix a bug where initial `RTL` direction wasn't detected properly.
 
-### Improvements
+### Features
 
 - Introduce `CSS Custom Properties` to improve theming and styling of scrollbars.
+
+### Improvements
+
+- Improve pointer event handling on scrollbar handle and track.
 - Improve the README documentation with a styling section.
 
 ## 2.0.3
