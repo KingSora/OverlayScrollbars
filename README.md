@@ -588,7 +588,7 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
 
 Everything thats considered not core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are treeshaken and thus won't end up in your final bundle. OverlayScrollbars comes with the following plugins:
 
-- **ScrollbarsHidingPlugin**: Is needed for old browsers which aren't supporting nativ scrollbar styling features. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=scrollbar%20styling) (note that even though `iOS Safari >= 14` is marked as unsupported you only need this plugin for `iOS < 7.1`).
+- **ScrollbarsHidingPlugin**: Is needed for old browsers which aren't supporting native scrollbar styling features. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=scrollbar%20styling) (note that even though `iOS Safari >= 14` is marked as unsupported you only need this plugin for `iOS < 7.1`).
 - **SizeObserverPlugin**: Is needed for old browsers which aren't supporting the `ResizeObserver` api. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=ResizeObserver)
 - **ClickScrollPlugin**: If you want to use the option `scrollbars: { clickScroll: true }`.
 
