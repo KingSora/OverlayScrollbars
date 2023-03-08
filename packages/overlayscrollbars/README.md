@@ -52,7 +52,7 @@ Additionally to the vanilla JavaScript version you can use the official framewor
   
 ## Getting started
 
-### npm & node
+### npm & nodejs
 OverlayScrollbars can be downloaded from [npm](https://www.npmjs.com/package/overlayscrollbars) or the package manager of your choice:
 ```sh
 npm install overlayscrollbars
@@ -60,39 +60,42 @@ npm install overlayscrollbars
 After installation it can be imported:
 ```js
 import 'overlayscrollbars/overlayscrollbars.css';
-import { OverlayScrollbars } from 'overlayscrollbars';
+import { 
+  OverlayScrollbars, 
+  ScrollbarsHidingPlugin, 
+  SizeObserverPlugin, 
+  ClickScrollPlugin 
+} from 'overlayscrollbars';
 ```
 
-> __Note__: In older node versions use `'overlayscrollbars/styles/overlayscrollbars.css'` as the import path for the CSS file.
+> __Note__: In older nodejs versions use `'overlayscrollbars/styles/overlayscrollbars.css'` as the import path for the CSS file.
 
 ### Manual download & embedding
 
-<details>
-  <summary>
-    These instructions are for quick prototyping or old stacks. Click here to read them.
-  </summary>
-  <br />
-  
 You can use OverlayScrollbars without any bundler or package manager.  
 Simply download it from the [Releases](https://github.com/KingSora/OverlayScrollbars/releases) or use a [CDN](https://cdnjs.com/libraries/overlayscrollbars).
 
 - Use the javascript files with the `.browser` extension.
-- If you target old browsers use the `.es5` javascript file, for new browsers `.es6`.
+- Use the javascript files with the `.es5` extension if you need to support older browsers like IE11, otherwise use the `.es6` files.
 - For production use the javascript / stylesheet files with the `.min` extension. 
 
 Embedd OverlayScrollbars manually in your HTML:
 ```html
 <link type="text/css" href="path/to/overlayscrollbars.css" rel="stylesheet" />
-<script type="text/javascript" src="path/to/overlayscrollbars.browser.js" defer></script>
+<script type="text/javascript" src="path/to/overlayscrollbars.browser.es.js" defer></script>
 ```
 
-You can use the global variable `OverlayScrollbarsGlobal` to access the api:
+You can then use the global variable `OverlayScrollbarsGlobal` to access the api similar to how you can do it in nodejs / modules:
 ```js
-var OverlayScrollbars = OverlayScrollbarsGlobal.OverlayScrollbars;
-OverlayScrollbars(document.body, {});
+var { 
+  OverlayScrollbars, 
+  ScrollbarsHidingPlugin, 
+  SizeObserverPlugin, 
+  ClickScrollPlugin  
+} = OverlayScrollbarsGlobal;
 ```
-</details>
 
+The examples in this documentation will use the `import` syntax instead of the `OverlayScrollbarsGlobal` object. Both versions are equivalent though.
 
 ## Initialization
 
@@ -525,7 +528,7 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
   }
   ```
 
-  You can alter the properties either for both scrollbars at once or per scrollbar axis:
+  You can alter the properties either for both scrollbars at once or per scrollbar axis. In the example below I've chosen `os-theme-custom` as the theme name:
 
   ```scss
   // horizontal and vertical scrollbar are 10px 
@@ -541,6 +544,16 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
   .os-theme-custom.os-scrollbar-vertical {
     --os-size: 20px;
   }
+  ```
+
+  You can then use your theme by assigning it via the `scrollbars.theme` option:
+
+  ```js
+  OverlayScrollbars(document.body, {
+    scrollbars: {
+      theme: 'os-theme-custom'
+    }
+  });
   ```
 
   Since scrollbar styles are usually simple, this set of options should be enough to get your desired styling.
@@ -581,6 +594,13 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
 | `.os-scrollbar-handle` | The handle element. If `scrollbars.dragScroll` is `true` this is the handle users can drag to change the scroll offset. |
 
   If you create your own theme, please only use the classes listed above. All other classes are modifier classes used to change visibility, alignment and pointer-events of the scrollbars.
+
+  ### Gotchas
+
+  Its important that the chosen theme class name in your CSS file matches the assigned theme name in the options. If the CSS class name is `.my-theme` the `scrollbars.theme` has to be `'my-theme'`.  
+    
+    
+  Please be aware of your stack. `css-modules` for example will alter your class names to prevent naming collisions. Always double check if your CSS is really what you expect it to be.
 
 </details>
 
