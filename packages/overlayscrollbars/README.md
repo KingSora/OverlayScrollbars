@@ -22,18 +22,19 @@
 
 I created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
 
-## Goals & Features
+## Goals & Features.es6
 
  - Simple, powerful and well documented API
- - High browser compatibility - <b>Firefox 59+</b>, <b>Chrome 55+</b>, <b>Opera 42+</b>, <b>Edge 12+</b>, <b>Safari 10+</b> and <b>IE 11</b>
- - Can be run on the server - <b>SSR</b>, <b>SSG</b> and <b>ISR</b> support
- - Tested on various devices - <b>Mobile</b>, <b>Desktop</b> and <b>Tablet</b>
- - Tested with various (and mixed) inputs - <b>Mouse</b>, <b>touch</b> and <b>pen</b>
- - <b>Treeshaking</b> - bundle only what you really need 
- - Automatic update detection - <b>no polling</b>
- - Usage of latest browser features - best <b>performance</b> in new browsers
+ - High browser compatibility - **Firefox 59+**, **Chrome 55+**, **Opera 42+**, **Edge 12+**, **Safari 10+** and **IE 11**
+ - Can be run on the server - **SSR**, **SSG** and **ISR** support
+ - Tested on various devices - **Mobile**, **Desktop** and **Tablet**
+ - Tested with various (and mixed) inputs - **Mouse**, **touch** and **pen**
+ - **Treeshaking** - bundle only what you really need 
+ - Automatic update detection - **no polling**
+ - Usage of latest browser features - best **performance** in new browsers
  - Bidirectional - LTR or RTL direction support
  - Supports usage on the `body` element
+ - Supports all **virtual scrolling** libraries
  - Simple and effective scrollbar styling
  - Highly customizable
  - TypeScript support - fully written in TypeScript
@@ -53,6 +54,7 @@ Additionally to the vanilla JavaScript version you can use the official framewor
 ## Getting started
 
 ### npm & nodejs
+
 OverlayScrollbars can be downloaded from [npm](https://www.npmjs.com/package/overlayscrollbars) or the package manager of your choice:
 ```sh
 npm install overlayscrollbars
