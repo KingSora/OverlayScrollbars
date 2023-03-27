@@ -187,6 +187,8 @@ $os-theme-light-handle-bg-active: rgba(255, 255, 255, 0.66);
 
 .os-theme-dark,
 .os-theme-light {
+  box-sizing: border-box;
+
   --os-size: #{$os-theme-dark-light-size};
   --os-padding-perpendicular: #{$os-theme-dark-light-padding-perpendicular};
   --os-padding-axis: #{$os-theme-dark-light-padding-axis};
