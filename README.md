@@ -22,13 +22,13 @@
 
 I created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
 
-## Goals & Features.es6
+## Goals & Features
 
  - Simple, powerful and well documented API
  - High browser compatibility - **Firefox 59+**, **Chrome 55+**, **Opera 42+**, **Edge 12+**, **Safari 10+** and **IE 11**
  - Can be run on the server - **SSR**, **SSG** and **ISR** support
  - Tested on various devices - **Mobile**, **Desktop** and **Tablet**
- - Tested with various (and mixed) inputs - **Mouse**, **touch** and **pen**
+ - Tested with various (and mixed) inputs - **Mouse**, **Touch** and **Pen**
  - **Treeshaking** - bundle only what you really need 
  - Automatic update detection - **no polling**
  - Usage of latest browser features - best **performance** in new browsers
@@ -115,7 +115,20 @@ const osInstance = OverlayScrollbars(document.querySelector('#myElement'), {});
 If you initialize OverlayScrollbars it needs a few milliseconds to create and append all the elements to the DOM.
 While this period the native scrollbars are still visible and are switched out after the initialization is finished. This is perceived as flickering. 
 
-To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (and `html` element if the target element is `body`).
+To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (or `html` element if the target element is `body`).
+
+```html
+<!-- for the body element -->
+<html data-overlayscrollbars-initialize>
+  <head></head>
+  <body data-overlayscrollbars-initialize></body>
+</html>
+
+<!-- for all other elements -->
+<div data-overlayscrollbars-initialize>
+  OverlayScrollbars is applied to this div
+</div>
+```
 
 ### Initialization with an Object
 <details>

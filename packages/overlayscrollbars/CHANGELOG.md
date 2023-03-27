@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.1.1
+
+### Bug Fixes
+
+- Fixed a bug where pointer events weren't released properly after drag or click scrolling. [#512](https://github.com/KingSora/OverlayScrollbars/issues/512)
+
+### Improvements
+
+- The `os-theme-dark` and `os-theme-light` themes now use `border-box` box-sizing as their default.
+- Improve the `README.md` documentation for initialization, styling and and the browser global version. [#509](https://github.com/KingSora/OverlayScrollbars/issues/509)
+
 ## 2.1.0
 
 ### Bug Fixes
@@ -8,7 +19,7 @@
 
 ### Features
 
-- Introduce `CSS Custom Properties` to improve theming and styling of scrollbars.
+- Introduce `CSS Custom Properties` to improve theming and styling of scrollbars. [#478](https://github.com/KingSora/OverlayScrollbars/issues/478)
 
 ### Improvements
 
