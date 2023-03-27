@@ -115,7 +115,7 @@ const osInstance = OverlayScrollbars(document.querySelector('#myElement'), {});
 If you initialize OverlayScrollbars it needs a few milliseconds to create and append all the elements to the DOM.
 While this period the native scrollbars are still visible and are switched out after the initialization is finished. This is perceived as flickering. 
 
-To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (or `html` element if the target element is `body`).
+To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (and `html` element if the target element is `body`).
 
 ```html
 <!-- for the body element -->
