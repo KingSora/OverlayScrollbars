@@ -67,6 +67,8 @@ const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentEl
     on.bind(0, documentElm, 'click', stopPropagation, { _once: true, _capture: true }),
     { _capture: true }
   );
+const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpointercapture';
+
 const createInteractiveScrollEvents = (
   options: ReadonlyOptions,
   doc: Document,
@@ -119,11 +121,18 @@ const createInteractiveScrollEvents = (
       const handleCenter = getHandleOffset(handleRect, trackRect) + handleLength / 2;
       const relativeTrackPointerOffset = pointerDownOffset - trackRect[leftTopKey];
       const startOffset = isDragScroll ? 0 : relativeTrackPointerOffset - handleCenter;
+      const releasePointerCapture = (pointerUpEvent: PointerEvent) => {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        runEachAndClear(offFns);
+        pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
+      };
 
       const offFns = [
+        on(doc, releasePointerCaptureEvents, releasePointerCapture),
         on(doc, 'selectstart', (event: Event) => preventDefault(event), {
           _passive: false,
         }),
+        on(_track, releasePointerCaptureEvents, releasePointerCapture),
         on(_track, 'pointermove', (pointerMoveEvent: PointerEvent) => {
           const relativeMovement = pointerMoveEvent[clientXYKey] - pointerDownOffset;
 
@@ -154,15 +163,6 @@ const createInteractiveScrollEvents = (
         }
       }
 
-      on(
-        _track,
-        'pointerup',
-        (pointerUpEvent: PointerEvent) => {
-          runEachAndClear(offFns);
-          pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
-        },
-        { _once: true }
-      );
       pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);
     }
   });
