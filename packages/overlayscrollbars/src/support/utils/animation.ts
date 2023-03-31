@@ -28,7 +28,7 @@ export const animateNumber = (
 ): ((complete?: boolean) => void) => {
   let animationFrameId = 0;
   const timeStart = animationCurrentTime();
-  const finalDuration = Math.max(0, duration);
+  const finalDuration = max(0, duration);
   const frame = (complete?: boolean) => {
     const timeNow = animationCurrentTime();
     const timeElapsed = timeNow - timeStart;

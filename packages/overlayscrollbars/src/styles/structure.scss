@@ -168,6 +168,11 @@ html[data-overlayscrollbars] > body {
   overflow-y: scroll;
 }
 
+[data-overlayscrollbars~='scrollbarPressed'],
+[data-overlayscrollbars~='scrollbarPressed'] .os-viewport {
+  scroll-behavior: auto !important;
+}
+
 .os-padding,
 .os-viewport {
   overflow: hidden;

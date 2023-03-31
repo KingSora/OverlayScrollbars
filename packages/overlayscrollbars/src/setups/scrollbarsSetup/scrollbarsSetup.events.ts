@@ -10,6 +10,7 @@ import {
   parent,
   closest,
   push,
+  attrClass,
 } from '~/support';
 import { getPlugins, clickScrollPluginName } from '~/plugins';
 import { getEnvironment } from '~/environment';
@@ -17,6 +18,8 @@ import {
   classNameScrollbarHandle,
   classNameScrollbarInteraction,
   classNameScrollbarWheel,
+  dataAttributeHost,
+  dataValueHostScrollbarPressed,
 } from '~/classnames';
 import type { XY } from '~/support';
 import type { ClickScrollPluginInstance } from '~/plugins';
@@ -71,7 +74,8 @@ const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpo
 
 const createInteractiveScrollEvents = (
   options: ReadonlyOptions,
-  doc: Document,
+  hostElm: HTMLElement,
+  documentElm: Document,
   scrollbarStructure: ScrollbarStructure,
   scrollOffsetElement: HTMLElement,
   structureSetupState: () => StructureSetupState,
@@ -103,6 +107,7 @@ const createInteractiveScrollEvents = (
     const isDragScroll =
       closest(pointerDownEvent.target as Node, `.${classNameScrollbarHandle}`) === _handle;
     const pointerCaptureElement = isDragScroll ? _handle : _track;
+    attrClass(hostElm, dataAttributeHost, dataValueHostScrollbarPressed, true);
 
     if (continuePointerDown(pointerDownEvent, options, isDragScroll)) {
       const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
@@ -128,8 +133,9 @@ const createInteractiveScrollEvents = (
       };
 
       const offFns = [
-        on(doc, releasePointerCaptureEvents, releasePointerCapture),
-        on(doc, 'selectstart', (event: Event) => preventDefault(event), {
+        attrClass.bind(0, hostElm, dataAttributeHost, dataValueHostScrollbarPressed),
+        on(documentElm, releasePointerCaptureEvents, releasePointerCapture),
+        on(documentElm, 'selectstart', (event: Event) => preventDefault(event), {
           _passive: false,
         }),
         on(_track, releasePointerCaptureEvents, releasePointerCapture),
@@ -222,6 +228,7 @@ export const createScrollbarsSetupEvents =
       createRootClickStopPropagationEvents(_scrollbar, documentElm),
       createInteractiveScrollEvents(
         options,
+        hostElm,
         documentElm,
         scrollbarStructure,
         scrollOffsetElm,

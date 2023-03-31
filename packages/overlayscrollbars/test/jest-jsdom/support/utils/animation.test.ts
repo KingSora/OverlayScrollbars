@@ -1,4 +1,4 @@
-import { animateNumber } from '~/support/dom/animation';
+import { animateNumber } from '~/support/utils/animation';
 
 jest.useFakeTimers();
 

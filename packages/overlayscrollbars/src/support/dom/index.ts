@@ -1,4 +1,3 @@
-export * from '~/support/dom/animation';
 export * from '~/support/dom/attribute';
 export * from '~/support/dom/class';
 export * from '~/support/dom/create';

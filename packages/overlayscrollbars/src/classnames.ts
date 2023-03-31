@@ -8,6 +8,7 @@ export const dataAttributeHostOverflowX = `${dataAttributeHost}-overflow-x`;
 export const dataAttributeHostOverflowY = `${dataAttributeHost}-overflow-y`;
 export const dataValueHostOverflowVisible = 'overflowVisible';
 export const dataValueHostScrollbarHidden = 'scrollbarHidden';
+export const dataValueHostScrollbarPressed = 'scrollbarPressed';
 export const dataValueHostUpdating = 'updating';
 export const classNamePadding = 'os-padding';
 export const classNameViewport = 'os-viewport';
