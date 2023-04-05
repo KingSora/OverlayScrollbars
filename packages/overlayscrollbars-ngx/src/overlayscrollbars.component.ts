@@ -8,6 +8,7 @@ import {
   ElementRef,
   OnDestroy,
   AfterViewInit,
+  NgZone,
 } from '@angular/core';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import type { PartialOptions, EventListeners, EventListenerArgs } from 'overlayscrollbars';
@@ -55,7 +56,7 @@ export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
   @ViewChild('content', { read: OverlayScrollbarsDirective })
   private osDirective?: OverlayScrollbarsDirective;
 
-  constructor(private targetRef: ElementRef<HTMLElement>) {}
+  constructor(private ngZone: NgZone, private targetRef: ElementRef<HTMLElement>) {}
 
   osInstance(): OverlayScrollbars | null {
     return this.osDirective!.osInstance();
@@ -88,12 +89,24 @@ export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
   mergeEvents(originalEvents: OverlayScrollbarsComponent['events']) {
     return mergeEventListeners(
       {
-        initialized: (...args) => this.onInitialized.emit(args),
-        updated: (...args) => this.onUpdated.emit(args),
-        destroyed: (...args) => this.onDestroyed.emit(args),
-        scroll: (...args) => this.onScroll.emit(args),
+        initialized: (...args) => this.dispatchEventIfHasObservers(this.onInitialized, args),
+        updated: (...args) => this.dispatchEventIfHasObservers(this.onUpdated, args),
+        destroyed: (...args) => this.dispatchEventIfHasObservers(this.onDestroyed, args),
+        scroll: (...args) => this.dispatchEventIfHasObservers(this.onScroll, args),
       },
       originalEvents || {}
     );
+  }
+
+  private dispatchEventIfHasObservers<T>(eventEmitter: EventEmitter<T>, args: T): void {
+    // `observed` is available since RxJS@7.2 because `observers` is being deprecated.
+    if ((eventEmitter as any).observed || eventEmitter.observers.length > 0) {
+      // This is required to re-enter the Angular zone to call the event handler in the Angular
+      // zone too. This will not re-enter the Angular zone if emitter doesn't have any observers,
+      // for instance, it's being listened: `<overlay-scrollbars (osInitialized)="..."`.
+      // Events are dispatched outside of the Angular zone because instance is created in the
+      // `<root>` zone, see `OverlayScrollbarsDirective#osInitialize`.
+      this.ngZone.run(() => eventEmitter.emit(args));
+    }
   }
 }
