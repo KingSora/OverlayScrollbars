@@ -25,11 +25,11 @@ import {
   dataAttributeInitialize,
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
-  classNamePadding,
-  classNameContent,
   classNameScrollbarHidden,
   dataAttributeViewport,
   dataValueViewportScrollbarHidden,
+  dataAttributePadding,
+  dataAttributeContent,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
@@ -238,13 +238,13 @@ export const createStructureSetupElements = (
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
   const appendElements = () => {
     attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
+    attr(_padding, dataAttributePadding, '');
+    attr(_content, dataAttributeContent, '');
 
     if (!viewportIsTarget) {
       attr(_viewport, dataAttributeViewport, '');
     }
 
-    const removePaddingClass = addClass(_padding, classNamePadding);
-    const removeContentClass = addClass(_content, classNameContent);
     const removeHtmlClass =
       isBody && !viewportIsTarget
         ? addClass(parent(targetElement), classNameScrollbarHidden)
@@ -267,6 +267,8 @@ export const createStructureSetupElements = (
 
     push(destroyFns, () => {
       removeHtmlClass();
+      removeAttr(_padding, dataAttributePadding);
+      removeAttr(_content, dataAttributeContent);
       removeAttr(_viewport, dataAttributeHostOverflowX);
       removeAttr(_viewport, dataAttributeHostOverflowY);
       removeAttr(_viewport, dataAttributeViewport);
@@ -280,9 +282,6 @@ export const createStructureSetupElements = (
       if (elementIsGenerated(_padding)) {
         unwrap(_padding);
       }
-
-      removePaddingClass();
-      removeContentClass();
     });
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {

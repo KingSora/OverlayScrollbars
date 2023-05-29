@@ -5,8 +5,6 @@ import {
   scrollSize,
   fractionalSize,
   equalWH,
-  addClass,
-  removeClass,
   clientSize,
   equalXY,
   attrClass,
@@ -14,7 +12,6 @@ import {
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
-  classNameOverflowVisible,
   dataAttributeHost,
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
@@ -22,6 +19,9 @@ import {
   dataValueHostOverflowVisible,
   dataValueViewportScrollbarHidden,
   dataValueViewportOverflowVisible,
+  dataAttributeViewport,
+  dataAttributePadding,
+  dataValuePaddingOverflowVisible,
 } from '~/classnames';
 import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
 import type { WH, XY } from '~/support';
@@ -79,12 +79,6 @@ const getOverflowAmount = (viewportScrollSize: WH<number>, viewportClientSize: W
     h: amount.h > tollerance ? amount.h : 0,
   };
 };
-
-const conditionalClass = (
-  elm: Element | false | null | undefined,
-  classNames: string,
-  add: boolean
-) => (add ? addClass(elm, classNames) : removeClass(elm, classNames));
 
 const overflowIsVisible = (overflowBehavior: string) => overflowBehavior.indexOf(strVisible) === 0;
 
@@ -508,9 +502,14 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     }
 
     attrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
-    conditionalClass(_padding, classNameOverflowVisible, removeClipping);
+    attrClass(_padding, dataAttributePadding, dataValuePaddingOverflowVisible, removeClipping);
     if (!_viewportIsTarget) {
-      _viewportAddRemoveClass(dataValueViewportOverflowVisible, '', overflowVisible);
+      attrClass(
+        _viewport,
+        dataAttributeViewport,
+        dataValueViewportOverflowVisible,
+        overflowVisible
+      );
     }
 
     const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(

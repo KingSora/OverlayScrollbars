@@ -3,8 +3,8 @@ import { resolveInitialization } from '~/initialization';
 import {
   dataAttributeHost,
   dataAttributeInitialize,
-  classNamePadding,
-  classNameContent,
+  dataAttributePadding,
+  dataAttributeContent,
   dataAttributeViewport,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
@@ -88,9 +88,9 @@ const clearBody = () => {
 const getElements = (targetType: TargetType) => {
   const target = getTarget(targetType);
   const host = document.querySelector(`[${dataAttributeHost}]`)!;
-  const padding = document.querySelector(`.${classNamePadding}`)!;
+  const padding = document.querySelector(`[${dataAttributePadding}]`)!;
   const viewport = document.querySelector(`[${dataAttributeViewport}]`)!;
-  const content = document.querySelector(`.${classNameContent}`)!;
+  const content = document.querySelector(`[${dataAttributeContent}]`)!;
   const children =
     targetType === 'textarea'
       ? document.querySelector(`#${textareaId}`)

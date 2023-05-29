@@ -113,13 +113,13 @@ html[data-overlayscrollbars] > body {
   position: relative;
 }
 [data-overlayscrollbars~='host'],
-.os-padding {
+[data-overlayscrollbars-padding] {
   display: flex;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
 }
 
-.os-padding,
+[data-overlayscrollbars-padding],
 [data-overlayscrollbars-viewport] {
   box-sizing: inherit;
   position: relative; // needed for correct padding styles
@@ -148,7 +148,7 @@ html[data-overlayscrollbars] > body {
   }
 }
 
-.os-padding,
+[data-overlayscrollbars-padding],
 [data-overlayscrollbars-viewport] {
   overflow: hidden;
 }
@@ -158,6 +158,7 @@ html[data-overlayscrollbars] > body {
   overflow: hidden;
 }
 [data-overlayscrollbars~='overflowVisible'],
+[data-overlayscrollbars-padding~='overflowVisible'],
 [data-overlayscrollbars-viewport~='overflowVisible'] {
   overflow: visible;
 }
@@ -179,11 +180,7 @@ html[data-overlayscrollbars] > body {
   scroll-behavior: auto !important;
 }
 
-.os-overflow-visible {
-  overflow: visible;
-}
-
-.os-content {
+[data-overlayscrollbars-content] {
   box-sizing: inherit;
 }
 
@@ -192,13 +189,15 @@ html[data-overlayscrollbars] > body {
  */
 
 [data-overlayscrollbars-grid],
-[data-overlayscrollbars-grid] .os-padding {
+[data-overlayscrollbars-grid] [data-overlayscrollbars-padding] {
   display: grid;
   grid-template: 1fr / 1fr;
 }
-[data-overlayscrollbars-grid] > .os-padding,
+[data-overlayscrollbars-grid] > [data-overlayscrollbars-padding],
 [data-overlayscrollbars-grid] > [data-overlayscrollbars-viewport],
-[data-overlayscrollbars-grid] > .os-padding > [data-overlayscrollbars-viewport] {
+[data-overlayscrollbars-grid]
+  > [data-overlayscrollbars-padding]
+  > [data-overlayscrollbars-viewport] {
   height: auto !important;
   width: auto !important;
 }
