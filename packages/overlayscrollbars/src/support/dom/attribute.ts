@@ -49,6 +49,15 @@ export const attr = ((
 }) as Attr;
 
 /**
+ * Removes the given attribute from the given element.
+ * @param elm The element of which the attribute shall be removed.
+ * @param attrName The attribute name.
+ */
+export const removeAttr = (elm: Element | false | null | undefined, attrName: string): void => {
+  elm && elm.removeAttribute(attrName);
+};
+
+/**
  * Treats the given attribute like the "class" attribute and adds or removes the given value from it.
  * @param elm The element.
  * @param attrName The attributeName to which the value shall be added or removed.
@@ -65,8 +74,8 @@ export const attrClass = (
     const currValues = attr(elm, attrName) || '';
     const currValuesSet = new Set(currValues.split(' '));
     currValuesSet[add ? 'add' : 'delete'](value);
-
-    attr(elm, attrName, from(currValuesSet).join(' ').trim());
+    const newTokens = from(currValuesSet).join(' ').trim();
+    attr(elm, attrName, newTokens);
   }
 };
 
@@ -85,15 +94,6 @@ export const hasAttrClass = (
   const currValues = attr(elm, attrName) || '';
   const currValuesSet = new Set(currValues.split(' '));
   return currValuesSet.has(value);
-};
-
-/**
- * Removes the given attribute from the given element.
- * @param elm The element of which the attribute shall be removed.
- * @param attrName The attribute name.
- */
-export const removeAttr = (elm: Element | false | null | undefined, attrName: string): void => {
-  elm && elm.removeAttribute(attrName);
 };
 
 /**

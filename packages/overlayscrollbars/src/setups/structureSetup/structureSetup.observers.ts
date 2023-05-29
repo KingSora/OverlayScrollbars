@@ -27,10 +27,10 @@ import {
   dataAttributeHost,
   dataValueHostOverflowVisible,
   dataValueHostUpdating,
-  classNameViewport,
-  classNameOverflowVisible,
   classNameScrollbar,
-  classNameViewportArrange,
+  dataValueViewportArrange,
+  dataAttributeViewport,
+  dataValueViewportOverflowVisible,
 } from '~/classnames';
 import { createSizeObserver, createTrinsicObserver, createDOMObserver } from '~/observers';
 import type { DOMObserver, SizeObserverCallbackParams } from '~/observers';
@@ -62,7 +62,7 @@ const hostSelector = `[${dataAttributeHost}]`;
 
 // TODO: observer textarea attrs if textarea
 
-const viewportSelector = `.${classNameViewport}`;
+const viewportSelector = `[${dataAttributeViewport}]`;
 const viewportAttrsFromTarget = ['tabindex'];
 const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
 const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
@@ -94,20 +94,27 @@ export const createStructureSetupObservers = (
       _initialValue: { w: 0, h: 0 },
     },
     () => {
-      const hasOver = _viewportHasClass(classNameOverflowVisible, dataValueHostOverflowVisible);
-      const hasVpStyle = _viewportHasClass(classNameViewportArrange, '');
+      const hasOver = _viewportHasClass(
+        dataValueViewportOverflowVisible,
+        dataValueHostOverflowVisible
+      );
+      const hasVpStyle = _viewportHasClass(dataValueViewportArrange, '');
       const scrollOffsetX = hasVpStyle && scrollLeft(_viewport);
       const scrollOffsetY = hasVpStyle && scrollTop(_viewport);
-      _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible);
-      _viewportAddRemoveClass(classNameViewportArrange, '');
+      _viewportAddRemoveClass(dataValueViewportOverflowVisible, dataValueHostOverflowVisible);
+      _viewportAddRemoveClass(dataValueViewportArrange, '');
       _viewportAddRemoveClass('', dataValueHostUpdating, true);
 
       const contentScroll = scrollSize(_content);
       const viewportScroll = scrollSize(_viewport);
       const fractional = fractionalSize(_viewport);
 
-      _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, hasOver);
-      _viewportAddRemoveClass(classNameViewportArrange, '', hasVpStyle);
+      _viewportAddRemoveClass(
+        dataValueViewportOverflowVisible,
+        dataValueHostOverflowVisible,
+        hasOver
+      );
+      _viewportAddRemoveClass(dataValueViewportArrange, '', hasVpStyle);
       _viewportAddRemoveClass('', dataValueHostUpdating);
       scrollLeft(_viewport, scrollOffsetX);
       scrollTop(_viewport, scrollOffsetY);

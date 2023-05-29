@@ -3,6 +3,7 @@ export const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-
 export const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
 
 export const dataAttributeHost = 'data-overlayscrollbars';
+export const dataAttributeViewport = 'data-overlayscrollbars-viewport';
 export const dataAttributeInitialize = 'data-overlayscrollbars-initialize';
 export const dataAttributeHostOverflowX = `${dataAttributeHost}-overflow-x`;
 export const dataAttributeHostOverflowY = `${dataAttributeHost}-overflow-y`;
@@ -11,11 +12,12 @@ export const dataValueHostScrollbarHidden = 'scrollbarHidden';
 export const dataValueHostScrollbarPressed = 'scrollbarPressed';
 export const dataValueHostUpdating = 'updating';
 export const classNamePadding = 'os-padding';
-export const classNameViewport = 'os-viewport';
-export const classNameViewportArrange = `${classNameViewport}-arrange`;
+export const dataValueViewportArrange = 'arrange';
+export const dataValueViewportScrollbarHidden = 'scrollbarHidden';
+export const dataValueViewportOverflowVisible = 'overflowVisible';
 export const classNameContent = 'os-content';
-export const classNameViewportScrollbarHidden = `${classNameViewport}-scrollbar-hidden`;
 export const classNameOverflowVisible = `os-overflow-visible`;
+export const classNameScrollbarHidden = `os-scrollbar-hidden`;
 
 export const classNameSizeObserver = 'os-size-observer';
 export const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;

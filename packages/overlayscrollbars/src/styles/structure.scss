@@ -58,23 +58,23 @@
  */
 
 .os-environment,
-.os-viewport {
+[data-overlayscrollbars-viewport] {
   -ms-overflow-style: scrollbar !important;
 }
 [data-overlayscrollbars-initialize],
 [data-overlayscrollbars~='scrollbarHidden'],
-.os-viewport-scrollbar-hidden.os-environment,
-.os-viewport-scrollbar-hidden.os-viewport {
+[data-overlayscrollbars-viewport~='scrollbarHidden'],
+.os-scrollbar-hidden.os-environment {
   scrollbar-width: none !important;
 }
 [data-overlayscrollbars-initialize]::-webkit-scrollbar,
 [data-overlayscrollbars-initialize]::-webkit-scrollbar-corner,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar-corner,
-.os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar,
-.os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar-corner,
-.os-viewport-scrollbar-hidden.os-viewport::-webkit-scrollbar,
-.os-viewport-scrollbar-hidden.os-viewport::-webkit-scrollbar-corner {
+[data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar,
+[data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar-corner,
+.os-scrollbar-hidden.os-environment::-webkit-scrollbar,
+.os-scrollbar-hidden.os-environment::-webkit-scrollbar-corner {
   appearance: none !important;
   display: none !important;
   width: 0 !important;
@@ -94,8 +94,8 @@
  */
 
 html[data-overlayscrollbars],
-html.os-viewport-scrollbar-hidden,
-html.os-viewport-scrollbar-hidden > body {
+html.os-scrollbar-hidden,
+html.os-scrollbar-hidden > body {
   box-sizing: border-box;
   margin: 0;
   width: 100%;
@@ -120,7 +120,7 @@ html[data-overlayscrollbars] > body {
 }
 
 .os-padding,
-.os-viewport {
+[data-overlayscrollbars-viewport] {
   box-sizing: inherit;
   position: relative; // needed for correct padding styles
   flex: auto !important;
@@ -132,11 +132,11 @@ html[data-overlayscrollbars] > body {
   z-index: 0;
 }
 
-.os-viewport {
+[data-overlayscrollbars-viewport] {
   --os-vaw: 0;
   --os-vah: 0;
 
-  &.os-viewport-arrange::before {
+  &[data-overlayscrollbars-viewport~='arrange']::before {
     content: '';
     position: absolute;
     pointer-events: none;
@@ -148,11 +148,17 @@ html[data-overlayscrollbars] > body {
   }
 }
 
+.os-padding,
+[data-overlayscrollbars-viewport] {
+  overflow: hidden;
+}
+
 [data-overlayscrollbars~='host'],
 [data-overlayscrollbars~='viewport'] {
   overflow: hidden;
 }
-[data-overlayscrollbars~='overflowVisible'] {
+[data-overlayscrollbars~='overflowVisible'],
+[data-overlayscrollbars-viewport~='overflowVisible'] {
   overflow: visible;
 }
 [data-overlayscrollbars-overflow-x='hidden'] {
@@ -169,13 +175,8 @@ html[data-overlayscrollbars] > body {
 }
 
 [data-overlayscrollbars~='scrollbarPressed'],
-[data-overlayscrollbars~='scrollbarPressed'] .os-viewport {
+[data-overlayscrollbars~='scrollbarPressed'] [data-overlayscrollbars-viewport] {
   scroll-behavior: auto !important;
-}
-
-.os-padding,
-.os-viewport {
-  overflow: hidden;
 }
 
 .os-overflow-visible {
@@ -196,8 +197,8 @@ html[data-overlayscrollbars] > body {
   grid-template: 1fr / 1fr;
 }
 [data-overlayscrollbars-grid] > .os-padding,
-[data-overlayscrollbars-grid] > .os-viewport,
-[data-overlayscrollbars-grid] > .os-padding > .os-viewport {
+[data-overlayscrollbars-grid] > [data-overlayscrollbars-viewport],
+[data-overlayscrollbars-grid] > .os-padding > [data-overlayscrollbars-viewport] {
   height: auto !important;
   width: auto !important;
 }

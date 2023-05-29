@@ -2,7 +2,7 @@ import '~/index.scss';
 import './index.scss';
 import './handleEnvironment';
 import { OverlayScrollbars } from '~/overlayscrollbars';
-import { classNameViewport } from '~/classnames';
+import { dataAttributeViewport } from '~/classnames';
 import should from 'should';
 import {
   generateClassChangeSelectCallback,
@@ -132,7 +132,7 @@ const targetUpdatesSlot: HTMLElement | null = document.querySelector('#updates')
 const comparisonContentElm: HTMLElement = document.createElement('div');
 const envElms = document.querySelectorAll<HTMLElement>('.env');
 const getComparisonViewport = () =>
-  (comparison?.querySelector(`.${classNameViewport}`) || comparison) as HTMLElement;
+  (comparison?.querySelector(`[${dataAttributeViewport}]`) || comparison) as HTMLElement;
 
 const initObj = hasClass(document.body, 'vpt')
   ? {
@@ -214,7 +214,9 @@ const osInstance =
         if (paddingAbsolute) {
           if (comparisonViewport === comparison) {
             addClass(document.body, 'pa');
-            const absoluteWrapper = createDiv(classNameViewport);
+            const absoluteWrapper = createDiv();
+            absoluteWrapper.setAttribute(dataAttributeViewport, '');
+
             appendChildren(absoluteWrapper, contents(comparison));
 
             appendChildren(comparison, absoluteWrapper);

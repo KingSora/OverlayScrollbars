@@ -14,13 +14,14 @@ import {
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
-  classNameViewportScrollbarHidden,
   classNameOverflowVisible,
   dataAttributeHost,
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
   dataValueHostScrollbarHidden,
   dataValueHostOverflowVisible,
+  dataValueViewportScrollbarHidden,
+  dataValueViewportOverflowVisible,
 } from '~/classnames';
 import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
 import type { WH, XY } from '~/support';
@@ -358,7 +359,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarsHiding) {
       _viewportAddRemoveClass(
-        classNameViewportScrollbarHidden,
+        dataValueViewportScrollbarHidden,
         dataValueHostScrollbarHidden,
         !showNativeOverlaidScrollbars
       );
@@ -377,7 +378,11 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       showNativeOverlaidScrollbarsChanged
     ) {
       if (overflowVisible) {
-        _viewportAddRemoveClass(classNameOverflowVisible, dataValueHostOverflowVisible, false);
+        _viewportAddRemoveClass(
+          dataValueViewportOverflowVisible,
+          dataValueHostOverflowVisible,
+          false
+        );
       }
 
       const [redoViewportArrange, undoViewportArrangeOverflowState] = undoViewportArrange(
@@ -504,7 +509,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     attrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
     conditionalClass(_padding, classNameOverflowVisible, removeClipping);
-    !_viewportIsTarget && conditionalClass(_viewport, classNameOverflowVisible, overflowVisible);
+    if (!_viewportIsTarget) {
+      _viewportAddRemoveClass(dataValueViewportOverflowVisible, '', overflowVisible);
+    }
 
     const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
       getViewportOverflowState(showNativeOverlaidScrollbars)._overflowStyle

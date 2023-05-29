@@ -9,8 +9,6 @@ import {
   parent,
   indexOf,
   removeElements,
-  removeClass,
-  hasClass,
   push,
   runEachAndClear,
   insertBefore,
@@ -28,9 +26,10 @@ import {
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
   classNamePadding,
-  classNameViewport,
   classNameContent,
-  classNameViewportScrollbarHidden,
+  classNameScrollbarHidden,
+  dataAttributeViewport,
+  dataValueViewportScrollbarHidden,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
@@ -69,8 +68,15 @@ export interface StructureSetupElementsObj {
   _targetIsElm: boolean;
   _viewportIsTarget: boolean;
   _viewportIsContent: boolean;
-  _viewportHasClass: (className: string, attributeClassName: string) => boolean;
-  _viewportAddRemoveClass: (className: string, attributeClassName: string, add?: boolean) => void;
+  _viewportHasClass: (
+    viewportAttributeClassName: string,
+    hostAttributeClassName: string
+  ) => boolean;
+  _viewportAddRemoveClass: (
+    viewportAttributeClassName: string,
+    hostAttributeClassName: string,
+    add?: boolean
+  ) => void;
 }
 
 const tabIndexStr = 'tabindex';
@@ -184,14 +190,23 @@ export const createStructureSetupElements = (
     _targetIsElm: targetIsElm,
     _viewportIsTarget: viewportIsTarget,
     _viewportIsContent: viewportIsContent,
-    _viewportHasClass: (className: string, attributeClassName: string) =>
-      viewportIsTarget
-        ? hasAttrClass(viewportElement, dataAttributeHost, attributeClassName)
-        : hasClass(viewportElement, className),
-    _viewportAddRemoveClass: (className: string, attributeClassName: string, add?: boolean) =>
-      viewportIsTarget
-        ? attrClass(viewportElement, dataAttributeHost, attributeClassName, add)
-        : (add ? addClass : removeClass)(viewportElement, className),
+    _viewportHasClass: (viewportAttributeClassName: string, hostAttributeClassName: string) =>
+      hasAttrClass(
+        viewportElement,
+        viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
+        viewportIsTarget ? hostAttributeClassName : viewportAttributeClassName
+      ),
+    _viewportAddRemoveClass: (
+      viewportAttributeClassName: string,
+      hostAttributeClassName: string,
+      add?: boolean
+    ) =>
+      attrClass(
+        viewportElement,
+        viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
+        viewportIsTarget ? hostAttributeClassName : viewportAttributeClassName,
+        add
+      ),
   };
   const generatedElements = keys(evaluatedTargetObj).reduce((arr, key: string) => {
     const value = evaluatedTargetObj[key];
@@ -224,12 +239,15 @@ export const createStructureSetupElements = (
   const appendElements = () => {
     attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
 
+    if (!viewportIsTarget) {
+      attr(_viewport, dataAttributeViewport, '');
+    }
+
     const removePaddingClass = addClass(_padding, classNamePadding);
-    const removeViewportClass = addClass(_viewport, !viewportIsTarget && classNameViewport);
     const removeContentClass = addClass(_content, classNameContent);
     const removeHtmlClass =
       isBody && !viewportIsTarget
-        ? addClass(parent(targetElement), classNameViewportScrollbarHidden)
+        ? addClass(parent(targetElement), classNameScrollbarHidden)
         : noop;
 
     // only insert host for textarea after target if it was generated
@@ -251,6 +269,7 @@ export const createStructureSetupElements = (
       removeHtmlClass();
       removeAttr(_viewport, dataAttributeHostOverflowX);
       removeAttr(_viewport, dataAttributeHostOverflowY);
+      removeAttr(_viewport, dataAttributeViewport);
 
       if (elementIsGenerated(_content)) {
         unwrap(_content);
@@ -261,13 +280,14 @@ export const createStructureSetupElements = (
       if (elementIsGenerated(_padding)) {
         unwrap(_padding);
       }
+
       removePaddingClass();
-      removeViewportClass();
       removeContentClass();
     });
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
-      push(destroyFns, removeClass.bind(0, _viewport, classNameViewportScrollbarHidden));
+      attrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden, true);
+      push(destroyFns, removeAttr.bind(0, _viewport, dataAttributeViewport));
     }
     if (_viewportArrange) {
       insertBefore(_viewport, _viewportArrange);

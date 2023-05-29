@@ -1,5 +1,5 @@
 import { rAF, cAF } from '~/support/compatibility';
-import { isFunction } from '~/support/utils';
+import { isFunction } from './types';
 
 const { max } = Math;
 const animationCurrentTime = () => performance.now();

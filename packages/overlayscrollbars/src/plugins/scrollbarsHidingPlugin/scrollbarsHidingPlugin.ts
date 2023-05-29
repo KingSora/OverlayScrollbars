@@ -1,15 +1,5 @@
-import {
-  keys,
-  attr,
-  style,
-  addClass,
-  removeClass,
-  noop,
-  each,
-  assignDeep,
-  windowSize,
-} from '~/support';
-import { classNameViewportArrange } from '~/classnames';
+import { keys, attr, style, noop, each, assignDeep, windowSize, attrClass } from '~/support';
+import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
 import type { StyleObject } from '~/typings';
 import type { StructureSetupState } from '~/setups/structureSetup';
@@ -89,7 +79,11 @@ export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
         const result = create ? document.createElement('style') : false;
 
         if (result) {
-          attr(result, 'id', `${classNameViewportArrange}-${contentArrangeCounter}`);
+          attr(
+            result,
+            'id',
+            `${dataAttributeViewport}-${dataValueViewportArrange}-${contentArrangeCounter}`
+          );
           contentArrangeCounter++;
         }
 
@@ -154,7 +148,10 @@ export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
                 if (cssRules) {
                   if (!cssRules.length) {
                     sheet.insertRule(
-                      `#${attr(viewportArrange, 'id')} + .${classNameViewportArrange}::before {}`,
+                      `#${attr(
+                        viewportArrange,
+                        'id'
+                      )} + [${dataAttributeViewport}~='${dataValueViewportArrange}']::before {}`,
                       0
                     );
                   }
@@ -211,7 +208,8 @@ export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
 
             const prevStyle = style(viewport, keys(finalPaddingStyle));
 
-            removeClass(viewport, classNameViewportArrange);
+            // add class
+            attrClass(viewport, dataAttributeViewport, dataValueViewportArrange);
 
             if (!flexboxGlue) {
               finalPaddingStyle.height = '';
@@ -228,7 +226,8 @@ export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
                   prevStyle
                 );
                 style(viewport, prevStyle);
-                addClass(viewport, classNameViewportArrange);
+                // remove class
+                attrClass(viewport, dataAttributeViewport, dataValueViewportArrange, true);
               },
               finalViewportOverflowState,
             ];

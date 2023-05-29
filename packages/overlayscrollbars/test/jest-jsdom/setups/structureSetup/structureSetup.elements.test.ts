@@ -1,11 +1,11 @@
-import { hasClass, is, isHTMLElement } from '~/support';
+import { is, isHTMLElement } from '~/support';
 import { resolveInitialization } from '~/initialization';
 import {
   dataAttributeHost,
   dataAttributeInitialize,
   classNamePadding,
-  classNameViewport,
   classNameContent,
+  dataAttributeViewport,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
@@ -89,7 +89,7 @@ const getElements = (targetType: TargetType) => {
   const target = getTarget(targetType);
   const host = document.querySelector(`[${dataAttributeHost}]`)!;
   const padding = document.querySelector(`.${classNamePadding}`)!;
-  const viewport = document.querySelector(`.${classNameViewport}`)!;
+  const viewport = document.querySelector(`[${dataAttributeViewport}]`)!;
   const content = document.querySelector(`.${classNameContent}`)!;
   const children =
     targetType === 'textarea'
@@ -426,16 +426,14 @@ const assertCorrectSetupElements = (
     expect(_viewportHasClass('', attrName)).toBe(true);
     expect(_host.getAttribute(dataAttributeHost)!.indexOf(attrName) >= 0).toBe(true);
   } else {
-    expect(hasClass(_viewport, className)).toBe(true);
-    expect(_viewportHasClass(className, '')).toBe(true);
+    expect(_viewportHasClass(className, attrName)).toBe(true);
   }
   _viewportAddRemoveClass(className, attrName);
   if (_viewportIsTarget) {
     expect(_host.getAttribute(dataAttributeHost)!.indexOf(attrName) >= 0).toBe(false);
     expect(_viewportHasClass('', attrName)).toBe(false);
   } else {
-    expect(hasClass(_viewport, className)).toBe(false);
-    expect(_viewportHasClass(className, '')).toBe(false);
+    expect(_viewportHasClass(className, attrName)).toBe(false);
   }
 
   return [elements, destroy];
@@ -453,7 +451,7 @@ const assertCorrectDestroy = (snapshot: string, destroy: () => void) => {
     }
   });
 
-  expect(snapshot).toBe(getSnapshot());
+  expect(getSnapshot()).toBe(snapshot);
 };
 
 const env: InternalEnvironment = jest.requireActual('~/environment').getEnvironment();

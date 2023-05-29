@@ -72,7 +72,7 @@ body {
   position: relative;
   background: rgba(0, 0, 0, 0.1);
 
-  .os-viewport::after,
+  [data-overlayscrollbars-viewport]::after,
   &::after {
     content: '';
     display: block;
@@ -241,7 +241,7 @@ body {
 .boxSizingBorderBox > .container {
   box-sizing: border-box;
 
-  .os-viewport * {
+  [data-overlayscrollbars-viewport] * {
     box-sizing: border-box;
   }
 }
@@ -249,7 +249,7 @@ body {
 .boxSizingContentBox > .container {
   box-sizing: content-box;
 
-  .os-viewport * {
+  [data-overlayscrollbars-viewport] * {
     box-sizing: content-box;
   }
 }
@@ -307,11 +307,11 @@ body {
 
 // disable native scrollbar styling detection
 body.nsh {
-  .os-viewport-scrollbar-hidden.os-environment {
+  [data-overlayscrollbars-viewport~='scrollbarHidden'].os-environment {
     scrollbar-width: auto !important;
   }
-  .os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar,
-  .os-viewport-scrollbar-hidden.os-environment::-webkit-scrollbar-corner {
+  .os-scrollbar-hidden.os-environment::-webkit-scrollbar,
+  .os-scrollbar-hidden.os-environment::-webkit-scrollbar-corner {
     display: block !important;
   }
 }
@@ -333,9 +333,9 @@ body.ccp {
 // fully overlaid
 body.fo {
   .os-environment::-webkit-scrollbar,
-  .os-viewport::-webkit-scrollbar,
+  [data-overlayscrollbars-viewport]::-webkit-scrollbar,
   .os-environment::-webkit-scrollbar-corner,
-  .os-viewport::-webkit-scrollbar-corner {
+  [data-overlayscrollbars-viewport]::-webkit-scrollbar-corner {
     display: none !important;
     width: 0px !important;
     height: 0px !important;
@@ -344,7 +344,7 @@ body.fo {
   }
 
   .os-environment,
-  .os-viewport {
+  [data-overlayscrollbars-viewport] {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
   }
@@ -353,9 +353,9 @@ body.fo {
 // partially overlaid (chrome only)
 body.po {
   .os-environment::-webkit-scrollbar,
-  .os-viewport::-webkit-scrollbar,
+  [data-overlayscrollbars-viewport]::-webkit-scrollbar,
   .os-environment::-webkit-scrollbar-corner,
-  .os-viewport::-webkit-scrollbar-corner {
+  [data-overlayscrollbars-viewport]::-webkit-scrollbar-corner {
     display: block !important;
     width: 10px !important;
     height: 0 !important;

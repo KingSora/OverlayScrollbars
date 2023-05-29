@@ -23,7 +23,7 @@ import {
   classNameEnvironment,
   classNameEnvironmentFlexboxGlue,
   classNameEnvironmentFlexboxGlueMax,
-  classNameViewportScrollbarHidden,
+  classNameScrollbarHidden,
 } from '~/classnames';
 import { defaultOptions } from '~/options';
 import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
@@ -120,7 +120,7 @@ const getNativeScrollbarSize = (
 
 const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   let result = false;
-  const revertClass = addClass(testElm, classNameViewportScrollbarHidden);
+  const revertClass = addClass(testElm, classNameScrollbarHidden);
   try {
     result =
       style(testElm, cssProperty('scrollbar-width')) === 'none' ||
