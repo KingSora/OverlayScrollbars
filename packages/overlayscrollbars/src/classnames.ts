@@ -1,25 +1,37 @@
+// environment
 export const classNameEnvironment = 'os-environment';
 export const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
 export const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
 
-export const dataAttributeHost = 'data-overlayscrollbars';
-export const dataAttributePadding = 'data-overlayscrollbars-padding';
-export const dataAttributeViewport = 'data-overlayscrollbars-viewport';
-export const dataAttributeContent = 'data-overlayscrollbars-content';
+// misc
+export const classNameScrollbarHidden = `os-scrollbar-hidden`;
+
+// initialize
 export const dataAttributeInitialize = 'data-overlayscrollbars-initialize';
+
+// host
+export const dataAttributeHost = 'data-overlayscrollbars';
 export const dataAttributeHostOverflowX = `${dataAttributeHost}-overflow-x`;
 export const dataAttributeHostOverflowY = `${dataAttributeHost}-overflow-y`;
 export const dataValueHostOverflowVisible = 'overflowVisible';
 export const dataValueHostScrollbarHidden = 'scrollbarHidden';
 export const dataValueHostScrollbarPressed = 'scrollbarPressed';
 export const dataValueHostUpdating = 'updating';
+
+// viewport
+export const dataAttributeViewport = 'data-overlayscrollbars-viewport';
 export const dataValueViewportArrange = 'arrange';
 export const dataValueViewportScrollbarHidden = 'scrollbarHidden';
-export const dataValueViewportOverflowVisible = 'overflowVisible';
-export const dataValuePaddingOverflowVisible = 'overflowVisible';
-export const classNameOverflowVisible = `os-overflow-visible`;
-export const classNameScrollbarHidden = `os-scrollbar-hidden`;
+export const dataValueViewportOverflowVisible = dataValueHostOverflowVisible;
 
+// padding
+export const dataAttributePadding = 'data-overlayscrollbars-padding';
+export const dataValuePaddingOverflowVisible = dataValueViewportOverflowVisible;
+
+// content
+export const dataAttributeContent = 'data-overlayscrollbars-content';
+
+// size observer
 export const classNameSizeObserver = 'os-size-observer';
 export const classNameSizeObserverAppear = `${classNameSizeObserver}-appear`;
 export const classNameSizeObserverListener = `${classNameSizeObserver}-listener`;
@@ -27,8 +39,10 @@ export const classNameSizeObserverListenerScroll = `${classNameSizeObserverListe
 export const classNameSizeObserverListenerItem = `${classNameSizeObserverListener}-item`;
 export const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverListenerItem}-final`;
 
+// trinsic observer
 export const classNameTrinsicObserver = 'os-trinsic-observer';
 
+// scrollbars
 export const classNameScrollbarNoCssCustomProps = 'os-no-css-vars';
 export const classNameScrollbarThemeNone = 'os-theme-none';
 export const classNameScrollbar = 'os-scrollbar';
