@@ -5,7 +5,7 @@
 ### Improvements
 
 - Force the `scroll-behavior` css property to be `auto` when the user interacts with a scrollbar to prevent smooth scrolling to apply where it shouldn't. [#515](https://github.com/KingSora/OverlayScrollbars/issues/515)
-- The `viewort`, `padding` and `content` elements don't use the `class` attribute anymore for their styling. Instead each of them uses its own `data-overlayscrollbars-*` attribute. This has been done so that 3rd party libraries aren't conflicting with classnames from overlayscrollbars or vice versa. Selectors like `.os-viewport`, `.os-padding` or `.os-content` won't work anymore.
+- The `viewort`, `padding` and `content` elements don't use the `class` attribute anymore for their styling. Instead each of them uses its own `data-overlayscrollbars-*` attribute. This has been done so that 3rd party libraries aren't conflicting with classnames from overlayscrollbars or vice versa. Selectors like `.os-viewport`, `.os-padding` or `.os-content` won't work anymore. [#526](https://github.com/KingSora/OverlayScrollbars/issues/526) [#530](https://github.com/KingSora/OverlayScrollbars/issues/530)
 
 ## 2.1.1
 
