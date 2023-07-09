@@ -1,4 +1,4 @@
-import { offsetSize } from '~/support';
+import { getBoundingClientRect } from '~/support';
 import { getEnvironment } from '~/environment';
 import type { StructureSetupState } from '~/setups';
 
@@ -18,9 +18,9 @@ export const getScrollbarHandleLengthRatio = (
     const overflowAmount = _overflowAmount[axis];
     return max(0, min(1, viewportSize / (viewportSize + overflowAmount)));
   }
-  const axis = isHorizontal ? 'w' : 'h';
-  const handleSize = offsetSize(scrollbarHandle)[axis];
-  const trackSize = offsetSize(scrollbarTrack)[axis];
+  const axis = isHorizontal ? 'width' : 'height';
+  const handleSize = getBoundingClientRect(scrollbarHandle)[axis];
+  const trackSize = getBoundingClientRect(scrollbarTrack)[axis];
   return max(0, min(1, handleSize / trackSize));
 };
 

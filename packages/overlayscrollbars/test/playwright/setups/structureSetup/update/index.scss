@@ -127,6 +127,12 @@ body {
   margin: 10px;
 }
 
+.textwrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .end::before {
   content: '';
   position: absolute;
@@ -369,4 +375,8 @@ body.pa #comparison {
 }
 body.pa .widthAuto > #comparison {
   display: inline-flex;
+}
+
+.forceHidden {
+  display: none !important;
 }

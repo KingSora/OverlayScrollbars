@@ -126,6 +126,7 @@ html[data-overlayscrollbars] > body {
   flex: auto !important;
   height: auto;
   width: 100%;
+  min-width: 0;
   padding: 0;
   margin: 0;
   border: none;

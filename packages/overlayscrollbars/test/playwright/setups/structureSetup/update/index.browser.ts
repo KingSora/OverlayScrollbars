@@ -81,6 +81,10 @@ interface Metrics {
     width: number;
     height: number;
   };
+  textwrapElm: {
+    width: number;
+    height: number;
+  }
   endElm: {
     width: number;
     height: number;
@@ -125,6 +129,8 @@ const targetResize: HTMLElement | null = document.querySelector('#target .resize
 const comparisonResize: HTMLElement | null = document.querySelector('#comparison .resize');
 const targetPercent: HTMLElement | null = document.querySelector('#target .percent');
 const comparisonPercent: HTMLElement | null = document.querySelector('#comparison .percent');
+const targetTextwrap: HTMLElement | null = document.querySelector('#target .textwrap');
+const comparisonTextwrap: HTMLElement | null = document.querySelector('#comparison .textwrap');
 const targetEnd: HTMLElement | null = document.querySelector('#target .end');
 const comparisonEnd: HTMLElement | null = document.querySelector('#comparison .end');
 const targetOptionsSlot: HTMLElement | null = document.querySelector('#options');
@@ -253,6 +259,7 @@ const getMetrics = (elm: HTMLElement): Metrics => {
   const comparisonEnvBCR = getBoundingClientRect(parent(elm!) as HTMLElement);
   const comparisonBCR = getBoundingClientRect(elm!);
   const comparisonPercentBCR = getBoundingClientRect(elm!.querySelector('.percent')!);
+  const comparisonTextwrapBCR = getBoundingClientRect(elm!.querySelector('.textwrap')!);
   const comparisonEndBCR = getBoundingClientRect(elm!.querySelector('.end')!);
   const scrollMeasure = () => {
     const condition = (raw: number) => (window.devicePixelRatio % 1 !== 0 ? raw > 1 : raw > 0);
@@ -299,6 +306,10 @@ const getMetrics = (elm: HTMLElement): Metrics => {
     percentElm: {
       width: parseFloat(comparisonPercentBCR.width.toFixed(fixedDigits)),
       height: parseFloat(comparisonPercentBCR.height.toFixed(fixedDigits)),
+    },
+    textwrapElm: {
+      width: parseFloat(comparisonTextwrapBCR.width.toFixed(fixedDigits)),
+      height: parseFloat(comparisonTextwrapBCR.height.toFixed(fixedDigits)),
     },
     endElm: {
       width: parseFloat(comparisonEndBCR.width.toFixed(fixedDigits)),
@@ -441,6 +452,18 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
       targetMetrics.percentElm.height,
       comparisonMetrics.percentElm.height,
       'Percent Elements height equality.'
+    );
+
+    // textwrap element dimensions
+    should.equal(
+      targetMetrics.textwrapElm.width,
+      comparisonMetrics.textwrapElm.width,
+      'TextWrap Elements width equality.'
+    );
+    should.equal(
+      targetMetrics.textwrapElm.height,
+      comparisonMetrics.textwrapElm.height,
+      'TextWrap Elements height equality.'
     );
 
     // end element dimensions
@@ -764,6 +787,8 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
     style(comparisonResize, { boxSizing: 'border-box' });
     style(targetPercent, { display: 'none' });
     style(comparisonPercent, { display: 'none' });
+    style(targetTextwrap, { display: 'none' });
+    style(comparisonTextwrap, { display: 'none' });
     style(targetEnd, { display: 'none' });
     style(comparisonEnd, { display: 'none' });
 
@@ -781,6 +806,8 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
     removeAttr(comparisonResize, 'style');
     removeAttr(targetPercent, 'style');
     removeAttr(comparisonPercent, 'style');
+    removeAttr(targetTextwrap, 'style');
+    removeAttr(comparisonTextwrap, 'style');
     removeAttr(targetEnd, 'style');
     removeAttr(comparisonEnd, 'style');
   };
@@ -792,6 +819,17 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
   }
 
   await iterateMinMax(async () => {
+    const minMaxValue = containerMinMaxSelect?.value;
+    
+    if (minMaxValue === 'minMaxNone') {
+      addClass(targetTextwrap, 'forceHidden');
+      addClass(comparisonTextwrap, 'forceHidden');
+    }
+    else {
+      removeClass(targetTextwrap, 'forceHidden');
+      removeClass(comparisonTextwrap, 'forceHidden');
+    }
+
     await iterateBoxSizing(async () => {
       await iterateHeight(async () => {
         await iterateWidth(async () => {
