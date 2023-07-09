@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2
+
+- The `package.json` has now an appropriate `exports` field to optimize builds in modern bundlers.
+
 ## 0.5.1
 
 The TypeScript interfaces `OverlayScrollbarsProps` and `OverlayScrollbarsRef` are exported from the package.

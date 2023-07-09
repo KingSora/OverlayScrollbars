@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.2.1
+
+### Bug Fixes
+- Fix an issue where the `viewport` element could be wider than the `host` element. [#538](https://github.com/KingSora/OverlayScrollbars/issues/538)
+
+### Improvements
+
+- Instead of `offsetWidth` & `offsetHeight` use the corresponding properties from the `getBoundingClientRect` object to increase accuracy of scrollbar calculations. [#542](https://github.com/KingSora/OverlayScrollbars/issues/542)
+
 ## 2.2.0
 
 ### Improvements
