@@ -133,6 +133,10 @@ body {
   white-space: nowrap;
 }
 
+.fbg .textwrap {
+  display: none !important;
+}
+
 .end::before {
   content: '';
   position: absolute;
