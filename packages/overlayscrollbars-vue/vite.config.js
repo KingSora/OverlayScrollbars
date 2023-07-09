@@ -13,6 +13,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/overlayscrollbars-vue.ts'),
       name: 'OverlayScrollbarsVue',
+      formats: ['es', 'cjs', 'umd'],
       fileName: (format) => `overlayscrollbars-vue.${format}.js`,
     },
     rollupOptions: {
@@ -51,6 +52,13 @@ export default defineConfig({
               main: 'overlayscrollbars-vue.umd.js',
               module: 'overlayscrollbars-vue.es.js',
               types: 'types/overlayscrollbars-vue.d.ts',
+              exports: {
+                '.': {
+                  require: './overlayscrollbars-vue.cjs.js',
+                  import: './overlayscrollbars-vue.es.js',
+                  types: './types/overlayscrollbars-vue.d.ts',
+                },
+              },
               peerDependencies,
               sideEffects: false,
             };

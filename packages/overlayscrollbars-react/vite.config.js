@@ -12,6 +12,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/overlayscrollbars-react.ts'),
       name: 'OverlayScrollbarsReact',
+      formats: ['es', 'cjs', 'umd'],
       fileName: (format) => `overlayscrollbars-react.${format}.js`,
     },
     rollupOptions: {
@@ -50,6 +51,13 @@ export default defineConfig({
               main: 'overlayscrollbars-react.umd.js',
               module: 'overlayscrollbars-react.es.js',
               types: 'types/overlayscrollbars-react.d.ts',
+              exports: {
+                '.': {
+                  require: './overlayscrollbars-react.cjs.js',
+                  import: './overlayscrollbars-react.es.js',
+                  types: './types/overlayscrollbars-react.d.ts',
+                },
+              },
               peerDependencies,
               sideEffects: false,
             };
