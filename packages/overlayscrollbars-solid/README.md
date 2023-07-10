@@ -64,7 +64,7 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-solid";
 
 ### Properties
 
-The component accepts all properties of intrinsic JSX elements such as `div` and `span`.  
+The component accepts all properties of regular elements such as `div` and `span`.  
 Additionally it has custom optional properties:
 
 - `element`: accepts a `string` which represents the tag of the root element.

@@ -6,6 +6,7 @@
   export let element: any = 'div'; 
   export let options: any = undefined; 
   export let events: any = undefined; 
+  export let defer: any = undefined; 
   export let getRef: any = undefined;
   export let initialized: any = undefined;
   export let updated: any = undefined;
@@ -17,6 +18,7 @@
   const propsChange = (e: any) => {
     const optionsChanged = Object.prototype.hasOwnProperty.call(e.detail, 'options');
     const eventsChanged = Object.prototype.hasOwnProperty.call(e.detail, 'events');
+    const deferChanged = Object.prototype.hasOwnProperty.call(e.detail, 'defer');
     const elementChanged = Object.prototype.hasOwnProperty.call(e.detail, 'element');
     const classChanged = Object.prototype.hasOwnProperty.call(e.detail, 'className');
     const styleChanged = Object.prototype.hasOwnProperty.call(e.detail, 'style');
@@ -24,6 +26,9 @@
       options = e.detail.options;
     }
     if (eventsChanged) {
+      events = e.detail.events;
+    }
+    if (deferChanged) {
       events = e.detail.events;
     }
     if (elementChanged) {
@@ -46,6 +51,7 @@
   bind:this={ref} 
   element={element} 
   options={options} 
+  defer={defer} 
   events={events}
   class={className}
   style={style}

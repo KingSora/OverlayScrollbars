@@ -1,10 +1,19 @@
-import { describe, test, expect, afterEach, vitest } from 'vitest';
+import { describe, test, expect, afterEach, vitest, vi } from 'vitest';
 import { cleanup, render, screen, fireEvent } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from '~/index'; // eslint-disable-line import/named
 import type { OverlayScrollbarsComponentRef$ } from '~/OverlayScrollbarsComponent.types'; // eslint-disable-line import/named
 import Test from './Test.svelte';
+
+vi.useFakeTimers({
+  toFake: [
+    'requestAnimationFrame',
+    'cancelAnimationFrame',
+    'requestIdleCallback',
+    'cancelIdleCallback',
+  ],
+});
 
 /**
  * rerender would unmount and re-mount component... so I am faking it with custom event...
@@ -125,6 +134,59 @@ describe('OverlayScrollbarsComponent', () => {
       );
 
       expect(realContainer.firstElementChild).toHaveStyle({ height: '33px' });
+    });
+  });
+
+  describe('deferred initialization', () => {
+    test('basic defer', () => {
+      const { container } = render(Test, {
+        props: {
+          defer: true
+        },
+      });
+      const realContainer = container.firstElementChild!;
+
+      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeDefined();
+    });
+
+    test('options defer', () => {
+      const { container } = render(Test, {
+        props: {
+          defer: { timeout: 0 }
+        },
+      });
+      const realContainer = container.firstElementChild!;
+
+      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeDefined();
+    });
+
+    test('defer with unsupported Idle', () => {
+      const original = window.requestIdleCallback;
+      // @ts-ignore
+      window.requestIdleCallback = undefined;
+
+      const { container } = render(Test, {
+        props: {
+          defer: true
+        },
+      });
+      const realContainer = container.firstElementChild!;
+
+      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeUndefined();
+
+      vi.advanceTimersByTime(2000);
+
+      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeDefined();
+
+      window.requestIdleCallback = original;
     });
   });
 

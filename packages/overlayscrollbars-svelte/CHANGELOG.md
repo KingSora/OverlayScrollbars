@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0
+
+- added support for `svelte v4`
+
+Added the possibility to `defer` the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) 
+- `OverlayScrollbarsComponent` accepts now the `defer` property
+
 ## 0.4.0
 
 The component was created.  

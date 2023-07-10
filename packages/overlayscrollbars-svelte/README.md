@@ -57,18 +57,22 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-svelte";
 
 // ...
 
-<OverlayScrollbarsComponent>
+<OverlayScrollbarsComponent defer>
   example content
 </OverlayScrollbarsComponent>
 ```
 
 ### Properties
 
-It has three optional properties: `element`, `options` and `events`.
+The component accepts all properties of regular elements such as `div` and `span`.  
+Additionally it has custom optional properties:
 
 - `element`: accepts a `string` which represents the tag of the root element.
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
+- `defer`: accepts an `boolean` or `object`. Defers the initialization to a point in time when the browser is idle.
+
+> __Note__: Its **highly recommended** to use the `defer` option whenever possible to defer the initialization to a browser's idle period.
 
 ```jsx
 // example usage
@@ -76,6 +80,7 @@ It has three optional properties: `element`, `options` and `events`.
   element="span"
   options={{ scrollbars: { autoHide: 'scroll' } }}
   events={{ scroll: () => { /* ... */ } }}
+  defer
 />
 ```
 

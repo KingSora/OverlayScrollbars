@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { onMount, afterUpdate, createEventDispatcher } from 'svelte';
+  import { onMount, afterUpdate, createEventDispatcher, onDestroy } from 'svelte';
   import { OverlayScrollbars } from 'overlayscrollbars';
+  import { createDefer } from './createDefer';
   import type { EventListeners, EventListenerArgs } from 'overlayscrollbars';
   import type { OverlayScrollbarsComponentProps$, OverlayScrollbarsComponentRef$ } from './OverlayScrollbarsComponent.types';
 
@@ -11,6 +12,7 @@
   export let element: OverlayScrollbarsComponentProps$["element"] = 'div';
   export let options: OverlayScrollbarsComponentProps$["options"] = undefined;
   export let events: OverlayScrollbarsComponentProps$["events"] = undefined;
+  export let defer: OverlayScrollbarsComponentProps$["defer"] = undefined;
 
   let instance: OverlayScrollbars | null = null;
   let elementRef: HTMLElement | null = null;
@@ -18,21 +20,32 @@
   let combinedEvents: OverlayScrollbarsComponentProps$["events"] = undefined;
   let prevElement: string | undefined;
 
+  const [requestDefer, cancelDefer] = createDefer();
+
   const initialize = () => {
-    instance?.destroy();
-    instance = OverlayScrollbars(
-      { 
-        target: elementRef!, 
-        elements: {
-          viewport: slotRef,
-          content: slotRef
-        } 
-      }, 
-      options || {}, 
-      combinedEvents || {}
-    );
+    const init = () => {
+      instance?.destroy();
+      instance = OverlayScrollbars(
+        { 
+          target: elementRef!, 
+          elements: {
+            viewport: slotRef,
+            content: slotRef
+          } 
+        }, 
+        options || {}, 
+        combinedEvents || {}
+      );
+    };
+    
+    if (defer) {
+      requestDefer(init, defer);
+    }
+    else {
+      init();
+    }
+
     prevElement = element;
-    return () => instance?.destroy();
   };
   const dispatchEvents: EmitEventsMap = {
     initialized: 'osInitialized',
@@ -51,6 +64,11 @@
   export const getElement: OverlayScrollbarsComponentRef$["getElement"] = () => elementRef;
 
   onMount(initialize);
+
+  onDestroy(() => {
+    cancelDefer();
+    instance?.destroy();
+  });
 
   afterUpdate(() => {
     if (prevElement !== element) {

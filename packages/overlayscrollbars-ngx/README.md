@@ -83,7 +83,7 @@ The component can be used with two different selectors:
 
 ### Properties
 
-It has two optional properties: `element`, `options` and `events`.
+It has two optional properties: `options` and `events`.
 
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
