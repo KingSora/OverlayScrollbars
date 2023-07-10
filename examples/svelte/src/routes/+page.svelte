@@ -7,6 +7,6 @@
 	<title>OverlayScrollbars & Svelte</title>
 </svelte:head>
 
-<OverlayScrollbarsComponent style="height: 222px; width: 222px" :options="options" defer>
+<OverlayScrollbarsComponent style="height: 222px; width: 222px" defer>
 	<img src={logo} alt="Svelte Logo" width="333" height="333" />
 </OverlayScrollbarsComponent>
