@@ -15,7 +15,6 @@ describe('useOverlayScrollbars', () => {
       return (
         <button
           onClick={(event) => {
-            console.log(event);
             initialize(event.target as HTMLElement);
             if (instanceRef.current) {
               expect(instanceRef.current).toBe(instance());
