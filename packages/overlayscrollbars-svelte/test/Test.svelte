@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { OverlayScrollbarsComponent } from '~/index';
+  import { OverlayScrollbarsComponent } from '~/overlayscrollbars-svelte';
   let children = 1;
   let ref: any;
   

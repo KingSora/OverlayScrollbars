@@ -1,7 +1,7 @@
-import type { OverlayScrollbarsComponentProps$ } from "./OverlayScrollbarsComponent.types";
+import type { Props } from './OverlayScrollbarsComponent.types';
 
 export type Defer = [
-  requestDefer: (callback: () => any, options?: OverlayScrollbarsComponentProps$['defer']) => void,
+  requestDefer: (callback: () => any, options?: Props['defer']) => void,
   cancelDefer: () => void
 ];
 

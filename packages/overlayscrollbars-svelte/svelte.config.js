@@ -8,10 +8,6 @@ const config = {
   compilerOptions: {
     enableSourcemap: true,
   },
-  package: {
-    source: './src/',
-    dir: './dist',
-  },
 };
 
 export default config;

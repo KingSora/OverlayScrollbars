@@ -3,21 +3,21 @@
   import { OverlayScrollbars } from 'overlayscrollbars';
   import { createDefer } from './createDefer';
   import type { EventListeners, EventListenerArgs } from 'overlayscrollbars';
-  import type { OverlayScrollbarsComponentProps$, OverlayScrollbarsComponentRef$ } from './OverlayScrollbarsComponent.types';
+  import type { Props, Ref } from './OverlayScrollbarsComponent.types';
 
   type EmitEventsMap = {
     [N in keyof EventListenerArgs]: `os${Capitalize<N>}`;
   };
 
-  export let element: OverlayScrollbarsComponentProps$["element"] = 'div';
-  export let options: OverlayScrollbarsComponentProps$["options"] = undefined;
-  export let events: OverlayScrollbarsComponentProps$["events"] = undefined;
-  export let defer: OverlayScrollbarsComponentProps$["defer"] = undefined;
+  export let element: Props["element"] = 'div';
+  export let options: Props["options"] = undefined;
+  export let events: Props["events"] = undefined;
+  export let defer: Props["defer"] = undefined;
 
   let instance: OverlayScrollbars | null = null;
   let elementRef: HTMLElement | null = null;
   let slotRef: HTMLElement | null = null;
-  let combinedEvents: OverlayScrollbarsComponentProps$["events"] = undefined;
+  let combinedEvents: Props["events"] = undefined;
   let prevElement: string | undefined;
 
   const [requestDefer, cancelDefer] = createDefer();
@@ -60,8 +60,8 @@
     osScroll: EventListenerArgs["scroll"];
   }>();
 
-  export const osInstance: OverlayScrollbarsComponentRef$["osInstance"] = () => instance;
-  export const getElement: OverlayScrollbarsComponentRef$["getElement"] = () => elementRef;
+  export const osInstance: Ref["osInstance"] = () => instance;
+  export const getElement: Ref["getElement"] = () => elementRef;
 
   onMount(initialize);
 
@@ -84,7 +84,8 @@
       const eventListener = currEvents[name];
       obj[name] = [
         (...args: EventListenerArgs[N]) =>
-          dispatchEvent(
+        dispatchEvent(
+            // @ts-ignore
             dispatchEvents[name],
             // @ts-ignore
             args

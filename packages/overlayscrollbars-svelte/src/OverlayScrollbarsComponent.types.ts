@@ -1,7 +1,6 @@
 import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlayscrollbars';
 
-// Use "$" at the end so the type doesn't collide with generated type by svelte, this is not exported anyway
-export interface OverlayScrollbarsComponentProps$ {
+export interface Props {
   /** Tag of the root element. */
   element?: string;
   /** OverlayScrollbars options. */
@@ -12,7 +11,7 @@ export interface OverlayScrollbarsComponentProps$ {
   defer?: boolean | IdleRequestOptions;
 }
 
-export interface OverlayScrollbarsComponentRef$ {
+export interface Ref {
   /** Returns the OverlayScrollbars instance or null if not initialized. */
   osInstance(): OverlayScrollbars | null;
   /** Returns the root element. */

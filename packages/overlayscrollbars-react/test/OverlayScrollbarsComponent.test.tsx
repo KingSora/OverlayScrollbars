@@ -94,11 +94,11 @@ describe('OverlayScrollbarsComponent', () => {
       const initialElementParent = initialElement.parentElement;
       expect(initialElementParent).toBeInTheDocument();
 
-      userEvent.click(addBtn);
+      await userEvent.click(addBtn);
       expect((await screen.findByText('1')).parentElement).toBe(initialElementParent);
 
-      userEvent.click(removeBtn);
-      userEvent.click(removeBtn);
+      await userEvent.click(removeBtn);
+      await userEvent.click(removeBtn);
       expect(await screen.findByText('empty')).toBe(initialElementParent);
     });
 

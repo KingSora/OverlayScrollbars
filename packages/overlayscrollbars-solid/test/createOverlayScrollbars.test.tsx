@@ -10,7 +10,7 @@ import type { PartialOptions, EventListeners } from 'overlayscrollbars';
 describe('OverlayScrollbarsComponent', () => {
   afterEach(() => cleanup());
 
-  test('re-initialization', () => {
+  test('re-initialization', async () => {
     const Test = () => {
       let instanceRef: OverlayScrollbars | null = null;
       const [initialize, instance] = createOverlayScrollbars();
@@ -35,11 +35,11 @@ describe('OverlayScrollbarsComponent', () => {
     const { unmount } = render(Test);
 
     const initializeBtn = screen.getByRole('button');
-    userEvent.click(initializeBtn);
+    await userEvent.click(initializeBtn);
     // taking snapshot here wouldn't be equal because of "tabindex" attribute of the viewport element
-    userEvent.click(initializeBtn);
+    await userEvent.click(initializeBtn);
     const snapshot = initializeBtn.innerHTML;
-    userEvent.click(initializeBtn);
+    await userEvent.click(initializeBtn);
 
     expect(snapshot).toBe(initializeBtn.innerHTML);
 
@@ -50,7 +50,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(OverlayScrollbars(initializeBtn)).toBeUndefined();
   });
 
-  test('params store', () => {
+  test('params store', async () => {
     let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
     render(() => {
@@ -92,13 +92,13 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdated).not.toHaveBeenCalled();
 
     const triggerBtn = screen.getByRole('button');
-    userEvent.click(triggerBtn);
+    await userEvent.click(triggerBtn);
 
     expect(onUpdated).toHaveBeenCalledTimes(1);
     expect(osInstance!.options().paddingAbsolute).toBe(true);
   });
 
-  test('params signal', () => {
+  test('params signal', async () => {
     let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
     render(() => {
@@ -140,7 +140,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdated).not.toHaveBeenCalled();
 
     const triggerBtn = screen.getByRole('button');
-    userEvent.click(triggerBtn);
+    await userEvent.click(triggerBtn);
 
     expect(onUpdated).toHaveBeenCalledTimes(1);
     expect(osInstance!.options().paddingAbsolute).toBe(true);
@@ -187,7 +187,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdated).not.toHaveBeenCalled();
 
     const triggerBtn = screen.getByRole('button');
-    userEvent.click(triggerBtn);
+    await userEvent.click(triggerBtn);
 
     expect(onUpdated).toHaveBeenCalledTimes(1);
     expect(osInstance!.options().paddingAbsolute).toBe(true);

@@ -13,7 +13,7 @@ describe('useOverlayScrollbars', () => {
     } catch {}
   });
 
-  test('re-initialization', () => {
+  test('re-initialization', async () => {
     const { unmount } = render({
       setup() {
         const instanceRef = ref<OverlayScrollbars | null>(null);
@@ -39,11 +39,11 @@ describe('useOverlayScrollbars', () => {
     });
 
     const initializeBtn = screen.getByRole('button');
-    userEvent.click(initializeBtn);
+    await userEvent.click(initializeBtn);
     // taking snapshot here wouldn't be equal because of "tabindex" attribute of the viewport element
-    userEvent.click(initializeBtn);
+    await userEvent.click(initializeBtn);
     const snapshot = initializeBtn.innerHTML;
-    userEvent.click(initializeBtn);
+    await userEvent.click(initializeBtn);
 
     expect(snapshot).toBe(initializeBtn.innerHTML);
 

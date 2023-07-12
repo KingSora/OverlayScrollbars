@@ -2,8 +2,8 @@ import { describe, test, expect, afterEach, vitest, vi } from 'vitest';
 import { cleanup, render, screen, fireEvent } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from '~/index'; // eslint-disable-line import/named
-import type { OverlayScrollbarsComponentRef$ } from '~/OverlayScrollbarsComponent.types'; // eslint-disable-line import/named
+import { OverlayScrollbarsComponent } from '~/overlayscrollbars-svelte';
+import type { Ref } from '~/OverlayScrollbarsComponent.types';
 import Test from './Test.svelte';
 
 vi.useFakeTimers({
@@ -88,11 +88,11 @@ describe('OverlayScrollbarsComponent', () => {
       const initialElementParent = initialElement.parentElement;
       expect(initialElementParent).toBeInTheDocument();
 
-      userEvent.click(addBtn);
+      await userEvent.click(addBtn);
       expect((await screen.findByText('1')).parentElement).toBe(initialElementParent);
 
-      userEvent.click(removeBtn);
-      userEvent.click(removeBtn);
+      await userEvent.click(removeBtn);
+      await userEvent.click(removeBtn);
       expect((await screen.findByText('empty')).parentElement).toBe(initialElementParent);
     });
 
@@ -141,7 +141,7 @@ describe('OverlayScrollbarsComponent', () => {
     test('basic defer', () => {
       const { container } = render(Test, {
         props: {
-          defer: true
+          defer: true,
         },
       });
       const realContainer = container.firstElementChild!;
@@ -156,7 +156,7 @@ describe('OverlayScrollbarsComponent', () => {
     test('options defer', () => {
       const { container } = render(Test, {
         props: {
-          defer: { timeout: 0 }
+          defer: { timeout: 0 },
         },
       });
       const realContainer = container.firstElementChild!;
@@ -175,7 +175,7 @@ describe('OverlayScrollbarsComponent', () => {
 
       const { container } = render(Test, {
         props: {
-          defer: true
+          defer: true,
         },
       });
       const realContainer = container.firstElementChild!;
@@ -191,7 +191,7 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('ref', () => {
-    let osRef: OverlayScrollbarsComponentRef$ | undefined;
+    let osRef: Ref | undefined;
     const { container } = render(Test, {
       props: {
         getRef: (ref: any) => {
@@ -211,7 +211,7 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('options', async () => {
-    let osRef: OverlayScrollbarsComponentRef$ | undefined;
+    let osRef: Ref | undefined;
     render(Test, {
       props: {
         options: { paddingAbsolute: true, overflow: { y: 'hidden' } },
@@ -281,7 +281,7 @@ describe('OverlayScrollbarsComponent', () => {
   test('events', async () => {
     const onUpdatedInitial = vitest.fn();
     const onUpdated = vitest.fn();
-    let osRef: OverlayScrollbarsComponentRef$ | undefined;
+    let osRef: Ref | undefined;
     render(Test, {
       props: {
         events: { updated: onUpdatedInitial },
@@ -366,7 +366,7 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('destroy', () => {
-    let osRef: OverlayScrollbarsComponentRef$ | undefined;
+    let osRef: Ref | undefined;
     const { unmount } = render(Test, {
       props: {
         getRef(ref: any) {

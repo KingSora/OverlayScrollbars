@@ -8,13 +8,14 @@ import { useOverlayScrollbars } from '~/overlayscrollbars-react';
 describe('useOverlayScrollbars', () => {
   afterEach(() => cleanup());
 
-  test('re-initialization', () => {
+  test('re-initialization', async () => {
     const Test = () => {
       const instanceRef = useRef<OverlayScrollbars | null>(null);
       const [initialize, instance] = useOverlayScrollbars();
       return (
         <button
           onClick={(event) => {
+            console.log(event);
             initialize(event.target as HTMLElement);
             if (instanceRef.current) {
               expect(instanceRef.current).toBe(instance());
@@ -31,11 +32,11 @@ describe('useOverlayScrollbars', () => {
     const { unmount } = render(<Test />);
 
     const initializeBtn = screen.getByRole('button');
-    userEvent.click(initializeBtn);
+    await userEvent.click(initializeBtn);
     // taking snapshot here wouldn't be equal because of "tabindex" attribute of the viewport element
-    userEvent.click(initializeBtn);
+    await userEvent.click(initializeBtn);
     const snapshot = initializeBtn.innerHTML;
-    userEvent.click(initializeBtn);
+    await userEvent.click(initializeBtn);
 
     expect(snapshot).toBe(initializeBtn.innerHTML);
 

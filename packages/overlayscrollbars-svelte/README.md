@@ -6,7 +6,7 @@
 <div align="center">
 
   [![OverlayScrollbars](https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square)](https://github.com/KingSora/OverlayScrollbars)
-  [![Svelte](https://img.shields.io/badge/Svelte-%3E=3.44.0-FF3E00?style=flat-square&logo=svelte)](https://github.com/sveltejs/svelte)
+  [![Svelte](https://img.shields.io/badge/Svelte-%3E=3.54.0-FF3E00?style=flat-square&logo=svelte)](https://github.com/sveltejs/svelte)
   [![Downloads](https://img.shields.io/npm/dt/overlayscrollbars-svelte.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-svelte)
   [![Version](https://img.shields.io/npm/v/overlayscrollbars-svelte.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-svelte)
   [![License](https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square)](#)
