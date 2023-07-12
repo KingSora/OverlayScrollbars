@@ -22,6 +22,16 @@
     "scroll"
   ],
   "type": "module",
+  "main": "./src/overlayscrollbars-svelte.ts",
+  "module": "./src/overlayscrollbars-svelte.ts",
+  "types": "./src/overlayscrollbars-svelte.ts",
+  "exports": {
+    ".": {
+      "types": "./src/overlayscrollbars-svelte.ts",
+      "svelte": "./src/overlayscrollbars-svelte.ts",
+      "default": "./src/overlayscrollbars-svelte.ts"
+    }
+  },
   "peerDependencies": {
     "overlayscrollbars": "^2.0.0",
     "svelte": ">=3.54.0"
