@@ -1,17 +1,22 @@
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import logo from './logo.svg';
 
 const App = () => {
   return (
-    <div className="App">
+    <>
+      <a href="https://www.npmjs.com/package/overlayscrollbars-react" target="_blank">
+        <h1>OverlayScrollbars React</h1>
+      </a>
       <OverlayScrollbarsComponent
+        className="overlayscrollbars-react"
         style={{ width: '222px', height: '222px' }}
         options={{ scrollbars: { theme: 'os-theme-light' } }}
         defer
       >
-        <img src={logo} className="App-logo" alt="React logo" width="333" height="333" />
+        <div className="logo">
+          <img alt="React logo" src="logo.svg" width="333" height="333" />
+        </div>
       </OverlayScrollbarsComponent>
-    </div>
+    </>
   );
 };
 

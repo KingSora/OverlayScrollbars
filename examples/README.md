@@ -17,6 +17,7 @@ The following examples are available:
 
 | App  | Command |
 | :--- | :--- |
+|   | `npm run example:os` |
 | React | `npm run example:react` |
 | Vue | `npm run example:vue` |
 | Angular | `npm run example:ngx` |

@@ -17,12 +17,17 @@
   let instance: OverlayScrollbars | null = null;
   let elementRef: HTMLElement | null = null;
   let slotRef: HTMLElement | null = null;
+  let hydrated = false;
   let combinedEvents: Props["events"] = undefined;
   let prevElement: string | undefined;
 
   const [requestDefer, cancelDefer] = createDefer();
 
   const initialize = () => {
+    if (!hydrated) {
+      return;
+    }
+
     const init = () => {
       instance?.destroy();
       instance = OverlayScrollbars(
@@ -63,7 +68,9 @@
   export const osInstance: Ref["osInstance"] = () => instance;
   export const getElement: Ref["getElement"] = () => elementRef;
 
-  onMount(initialize);
+  onMount(() => {
+    hydrated = true;
+  });
 
   onDestroy(() => {
     cancelDefer();
@@ -114,7 +121,11 @@
 </script>
 
 <svelte:element data-overlayscrollbars-initialize="" this={element} bind:this={elementRef} {...$$restProps}>
-  <div bind:this={slotRef}>
+  {#if hydrated}
+    <div bind:this={slotRef}>
+      <slot></slot>
+    </div>
+  {:else}
     <slot></slot>
-  </div>
+  {/if}
 </svelte:element>

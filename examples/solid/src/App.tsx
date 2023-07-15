@@ -1,17 +1,23 @@
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-solid';
-import styles from './App.module.css';
 import type { Component } from 'solid-js';
-import logo from './logo.svg';
 
 const App: Component = () => {
   return (
-    <OverlayScrollbarsComponent
-      style={{ width: '222px', height: '222px' }}
-      options={{ scrollbars: { theme: 'os-theme-light' } }}
-      defer
-    >
-      <img src={logo} class={styles.logo} alt="logo" width="333" height="333" />
-    </OverlayScrollbarsComponent>
+    <>
+      <a href="https://www.npmjs.com/package/overlayscrollbars-solid" target="_blank">
+        <h1>OverlayScrollbars Solid</h1>
+      </a>
+      <OverlayScrollbarsComponent
+        class="overlayscrollbars-solid"
+        style={{ width: '222px', height: '222px' }}
+        options={{ scrollbars: { theme: 'os-theme-light' } }}
+        defer
+      >
+        <div class="logo">
+          <img alt="Solid logo" src="logo.svg" width="333" height="333" />
+        </div>
+      </OverlayScrollbarsComponent>
+    </>
   );
 };
 

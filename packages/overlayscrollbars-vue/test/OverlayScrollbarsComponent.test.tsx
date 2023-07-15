@@ -1,4 +1,4 @@
-import { onMounted, ref, toRefs } from 'vue';
+import { onMounted, ref, toRefs, nextTick } from 'vue';
 import { describe, test, afterEach, expect, vitest, vi } from 'vitest';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { fireEvent, render, screen, cleanup } from '@testing-library/vue';
@@ -23,6 +23,7 @@ describe('OverlayScrollbarsComponent', () => {
       const elementB = 'span';
       let osInstance;
       const { container, rerender } = render(OverlayScrollbarsComponent);
+      await nextTick();
 
       expect(container).not.toBeEmptyDOMElement();
       expect(container.querySelector('div')).toBe(container.firstElementChild); // default is div
@@ -55,12 +56,14 @@ describe('OverlayScrollbarsComponent', () => {
       expect(container.querySelector('[data-overlayscrollbars-initialize]')).toBeTruthy();
     });
 
-    test('children', () => {
+    test('children', async () => {
       const { container } = render(OverlayScrollbarsComponent, {
         slots: { default: 'hello <span>vue</span>' },
       });
       expect(screen.getByText(/hello/)).toBeInTheDocument();
       expect(screen.getByText(/vue/)).toBeInTheDocument();
+
+      await nextTick();
       expect(screen.getByText(/vue/).parentElement).not.toBe(container.firstElementChild);
     });
 
@@ -81,6 +84,8 @@ describe('OverlayScrollbarsComponent', () => {
           </>
         );
       });
+      await nextTick();
+
       const addBtn = screen.getByText('add');
       const removeBtn = screen.getByText('remove');
       const initialElement = screen.getByText('0');
@@ -127,8 +132,9 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   describe('deferred initialization', () => {
-    test('basic defer', () => {
+    test('basic defer', async () => {
       const { container } = render(<OverlayScrollbarsComponent defer />);
+      await nextTick();
 
       expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
 
@@ -137,8 +143,9 @@ describe('OverlayScrollbarsComponent', () => {
       expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
     });
 
-    test('options defer', () => {
+    test('options defer', async () => {
       const { container } = render(<OverlayScrollbarsComponent defer={{ timeout: 0 }} />);
+      await nextTick();
 
       expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
 
@@ -147,12 +154,13 @@ describe('OverlayScrollbarsComponent', () => {
       expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
     });
 
-    test('defer with unsupported Idle', () => {
+    test('defer with unsupported Idle', async () => {
       const original = window.requestIdleCallback;
       // @ts-ignore
       window.requestIdleCallback = undefined;
 
       const { container } = render(<OverlayScrollbarsComponent defer />);
+      await nextTick();
 
       expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
 
@@ -164,7 +172,7 @@ describe('OverlayScrollbarsComponent', () => {
     });
   });
 
-  test('ref', () => {
+  test('ref', async () => {
     const osRef = ref();
     const { container } = render({
       setup() {
@@ -177,6 +185,7 @@ describe('OverlayScrollbarsComponent', () => {
         return () => <OverlayScrollbarsComponent ref={componentRef} />;
       },
     });
+    await nextTick();
 
     const { osInstance, getElement } = osRef.value!;
     expect(osInstance).toBeTypeOf('function');
@@ -206,6 +215,7 @@ describe('OverlayScrollbarsComponent', () => {
         },
       }
     );
+    await nextTick();
 
     const instance = osRef.value!.osInstance()!;
 
@@ -265,6 +275,7 @@ describe('OverlayScrollbarsComponent', () => {
         },
       }
     );
+    await nextTick();
 
     const instance = osRef.value!.osInstance()!;
 
@@ -310,7 +321,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdated).toHaveBeenCalledTimes(3);
   });
 
-  test('destroy', () => {
+  test('destroy', async () => {
     const osRef = ref();
     const { unmount } = render({
       setup() {
@@ -323,6 +334,7 @@ describe('OverlayScrollbarsComponent', () => {
         return () => <OverlayScrollbarsComponent ref={componentRef} />;
       },
     });
+    await nextTick();
 
     const { osInstance } = osRef.value!;
 
@@ -336,6 +348,7 @@ describe('OverlayScrollbarsComponent', () => {
 
   test('emits', async () => {
     const { emitted, rerender, unmount, container } = render(OverlayScrollbarsComponent);
+    await nextTick();
 
     expect(emitted('osInitialized')).toEqual([[expect.any(Object)]]);
     expect(emitted('osUpdated')).toEqual([[expect.any(Object), expect.any(Object)]]);

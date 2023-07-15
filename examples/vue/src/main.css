@@ -11,13 +11,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  background-color: #1a1a1a;
+  background-color: #181818;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #e6e6e6;
+  color: rgba(235, 235, 235, 0.64);
 }
 
 a {
@@ -27,11 +27,11 @@ a {
 }
 
 a:hover {
-  color: #f96743;
+  color: hsla(160, 100%, 37%, 1);
 }
 
-.overlayscrollbars-svelte {
-  border: 2px solid #f96743;
+.overlayscrollbars-vue {
+  border: 2px solid hsla(160, 100%, 37%, 1);
   border-radius: 6px;
   margin: 0 auto;
 }

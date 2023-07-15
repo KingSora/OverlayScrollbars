@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { ref, unref, shallowRef, toRefs, watch, watchPostEffect, onUnmounted } from 'vue';
+import {
+  ref,
+  unref,
+  shallowRef,
+  toRefs,
+  watch,
+  watchPostEffect,
+  onUnmounted,
+  onMounted,
+} from 'vue';
 import { useOverlayScrollbars } from './useOverlayScrollbars';
 import type {
   OverlayScrollbarsComponentProps,
@@ -34,11 +43,13 @@ const emits = defineEmits<{
   (name: 'osScroll', ...args: EventListenerArgs['scroll']): void;
 }>();
 
+const { element, options, events, defer } = toRefs(props);
 const elementRef = shallowRef<HTMLElement | null>(null);
 const slotRef = shallowRef<HTMLElement | null>(null);
 const combinedEvents = ref<EventListeners>();
-const { element, options, events, defer } = toRefs(props);
+const hydrated = ref(false);
 const [initialize, osInstance] = useOverlayScrollbars({ options, events: combinedEvents, defer });
+
 const exposed: OverlayScrollbarsComponentRef = {
   osInstance,
   getElement: () => elementRef.value,
@@ -46,11 +57,15 @@ const exposed: OverlayScrollbarsComponentRef = {
 
 defineExpose(exposed);
 
+onMounted(() => {
+  hydrated.value = true;
+});
+
 watchPostEffect((onCleanup) => {
   const { value: elm } = elementRef;
   const { value: slotElm } = slotRef;
 
-  if (elm && slotElm) {
+  if (hydrated.value && elm && slotElm) {
     initialize({
       target: elm,
       elements: {
@@ -89,8 +104,9 @@ watch(
 
 <template>
   <component data-overlayscrollbars-initialize="" :is="element" ref="elementRef">
-    <div ref="slotRef">
+    <div v-if="hydrated" ref="slotRef">
       <slot></slot>
     </div>
+    <slot v-else></slot>
   </component>
 </template>

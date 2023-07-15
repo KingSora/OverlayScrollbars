@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
@@ -11,24 +17,26 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
   color: white;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
-.App-logo {
-  pointer-events: none;
-  animation: App-logo-spin infinite 20s linear;
+a:hover {
+  color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.overlayscrollbars-react {
+  border: 2px solid #61dafb;
+  border-radius: 6px;
+  margin: 0 auto;
+}
+
+.logo {
+  padding: 18px;
+  display: inline-block;
 }

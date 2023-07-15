@@ -4,7 +4,5 @@
 </script>
 
 <div class="app">
-	<main>
-		<slot />
-	</main>
+	<slot />
 </div>
