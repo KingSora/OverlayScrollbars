@@ -162,14 +162,16 @@ export const defaultOptions: Options = {
 
 export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): DeepPartial<T> => {
   const diff: DeepPartial<T> = {};
-  const optionsKeys = keys(newOptions).concat(keys(currOptions));
+  const optionsKeys = keys(newOptions).concat(keys(currOptions)) as Array<
+    keyof T & keyof DeepPartial<T>
+  >;
 
   each(optionsKeys, (optionKey) => {
     const currOptionValue = currOptions[optionKey];
     const newOptionValue = newOptions[optionKey];
 
     if (isObject(currOptionValue) && isObject(newOptionValue)) {
-      assignDeep((diff[optionKey] = {}), getOptionsDiff(currOptionValue, newOptionValue));
+      assignDeep((diff[optionKey] = {} as any), getOptionsDiff(currOptionValue, newOptionValue));
       // delete empty nested objects
       if (isEmptyObject(diff[optionKey])) {
         delete diff[optionKey];

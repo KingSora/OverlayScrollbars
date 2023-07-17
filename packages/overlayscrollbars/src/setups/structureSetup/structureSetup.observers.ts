@@ -33,6 +33,7 @@ import {
   dataValueViewportOverflowVisible,
 } from '~/classnames';
 import { createSizeObserver, createTrinsicObserver, createDOMObserver } from '~/observers';
+import type { PlainObject } from '~/typings';
 import type { DOMObserver, SizeObserverCallbackParams } from '~/observers';
 import type { CacheValues, WH } from '~/support';
 import type { SetupState, SetupUpdateCheckOption } from '~/setups';
@@ -137,9 +138,9 @@ export const createStructureSetupObservers = (
         keys(prevObj)
           .concat(keys(currObj))
           .reduce((obj, key) => {
-            obj[key] = prevObj[key] || currObj[key];
+            obj[key] = prevObj[key as keyof typeof prevObj] || currObj[key as keyof typeof currObj];
             return obj;
-          }, {}),
+          }, {} as PlainObject),
       ] as [Partial<StructureSetupUpdateHints>];
     },
   });

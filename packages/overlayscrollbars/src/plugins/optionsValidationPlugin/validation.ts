@@ -123,7 +123,7 @@ const validateRecursive = <T extends PlainObject>(
       let isValid = false;
       const errorEnumStrings: Array<string> = [];
       const errorPossibleTypes: Array<string> = [];
-      const optionsValueType = type(optionsValue);
+      const optionsValueType = type(optionsValue) as keyof typeof optionsTemplateTypes;
       const templateValueArr: Array<string | OptionsTemplateTypes> = !isArray(templateValue)
         ? [templateValue as string | OptionsTemplateTypes]
         : (templateValue as Array<OptionsTemplateTypes>);

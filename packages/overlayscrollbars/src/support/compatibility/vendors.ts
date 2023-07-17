@@ -6,6 +6,8 @@ import { createDiv } from '~/support/dom/create';
 const firstLetterToUpper = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);
 const getDummyStyle = (): CSSStyleDeclaration => createDiv().style;
 
+export type JsApiName = Extract<keyof typeof window, string>;
+
 // https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix
 
 export const cssPrefixes: ReadonlyArray<string> = ['-webkit-', '-moz-', '-o-', '-ms-'];
@@ -21,13 +23,13 @@ export const jsPrefixes: ReadonlyArray<string> = [
 ];
 
 export const jsCache: { [key: string]: any } = {};
-export const cssCache: { [key: string]: string } = {};
+export const cssCache: { [key: string]: any } = {};
 
 /**
  * Gets the name of the given CSS property with vendor prefix if it isn't supported without it, or and empty string if unsupported.
  * @param name The name of the CSS property which shall be get.
  */
-export const cssProperty = (name: string): string => {
+export const cssProperty = (name: string): string | undefined => {
   let result: string | undefined = cssCache[name];
 
   if (hasOwnProperty(cssCache, name)) {
@@ -48,7 +50,8 @@ export const cssProperty = (name: string): string => {
 
     // eslint-disable-next-line no-return-assign
     return !(result = resultPossibilities.find(
-      (resultPossibility: string) => elmStyle[resultPossibility] !== undefined
+      (resultPossibility: string) =>
+        elmStyle[resultPossibility as keyof CSSStyleDeclaration] !== undefined
     ));
   });
 
@@ -62,7 +65,11 @@ export const cssProperty = (name: string): string => {
  * @param values The value(s) separated by spaces which shall be get.
  * @param suffix A suffix which is added to each value in case the value is a function or something else more advanced.
  */
-export const cssPropertyValue = (property: string, values: string, suffix?: string): string => {
+export const cssPropertyValue = (
+  property: string,
+  values: string,
+  suffix?: string
+): string | undefined => {
   const name = `${property} ${values}`;
   let result: string | undefined = cssCache[name];
 
@@ -95,7 +102,7 @@ export const cssPropertyValue = (property: string, values: string, suffix?: stri
  * Get the requested JS function, object or constructor with vendor prefix if it isn't supported without or undefined if unsupported.
  * @param name The name of the JS function, object or constructor.
  */
-export const jsAPI = <T = any>(name: string): T | undefined => {
+export const jsAPI = <T = any>(name: JsApiName): T | undefined => {
   if (isClient()) {
     let result: any = jsCache[name] || window[name];
 
@@ -104,7 +111,7 @@ export const jsAPI = <T = any>(name: string): T | undefined => {
     }
 
     each(jsPrefixes, (prefix: string) => {
-      result = result || window[prefix + firstLetterToUpper(name)];
+      result = result || window[(prefix + firstLetterToUpper(name)) as JsApiName];
       return !result;
     });
 

@@ -7,6 +7,10 @@ export const IntersectionObserverConstructor =
 export const ResizeObserverConstructor = jsAPI<typeof ResizeObserver>('ResizeObserver');
 export const cAF = jsAPI<typeof cancelAnimationFrame>('cancelAnimationFrame');
 export const rAF = jsAPI<typeof requestAnimationFrame>('requestAnimationFrame');
+export const scrollT = jsAPI<new (constructor: unknown) => AnimationTimeline>(
+  // @ts-ignore
+  'ScrollTimeline'
+);
 export const setT = (isClient() && window.setTimeout) as (
   handler: TimerHandler,
   timeout?: number

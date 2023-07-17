@@ -40,13 +40,14 @@ const prepareUpdateHints = <T extends StructureSetupUpdateHints>(
   adaptive?: Partial<T>,
   force?: boolean
 ): Required<T> => {
-  const result = {};
-  const finalAdaptive = adaptive || {};
+  const result: Partial<T> = {};
+  const finalAdaptive: Partial<T> = adaptive || {};
   const objKeys = keys(leading).concat(keys(finalAdaptive));
 
-  each(objKeys, (key) => {
+  each(objKeys, (key: keyof T) => {
     const leadingValue = leading[key];
     const adaptiveValue = finalAdaptive[key];
+    // @ts-ignore
     result[key] = !!(force || leadingValue || adaptiveValue);
   });
 

@@ -26,7 +26,7 @@ export const isFunction = (obj: any): obj is (...args: any[]) => any => typeof o
 
 export const isArray = <T = any>(obj: any): obj is Array<T> => Array.isArray(obj);
 
-export const isObject = (obj: any): boolean =>
+export const isObject = (obj: any): obj is object =>
   typeof obj === 'object' && !isArray(obj) && !isNull(obj);
 
 /**

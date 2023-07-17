@@ -30,7 +30,7 @@ import type {
   ArrangeViewport,
   UndoArrangeViewport,
 } from '~/plugins/scrollbarsHidingPlugin';
-import type { StyleObject, OverflowStyle } from '~/typings';
+import type { StyleObject, OverflowStyle, StyleObjectKey } from '~/typings';
 import type { OverflowBehavior } from '~/options';
 import type { CreateStructureUpdateSegment } from '~/setups/structureSetup/structureSetup.update';
 
@@ -180,7 +180,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const arrangeHideOffset =
       !_nativeScrollbarsHiding && !showNativeOverlaidScrollbars ? overlaidScrollbarsHideOffset : 0;
     const getStatePerAxis = (
-      styleKey: string,
+      styleKey: StyleObjectKey,
       isOverlaid: boolean,
       nativeScrollbarSize: number
     ) => {

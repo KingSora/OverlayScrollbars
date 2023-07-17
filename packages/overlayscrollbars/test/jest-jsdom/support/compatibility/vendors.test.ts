@@ -1,4 +1,5 @@
 import { jsAPI, cssProperty, cssPropertyValue } from '~/support/compatibility/vendors';
+import type { JsApiName } from '~/support/compatibility/vendors';
 
 describe('vendors', () => {
   describe('jsAPI', () => {
@@ -13,13 +14,14 @@ describe('vendors', () => {
     });
 
     test('gets undefined', () => {
-      const apiWhichDontExist = jsAPI('apiWhichDontExist');
+      const apiWhichDontExist = jsAPI('apiWhichDontExist' as any);
       expect(apiWhichDontExist).toBeUndefined();
     });
 
     test('cache is used', () => {
-      const name = 'CacheTestJsAPIWhichDontExists';
+      const name = 'CacheTestJsAPIWhichDontExists' as JsApiName;
       const fn = () => {};
+      // @ts-ignore
       window[name] = fn;
 
       expect(jsAPI(name)).toBe(fn);

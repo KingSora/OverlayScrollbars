@@ -56,7 +56,7 @@ export const assignDeep: AssignDeep = <T, U, V, W, X, Y, Z>(
 
   each(sources, (source) => {
     // Extend the base object
-    each(keys(source), (key) => {
+    each(keys(source), (key: keyof T) => {
       const copy: any = source[key];
 
       // Prevent Object.prototype pollution

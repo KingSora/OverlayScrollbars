@@ -88,7 +88,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       const currOffsetSize = offsetSize(targetElm as HTMLElement);
       const currContentSize = contentBox(targetElm as HTMLElement);
       const currDir = style(targetElm as HTMLElement, 'direction');
-      const currBoxSizing = style(targetElm as HTMLElement, 'box-sizing');
+      const currBoxSizing = style(targetElm as HTMLElement, 'boxSizing');
 
       return {
         currSizeIterations,
@@ -110,7 +110,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       const newOffsetSize = offsetSize(targetElm as HTMLElement);
       const newContentSize = contentBox(targetElm as HTMLElement);
       const newDir = style(targetElm as HTMLElement, 'direction');
-      const newBoxSizing = style(targetElm as HTMLElement, 'box-sizing');
+      const newBoxSizing = style(targetElm as HTMLElement, 'boxSizing');
       const offsetSizeChanged =
         currOffsetSize.w !== newOffsetSize.w || currOffsetSize.h !== newOffsetSize.h;
       const contentSizeChanged =

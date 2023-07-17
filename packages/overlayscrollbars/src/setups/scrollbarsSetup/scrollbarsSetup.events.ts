@@ -11,6 +11,7 @@ import {
   closest,
   push,
   attrClass,
+  noop,
 } from '~/support';
 import { getPlugins, clickScrollPluginName } from '~/plugins';
 import { getEnvironment } from '~/environment';
@@ -36,6 +37,7 @@ export type ScrollbarsSetupEvents = (
   documentElm: Document,
   hostElm: HTMLElement,
   scrollOffsetElm: HTMLElement,
+  scrollTimeline: AnimationTimeline | null,
   isHorizontal?: boolean
 ) => () => void;
 
@@ -63,6 +65,16 @@ const continuePointerDown = (
     (pointers || []).includes(pointerType)
   );
 };
+const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpointercapture';
+const scrollTimelineXAnimation = {
+  transform: ['translateX(0%)', 'translateX(-100%)'],
+  left: ['0%', '100%'],
+};
+const scrollTimelineYAnimation = {
+  transform: ['translateY(0%)', 'translateY(-100%)'],
+  top: ['0%', '100%'],
+};
+
 const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentElm: Document) =>
   on(
     scrollbar,
@@ -70,7 +82,6 @@ const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentEl
     on.bind(0, documentElm, 'click', stopPropagation, { _once: true, _capture: true }),
     { _capture: true }
   );
-const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpointercapture';
 
 const createInteractiveScrollEvents = (
   options: ReadonlyOptions,
@@ -83,8 +94,8 @@ const createInteractiveScrollEvents = (
 ) => {
   const { _rtlScrollBehavior } = getEnvironment();
   const { _handle, _track, _scrollbar } = scrollbarStructure;
-  const scrollLeftTopKey = `scroll${isHorizontal ? 'Left' : 'Top'}`;
-  const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}`; // for pointer event (can't use xy because of IE11)
+  const scrollLeftTopKey = `scroll${isHorizontal ? 'Left' : 'Top'}` as 'scrollLeft' | 'scrollTop';
+  const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY'; // for pointer event (can't use xy because of IE11)
   const widthHeightKey = isHorizontal ? 'width' : 'height';
   const leftTopKey = isHorizontal ? 'left' : 'top'; // for BCR (can't use xy because of IE11)
   const whKey = isHorizontal ? 'w' : 'h';
@@ -174,6 +185,28 @@ const createInteractiveScrollEvents = (
   });
 };
 
+const createScrollTimelineEvents = (
+  { _handle }: ScrollbarStructure,
+  scrollTimeline: AnimationTimeline | null,
+  isHorizontal?: boolean
+) => {
+  if (!scrollTimeline) {
+    return noop;
+  }
+
+  const handleAnimation = _handle.animate(
+    isHorizontal ? scrollTimelineXAnimation : scrollTimelineYAnimation,
+    {
+      // @ts-ignore
+      timeline: scrollTimeline,
+    }
+  );
+
+  return () => {
+    handleAnimation.cancel();
+  };
+};
+
 export const createScrollbarsSetupEvents =
   (
     options: ReadonlyOptions,
@@ -185,6 +218,7 @@ export const createScrollbarsSetupEvents =
     documentElm,
     hostElm,
     scrollOffsetElm,
+    scrollTimeline,
     isHorizontal
   ) => {
     const { _scrollbar } = scrollbarStructure;
@@ -235,6 +269,7 @@ export const createScrollbarsSetupEvents =
         structureSetupState,
         isHorizontal
       ),
+      createScrollTimelineEvents(scrollbarStructure, scrollTimeline, isHorizontal),
       clearScrollTimeout,
     ]);
   };

@@ -62,7 +62,7 @@ export const addClass = (elm: ClassContainingElement, className: ClassName): (()
 export const diffClass = (classNameA: ClassName, classNameB: ClassName) => {
   const classNameASplit = classNameA && classNameA.split(' ');
   const classNameBSplit = classNameB && classNameB.split(' ');
-  const tempObj = {};
+  const tempObj: Record<string, number> = {};
 
   each(classNameASplit, (className) => {
     tempObj[className] = 1;

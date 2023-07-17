@@ -8,10 +8,10 @@ export type DeepReadonly<T> = {
 
 export type PlainObject<T = any> = { [name: string]: T };
 
+export type StyleObjectKey = Extract<keyof CSSStyleDeclaration, string>;
+
 export type StyleObject<CustomCssProps = ''> = {
-  [Key in keyof CSSStyleDeclaration | (CustomCssProps extends string ? CustomCssProps : '')]?:
-    | string
-    | number;
+  [Key in StyleObjectKey | (CustomCssProps extends string ? CustomCssProps : '')]?: string | number;
 };
 
 export type OverflowStyle = 'scroll' | 'hidden' | 'visible';

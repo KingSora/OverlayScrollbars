@@ -1,4 +1,4 @@
-import { on, runEachAndClear, parent, scrollLeft, scrollTop, selfClearTimeout } from '~/support';
+import { on, runEachAndClear, selfClearTimeout } from '~/support';
 import { getEnvironment } from '~/environment';
 import { createState, createOptionCheck } from '~/setups/setups';
 import { createScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
@@ -13,10 +13,7 @@ import {
   classNameScrollbarTrackInteractive,
   classNameScrollbarRtl,
 } from '~/classnames';
-import type {
-  ScrollbarsSetupElementsObj,
-  ScrollbarStructure,
-} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
+import type { ScrollbarsSetupElementsObj } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import type { StructureSetupUpdateHints } from '~/setups/structureSetup/structureSetup.update';
 import type {
   ReadonlyOptions,
@@ -25,7 +22,7 @@ import type {
 } from '~/options';
 import type { Setup, StructureSetupState, StructureSetupStaticState } from '~/setups';
 import type { InitializationTarget } from '~/initialization';
-import type { DeepPartial, OverflowStyle, StyleObject } from '~/typings';
+import type { DeepPartial, OverflowStyle } from '~/typings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
@@ -64,35 +61,14 @@ export const createScrollbarsSetup = (
     structureSetupState._elements,
     createScrollbarsSetupEvents(options, structureSetupState)
   );
+  const { _host, _scrollEventElement, _isBody } = structureSetupState._elements;
   const {
-    _host,
-    _viewport,
-    _scrollOffsetElement,
-    _scrollEventElement,
-    _viewportIsTarget,
-    _isBody,
-  } = structureSetupState._elements;
-  const {
-    _horizontal,
-    _vertical,
     _scrollbarsAddRemoveClass,
     _refreshScrollbarsHandleLength,
     _refreshScrollbarsHandleOffset,
+    _refreshScrollbarsScrollbarOffsetTimeline,
+    _refreshScrollbarsScrollbarOffset,
   } = elements;
-  const { _handleStyle: styleHorizontal } = _horizontal;
-  const { _handleStyle: styleVertical } = _vertical;
-  const styleScrollbarPosition = (structure: ScrollbarStructure) => {
-    const { _scrollbar } = structure;
-    const elm = _viewportIsTarget && !_isBody && parent(_scrollbar) === _viewport && _scrollbar;
-    return [
-      elm,
-      {
-        transform: elm
-          ? `translate(${scrollLeft(_scrollOffsetElement)}px, ${scrollTop(_scrollOffsetElement)}px)`
-          : '',
-      },
-    ] as [HTMLElement | false, StyleObject];
-  };
   const manageScrollbarsAutoHide = (removeAutoHide: boolean, delayless?: boolean) => {
     clearAutoTimeout();
     if (removeAutoHide) {
@@ -147,8 +123,7 @@ export const createScrollbarsSetup = (
 
       onScroll(event);
 
-      _viewportIsTarget && styleHorizontal(styleScrollbarPosition);
-      _viewportIsTarget && styleVertical(styleScrollbarPosition);
+      _refreshScrollbarsScrollbarOffset();
     }),
   ];
   const scrollbarsSetupState = getState.bind(0) as (() => ScrollbarsSetupState) &
@@ -179,7 +154,7 @@ export const createScrollbarsSetup = (
       const [dragScroll, dragScrollChanged] = checkOption<boolean>('scrollbars.dragScroll');
       const [clickScroll, clickScrollChanged] = checkOption<boolean>('scrollbars.clickScroll');
 
-      const updateHandle = _overflowEdgeChanged || _overflowAmountChanged || _directionChanged;
+      const updateScrollbars = _overflowEdgeChanged || _overflowAmountChanged || _directionChanged;
       const updateVisibility = _overflowStyleChanged || visibilityChanged;
       const showNativeOverlaidScrollbars =
         showNativeOverlaidScrollbarsOption &&
@@ -223,9 +198,11 @@ export const createScrollbarsSetup = (
 
         _scrollbarsAddRemoveClass(classNameScrollbarCornerless, !hasCorner);
       }
-      if (updateHandle) {
+      if (updateScrollbars) {
         _refreshScrollbarsHandleLength(currStructureSetupState);
         _refreshScrollbarsHandleOffset(currStructureSetupState);
+        _refreshScrollbarsScrollbarOffsetTimeline(currStructureSetupState);
+        _refreshScrollbarsScrollbarOffset();
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.x, true);
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.y, false);

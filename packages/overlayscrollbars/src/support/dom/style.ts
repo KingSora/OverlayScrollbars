@@ -1,6 +1,6 @@
 import { each, keys } from '~/support/utils';
 import { isString, isNumber, isArray, isUndefined } from '~/support/utils/types';
-import type { PlainObject, StyleObject } from '~/typings';
+import type { PlainObject, StyleObject, StyleObjectKey } from '~/typings';
 
 export interface TRBL {
   t: number;
@@ -9,7 +9,9 @@ export interface TRBL {
   l: number;
 }
 
-const cssNumber = {
+export type CSSStyleProperty = Extract<keyof CSSStyleDeclaration, string>;
+
+const cssNumber: Partial<Record<CSSStyleProperty, number>> = {
   // animationiterationcount: 1,
   // columncount: 1,
   // fillopacity: 1,
@@ -22,31 +24,39 @@ const cssNumber = {
   // widows: 1,
   // zoom: 1,
   opacity: 1,
-  zindex: 1,
+  zIndex: 1,
 };
 
-const parseToZeroOrNumber = (value: string, toFloat?: boolean): number => {
+const parseToZeroOrNumber = (value?: string, toFloat?: boolean): number => {
+  const finalValue = value || '';
   /* istanbul ignore next */
-  const num = toFloat ? parseFloat(value) : parseInt(value, 10);
+  const num = toFloat ? parseFloat(finalValue) : parseInt(finalValue, 10);
   // num === num means num is not NaN
   /* istanbul ignore next */
   return num === num ? num : 0; // eslint-disable-line no-self-compare
 };
 
-const adaptCSSVal = (prop: string, val: string | number): string | number =>
-  !cssNumber[prop.toLowerCase()] && isNumber(val) ? `${val}px` : val;
+const adaptCSSVal = (prop: CSSStyleProperty, val: string | number): string | number =>
+  !cssNumber[prop] && isNumber(val) ? `${val}px` : val;
 
-const getCSSVal = (elm: HTMLElement, computedStyle: CSSStyleDeclaration, prop: string): string =>
-  /* istanbul ignore next */
-  computedStyle != null
-    ? computedStyle[prop] || computedStyle.getPropertyValue(prop)
-    : elm.style[prop];
+const getCSSVal = (
+  elm: HTMLElement,
+  computedStyle: CSSStyleDeclaration,
+  prop: CSSStyleProperty
+): string =>
+  String(
+    /* istanbul ignore next */
+    (computedStyle != null
+      ? computedStyle[prop] || computedStyle.getPropertyValue(prop)
+      : elm.style[prop]) || ''
+  );
 
-const setCSSVal = (elm: HTMLElement, prop: string, val: string | number): void => {
+const setCSSVal = (elm: HTMLElement, prop: StyleObjectKey, val: string | number): void => {
   try {
     const { style: elmStyle } = elm;
+
     if (!isUndefined(elmStyle[prop])) {
-      elmStyle[prop] = adaptCSSVal(prop, val);
+      elmStyle[prop as any] = adaptCSSVal(prop, val) as string;
     } else {
       elmStyle.setProperty(prop, val as string);
     }
@@ -62,15 +72,15 @@ export function style<CustomCssProps>(
   elm: HTMLElement | false | null | undefined,
   styles: StyleObject<CustomCssProps>
 ): void;
-export function style(elm: HTMLElement | false | null | undefined, styles: string): string;
+export function style(elm: HTMLElement | false | null | undefined, styles: StyleObjectKey): string;
 export function style(
   elm: HTMLElement | false | null | undefined,
-  styles: Array<string> | string
-): { [key: string]: string };
+  styles: Array<StyleObjectKey> | StyleObjectKey
+): Partial<Record<StyleObjectKey, string>>;
 export function style<CustomCssProps>(
   elm: HTMLElement | false | null | undefined,
-  styles: StyleObject<CustomCssProps> | Array<string> | string
-): { [key: string]: string } | string | void {
+  styles: StyleObject<CustomCssProps> | Array<StyleObjectKey> | StyleObjectKey
+): Partial<Record<StyleObjectKey, string>> | string | void {
   const getSingleStyle = isString(styles);
   const getStyles = isArray(styles) || getSingleStyle;
 
@@ -79,15 +89,18 @@ export function style<CustomCssProps>(
     if (elm) {
       const computedStyle: CSSStyleDeclaration = window.getComputedStyle(elm, null);
       getStylesResult = getSingleStyle
-        ? getCSSVal(elm, computedStyle, styles as string)
-        : (styles as Array<string>).reduce((result, key) => {
-            result[key] = getCSSVal(elm, computedStyle, key as string);
+        ? getCSSVal(elm, computedStyle, styles)
+        : styles.reduce((result, key) => {
+            result[key] = getCSSVal(elm, computedStyle, key);
             return result;
-          }, getStylesResult);
+          }, getStylesResult as PlainObject);
     }
     return getStylesResult;
   }
-  elm && each(keys(styles), (key) => setCSSVal(elm, key, styles[key]));
+  elm &&
+    each(keys(styles), (key: StyleObjectKey) =>
+      setCSSVal(elm, key, styles[key as keyof typeof styles]!)
+    );
 }
 
 export const directionIsRTL = (elm: HTMLElement | false | null | undefined): boolean =>
@@ -106,10 +119,10 @@ export const topRightBottomLeft = (
 ): TRBL => {
   const finalPrefix = propertyPrefix ? `${propertyPrefix}-` : '';
   const finalSuffix = propertySuffix ? `-${propertySuffix}` : '';
-  const top = `${finalPrefix}top${finalSuffix}`;
-  const right = `${finalPrefix}right${finalSuffix}`;
-  const bottom = `${finalPrefix}bottom${finalSuffix}`;
-  const left = `${finalPrefix}left${finalSuffix}`;
+  const top = `${finalPrefix}top${finalSuffix}` as StyleObjectKey;
+  const right = `${finalPrefix}right${finalSuffix}` as StyleObjectKey;
+  const bottom = `${finalPrefix}bottom${finalSuffix}` as StyleObjectKey;
+  const left = `${finalPrefix}left${finalSuffix}` as StyleObjectKey;
   const result = style(elm, [top, right, bottom, left]);
   return {
     t: parseToZeroOrNumber(result[top], true),

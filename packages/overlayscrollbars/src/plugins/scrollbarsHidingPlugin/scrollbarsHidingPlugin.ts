@@ -1,7 +1,7 @@
 import { keys, attr, style, noop, each, assignDeep, windowSize, attrClass } from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
-import type { StyleObject } from '~/typings';
+import type { StyleObject, StyleObjectKey } from '~/typings';
 import type { StructureSetupState } from '~/setups/structureSetup';
 import type {
   ViewportOverflowState,
@@ -195,7 +195,8 @@ export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
             const finalPaddingStyle: StyleObject = {};
             const assignProps = (props: string) =>
               each(props.split(' '), (prop) => {
-                finalPaddingStyle[prop] = viewportPaddingStyle[prop];
+                finalPaddingStyle[prop as StyleObjectKey] =
+                  viewportPaddingStyle[prop as StyleObjectKey];
               });
 
             if (arrangeX) {
@@ -206,7 +207,7 @@ export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
               assignProps('marginLeft marginRight paddingLeft paddingRight');
             }
 
-            const prevStyle = style(viewport, keys(finalPaddingStyle));
+            const prevStyle = style(viewport, keys(finalPaddingStyle) as StyleObjectKey[]);
 
             // add class
             attrClass(viewport, dataAttributeViewport, dataValueViewportArrange);

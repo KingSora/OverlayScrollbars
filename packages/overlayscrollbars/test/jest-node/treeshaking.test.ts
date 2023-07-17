@@ -86,7 +86,7 @@ const bundleFunctions = {
   },
 };
 
-const testBundler = (bundlerName: string) => async () => {
+const testBundler = (bundlerName: keyof typeof bundleFunctions) => async () => {
   const bundleFunction = bundleFunctions[bundlerName];
   const outputDir = path.join(fixturesDir, `.${bundlerName}`);
   const normal = await bundleFunction(

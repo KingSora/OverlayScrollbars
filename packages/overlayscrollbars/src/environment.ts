@@ -31,6 +31,7 @@ import type { XY, EventListener } from '~/support';
 import type { Options, PartialOptions } from '~/options';
 import type { ScrollbarsHidingPluginInstance } from '~/plugins';
 import type { Initialization, PartialInitialization } from '~/initialization';
+import type { StyleObjectKey } from './typings';
 
 type EnvironmentEventArgs = {
   z: [];
@@ -123,7 +124,7 @@ const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   const revertClass = addClass(testElm, classNameScrollbarHidden);
   try {
     result =
-      style(testElm, cssProperty('scrollbar-width')) === 'none' ||
+      style(testElm, cssProperty('scrollbar-width') as StyleObjectKey) === 'none' ||
       window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') ===
         'none';
   } catch (ex) {}

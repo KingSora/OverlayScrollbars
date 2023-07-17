@@ -84,7 +84,7 @@ interface Metrics {
   textwrapElm: {
     width: number;
     height: number;
-  }
+  };
   endElm: {
     width: number;
     height: number;
@@ -156,15 +156,6 @@ const initObj = hasClass(document.body, 'vpt')
     };
 
 let updateCount = 0;
-
-resize(target!).addResizeListener((width, height) => {
-  style(comparison, { width, height });
-});
-// resize(comparison!).addResizeListener((width, height) => style(target, { width, height }));
-resize(targetResize!).addResizeListener((width, height) => {
-  style(comparisonResize, { width, height });
-});
-// resize(comparisonRes!).addResizeListener((width, height) => style(targetRes, { width, height }));
 
 const selectCallbackEnv = generateClassChangeSelectCallback(from(envElms));
 const envWidthSelect = document.querySelector<HTMLSelectElement>('#envWidth');
@@ -700,10 +691,10 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
         height: comparisonViewport!.scrollHeight - comparisonViewport!.clientHeight,
       };
 
-      if (width && overflowAmount.width <= 0) {
+      if (width && overflowAmount.width <= 0 && paddingRight) {
         styleObj.width += parseFloat(paddingRight);
       }
-      if (height && overflowAmount.height <= 0) {
+      if (height && overflowAmount.height <= 0 && paddingBottom) {
         styleObj.height += parseFloat(paddingBottom);
       }
 
@@ -820,12 +811,11 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
 
   await iterateMinMax(async () => {
     const minMaxValue = containerMinMaxSelect?.value;
-    
+
     if (minMaxValue === 'minMaxNone') {
       addClass(targetTextwrap, 'forceHidden');
       addClass(comparisonTextwrap, 'forceHidden');
-    }
-    else {
+    } else {
       removeClass(targetTextwrap, 'forceHidden');
       removeClass(comparisonTextwrap, 'forceHidden');
     }
@@ -913,6 +903,14 @@ const start = async () => {
 };
 
 startBtn!.addEventListener('click', start);
+
+// initialize resize handles always after OverlayScrollbars was initialized to preserve correct parent elements
+resize(target!).addResizeListener((width, height) => {
+  style(comparison, { width, height });
+});
+resize(targetResize!).addResizeListener((width, height) => {
+  style(comparisonResize, { width, height });
+});
 
 if (!useContentElement) {
   envElms.forEach((elm) => {

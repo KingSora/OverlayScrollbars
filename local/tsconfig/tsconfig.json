@@ -7,7 +7,6 @@
     "target": "ESNext",
     "sourceMap": true,
     "declaration": true,
-    "suppressImplicitAnyIndexErrors": true,
     "module": "ESNext",
     "moduleResolution": "node",
     "removeComments": false

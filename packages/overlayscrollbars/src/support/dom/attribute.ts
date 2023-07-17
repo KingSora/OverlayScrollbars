@@ -25,9 +25,9 @@ const getSetProp = (
   value?: number | string | false | null
 ): number | string | void => {
   if (isUndefined(value)) {
-    return elm ? elm[topLeft] : fallback;
+    return elm ? (elm as any)[topLeft] : fallback;
   }
-  elm && (isString(value) || isNumber(value)) && (elm[topLeft] = value);
+  elm && (isString(value) || isNumber(value)) && ((elm as any)[topLeft] = value);
 };
 
 /**

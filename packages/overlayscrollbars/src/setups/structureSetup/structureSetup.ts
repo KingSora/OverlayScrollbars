@@ -89,7 +89,9 @@ export const createStructureSetup = (
     changedOptions,
     force
   ) => {
-    const truthyUpdateHints = keys(updateHints).some((key) => updateHints[key]);
+    const truthyUpdateHints = keys(updateHints).some(
+      (key) => !!updateHints[key as keyof StructureSetupUpdateHints]
+    );
     const changed = truthyUpdateHints || !isEmptyObject(changedOptions) || force;
     if (changed) {
       triggerEvent('u', [updateHints, changedOptions, force]);

@@ -208,10 +208,10 @@ export const createStructureSetupElements = (
         add
       ),
   };
-  const generatedElements = keys(evaluatedTargetObj).reduce((arr, key: string) => {
-    const value = evaluatedTargetObj[key];
-    return push(arr, value && !parent(value) ? value : false);
-  }, [] as HTMLElement[]);
+  const generatedElements = keys(evaluatedTargetObj).reduce((arr, key) => {
+    const value = evaluatedTargetObj[key as keyof StructureSetupElementsObj];
+    return push(arr, value && isHTMLElement(value) && !parent(value) ? value : false);
+  }, [] as Array<HTMLElement | false>);
   const elementIsGenerated = (elm: HTMLElement | false) =>
     elm ? indexOf(generatedElements, elm) > -1 : null;
   const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
