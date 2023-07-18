@@ -175,7 +175,7 @@ export const createStructureSetupElements = (
         defaultPaddingInitialization,
         paddingInitialization
       ),
-    _content: contentElement,
+    _content: !viewportIsTarget && contentElement,
     _viewportArrange:
       !viewportIsTarget &&
       !_nativeScrollbarsHiding &&

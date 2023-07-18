@@ -298,22 +298,22 @@ describe('scrollbarsSetup.elements', () => {
     expect(beforeInitSnapshot).toBe(beforeInitSnapshotFn());
   });
 
-  test('handleStyle', () => {
+  test('style', () => {
     const target = getTarget();
     const [elements] = createStructureSetupElementsProxy(target);
-    const testHandleStyle = (scrollbarSetupElement: ScrollbarsSetupElement) => {
+    const testStyle = (scrollbarSetupElement: ScrollbarsSetupElement) => {
       // before cloned elements have the style
       scrollbarSetupElement._clone();
 
-      scrollbarSetupElement._handleStyle((structure) => {
+      scrollbarSetupElement._style((structure) => {
         const { _scrollbar } = structure;
         return [_scrollbar, { width: '0px' }];
       });
-      scrollbarSetupElement._handleStyle((structure) => {
+      scrollbarSetupElement._style((structure) => {
         const { _track } = structure;
         return [_track, { width: '1px' }];
       });
-      scrollbarSetupElement._handleStyle((structure) => {
+      scrollbarSetupElement._style((structure) => {
         const { _handle } = structure;
         return [_handle, { width: '2px' }];
       });
@@ -336,8 +336,8 @@ describe('scrollbarsSetup.elements', () => {
       );
     };
 
-    testHandleStyle(elements._horizontal);
-    testHandleStyle(elements._vertical);
+    testStyle(elements._horizontal);
+    testStyle(elements._vertical);
   });
 
   test('removes transitionless class', () => {
