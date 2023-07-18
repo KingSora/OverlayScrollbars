@@ -18,6 +18,7 @@ import {
   equalXY,
   createEventListenerHub,
   debounce,
+  scrollT,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -54,6 +55,8 @@ export interface Environment {
   flexboxGlue: boolean;
   /** Whether the browser supports custom css properties. (also known as css variables) */
   cssCustomProperties: boolean;
+  /** Whether the browser supports the ScrollTimeline API. */
+  scrollTimeline: boolean;
   /** The default Initialization to use if nothing else is specified. */
   staticDefaultInitialization: Initialization;
   /** The default Options to use if nothing else is specified. */
@@ -87,6 +90,7 @@ export interface InternalEnvironment {
   readonly _rtlScrollBehavior: { n: boolean; i: boolean };
   readonly _flexboxGlue: boolean;
   readonly _cssCustomProperties: boolean;
+  readonly _scrollTimeline: boolean;
   readonly _staticDefaultInitialization: Initialization;
   readonly _staticDefaultOptions: Options;
   _addZoomListener(listener: EventListener<EnvironmentEventArgs, 'z'>): () => void;
@@ -229,6 +233,7 @@ const createEnvironment = (): InternalEnvironment => {
     _nativeScrollbarsOverlaid: nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding: nativeScrollbarsHiding,
     _cssCustomProperties: style(envElm, 'zIndex') === '-1',
+    _scrollTimeline: !!scrollT,
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
     _addZoomListener: addEvent.bind(0, 'z'),

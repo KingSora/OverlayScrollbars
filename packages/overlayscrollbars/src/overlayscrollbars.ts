@@ -468,6 +468,7 @@ OverlayScrollbars.env = () => {
     _rtlScrollBehavior,
     _flexboxGlue,
     _cssCustomProperties,
+    _scrollTimeline,
     _staticDefaultInitialization,
     _staticDefaultOptions,
     _getDefaultInitialization,
@@ -484,6 +485,7 @@ OverlayScrollbars.env = () => {
       rtlScrollBehavior: _rtlScrollBehavior,
       flexboxGlue: _flexboxGlue,
       cssCustomProperties: _cssCustomProperties,
+      scrollTimeline: _scrollTimeline,
       staticDefaultInitialization: _staticDefaultInitialization,
       staticDefaultOptions: _staticDefaultOptions,
 
