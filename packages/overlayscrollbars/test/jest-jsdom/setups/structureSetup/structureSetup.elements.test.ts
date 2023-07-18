@@ -1275,15 +1275,22 @@ describe('structureSetup.elements', () => {
                 {
                   testName: 'HTMLElement',
                   getInitializationElements: (target: HTMLElement) => ({
-                    host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                    host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                     viewport: target,
                   }),
                 },
                 {
                   testName: 'function',
                   getInitializationElements: (target: HTMLElement) => ({
-                    host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                    host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
                     viewport: () => target,
+                  }),
+                },
+                {
+                  testName: 'mixed',
+                  getInitializationElements: (target: HTMLElement) => ({
+                    host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                    viewport: target,
                   }),
                 },
               ].forEach(({ testName, getInitializationElements }) => {
@@ -1301,6 +1308,65 @@ describe('structureSetup.elements', () => {
                     }),
                     currEnv
                   );
+                  expect(elements._viewportIsTarget).toBe(true);
+                  expect(elements._host).toBe(
+                    elements._isBody ? elements._target.parentElement : elements._target
+                  );
+                  expect(elements._padding).toBeFalsy();
+                  expect(elements._viewport).toBe(
+                    elements._isBody ? elements._target.parentElement : elements._target
+                  );
+                  expect(elements._content).toBeFalsy();
+
+                  assertCorrectDOMStructure(targetType, currEnv, elements);
+                  assertCorrectDestroy(snapshot, destroy);
+                });
+              });
+            });
+
+            describe('viewport is target is content', () => {
+              [
+                {
+                  testName: 'HTMLElement',
+                  getInitializationElements: (target: HTMLElement) => ({
+                    host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                    viewport: target,
+                    content: target,
+                  }),
+                },
+                {
+                  testName: 'function',
+                  getInitializationElements: (target: HTMLElement) => ({
+                    host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                    viewport: () => target,
+                    content: () => target,
+                  }),
+                },
+                {
+                  testName: 'mixed',
+                  getInitializationElements: (target: HTMLElement) => ({
+                    host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                    viewport: () => target,
+                    content: target,
+                  }),
+                },
+              ].forEach(({ testName, getInitializationElements }) => {
+                test(testName, () => {
+                  const snapshot = fillBody(
+                    targetType,
+                    (content, hostId) =>
+                      `<div id="${hostId}"><div id="viewportIsTargetIsContent">${content}</div></div>`
+                  );
+
+                  const [elements, destroy] = assertCorrectSetupElements(
+                    targetType,
+                    createStructureSetupElementsProxy({
+                      target: getTarget(targetType),
+                      elements: getInitializationElements(getTarget(targetType)),
+                    }),
+                    currEnv
+                  );
+                  expect(elements._viewportIsContent).toBe(false);
                   expect(elements._viewportIsTarget).toBe(true);
                   expect(elements._host).toBe(
                     elements._isBody ? elements._target.parentElement : elements._target
