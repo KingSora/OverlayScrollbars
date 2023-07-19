@@ -1217,7 +1217,7 @@ describe('structureSetup.elements', () => {
               {
                 testName: 'HTMLElement',
                 getInitializationElements: () => ({
-                  host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                  host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
                   viewport: document.querySelector<HTMLElement>('#viewportOrContent'),
                   content: document.querySelector<HTMLElement>('#viewportOrContent'),
                 }),
@@ -1225,7 +1225,7 @@ describe('structureSetup.elements', () => {
               {
                 testName: 'function',
                 getInitializationElements: () => ({
-                  host: document.querySelector<HTMLElement>(`#${textareaHostId}`),
+                  host: () => document.querySelector<HTMLElement>(`#${textareaHostId}`),
                   viewport: () => document.querySelector<HTMLElement>('#viewportOrContent'),
                   content: () => document.querySelector<HTMLElement>('#viewportOrContent'),
                 }),
@@ -1261,6 +1261,17 @@ describe('structureSetup.elements', () => {
                   expect(getElements(targetType).children!.parentElement).toBe(
                     document.querySelector(`#viewportOrContent`)
                   );
+                  const defaultContentFn = currEnv._getDefaultInitialization().elements.content;
+                  const defaultContentElm =
+                    typeof defaultContentFn === 'function'
+                      ? defaultContentFn(getTarget(targetType))
+                      : defaultContentFn;
+
+                  if (defaultContentElm) {
+                    expect(elements._content).toBeTruthy();
+                  } else {
+                    expect(elements._content).toBeFalsy();
+                  }
                 }
                 assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);

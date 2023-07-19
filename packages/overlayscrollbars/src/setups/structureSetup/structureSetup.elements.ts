@@ -139,8 +139,8 @@ export const createStructureSetupElements = (
   const possibleContentElement = !viewportIsTarget && generateContentElement(contentInitialization);
   // edge case if passed viewportElement is contentElement:
   // check the default contentElement
-  // if truthy (so the element would be present in the DOM) the passed element is the final content element and viewport is generated
-  // if falsy the passed element is the final viewport element and the content element is generated
+  // if truthy (so the element would be present in the DOM) the passed element is the final content element and the viewport element is generated
+  // if falsy (so the element wouldn't be present in the DOM) the passed element is the final viewport element and the content element is omitted
   const viewportIsContent =
     !viewportIsTarget &&
     isHTMLElement(possibleViewportElement) &&
