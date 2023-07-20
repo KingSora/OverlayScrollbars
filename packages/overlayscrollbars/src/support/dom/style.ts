@@ -131,3 +131,11 @@ export const topRightBottomLeft = (
     l: parseToZeroOrNumber(result[left], true),
   };
 };
+
+export const getTrasformTranslateValue = (
+  value: string | number | [x: string | number, y: string | number],
+  isHorizontal?: boolean
+) =>
+  `translate${
+    isArray(value) ? `(${value[0]},${value[1]})` : `${isHorizontal ? 'X' : 'Y'}(${value})`
+  }`;

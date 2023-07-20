@@ -12,6 +12,7 @@ import {
   push,
   attrClass,
   noop,
+  getTrasformTranslateValue,
 } from '~/support';
 import { getPlugins, clickScrollPluginName } from '~/plugins';
 import { getEnvironment } from '~/environment';
@@ -66,13 +67,18 @@ const continuePointerDown = (
   );
 };
 const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpointercapture';
+const getScrollTimelineTransformKeyFrames = (isHorizontal?: boolean) => [
+  getTrasformTranslateValue(`0%`, isHorizontal),
+  getTrasformTranslateValue('-100%', isHorizontal),
+];
+const scrollTimelineLeftTopKeyFrames = ['0%', '100%'];
 const scrollTimelineXAnimation = {
-  transform: ['translateX(0%)', 'translateX(-100%)'],
-  left: ['0%', '100%'],
+  transform: getScrollTimelineTransformKeyFrames(true),
+  left: scrollTimelineLeftTopKeyFrames,
 };
 const scrollTimelineYAnimation = {
-  transform: ['translateY(0%)', 'translateY(-100%)'],
-  top: ['0%', '100%'],
+  transform: getScrollTimelineTransformKeyFrames(),
+  top: scrollTimelineLeftTopKeyFrames,
 };
 
 const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentElm: Document) =>

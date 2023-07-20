@@ -1,6 +1,11 @@
 import { isEmptyObject } from '~/support/utils/object';
 import { isString, isPlainObject } from '~/support/utils/types';
-import { style, topRightBottomLeft, directionIsRTL } from '~/support/dom/style';
+import {
+  style,
+  topRightBottomLeft,
+  directionIsRTL,
+  getTrasformTranslateValue,
+} from '~/support/dom/style';
 
 describe('dom style', () => {
   afterEach(() => {
@@ -129,6 +134,23 @@ describe('dom style', () => {
 
     test('null', () => {
       expect(directionIsRTL(null)).toBe(false);
+    });
+  });
+
+  describe('getTrasformTranslateValue', () => {
+    test('horizontal and vertical', () => {
+      expect(getTrasformTranslateValue(['1px', '1%'])).toBe('translate(1px,1%)');
+      expect(getTrasformTranslateValue([0, 1])).toBe('translate(0,1)');
+    });
+
+    test('horizontal only', () => {
+      expect(getTrasformTranslateValue('1px', true)).toBe('translateX(1px)');
+      expect(getTrasformTranslateValue(0, true)).toBe('translateX(0)');
+    });
+
+    test('vertical only', () => {
+      expect(getTrasformTranslateValue('1%')).toBe('translateY(1%)');
+      expect(getTrasformTranslateValue(0)).toBe('translateY(0)');
     });
   });
 });

@@ -4,6 +4,7 @@ import {
   createDiv,
   directionIsRTL,
   each,
+  getTrasformTranslateValue,
   isBoolean,
   isEmptyArray,
   parent,
@@ -125,9 +126,11 @@ export const createScrollbarsSetupElements = (
   const doRefreshScrollbarOffset = (scrollbar: HTMLElement) =>
     _viewportIsTarget && !_isBody && parent(scrollbar) === _viewport;
   const cancelScrollbarsOffsetAnimations = () => {
-    scrollbarsOffsetAnimations.forEach((animations) => {
-      if (animations) {
-        animations.forEach((animation) => animation.cancel());
+    scrollbarsOffsetAnimations.forEach((currAnimations) => {
+      if (currAnimations) {
+        currAnimations.forEach((animation) => {
+          animation.cancel();
+        });
       }
     });
   };
@@ -175,7 +178,6 @@ export const createScrollbarsSetupElements = (
     isHorizontal?: boolean
   ) => {
     if (!scrollTimelineY && !scrollTimelineY) {
-      const translateAxis = isHorizontal ? 'X' : 'Y';
       scrollbarStyle(scrollbarStructures, (structure) => {
         const { _handle, _track, _scrollbar } = structure;
         const offsetRatio = getScrollbarHandleOffsetRatio(
@@ -192,7 +194,7 @@ export const createScrollbarsSetupElements = (
           _handle,
           {
             transform: validOffsetRatio
-              ? `translate${translateAxis}(${(offsetRatio * 100).toFixed(3)}%)`
+              ? getTrasformTranslateValue(`${(offsetRatio * 100).toFixed(3)}%`, isHorizontal)
               : '',
           },
         ];
@@ -206,7 +208,10 @@ export const createScrollbarsSetupElements = (
       elm,
       {
         transform: elm
-          ? `translate(${scrollLeft(_scrollOffsetElement)}px, ${scrollTop(_scrollOffsetElement)}px)`
+          ? getTrasformTranslateValue([
+              `${scrollLeft(_scrollOffsetElement)}px`,
+              `${scrollTop(_scrollOffsetElement)}px`,
+            ])
           : '',
       },
     ] as [HTMLElement | false, StyleObject];
@@ -244,11 +249,16 @@ export const createScrollbarsSetupElements = (
   const refreshScrollbarsScrollbarOffsetTimeline = ({ _overflowAmount }: StructureSetupState) => {
     cancelScrollbarsOffsetAnimations();
     verticalScrollbars.concat(horizontalScrollbars).forEach(({ _scrollbar }) => {
+      const maxAnimationKeyFrameValue = (value: number) => `${Math.max(0, value - 0.5)}px`;
+
       if (doRefreshScrollbarOffset(_scrollbar)) {
         scrollbarsOffsetAnimations.set(_scrollbar, [
           _scrollbar.animate(
             {
-              transform: ['translateX(0)', `translateX(${_overflowAmount.x}px)`],
+              transform: [
+                getTrasformTranslateValue(`0px`, true),
+                getTrasformTranslateValue(maxAnimationKeyFrameValue(_overflowAmount.x), true),
+              ],
             },
             {
               // @ts-ignore
@@ -258,7 +268,10 @@ export const createScrollbarsSetupElements = (
           ),
           _scrollbar.animate(
             {
-              transform: ['translateY(0)', `translateY(${_overflowAmount.y}px)`],
+              transform: [
+                getTrasformTranslateValue(`0px`),
+                getTrasformTranslateValue(maxAnimationKeyFrameValue(_overflowAmount.y)),
+              ],
             },
             {
               // @ts-ignore
