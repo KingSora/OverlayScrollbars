@@ -99,7 +99,8 @@ export const createSizeObserver = (
       );
       const hasDimensions = domRectHasDimensions(currRContentRect);
       const hadDimensions = domRectHasDimensions(prevContentRect);
-      skip = !prevContentRect || !hasDimensions; // skip on initial RO. call or if display is none
+      const firstCall = !prevContentRect;
+      skip = (firstCall && !!hadDimensions) || !hasDimensions; // skip on initial RO. call (if the element visible) or if display is none
       appear = !hadDimensions && hasDimensions;
 
       doDirectionScroll = !skip; // direction scroll when not skipping
