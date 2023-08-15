@@ -13,6 +13,11 @@
   [![Max. Bundle Size](https://img.shields.io/bundlephobia/minzip/overlayscrollbars?label=max.%20bundle%20size&style=flat-square)](https://bundlephobia.com/package/overlayscrollbars)
   
 </div>
+<h3 align="center">
+  <a href="https://kingsora.github.io/OverlayScrollbars">Website</a>
+  &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/examples">Examples</a>
+</h3>
 
 # OverlayScrollbars
 
