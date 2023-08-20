@@ -95,7 +95,6 @@ export const createScrollbarsSetupElements = (
     _viewport,
     _targetIsElm,
     _scrollOffsetElement,
-    _scrollEventElement,
     _isBody,
     _viewportIsTarget,
   } = structureSetupElements;
@@ -104,13 +103,13 @@ export const createScrollbarsSetupElements = (
   const scrollbarsOffsetAnimations = new Map<HTMLElement, Animation[]>();
   const scrollTimelineX = scrollT
     ? new scrollT({
-        source: _scrollEventElement,
+        source: _scrollOffsetElement,
         axis: 'x',
       })
     : null;
   const scrollTimelineY = scrollT
     ? new scrollT({
-        source: _scrollEventElement,
+        source: _scrollOffsetElement,
         axis: 'y',
       })
     : null;

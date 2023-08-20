@@ -6,7 +6,7 @@
 <div align="center">
 
   [![OverlayScrollbars](https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square)](https://github.com/KingSora/OverlayScrollbars)
-  [![Solid](https://img.shields.io/badge/Solid-%5E1.5.1-2C4F7C?style=flat-square&logo=solid)](https://github.com/solidjs/solid)
+  [![Solid](https://img.shields.io/badge/Solid-%5E1.7.0-2C4F7C?style=flat-square&logo=solid)](https://github.com/solidjs/solid)
   [![Downloads](https://img.shields.io/npm/dt/overlayscrollbars-solid.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-solid)
   [![Version](https://img.shields.io/npm/v/overlayscrollbars-solid.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-solid)
   [![License](https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square)](#)

@@ -1,7 +1,7 @@
 {
   "name": "overlayscrollbars-vue",
   "private": true,
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "OverlayScrollbars for Vue.",
   "author": "Rene Haas | KingSora",
   "license": "MIT",
@@ -21,6 +21,7 @@
     "composable",
     "composition",
     "styleable",
+    "custom",
     "scrollbar",
     "scrollbars",
     "scroll"

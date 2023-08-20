@@ -9,16 +9,16 @@
     [N in keyof EventListenerArgs]: `os${Capitalize<N>}`;
   };
 
-  export let element: Props["element"] = 'div';
-  export let options: Props["options"] = undefined;
-  export let events: Props["events"] = undefined;
-  export let defer: Props["defer"] = undefined;
+  export let element: Props['element'] = 'div';
+  export let options: Props['options'] = undefined;
+  export let events: Props['events'] = undefined;
+  export let defer: Props['defer'] = undefined;
 
   let instance: OverlayScrollbars | null = null;
   let elementRef: HTMLElement | null = null;
   let slotRef: HTMLElement | null = null;
   let hydrated = false;
-  let combinedEvents: Props["events"] = undefined;
+  let combinedEvents: Props['events'] = undefined;
   let prevElement: string | undefined;
 
   const [requestDefer, cancelDefer] = createDefer();
@@ -31,22 +31,21 @@
     const init = () => {
       instance?.destroy();
       instance = OverlayScrollbars(
-        { 
-          target: elementRef!, 
+        {
+          target: elementRef!,
           elements: {
             viewport: slotRef,
-            content: slotRef
-          } 
-        }, 
-        options || {}, 
+            content: slotRef,
+          },
+        },
+        options || {},
         combinedEvents || {}
       );
     };
-    
+
     if (defer) {
       requestDefer(init, defer);
-    }
-    else {
+    } else {
       init();
     }
 
@@ -59,14 +58,14 @@
     scroll: 'osScroll',
   };
   const dispatchEvent = createEventDispatcher<{
-    osInitialized: EventListenerArgs["initialized"];
-    osUpdated: EventListenerArgs["updated"];
-    osDestroyed: EventListenerArgs["destroyed"];
-    osScroll: EventListenerArgs["scroll"];
+    osInitialized: EventListenerArgs['initialized'];
+    osUpdated: EventListenerArgs['updated'];
+    osDestroyed: EventListenerArgs['destroyed'];
+    osScroll: EventListenerArgs['scroll'];
   }>();
 
-  export const osInstance: Ref["osInstance"] = () => instance;
-  export const getElement: Ref["getElement"] = () => elementRef;
+  export const osInstance: Ref['osInstance'] = () => instance;
+  export const getElement: Ref['getElement'] = () => elementRef;
 
   onMount(() => {
     hydrated = true;
@@ -82,7 +81,7 @@
       initialize();
     }
   });
-  
+
   $: {
     const currEvents = events || {};
     combinedEvents = (
@@ -91,7 +90,7 @@
       const eventListener = currEvents[name];
       obj[name] = [
         (...args: EventListenerArgs[N]) =>
-        dispatchEvent(
+          dispatchEvent(
             // @ts-ignore
             dispatchEvents[name],
             // @ts-ignore
@@ -103,29 +102,34 @@
     }, {});
   }
 
-  $: { 
+  $: {
     if (OverlayScrollbars.valid(instance)) {
       instance.options(options || {}, true);
     }
   }
 
-  $: { 
+  $: {
     if (OverlayScrollbars.valid(instance)) {
       instance.on(
         /* c8 ignore next */
-        combinedEvents || {}, 
+        combinedEvents || {},
         true
       );
     }
   }
 </script>
 
-<svelte:element data-overlayscrollbars-initialize="" this={element} bind:this={elementRef} {...$$restProps}>
+<svelte:element
+  this={element}
+  data-overlayscrollbars-initialize=""
+  bind:this={elementRef}
+  {...$$restProps}
+>
   {#if hydrated}
-    <div bind:this={slotRef}>
-      <slot></slot>
+    <div bind:this={slotRef} data-overlayscrollbars-contents>
+      <slot />
     </div>
   {:else}
-    <slot></slot>
+    <slot />
   {/if}
 </svelte:element>

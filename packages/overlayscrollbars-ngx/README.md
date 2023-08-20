@@ -6,7 +6,7 @@
 <div align="center">
 
   [![OverlayScrollbars](https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square)](https://github.com/KingSora/OverlayScrollbars)
-  [![Angular](https://img.shields.io/badge/Angular-%3E=12.0.0-DD0031?style=flat-square&logo=Angular)](https://github.com/angular/angular)
+  [![Angular](https://img.shields.io/badge/Angular-%3E=13.0.0-DD0031?style=flat-square&logo=Angular)](https://github.com/angular/angular)
   [![Downloads](https://img.shields.io/npm/dt/overlayscrollbars-ngx.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-ngx)
   [![Version](https://img.shields.io/npm/v/overlayscrollbars-ngx.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-ngx)
   [![License](https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square)](#)
@@ -77,11 +77,11 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-ngx";
 The component can be used with two different selectors:
 
 ```html
-<overlay-scrollbars>
+<overlay-scrollbars [defer]>
   The tag isn't important
 </overlay-scrollbars>
 
-<section overlay-scrollbars>
+<section overlay-scrollbars [defer]>
   Choose the tag
 </section>
 ```
@@ -92,12 +92,16 @@ It has two optional properties: `options` and `events`.
 
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
+- `defer`: accepts an `boolean` or `object`. Defers the initialization to a point in time when the browser is idle.
+
+> __Note__: Its **highly recommended** to use the `defer` option whenever possible to defer the initialization to a browser's idle period.
 
 ```html
 <!-- example usage -->
 <overlay-scrollbars
   [options]="{ scrollbars: { autoHide: 'scroll' } }"
-  [extensions]="{ scroll: () => { /* ... */ } }"
+  [events]="{ scroll: () => { /* ... */ } }"
+  [defer]
 ></overlay-scrollbars>
 ```
 

@@ -29,7 +29,7 @@ const emitEvents: EmitEventsMap = {
 };
 const props = defineProps({
   element: {
-    type: String as PropType<OverlayScrollbarsComponentProps['element']>,
+    type: String as PropType<Exclude<OverlayScrollbarsComponentProps['element'], undefined>>,
     default: 'div',
   },
   options: { type: Object as PropType<OverlayScrollbarsComponentProps['options']> },
@@ -104,7 +104,7 @@ watch(
 
 <template>
   <component data-overlayscrollbars-initialize="" :is="element" ref="elementRef">
-    <div v-if="hydrated" ref="slotRef">
+    <div v-if="hydrated" ref="slotRef" data-overlayscrollbars-contents="">
       <slot></slot>
     </div>
     <slot v-else></slot>

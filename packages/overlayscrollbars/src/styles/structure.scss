@@ -186,6 +186,13 @@ html[data-overlayscrollbars] > body {
 }
 
 /**
+ * Display contents to bridge any flickering dring deferred initialization.
+ */
+[data-overlayscrollbars-contents]:not([data-overlayscrollbars-padding]):not([data-overlayscrollbars-viewport]):not([data-overlayscrollbars-content]) {
+  display: contents;
+}
+
+/**
  * optional & experimental grid mode
  */
 

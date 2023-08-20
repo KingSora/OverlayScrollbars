@@ -15,6 +15,7 @@ import type { EventListenerArgs } from 'overlayscrollbars';
       overlay-scrollbars
       [options]="options"
       [events]="events"
+      [defer]="defer"
       (osInitialized)="onInitialized($event)"
       (osUpdated)="onUpdated($event)"
       (osDestroyed)="onDestroyed($event)"
@@ -35,6 +36,7 @@ class Test {
   children = 1;
   options: OverlayScrollbarsComponent['options'];
   events: OverlayScrollbarsComponent['events'];
+  defer: OverlayScrollbarsComponent['defer'];
   clazz?: string[];
   style?: Record<string, any>;
   initialized?: (...args: any) => void;
@@ -206,7 +208,66 @@ describe('OverlayscrollbarsNgxComponent', () => {
     });
   });
 
-  it('has correct ref', () => {
+  describe('deferred initialization', () => {
+    it('basic defer', async () => {
+      const testFixture = TestBed.createComponent(Test);
+      const testInstance = testFixture.componentInstance;
+
+      testInstance.defer = true;
+      testFixture.detectChanges();
+
+      const testComponent = testFixture.nativeElement as HTMLElement;
+      const osElement = testComponent.firstElementChild;
+
+      expect(OverlayScrollbars(osElement! as HTMLElement)).toBeUndefined();
+
+      await new Promise((r) => setTimeout(r, 2000));
+
+      expect(OverlayScrollbars(osElement! as HTMLElement)).toBeDefined();
+    });
+
+    it('options defer', async () => {
+      const testFixture = TestBed.createComponent(Test);
+      const testInstance = testFixture.componentInstance;
+
+      testInstance.defer = { timeout: 0 };
+      testFixture.detectChanges();
+
+      const testComponent = testFixture.nativeElement as HTMLElement;
+      const osElement = testComponent.firstElementChild;
+
+      expect(OverlayScrollbars(osElement! as HTMLElement)).toBeUndefined();
+
+      await new Promise((r) => setTimeout(r, 2000));
+
+      expect(OverlayScrollbars(osElement! as HTMLElement)).toBeDefined();
+    });
+
+    it('defer with unsupported Idle', async () => {
+      const original = window.requestIdleCallback;
+      // @ts-ignore
+      window.requestIdleCallback = undefined;
+
+      const testFixture = TestBed.createComponent(Test);
+      const testInstance = testFixture.componentInstance;
+
+      testInstance.defer = true;
+      testFixture.detectChanges();
+
+      const testComponent = testFixture.nativeElement as HTMLElement;
+      const osElement = testComponent.firstElementChild;
+
+      expect(OverlayScrollbars(osElement! as HTMLElement)).toBeUndefined();
+
+      await new Promise((r) => setTimeout(r, 2000));
+
+      expect(OverlayScrollbars(osElement! as HTMLElement)).toBeDefined();
+
+      window.requestIdleCallback = original;
+    });
+  });
+
+  it('ref', () => {
     const testFixture = TestBed.createComponent(Test);
     const testInstance = testFixture.componentInstance;
 
@@ -221,7 +282,7 @@ describe('OverlayscrollbarsNgxComponent', () => {
     expect(ref.getElement()).toBe(testFixture.nativeElement.firstElementChild);
   });
 
-  it('sets options correctly', async () => {
+  it('options', async () => {
     const testFixture = TestBed.createComponent(Test);
     const testInstance = testFixture.componentInstance;
 
@@ -263,7 +324,7 @@ describe('OverlayscrollbarsNgxComponent', () => {
     expect(instance).toBe(testInstance.ref!.osInstance()!);
   });
 
-  it('sets events correctly', async () => {
+  it('events', async () => {
     const onUpdatedInitial = jasmine.createSpy();
     const onUpdated = jasmine.createSpy();
     const testFixture = TestBed.createComponent(Test);
@@ -319,7 +380,7 @@ describe('OverlayscrollbarsNgxComponent', () => {
     expect(instance).toBe(testInstance.ref!.osInstance()!);
   });
 
-  it('destroys correctly', async () => {
+  it('destroys', async () => {
     fixture.destroy();
     expect(OverlayScrollbars.valid(component.osInstance())).toBe(false);
   });

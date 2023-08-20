@@ -94,14 +94,15 @@ export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements
     >
       {hydrated() ? (
         <div
+          data-overlayscrollbars-contents
           ref={(ref: any) => {
             setChildrenRef(ref);
           }}
         >
-          {children(() => finalProps.children)}
+          {children(() => finalProps.children)()}
         </div>
       ) : (
-        children(() => finalProps.children)
+        children(() => finalProps.children)()
       )}
     </Dynamic>
   );

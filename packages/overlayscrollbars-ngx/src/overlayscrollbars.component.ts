@@ -32,15 +32,29 @@ const mergeEventListeners = (emits: EventListeners, events: EventListeners) =>
 @Component({
   selector: 'overlay-scrollbars, [overlay-scrollbars]', // https://angular.io/guide/styleguide#component-selectors
   host: { 'data-overlayscrollbars-initialize': '' },
-  template: `<div overlayScrollbars [options]="options" [events]="mergeEvents(events)" #content>
-    <ng-content></ng-content>
-  </div>`,
+  template: `
+    <div
+      overlayScrollbars
+      [options]="options"
+      [events]="mergeEvents(events)"
+      [defer]="defer"
+      #content
+      data-overlayscrollbars-contents=""
+    >
+      <ng-content></ng-content>
+    </div>
+  `,
 })
 export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
+  /** OverlayScrollbars options. */
   @Input('options')
   options?: PartialOptions | false | null;
+  /** OverlayScrollbars events. */
   @Input('events')
   events?: EventListeners | false | null;
+  /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
+  @Input('defer')
+  defer?: boolean | IdleRequestOptions;
 
   @Output('osInitialized')
   onInitialized = new EventEmitter<EventListenerArgs['initialized']>();

@@ -107,9 +107,10 @@ export const createStructureSetup = (
     StructureSetupStaticState;
   structureSetupState._addOnUpdatedListener = (listener) => addEvent('u', listener);
   structureSetupState._appendElements = () => {
-    const { _target, _viewport } = elements;
-    const initialScrollLeft = scrollLeft(_target);
-    const initialScrollTop = scrollTop(_target);
+    const { _target, _viewport, _documentElm, _isBody } = elements;
+    const scrollingElement = _isBody ? _documentElm.documentElement : _target;
+    const initialScrollLeft = scrollLeft(scrollingElement);
+    const initialScrollTop = scrollTop(scrollingElement);
 
     appendObserverElements();
     appendStructureElements();
