@@ -1,20 +1,10 @@
 <script setup lang="ts">
-import {
-  ref,
-  unref,
-  shallowRef,
-  toRefs,
-  watch,
-  watchPostEffect,
-  onUnmounted,
-  onMounted,
-} from 'vue';
+import { ref, unref, shallowRef, toRefs, watch, watchPostEffect, onMounted } from 'vue';
 import { useOverlayScrollbars } from './useOverlayScrollbars';
 import type {
   OverlayScrollbarsComponentProps,
   OverlayScrollbarsComponentRef,
 } from './OverlayScrollbarsComponent.types';
-import type { PropType } from 'vue';
 import type { EventListeners, EventListenerArgs } from 'overlayscrollbars';
 
 type EmitEventsMap = {
@@ -27,15 +17,12 @@ const emitEvents: EmitEventsMap = {
   destroyed: 'osDestroyed',
   scroll: 'osScroll',
 };
-const props = defineProps({
-  element: {
-    type: String as PropType<Exclude<OverlayScrollbarsComponentProps['element'], undefined>>,
-    default: 'div',
-  },
-  options: { type: Object as PropType<OverlayScrollbarsComponentProps['options']> },
-  events: { type: Object as PropType<OverlayScrollbarsComponentProps['events']> },
-  defer: { type: [Boolean, Object] as PropType<OverlayScrollbarsComponentProps['defer']> },
-});
+const props = defineProps<{
+  element: OverlayScrollbarsComponentProps['element'];
+  options: OverlayScrollbarsComponentProps['options'];
+  events: OverlayScrollbarsComponentProps['events'];
+  defer: OverlayScrollbarsComponentProps['defer'];
+}>();
 const emits = defineEmits<{
   (name: 'osInitialized', ...args: EventListenerArgs['initialized']): void;
   (name: 'osUpdated', ...args: EventListenerArgs['updated']): void;
@@ -103,7 +90,7 @@ watch(
 </script>
 
 <template>
-  <component data-overlayscrollbars-initialize="" :is="element" ref="elementRef">
+  <component data-overlayscrollbars-initialize="" :is="element || 'div'" ref="elementRef">
     <div v-if="hydrated" ref="slotRef" data-overlayscrollbars-contents="">
       <slot></slot>
     </div>

@@ -235,6 +235,7 @@ const defaultOptions = {
     visibility: 'auto',
     autoHide: 'never',
     autoHideDelay: 1300,
+    autoHideSuspend: false,
     dragScroll: true,
     clickScroll: false,
     pointers: ['mouse', 'touch', 'pen'],
@@ -349,6 +350,15 @@ The possibility to hide visible scrollbars automatically after a certain user ac
 | `number` | `1300` |
 
 The delay in milliseconds before the scrollbars are hidden automatically.
+
+### `scrollbars.autoHideSuspend`
+
+| type  | default |
+| :--- | :--- |
+| `boolean` | `false` |
+
+Suspend the autoHide functionality until the first scroll interaction was performed.  
+The default value for this option is `false` for backwards compatibility reasons but is recommended to be `true` for better accessibility.
 
 ### `scrollbars.dragScroll`
 
