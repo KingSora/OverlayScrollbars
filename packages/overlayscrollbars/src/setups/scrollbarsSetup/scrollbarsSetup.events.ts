@@ -67,19 +67,13 @@ const continuePointerDown = (
   );
 };
 const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpointercapture';
-const getScrollTimelineTransformKeyFrames = (isHorizontal?: boolean) => [
-  getTrasformTranslateValue(`0%`, isHorizontal),
-  getTrasformTranslateValue('-100%', isHorizontal),
-];
-const scrollTimelineLeftTopKeyFrames = ['0%', '100%'];
-const scrollTimelineXAnimation = {
-  transform: getScrollTimelineTransformKeyFrames(true),
-  left: scrollTimelineLeftTopKeyFrames,
-};
-const scrollTimelineYAnimation = {
-  transform: getScrollTimelineTransformKeyFrames(),
-  top: scrollTimelineLeftTopKeyFrames,
-};
+const getScrollTimelineAnimation = (isHorizontal?: boolean) => ({
+  transform: [
+    getTrasformTranslateValue(`0%`, isHorizontal),
+    getTrasformTranslateValue('-100%', isHorizontal),
+  ],
+  [isHorizontal ? 'left' : 'top']: ['0%', '100%'],
+});
 
 const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentElm: Document) =>
   on(
@@ -193,20 +187,17 @@ const createInteractiveScrollEvents = (
 
 const createScrollTimelineEvents = (
   { _handle }: ScrollbarStructure,
-  scrollTimeline: AnimationTimeline | null,
+  timeline: AnimationTimeline | null,
   isHorizontal?: boolean
 ) => {
-  if (!scrollTimeline) {
+  if (!timeline) {
     return noop;
   }
 
-  const handleAnimation = _handle.animate(
-    isHorizontal ? scrollTimelineXAnimation : scrollTimelineYAnimation,
-    {
-      // @ts-ignore
-      timeline: scrollTimeline,
-    }
-  );
+  const handleAnimation = _handle.animate(getScrollTimelineAnimation(isHorizontal), {
+    // @ts-ignore
+    timeline,
+  });
 
   return () => {
     handleAnimation.cancel();

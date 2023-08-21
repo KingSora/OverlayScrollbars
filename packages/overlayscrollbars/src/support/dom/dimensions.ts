@@ -82,3 +82,9 @@ export const getBoundingClientRect = (elm: HTMLElement): DOMRect => elm.getBound
  */
 export const hasDimensions = (elm: HTMLElement | false | null | undefined): boolean =>
   elm ? elementHasDimensions(elm as HTMLElement) : false;
+
+/**
+ * Determines whether the passed DOM Rect has any dimensions.
+ */
+export const domRectHasDimensions = (rect?: DOMRectReadOnly) =>
+  !!(rect && (rect.height || rect.width));

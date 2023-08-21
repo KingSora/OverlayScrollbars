@@ -16,6 +16,7 @@ import {
   stopPropagation,
   appendChildren,
   directionIsRTL,
+  domRectHasDimensions,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -41,7 +42,6 @@ export interface SizeObserverCallbackParams {
 export type SizeObserver = [destroy: () => void, append: () => void];
 
 const scrollAmount = 3333333;
-const domRectHasDimensions = (rect?: DOMRectReadOnly) => rect && (rect.height || rect.width);
 
 /**
  * Creates a size observer which observes any size, padding, border, margin and box-sizing changes of the target element. Depending on the options also direction and appear can be observed.

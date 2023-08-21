@@ -1,3 +1,5 @@
+const dataAttributePrefix = `data-overlayscrollbars`;
+
 // environment
 export const classNameEnvironment = 'os-environment';
 export const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
@@ -7,10 +9,10 @@ export const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexbox
 export const classNameScrollbarHidden = `os-scrollbar-hidden`;
 
 // initialize
-export const dataAttributeInitialize = 'data-overlayscrollbars-initialize';
+export const dataAttributeInitialize = `${dataAttributePrefix}-initialize`;
 
 // host
-export const dataAttributeHost = 'data-overlayscrollbars';
+export const dataAttributeHost = dataAttributePrefix;
 export const dataAttributeHostOverflowX = `${dataAttributeHost}-overflow-x`;
 export const dataAttributeHostOverflowY = `${dataAttributeHost}-overflow-y`;
 export const dataValueHostOverflowVisible = 'overflowVisible';
@@ -19,17 +21,17 @@ export const dataValueHostScrollbarPressed = 'scrollbarPressed';
 export const dataValueHostUpdating = 'updating';
 
 // viewport
-export const dataAttributeViewport = 'data-overlayscrollbars-viewport';
+export const dataAttributeViewport = `${dataAttributePrefix}-viewport`;
 export const dataValueViewportArrange = 'arrange';
 export const dataValueViewportScrollbarHidden = 'scrollbarHidden';
 export const dataValueViewportOverflowVisible = dataValueHostOverflowVisible;
 
 // padding
-export const dataAttributePadding = 'data-overlayscrollbars-padding';
+export const dataAttributePadding = `${dataAttributePrefix}-padding`;
 export const dataValuePaddingOverflowVisible = dataValueViewportOverflowVisible;
 
 // content
-export const dataAttributeContent = 'data-overlayscrollbars-content';
+export const dataAttributeContent = `${dataAttributePrefix}-content`;
 
 // size observer
 export const classNameSizeObserver = 'os-size-observer';
@@ -56,7 +58,8 @@ export const classNameScrollbarCornerless = `${classNameScrollbar}-cornerless`;
 export const classNameScrollbarTransitionless = `${classNameScrollbar}-transitionless`;
 export const classNameScrollbarInteraction = `${classNameScrollbar}-interaction`;
 export const classNameScrollbarUnusable = `${classNameScrollbar}-unusable`;
-export const classNameScrollbarAutoHidden = `${classNameScrollbar}-auto-hidden`;
+export const classNameScrollbarAutoHide = `${classNameScrollbar}-auto-hide`;
+export const classNameScrollbarAutoHideHidden = `${classNameScrollbarAutoHide}-hidden`;
 export const classNameScrollbarWheel = `${classNameScrollbar}-wheel`;
 export const classNameScrollbarTrackInteractive = `${classNameScrollbarTrack}-interactive`;
 export const classNameScrollbarHandleInteractive = `${classNameScrollbarHandle}-interactive`;

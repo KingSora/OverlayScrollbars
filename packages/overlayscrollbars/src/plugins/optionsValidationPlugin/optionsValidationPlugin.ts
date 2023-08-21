@@ -44,6 +44,7 @@ const optionsTemplate: OptionsTemplate<Options> = {
     visibility: scrollbarsVisibilityAllowedValues, // visible || hidden || auto || v ||
     autoHide: scrollbarsAutoHideAllowedValues, // never || scroll || leave || move ||
     autoHideDelay: numberAllowedValues, // number
+    autoHideSuspend: booleanAllowedValues, // true || false
     dragScroll: booleanAllowedValues, // true || false
     clickScroll: booleanAllowedValues, // true || false
     pointers: [oTypes.array, oTypes.null], // string array

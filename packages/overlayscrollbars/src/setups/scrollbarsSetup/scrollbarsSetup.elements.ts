@@ -80,6 +80,34 @@ export type ScrollbarsSetupElements = [
   destroy: () => void
 ];
 
+const maxAnimationKeyFrameValue = (value: number) => `${Math.max(0, value - 0.5)}px`;
+const animateScrollbar = (
+  scrollbar: HTMLElement,
+  scrollTimeline: AnimationTimeline | null,
+  maxTransformValue: number,
+  isHorizontal?: boolean
+) =>
+  scrollbar.animate(
+    {
+      transform: [
+        getTrasformTranslateValue(`0px`, isHorizontal),
+        getTrasformTranslateValue(maxAnimationKeyFrameValue(maxTransformValue), isHorizontal),
+      ],
+    },
+    {
+      // @ts-ignore
+      timeline: scrollTimeline,
+      composite: 'add',
+    }
+  );
+const initScrollTimeline = (element: HTMLElement, axis: 'x' | 'y') =>
+  scrollT
+    ? new scrollT({
+        source: element,
+        axis,
+      })
+    : null;
+
 export const createScrollbarsSetupElements = (
   target: InitializationTarget,
   structureSetupElements: StructureSetupElementsObj,
@@ -101,18 +129,8 @@ export const createScrollbarsSetupElements = (
   const { scrollbars: scrollbarsInit } = (_targetIsElm ? {} : target) as InitializationTargetObject;
   const { slot: initScrollbarsSlot } = scrollbarsInit || {};
   const scrollbarsOffsetAnimations = new Map<HTMLElement, Animation[]>();
-  const scrollTimelineX = scrollT
-    ? new scrollT({
-        source: _scrollOffsetElement,
-        axis: 'x',
-      })
-    : null;
-  const scrollTimelineY = scrollT
-    ? new scrollT({
-        source: _scrollOffsetElement,
-        axis: 'y',
-      })
-    : null;
+  const scrollTimelineX = initScrollTimeline(_scrollOffsetElement, 'x');
+  const scrollTimelineY = initScrollTimeline(_scrollOffsetElement, 'y');
 
   const evaluatedScrollbarSlot = generalDynamicInitializationElement<
     [InitializationTargetElement, HTMLElement, HTMLElement]
@@ -126,11 +144,9 @@ export const createScrollbarsSetupElements = (
     _viewportIsTarget && !_isBody && parent(scrollbar) === _viewport;
   const cancelScrollbarsOffsetAnimations = () => {
     scrollbarsOffsetAnimations.forEach((currAnimations) => {
-      if (currAnimations) {
-        currAnimations.forEach((animation) => {
-          animation.cancel();
-        });
-      }
+      (currAnimations || []).forEach((animation) => {
+        animation.cancel();
+      });
     });
   };
   const scrollbarStructureAddRemoveClass = (
@@ -248,36 +264,10 @@ export const createScrollbarsSetupElements = (
   const refreshScrollbarsScrollbarOffsetTimeline = ({ _overflowAmount }: StructureSetupState) => {
     cancelScrollbarsOffsetAnimations();
     verticalScrollbars.concat(horizontalScrollbars).forEach(({ _scrollbar }) => {
-      const maxAnimationKeyFrameValue = (value: number) => `${Math.max(0, value - 0.5)}px`;
-
       if (doRefreshScrollbarOffset(_scrollbar)) {
         scrollbarsOffsetAnimations.set(_scrollbar, [
-          _scrollbar.animate(
-            {
-              transform: [
-                getTrasformTranslateValue(`0px`, true),
-                getTrasformTranslateValue(maxAnimationKeyFrameValue(_overflowAmount.x), true),
-              ],
-            },
-            {
-              // @ts-ignore
-              timeline: scrollTimelineX,
-              composite: 'add',
-            }
-          ),
-          _scrollbar.animate(
-            {
-              transform: [
-                getTrasformTranslateValue(`0px`),
-                getTrasformTranslateValue(maxAnimationKeyFrameValue(_overflowAmount.y)),
-              ],
-            },
-            {
-              // @ts-ignore
-              timeline: scrollTimelineY,
-              composite: 'add',
-            }
-          ),
+          animateScrollbar(_scrollbar, scrollTimelineX, _overflowAmount.x, true),
+          animateScrollbar(_scrollbar, scrollTimelineY, _overflowAmount.y),
         ]);
       }
     });

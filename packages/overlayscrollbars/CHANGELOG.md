@@ -5,6 +5,7 @@
 ### Features
 
 - Make use of the new [ScrollTimeline API](https://developer.mozilla.org/en-US/docs/Web/API/ScrollTimeline) in supported browsers.
+- Add the option `scrollbars.autoHideSuspend` to make it possible to suspend the autoHide functionality until the first scroll interaction was performed. The default value for this option is `false` for backwards compatibility reasons but is recommended to be `true` for better accessibility.
 - Add a CSS selector to bridge deferred initializations visually.
 
 ### Bug Fixes

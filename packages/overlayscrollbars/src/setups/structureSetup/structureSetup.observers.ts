@@ -21,6 +21,7 @@ import {
   scrollLeft,
   scrollTop,
   noop,
+  domRectHasDimensions,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -185,7 +186,7 @@ export const createStructureSetupObservers = (
       setState({ _directionIsRTL: directionIsRTL });
     }
 
-    updateFn({ _sizeChanged, _directionChanged: directionChanged });
+    updateFn({ _sizeChanged, _appear, _directionChanged: directionChanged });
   };
   const onContentMutation = (contentChangedThroughEvent: boolean, fromRecords?: true) => {
     const [, contentSizeChanged] = updateContentSizeCache();
@@ -234,10 +235,19 @@ export const createStructureSetupObservers = (
     }
   );
 
+  let prevContentRect: DOMRectReadOnly | undefined;
   const viewportIsTargetResizeObserver =
     _viewportIsTarget &&
     ResizeObserverConstructor &&
-    new ResizeObserverConstructor(onSizeChanged.bind(0, { _sizeChanged: true }));
+    new ResizeObserverConstructor((entries) => {
+      const currRContentRect = entries[entries.length - 1].contentRect;
+      const hasDimensions = domRectHasDimensions(currRContentRect);
+      const hadDimensions = domRectHasDimensions(prevContentRect);
+      const _appear = !hadDimensions && hasDimensions;
+
+      onSizeChanged({ _sizeChanged: true, _appear });
+      prevContentRect = currRContentRect;
+    });
 
   viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
   updateViewportAttrsFromHost();

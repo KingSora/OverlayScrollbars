@@ -33,6 +33,7 @@ export interface StructureSetupUpdateHints {
   _paddingStyleChanged: boolean;
   _hostMutation: boolean;
   _contentMutation: boolean;
+  _appear: boolean;
 }
 
 const prepareUpdateHints = <T extends StructureSetupUpdateHints>(
@@ -86,6 +87,7 @@ export const createStructureSetupUpdate = (
           _overflowStyleChanged: false,
           _hostMutation: false,
           _contentMutation: false,
+          _appear: false,
         },
         updateHints
       ),

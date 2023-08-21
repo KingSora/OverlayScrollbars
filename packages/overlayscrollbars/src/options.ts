@@ -119,6 +119,8 @@ export interface Options {
     autoHide: ScrollbarsAutoHideBehavior;
     /** The scrollbars auto hide delay in milliseconds. */
     autoHideDelay: number;
+    /** Whether the scrollbars auto hide behavior is suspended until a scroll happened. */
+    autoHideSuspend: boolean;
     /** Whether its possible to drag the handle of a scrollbar to scroll the viewport. */
     dragScroll: boolean;
     /** Whether its possible to click the track of a scrollbar to scroll the viewport. */
@@ -154,6 +156,7 @@ export const defaultOptions: Options = {
     visibility: 'auto',
     autoHide: 'never',
     autoHideDelay: 1300,
+    autoHideSuspend: false,
     dragScroll: true,
     clickScroll: false,
     pointers: ['mouse', 'touch', 'pen'],
