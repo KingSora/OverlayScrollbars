@@ -5,6 +5,7 @@
 ### Features
 
 - Make use of the new [ScrollTimeline API](https://developer.mozilla.org/en-US/docs/Web/API/ScrollTimeline) in supported browsers.
+- Add a CSS selector to bridge deferred initializations visually.
 
 ### Bug Fixes
 - Fix an bug where a change wasn't detected properly when the target element was hidden initially. [#546](https://github.com/KingSora/OverlayScrollbars/discussions/546)

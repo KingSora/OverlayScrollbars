@@ -1,26 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-overlayscrollbars-initialize>
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <title>OverlayScrollbars</title>
   </head>
-  <body>
+  <body data-overlayscrollbars-initialize>
     <div id="app">
-      <a href="https://www.npmjs.com/package/overlayscrollbars" target="_blank">
-        <h1>OverlayScrollbars</h1>
-      </a>
-      <div
-        data-overlayscrollbars-initialize=""
-        class="overlayscrollbars"
-        style="width: 222px; height: 222px"
-      >
-        <div class="logo">
-          <img alt="Logo" src="logo.png" width="333" height="333" />
-        </div>
-      </div>
+      <main>
+        <h1>
+          <a href="https://www.npmjs.com/package/overlayscrollbars" target="_blank">
+            OverlayScrollbars
+          </a>
+        </h1>
+        <section class="slot">
+          <div id="target" class="overlayscrollbars">
+            <div id="targetContent" class="logo">
+              <img alt="Logo" src="logo.png" width="333" height="333" />
+            </div>
+          </div>
+          <div id="impostor" class="overlayscrollbars" style="display: none">
+            <div class="logo">
+              <img alt="Logo" src="logo.png" width="333" height="333" />
+            </div>
+          </div>
+        </section>
+        <section>
+          <p class="title">Actions:</p>
+          <div class="items">
+            <button id="scrollButton">Scroll</button>
+            <button id="toggleContentButton"></button>
+            <button id="toggleElementButton"></button>
+            <button id="toggleOverlayScrollbarsButton"></button>
+          </div>
+        </section>
+        <section id="eventsSection" style="display: none">
+          <p class="title">Events:</p>
+          <div id="events" class="items"></div>
+        </section>
+      </main>
+      <footer>
+        <section id="toggleBodyOverlayScrollbarsSection" style="display: none">
+          <div class="items">
+            <button id="toggleBodyOverlayScrollbarsButton" style="display: none"></button>
+          </div>
+        </section>
+        <a
+          href="https://github.com/KingSora/OverlayScrollbars/tree/master/examples/overlayscrollbars"
+          target="_blank"
+        >
+          Open source code of this example.
+        </a>
+      </footer>
     </div>
     <script type="module" src="/src/index.ts"></script>
   </body>
