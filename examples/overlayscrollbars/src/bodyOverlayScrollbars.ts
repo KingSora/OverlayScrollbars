@@ -21,9 +21,11 @@ const toggleBodyOverlayScrollbarsButton = document.querySelector(
 ) as HTMLButtonElement;
 
 const updateToggleBodyOverlayScrollbarsSection = () => {
-  if (useBodyOverlayScrollbars !== null) {
-    toggleBodyOverlayScrollbarsSection.style.display = '';
+  if (useBodyOverlayScrollbars === null) {
+    useBodyOverlayScrollbars = !initBodyOverlayScrollbars();
   }
+
+  toggleBodyOverlayScrollbarsSection.style.display = '';
   toggleBodyOverlayScrollbarsButton.style.display = '';
   toggleBodyOverlayScrollbarsButton.textContent = `${
     useBodyOverlayScrollbars ? 'Destroy' : 'Initialize'
@@ -42,5 +44,4 @@ toggleBodyOverlayScrollbarsButton.addEventListener('click', () => {
   updateToggleBodyOverlayScrollbarsSection();
 });
 
-useBodyOverlayScrollbars = !initBodyOverlayScrollbars();
 updateToggleBodyOverlayScrollbarsSection();
