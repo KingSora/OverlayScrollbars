@@ -8,7 +8,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
  - High browser compatibility - **Firefox 59+**, **Chrome 55+**, **Opera 42+**, **Edge 12+**, **Safari 10+** and **IE 11**
  - Can be run on the server - **SSR**, **SSG** and **ISR** support
  - Tested on various devices - **Mobile**, **Desktop** and **Tablet**
- - Tested with various (and mixed) inputs - **Mouse**, **touch** and **pen**
+ - Tested with various (and mixed) inputs - **Mouse**, **Touch** and **Pen**
  - **Treeshaking** - bundle only what you really need 
  - Automatic update detection - **no polling**
  - Usage of latest browser features - best **performance** in new browsers
@@ -20,7 +20,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
  - TypeScript support - fully written in TypeScript
  - Dependency free - 100% self written to ensure small size and best functionality
  - High quality and fully typed framework versions for [`react`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react), [`vue`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue), [`angular`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx), [`svelte`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte) and [`solid`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid).
- 
+
 ## Choose your framework
 
 Additionally to the vanilla JavaScript version you can use the official framework components & utilities:
@@ -32,7 +32,6 @@ Additionally to the vanilla JavaScript version you can use the official framewor
   <a className="flex-grow-0 flex-shrink-0" href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte"><img className="h-[80px] mx-1 my-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-svelte/logo.svg" width="80" height="80" alt="Svelte" /></a>
   <a className="flex-grow-0 flex-shrink-0" href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid"><img className="h-[80px] mx-1 my-1" src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-solid/logo.svg" width="80" height="80" alt="Solid" /></a>
 </div>
-
 ## Getting started
 
 ### npm & nodejs
@@ -98,6 +97,19 @@ If you initialize OverlayScrollbars it needs a few milliseconds to create and ap
 While this period the native scrollbars are still visible and are switched out after the initialization is finished. This is perceived as flickering. 
 
 To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (and `html` element if the target element is `body`).
+
+```html
+<!-- for the body element -->
+<html data-overlayscrollbars-initialize>
+  <head></head>
+  <body data-overlayscrollbars-initialize></body>
+</html>
+
+<!-- for all other elements -->
+<div data-overlayscrollbars-initialize>
+  OverlayScrollbars is applied to this div
+</div>
+```
 
 ### Initialization with an Object
 <details>
@@ -199,6 +211,7 @@ const defaultOptions = {
     visibility: 'auto',
     autoHide: 'never',
     autoHideDelay: 1300,
+    autoHideSuspend: false,
     dragScroll: true,
     clickScroll: false,
     pointers: ['mouse', 'touch', 'pen'],
@@ -313,6 +326,15 @@ The possibility to hide visible scrollbars automatically after a certain user ac
 | `number` | `1300` |
 
 The delay in milliseconds before the scrollbars are hidden automatically.
+
+### `scrollbars.autoHideSuspend`
+
+| type  | default |
+| :--- | :--- |
+| `boolean` | `false` |
+
+Suspend the autoHide functionality until the first scroll interaction was performed.  
+The default value for this option is `false` for backwards compatibility reasons but is recommended to be `true` for better accessibility.
 
 ### `scrollbars.dragScroll`
 
@@ -624,7 +646,7 @@ You can write and publish your own Plugins. This section is a work in progress.
 
 <details>
   <summary>
-    How do I <code>get / set</code> the <code>scroll position</code> of an element I applied the OverlayScrollbars to?
+    How do I <code>get / set</code> the <code>scroll position</code> of an element I applied OverlayScrollbars to?
   </summary>
   <br />
 

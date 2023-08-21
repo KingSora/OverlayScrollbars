@@ -7,7 +7,7 @@ export const Pre = ({ children }: ComponentProps<'pre'>) => (
     element="pre"
     options={{
       paddingAbsolute: true,
-      scrollbars: { autoHide: 'leave' },
+      scrollbars: { autoHide: 'scroll', autoHideSuspend: true },
     }}>
     {children}
   </OverlayScrollbarsComponent>
