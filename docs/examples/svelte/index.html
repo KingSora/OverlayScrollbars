@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" data-overlayscrollbars-initialize>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" href="/OverlayScrollbars/examples/svelte/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    
+		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/entry/start.fd63e0e2.js">
+		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/chunks/scheduler.608e02a7.js">
+		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/chunks/singletons.800ca5ad.js">
+		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/entry/app.c5a319dc.js">
+		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/chunks/index.0edf1d92.js">
+  </head>
+  <body data-sveltekit-prefetch data-overlayscrollbars-initialize>
+    <div>
+			<script>
+				{
+					__sveltekit_1ceoje9 = {
+						assets: "/OverlayScrollbars/examples/svelte",
+						base: "/OverlayScrollbars/examples/svelte",
+						env: {}
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/OverlayScrollbars/examples/svelte/_app/immutable/entry/start.fd63e0e2.js"),
+						import("/OverlayScrollbars/examples/svelte/_app/immutable/entry/app.c5a319dc.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+  </body>
+</html>

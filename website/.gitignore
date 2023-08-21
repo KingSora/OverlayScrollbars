@@ -11,6 +11,8 @@
 # next.js
 **/.next/
 **/next-app/out/
+**/next-app/build/
+**/next-app/dist/
 **/next-app/src/
 **/next-app/build
 

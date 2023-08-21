@@ -4,7 +4,6 @@ import type { OverlayScrollbarsComponentRef } from 'overlayscrollbars-vue';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { onMounted, ref } from 'vue';
 import { useEventObserver } from './useEventObserver';
-import type { EventObserverEvent } from './useEventObserver';
 
 const initBodyOverlayScrollbars = (force?: boolean) =>
   OverlayScrollbars(

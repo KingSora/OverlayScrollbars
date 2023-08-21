@@ -36,7 +36,7 @@ export const useEventObserver = () => {
     count: eventCountRef.current[event] || 0,
   });
 
-  const events: Record<OverlayScrollbarsEvents, ReturnType<typeof getEventObj>> = {
+  const events: Record<OverlayScrollbarsEvents, EventObserverEvent> = {
     initialized: getEventObj('initialized'),
     destroyed: getEventObj('destroyed'),
     updated: getEventObj('updated'),

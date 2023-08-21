@@ -34,14 +34,12 @@ export const createEventObserver = () => {
     count: eventCount[event] || 0,
   });
 
-  const events = createMemo<Record<OverlayScrollbarsEvents, ReturnType<typeof getEventObj>>>(
-    () => ({
-      initialized: getEventObj('initialized'),
-      destroyed: getEventObj('destroyed'),
-      updated: getEventObj('updated'),
-      scroll: getEventObj('scroll'),
-    })
-  );
+  const events = createMemo<Record<OverlayScrollbarsEvents, EventObserverEvent>>(() => ({
+    initialized: getEventObj('initialized'),
+    destroyed: getEventObj('destroyed'),
+    updated: getEventObj('updated'),
+    scroll: getEventObj('scroll'),
+  }));
 
   return [events, activateEvent] as const;
 };

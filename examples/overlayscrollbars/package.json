@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build  --base /OverlayScrollbars/examples/overlayscrollbars",
     "preview": "vite preview"
   }
 }

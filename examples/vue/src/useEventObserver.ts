@@ -32,13 +32,12 @@ export const useEventObserver = () => {
     count: eventCountRef[event] || 0,
   });
 
-  const events: ComputedRef<Record<OverlayScrollbarsEvents, ReturnType<typeof getEventObj>>> =
-    computed(() => ({
-      initialized: getEventObj('initialized'),
-      destroyed: getEventObj('destroyed'),
-      updated: getEventObj('updated'),
-      scroll: getEventObj('scroll'),
-    }));
+  const events: ComputedRef<Record<OverlayScrollbarsEvents, EventObserverEvent>> = computed(() => ({
+    initialized: getEventObj('initialized'),
+    destroyed: getEventObj('destroyed'),
+    updated: getEventObj('updated'),
+    scroll: getEventObj('scroll'),
+  }));
 
   return [events, activateEvent] as const;
 };

@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"node esbuild.mjs -w\" \"wait-on -d 2000 ./next-app/src && cd next-app && next dev\"",
-    "build": "node esbuild.mjs -p && cd next-app && next build && next export",
+    "build": "node esbuild.mjs -p && cd next-app && next build && next export -o dist",
     "start": "node esbuild.mjs && cd next-app && next start"
   },
   "dependencies": {

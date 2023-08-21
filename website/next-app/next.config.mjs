@@ -3,7 +3,6 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 
-/** @type {import('next').NextConfig} */
 const withMDX = mdx({
   extension: /\.mdx?$/,
   options: {
@@ -22,6 +21,7 @@ const withMDX = mdx({
   },
 });
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
