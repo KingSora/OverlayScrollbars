@@ -20,6 +20,7 @@ describe('options', () => {
         visibility: 'auto',
         autoHide: 'never',
         autoHideDelay: 1300,
+        autoHideSuspend: false,
         dragScroll: true,
         clickScroll: false,
         pointers: ['mouse', 'touch', 'pen'],
