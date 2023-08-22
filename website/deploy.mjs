@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import fsPromises from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
@@ -74,10 +73,7 @@ const examplesMap = {
 };
 
 if (deployExamples) {
-  if (fs.existsSync(docsExamplesDir)) {
-    await fsPromises.rm(docsExamplesDir, { recursive: true, force: true });
-  }
-
+  await fsPromises.rm(docsExamplesDir, { recursive: true, force: true });
   await Promise.all(
     Object.entries(examplesMap).map(([name, info]) =>
       (async () => {

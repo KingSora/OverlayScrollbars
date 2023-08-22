@@ -1,42 +1,21 @@
 <!DOCTYPE html>
-<html lang="en" data-overlayscrollbars-initialize>
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" href="/OverlayScrollbars/examples/svelte/favicon.png" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/OverlayScrollbars/examples/svelte/logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    
-		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/entry/start.cac45727.js">
-		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/chunks/scheduler.608e02a7.js">
-		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/chunks/singletons.892663d2.js">
-		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/entry/app.960d0325.js">
-		<link rel="modulepreload" href="/OverlayScrollbars/examples/svelte/_app/immutable/chunks/index.0edf1d92.js">
+    <title>OverlayScrollbars & Svelte</title>
+    <script type="module" crossorigin src="/OverlayScrollbars/examples/svelte/assets/index-d4077e88.js"></script>
+    <link rel="stylesheet" href="/OverlayScrollbars/examples/svelte/assets/index-7ad7954c.css">
   </head>
-  <body data-sveltekit-prefetch data-overlayscrollbars-initialize>
-    <div>
-			<script>
-				{
-					__sveltekit_1yw9dcn = {
-						assets: "/OverlayScrollbars/examples/svelte",
-						base: "/OverlayScrollbars/examples/svelte",
-						env: {}
-					};
-
-					const element = document.currentScript.parentElement;
-
-					Promise.all([
-						import("/OverlayScrollbars/examples/svelte/_app/immutable/entry/start.cac45727.js"),
-						import("/OverlayScrollbars/examples/svelte/_app/immutable/entry/app.960d0325.js")
-					]).then(([kit, app]) => {
-						kit.start(app, element);
-					});
-				}
-			</script>
-		</div>
+  <body>
+    <div id="app"></div>
+    
   </body>
 </html>

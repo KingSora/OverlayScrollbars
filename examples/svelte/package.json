@@ -1,29 +1,25 @@
 {
-	"private": true,
-	"type": "module",
-	"dependencies": {
+  "name": "svelte",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
 		"overlayscrollbars": "file:../../packages/overlayscrollbars/dist",
 		"overlayscrollbars-svelte": "file:../../packages/overlayscrollbars-svelte/dist"
 	},
-	"devDependencies": {
-		"@fontsource/fira-mono": "^4.5.0",
-		"@neoconfetti/svelte": "^1.0.0",
-		"@sveltejs/adapter-auto": "next",
-		"@sveltejs/adapter-static": "next",
-		"@sveltejs/kit": "^1.20.4",
-		"@types/cookie": "^0.5.1",
-		"svelte": "^4.0.0",
-		"svelte-check": "^3.4.3",
-		"svelte-preprocess": "^5.0.3",
-		"tslib": "^2.3.1",
-		"typescript": "^5.0.2",
-    "vite": "^4.4.2"
-	},
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
-	}
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^2.4.2",
+    "@tsconfig/svelte": "^5.0.0",
+    "svelte": "^4.0.5",
+    "svelte-check": "^3.4.6",
+    "tslib": "^2.6.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --base /OverlayScrollbars/examples/svelte/",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  }
 }

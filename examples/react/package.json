@@ -1,11 +1,6 @@
 {
   "private": true,
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build --base /OverlayScrollbars/examples/react/",
-    "preview": "vite preview"
-  },
   "dependencies": {
     "overlayscrollbars": "file:../../packages/overlayscrollbars/dist",
     "overlayscrollbars-react": "file:../../packages/overlayscrollbars-react/dist",
@@ -18,5 +13,10 @@
     "@vitejs/plugin-react": "^4.0.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.2"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build --base /OverlayScrollbars/examples/react/",
+    "preview": "vite preview"
   }
 }

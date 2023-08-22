@@ -40,12 +40,12 @@ const initBodyOverlayScrollbars = (force?: boolean) =>
           [defer]
         >
           <div *ngIf="!contentHidden" class="logo">
-            <img alt="Angular logo" src="/assets/logo.svg" />
+            <img alt="Angular logo" src="assets/logo.svg" />
           </div>
         </overlay-scrollbars>
         <div *ngIf="!useOverlayScrollbars" class="overlayscrollbars-ngx">
           <div class="logo">
-            <img alt="Angular logo" src="/assets/logo.svg" />
+            <img alt="Angular logo" src="assets/logo.svg" />
           </div>
         </div>
       </section>

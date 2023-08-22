@@ -103,10 +103,6 @@
   });
 </script>
 
-<svelte:head>
-  <title>OverlayScrollbars & Svelte</title>
-</svelte:head>
-
 <main>
   <h1>
     <a href="https://www.npmjs.com/package/overlayscrollbars-svelte" target="_blank">
