@@ -28,6 +28,8 @@ const rootDir = resolve(fileDir, '..');
 const docsDir = resolve(rootDir, 'docs');
 const docsExamplesDir = resolve(docsDir, 'examples');
 
+await run('npm', ['run build'], { cwd: rootDir });
+
 if (deployDocs) {
   await run('npm', ['run build']);
 
