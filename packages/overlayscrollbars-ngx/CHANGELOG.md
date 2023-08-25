@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1
+
+### Bug Fix
+
+- Correctly resolve the entry file(s) in the `package.json`.
+
 ## 0.5.0
 
 Added the possibility to `defer` the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) 
