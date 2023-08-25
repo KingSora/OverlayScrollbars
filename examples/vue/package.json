@@ -18,7 +18,7 @@
     "dev": "vite",
     "build": "run-p type-check build-only",
     "preview": "vite preview --port 4173",
-    "build-only": "vite build --base /OverlayScrollbars/examples/vue/",
+    "build-only": "vite build --base /OverlayScrollbars/example/vue",
     "type-check": "vue-tsc --noEmit"
   }
 }

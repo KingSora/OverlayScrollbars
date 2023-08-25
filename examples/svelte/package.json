@@ -18,7 +18,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build --base /OverlayScrollbars/examples/svelte/",
+    "build": "vite build --base /OverlayScrollbars/example/svelte",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   }

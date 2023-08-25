@@ -13,7 +13,7 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
-    "build": "vite build --base /OverlayScrollbars/examples/solid/",
+    "build": "vite build --base /OverlayScrollbars/example/solid",
     "serve": "vite preview"
   }
 }

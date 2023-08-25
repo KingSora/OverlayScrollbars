@@ -26,7 +26,7 @@ const run = async (command, args, options) => {
 const fileDir = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(fileDir, '..');
 const docsDir = resolve(rootDir, 'docs');
-const docsExamplesDir = resolve(docsDir, 'examples');
+const docsExampleDir = resolve(docsDir, 'example');
 
 await run('npm', ['run build'], { cwd: rootDir });
 
@@ -75,13 +75,13 @@ const examplesMap = {
 };
 
 if (deployExamples) {
-  await fsPromises.rm(docsExamplesDir, { recursive: true, force: true });
+  await fsPromises.rm(docsExampleDir, { recursive: true, force: true });
   await Promise.all(
     Object.entries(examplesMap).map(([name, info]) =>
       (async () => {
         const cwd = resolve(rootDir, info.cwd);
         const sourceBuildDir = resolve(cwd, info.folder);
-        const targetBuildDir = resolve(docsExamplesDir, name);
+        const targetBuildDir = resolve(docsExampleDir, name);
 
         await Promise.all([
           fsPromises.rm(sourceBuildDir, { recursive: true, force: true }),
@@ -91,7 +91,7 @@ if (deployExamples) {
           run('npm', ['run build'], {
             cwd,
           }),
-          fsPromises.mkdir(docsExamplesDir, {
+          fsPromises.mkdir(docsExampleDir, {
             recursive: true,
           }),
         ]);
