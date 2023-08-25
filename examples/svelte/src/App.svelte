@@ -92,10 +92,10 @@
     const bodyOsInstance = OverlayScrollbars(document.body);
     if (bodyOsInstance) {
       bodyOsInstance.destroy();
+      useBodyOverlayScrollbars = false;
     } else {
-      initBodyOverlayScrollbars(true);
+      useBodyOverlayScrollbars = !initBodyOverlayScrollbars(true);
     }
-    useBodyOverlayScrollbars = !useBodyOverlayScrollbars;
   };
 
   onMount(async () => {

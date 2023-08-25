@@ -162,10 +162,10 @@ export class AppComponent {
     const bodyOsInstance = OverlayScrollbars(document.body);
     if (bodyOsInstance) {
       bodyOsInstance.destroy();
+      this.useBodyOverlayScrollbars = false;
     } else {
-      initBodyOverlayScrollbars(true);
+      this.useBodyOverlayScrollbars = !initBodyOverlayScrollbars(true);
     }
-    this.useBodyOverlayScrollbars = !this.useBodyOverlayScrollbars;
   }
 
   ngOnInit() {

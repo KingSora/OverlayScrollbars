@@ -1,31 +1,31 @@
 <script setup lang="ts">
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
+import { OverlayScrollbarsComponent, useOverlayScrollbars } from 'overlayscrollbars-vue';
 import type { OverlayScrollbarsComponentRef } from 'overlayscrollbars-vue';
-import { OverlayScrollbars } from 'overlayscrollbars';
 import { onMounted, ref } from 'vue';
 import { useEventObserver } from './useEventObserver';
 
-const initBodyOverlayScrollbars = (force?: boolean) =>
-  OverlayScrollbars(
-    {
-      target: document.body,
-      cancel: {
-        body: force ? false : null,
-      },
-    },
-    {
-      scrollbars: {
-        theme: 'os-theme-light',
-      },
-    }
-  ).state().destroyed;
-
 const contentHidden = ref(false);
 const elementHidden = ref(false);
-const useOverlayScrollbars = ref(true);
-const useBodyOverlayScrollbars = ref<boolean | null>(null);
-const [activeEvents, activateEvent] = useEventObserver();
+const overlayScrollbarsApplied = ref(true);
+const bodyOverlayScrollbarsApplied = ref<boolean | null>(null);
 const osRef = ref<OverlayScrollbarsComponentRef | null>(null);
+const [activeEvents, activateEvent] = useEventObserver();
+const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = useOverlayScrollbars({
+  defer: true,
+  events: {
+    initialized: () => {
+      bodyOverlayScrollbarsApplied.value = true;
+    },
+    destroyed: () => {
+      bodyOverlayScrollbarsApplied.value = false;
+    },
+  },
+  options: {
+    scrollbars: {
+      theme: 'os-theme-light',
+    },
+  },
+});
 
 const scrollContent = () => {
   const osInstance = osRef?.value?.osInstance();
@@ -47,16 +47,21 @@ const scrollContent = () => {
 const toggleContent = () => (contentHidden.value = !contentHidden.value);
 const toggleElement = () => (elementHidden.value = !elementHidden.value);
 const toggleBodyOverlayScrollbars = () => {
-  const bodyOsInstance = OverlayScrollbars(document.body);
-  if (bodyOsInstance) {
+  const bodyOsInstance = getBodyOverlayScrollbarsInstance();
+
+  if (bodyOsInstance && !bodyOsInstance.state().destroyed) {
     bodyOsInstance.destroy();
   } else {
-    initBodyOverlayScrollbars(true);
+    initBodyOverlayScrollbars({
+      target: document.body,
+      cancel: {
+        body: false,
+      },
+    });
   }
-  useBodyOverlayScrollbars.value = !useBodyOverlayScrollbars.value;
 };
 
-onMounted(() => (useBodyOverlayScrollbars.value = !initBodyOverlayScrollbars()));
+onMounted(() => initBodyOverlayScrollbars(document.body));
 </script>
 
 <template>
@@ -68,7 +73,7 @@ onMounted(() => (useBodyOverlayScrollbars.value = !initBodyOverlayScrollbars()))
     </h1>
     <section class="slot">
       <OverlayScrollbarsComponent
-        v-if="useOverlayScrollbars"
+        v-if="overlayScrollbarsApplied"
         class="overlayscrollbars-vue"
         ref="osRef"
         :style="{ display: elementHidden ? 'none' : undefined }"
@@ -98,7 +103,7 @@ onMounted(() => (useBodyOverlayScrollbars.value = !initBodyOverlayScrollbars()))
     <section>
       <p class="title">Actions:</p>
       <div class="items">
-        <template v-if="useOverlayScrollbars">
+        <template v-if="overlayScrollbarsApplied">
           <button @click="scrollContent">Scroll</button>
           <button @click="toggleContent">
             <template v-if="contentHidden"> Show </template>
@@ -111,8 +116,8 @@ onMounted(() => (useBodyOverlayScrollbars.value = !initBodyOverlayScrollbars()))
             Element
           </button>
         </template>
-        <button @click="useOverlayScrollbars = !useOverlayScrollbars">
-          <template v-if="useOverlayScrollbars"> Destroy </template>
+        <button @click="overlayScrollbarsApplied = !overlayScrollbarsApplied">
+          <template v-if="overlayScrollbarsApplied"> Destroy </template>
           <template v-else> Initialize </template>
           OverlayScrollbars
         </button>
@@ -131,10 +136,10 @@ onMounted(() => (useBodyOverlayScrollbars.value = !initBodyOverlayScrollbars()))
     </section>
   </main>
   <footer>
-    <section v-if="useBodyOverlayScrollbars !== null">
+    <section v-if="bodyOverlayScrollbarsApplied !== null">
       <div class="items">
         <button @click="toggleBodyOverlayScrollbars">
-          <template v-if="useBodyOverlayScrollbars"> Destroy </template>
+          <template v-if="bodyOverlayScrollbarsApplied"> Destroy </template>
           <template v-else> Initialize </template>
           Body OverlayScrollbars
         </button>

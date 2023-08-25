@@ -1,6 +1,6 @@
 import { OverlayScrollbars } from 'overlayscrollbars';
 
-let useBodyOverlayScrollbars: boolean | null = null;
+let bodyOverlayScrollbarsApplied: boolean | null = null;
 
 const initBodyOverlayScrollbars = (force?: boolean) =>
   OverlayScrollbars(
@@ -21,14 +21,14 @@ const toggleBodyOverlayScrollbarsButton = document.querySelector(
 ) as HTMLButtonElement;
 
 const updateToggleBodyOverlayScrollbarsSection = () => {
-  if (useBodyOverlayScrollbars === null) {
-    useBodyOverlayScrollbars = !initBodyOverlayScrollbars();
+  if (bodyOverlayScrollbarsApplied === null) {
+    bodyOverlayScrollbarsApplied = !initBodyOverlayScrollbars();
   }
 
   toggleBodyOverlayScrollbarsSection.style.display = '';
   toggleBodyOverlayScrollbarsButton.style.display = '';
   toggleBodyOverlayScrollbarsButton.textContent = `${
-    useBodyOverlayScrollbars ? 'Destroy' : 'Initialize'
+    bodyOverlayScrollbarsApplied ? 'Destroy' : 'Initialize'
   } Body OverlayScrollbars`;
 };
 
@@ -36,11 +36,11 @@ toggleBodyOverlayScrollbarsButton.addEventListener('click', () => {
   const bodyOsInstance = OverlayScrollbars(document.body);
   if (bodyOsInstance) {
     bodyOsInstance.destroy();
+    bodyOverlayScrollbarsApplied = false;
   } else {
-    initBodyOverlayScrollbars(true);
+    bodyOverlayScrollbarsApplied = !initBodyOverlayScrollbars(true);
   }
 
-  useBodyOverlayScrollbars = !useBodyOverlayScrollbars;
   updateToggleBodyOverlayScrollbarsSection();
 });
 

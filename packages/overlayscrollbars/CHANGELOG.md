@@ -9,7 +9,8 @@
 - Add a CSS selector to bridge deferred initializations visually.
 
 ### Bug Fixes
-- Fix an bug where a change wasn't detected properly when the target element was hidden initially. [#546](https://github.com/KingSora/OverlayScrollbars/discussions/546)
+- Fix a bug where a change wasn't detected properly when the target element was hidden initially. [#546](https://github.com/KingSora/OverlayScrollbars/discussions/546)
+- Fixed a bug where the scroll offset was reset to `0` sometimes after initialization when the target was the `body` element.
 
 ### Improvements
 

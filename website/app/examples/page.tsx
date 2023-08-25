@@ -1,14 +1,19 @@
 import { Link } from '~/components/Link';
 import { PageContainer } from '~/components/PageContainer';
+import type { Metadata } from 'next';
 
 export interface Example {
   name: string;
   url: string;
 }
 
+export const metadata: Metadata = {
+  title: 'OverlayScrollbars Examples',
+};
+
 const renderExample = (logo: string, framework: string, examples: Example[]) => {
   return (
-    <div className="flex-1 whitespace-nowrap border border-slate-200 p-3 rounded-lg shadow-lg shadow-slate-300/25 bg-white">
+    <div className="flex-1 whitespace-nowrap border border-slate-200 px-3 py-5 rounded-lg shadow-lg shadow-slate-300/25 bg-white">
       <div className="relative w-16 h-16 mx-auto mb-6">
         <div
           style={{ backgroundImage: `url(${logo})` }}

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import { OverlayScrollbars } from 'overlayscrollbars';
+import { OverlayScrollbarsComponent, useOverlayScrollbars } from 'overlayscrollbars-react';
 import type { OverlayScrollbarsComponentRef } from 'overlayscrollbars-react';
 import { useEventObserver } from './useEventObserver';
 
@@ -10,28 +9,31 @@ const content = (
   </div>
 );
 
-const initBodyOverlayScrollbars = (force?: boolean) =>
-  OverlayScrollbars(
-    {
-      target: document.body,
-      cancel: {
-        body: force ? false : null,
-      },
-    },
-    {
-      scrollbars: {
-        theme: 'os-theme-light',
-      },
-    }
-  ).state().destroyed;
-
 const App = () => {
   const [contentHidden, setContentHidden] = useState(false);
   const [elementHidden, setElementHidden] = useState(false);
-  const [useOverlayScrollbars, setUseOverlayScrollbars] = useState(true);
-  const [useBodyOverlayScrollbars, setUseBodyOverlayScrollbars] = useState<boolean | null>(null);
-  const [activeEvents, activateEvent] = useEventObserver();
+  const [overlayScrollbarsApplied, setOverlayScrollbarsApplied] = useState(true);
+  const [bodyOverlayScrollbarsApplied, setBodyOverlayScrollbarsApplied] = useState<boolean | null>(
+    null
+  );
   const osRef = useRef<OverlayScrollbarsComponentRef>(null);
+  const [activeEvents, activateEvent] = useEventObserver();
+  const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = useOverlayScrollbars({
+    defer: true,
+    events: {
+      initialized: () => {
+        setBodyOverlayScrollbarsApplied(true);
+      },
+      destroyed: () => {
+        setBodyOverlayScrollbarsApplied(false);
+      },
+    },
+    options: {
+      scrollbars: {
+        theme: 'os-theme-light',
+      },
+    },
+  });
 
   const scrollContent = () => {
     const { current } = osRef;
@@ -54,27 +56,38 @@ const App = () => {
   const toggleContent = () => setContentHidden((curr) => !curr);
   const toggleElement = () => setElementHidden((curr) => !curr);
   const toggleBodyOverlayScrollbars = () => {
-    const bodyOsInstance = OverlayScrollbars(document.body);
-    if (bodyOsInstance) {
+    const bodyOsInstance = getBodyOverlayScrollbarsInstance();
+
+    if (bodyOsInstance && !bodyOsInstance.state().destroyed) {
       bodyOsInstance.destroy();
     } else {
-      initBodyOverlayScrollbars(true);
+      initBodyOverlayScrollbars({
+        target: document.body,
+        cancel: {
+          body: false,
+        },
+      });
     }
-    setUseBodyOverlayScrollbars((curr) => !curr);
   };
 
-  useEffect(() => setUseBodyOverlayScrollbars(!initBodyOverlayScrollbars()), []);
+  useEffect(() => {
+    initBodyOverlayScrollbars(document.body);
+  }, [initBodyOverlayScrollbars]);
 
   return (
     <>
       <main>
         <h1>
-          <a href="https://www.npmjs.com/package/overlayscrollbars-react" target="_blank">
+          <a
+            href="https://www.npmjs.com/package/overlayscrollbars-react"
+            target="_blank"
+            rel="noreferrer"
+          >
             OverlayScrollbars React
           </a>
         </h1>
         <section className="slot">
-          {useOverlayScrollbars ? (
+          {overlayScrollbarsApplied ? (
             <OverlayScrollbarsComponent
               className="overlayscrollbars-react"
               style={{ display: elementHidden ? 'none' : undefined }}
@@ -97,15 +110,15 @@ const App = () => {
         <section>
           <p className="title">Actions:</p>
           <div className="items">
-            {useOverlayScrollbars && (
+            {overlayScrollbarsApplied && (
               <>
                 <button onClick={scrollContent}>Scroll</button>
                 <button onClick={toggleContent}>{contentHidden ? 'Show' : 'Hide'} Content</button>
                 <button onClick={toggleElement}>{elementHidden ? 'Show' : 'Hide'} Element</button>
               </>
             )}
-            <button onClick={() => setUseOverlayScrollbars((curr) => !curr)}>
-              {useOverlayScrollbars ? 'Destroy' : 'Initialize'} OverlayScrollbars
+            <button onClick={() => setOverlayScrollbarsApplied((curr) => !curr)}>
+              {overlayScrollbarsApplied ? 'Destroy' : 'Initialize'} OverlayScrollbars
             </button>
           </div>
         </section>
@@ -113,7 +126,7 @@ const App = () => {
           <p className="title">Events:</p>
           <div className="items">
             {Object.entries(activeEvents).map(([eventName, event]) => (
-              <div className={`event ${event.active ? 'active' : ''}`}>
+              <div key={eventName} className={`event ${event.active ? 'active' : ''}`}>
                 {eventName} ({event.count})
               </div>
             ))}
@@ -121,11 +134,11 @@ const App = () => {
         </section>
       </main>
       <footer>
-        {useBodyOverlayScrollbars !== null && (
+        {bodyOverlayScrollbarsApplied !== null && (
           <section>
             <div className="items">
               <button onClick={toggleBodyOverlayScrollbars}>
-                {useBodyOverlayScrollbars ? 'Destroy' : 'Initialize'} Body OverlayScrollbars
+                {bodyOverlayScrollbarsApplied ? 'Destroy' : 'Initialize'} Body OverlayScrollbars
               </button>
             </div>
           </section>
@@ -133,6 +146,7 @@ const App = () => {
         <a
           href="https://github.com/KingSora/OverlayScrollbars/tree/master/examples/react"
           target="_blank"
+          rel="noreferrer"
         >
           Open source code of this example.
         </a>

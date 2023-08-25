@@ -17,12 +17,17 @@ const emitEvents: EmitEventsMap = {
   destroyed: 'osDestroyed',
   scroll: 'osScroll',
 };
-const props = defineProps<{
-  element: OverlayScrollbarsComponentProps['element'];
-  options: OverlayScrollbarsComponentProps['options'];
-  events: OverlayScrollbarsComponentProps['events'];
-  defer: OverlayScrollbarsComponentProps['defer'];
-}>();
+const props = withDefaults(
+  defineProps<{
+    element: OverlayScrollbarsComponentProps['element'];
+    options: OverlayScrollbarsComponentProps['options'];
+    events: OverlayScrollbarsComponentProps['events'];
+    defer: OverlayScrollbarsComponentProps['defer'];
+  }>(),
+  {
+    element: 'div',
+  }
+);
 const emits = defineEmits<{
   (name: 'osInitialized', ...args: EventListenerArgs['initialized']): void;
   (name: 'osUpdated', ...args: EventListenerArgs['updated']): void;
@@ -90,7 +95,7 @@ watch(
 </script>
 
 <template>
-  <component data-overlayscrollbars-initialize="" :is="element || 'div'" ref="elementRef">
+  <component data-overlayscrollbars-initialize="" :is="element" ref="elementRef">
     <div v-if="hydrated" ref="slotRef" data-overlayscrollbars-contents="">
       <slot></slot>
     </div>

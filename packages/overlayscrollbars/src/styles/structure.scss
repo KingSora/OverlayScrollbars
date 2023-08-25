@@ -85,7 +85,7 @@
  * elements wont suddenly crop after initialization is done
  */
 
-[data-overlayscrollbars-initialize] {
+[data-overlayscrollbars-initialize]:not(html):not(body) {
   overflow: auto;
 }
 

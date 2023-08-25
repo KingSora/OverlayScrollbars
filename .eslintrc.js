@@ -48,6 +48,8 @@ const defaultRules = {
   ],
   'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
   'react/require-default-props': ['off'],
+  'react/react-in-jsx-scope': 'off',
+  'react/jsx-uses-react': 'off',
   'no-shadow': 'off',
   '@typescript-eslint/no-shadow': ['error'],
   'no-use-before-define': 'off',

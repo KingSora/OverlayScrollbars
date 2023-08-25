@@ -6,12 +6,12 @@ You can either use the provided online examples or run examples locally by cloni
 
 | Framework  | Examples |
 | :--- | :--- |
-|   | [Demo App](https://kingsora.github.io/OverlayScrollbars/example/overlayscrollbars), [StackBlitz](https://stackblitz.com/edit/overlayscrollbars) |
-| React | [Demo App](https://kingsora.github.io/OverlayScrollbars/example/react), [StackBlitz](https://stackblitz.com/edit/overlayscrollbars-react) |
-| Vue | [Demo App](https://kingsora.github.io/OverlayScrollbars/example/vue), [StackBlitz](https://stackblitz.com/edit/overlayscrollbars-vue) |
-| Angular | [Demo App](https://kingsora.github.io/OverlayScrollbars/example/angular), [StackBlitz](https://stackblitz.com/edit/overlayscrollbars-ngx) |
-| Svelte | [Demo App](https://kingsora.github.io/OverlayScrollbars/example/svelte), [StackBlitz](https://stackblitz.com/edit/overlayscrollbars-svelte) |
-| Solid | [Demo App](https://kingsora.github.io/OverlayScrollbars/example/solid), [StackBlitz](https://stackblitz.com/edit/overlayscrollbars-solid) |
+|   | [`Demo App`](https://kingsora.github.io/OverlayScrollbars/example/overlayscrollbars) / [`StackBlitz`](https://stackblitz.com/edit/overlayscrollbars) |
+| React | [`Demo App`](https://kingsora.github.io/OverlayScrollbars/example/react) / [`StackBlitz`](https://stackblitz.com/edit/overlayscrollbars-react) |
+| Vue | [`Demo App`](https://kingsora.github.io/OverlayScrollbars/example/vue) / [`StackBlitz`](https://stackblitz.com/edit/overlayscrollbars-vue) |
+| Angular | [`Demo App`](https://kingsora.github.io/OverlayScrollbars/example/angular) / [`StackBlitz`](https://stackblitz.com/edit/overlayscrollbars-ngx) |
+| Svelte | [`Demo App`](https://kingsora.github.io/OverlayScrollbars/example/svelte) / [`StackBlitz`](https://stackblitz.com/edit/overlayscrollbars-svelte) |
+| Solid | [`Demo App`](https://kingsora.github.io/OverlayScrollbars/example/solid) / [`StackBlitz`](https://stackblitz.com/edit/overlayscrollbars-solid) |
 
 ## Local Examples
 

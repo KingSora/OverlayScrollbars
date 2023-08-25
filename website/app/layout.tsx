@@ -1,16 +1,8 @@
-'use client';
 import './styles.css';
 import 'overlayscrollbars/overlayscrollbars.css';
-import { useEffect } from 'react';
-import { MDXProvider } from '@mdx-js/react';
-import { useOverlayScrollbars } from 'overlayscrollbars-react';
-import UAParser from 'ua-parser-js';
-import { Link } from '~/components/Link';
+import { Root } from '~/components/Root';
+import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import type { ComponentProps, ReactNode } from 'react';
-import type { HeadingProps } from '../components/md/Heading';
-import { Heading } from '../components/md/Heading';
-import { Pre } from '../components/md/Pre';
 
 export const metadata: Metadata = {
   title: 'OverlayScrollbars',
@@ -48,29 +40,14 @@ export const metadata: Metadata = {
   },
 };
 
-const generateHeading = (props: ComponentProps<'h1'>, tag: HeadingProps['tag']) => (
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  <Heading {...props} tag={tag} />
-);
-
 const OverlayScrollbarsDocs = ({ children }: { children: ReactNode }) => {
-  const [initialize, instance] = useOverlayScrollbars({ defer: true });
-
-  useEffect(() => {
-    const ua = new UAParser();
-    const { type } = ua.getDevice();
-    const cancelDevices = ['console', 'mobile', 'tablet', 'smarttv'];
-
-    initialize({
-      target: document.body,
-      cancel: { nativeScrollbarsOverlaid: !!type && cancelDevices.includes(type) },
-    });
-    return () => instance()?.destroy();
-  }, []);
-
   return (
-    <html lang="en" className="w-full h-full font-sans font-normal text-primary-dark bg-slate-50">
-      <body className="w-full h-full">
+    <html
+      lang="en"
+      className="w-full h-full font-sans font-normal text-primary-dark bg-slate-50"
+      data-overlayscrollbars-initialize=""
+    >
+      <body className="w-full h-full" data-overlayscrollbars-initialize="">
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
@@ -104,20 +81,7 @@ const OverlayScrollbarsDocs = ({ children }: { children: ReactNode }) => {
             }),
           }}
         />
-        <MDXProvider
-          components={{
-            h1: (props) => generateHeading(props, 'h1'),
-            h2: (props) => generateHeading(props, 'h2'),
-            h3: (props) => generateHeading(props, 'h3'),
-            h4: (props) => generateHeading(props, 'h4'),
-            h5: (props) => generateHeading(props, 'h5'),
-            h6: (props) => generateHeading(props, 'h6'),
-            a: (props) => <Link {...(props as any)} external />,
-            pre: Pre,
-          }}
-        >
-          {children}
-        </MDXProvider>
+        <Root>{children}</Root>
       </body>
     </html>
   );

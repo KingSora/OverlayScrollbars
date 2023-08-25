@@ -5,7 +5,44 @@ import { Link } from '~/components/Link';
 import { Icon } from '~/components/Icon';
 import IndexMdx from '~/components/index.mdx';
 import { PageContainer } from '~/components/PageContainer';
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+
+export const metadata: Metadata = {
+  title: 'OverlayScrollbars',
+  description:
+    'A javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.',
+  themeColor: '#36befd',
+  keywords: [
+    'OverlayScrollbars',
+    'Overlay',
+    'Scroll',
+    'Bar',
+    'Custom',
+    'Scrollbar',
+    'React',
+    'Vue',
+    'Angular',
+    'Solid',
+    'Solidjs',
+    'Svelte',
+    'JavaScript',
+    'TypeScript',
+    'Plugin',
+    'Library',
+  ],
+  authors: [
+    { name: 'Rene Haas', url: 'https://github.com/KingSora' },
+    { name: 'KingSora', url: 'https://github.com/KingSora' },
+  ],
+  creator: 'Rene Haas',
+  publisher: 'Rene Haas',
+  twitter: {
+    title: 'OverlayScrollbars',
+    description:
+      'A javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.',
+  },
+};
 
 const githubLink = 'https://github.com/KingSora/OverlayScrollbars';
 

@@ -249,9 +249,6 @@ export const createStructureSetupObservers = (
       prevContentRect = currRContentRect;
     });
 
-  viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
-  updateViewportAttrsFromHost();
-
   return [
     () => {
       destroyTrinsicObserver();
@@ -262,6 +259,8 @@ export const createStructureSetupObservers = (
     },
     () => {
       // order is matter!
+      viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
+      updateViewportAttrsFromHost();
       appendSizeObserver();
       appendTrinsicObserver();
     },

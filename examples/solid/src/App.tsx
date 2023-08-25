@@ -1,5 +1,4 @@
-import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-solid';
+import { OverlayScrollbarsComponent, createOverlayScrollbars } from 'overlayscrollbars-solid';
 import { createSignal, type Component, onMount } from 'solid-js';
 import type { OverlayScrollbarsComponentRef } from 'overlayscrollbars-solid';
 import { createEventObserver } from './createEventObserver';
@@ -10,29 +9,30 @@ const content = (
   </div>
 );
 
-const initBodyOverlayScrollbars = (force?: boolean) =>
-  OverlayScrollbars(
-    {
-      target: document.body,
-      cancel: {
-        body: force ? false : null,
-      },
-    },
-    {
-      scrollbars: {
-        theme: 'os-theme-light',
-      },
-    }
-  ).state().destroyed;
-
 const App: Component = () => {
   let osRef: OverlayScrollbarsComponentRef;
   const [contentHidden, setContentHidden] = createSignal(false);
   const [elementHidden, setElementHidden] = createSignal(false);
-  const [useOverlayScrollbars, setUseOverlayScrollbars] = createSignal(true);
-  const [useBodyOverlayScrollbars, setUseBodyOverlayScrollbars] = createSignal<boolean | null>(
-    null
-  );
+  const [overlayScrollbarsApplied, setOverlayScrollbarsApplied] = createSignal(true);
+  const [bodyOverlayScrollbarsApplied, setBodyOverlayScrollbarsApplied] = createSignal<
+    boolean | null
+  >(null);
+  const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = createOverlayScrollbars({
+    defer: true,
+    events: {
+      initialized: () => {
+        setBodyOverlayScrollbarsApplied(true);
+      },
+      destroyed: () => {
+        setBodyOverlayScrollbarsApplied(false);
+      },
+    },
+    options: {
+      scrollbars: {
+        theme: 'os-theme-light',
+      },
+    },
+  });
   const [activeEvents, activateEvent] = createEventObserver();
 
   const scrollContent = () => {
@@ -55,17 +55,22 @@ const App: Component = () => {
   const toggleContent = () => setContentHidden((curr) => !curr);
   const toggleElement = () => setElementHidden((curr) => !curr);
   const toggleBodyOverlayScrollbars = () => {
-    const bodyOsInstance = OverlayScrollbars(document.body);
-    if (bodyOsInstance) {
+    const bodyOsInstance = getBodyOverlayScrollbarsInstance();
+
+    if (bodyOsInstance && !bodyOsInstance.state().destroyed) {
       bodyOsInstance.destroy();
     } else {
-      initBodyOverlayScrollbars(true);
+      initBodyOverlayScrollbars({
+        target: document.body,
+        cancel: {
+          body: false,
+        },
+      });
     }
-    setUseBodyOverlayScrollbars((curr) => !curr);
   };
 
   onMount(() => {
-    setUseBodyOverlayScrollbars(!initBodyOverlayScrollbars());
+    initBodyOverlayScrollbars(document.body);
   });
 
   return (
@@ -77,7 +82,7 @@ const App: Component = () => {
           </a>
         </h1>
         <section class="slot">
-          {useOverlayScrollbars() ? (
+          {overlayScrollbarsApplied() ? (
             <OverlayScrollbarsComponent
               class="overlayscrollbars-solid"
               style={{ display: elementHidden() ? 'none' : undefined }}
@@ -102,15 +107,15 @@ const App: Component = () => {
         <section>
           <p class="title">Actions:</p>
           <div class="items">
-            {useOverlayScrollbars() && (
+            {overlayScrollbarsApplied() && (
               <>
                 <button onClick={scrollContent}>Scroll</button>
                 <button onClick={toggleContent}>{contentHidden() ? 'Show' : 'Hide'} Content</button>
                 <button onClick={toggleElement}>{elementHidden() ? 'Show' : 'Hide'} Element</button>
               </>
             )}
-            <button onClick={() => setUseOverlayScrollbars((curr) => !curr)}>
-              {useOverlayScrollbars() ? 'Destroy' : 'Initialize'} OverlayScrollbars
+            <button onClick={() => setOverlayScrollbarsApplied((curr) => !curr)}>
+              {overlayScrollbarsApplied() ? 'Destroy' : 'Initialize'} OverlayScrollbars
             </button>
           </div>
         </section>
@@ -126,11 +131,11 @@ const App: Component = () => {
         </section>
       </main>
       <footer>
-        {useBodyOverlayScrollbars() !== null && (
+        {bodyOverlayScrollbarsApplied() !== null && (
           <section>
             <div class="items">
               <button onClick={toggleBodyOverlayScrollbars}>
-                {useBodyOverlayScrollbars() ? 'Destroy' : 'Initialize'} Body OverlayScrollbars
+                {bodyOverlayScrollbarsApplied() ? 'Destroy' : 'Initialize'} Body OverlayScrollbars
               </button>
             </div>
           </section>

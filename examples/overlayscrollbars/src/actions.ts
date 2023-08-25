@@ -4,7 +4,7 @@ import { eventObserver } from './events';
 let osInstance: OverlayScrollbars | undefined;
 let contentHidden = false;
 let elementHidden = false;
-let useOverlayScrollbars = true;
+let overlayScrollbarsApplied = true;
 const activateEvent = eventObserver();
 
 const target = document.querySelector('#target') as HTMLElement;
@@ -36,7 +36,7 @@ const updateToggleElement = () => {
   }
 };
 const updateUseOverlayScrollbars = () => {
-  if (useOverlayScrollbars) {
+  if (overlayScrollbarsApplied) {
     impostor.parentElement?.append(target);
     impostor.remove();
 
@@ -93,7 +93,7 @@ toggleElementButton.addEventListener('click', () => {
   updateToggleElement();
 });
 toggleOverlayScrollbarsButton.addEventListener('click', () => {
-  useOverlayScrollbars = !useOverlayScrollbars;
+  overlayScrollbarsApplied = !overlayScrollbarsApplied;
   updateUseOverlayScrollbars();
 });
 
