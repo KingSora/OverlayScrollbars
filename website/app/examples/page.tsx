@@ -47,6 +47,10 @@ const ExamplesPage = () => {
           {renderExample('/OverlayScrollbars/icon/javascript.svg', 'JavaScript', [
             { name: 'Demo App', url: '/OverlayScrollbars/example/overlayscrollbars' },
             { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars' },
+            {
+              name: 'CodeSandbox',
+              url: 'https://codesandbox.io/p/sandbox/overlayscrollbars-example-29hk3v',
+            },
           ])}
           {renderExample(
             'https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg',
@@ -54,6 +58,10 @@ const ExamplesPage = () => {
             [
               { name: 'Demo App', url: '/OverlayScrollbars/example/react' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-react' },
+              {
+                name: 'CodeSandbox',
+                url: 'https://codesandbox.io/p/sandbox/overlayscrollbars-react-example-ddz458',
+              },
             ]
           )}
           {renderExample(
@@ -62,6 +70,10 @@ const ExamplesPage = () => {
             [
               { name: 'Demo App', url: '/OverlayScrollbars/example/vue' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-vue' },
+              {
+                name: 'CodeSandbox',
+                url: 'https://codesandbox.io/p/sandbox/overlayscrollbars-vue-example-rh3vjm',
+              },
             ]
           )}
           {renderExample(
@@ -70,6 +82,10 @@ const ExamplesPage = () => {
             [
               { name: 'Demo App', url: '/OverlayScrollbars/example/angular' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-ngx' },
+              {
+                name: 'CodeSandbox',
+                url: 'https://codesandbox.io/p/sandbox/overlayscrollbars-ngx-example-dwtg9q',
+              },
             ]
           )}
           {renderExample(
@@ -78,6 +94,10 @@ const ExamplesPage = () => {
             [
               { name: 'Demo App', url: '/OverlayScrollbars/example/solid' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-solid' },
+              {
+                name: 'CodeSandbox',
+                url: 'https://codesandbox.io/p/sandbox/overlayscrollbars-solid-example-wxl45n',
+              },
             ]
           )}
           {renderExample(
@@ -86,6 +106,10 @@ const ExamplesPage = () => {
             [
               { name: 'Demo App', url: '/OverlayScrollbars/example/svelte' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-svelte' },
+              {
+                name: 'CodeSandbox',
+                url: 'https://codesandbox.io/p/sandbox/overlayscrollbars-svelte-example-8gqhrp',
+              },
             ]
           )}
         </div>
