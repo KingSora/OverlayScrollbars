@@ -9,12 +9,13 @@
 /coverage
 
 # next.js
-**/.next/
-**/next-app/out/
-**/next-app/build/
-**/next-app/dist/
-**/next-app/src/
-**/next-app/build
+/.next/
+/out/
+/dist
+
+# production
+/build
+/dist
 
 # misc
 .DS_Store
@@ -24,7 +25,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
 # local env files
 .env*.local

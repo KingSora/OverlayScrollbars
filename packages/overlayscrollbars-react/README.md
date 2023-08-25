@@ -12,6 +12,11 @@
   [![License](https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square)](#)
 
 </div>
+<h3 align="center">
+  <a href="https://kingsora.github.io/OverlayScrollbars">Website</a>
+  &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+  <a href="https://kingsora.github.io/OverlayScrollbars/examples">Examples</a>
+</h3>
 
 # OverlayScrollbars for React
 

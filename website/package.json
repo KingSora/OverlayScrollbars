@@ -1,20 +1,24 @@
 {
+  "name": "overlayscrollbars-docs",
+  "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "concurrently \"node esbuild.mjs -w\" \"wait-on -d 2000 ./next-app/src && cd next-app && next dev\"",
-    "build": "node esbuild.mjs -p && cd next-app && next build && next export -o dist",
-    "start": "node esbuild.mjs && cd next-app && next start"
-  },
   "dependencies": {
     "@mdx-js/loader": "^2.1.5",
     "@mdx-js/react": "^2.1.5",
     "@next/mdx": "^12.3.1",
+    "@types/node": "20.5.4",
+    "@types/react": "18.2.21",
+    "@types/react-dom": "18.2.7",
+    "autoprefixer": "10.4.15",
     "classnames": "^2.3.2",
-    "next": "12.3.1",
+    "next": "13.4.19",
     "overlayscrollbars": "file:./../packages/overlayscrollbars/dist",
     "overlayscrollbars-react": "file:./../packages/overlayscrollbars-react/dist",
+    "postcss": "8.4.28",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "tailwindcss": "3.3.3",
+    "typescript": "5.1.6",
     "ua-parser-js": "^1.0.32"
   },
   "devDependencies": {
@@ -22,14 +26,16 @@
     "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",
     "@types/ua-parser-js": "^0.7.36",
-    "concurrently": "^7.4.0",
-    "fast-glob": "^3.2.12",
     "rehype-pretty-code": "^0.4.0",
     "rehype-slug": "^5.0.1",
     "remark-gfm": "^3.0.1",
     "shiki": "^0.11.1",
     "tailwindcss": "^3.1.8",
-    "typescript": "4.8.3",
-    "wait-on": "^6.0.1"
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   }
 }

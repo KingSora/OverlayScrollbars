@@ -55,7 +55,14 @@ const defaultRules = {
   'no-redeclare': 'off',
   '@typescript-eslint/no-redeclare': ['error', { ignoreDeclarationMerge: true }],
   'no-unused-vars': 'off',
-  '@typescript-eslint/no-unused-vars': ['error'],
+  '@typescript-eslint/no-unused-vars': [
+    'error',
+    {
+      argsIgnorePattern: '^___',
+      varsIgnorePattern: '^___',
+      caughtErrorsIgnorePattern: '^___',
+    },
+  ],
   '@typescript-eslint/ban-ts-comment': 'off',
   '@typescript-eslint/no-non-null-assertion': 'off',
   '@typescript-eslint/no-explicit-any': 'off',

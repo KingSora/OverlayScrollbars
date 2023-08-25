@@ -33,7 +33,7 @@ await run('npm', ['run build'], { cwd: rootDir });
 if (deployDocs) {
   await run('npm', ['run build']);
 
-  const nextJsDistDir = resolve(fileDir, 'next-app/dist');
+  const nextJsDistDir = resolve(fileDir, 'dist');
   const nextJsDistDirItems = await fsPromises.readdir(nextJsDistDir);
   await Promise.all(
     nextJsDistDirItems.map((name) =>

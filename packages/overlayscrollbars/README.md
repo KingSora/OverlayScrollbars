@@ -16,7 +16,7 @@
 <h3 align="center">
   <a href="https://kingsora.github.io/OverlayScrollbars">Website</a>
   &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-  <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/examples">Examples</a>
+  <a href="https://kingsora.github.io/OverlayScrollbars/examples">Examples</a>
 </h3>
 
 # OverlayScrollbars

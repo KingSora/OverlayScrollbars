@@ -1,4 +1,5 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
+const plugin = require('tailwindcss/plugin');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -57,7 +58,7 @@ module.exports = {
               fontSize: theme('fontSize.sm'),
             },
             'blockquote > p > strong:first-child': {
-              color: theme('colors.primary-blue2'),
+              color: theme('colors.primary-blue1'),
             },
             'blockquote p:first-of-type::before': {
               content: '',
@@ -122,8 +123,8 @@ module.exports = {
     },
     fontWeight: {
       normal: 400,
-      medium: 600,
-      bold: 800,
+      medium: 500,
+      bold: 600,
     },
     screens: {
       xxs: '374px',
@@ -138,5 +139,64 @@ module.exports = {
   plugins: [
     // eslint-disable-next-line global-require
     require('@tailwindcss/typography'),
+    // default utils
+    plugin(function ({ addVariant }) {
+      addVariant('default', 'html :where(&)');
+    }),
+    // focus utils
+    plugin(function ({ addBase, theme }) {
+      const tags = [
+        'button',
+        'a',
+        'input[type="button"]',
+        'input[type="file"]',
+        'input[type="reset"]',
+      ];
+      addBase(
+        tags.reduce((obj, tag) => {
+          obj[`${tag}:focus-visible`] = {
+            'outline-style': 'solid',
+            'outline-width': theme('outlineWidth.2'),
+            'outline-color': theme('outlineColor.primary-blue2'),
+            'outline-offset': '2px',
+          };
+          return obj;
+        }, {})
+      );
+    }),
+    // mask utils
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        '.mask-contain': {
+          'mask-size': 'contain',
+        },
+        '.mask-center': {
+          'mask-position': 'center center',
+        },
+        '.mask-no-repeat': {
+          'mask-repeat': 'no-repeat',
+        },
+      });
+    }),
+    // grid auto-fit and auto-fill utils
+    plugin(function ({ theme, matchUtilities }) {
+      matchUtilities(
+        {
+          'grid-cols-fit': (value) => ({
+            'grid-template-columns': `repeat(auto-fit, minmax(${value}, 1fr))`,
+          }),
+          'grid-rows-fit': (value) => ({
+            'grid-template-rows': `repeat(auto-fit, minmax(${value}, 1fr))`,
+          }),
+          'grid-cols-fill': (value) => ({
+            'grid-template-columns': `repeat(auto-fill, minmax(${value}, 1fr))`,
+          }),
+          'grid-rows-fill': (value) => ({
+            'grid-template-rows': `repeat(auto-fill, minmax(${value}, 1fr))`,
+          }),
+        },
+        { values: theme('spacing') }
+      );
+    }),
   ],
 };
