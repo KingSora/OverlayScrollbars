@@ -181,7 +181,7 @@ Its an `object` with optional properties:
 
 The `useOverlayScrollbars` composable returns a `tuple` with two values:
 
-- The first value is the `initialization` function, it takes one argument which is the `InitializationTarget` and returns the OverlayScrollbars instance.
+- The first value is the `initialization` function, it takes one argument which is the `InitializationTarget`.
 - The second value is a function which returns the current OverlayScrollbars instance or `null` if not initialized.
 
 ## License

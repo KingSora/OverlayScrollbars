@@ -93,7 +93,8 @@ The component can be used with two different selectors:
 
 ### Properties
 
-It has two optional properties: `options` and `events`.
+The component accepts all properties of regular elements such as `div` and `span`.
+Additionally it has custom optional properties:
 
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
@@ -172,7 +173,7 @@ Properties are optional and similar to the `OverlayScrollbarsComponent`.
 
 The `OverlayScrollbarsDirective` exposes two functions:
 
-- `osInitialize` takes one argument which is the `InitializationTarget` and returns the OverlayScrollbars instance.
+- `osInitialize` takes one argument which is the `InitializationTarget`.
 - `osInstance` returns the current OverlayScrollbars instance or `null` if not initialized.
 
 ## License
