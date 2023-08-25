@@ -22,7 +22,7 @@ module.exports = {
         transformColor: 'transform, color',
       },
       fontFamily: {
-        sans: ['Noto Sans', ...defaultTheme.fontFamily.sans],
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
       },
       typography: ({ theme }) => ({
         DEFAULT: {
@@ -66,6 +66,9 @@ module.exports = {
             'blockquote p:last-of-type::after': {
               content: '',
             },
+            'a:hover > code': {
+              textDecoration: 'underline',
+            },
             code: {
               background: 'var(--tw-prose-pre-bg)',
               fontWeight: theme('fontWeight.medium'),
@@ -86,10 +89,12 @@ module.exports = {
             details: {
               marginTop: theme('margin[4]'),
               marginBottom: theme('margin[4]'),
+              borderRadius: theme('borderRadius.DEFAULT'),
             },
             summary: {
               display: 'list-item',
               cursor: 'pointer',
+              borderRadius: theme('borderRadius.DEFAULT'),
             },
             'summary + br': {
               display: 'none',
@@ -124,7 +129,8 @@ module.exports = {
     fontWeight: {
       normal: 400,
       medium: 500,
-      bold: 600,
+      semiBold: 600,
+      bold: 700,
     },
     screens: {
       xxs: '374px',
@@ -151,6 +157,8 @@ module.exports = {
         'input[type="button"]',
         'input[type="file"]',
         'input[type="reset"]',
+        'details',
+        'summary',
       ];
       addBase(
         tags.reduce((obj, tag) => {

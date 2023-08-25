@@ -33,18 +33,13 @@ export const metadata: Metadata = {
   ],
   creator: 'Rene Haas',
   publisher: 'Rene Haas',
-  twitter: {
-    title: 'OverlayScrollbars',
-    description:
-      'A javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.',
-  },
 };
 
 const OverlayScrollbarsDocs = ({ children }: { children: ReactNode }) => {
   return (
     <html
       lang="en"
-      className="w-full h-full font-sans font-normal text-primary-dark bg-slate-50"
+      className="w-full h-full font-sans font-medium text-primary-dark bg-slate-50"
       data-overlayscrollbars-initialize=""
     >
       <body className="w-full h-full" data-overlayscrollbars-initialize="">

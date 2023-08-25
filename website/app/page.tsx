@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 const githubLink = 'https://github.com/KingSora/OverlayScrollbars';
 
 const separator = (children: ReactNode) => (
-  <div className="my-6 text-center font-medium text-sm uppercase relative">
+  <div className="my-6 text-center font-semiBold text-sm uppercase relative">
     <span className="p-3 bg-slate-50">
       {children}
       <div className="absolute block top-1/2 left-1/2 w-full xs:w-[80%] border-t-[1px] border-slate-300 -translate-x-1/2 -translate-y-1/2 -z-10" />

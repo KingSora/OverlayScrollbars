@@ -1,25 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@font-face {
-  font-family: Noto Sans;
-  src: url('/OverlayScrollbars/font/noto_sans/NotoSans-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: Noto Sans;
-  src: url('/OverlayScrollbars/font/noto_sans/NotoSans-SemiBold.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: Noto Sans;
-  src: url('/OverlayScrollbars/font/noto_sans/NotoSans-ExtraBold.ttf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}

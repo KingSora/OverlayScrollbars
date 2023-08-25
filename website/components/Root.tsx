@@ -4,10 +4,10 @@ import { MDXProvider } from '@mdx-js/react';
 import { useOverlayScrollbars } from 'overlayscrollbars-react';
 import UAParser from 'ua-parser-js';
 import { Link } from '~/components/Link';
+import { Pre } from '~/components/md/Pre';
 import type { ComponentProps, ReactNode } from 'react';
 import type { HeadingProps } from '../components/md/Heading';
 import { Heading } from '../components/md/Heading';
-import { Pre } from '../components/md/Pre';
 
 const generateHeading = (props: ComponentProps<'h1'>, tag: HeadingProps['tag']) => (
   // eslint-disable-next-line react/jsx-props-no-spreading

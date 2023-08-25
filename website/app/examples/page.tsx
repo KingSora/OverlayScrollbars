@@ -52,7 +52,7 @@ const ExamplesPage = () => {
             'https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg',
             'React',
             [
-              { name: 'Demo App', url: '/OverlayScrollbars/examples/react' },
+              { name: 'Demo App', url: '/OverlayScrollbars/example/react' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-react' },
             ]
           )}
@@ -60,7 +60,7 @@ const ExamplesPage = () => {
             'https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg',
             'Vue',
             [
-              { name: 'Demo App', url: '/OverlayScrollbars/examples/vue' },
+              { name: 'Demo App', url: '/OverlayScrollbars/example/vue' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-vue' },
             ]
           )}
@@ -68,7 +68,7 @@ const ExamplesPage = () => {
             'https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-ngx/logo.svg',
             'Angular',
             [
-              { name: 'Demo App', url: '/OverlayScrollbars/examples/angular' },
+              { name: 'Demo App', url: '/OverlayScrollbars/example/angular' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-ngx' },
             ]
           )}
@@ -76,7 +76,7 @@ const ExamplesPage = () => {
             'https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-solid/logo.svg',
             'Solid',
             [
-              { name: 'Demo App', url: '/OverlayScrollbars/examples/solid' },
+              { name: 'Demo App', url: '/OverlayScrollbars/example/solid' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-solid' },
             ]
           )}
@@ -84,7 +84,7 @@ const ExamplesPage = () => {
             'https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-svelte/logo.svg',
             'Svelte',
             [
-              { name: 'Demo App', url: '/OverlayScrollbars/examples/svelte' },
+              { name: 'Demo App', url: '/OverlayScrollbars/example/svelte' },
               { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars-svelte' },
             ]
           )}

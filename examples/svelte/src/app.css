@@ -54,19 +54,24 @@ section {
 a {
   color: inherit;
   text-decoration: none;
-  transition: color 0.15s;
-  border-radius: 6px;
+  transition: color 0.15s, background-size 250ms;
   padding: 0.25rem 0.5rem;
+  background: linear-gradient(0deg, currentColor, currentColor) no-repeat right bottom / 0 2px;
 }
 
 a:hover {
-  text-decoration: underline;
   text-underline-offset: 0.2em;
+  background-size: 100% 2px;
+  background-position-x: left;
 }
 
 a:hover,
 a:focus {
   color: var(--foreground-color);
+}
+
+a:focus-visible {
+  border-radius: 2px;
 }
 
 button {
@@ -102,6 +107,7 @@ img {
   width: 16rem;
   height: 16rem;
   margin: 0 auto;
+  flex: none;
 }
 
 .overlayscrollbars-svelte {

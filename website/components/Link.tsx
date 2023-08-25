@@ -8,8 +8,9 @@ export interface LinkProps extends ComponentPropsWithRef<typeof NextLink> {
 
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(({ external, ...props }, ref) => {
   const className = classnames(
-    'no-underline text-primary-blue2 font-medium rounded-sm [background:linear-gradient(0deg,currentColor,currentColor)_no-repeat_right_bottom_/_0_2px]',
-    '[transition:background-size_350ms] hover:[background-size:100%_2px] hover:[background-position-x:left]',
+    'no-underline text-primary-blue2 font-medium [background:linear-gradient(0deg,currentColor,currentColor)_no-repeat_right_bottom_/_0_2px]',
+    '[transition:background-size_250ms] hover:[background-size:100%_2px] hover:[background-position-x:left]',
+    'focus-visible:rounded-sm',
     props.className
   );
 
