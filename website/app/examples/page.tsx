@@ -2,7 +2,7 @@ import { Link } from '~/components/Link';
 import { PageContainer } from '~/components/PageContainer';
 import type { Metadata } from 'next';
 
-export interface Example {
+interface Example {
   name: string;
   url: string;
 }
@@ -25,7 +25,7 @@ const renderExample = (logo: string, framework: string, examples: Example[]) => 
           className="absolute top-0 left-0 w-full h-full object-contain"
         />
       </div>
-      <h2 className="font-medium text-base text-center">{framework} Examples</h2>
+      <h2 className="font-semiBold text-base text-center">{framework} Examples</h2>
       <ul className="list-disc list-inside px-3 mt-6 space-y-2">
         {examples.map(({ name, url }) => (
           <li key={`${name}${url}`}>
@@ -45,7 +45,7 @@ const ExamplesPage = () => {
       <main className="h-full grid items-center justify-items-center">
         <div className="w-full grid gap-6 grid-cols-fit-56 py-6">
           {renderExample('/OverlayScrollbars/icon/javascript.svg', 'JavaScript', [
-            { name: 'Demo App', url: '/OverlayScrollbars/examples/overlayscrollbars' },
+            { name: 'Demo App', url: '/OverlayScrollbars/example/overlayscrollbars' },
             { name: 'StackBlitz', url: 'https://stackblitz.com/edit/overlayscrollbars' },
           ])}
           {renderExample(
