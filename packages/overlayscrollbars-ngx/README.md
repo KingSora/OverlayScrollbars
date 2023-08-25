@@ -82,11 +82,11 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-ngx";
 The component can be used with two different selectors:
 
 ```html
-<overlay-scrollbars [defer]>
+<overlay-scrollbars [defer]="true">
   The tag isn't important
 </overlay-scrollbars>
 
-<section overlay-scrollbars [defer]>
+<section overlay-scrollbars [defer]="true">
   Choose the tag
 </section>
 ```
@@ -107,7 +107,7 @@ Additionally it has custom optional properties:
 <overlay-scrollbars
   [options]="{ scrollbars: { autoHide: 'scroll' } }"
   [events]="{ scroll: () => { /* ... */ } }"
-  [defer]
+  [defer]="true"
 ></overlay-scrollbars>
 ```
 
@@ -168,6 +168,7 @@ Properties are optional and similar to the `OverlayScrollbarsComponent`.
 
 - `options`: accepts an `object` which represents the OverlayScrollbars options.
 - `events`: accepts an `object` which represents the OverlayScrollbars events.
+- `defer`: accepts an `boolean` or `object`. Defers the initialization to a point in time when the browser is idle.
 
 ### Instance
 

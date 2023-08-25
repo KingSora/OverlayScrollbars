@@ -37,7 +37,7 @@ const initBodyOverlayScrollbars = (force?: boolean) =>
           [ngStyle]="{ display: elementHidden ? 'none' : undefined }"
           [options]="options"
           [events]="events"
-          [defer]
+          [defer]="true"
         >
           <div *ngIf="!contentHidden" class="logo">
             <img alt="Angular logo" src="assets/logo.svg" />
@@ -145,8 +145,12 @@ export class AppComponent {
 
     scrollOffsetElement.scrollTo({
       behavior: 'smooth',
-      left: Math.round((overflowAmount.x - scrollLeft) / overflowAmount.x) * overflowAmount.x,
-      top: Math.round((overflowAmount.y - scrollTop) / overflowAmount.y) * overflowAmount.y,
+      left:
+        Math.round((overflowAmount.x - scrollLeft) / overflowAmount.x) *
+        overflowAmount.x,
+      top:
+        Math.round((overflowAmount.y - scrollTop) / overflowAmount.y) *
+        overflowAmount.y,
     });
   }
 
