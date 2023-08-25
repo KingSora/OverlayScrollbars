@@ -22,11 +22,6 @@
 
 This is the official OverlayScrollbars Svelte wrapper.
 
-## Example
-
-- Online example on [StackBlitz](https://stackblitz.com/edit/overlayscrollbars-svelte)
-- Example App in the [Repository](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/svelte)
-
 ## Installation
 
 ```sh
