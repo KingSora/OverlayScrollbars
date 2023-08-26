@@ -1,4 +1,4 @@
-import { on, runEachAndClear, selfClearTimeout } from '~/support';
+import { noop, on, runEachAndClear, selfClearTimeout } from '~/support';
 import { getEnvironment } from '~/environment';
 import { createState, createOptionCheck } from '~/setups/setups';
 import { createScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
@@ -48,6 +48,7 @@ export const createScrollbarsSetup = (
   let autoHideNotNever: boolean | undefined;
   let mouseInHost: boolean | undefined;
   let prevTheme: string | null | undefined;
+  let instanceAutoHideSuspendScrollDestroyFn = noop;
   let instanceAutoHideDelay = 0;
 
   const state = createState({});
@@ -167,6 +168,7 @@ export const createScrollbarsSetup = (
       const [clickScroll, clickScrollChanged] = checkOption<boolean>('scrollbars.clickScroll');
 
       const trulyAppeared = _appear && !force;
+      const hasOverflow = _hasOverflow.x || _hasOverflow.y;
       const updateScrollbars = _overflowEdgeChanged || _overflowAmountChanged || _directionChanged;
       const updateVisibility = _overflowStyleChanged || visibilityChanged;
       const showNativeOverlaidScrollbars =
@@ -183,6 +185,25 @@ export const createScrollbarsSetup = (
 
       instanceAutoHideDelay = autoHideDelay;
 
+      if (trulyAppeared) {
+        if (autoHideSuspend && hasOverflow) {
+          manageAutoHideSuspension(false);
+          instanceAutoHideSuspendScrollDestroyFn();
+          autoHideSuspendTimeout(() => {
+            instanceAutoHideSuspendScrollDestroyFn = on(
+              _scrollEventElement,
+              'scroll',
+              manageAutoHideSuspension.bind(0, true),
+              {
+                _once: true,
+              }
+            );
+          });
+        } else {
+          manageAutoHideSuspension(true);
+        }
+      }
+
       if (showNativeOverlaidScrollbarsChanged) {
         _scrollbarsAddRemoveClass(classNameScrollbarThemeNone, showNativeOverlaidScrollbars);
       }
@@ -192,20 +213,11 @@ export const createScrollbarsSetup = (
 
         prevTheme = theme;
       }
-      if (autoHideSuspendChanged || trulyAppeared) {
-        if (autoHideSuspend && trulyAppeared && (_hasOverflow.x || _hasOverflow.y)) {
-          manageAutoHideSuspension(false);
-          autoHideSuspendTimeout(() =>
-            destroyFns.push(
-              on(_scrollEventElement, 'scroll', manageAutoHideSuspension.bind(0, true), {
-                _once: true,
-              })
-            )
-          );
-        } else {
-          manageAutoHideSuspension(true);
-        }
+
+      if (autoHideSuspendChanged && !autoHideSuspend) {
+        manageAutoHideSuspension(true);
       }
+
       if (autoHideChanged) {
         autoHideIsMove = autoHide === 'move';
         autoHideIsLeave = autoHide === 'leave';
@@ -237,6 +249,9 @@ export const createScrollbarsSetup = (
       }
     },
     scrollbarsSetupState,
-    runEachAndClear.bind(0, destroyFns),
+    () => {
+      runEachAndClear(destroyFns);
+      instanceAutoHideSuspendScrollDestroyFn();
+    },
   ];
 };
