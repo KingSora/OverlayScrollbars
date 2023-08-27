@@ -64,6 +64,7 @@ describe('object utilities', () => {
       expect(Array.isArray(assignDeep({ arr: {} }, nestedArray).arr)).toBeTruthy();
       expect(Array.isArray(assignDeep({ arr: {} }, nestedArray).arr)).toBeTruthy();
       expect(isPlainObject(assignDeep({ arr }, { arr: {} }).arr)).toBeTruthy();
+      expect(assignDeep({ arr }, { arr: [] }).arr).toEqual([]);
 
       let empty: { foo?: any } = {};
       const optionsWithLength = { foo: { length: -1 } };
@@ -166,8 +167,6 @@ describe('object utilities', () => {
         foo: 1,
         deep: { foo: null, text: '' },
       });
-
-      console.log(assignDeep({ arr: ['a', 'b', 'c'] }, { arr: [] }));
     });
   });
 
