@@ -11,8 +11,6 @@ import {
   closest,
   push,
   attrClass,
-  noop,
-  getTrasformTranslateValue,
 } from '~/support';
 import { getPlugins, clickScrollPluginName } from '~/plugins';
 import { getEnvironment } from '~/environment';
@@ -67,13 +65,6 @@ const continuePointerDown = (
   );
 };
 const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpointercapture';
-const getScrollTimelineAnimation = (isHorizontal?: boolean) => ({
-  transform: [
-    getTrasformTranslateValue(`0%`, isHorizontal),
-    getTrasformTranslateValue('-100%', isHorizontal),
-  ],
-  [isHorizontal ? 'left' : 'top']: ['0%', '100%'],
-});
 
 const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentElm: Document) =>
   on(
@@ -185,25 +176,6 @@ const createInteractiveScrollEvents = (
   });
 };
 
-const createScrollTimelineEvents = (
-  { _handle }: ScrollbarStructure,
-  timeline: AnimationTimeline | null,
-  isHorizontal?: boolean
-) => {
-  if (!timeline) {
-    return noop;
-  }
-
-  const handleAnimation = _handle.animate(getScrollTimelineAnimation(isHorizontal), {
-    // @ts-ignore
-    timeline,
-  });
-
-  return () => {
-    handleAnimation.cancel();
-  };
-};
-
 export const createScrollbarsSetupEvents =
   (
     options: ReadonlyOptions,
@@ -266,7 +238,6 @@ export const createScrollbarsSetupEvents =
         structureSetupState,
         isHorizontal
       ),
-      createScrollTimelineEvents(scrollbarStructure, scrollTimeline, isHorizontal),
       clearScrollTimeout,
     ]);
   };

@@ -5,6 +5,7 @@ $shrink-scale: 0.1;
 
 .os-size-observer,
 .os-size-observer-listener {
+  scroll-behavior: auto !important;
   direction: inherit;
   pointer-events: none;
   overflow: hidden;

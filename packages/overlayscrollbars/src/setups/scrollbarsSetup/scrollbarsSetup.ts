@@ -69,6 +69,7 @@ export const createScrollbarsSetup = (
     _scrollbarsAddRemoveClass,
     _refreshScrollbarsHandleLength,
     _refreshScrollbarsHandleOffset,
+    _refreshScrollbarsHandleOffsetTimeline,
     _refreshScrollbarsScrollbarOffsetTimeline,
     _refreshScrollbarsScrollbarOffset,
   } = elements;
@@ -240,6 +241,7 @@ export const createScrollbarsSetup = (
       if (updateScrollbars) {
         _refreshScrollbarsHandleLength(currStructureSetupState);
         _refreshScrollbarsHandleOffset(currStructureSetupState);
+        _refreshScrollbarsHandleOffsetTimeline(currStructureSetupState);
         _refreshScrollbarsScrollbarOffsetTimeline(currStructureSetupState);
         _refreshScrollbarsScrollbarOffset();
 
