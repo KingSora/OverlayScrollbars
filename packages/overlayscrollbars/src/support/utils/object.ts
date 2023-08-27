@@ -68,7 +68,7 @@ export const assignDeep: AssignDeep = <T, U, V, W, X, Y, Z>(
       const copyIsArray = isArray(copy);
 
       // Recurse if we're merging plain objects or arrays
-      if (copy && (isPlainObject(copy) || copyIsArray)) {
+      if (copy && isPlainObject(copy)) {
         const src = target[key];
         let clone: any = src;
 
@@ -82,7 +82,7 @@ export const assignDeep: AssignDeep = <T, U, V, W, X, Y, Z>(
         // Never move original objects, clone them
         target[key] = assignDeep(clone, copy) as any;
       } else {
-        target[key] = copy;
+        target[key] = copyIsArray ? copy.slice() : copy;
       }
     });
   });

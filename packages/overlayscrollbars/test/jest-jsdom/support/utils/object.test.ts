@@ -55,9 +55,12 @@ describe('object utilities', () => {
       expect(deep1.foo2).toBe(document);
 
       const arr = [1, 2, 3];
+      const o = {};
       const nestedArray: NestedArray = { arr };
+      const nestedObj = { o };
 
       expect(assignDeep({}, nestedArray).arr).not.toBe(arr);
+      expect(assignDeep({}, nestedObj).o).not.toBe(o);
       expect(Array.isArray(assignDeep({ arr: {} }, nestedArray).arr)).toBeTruthy();
       expect(Array.isArray(assignDeep({ arr: {} }, nestedArray).arr)).toBeTruthy();
       expect(isPlainObject(assignDeep({ arr }, { arr: {} }).arr)).toBeTruthy();
@@ -163,6 +166,8 @@ describe('object utilities', () => {
         foo: 1,
         deep: { foo: null, text: '' },
       });
+
+      console.log(assignDeep({ arr: ['a', 'b', 'c'] }, { arr: [] }));
     });
   });
 
