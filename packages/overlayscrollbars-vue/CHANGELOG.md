@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.4
+
+### Bug Fixes
+
+- Fixed TypeScript definitions for optional properties.
+
 ## 0.5.3
 
 - Improve `Server Side Rendering` behavior by creating additional markup only on the client with the hydration phase.
