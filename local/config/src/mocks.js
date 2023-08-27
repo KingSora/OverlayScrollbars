@@ -1,0 +1,50 @@
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = function () {};
+
+export const mockAnimationApi = () => {
+  Object.defineProperties(Element.prototype, {
+    animate: {
+      writable: true,
+      configurable: true,
+      value: () => ({
+        currentTime: null,
+        effect: null,
+        id: '',
+        pending: false,
+        playState: 'idle',
+        playbackRate: 0,
+        replaceState: 'active',
+        startTime: null,
+        timeline: null,
+        cancel: noop,
+        commitStyles: noop,
+        finish: noop,
+        pause: noop,
+        persist: noop,
+        play: noop,
+        reverse: noop,
+        updatePlaybackRate: noop,
+        addEventListener: noop,
+        removeEventListener: noop,
+      }),
+    },
+    getAnimations: {
+      writable: true,
+      configurable: true,
+      value: () => [],
+    },
+  });
+
+  Object.defineProperty(Document.prototype, 'getAnimations', {
+    writable: true,
+    configurable: true,
+    value: () => [],
+  });
+};
+
+export const mockComputedStyles = () => {
+  try {
+    const cmptdStyle = window.getComputedStyle;
+    window.getComputedStyle = (a) => cmptdStyle(a);
+  } catch {}
+};

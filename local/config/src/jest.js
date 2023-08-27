@@ -30,7 +30,7 @@ module.exports = {
         ...resolve.paths.jest.moduleNameMapper,
       },
       testPathIgnorePatterns: ['/node_modules/'],
-      setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
+      setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.node.js')],
       coveragePathIgnorePatterns,
     },
     {
@@ -45,7 +45,7 @@ module.exports = {
         ...resolve.paths.jest.moduleNameMapper,
       },
       testPathIgnorePatterns: ['/node_modules/'],
-      setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.js')],
+      setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.jsdom.js')],
       coveragePathIgnorePatterns,
     },
   ],
