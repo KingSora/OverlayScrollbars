@@ -26,6 +26,9 @@ const props = withDefaults(
   }>(),
   {
     element: 'div',
+    options: undefined,
+    events: undefined,
+    defer: undefined,
   }
 );
 const emits = defineEmits<{
