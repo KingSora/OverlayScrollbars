@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { ref, unref, shallowRef, toRefs, watch, watchPostEffect, onMounted } from 'vue';
+import {
+  ref,
+  unref,
+  shallowRef,
+  toRefs,
+  watch,
+  watchPostEffect,
+  onMounted,
+  type PropType,
+} from 'vue';
 import { useOverlayScrollbars } from './useOverlayScrollbars';
 import type {
   OverlayScrollbarsComponentProps,
@@ -17,20 +26,15 @@ const emitEvents: EmitEventsMap = {
   destroyed: 'osDestroyed',
   scroll: 'osScroll',
 };
-const props = withDefaults(
-  defineProps<{
-    element: OverlayScrollbarsComponentProps['element'];
-    options: OverlayScrollbarsComponentProps['options'];
-    events: OverlayScrollbarsComponentProps['events'];
-    defer: OverlayScrollbarsComponentProps['defer'];
-  }>(),
-  {
-    element: 'div',
-    options: undefined,
-    events: undefined,
-    defer: undefined,
-  }
-);
+const props = defineProps({
+  element: {
+    type: String as PropType<Required<OverlayScrollbarsComponentProps>['element']>,
+    default: 'div',
+  },
+  options: { type: Object as PropType<OverlayScrollbarsComponentProps['options']> },
+  events: { type: Object as PropType<OverlayScrollbarsComponentProps['events']> },
+  defer: { type: [Boolean, Object] as PropType<OverlayScrollbarsComponentProps['defer']> },
+});
 const emits = defineEmits<{
   (name: 'osInitialized', ...args: EventListenerArgs['initialized']): void;
   (name: 'osUpdated', ...args: EventListenerArgs['updated']): void;

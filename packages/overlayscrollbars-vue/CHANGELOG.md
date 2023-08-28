@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.5
+
+### Bug Fixes
+
+- Revert to `runtime declaration` for props to prevent types warning. [#551](https://github.com/KingSora/OverlayScrollbars/issues/551)
+
 ## 0.5.4
 
 ### Bug Fixes
