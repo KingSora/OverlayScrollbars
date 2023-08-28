@@ -39,7 +39,7 @@
     "@vitejs/plugin-vue-jsx": "^2.1.0",
     "@vue/tsconfig": "^0.4.0",
     "overlayscrollbars": "file:./../overlayscrollbars/dist",
-    "vue": "3.2.25",
+    "vue": "~3.2.45",
     "vue-tsc": "^1.8.8"
   },
   "scripts": {
