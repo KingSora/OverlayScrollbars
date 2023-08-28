@@ -28,7 +28,7 @@ const rootDir = resolve(fileDir, '..');
 const docsDir = resolve(rootDir, 'docs');
 const docsExampleDir = resolve(docsDir, 'example');
 
-if (deployDocs) {
+if (deployDocs && !deployExamples) {
   await run('npm', ['run build:os'], { cwd: rootDir });
 } else {
   await run('npm', ['run build'], { cwd: rootDir });
