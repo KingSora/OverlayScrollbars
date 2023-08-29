@@ -23,7 +23,7 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "dev": "ng serve",
     "build": "ng build --base-href /OverlayScrollbars/example/angular/",
     "watch": "ng build --watch --configuration development"
   }
