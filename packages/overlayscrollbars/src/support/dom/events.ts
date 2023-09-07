@@ -1,7 +1,7 @@
 import { isUndefined } from '~/support/utils/types';
 import { each, push, runEachAndClear } from '~/support/utils/array';
 
-let passiveEventsSupport: boolean;
+let passiveEventsSupport: boolean | undefined;
 const supportPassiveEvents = (): boolean => {
   if (isUndefined(passiveEventsSupport)) {
     passiveEventsSupport = false;
@@ -18,7 +18,7 @@ const supportPassiveEvents = (): boolean => {
         })
       );
       /* eslint-enable */
-    } catch (e) {}
+    } catch {}
   }
   return passiveEventsSupport;
 };

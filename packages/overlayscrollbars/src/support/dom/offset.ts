@@ -18,8 +18,8 @@ export const absoluteCoordinates = (elm: HTMLElement | null | undefined): XY => 
   const rect = elm ? getBoundingClientRect(elm) : 0;
   return rect
     ? {
-        x: rect.left + window.pageYOffset,
-        y: rect.top + window.pageXOffset,
+        x: rect.left + window.pageYOffset, //IE11 compat
+        y: rect.top + window.pageXOffset, //IE11 compat
       }
     : zeroObj;
 };

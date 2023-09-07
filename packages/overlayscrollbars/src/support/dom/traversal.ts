@@ -3,7 +3,7 @@ import { isElement } from '~/support/utils/types';
 import { push, from } from '~/support/utils/array';
 
 type InputElementType = Node | Element | Node | false | null | undefined;
-type OutputElementType = Node | Element | null;
+type OutputElementType = Node | Element | false | null | undefined;
 
 const getElmPrototype = (isClient() && Element.prototype) as Element; // only Element.prototype wont work on server
 
@@ -14,7 +14,7 @@ const getElmPrototype = (isClient() && Element.prototype) as Element; // only El
  */
 const find = (selector: string, elm?: InputElementType): Element[] => {
   const arr: Array<Element> = [];
-  const rootElm = elm ? (isElement(elm) ? elm : null) : document;
+  const rootElm = elm ? isElement(elm) && elm : document;
 
   return rootElm ? push(arr, rootElm.querySelectorAll(selector)) : arr;
 };
@@ -25,7 +25,7 @@ const find = (selector: string, elm?: InputElementType): Element[] => {
  * @param elm The element from which the search shall be outgoing.
  */
 const findFirst = (selector: string, elm?: InputElementType): OutputElementType => {
-  const rootElm = elm ? (isElement(elm) ? elm : null) : document;
+  const rootElm = elm ? isElement(elm) && elm : document;
 
   return rootElm ? rootElm.querySelector(selector) : null;
 };
@@ -74,7 +74,7 @@ const contents = (elm: InputElementType): ReadonlyArray<ChildNode> =>
  * Returns the parent element of the passed element, or null if the passed element is null.
  * @param elm The element of which the parent element shall be returned.
  */
-const parent = (elm: InputElementType): OutputElementType => (elm ? elm.parentElement : null);
+const parent = (elm: InputElementType): OutputElementType => elm && elm.parentElement;
 
 const closest = (elm: InputElementType, selector: string): OutputElementType => {
   if (isElement(elm)) {
@@ -90,8 +90,6 @@ const closest = (elm: InputElementType, selector: string): OutputElementType => 
       elm = parent(elm);
     } while (elm);
   }
-
-  return null;
 };
 
 /**
@@ -105,7 +103,7 @@ const liesBetween = (
   highBoundarySelector: string,
   deepBoundarySelector: string
 ): boolean => {
-  const closestHighBoundaryElm = elm && closest(elm, highBoundarySelector);
+  const closestHighBoundaryElm = closest(elm, highBoundarySelector);
   const closestDeepBoundaryElm = elm && findFirst(deepBoundarySelector, closestHighBoundaryElm);
   const deepBoundaryIsValid =
     closest(closestDeepBoundaryElm, highBoundarySelector) === closestHighBoundaryElm;

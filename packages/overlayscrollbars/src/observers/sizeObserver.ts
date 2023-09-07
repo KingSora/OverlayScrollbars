@@ -55,8 +55,7 @@ export const createSizeObserver = (
   onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
 ): SizeObserver => {
-  const { _direction: observeDirectionChange = false, _appear: observeAppearChange = false } =
-    options || {};
+  const { _direction: observeDirectionChange, _appear: observeAppearChange } = options || {};
   const sizeObserverPlugin = getPlugins()[sizeObserverPluginName] as
     | SizeObserverPluginInstance
     | undefined;
@@ -67,8 +66,8 @@ export const createSizeObserver = (
   const sizeObserver = baseElements[0] as HTMLElement;
   const listenerElement = sizeObserver.firstChild as HTMLElement;
   const getIsDirectionRTL = directionIsRTL.bind(0, target);
-  const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | undefined>({
-    _initialValue: undefined,
+  const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | false>({
+    _initialValue: false,
     _alwaysUpdateValues: true,
     _equal: (currVal, newVal) =>
       !(
@@ -142,9 +141,6 @@ export const createSizeObserver = (
     }
   };
   const offListeners: (() => void)[] = [];
-  let appearCallback: ((...args: any) => any) | false = observeAppearChange
-    ? onSizeChangedCallbackProxy
-    : false;
 
   return [
     () => {
@@ -152,6 +148,9 @@ export const createSizeObserver = (
       removeElements(sizeObserver);
     },
     () => {
+      let appearCallback: ((...args: any) => any) | undefined | false =
+        observeAppearChange && onSizeChangedCallbackProxy;
+
       if (ResizeObserverConstructor) {
         const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
         resizeObserverInstance.observe(listenerElement);
@@ -184,11 +183,7 @@ export const createSizeObserver = (
               directionIsRTLCacheValues;
             if (directionIsRTLCacheChanged) {
               removeClass(listenerElement, 'ltr rtl');
-              if (directionIsRTLCache) {
-                addClass(listenerElement, 'rtl');
-              } else {
-                addClass(listenerElement, 'ltr');
-              }
+              addClass(listenerElement, directionIsRTLCache ? 'rtl' : 'ltr');
 
               onSizeChangedCallbackProxy([
                 !!directionIsRTLCache,

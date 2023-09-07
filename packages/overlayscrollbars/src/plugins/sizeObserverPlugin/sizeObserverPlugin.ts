@@ -24,7 +24,7 @@ export type SizeObserverPluginInstance = {
   _: (
     listenerElement: HTMLElement,
     onSizeChangedCallback: (appear: boolean) => any,
-    observeAppearChange: boolean
+    observeAppearChange: boolean | null | undefined
   ) => [appearCallback: () => any, offFns: (() => any)[]];
 };
 

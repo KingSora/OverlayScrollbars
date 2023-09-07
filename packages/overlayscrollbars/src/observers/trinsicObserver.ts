@@ -16,7 +16,7 @@ export type TrinsicObserverCallback = (heightIntrinsic: CacheValues<boolean>) =>
 export type TrinsicObserver = [
   destroy: () => void,
   append: () => void,
-  update: () => void | Parameters<TrinsicObserverCallback>
+  update: () => void | false | null | undefined | Parameters<TrinsicObserverCallback>
 ];
 
 const isHeightIntrinsic = (ioEntryOrSize: IntersectionObserverEntry | WH<number>): boolean =>
@@ -47,21 +47,15 @@ export const createTrinsicObserver = (
     if (updateValue) {
       const heightIntrinsic = updateHeightIntrinsicCache(isHeightIntrinsic(updateValue));
       const [, heightIntrinsicChanged] = heightIntrinsic;
-
-      if (heightIntrinsicChanged) {
-        !fromRecords && onTrinsicChangedCallback(heightIntrinsic);
-        return [heightIntrinsic];
-      }
+      return (
+        heightIntrinsicChanged &&
+        !fromRecords &&
+        onTrinsicChangedCallback(heightIntrinsic) && [heightIntrinsic]
+      );
     }
   };
-  const intersectionObserverCallback = (
-    entries: IntersectionObserverEntry[],
-    fromRecords?: true
-  ) => {
-    if (entries && entries.length > 0) {
-      return triggerOnTrinsicChangedCallback(entries.pop(), fromRecords);
-    }
-  };
+  const intersectionObserverCallback = (entries: IntersectionObserverEntry[], fromRecords?: true) =>
+    entries && entries.length > 0 && triggerOnTrinsicChangedCallback(entries.pop(), fromRecords);
 
   return [
     () => {
@@ -94,10 +88,8 @@ export const createTrinsicObserver = (
 
       appendChildren(target, trinsicObserver);
     },
-    () => {
-      if (intersectionObserverInstance) {
-        return intersectionObserverCallback(intersectionObserverInstance.takeRecords(), true);
-      }
-    },
+    () =>
+      intersectionObserverInstance &&
+      intersectionObserverCallback(intersectionObserverInstance.takeRecords(), true),
   ];
 };

@@ -48,6 +48,9 @@ export const attr = ((
   elm && elm.setAttribute(attrName, value);
 }) as Attr;
 
+const getValueSet = (elm: HTMLElement | false | null | undefined, attrName: string) =>
+  new Set((attr(elm, attrName) || '').split(' '));
+
 /**
  * Removes the given attribute from the given element.
  * @param elm The element of which the attribute shall be removed.
@@ -71,8 +74,7 @@ export const attrClass = (
   add?: boolean
 ) => {
   if (value) {
-    const currValues = attr(elm, attrName) || '';
-    const currValuesSet = new Set(currValues.split(' '));
+    const currValuesSet = getValueSet(elm, attrName);
     currValuesSet[add ? 'add' : 'delete'](value);
     const newTokens = from(currValuesSet).join(' ').trim();
     attr(elm, attrName, newTokens);
@@ -90,11 +92,7 @@ export const hasAttrClass = (
   elm: HTMLElement | false | null | undefined,
   attrName: string,
   value: string
-) => {
-  const currValues = attr(elm, attrName) || '';
-  const currValuesSet = new Set(currValues.split(' '));
-  return currValuesSet.has(value);
-};
+) => getValueSet(elm, attrName).has(value);
 
 /**
  * Gets or sets the scrollLeft value of the given element depending whether the value attribute is given.

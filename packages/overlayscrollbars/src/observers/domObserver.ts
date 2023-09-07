@@ -175,11 +175,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     _ignoreContentChange,
   } = (options as DOMContentObserverOptions & DOMTargetObserverOptions) || {};
   const debouncedEventContentChange = debounce(
-    () => {
-      if (isConnected) {
-        (callback as DOMContentObserverCallback)(true);
-      }
-    },
+    () => isConnected && (callback as DOMContentObserverCallback)(true),
     { _timeout: 33, _maxDelay: 99 }
   );
   const [destroyEventContentChange, updateEventContentChangeElements] = createEventContentChange(

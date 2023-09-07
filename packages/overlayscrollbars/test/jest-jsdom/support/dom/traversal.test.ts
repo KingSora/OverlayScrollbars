@@ -231,7 +231,8 @@ describe('dom traversal', () => {
     });
 
     test('text node', () => {
-      expect(parent(createDOM('<div>textnodehere</div>')[0].firstChild)?.nodeName).toEqual('DIV');
+      const p = parent(createDOM('<div>textnodehere</div>')[0].firstChild);
+      expect(p && p.nodeName).toEqual('DIV');
     });
   });
 
