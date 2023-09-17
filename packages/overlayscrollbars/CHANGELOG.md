@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.1
+
+### Bug Fixes
+
+- Fix direction `rtl` visual scrollbar handle behavior in browser which support the [ScrollTimeline API](https://developer.mozilla.org/en-US/docs/Web/API/ScrollTimeline).
+- Fix double tap behavior for interactive elements on `iOS` devices if `autoHide` is `leave` or `move`. [#560](https://github.com/KingSora/OverlayScrollbars/discussions/560) [#285](https://github.com/KingSora/OverlayScrollbars/discussions/285)
+- Fix incorrect scrollbar handle calculation when overscroll on safari occurred. [#559](https://github.com/KingSora/OverlayScrollbars/discussions/559)
+
 ## 2.3.0
 
 ### Features
