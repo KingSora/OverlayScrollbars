@@ -86,7 +86,7 @@
  * elements wont suddenly crop after initialization is done
  */
 
-[data-overlayscrollbars-initialize]:not(html):not(body) {
+[data-overlayscrollbars-initialize]:not([data-overlayscrollbars]):not(html):not(body) {
   overflow: auto;
 }
 
@@ -187,9 +187,11 @@ html[data-overlayscrollbars] > body {
 }
 
 /**
- * Display contents to bridge any flickering dring deferred initialization.
+ * Display contents to bridge any flickering during deferred initialization.
  */
-[data-overlayscrollbars-contents]:not([data-overlayscrollbars-padding]):not([data-overlayscrollbars-viewport]):not([data-overlayscrollbars-content]) {
+[data-overlayscrollbars-contents]:not([data-overlayscrollbars-padding]):not(
+    [data-overlayscrollbars-viewport]
+  ):not([data-overlayscrollbars-content]) {
   display: contents;
 }
 

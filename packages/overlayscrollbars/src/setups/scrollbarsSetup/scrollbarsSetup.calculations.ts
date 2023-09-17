@@ -2,7 +2,7 @@ import { getBoundingClientRect } from '~/support';
 import { getEnvironment } from '~/environment';
 import type { StructureSetupState } from '~/setups';
 
-const { min, max, abs, round } = Math;
+const { min, max, round } = Math;
 
 export const getScrollbarHandleLengthRatio = (
   scrollbarHandle: HTMLElement,
@@ -37,7 +37,11 @@ export const getScrollbarHandleOffsetRatio = (
   const scrollLeftTop = isHorizontal ? 'Left' : 'Top';
   const { _overflowAmount } = structureSetupState;
   const scrollPositionMax = round(_overflowAmount[axis]);
-  const scrollPosition = abs(scrollOffsetElement[`scroll${scrollLeftTop}`]);
+  // cap scroll position in min / max bounds to prevent overscroll visual glitches (https://github.com/KingSora/OverlayScrollbars/issues/559)
+  const scrollPosition = min(
+    scrollPositionMax,
+    max(0, scrollOffsetElement[`scroll${scrollLeftTop}`])
+  );
   const handleRTL = isHorizontal && isRTL;
   const rtlNormalizedScrollPosition = _rtlScrollBehavior.i
     ? scrollPosition

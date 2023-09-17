@@ -33,6 +33,9 @@ export interface ScrollbarsSetupStaticState {
   _appendElements: () => void;
 }
 
+// needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
+const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
+
 export const createScrollbarsSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions,
@@ -90,9 +93,11 @@ export const createScrollbarsSetup = (
       }
     }
   };
-  const onHostMouseEnter = () => {
-    mouseInHost = autoHideIsLeave;
-    mouseInHost && manageScrollbarsAutoHide(true);
+  const onHostMouseEnter = (event: PointerEvent) => {
+    if (isHoverablePointerType(event)) {
+      mouseInHost = autoHideIsLeave;
+      mouseInHost && manageScrollbarsAutoHide(true);
+    }
   };
 
   const destroyFns: (() => void)[] = [
@@ -106,12 +111,15 @@ export const createScrollbarsSetup = (
 
     on(_host, 'pointerover', onHostMouseEnter, { _once: true }),
     on(_host, 'pointerenter', onHostMouseEnter),
-    on(_host, 'pointerleave', () => {
-      mouseInHost = false;
-      autoHideIsLeave && manageScrollbarsAutoHide(false);
+    on(_host, 'pointerleave', (event: PointerEvent) => {
+      if (isHoverablePointerType(event)) {
+        mouseInHost = false;
+        autoHideIsLeave && manageScrollbarsAutoHide(false);
+      }
     }),
-    on(_host, 'pointermove', () => {
-      autoHideIsMove &&
+    on(_host, 'pointermove', (event: PointerEvent) => {
+      isHoverablePointerType(event) &&
+        autoHideIsMove &&
         requestMouseMoveAnimationFrame(() => {
           clearScrollTimeout();
           manageScrollbarsAutoHide(true);
