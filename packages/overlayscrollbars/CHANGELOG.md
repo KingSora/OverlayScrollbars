@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.2
+
+### Bug Fixes
+
+- The [`element.animate`](https://developer.mozilla.org/en-US/docs/Web/API/Element/animate) api is only called when the browser supports the [ScrollTimeline API](https://developer.mozilla.org/en-US/docs/Web/API/ScrollTimeline). [#562](https://github.com/KingSora/OverlayScrollbars/issues/562)
+
 ## 2.3.1
 
 ### Bug Fixes
