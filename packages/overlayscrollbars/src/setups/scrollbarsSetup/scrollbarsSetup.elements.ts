@@ -88,12 +88,14 @@ const animateElement = (
   scrollTimeline: AnimationTimeline | null,
   keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
   composite?: CompositeOperation
-) =>
+): Animation | false | null | undefined =>
+  scrollTimeline &&
   element.animate(keyframes, {
     // @ts-ignore
     timeline: scrollTimeline,
     composite,
   });
+
 const getScrollbarHandleAnimationKeyFrames = (directionRTL: boolean, isHorizontal?: boolean) => ({
   transform: [
     getTrasformTranslateValue(`0%`, isHorizontal),
@@ -147,7 +149,7 @@ export const createScrollbarsSetupElements = (
   } = structureSetupElements;
   const { scrollbars: scrollbarsInit } = (_targetIsElm ? {} : target) as InitializationTargetObject;
   const { slot: initScrollbarsSlot } = scrollbarsInit || {};
-  const elementAnimations = new Map<HTMLElement, Animation[]>();
+  const elementAnimations = new Map<HTMLElement, Array<Animation | false | null | undefined>>();
   const scrollTimelineX = initScrollTimeline(_scrollOffsetElement, 'x');
   const scrollTimelineY = initScrollTimeline(_scrollOffsetElement, 'y');
 
@@ -168,7 +170,7 @@ export const createScrollbarsSetupElements = (
         : true;
       if (doCancel) {
         (currAnimations || []).forEach((animation) => {
-          animation.cancel();
+          animation && animation.cancel();
         });
         elementAnimations.delete(element);
       }
