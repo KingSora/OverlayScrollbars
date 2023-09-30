@@ -77,7 +77,7 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
           {children}
         </div>
       ) : (
-        children
+        <div>{children}</div>
       )}
     </Tag>
   );
