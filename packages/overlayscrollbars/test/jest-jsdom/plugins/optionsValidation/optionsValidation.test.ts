@@ -1,28 +1,41 @@
 import { defaultOptions } from '~/options';
+import { OverlayScrollbars } from '~/overlayscrollbars';
 import {
   OptionsValidationPlugin,
-  optionsValidationPluginName,
+  optionsValidationPluginModuleName,
 } from '~/plugins/optionsValidationPlugin';
 
-const getValidationFn = () => {
-  const name = Object.keys(OptionsValidationPlugin)[0];
-  const instance = OptionsValidationPlugin[name];
-  const validationFn = instance._;
+const getValidationFn = async () => {
+  const {
+    registerPluginModuleInstances: registerPluginModuleInstance,
+    getStaticPluginModuleInstance,
+  } = await import('~/plugins');
+  registerPluginModuleInstance(OptionsValidationPlugin, OverlayScrollbars);
+  const validationFn = getStaticPluginModuleInstance<
+    typeof optionsValidationPluginModuleName,
+    typeof OptionsValidationPlugin
+  >(optionsValidationPluginModuleName);
 
-  expect(name).toBe(optionsValidationPluginName);
   expect(typeof validationFn).toBe('function');
-  return validationFn;
+  return validationFn as Exclude<typeof validationFn, undefined>;
 };
 
 describe('optionsValidationPlugin', () => {
-  test('default options matching the options template', () => {
-    const validationFn = getValidationFn();
+  beforeEach(async () => {
+    jest.doMock('~/plugins', () => {
+      const originalModule = jest.requireActual('~/plugins');
+      return { ...originalModule };
+    });
+  });
+
+  test('default options matching the options template', async () => {
+    const validationFn = await getValidationFn();
 
     expect(validationFn(defaultOptions)).toEqual(defaultOptions);
   });
 
-  test('foreign options are in the result', () => {
-    const validationFn = getValidationFn();
+  test('foreign options are in the result', async () => {
+    const validationFn = await getValidationFn();
     const foreignOps = {
       someOption: true,
       someDeepOption: {

@@ -27,10 +27,10 @@ import {
   classNameScrollbarHidden,
 } from '~/classnames';
 import { defaultOptions } from '~/options';
-import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
+import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { XY, EventListener } from '~/support';
 import type { Options, PartialOptions } from '~/options';
-import type { ScrollbarsHidingPluginInstance } from '~/plugins';
+import type { InferStaticPluginModuleInstance, ScrollbarsHidingPlugin } from '~/plugins';
 import type { Initialization, PartialInitialization } from '~/initialization';
 import type { StyleObjectKey } from './typings';
 
@@ -261,12 +261,16 @@ const createEnvironment = (): InternalEnvironment => {
   windowAddEventListener('resize', debouncedWindowResize.bind(0, false));
 
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
-    let resizeFn: undefined | ReturnType<ScrollbarsHidingPluginInstance['_envWindowZoom']>;
+    let resizeFn:
+      | undefined
+      | ReturnType<
+          InferStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>['_envWindowZoom']
+        >;
     windowAddEventListener('resize', () => {
-      const scrollbarsHidingPlugin = getPlugins()[scrollbarsHidingPluginName] as
-        | ScrollbarsHidingPluginInstance
-        | undefined;
-
+      const scrollbarsHidingPlugin = getStaticPluginModuleInstance<
+        typeof scrollbarsHidingPluginName,
+        typeof ScrollbarsHidingPlugin
+      >(scrollbarsHidingPluginName);
       resizeFn = resizeFn || (scrollbarsHidingPlugin && scrollbarsHidingPlugin._envWindowZoom());
       resizeFn &&
         resizeFn(env, updateNativeScrollbarSizeCache, debouncedWindowResize.bind(0, true));

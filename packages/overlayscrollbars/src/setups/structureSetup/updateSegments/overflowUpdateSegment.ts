@@ -23,11 +23,11 @@ import {
   dataAttributePadding,
   dataValuePaddingOverflowVisible,
 } from '~/classnames';
-import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
+import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { WH, XY } from '~/support';
 import type {
-  ScrollbarsHidingPluginInstance,
   ArrangeViewport,
+  ScrollbarsHidingPlugin,
   UndoArrangeViewport,
 } from '~/plugins/scrollbarsHidingPlugin';
 import type { StyleObject, OverflowStyle, StyleObjectKey } from '~/typings';
@@ -108,9 +108,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _nativeScrollbarsHiding,
     _nativeScrollbarsOverlaid,
   } = getEnvironment();
-  const scrollbarsHidingPlugin = getPlugins()[scrollbarsHidingPluginName] as
-    | ScrollbarsHidingPluginInstance
-    | undefined;
+  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<
+    typeof scrollbarsHidingPluginName,
+    typeof ScrollbarsHidingPlugin
+  >(scrollbarsHidingPluginName);
   const doViewportArrange =
     !_viewportIsTarget &&
     !_nativeScrollbarsHiding &&

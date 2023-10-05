@@ -30,7 +30,7 @@ import {
   removeClass,
 } from '~/support';
 import {
-  addPlugin,
+  addPlugins,
   ScrollbarsHidingPlugin,
   SizeObserverPlugin,
   ClickScrollPlugin,
@@ -39,13 +39,13 @@ import type { WH } from '~/support';
 import type { Options } from '~/options';
 import type { DeepPartial } from '~/typings';
 
-addPlugin(ClickScrollPlugin);
+addPlugins(ClickScrollPlugin);
 
 if (!window.ResizeObserver) {
-  addPlugin(SizeObserverPlugin);
+  addPlugins(SizeObserverPlugin);
 }
 if (!OverlayScrollbars.env().scrollbarsHiding) {
-  addPlugin(ScrollbarsHidingPlugin);
+  addPlugins(ScrollbarsHidingPlugin);
 }
 
 // @ts-ignore

@@ -1,5 +1,7 @@
 import { createSizeObserver as originalCreateSizeObserver } from '~/observers';
-import { SizeObserverPlugin, sizeObserverPluginName } from '~/plugins';
+import { OverlayScrollbars } from '~/overlayscrollbars';
+import { sizeObserverPluginName } from '~/plugins';
+import { SizeObserverPlugin } from '~/plugins';
 
 let createSizeObserver = originalCreateSizeObserver;
 
@@ -57,25 +59,29 @@ describe('createSizeObserver', () => {
   });
 
   describe('with sizeObserverPlugin', () => {
-    const mockSizeObserverPlugin = jest.fn((...a) => [
+    const mockSizeObserverPluginFn = jest.fn((...args) =>
       // @ts-ignore
-      SizeObserverPlugin[sizeObserverPluginName]._(...a),
-    ]);
+      SizeObserverPlugin[sizeObserverPluginName].osStatic()(...args)
+    );
+    const mockSizeObserverPlugin: typeof SizeObserverPlugin = {
+      [sizeObserverPluginName]: {
+        osStatic: () => mockSizeObserverPluginFn,
+      },
+    };
 
     beforeEach(() => {
       mockResizeObserverConstructor(false);
-      jest.doMock('~/plugins', () => ({
-        ...jest.requireActual('~/plugins'),
-        getPlugins: () => ({
-          [sizeObserverPluginName]: {
-            _: mockSizeObserverPlugin,
-          },
-        }),
-      }));
+      jest.doMock('~/plugins', () => {
+        const originalModule = jest.requireActual('~/plugins');
+        return { ...originalModule };
+      });
       document.body.outerHTML = '';
     });
 
-    test('size observer', () => {
+    test('size observer', async () => {
+      const { registerPluginModuleInstances } = await import('~/plugins');
+      registerPluginModuleInstances(mockSizeObserverPlugin, OverlayScrollbars);
+
       const callback = jest.fn();
       const [destroy, append] = createSizeObserver(document.body, callback);
 
@@ -84,11 +90,11 @@ describe('createSizeObserver', () => {
 
       expect(document.body.innerHTML).toBe('');
 
-      expect(mockSizeObserverPlugin).not.toHaveBeenCalled();
+      expect(mockSizeObserverPluginFn).not.toHaveBeenCalled();
 
       append();
 
-      expect(mockSizeObserverPlugin).toHaveBeenCalledTimes(1);
+      expect(mockSizeObserverPluginFn).toHaveBeenCalledTimes(1);
 
       expect(document.body.innerHTML).not.toBe('');
 

@@ -12,10 +12,10 @@ import {
 } from '@~local/browser-testing';
 import { offsetSize } from '~/support';
 import { createTrinsicObserver } from '~/observers';
-import { addPlugin, SizeObserverPlugin } from '~/plugins';
+import { addPlugins, SizeObserverPlugin } from '~/plugins';
 
 if (!window.ResizeObserver) {
-  addPlugin(SizeObserverPlugin);
+  addPlugins(SizeObserverPlugin);
 }
 
 let heightIntrinsic: boolean | undefined;

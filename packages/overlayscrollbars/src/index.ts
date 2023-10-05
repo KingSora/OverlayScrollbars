@@ -26,4 +26,12 @@ export type {
   StaticInitializationElement,
   DynamicInitializationElement,
 } from '~/initialization';
-export type { Plugin, PluginInstance } from '~/plugins';
+export type {
+  PluginModuleInstance,
+  PluginModule,
+  Plugin,
+  StaticPlugin,
+  InstancePlugin,
+  InferStaticPluginModuleInstance,
+  InferInstancePluginModuleInstance,
+} from '~/plugins';

@@ -9,7 +9,8 @@ import {
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
-import { addPlugin, ScrollbarsHidingPlugin } from '~/plugins';
+import { registerPluginModuleInstances, ScrollbarsHidingPlugin } from '~/plugins';
+import { OverlayScrollbars } from '~/overlayscrollbars';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import type { InternalEnvironment } from '~/environment';
 import type {
@@ -22,7 +23,7 @@ jest.mock('~/environment', () => ({
   getEnvironment: jest.fn(),
 }));
 
-addPlugin(ScrollbarsHidingPlugin);
+registerPluginModuleInstances(ScrollbarsHidingPlugin, OverlayScrollbars);
 
 interface StructureSetupElementsProxy {
   input: InitializationTarget;

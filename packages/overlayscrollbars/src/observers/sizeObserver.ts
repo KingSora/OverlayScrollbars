@@ -24,9 +24,9 @@ import {
   classNameSizeObserverAppear,
   classNameSizeObserverListener,
 } from '~/classnames';
-import { getPlugins, sizeObserverPluginName } from '~/plugins';
+import { getStaticPluginModuleInstance, sizeObserverPluginName } from '~/plugins';
 import type { CacheValues } from '~/support';
-import type { SizeObserverPluginInstance } from '~/plugins';
+import type { SizeObserverPlugin } from '~/plugins';
 
 export interface SizeObserverOptions {
   _direction?: boolean;
@@ -56,9 +56,10 @@ export const createSizeObserver = (
   options?: SizeObserverOptions
 ): SizeObserver => {
   const { _direction: observeDirectionChange, _appear: observeAppearChange } = options || {};
-  const sizeObserverPlugin = getPlugins()[sizeObserverPluginName] as
-    | SizeObserverPluginInstance
-    | undefined;
+  const sizeObserverPlugin = getStaticPluginModuleInstance<
+    typeof sizeObserverPluginName,
+    typeof SizeObserverPlugin
+  >(sizeObserverPluginName);
   const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
   const baseElements = createDOM(
     `<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`
@@ -158,7 +159,7 @@ export const createSizeObserver = (
           resizeObserverInstance.disconnect();
         });
       } else if (sizeObserverPlugin) {
-        const [pluginAppearCallback, pluginOffListeners] = sizeObserverPlugin._(
+        const [pluginAppearCallback, pluginOffListeners] = sizeObserverPlugin(
           listenerElement,
           onSizeChangedCallbackProxy,
           observeAppearChange

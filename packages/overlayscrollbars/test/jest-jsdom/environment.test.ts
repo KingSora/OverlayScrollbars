@@ -1,6 +1,7 @@
 import { defaultOptions } from '~/options';
 import { getEnvironment } from '~/environment';
-import { ScrollbarsHidingPlugin, scrollbarsHidingPluginName } from '~/plugins';
+import { ScrollbarsHidingPlugin } from '~/plugins';
+import { OverlayScrollbars } from '~/overlayscrollbars';
 import type { DeepPartial } from '~/typings';
 import type { Options } from '~/options';
 import type { Initialization } from '~/initialization';
@@ -58,10 +59,7 @@ describe('environment', () => {
     });
     jest.doMock('~/plugins', () => {
       const originalModule = jest.requireActual('~/plugins');
-      return {
-        ...originalModule,
-        getPlugins: jest.fn(() => originalModule.getPlugins()),
-      };
+      return { ...originalModule };
     });
 
     ({ getEnvironment: getEnv } = await import('~/environment'));
@@ -164,10 +162,8 @@ describe('environment', () => {
 
   describe('addZoomListener', () => {
     test('with scrollbarsHidingPlugin registered before environment was created', async () => {
-      const { getPlugins } = await import('~/plugins');
-      (getPlugins as jest.Mock).mockImplementation(() => ({
-        [scrollbarsHidingPluginName]: ScrollbarsHidingPlugin[scrollbarsHidingPluginName],
-      }));
+      const { registerPluginModuleInstances } = await import('~/plugins');
+      registerPluginModuleInstances(ScrollbarsHidingPlugin, OverlayScrollbars);
 
       const { _addZoomListener } = getEnv();
       const listener = jest.fn();
@@ -186,10 +182,8 @@ describe('environment', () => {
 
       _addZoomListener(listener);
 
-      const { getPlugins } = await import('~/plugins');
-      (getPlugins as jest.Mock).mockImplementation(() => ({
-        [scrollbarsHidingPluginName]: ScrollbarsHidingPlugin[scrollbarsHidingPluginName],
-      }));
+      const { registerPluginModuleInstances } = await import('~/plugins');
+      registerPluginModuleInstances(ScrollbarsHidingPlugin, OverlayScrollbars);
 
       window.dispatchEvent(new Event('resize'));
 

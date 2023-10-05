@@ -13,7 +13,7 @@ import type {
   OptionsTemplate,
   OptionsTemplateValue,
 } from '~/plugins/optionsValidationPlugin/validation';
-import type { Plugin } from '~/plugins';
+import type { StaticPlugin } from '~/plugins';
 
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
 const booleanAllowedValues: OptionsTemplateValue<boolean> = oTypes.boolean;
@@ -58,18 +58,15 @@ const optionsTemplate: OptionsTemplate<Options> = {
   */
 };
 
-export type OptionsValidationPluginInstance = {
-  _: (options: PartialOptions, doWriteErrors?: boolean) => PartialOptions;
-};
+export const optionsValidationPluginModuleName = '__osOptionsValidationPlugin';
 
-export const optionsValidationPluginName = '__osOptionsValidationPlugin';
-
-export const OptionsValidationPlugin: Plugin<OptionsValidationPluginInstance> =
-  /* @__PURE__ */ (() => ({
-    [optionsValidationPluginName]: {
-      _: (options: PartialOptions, doWriteErrors?: boolean) => {
+export const OptionsValidationPlugin = /* @__PURE__ */ (() => ({
+  [optionsValidationPluginModuleName]: {
+    osStatic:
+      () =>
+      (options: PartialOptions, doWriteErrors?: boolean): PartialOptions => {
         const [validated, foreign] = validateOptions(optionsTemplate, options, doWriteErrors);
         return { ...foreign, ...validated };
       },
-    },
-  }))();
+  },
+}))() satisfies StaticPlugin<typeof optionsValidationPluginModuleName>;

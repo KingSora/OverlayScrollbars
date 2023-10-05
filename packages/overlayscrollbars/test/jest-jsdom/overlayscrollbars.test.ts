@@ -1,7 +1,13 @@
 import { defaultOptions } from '~/options';
 import { assignDeep } from '~/support';
-import { OptionsValidationPlugin } from '~/plugins';
+import {
+  ClickScrollPlugin,
+  OptionsValidationPlugin,
+  ScrollbarsHidingPlugin,
+  SizeObserverPlugin,
+} from '~/plugins';
 import { OverlayScrollbars as originalOverlayScrollbars } from '~/overlayscrollbars';
+import type { Plugin } from '~/plugins';
 import type { PartialOptions } from '~/options';
 
 jest.useFakeTimers();
@@ -24,8 +30,10 @@ jest.mock('~/support/compatibility/apis', () => {
 
 const bodyElm = document.body;
 const div = document.createElement('div');
+const div2 = document.createElement('div');
 
 bodyElm.append(div);
+bodyElm.append(div2);
 
 let OverlayScrollbars = originalOverlayScrollbars;
 
@@ -589,52 +597,68 @@ describe('overlayscrollbars', () => {
     });
   });
 
-  test('plugins', () => {
-    const staticPluginFn = jest.fn();
+  test('plugin', () => {
+    const osStaticPlugin = jest.fn();
+    const osInstancePlugin = jest.fn();
     const staticObjPluginFn = jest.fn();
+    const staticObjPluginFn2 = jest.fn();
     const instanceObjPluginFn = jest.fn();
-    const staticPlugin = {
-      staticPlugin: {
-        staticFn: staticPluginFn,
-      },
-    };
-    expect(
-      OverlayScrollbars.plugin([
-        {
-          expect: (staticObj, instanceObj) => {
-            if (instanceObj) {
-              expect(staticObj).toBe(undefined);
-              expect(OverlayScrollbars.valid(instanceObj)).toBe(true);
-            }
-            if (staticObj) {
-              expect(staticObj).toBe(OverlayScrollbars);
-              expect(instanceObj).toBe(undefined);
-            }
-          },
-        },
-        {
-          staticPlugin,
-          staticObjPlugin: (staticObj, instanceObj) => {
-            if (staticObj) {
-              expect(instanceObj).toBe(undefined);
-              // @ts-ignore
-              staticObj.staticObjPluginFn = staticObjPluginFn;
-            }
-          },
-          instanceObjPlugin: (_, instanceObj) => {
-            if (instanceObj) {
-              // @ts-ignore
-              instanceObj.instanceObjPluginFn = instanceObjPluginFn;
-            }
-          },
-        },
-      ])
-    ).toBe(undefined);
 
-    expect(staticPluginFn).not.toHaveBeenCalled();
-    // @ts-ignore
-    staticPlugin.staticPlugin.staticFn();
-    expect(staticPluginFn).toHaveBeenCalledTimes(1);
+    expect(osStaticPlugin).not.toHaveBeenCalled();
+    expect(osInstancePlugin).not.toHaveBeenCalled();
+
+    const neverPlugin = {} satisfies Plugin;
+    const emptyPlugin = { hi: {} } satisfies Plugin;
+
+    const dummyPlugin = {
+      dummyPlugin: {
+        osStatic: (staticObj) => {
+          expect(staticObj).toBe(OverlayScrollbars);
+          osStaticPlugin();
+          return { dummyPluginStaticInstance: 1 as const };
+        },
+        osInstance: (instanceObj, staticObj) => {
+          expect(OverlayScrollbars.valid(instanceObj)).toBe(true);
+          expect(staticObj).toBe(OverlayScrollbars);
+          osInstancePlugin();
+          return {
+            dummyPluginInstance: 'dummyPlugin',
+          };
+        },
+      },
+    } satisfies Plugin;
+
+    const dummyPlugin2 = {
+      dummyPlugin2: {
+        osStatic: (staticObj) => {
+          // @ts-ignore
+          staticObj.staticObjPluginFn = staticObjPluginFn;
+          return { dummyPlugin2StaticInstance: 2 as const };
+        },
+        osInstance: (instanceObj, staticObj) => {
+          // @ts-ignore
+          instanceObj.instanceObjPluginFn = instanceObjPluginFn;
+          // @ts-ignore
+          staticObj.staticObjPluginFn2 = staticObjPluginFn2;
+        },
+      },
+    } satisfies Plugin;
+
+    expect(OverlayScrollbars.plugin(neverPlugin)).toEqual(undefined);
+    expect(OverlayScrollbars.plugin(emptyPlugin)).toEqual(undefined);
+    const plugins = OverlayScrollbars.plugin([neverPlugin, emptyPlugin, dummyPlugin, dummyPlugin2]);
+    const [
+      neverPluginInstance,
+      emptyPluginInstance,
+      dummyPluginStaticInstance,
+      dummyPlugin2StaticInstance,
+    ] = plugins;
+    expect(plugins).toHaveLength(4);
+    expect(emptyPluginInstance).toBe(undefined);
+    expect(neverPluginInstance).toBe(undefined);
+    expect(dummyPluginStaticInstance.dummyPluginStaticInstance).toBe(1);
+    expect(dummyPlugin2StaticInstance.dummyPlugin2StaticInstance).toBe(2);
+    expect(osStaticPlugin).toHaveBeenCalledTimes(1);
 
     // staticObj plugin must be available before any initialization
     expect(staticObjPluginFn).not.toHaveBeenCalled();
@@ -642,10 +666,49 @@ describe('overlayscrollbars', () => {
     OverlayScrollbars.staticObjPluginFn();
     expect(staticObjPluginFn).toHaveBeenCalledTimes(1);
 
+    expect(osInstancePlugin).not.toHaveBeenCalled();
     const osInstance = OverlayScrollbars(div, {});
+    expect(osInstancePlugin).toHaveBeenCalledTimes(1);
+
     expect(instanceObjPluginFn).not.toHaveBeenCalled();
     // @ts-ignore
     osInstance.instanceObjPluginFn();
+
+    expect(osInstance.plugin(emptyPlugin)).not.toBeDefined();
+
+    expect(osInstance.plugin(dummyPlugin)).toBeDefined();
+    expect(osInstance.plugin(dummyPlugin)?.dummyPluginInstance).toBe('dummyPlugin');
+
+    expect(osInstance.plugin(dummyPlugin2)).not.toBeDefined();
+
     expect(instanceObjPluginFn).toHaveBeenCalledTimes(1);
+
+    expect(osStaticPlugin).toHaveBeenCalledTimes(1);
+    expect(osInstancePlugin).toHaveBeenCalledTimes(1);
+
+    OverlayScrollbars(div2, {});
+
+    expect(osStaticPlugin).toHaveBeenCalledTimes(1);
+    expect(osInstancePlugin).toHaveBeenCalledTimes(2);
+  });
+
+  test('build in plugins', () => {
+    const [clickScroll, scrollbarHiding, sizeObserver, optionsValidation] =
+      OverlayScrollbars.plugin([
+        ClickScrollPlugin,
+        ScrollbarsHidingPlugin,
+        SizeObserverPlugin,
+        OptionsValidationPlugin,
+      ]);
+
+    expect(typeof clickScroll).toBe('function');
+    expect(typeof scrollbarHiding).toBe('object');
+    expect(typeof scrollbarHiding._createUniqueViewportArrangeElement).toBe('function');
+    expect(typeof scrollbarHiding._envWindowZoom).toBe('function');
+    expect(typeof scrollbarHiding._overflowUpdateSegment).toBe('function');
+    expect(typeof sizeObserver).toBe('function');
+    expect(typeof optionsValidation).toBe('function');
+
+    expect(OverlayScrollbars(div, {})).toBeDefined();
   });
 });

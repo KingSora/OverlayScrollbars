@@ -12,7 +12,7 @@ import {
   push,
   attrClass,
 } from '~/support';
-import { getPlugins, clickScrollPluginName } from '~/plugins';
+import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import { getEnvironment } from '~/environment';
 import {
   classNameScrollbarHandle,
@@ -22,7 +22,7 @@ import {
   dataValueHostScrollbarPressed,
 } from '~/classnames';
 import type { XY } from '~/support';
-import type { ClickScrollPluginInstance } from '~/plugins';
+import type { ClickScrollPlugin } from '~/plugins';
 import type { ReadonlyOptions } from '~/options';
 import type { StructureSetupState } from '~/setups';
 import type {
@@ -153,14 +153,15 @@ const createInteractiveScrollEvents = (
       if (instantClickScroll) {
         moveHandleRelative(startOffset);
       } else if (!isDragScroll) {
-        const clickScrollPlugin = getPlugins()[clickScrollPluginName] as
-          | ClickScrollPluginInstance
-          | undefined;
+        const animateClickScroll = getStaticPluginModuleInstance<
+          typeof clickScrollPluginModuleName,
+          typeof ClickScrollPlugin
+        >(clickScrollPluginModuleName);
 
-        if (clickScrollPlugin) {
+        animateClickScroll &&
           push(
             offFns,
-            clickScrollPlugin._(
+            animateClickScroll(
               moveHandleRelative,
               getHandleOffset,
               startOffset,
@@ -168,7 +169,6 @@ const createInteractiveScrollEvents = (
               relativeTrackPointerOffset
             )
           );
-        }
       }
 
       pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);

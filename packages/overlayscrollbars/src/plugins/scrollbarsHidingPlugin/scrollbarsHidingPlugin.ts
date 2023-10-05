@@ -9,7 +9,7 @@ import type {
   HideNativeScrollbars,
 } from '~/setups/structureSetup/updateSegments/overflowUpdateSegment';
 import type { InternalEnvironment } from '~/environment';
-import type { Plugin } from '~/plugins';
+import type { StaticPlugin } from '~/plugins';
 
 export type ArrangeViewport = (
   viewportOverflowState: ViewportOverflowState,
@@ -28,24 +28,6 @@ export type UndoArrangeViewport = (
   directionIsRTL: boolean,
   viewportOverflowState?: ViewportOverflowState
 ) => UndoViewportArrangeResult;
-
-export type ScrollbarsHidingPluginInstance = {
-  _createUniqueViewportArrangeElement(env: InternalEnvironment): HTMLStyleElement | false;
-  _overflowUpdateSegment(
-    doViewportArrange: boolean,
-    flexboxGlue: boolean,
-    viewport: HTMLElement,
-    viewportArrange: HTMLStyleElement | false | null | undefined,
-    getState: () => StructureSetupState,
-    getViewportOverflowState: GetViewportOverflowState,
-    hideNativeScrollbars: HideNativeScrollbars
-  ): [ArrangeViewport, UndoArrangeViewport];
-  _envWindowZoom(): (
-    envInstance: InternalEnvironment,
-    updateNativeScrollbarSizeCache: UpdateCache<XY<number>>,
-    triggerEvent: () => void
-  ) => void;
-};
 
 let contentArrangeCounter = 0;
 const { round, abs } = Math;
@@ -67,10 +49,10 @@ const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
 
 export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';
 
-export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
-  /* @__PURE__ */ (() => ({
-    [scrollbarsHidingPluginName]: {
-      _createUniqueViewportArrangeElement: (env: InternalEnvironment) => {
+export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
+  [scrollbarsHidingPluginName]: {
+    osStatic: () => ({
+      _createUniqueViewportArrangeElement: (env: InternalEnvironment): false | HTMLStyleElement => {
         const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _cssCustomProperties } = env;
         const create =
           !_cssCustomProperties &&
@@ -90,14 +72,14 @@ export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
         return result;
       },
       _overflowUpdateSegment: (
-        doViewportArrange,
-        flexboxGlue,
-        viewport,
-        viewportArrange,
-        getState,
-        getViewportOverflowState,
-        hideNativeScrollbars
-      ) => {
+        doViewportArrange: boolean,
+        flexboxGlue: boolean,
+        viewport: HTMLElement,
+        viewportArrange: HTMLStyleElement | false | null | undefined,
+        getState: () => StructureSetupState,
+        getViewportOverflowState: GetViewportOverflowState,
+        hideNativeScrollbars: HideNativeScrollbars
+      ): [ArrangeViewport, UndoArrangeViewport] => {
         /**
          * Sets the styles of the viewport arrange element.
          * @param viewportOverflowState The viewport overflow state according to which the scrollbars shall be hidden.
@@ -242,7 +224,11 @@ export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
         let size = { w: 0, h: 0 };
         let dpr = 0;
 
-        return (envInstance, updateNativeScrollbarSizeCache, triggerEvent) => {
+        return (
+          envInstance: InternalEnvironment,
+          updateNativeScrollbarSizeCache: UpdateCache<XY<number>>,
+          triggerEvent: () => void
+        ) => {
           const sizeNew = windowSize();
           const deltaSize = {
             w: sizeNew.w - size.w,
@@ -281,5 +267,6 @@ export const ScrollbarsHidingPlugin: Plugin<ScrollbarsHidingPluginInstance> =
           dpr = dprNew;
         };
       },
-    },
-  }))();
+    }),
+  },
+}))() satisfies StaticPlugin<typeof scrollbarsHidingPluginName>;

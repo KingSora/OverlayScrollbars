@@ -32,13 +32,13 @@ import {
   dataAttributeContent,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
-import { getPlugins, scrollbarsHidingPluginName } from '~/plugins';
+import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
   resolveInitialization as generalResolveInitialization,
 } from '~/initialization';
-import type { ScrollbarsHidingPluginInstance } from '~/plugins/scrollbarsHidingPlugin';
+import type { ScrollbarsHidingPlugin } from '~/plugins';
 import type {
   InitializationTarget,
   InitializationTargetElement,
@@ -92,9 +92,10 @@ export const createStructureSetupElements = (
 ): StructureSetupElements => {
   const env = getEnvironment();
   const { _getDefaultInitialization, _nativeScrollbarsHiding } = env;
-  const scrollbarsHidingPlugin = getPlugins()[scrollbarsHidingPluginName] as
-    | ScrollbarsHidingPluginInstance
-    | undefined;
+  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<
+    typeof scrollbarsHidingPluginName,
+    typeof ScrollbarsHidingPlugin
+  >(scrollbarsHidingPluginName);
   const createUniqueViewportArrangeElement =
     scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
   const { elements: defaultInitElements } = _getDefaultInitialization();

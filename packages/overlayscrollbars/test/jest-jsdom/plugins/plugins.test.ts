@@ -1,46 +1,32 @@
-import { addPlugin, getPlugins } from '~/plugins';
+import { addPlugins, pluginModules } from '~/plugins';
 
 describe('plugins', () => {
-  test('getPlugins', () => {
-    const plugins = getPlugins();
-    expect(plugins).toEqual({});
+  test('pluginModules', () => {
+    expect(pluginModules).toEqual({});
   });
 
-  test('addPlugin single', () => {
-    const myPlugin = {};
-    const myPlugin2 = {};
-    const addedPlugins = addPlugin({
-      myPlugin,
-      myPlugin2,
-    });
-    expect(addedPlugins.length).toBe(2);
-    expect(addedPlugins[0]).toBe(myPlugin);
-    expect(addedPlugins[1]).toBe(myPlugin2);
+  test('addPlugins', () => {
+    const myPlugin = {
+      myPluginModule: {},
+    };
+    const myPlugin2 = {
+      myPlugin2Module: {},
+    };
+    const myPlugin3 = {
+      myPlugin3Module1: {},
+      myPlugin3Module2: {},
+    };
 
-    const plugins = getPlugins();
-    expect(plugins.myPlugin).toBe(myPlugin);
-    // multiple "sub-plugins" per plugin object possible to support "static", "instanceObj" and "staticObj" sub-plugins per plugin
-    expect(plugins.myPlugin2).toBe(myPlugin2);
-  });
+    addPlugins([myPlugin, myPlugin2]);
 
-  test('addPlugin multiple', () => {
-    const myPlugin = {};
-    const myPlugin2 = {};
-    const addedPlugins = addPlugin([
-      {
-        myPlugin,
-      },
-      {
-        myPlugin2,
-      },
-    ]);
+    expect(pluginModules.myPluginModule).toBe(myPlugin.myPluginModule);
+    expect(pluginModules.myPlugin2Module).toBe(myPlugin2.myPlugin2Module);
+    expect(Object.entries(pluginModules)).toHaveLength(2);
 
-    expect(addedPlugins.length).toBe(2);
-    expect(addedPlugins[0]).toBe(myPlugin);
-    expect(addedPlugins[1]).toBe(myPlugin2);
+    addPlugins([myPlugin3]);
 
-    const plugins = getPlugins();
-    expect(plugins.myPlugin).toBe(myPlugin);
-    expect(plugins.myPlugin2).toBe(myPlugin2);
+    expect(pluginModules.myPlugin3Module1).toBe(myPlugin3.myPlugin3Module1);
+    expect(pluginModules.myPlugin3Module2).toBe(myPlugin3.myPlugin3Module2);
+    expect(Object.entries(pluginModules)).toHaveLength(4);
   });
 });

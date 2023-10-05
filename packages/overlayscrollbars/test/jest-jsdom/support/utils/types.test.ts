@@ -52,7 +52,7 @@ const typeNameValueMap = {
 
 const testTypeFn = (typeFunc: Function, expectedTypeNameValueResultMap: any) => {
   Object.keys(typeNameValueMap).forEach((comparisonKey) => {
-    const comparisonValue = typeNameValueMap[comparisonKey];
+    const comparisonValue = (typeNameValueMap as Record<string, any>)[comparisonKey];
     const result = typeFunc(comparisonValue);
     if (expectedTypeNameValueResultMap.hasOwnProperty(comparisonKey)) {
       const todoComparisonValue = expectedTypeNameValueResultMap[comparisonKey];

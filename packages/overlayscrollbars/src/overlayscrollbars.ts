@@ -1,23 +1,37 @@
 import {
   assignDeep,
   isEmptyObject,
-  each,
   isFunction,
-  keys,
   isHTMLElement,
   createEventListenerHub,
   isPlainObject,
+  keys,
+  isArray,
 } from '~/support';
 import { getOptionsDiff } from '~/options';
 import { getEnvironment } from '~/environment';
 import { cancelInitialization } from '~/initialization';
 import { addInstance, getInstance, removeInstance } from '~/instances';
 import { createStructureSetup, createScrollbarsSetup } from '~/setups';
-import { getPlugins, addPlugin, optionsValidationPluginName } from '~/plugins';
+import {
+  addPlugins,
+  getStaticPluginModuleInstance,
+  optionsValidationPluginModuleName,
+  pluginModules,
+  registerPluginModuleInstances,
+} from '~/plugins';
 import type { Environment } from '~/environment';
 import type { XY, TRBL } from '~/support';
 import type { Options, PartialOptions, ReadonlyOptions } from '~/options';
-import type { Plugin, OptionsValidationPluginInstance, PluginInstance } from '~/plugins';
+import type {
+  InferInstancePluginModuleInstance,
+  InferStaticPluginModuleInstance,
+  InstancePlugin,
+  OptionsValidationPlugin,
+  Plugin,
+  PluginModuleInstance,
+  StaticPlugin,
+} from '~/plugins';
 import type { InitializationTarget } from '~/initialization';
 import type { OverflowStyle } from '~/typings';
 import type { EventListenerArgs, EventListener, EventListeners } from '~/eventListeners';
@@ -55,7 +69,15 @@ export interface OverlayScrollbarsStatic {
    * Adds one or multiple plugins.
    * @param plugin Either a signle or an array of plugins to add.
    */
-  plugin(plugin: Plugin | Plugin[]): void;
+  plugin<P extends StaticPlugin | [StaticPlugin, ...StaticPlugin[]]>(
+    plugin: P
+  ): P extends [StaticPlugin, ...StaticPlugin[]]
+    ? {
+        [K in keyof P]: P[K] extends StaticPlugin ? InferStaticPluginModuleInstance<P[K]> : void;
+      }
+    : P extends StaticPlugin
+    ? InferStaticPluginModuleInstance<P>
+    : void;
   /**
    * Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
    * @param osInstance The value which shall be checked.
@@ -219,17 +241,9 @@ export interface OverlayScrollbars {
   elements(): Elements;
   /** Destroys the instance. */
   destroy(): void;
+  /** Returns the instance of the passed plugin or `undefined` if no instance was found. */
+  plugin<P extends InstancePlugin>(osPlugin: P): InferInstancePluginModuleInstance<P> | undefined;
 }
-
-const invokePluginInstance = (
-  pluginInstance: PluginInstance,
-  staticObj?: OverlayScrollbarsStatic | false | null | undefined | 0,
-  instanceObj?: OverlayScrollbars | false | null | undefined | 0
-) => {
-  if (isFunction(pluginInstance)) {
-    pluginInstance(staticObj || undefined, instanceObj || undefined);
-  }
-};
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
@@ -239,18 +253,18 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 ) => {
   const { _getDefaultOptions, _getDefaultInitialization, _addZoomListener, _addResizeListener } =
     getEnvironment();
-  const plugins = getPlugins();
   const targetIsElement = isHTMLElement(target);
   const instanceTarget = targetIsElement ? target : target.target;
   const potentialInstance = getInstance(instanceTarget);
   if (options && !potentialInstance) {
     let destroyed = false;
+    const instancePluginModuleInstances: Record<string, PluginModuleInstance> = {};
     const validateOptions = (newOptions: PartialOptions) => {
-      const optionsValidationPlugin = getPlugins()[
-        optionsValidationPluginName
-      ] as OptionsValidationPluginInstance;
-      const validate = optionsValidationPlugin && optionsValidationPlugin._;
-      return validate ? validate(newOptions, true) : newOptions;
+      const pluginValidate = getStaticPluginModuleInstance<
+        typeof optionsValidationPluginModuleName,
+        typeof OptionsValidationPlugin
+      >(optionsValidationPluginModuleName);
+      return pluginValidate ? pluginValidate(newOptions, true) : newOptions;
     };
     const currentOptions: ReadonlyOptions = assignDeep(
       {},
@@ -384,6 +398,10 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       },
       update: (force?: boolean) => update({}, force),
       destroy: destroy.bind(0),
+      plugin: <P extends InstancePlugin>(plugin: P) =>
+        instancePluginModuleInstances[keys(plugin)[0]] as
+          | InferInstancePluginModuleInstance<P>
+          | undefined,
     };
 
     structureState._addOnUpdatedListener((updateHints, changedOptions, force: boolean) => {
@@ -394,7 +412,12 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     addInstance(instanceTarget, instance);
 
     // init plugins
-    each(keys(plugins), (pluginName) => invokePluginInstance(plugins[pluginName], 0, instance));
+    registerPluginModuleInstances(
+      pluginModules,
+      OverlayScrollbars,
+      instance,
+      instancePluginModuleInstances
+    );
 
     if (
       cancelInitialization(
@@ -450,10 +473,15 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   return potentialInstance!;
 };
 
-OverlayScrollbars.plugin = (plugins: Plugin | Plugin[]) => {
-  each(addPlugin(plugins), (pluginInstance) =>
-    invokePluginInstance(pluginInstance, OverlayScrollbars)
+OverlayScrollbars.plugin = (plugins) => {
+  const isArr = isArray(plugins);
+  const pluginsToAdd: Plugin<string, void | PluginModuleInstance, void | PluginModuleInstance>[] =
+    isArr ? plugins : [plugins];
+  const result = pluginsToAdd.map(
+    (plugin) => registerPluginModuleInstances(plugin, OverlayScrollbars)[0]
   );
+  addPlugins(pluginsToAdd);
+  return isArr ? result : (result[0] as any);
 };
 OverlayScrollbars.valid = (osInstance: any): osInstance is OverlayScrollbars => {
   const hasElmsFn = osInstance && (osInstance as OverlayScrollbars).elements;

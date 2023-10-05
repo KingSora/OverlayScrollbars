@@ -8,6 +8,10 @@ export type DeepReadonly<T> = {
 
 export type PlainObject<T = any> = { [name: string]: T };
 
+export type NonEmptyObject<T extends Record<string, unknown>> = T extends Record<string, never>
+  ? never
+  : T;
+
 export type StyleObjectKey = Extract<keyof CSSStyleDeclaration, string>;
 
 export type StyleObject<CustomCssProps = ''> = {
