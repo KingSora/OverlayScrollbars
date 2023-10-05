@@ -29,23 +29,18 @@ import {
   removeElements,
   removeClass,
 } from '~/support';
-import {
-  addPlugins,
-  ScrollbarsHidingPlugin,
-  SizeObserverPlugin,
-  ClickScrollPlugin,
-} from '~/plugins';
+import { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~/plugins';
 import type { WH } from '~/support';
 import type { Options } from '~/options';
 import type { DeepPartial } from '~/typings';
 
-addPlugins(ClickScrollPlugin);
+OverlayScrollbars.plugin(ClickScrollPlugin);
 
 if (!window.ResizeObserver) {
-  addPlugins(SizeObserverPlugin);
+  OverlayScrollbars.plugin(SizeObserverPlugin);
 }
 if (!OverlayScrollbars.env().scrollbarsHiding) {
-  addPlugins(ScrollbarsHidingPlugin);
+  OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 }
 
 // @ts-ignore
@@ -95,7 +90,9 @@ interface CheckComparisonObj {
   metrics: Metrics;
 }
 
-const isFractionalPixelRatio = () => window.devicePixelRatio % 1 !== 0;
+const getDevicePixelRatio = () => parseFloat(window.devicePixelRatio.toFixed(3));
+
+const isFractionalPixelRatio = () => getDevicePixelRatio() % 1 !== 0;
 
 const isVisibleOverflow = (val: string) => val.indexOf('visible') === 0;
 
@@ -253,7 +250,7 @@ const getMetrics = (elm: HTMLElement): Metrics => {
   const comparisonTextwrapBCR = getBoundingClientRect(elm!.querySelector('.textwrap')!);
   const comparisonEndBCR = getBoundingClientRect(elm!.querySelector('.end')!);
   const scrollMeasure = () => {
-    const condition = (raw: number) => (window.devicePixelRatio % 1 !== 0 ? raw > 1 : raw > 0);
+    const condition = (raw: number) => (isFractionalPixelRatio() ? raw > 1 : raw > 0);
     const amount = {
       width: Math.max(0, comparisonViewport!.scrollWidth - comparisonViewport!.clientWidth),
       height: Math.max(0, comparisonViewport!.scrollHeight - comparisonViewport!.clientHeight),
@@ -896,7 +893,8 @@ const start = async () => {
         },
         opts: targetOptionsSlot!.textContent,
         flags: document.body.getAttribute('class'),
-        devicePixelRatio: window.devicePixelRatio,
+        devicePixelRatio: getDevicePixelRatio(),
+        devicePixelRatioRaw: window.devicePixelRatio,
       }
     );
   }

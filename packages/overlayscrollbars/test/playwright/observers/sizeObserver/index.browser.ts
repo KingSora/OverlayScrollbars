@@ -11,12 +11,13 @@ import {
   waitForOrFailTest,
 } from '@~local/browser-testing';
 import { hasDimensions, offsetSize, style } from '~/support';
-import { addPlugins, SizeObserverPlugin } from '~/plugins';
+import { SizeObserverPlugin } from '~/plugins';
 import { createSizeObserver } from '~/observers';
+import { OverlayScrollbars } from '~/overlayscrollbars';
 import type { WH } from '~/support';
 
 if (!window.ResizeObserver) {
-  addPlugins(SizeObserverPlugin);
+  OverlayScrollbars.plugin(SizeObserverPlugin);
 }
 
 let sizeIterations = 0;
