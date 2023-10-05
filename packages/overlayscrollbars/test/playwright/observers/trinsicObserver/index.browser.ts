@@ -12,10 +12,11 @@ import {
 } from '@~local/browser-testing';
 import { offsetSize } from '~/support';
 import { createTrinsicObserver } from '~/observers';
-import { addPlugins, SizeObserverPlugin } from '~/plugins';
+import { OverlayScrollbars } from '~/overlayscrollbars';
+import { SizeObserverPlugin } from '~/plugins';
 
 if (!window.ResizeObserver) {
-  addPlugins(SizeObserverPlugin);
+  OverlayScrollbars.plugin(SizeObserverPlugin);
 }
 
 let heightIntrinsic: boolean | undefined;

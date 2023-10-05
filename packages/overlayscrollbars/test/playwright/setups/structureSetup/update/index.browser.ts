@@ -241,7 +241,6 @@ const osInstance =
   ));
 
 const getMetrics = (elm: HTMLElement): Metrics => {
-  // const rounding = isFractionalPixelRatio() ? Math.round : (num: number) => num;
   const elmIsTarget = elm === target;
   const comparisonViewport = getComparisonViewport();
   const comparisonEnvBCR = getBoundingClientRect(parent(elm!) as HTMLElement);
