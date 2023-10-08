@@ -1,54 +1,16 @@
-import { assignDeep, hasOwnProperty } from '~/support';
-import type { PartialOptions, ReadonlyOptions } from '~/options';
-
-export type SetupElements<T extends Record<string, any>> = [elements: T, destroy: () => void];
-
-export type SetupUpdate<Args extends any[], R> = (
-  changedOptions: PartialOptions,
-  force: boolean,
-  ...args: Args
-) => R;
-
-export type SetupUpdateCheckOption = <T>(path: string) => [value: T, changed: boolean];
+import type { OptionsCheckFn } from '~/options';
 
 export type SetupUpdateSegment<Hints extends Record<string, any>> = (
   updateHints: Hints,
-  checkOption: SetupUpdateCheckOption,
+  checkOption: OptionsCheckFn,
   force: boolean
 ) => Partial<Hints> | void;
 
-export type SetupState<T extends Record<string, any>> = [
-  get: () => T,
-  set: (newState: Partial<T>) => void
-];
-
-export type Setup<
-  DynamicState,
-  StaticState extends Record<string, any> = Record<string, any>,
-  Args extends any[] = [],
-  R = void
-> = [update: SetupUpdate<Args, R>, state: (() => DynamicState) & StaticState, destroy: () => void];
-
-const getPropByPath = <T>(obj: any, path: string): T =>
-  obj
-    ? path.split('.').reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj)
-    : undefined;
-
-export const createOptionCheck =
-  (
-    options: ReadonlyOptions,
-    changedOptions: PartialOptions,
-    force?: boolean
-  ): SetupUpdateCheckOption =>
-  (path: string) =>
-    [getPropByPath(options, path), force || getPropByPath(changedOptions, path) !== undefined];
-
-export const createState = <S extends Record<string, any>>(initialState: S): SetupState<S> => {
-  let state: S = initialState;
-  return [
-    () => state,
-    (newState: Partial<S>) => {
-      state = assignDeep({}, state, newState);
-    },
-  ];
-};
+export interface Setup<U extends Record<string, any>, S extends Record<string, any>, R> {
+  /** The create function which returns the `destroy` function. */
+  _create: () => () => void;
+  /** Function which updates the setup and returns the update result. */
+  _update: (updateInfo: U) => R;
+  /** Function which returns the current state. */
+  _state: S;
+}

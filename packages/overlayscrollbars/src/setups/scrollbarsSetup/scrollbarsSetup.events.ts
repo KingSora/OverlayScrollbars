@@ -80,7 +80,7 @@ const createInteractiveScrollEvents = (
   documentElm: Document,
   scrollbarStructure: ScrollbarStructure,
   scrollOffsetElement: HTMLElement,
-  structureSetupState: () => StructureSetupState,
+  structureSetupState: StructureSetupState,
   isHorizontal?: boolean
 ) => {
   const { _rtlScrollBehavior } = getEnvironment();
@@ -94,7 +94,7 @@ const createInteractiveScrollEvents = (
 
   const createRelativeHandleMove =
     (mouseDownScroll: number, invertedScale: number) => (deltaMovement: number) => {
-      const { _overflowAmount } = structureSetupState();
+      const { _overflowAmount } = structureSetupState;
       const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
       const scrollDeltaPercent = (invertedScale * deltaMovement) / handleTrackDiff;
       const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
@@ -177,10 +177,7 @@ const createInteractiveScrollEvents = (
 };
 
 export const createScrollbarsSetupEvents =
-  (
-    options: ReadonlyOptions,
-    structureSetupState: () => StructureSetupState
-  ): ScrollbarsSetupEvents =>
+  (options: ReadonlyOptions, structureSetupState: StructureSetupState): ScrollbarsSetupEvents =>
   (
     scrollbarStructure,
     scrollbarsAddRemoveClass,

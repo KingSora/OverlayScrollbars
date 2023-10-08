@@ -12,7 +12,6 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
   structureSetupElements,
   state
 ) => {
-  const [getState, setState] = state;
   const { _host, _padding, _viewport, _viewportIsTarget: _isSingleElm } = structureSetupElements;
   const [updatePaddingCache, currentPaddingCache] = createCache(
     {
@@ -25,7 +24,7 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
   return (updateHints, checkOption, force) => {
     let [padding, paddingChanged] = currentPaddingCache(force);
     const { _nativeScrollbarsHiding: _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
-    const { _directionIsRTL } = getState();
+    const { _directionIsRTL } = state;
     const { _sizeChanged, _contentMutation, _directionChanged } = updateHints;
     const [paddingAbsolute, paddingAbsoluteChanged] = checkOption('paddingAbsolute');
     const contentMutation = !_flexboxGlue && _contentMutation;
@@ -63,7 +62,7 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
       style(_padding || _viewport, paddingStyle);
       style(_viewport, viewportStyle);
 
-      setState({
+      assignDeep(state, {
         _padding: padding,
         _paddingAbsolute: !paddingRelative,
         _viewportPaddingStyle: _padding

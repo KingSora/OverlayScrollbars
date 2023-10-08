@@ -9,6 +9,7 @@ import {
   equalXY,
   attrClass,
   noop,
+  assignDeep,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -91,7 +92,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   structureSetupElements,
   state
 ) => {
-  const [getState, setState] = state;
   const {
     _host,
     _padding,
@@ -148,7 +148,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     });
 
     if (heightIntrinsic) {
-      const { _paddingAbsolute, _padding: padding } = getState();
+      const { _paddingAbsolute, _padding: padding } = state;
       const { _overflowScroll, _scrollbarsHideOffset } = viewportOverflowState;
       const fSize = fractionalSize(_host);
       const hostClientSize = clientSize(_host);
@@ -278,7 +278,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
     const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
     const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
-    const { _viewportPaddingStyle: viewportPaddingStyle } = getState();
+    const { _viewportPaddingStyle: viewportPaddingStyle } = state;
     const horizontalMarginKey: keyof StyleObject = directionIsRTL ? 'marginLeft' : 'marginRight';
     const viewportHorizontalPaddingKey: keyof StyleObject = directionIsRTL
       ? 'paddingLeft'
@@ -309,7 +309,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         _flexboxGlue,
         _viewport,
         _viewportArrange,
-        getState,
+        state,
         getViewportOverflowState,
         hideNativeScrollbars
       )
@@ -324,10 +324,11 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _heightIntrinsicChanged,
       _directionChanged,
     } = updateHints;
-    const { _heightIntrinsic, _directionIsRTL } = getState();
-    const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
-      checkOption<boolean>('showNativeOverlaidScrollbars');
-    const [overflow, overflowChanged] = checkOption<XY<OverflowBehavior>>('overflow');
+    const { _heightIntrinsic, _directionIsRTL } = state;
+    const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = checkOption(
+      'showNativeOverlaidScrollbars'
+    );
+    const [overflow, overflowChanged] = checkOption('overflow');
 
     const showNativeOverlaidScrollbars =
       showNativeOverlaidScrollbarsOption &&
@@ -517,7 +518,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       getViewportOverflowState(showNativeOverlaidScrollbars)._overflowStyle
     );
 
-    setState({
+    assignDeep(state, {
       _overflowStyle: overflowStyle,
       _overflowEdge: {
         x: overflowEdge.w,

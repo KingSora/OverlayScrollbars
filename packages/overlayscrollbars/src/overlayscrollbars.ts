@@ -7,6 +7,8 @@ import {
   isPlainObject,
   keys,
   isArray,
+  push,
+  runEachAndClear,
 } from '~/support';
 import { getOptionsDiff } from '~/options';
 import { getEnvironment } from '~/environment';
@@ -258,6 +260,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   const potentialInstance = getInstance(instanceTarget);
   if (options && !potentialInstance) {
     let destroyed = false;
+    const destroyFns: (() => void)[] = [];
     const instancePluginModuleInstances: Record<string, PluginModuleInstance> = {};
     const validateOptions = (newOptions: PartialOptions) => {
       const pluginValidate = getStaticPluginModuleInstance<
@@ -272,29 +275,31 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       validateOptions(options)
     );
     const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
-    const [updateStructure, structureState, destroyStructure] = createStructureSetup(
-      target,
-      currentOptions
-    );
-    const [updateScrollbars, scrollbarsState, destroyScrollbars] = createScrollbarsSetup(
+    const {
+      _create: structureSetupCreate,
+      _update: structureSetupUpdate,
+      _state: structureSetupState,
+      _elements: structureSetupElements,
+      _addOnUpdatedListener,
+    } = createStructureSetup(target, currentOptions);
+    const {
+      _create: scrollbarsSetupCreate,
+      _update: scrollbarsSetupUpdate,
+      _elements: scrollbarsSetupElements,
+    } = createScrollbarsSetup(
       target,
       currentOptions,
-      structureState,
+      structureSetupState,
+      structureSetupElements,
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       (scrollEvent) => triggerEvent('scroll', [instance, scrollEvent])
     );
     const update = (changedOptions: PartialOptions, force?: boolean): boolean =>
-      updateStructure(changedOptions, !!force);
+      structureSetupUpdate({ _changedOptions: changedOptions, _force: !!force });
     const forceUpdate = update.bind(0, {}, true);
-    const removeZoomListener = _addZoomListener(forceUpdate);
-    const removeResizeListener = _addResizeListener(forceUpdate);
     const destroy = (canceled?: boolean) => {
       removeInstance(instanceTarget);
-      removeZoomListener();
-      removeResizeListener();
-
-      destroyScrollbars();
-      destroyStructure();
+      runEachAndClear(destroyFns);
 
       destroyed = true;
 
@@ -302,7 +307,6 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       triggerEvent('destroyed', [instance, !!canceled]);
       removeEvent();
     };
-
     const instance: OverlayScrollbars = {
       options(newOptions?: PartialOptions, pure?: boolean) {
         if (newOptions) {
@@ -331,7 +335,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           _padding,
           _paddingAbsolute,
           _directionIsRTL,
-        } = structureState();
+        } = structureSetupState;
         return assignDeep(
           {},
           {
@@ -355,8 +359,8 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           _content,
           _scrollOffsetElement,
           _scrollEventElement,
-        } = structureState._elements;
-        const { _horizontal, _vertical } = scrollbarsState._elements;
+        } = structureSetupElements;
+        const { _horizontal, _vertical } = scrollbarsSetupElements;
         const translateScrollbarStructure = (
           scrollbarStructure: ScrollbarStructure
         ): ScrollbarElements => {
@@ -376,7 +380,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           return assignDeep({}, translatedStructure, {
             clone: () => {
               const result = translateScrollbarStructure(_clone());
-              updateScrollbars({}, true, {});
+              scrollbarsSetupUpdate({
+                _changedOptions: {},
+                _force: false,
+                _structureUpdateHints: {},
+              });
               return result;
             },
           });
@@ -404,8 +412,15 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           | undefined,
     };
 
-    structureState._addOnUpdatedListener((updateHints, changedOptions, force: boolean) => {
-      updateScrollbars(changedOptions, force, updateHints);
+    push(destroyFns, _addZoomListener(forceUpdate));
+    push(destroyFns, _addResizeListener(forceUpdate));
+
+    _addOnUpdatedListener((updateHints, changedOptions, force: boolean) => {
+      scrollbarsSetupUpdate({
+        _changedOptions: changedOptions,
+        _force: force,
+        _structureUpdateHints: updateHints,
+      });
     });
 
     // valid inside plugins
@@ -421,7 +436,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
     if (
       cancelInitialization(
-        structureState._elements._isBody,
+        structureSetupElements._isBody,
         _getDefaultInitialization().cancel,
         !targetIsElement && target.cancel
       )
@@ -430,12 +445,12 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       return instance;
     }
 
-    structureState._appendElements();
-    scrollbarsState._appendElements();
+    push(destroyFns, structureSetupCreate());
+    push(destroyFns, scrollbarsSetupCreate());
 
     triggerEvent('initialized', [instance]);
 
-    structureState._addOnUpdatedListener((updateHints, changedOptions, force) => {
+    _addOnUpdatedListener((updateHints, changedOptions, force) => {
       const {
         _sizeChanged,
         _directionChanged,

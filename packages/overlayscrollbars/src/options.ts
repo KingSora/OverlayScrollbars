@@ -10,13 +10,86 @@ import {
 } from '~/support';
 import type { DeepPartial, DeepReadonly } from '~/typings';
 
+export type OptionsField = string | number;
+
+export type OptionsPrimitiveValue =
+  | boolean
+  | number
+  | string
+  | Array<any>
+  | ReadonlyArray<any>
+  | [any]
+  | [any, ...any[]]
+  | ((this: any, ...args: any[]) => any)
+  | null;
+
+export type OptionsObject = {
+  [field: OptionsField]: OptionsPrimitiveValue | OptionsObject;
+};
+
+type OptionsObjectFieldNameTuples<T> = T extends OptionsPrimitiveValue
+  ? []
+  : {
+      [K in Extract<keyof T, OptionsField>]: [K, ...OptionsObjectFieldNameTuples<T[K]>];
+    }[Extract<keyof T, OptionsField>];
+
+type JoinOptionsObjectFieldTuples<
+  T extends OptionsField[],
+  IncompletePath extends boolean = false
+> = T extends [infer F]
+  ? F
+  : T extends [infer F, ...infer R]
+  ? F extends OptionsField
+    ?
+        | (IncompletePath extends true ? F : never)
+        | `${F}.${JoinOptionsObjectFieldTuples<Extract<R, OptionsField[]>>}`
+    : never
+  : OptionsField;
+
+type SplitJoinedOptionsObjectFieldTuples<S extends string> = string extends S
+  ? OptionsField[]
+  : S extends ''
+  ? []
+  : S extends `${infer T}.${infer U}`
+  ? [T, ...SplitJoinedOptionsObjectFieldTuples<U>]
+  : [S];
+
+type OptionsObjectFieldTuplesType<O, T extends OptionsField[]> = T extends [infer F]
+  ? F extends keyof O
+    ? O[F]
+    : never
+  : T extends [infer F, ...infer R]
+  ? F extends keyof O
+    ? O[F] extends OptionsPrimitiveValue
+      ? O[F]
+      : OptionsObjectFieldTuplesType<O[F], Extract<R, OptionsField[]>>
+    : never
+  : never;
+
+type OptionsObjectFieldPath<O extends OptionsObject> = JoinOptionsObjectFieldTuples<
+  OptionsObjectFieldNameTuples<O>,
+  true
+>;
+
+type OptionsObjectFieldPathType<
+  O extends OptionsObject,
+  P extends string
+> = OptionsObjectFieldTuplesType<O, SplitJoinedOptionsObjectFieldTuples<P>>;
+
 const opsStringify = (value: any) =>
   JSON.stringify(value, (_, val) => {
     if (isFunction(val)) {
-      throw new Error();
+      throw 0;
     }
     return val;
   });
+
+const getPropByPath = <T>(obj: any, path: string): T =>
+  obj
+    ? `${path}`
+        .split('.')
+        .reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj)
+    : undefined;
 
 /**
  * The overflow behavior of an axis.
@@ -66,7 +139,7 @@ export type ScrollbarsAutoHideBehavior =
 /**
  * Describes the options of a OverlayScrollbars instance.
  */
-export interface Options {
+export type Options = {
   /** Whether the padding shall be absolute. */
   paddingAbsolute: boolean;
   /** Whether to show the native scrollbars. Has only an effect it the native scrollbars are overlaid. */
@@ -132,13 +205,21 @@ export interface Options {
      */
     pointers: string[] | null;
   };
-}
+};
 
 export type ReadonlyOptions = DeepReadonly<Options>;
 
 export type PartialOptions = DeepPartial<Options>;
 
-export const defaultOptions: Options = {
+export type OptionsFieldsPath = OptionsObjectFieldPath<Options>;
+
+export type OptionsFieldsPathType<Path extends string> = OptionsObjectFieldPathType<Options, Path>;
+
+export type OptionsCheckFn = <T extends OptionsFieldsPath>(
+  path: T
+) => [value: OptionsFieldsPathType<T>, changed: boolean];
+
+export const defaultOptions: ReadonlyOptions = {
   paddingAbsolute: false,
   showNativeOverlaidScrollbars: false,
   update: {
@@ -161,7 +242,7 @@ export const defaultOptions: Options = {
     clickScroll: false,
     pointers: ['mouse', 'touch', 'pen'],
   },
-};
+} satisfies OptionsObject & Options;
 
 export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): DeepPartial<T> => {
   const diff: DeepPartial<T> = {};
@@ -198,3 +279,8 @@ export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): D
 
   return diff;
 };
+
+export const createOptionCheck =
+  (options: ReadonlyOptions, changedOptions: PartialOptions, force?: boolean): OptionsCheckFn =>
+  (path) =>
+    [getPropByPath(options, path), force || getPropByPath(changedOptions, path) !== undefined];

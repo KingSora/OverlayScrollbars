@@ -1,8 +1,8 @@
 import { isArray } from '~/support/utils/types';
 import { each, keys } from '~/support/utils';
+import type { OptionsObject } from '~/options';
 import type {
   OptionsTemplate,
-  OptionsObjectType,
   OptionsTemplateNativeTypes,
   OptionsTemplateTypes,
   OptionsTemplateValue,
@@ -20,7 +20,7 @@ export type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes
 ];
 
 export type OptionsWithOptionsTemplate<T> = {
-  [P in keyof T]: T[P] extends OptionsObjectType
+  [P in keyof T]: T[P] extends OptionsObject
     ? OptionsWithOptionsTemplate<T[P]>
     : T[P] extends OptionsTemplateNativeTypes
     ? OptionsWithOptionsTemplateValue<T[P]>

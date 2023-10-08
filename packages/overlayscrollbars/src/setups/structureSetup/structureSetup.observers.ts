@@ -34,10 +34,10 @@ import {
   dataValueViewportOverflowVisible,
 } from '~/classnames';
 import { createSizeObserver, createTrinsicObserver, createDOMObserver } from '~/observers';
+import type { OptionsCheckFn } from '~/options';
 import type { PlainObject } from '~/typings';
 import type { DOMObserver, SizeObserverCallbackParams } from '~/observers';
 import type { CacheValues, WH } from '~/support';
-import type { SetupState, SetupUpdateCheckOption } from '~/setups';
 import type { StructureSetupState } from '~/setups/structureSetup';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import type {
@@ -45,7 +45,7 @@ import type {
   StructureSetupUpdateHints,
 } from '~/setups/structureSetup/structureSetup.update';
 
-export type StructureSetupObserversUpdate = (checkOption: SetupUpdateCheckOption) => void;
+export type StructureSetupObserversUpdate = (checkOption: OptionsCheckFn) => void;
 
 export type StructureSetupObservers = [
   destroy: () => void,
@@ -71,7 +71,7 @@ const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
 
 export const createStructureSetupObservers = (
   structureSetupElements: StructureSetupElementsObj,
-  setState: SetupState<StructureSetupState>[1],
+  state: StructureSetupState,
   structureSetupUpdate: (
     ...args: ExcludeFromTuple<Parameters<StructureSetupUpdate>, Parameters<StructureSetupUpdate>[0]>
   ) => any
@@ -163,7 +163,7 @@ export const createStructureSetupObservers = (
     const updateHints: Partial<StructureSetupUpdateHints> = {
       _heightIntrinsicChanged: heightIntrinsicChanged,
     };
-    setState({ _heightIntrinsic: heightIntrinsic });
+    assignDeep(state, { _heightIntrinsic: heightIntrinsic });
 
     !fromRecords && structureSetupUpdate(updateHints);
     return updateHints;
@@ -183,7 +183,7 @@ export const createStructureSetupObservers = (
       const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache;
       directionChanged = directionIsRTLChanged;
 
-      setState({ _directionIsRTL: directionIsRTL });
+      assignDeep(state, { _directionIsRTL: directionIsRTL });
     }
 
     updateFn({ _sizeChanged, _appear, _directionChanged: directionChanged });
@@ -310,14 +310,10 @@ export const createStructureSetupObservers = (
       return updateHints;
     },
     (checkOption) => {
-      const [ignoreMutation] = checkOption<string[] | null>('update.ignoreMutation');
-      const [attributes, attributesChanged] = checkOption<string[] | null>('update.attributes');
-      const [elementEvents, elementEventsChanged] = checkOption<Array<[string, string]> | null>(
-        'update.elementEvents'
-      );
-      const [debounceValue, debounceChanged] = checkOption<Array<number> | number | null>(
-        'update.debounce'
-      );
+      const [ignoreMutation] = checkOption('update.ignoreMutation');
+      const [attributes, attributesChanged] = checkOption('update.attributes');
+      const [elementEvents, elementEventsChanged] = checkOption('update.elementEvents');
+      const [debounceValue, debounceChanged] = checkOption('update.debounce');
       const updateContentMutationObserver = elementEventsChanged || attributesChanged;
       const ignoreMutationFromOptions = (mutation: MutationRecord) =>
         isFunction(ignoreMutation) && ignoreMutation(mutation);

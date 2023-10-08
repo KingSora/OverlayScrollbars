@@ -1,6 +1,5 @@
 import { noop, on, runEachAndClear, selfClearTimeout } from '~/support';
 import { getEnvironment } from '~/environment';
-import { createState, createOptionCheck } from '~/setups/setups';
 import { createScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
 import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import {
@@ -14,23 +13,26 @@ import {
   classNameScrollbarRtl,
   classNameScrollbarAutoHide,
 } from '~/classnames';
+import { type ReadonlyOptions, createOptionCheck } from '~/options';
 import type { ScrollbarsSetupElementsObj } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import type { StructureSetupUpdateHints } from '~/setups/structureSetup/structureSetup.update';
-import type {
-  ReadonlyOptions,
-  ScrollbarsVisibilityBehavior,
-  ScrollbarsAutoHideBehavior,
-} from '~/options';
-import type { Setup, StructureSetupState, StructureSetupStaticState } from '~/setups';
+import type { Setup, StructureSetup } from '~/setups';
 import type { InitializationTarget } from '~/initialization';
-import type { DeepPartial, OverflowStyle } from '~/typings';
+import type { OverflowStyle } from '~/typings';
+import type { PartialOptions } from '../../../dist/types/overlayscrollbars';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
 
-export interface ScrollbarsSetupStaticState {
+export interface ScrollbarsSetupUpdateInfo {
+  _changedOptions: PartialOptions;
+  _force: boolean;
+  _structureUpdateHints: Partial<StructureSetupUpdateHints>;
+}
+
+export interface ScrollbarsSetup
+  extends Setup<ScrollbarsSetupUpdateInfo, ScrollbarsSetupState, void> {
   _elements: ScrollbarsSetupElementsObj;
-  _appendElements: () => void;
 }
 
 // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
@@ -39,13 +41,10 @@ const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'm
 export const createScrollbarsSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions,
-  structureSetupState: (() => StructureSetupState) & StructureSetupStaticState,
+  structureSetupState: StructureSetup['_state'],
+  structureSetupElements: StructureSetup['_elements'],
   onScroll: (event: Event) => void
-): Setup<
-  ScrollbarsSetupState,
-  ScrollbarsSetupStaticState,
-  [DeepPartial<StructureSetupUpdateHints>]
-> => {
+): ScrollbarsSetup => {
   let autoHideIsMove: boolean | undefined;
   let autoHideIsLeave: boolean | undefined;
   let autoHideNotNever: boolean | undefined;
@@ -54,8 +53,6 @@ export const createScrollbarsSetup = (
   let instanceAutoHideSuspendScrollDestroyFn = noop;
   let instanceAutoHideDelay = 0;
 
-  const state = createState({});
-  const [getState] = state;
   const [requestMouseMoveAnimationFrame, cancelMouseMoveAnimationFrame] = selfClearTimeout();
   const [requestScrollAnimationFrame, cancelScrollAnimationFrame] = selfClearTimeout();
   const [scrollTimeout, clearScrollTimeout] = selfClearTimeout(100);
@@ -64,10 +61,10 @@ export const createScrollbarsSetup = (
   const [auotHideTimeout, clearAutoTimeout] = selfClearTimeout(() => instanceAutoHideDelay);
   const [elements, appendElements, destroyElements] = createScrollbarsSetupElements(
     target,
-    structureSetupState._elements,
+    structureSetupElements,
     createScrollbarsSetupEvents(options, structureSetupState)
   );
-  const { _host, _scrollEventElement, _isBody } = structureSetupState._elements;
+  const { _host, _scrollEventElement, _isBody } = structureSetupElements;
   const {
     _scrollbarsAddRemoveClass,
     _refreshScrollbarsHandleLength,
@@ -130,7 +127,7 @@ export const createScrollbarsSetup = (
     }),
     on(_scrollEventElement, 'scroll', (event) => {
       requestScrollAnimationFrame(() => {
-        _refreshScrollbarsHandleOffset(structureSetupState());
+        _refreshScrollbarsHandleOffset(structureSetupState);
 
         autoHideNotNever && manageScrollbarsAutoHide(true);
         scrollTimeout(() => {
@@ -143,40 +140,40 @@ export const createScrollbarsSetup = (
       _refreshScrollbarsScrollbarOffset();
     }),
   ];
-  const scrollbarsSetupState = getState.bind(0) as (() => ScrollbarsSetupState) &
-    ScrollbarsSetupStaticState;
-  scrollbarsSetupState._elements = elements;
-  scrollbarsSetupState._appendElements = appendElements;
 
-  return [
-    (changedOptions, force, structureUpdateHints) => {
+  return {
+    _create: () => {
+      appendElements();
+
+      return () => {
+        runEachAndClear(destroyFns);
+        instanceAutoHideSuspendScrollDestroyFn();
+      };
+    },
+    _update: ({ _changedOptions, _force, _structureUpdateHints }) => {
       const {
         _overflowEdgeChanged,
         _overflowAmountChanged,
         _overflowStyleChanged,
         _directionChanged,
         _appear,
-      } = structureUpdateHints;
+      } = _structureUpdateHints;
       const { _nativeScrollbarsOverlaid } = getEnvironment();
-      const checkOption = createOptionCheck(options, changedOptions, force);
-      const currStructureSetupState = structureSetupState();
+      const checkOption = createOptionCheck(options, _changedOptions, _force);
       const { _overflowAmount, _overflowStyle, _directionIsRTL, _hasOverflow } =
-        currStructureSetupState;
-      const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
-        checkOption<boolean>('showNativeOverlaidScrollbars');
-      const [theme, themeChanged] = checkOption<string | null>('scrollbars.theme');
-      const [visibility, visibilityChanged] =
-        checkOption<ScrollbarsVisibilityBehavior>('scrollbars.visibility');
-      const [autoHide, autoHideChanged] =
-        checkOption<ScrollbarsAutoHideBehavior>('scrollbars.autoHide');
-      const [autoHideSuspend, autoHideSuspendChanged] = checkOption<boolean>(
-        'scrollbars.autoHideSuspend'
+        structureSetupState;
+      const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = checkOption(
+        'showNativeOverlaidScrollbars'
       );
-      const [autoHideDelay] = checkOption<number>('scrollbars.autoHideDelay');
-      const [dragScroll, dragScrollChanged] = checkOption<boolean>('scrollbars.dragScroll');
-      const [clickScroll, clickScrollChanged] = checkOption<boolean>('scrollbars.clickScroll');
+      const [theme, themeChanged] = checkOption('scrollbars.theme');
+      const [visibility, visibilityChanged] = checkOption('scrollbars.visibility');
+      const [autoHide, autoHideChanged] = checkOption('scrollbars.autoHide');
+      const [autoHideSuspend, autoHideSuspendChanged] = checkOption('scrollbars.autoHideSuspend');
+      const [autoHideDelay] = checkOption('scrollbars.autoHideDelay');
+      const [dragScroll, dragScrollChanged] = checkOption('scrollbars.dragScroll');
+      const [clickScroll, clickScrollChanged] = checkOption('scrollbars.clickScroll');
 
-      const trulyAppeared = _appear && !force;
+      const trulyAppeared = _appear && !_force;
       const hasOverflow = _hasOverflow.x || _hasOverflow.y;
       const updateScrollbars = _overflowEdgeChanged || _overflowAmountChanged || _directionChanged;
       const updateVisibility = _overflowStyleChanged || visibilityChanged;
@@ -247,10 +244,10 @@ export const createScrollbarsSetup = (
         _scrollbarsAddRemoveClass(classNameScrollbarCornerless, !hasCorner);
       }
       if (updateScrollbars) {
-        _refreshScrollbarsHandleLength(currStructureSetupState);
-        _refreshScrollbarsHandleOffset(currStructureSetupState);
-        _refreshScrollbarsHandleOffsetTimeline(currStructureSetupState);
-        _refreshScrollbarsScrollbarOffsetTimeline(currStructureSetupState);
+        _refreshScrollbarsHandleLength(structureSetupState);
+        _refreshScrollbarsHandleOffset(structureSetupState);
+        _refreshScrollbarsHandleOffsetTimeline(structureSetupState);
+        _refreshScrollbarsScrollbarOffsetTimeline(structureSetupState);
         _refreshScrollbarsScrollbarOffset();
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.x, true);
@@ -258,10 +255,7 @@ export const createScrollbarsSetup = (
         _scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL && !_isBody);
       }
     },
-    scrollbarsSetupState,
-    () => {
-      runEachAndClear(destroyFns);
-      instanceAutoHideSuspendScrollDestroyFn();
-    },
-  ];
+    _state: {},
+    _elements: elements,
+  };
 };

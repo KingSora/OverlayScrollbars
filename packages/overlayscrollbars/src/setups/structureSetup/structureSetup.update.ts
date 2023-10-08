@@ -6,19 +6,20 @@ import {
   createPaddingUpdateSegment,
   createOverflowUpdateSegment,
 } from '~/setups/structureSetup/updateSegments';
-import type { SetupState, SetupUpdateSegment, SetupUpdateCheckOption } from '~/setups';
+import type { OptionsCheckFn } from '~/options';
+import type { SetupUpdateSegment } from '~/setups';
 import type { StructureSetupState } from '~/setups/structureSetup';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 
 export type CreateStructureUpdateSegment = (
   structureSetupElements: StructureSetupElementsObj,
-  state: SetupState<StructureSetupState>
+  state: StructureSetupState
 ) => StructureSetupUpdateSegment;
 
 export type StructureSetupUpdateSegment = SetupUpdateSegment<StructureSetupUpdateHints>;
 
 export type StructureSetupUpdate = (
-  checkOption: SetupUpdateCheckOption,
+  checkOption: OptionsCheckFn,
   updateHints: Partial<StructureSetupUpdateHints>,
   force?: boolean
 ) => StructureSetupUpdateHints;
@@ -57,7 +58,7 @@ const prepareUpdateHints = <T extends StructureSetupUpdateHints>(
 
 export const createStructureSetupUpdate = (
   structureSetupElements: StructureSetupElementsObj,
-  state: SetupState<StructureSetupState>
+  state: StructureSetupState
 ): StructureSetupUpdate => {
   const { _target, _viewport, _viewportAddRemoveClass, _viewportIsTarget } = structureSetupElements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _flexboxGlue } = getEnvironment();
@@ -71,7 +72,7 @@ export const createStructureSetupUpdate = (
   ];
 
   return (
-    checkOption: SetupUpdateCheckOption,
+    checkOption: OptionsCheckFn,
     updateHints: Partial<StructureSetupUpdateHints>,
     force?: boolean
   ) => {

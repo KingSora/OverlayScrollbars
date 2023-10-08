@@ -12,11 +12,10 @@ export const createTrinsicUpdateSegment: CreateStructureUpdateSegment = (
   state
 ) => {
   const { _content } = structureSetupElements;
-  const [getState] = state;
 
   return (updateHints) => {
     const { _flexboxGlue } = getEnvironment();
-    const { _heightIntrinsic } = getState();
+    const { _heightIntrinsic } = state;
     const { _heightIntrinsicChanged } = updateHints;
     const heightIntrinsicChanged = (_content || !_flexboxGlue) && _heightIntrinsicChanged;
 

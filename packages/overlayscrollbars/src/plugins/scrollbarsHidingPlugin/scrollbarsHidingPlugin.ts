@@ -76,7 +76,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
         flexboxGlue: boolean,
         viewport: HTMLElement,
         viewportArrange: HTMLStyleElement | false | null | undefined,
-        getState: () => StructureSetupState,
+        state: StructureSetupState,
         getViewportOverflowState: GetViewportOverflowState,
         hideNativeScrollbars: HideNativeScrollbars
       ): [ArrangeViewport, UndoArrangeViewport] => {
@@ -94,7 +94,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
           directionIsRTL
         ) => {
           if (doViewportArrange) {
-            const { _viewportPaddingStyle } = getState();
+            const { _viewportPaddingStyle } = state;
             const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
             const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
             const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
@@ -171,7 +171,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
           if (doViewportArrange) {
             const finalViewportOverflowState =
               viewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars);
-            const { _viewportPaddingStyle: viewportPaddingStyle } = getState();
+            const { _viewportPaddingStyle: viewportPaddingStyle } = state;
             const { _scrollbarsHideOffsetArrange } = finalViewportOverflowState;
             const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
             const finalPaddingStyle: StyleObject = {};
