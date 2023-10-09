@@ -33,7 +33,7 @@ import type {
 } from '~/plugins/scrollbarsHidingPlugin';
 import type { StyleObject, OverflowStyle, StyleObjectKey } from '~/typings';
 import type { OverflowBehavior } from '~/options';
-import type { CreateStructureUpdateSegment } from '~/setups/structureSetup/structureSetup.update';
+import type { CreateStructureUpdateSegment } from '../structureSetup';
 
 export interface ViewportOverflowState {
   _scrollbarsHideOffset: XY<number>;
@@ -89,10 +89,7 @@ const overflowIsVisible = (overflowBehavior: string) => overflowBehavior.indexOf
  * @returns
  */
 export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
-  structureSetupElements,
-  state
-) => {
-  const {
+  {
     _host,
     _padding,
     _viewport,
@@ -101,7 +98,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _viewportAddRemoveClass,
     _isBody,
     _windowElm,
-  } = structureSetupElements;
+  },
+  state
+) => {
   const {
     _nativeScrollbarsSize,
     _flexboxGlue,

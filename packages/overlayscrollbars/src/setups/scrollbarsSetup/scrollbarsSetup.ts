@@ -17,14 +17,15 @@ import { type ReadonlyOptions } from '~/options';
 import type { OptionsCheckFn, PartialOptions } from '~/options';
 import type { ScrollbarsSetupElementsObj } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import type {
-  ObserversSetup,
+  ObserversSetupState,
   ObserversSetupUpdateHints,
   Setup,
-  StructureSetup,
+  StructureSetupState,
   StructureSetupUpdateHints,
 } from '~/setups';
 import type { InitializationTarget } from '~/initialization';
 import type { OverflowStyle } from '~/typings';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
@@ -37,11 +38,11 @@ export interface ScrollbarsSetupUpdateInfo {
   _structureUpdateHints?: StructureSetupUpdateHints;
 }
 
-export interface ScrollbarsSetup
-  extends Setup<ScrollbarsSetupUpdateInfo, ScrollbarsSetupState, void> {
+export type ScrollbarsSetup = [
+  ...Setup<ScrollbarsSetupUpdateInfo, ScrollbarsSetupState, void>,
   /** The elements created by the scrollbars setup. */
-  _elements: ScrollbarsSetupElementsObj;
-}
+  elements: ScrollbarsSetupElementsObj
+];
 
 // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
 const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
@@ -49,9 +50,9 @@ const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'm
 export const createScrollbarsSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions,
-  observersSetupState: ObserversSetup['_state'],
-  structureSetupState: StructureSetup['_state'],
-  structureSetupElements: StructureSetup['_elements'],
+  observersSetupState: ObserversSetupState,
+  structureSetupState: StructureSetupState,
+  structureSetupElements: StructureSetupElementsObj,
   onScroll: (event: Event) => void
 ): ScrollbarsSetup => {
   let autoHideIsMove: boolean | undefined;
@@ -150,12 +151,12 @@ export const createScrollbarsSetup = (
     }),
   ];
 
-  return {
-    _create: () => {
+  return [
+    () => {
       push(destroyFns, appendElements());
       return () => runEachAndClear(destroyFns);
     },
-    _update: ({ _checkOption, _force, _observersUpdateHints, _structureUpdateHints }) => {
+    ({ _checkOption, _force, _observersUpdateHints, _structureUpdateHints }) => {
       const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
         _structureUpdateHints || {};
       const { _directionChanged, _appear } = _observersUpdateHints || {};
@@ -259,7 +260,7 @@ export const createScrollbarsSetup = (
         _scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL && !_isBody);
       }
     },
-    _state: {},
-    _elements: elements,
-  };
+    {},
+    elements,
+  ];
 };

@@ -275,43 +275,44 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       validateOptions(options)
     );
     const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
-    const [setupsCreate, setupsUpdate, setupsState, setupsElements, setupsCanceled] = createSetups(
-      target,
-      currentOptions,
-      ({ _changedOptions, _force }, { _observersUpdateHints, _structureUpdateHints }) => {
-        const {
-          _sizeChanged,
-          _directionChanged,
-          _heightIntrinsicChanged,
-          _contentMutation,
-          _hostMutation,
-        } = _observersUpdateHints;
+    const [setupsConstruct, setupsUpdate, setupsState, setupsElements, setupsCanceled] =
+      createSetups(
+        target,
+        currentOptions,
+        ({ _changedOptions, _force }, { _observersUpdateHints, _structureUpdateHints }) => {
+          const {
+            _sizeChanged,
+            _directionChanged,
+            _heightIntrinsicChanged,
+            _contentMutation,
+            _hostMutation,
+          } = _observersUpdateHints;
 
-        const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
-          _structureUpdateHints;
+          const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
+            _structureUpdateHints;
 
-        triggerEvent('updated', [
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          instance,
-          {
-            updateHints: {
-              sizeChanged: _sizeChanged,
-              directionChanged: _directionChanged,
-              heightIntrinsicChanged: _heightIntrinsicChanged,
-              overflowEdgeChanged: _overflowEdgeChanged,
-              overflowAmountChanged: _overflowAmountChanged,
-              overflowStyleChanged: _overflowStyleChanged,
-              contentMutation: _contentMutation,
-              hostMutation: _hostMutation,
+          triggerEvent('updated', [
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define
+            instance,
+            {
+              updateHints: {
+                sizeChanged: _sizeChanged,
+                directionChanged: _directionChanged,
+                heightIntrinsicChanged: _heightIntrinsicChanged,
+                overflowEdgeChanged: _overflowEdgeChanged,
+                overflowAmountChanged: _overflowAmountChanged,
+                overflowStyleChanged: _overflowStyleChanged,
+                contentMutation: _contentMutation,
+                hostMutation: _hostMutation,
+              },
+              changedOptions: _changedOptions || {},
+              force: !!_force,
             },
-            changedOptions: _changedOptions || {},
-            force: !!_force,
-          },
-        ]);
-      },
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      (scrollEvent) => triggerEvent('scroll', [instance, scrollEvent])
-    );
+          ]);
+        },
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        (scrollEvent) => triggerEvent('scroll', [instance, scrollEvent])
+      );
 
     const destroy = (canceled: boolean) => {
       removeInstance(instanceTarget);
@@ -457,7 +458,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       return instance;
     }
 
-    push(destroyFns, setupsCreate());
+    push(destroyFns, setupsConstruct());
 
     triggerEvent('initialized', [instance]);
 

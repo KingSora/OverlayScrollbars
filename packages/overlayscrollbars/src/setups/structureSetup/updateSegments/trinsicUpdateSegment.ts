@@ -1,18 +1,15 @@
 import { style } from '~/support';
 import { getEnvironment } from '~/environment';
-import type { CreateStructureUpdateSegment } from '~/setups/structureSetup/structureSetup.update';
+import type { CreateStructureUpdateSegment } from '../structureSetup';
 
 /**
  * Lifecycle with the responsibility to adjust the trinsic behavior of the content element.
  * @param structureUpdateHub
  * @returns
  */
-export const createTrinsicUpdateSegment: CreateStructureUpdateSegment = (
-  structureSetupElements
-) => {
-  const { _content } = structureSetupElements;
-
-  return ({ _observersUpdateHints, _observersState }) => {
+export const createTrinsicUpdateSegment: CreateStructureUpdateSegment =
+  ({ _content }) =>
+  ({ _observersUpdateHints, _observersState }) => {
     const { _flexboxGlue } = getEnvironment();
     const { _heightIntrinsicChanged } = _observersUpdateHints || {};
     const { _heightIntrinsic } = _observersState;
@@ -24,4 +21,3 @@ export const createTrinsicUpdateSegment: CreateStructureUpdateSegment = (
       });
     }
   };
-};

@@ -2,27 +2,28 @@ import { each, isEmptyObject, keys, runEachAndClear, scrollLeft, scrollTop } fro
 import { createOptionCheck } from '~/options';
 import type { DeepReadonly } from '~/typings';
 import type { InitializationTarget, PartialOptions, ReadonlyOptions } from '..';
-import type { ObserversSetup, ObserversSetupUpdateHints } from './observersSetup';
-import type { StructureSetup } from './structureSetup';
-import type { ScrollbarsSetup } from './scrollbarsSetup';
+import type { ObserversSetupState, ObserversSetupUpdateHints } from './observersSetup';
+import type { StructureSetupState, StructureSetupUpdateHints } from './structureSetup';
+import type { StructureSetupElementsObj } from './structureSetup/structureSetup.elements';
+import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup/scrollbarsSetup.elements';
 import { createObserversSetup } from './observersSetup';
 import { createScrollbarsSetup } from './scrollbarsSetup';
 import { createStructureSetup } from './structureSetup';
 
 export type SetupUpdateHints = Partial<Record<string, boolean>>;
 
-export interface Setup<
+export type Setup<
   U extends Record<string, any>,
   S extends Readonly<Record<string, any>>,
   H extends SetupUpdateHints | void
-> {
+> = [
   /** The create function which returns the `destroy` function. */
-  _create: () => () => void;
+  _create: () => () => void,
   /** Function which updates the setup and returns the update result. */
-  _update: (updateInfo: U) => H;
+  _update: (updateInfo: U) => H,
   /** Function which returns the current state. */
-  _state: S;
-}
+  _state: S
+];
 
 export interface SetupsUpdateInfo {
   /** The options that changed or `undefined` if none changed. */
@@ -36,22 +37,22 @@ export interface SetupsUpdateInfo {
 }
 
 export interface SetupsUpdateHints {
-  readonly _observersUpdateHints: Required<DeepReadonly<ReturnType<ObserversSetup['_update']>>>;
-  readonly _structureUpdateHints: Required<DeepReadonly<ReturnType<StructureSetup['_update']>>>;
+  readonly _observersUpdateHints: Required<DeepReadonly<ObserversSetupUpdateHints>>;
+  readonly _structureUpdateHints: Required<DeepReadonly<StructureSetupUpdateHints>>;
 }
 
 export interface SetupsState {
-  readonly _observersSetupState: DeepReadonly<ObserversSetup['_state']>;
-  readonly _structureSetupState: DeepReadonly<StructureSetup['_state']>;
+  readonly _observersSetupState: DeepReadonly<ObserversSetupState>;
+  readonly _structureSetupState: DeepReadonly<StructureSetupState>;
 }
 
 export interface SetupsElements {
-  readonly _structureSetupElements: DeepReadonly<StructureSetup['_elements']>;
-  readonly _scrollbarsSetupElements: DeepReadonly<ScrollbarsSetup['_elements']>;
+  readonly _structureSetupElements: DeepReadonly<StructureSetupElementsObj>;
+  readonly _scrollbarsSetupElements: DeepReadonly<ScrollbarsSetupElementsObj>;
 }
 
 export type Setups = [
-  create: () => () => void,
+  construct: () => () => void,
   update: (updateInfo: SetupsUpdateInfo) => boolean,
   getState: () => SetupsState,
   elements: SetupsElements,
@@ -75,33 +76,29 @@ export const createSetups = (
   onUpdated: (updateInfo: SetupsUpdateInfo, updateHints: SetupsUpdateHints) => void,
   onScroll: (scrollEvent: Event) => void
 ): Setups => {
-  const {
-    _create: structureSetupCreate,
-    _update: structureSetupUpdate,
-    _state: structureSetupState,
-    _elements: structureSetupElements,
-    _canceled: structureSetupCanceled,
-  } = createStructureSetup(target);
-  const {
-    _create: observersSetupCreate,
-    _update: observersSetupUpdate,
-    _state: observersSetupState,
-  } = createObserversSetup(structureSetupElements, (observersUpdateHints) => {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    update({}, observersUpdateHints);
-  });
-  const {
-    _create: scrollbarsSetupCreate,
-    _update: scrollbarsSetupUpdate,
-    _elements: scrollbarsSetupElements,
-  } = createScrollbarsSetup(
-    target,
-    options,
-    observersSetupState,
+  const [
+    structureSetupCreate,
+    structureSetupUpdate,
     structureSetupState,
     structureSetupElements,
-    onScroll
+    structureSetupCanceled,
+  ] = createStructureSetup(target);
+  const [observersSetupCreate, observersSetupUpdate, observersSetupState] = createObserversSetup(
+    structureSetupElements,
+    (observersUpdateHints) => {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      update({}, observersUpdateHints);
+    }
   );
+  const [scrollbarsSetupCreate, scrollbarsSetupUpdate, , scrollbarsSetupElements] =
+    createScrollbarsSetup(
+      target,
+      options,
+      observersSetupState,
+      structureSetupState,
+      structureSetupElements,
+      onScroll
+    );
 
   const update = (
     updateInfo: SetupsUpdateInfo,

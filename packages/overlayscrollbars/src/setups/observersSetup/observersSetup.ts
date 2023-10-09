@@ -265,8 +265,8 @@ export const createObserversSetup = (
       prevContentRect = currRContentRect;
     });
 
-  return {
-    _create: () => {
+  return [
+    () => {
       // order is matter!
       updateViewportAttrsFromHost();
       viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
@@ -282,7 +282,7 @@ export const createObserversSetup = (
         destroyHostMutationObserver();
       };
     },
-    _update: ({ _checkOption, _takeRecords }) => {
+    ({ _checkOption, _takeRecords }) => {
       const updateHints: ObserversSetupUpdateHints = {};
       const [ignoreMutation] = _checkOption('update.ignoreMutation');
       const [attributes, attributesChanged] = _checkOption('update.attributes');
@@ -360,6 +360,6 @@ export const createObserversSetup = (
 
       return updateHints;
     },
-    _state: state,
-  };
+    state,
+  ];
 };
