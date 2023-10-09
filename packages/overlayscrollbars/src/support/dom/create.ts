@@ -8,9 +8,7 @@ import { removeElements } from '~/support/dom/manipulation';
  */
 export const createDiv = (classNames?: string): HTMLDivElement => {
   const div = document.createElement('div');
-  if (classNames) {
-    attr(div, 'class', classNames);
-  }
+  attr(div, 'class', classNames);
   return div;
 };
 

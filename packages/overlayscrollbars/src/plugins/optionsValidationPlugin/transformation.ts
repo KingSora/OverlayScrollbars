@@ -1,5 +1,5 @@
 import { isArray } from '~/support/utils/types';
-import { each, keys } from '~/support/utils';
+import { each } from '~/support/utils';
 import type { OptionsObject } from '~/options';
 import type {
   OptionsTemplate,
@@ -40,9 +40,9 @@ export const transformOptions = <T>(
     _options: {},
   };
 
-  each(keys(optionsWithOptionsTemplate), (key: Extract<keyof T, string>) => {
+  each(optionsWithOptionsTemplate, (_, key) => {
     const val: PlainObject | OptionsTemplateTypes | Array<OptionsTemplateTypes> =
-      optionsWithOptionsTemplate[key];
+      optionsWithOptionsTemplate[key as Extract<keyof T, string>];
 
     if (isArray(val)) {
       result._options[key] = val[0];

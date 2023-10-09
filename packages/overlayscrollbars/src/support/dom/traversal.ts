@@ -1,11 +1,11 @@
-import { isClient } from '~/support/compatibility/server';
+import { isBrowser } from '~/support/compatibility/isBrowser';
 import { isElement } from '~/support/utils/types';
 import { push, from } from '~/support/utils/array';
 
 type InputElementType = Node | Element | Node | false | null | undefined;
 type OutputElementType = Node | Element | false | null | undefined;
 
-const getElmPrototype = (isClient() && Element.prototype) as Element; // only Element.prototype wont work on server
+const getElmPrototype = (isBrowser && Element.prototype) as Element; // only Element.prototype wont work on server
 
 /**
  * Find all elements with the passed selector, outgoing (and including) the passed element or the document if no element was provided.

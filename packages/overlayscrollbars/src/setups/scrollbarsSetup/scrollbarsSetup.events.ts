@@ -113,8 +113,8 @@ const createInteractiveScrollEvents = (
 
     if (continuePointerDown(pointerDownEvent, options, isDragScroll)) {
       const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
-      const getHandleRect = () => getBoundingClientRect(_handle);
-      const getTrackRect = () => getBoundingClientRect(_track);
+      const getHandleRect = getBoundingClientRect.bind(0, _handle);
+      const getTrackRect = getBoundingClientRect.bind(0, _track);
       const getHandleOffset = (handleRect?: DOMRect, trackRect?: DOMRect) =>
         (handleRect || getHandleRect())[leftTopKey] - (trackRect || getTrackRect())[leftTopKey];
       const moveHandleRelative = createRelativeHandleMove(
@@ -197,7 +197,7 @@ export const createScrollbarsSetupEvents =
         scrollbarsAddRemoveClass(classNameScrollbarInteraction, true);
       }),
       on(_scrollbar, 'pointerleave pointercancel', () => {
-        scrollbarsAddRemoveClass(classNameScrollbarInteraction);
+        scrollbarsAddRemoveClass.bind(classNameScrollbarInteraction, false);
       }),
       on(
         _scrollbar,

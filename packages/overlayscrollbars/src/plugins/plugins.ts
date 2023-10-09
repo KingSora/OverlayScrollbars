@@ -84,11 +84,11 @@ export const staticPluginModuleInstances: Record<string, PluginModuleInstance> =
  * @returns The added plugin modules of the registered plugins.
  */
 export const addPlugins = (addedPlugin: Plugin[]) => {
-  each(addedPlugin, (plugin) => {
-    each(keys(plugin), (key) => {
+  each(addedPlugin, (plugin) =>
+    each(plugin, (_, key) => {
       pluginModules[key] = plugin[key];
-    });
-  });
+    })
+  );
 };
 
 export const registerPluginModuleInstances = (

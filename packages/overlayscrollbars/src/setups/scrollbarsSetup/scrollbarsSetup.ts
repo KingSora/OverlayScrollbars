@@ -92,7 +92,7 @@ export const createScrollbarsSetup = (
     if (removeAutoHide) {
       _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden);
     } else {
-      const hide = () => _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden, true);
+      const hide = _scrollbarsAddRemoveClass.bind(0, classNameScrollbarAutoHideHidden, true);
       if (instanceAutoHideDelay > 0 && !delayless) {
         auotHideTimeout(hide);
       } else {
@@ -154,7 +154,7 @@ export const createScrollbarsSetup = (
   return [
     () => {
       push(destroyFns, appendElements());
-      return () => runEachAndClear(destroyFns);
+      return runEachAndClear.bind(0, destroyFns);
     },
     ({ _checkOption, _force, _observersUpdateHints, _structureUpdateHints }) => {
       const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =

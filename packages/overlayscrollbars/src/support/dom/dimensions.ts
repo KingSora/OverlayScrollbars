@@ -25,7 +25,7 @@ export const windowSize = (): WH => ({
  * Returns the scroll- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the scroll- width and height shall be returned.
  */
-export const offsetSize = (elm: HTMLElement | null | undefined): WH =>
+export const offsetSize = (elm: HTMLElement | null | undefined): Readonly<WH> =>
   elm
     ? {
         w: elm.offsetWidth,
@@ -37,7 +37,7 @@ export const offsetSize = (elm: HTMLElement | null | undefined): WH =>
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const clientSize = (elm: HTMLElement | false | null | undefined): WH =>
+export const clientSize = (elm: HTMLElement | false | null | undefined): Readonly<WH> =>
   elm
     ? {
         w: elm.clientWidth,
@@ -49,7 +49,7 @@ export const clientSize = (elm: HTMLElement | false | null | undefined): WH =>
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const scrollSize = (elm: HTMLElement | false | null | undefined): WH =>
+export const scrollSize = (elm: HTMLElement | false | null | undefined): Readonly<WH> =>
   elm
     ? {
         w: elm.scrollWidth,
@@ -61,7 +61,7 @@ export const scrollSize = (elm: HTMLElement | false | null | undefined): WH =>
  * Returns the fractional- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the fractional- width and height shall be returned.
  */
-export const fractionalSize = (elm: HTMLElement | false | null | undefined): WH => {
+export const fractionalSize = (elm: HTMLElement | false | null | undefined): Readonly<WH> => {
   const cssHeight = parseFloat(style(elm, 'height')) || 0;
   const cssWidth = parseFloat(style(elm, 'width')) || 0;
   return {

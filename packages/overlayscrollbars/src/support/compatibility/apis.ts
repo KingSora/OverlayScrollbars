@@ -1,5 +1,6 @@
-import { isClient } from '~/support/compatibility/server';
+import { isBrowser } from '~/support/compatibility/isBrowser';
 import { jsAPI } from '~/support/compatibility/vendors';
+import { noop } from '../utils/noop';
 
 export const MutationObserverConstructor = jsAPI<typeof MutationObserver>('MutationObserver');
 export const IntersectionObserverConstructor =
@@ -11,8 +12,8 @@ export const scrollT = jsAPI<new (constructor: unknown) => AnimationTimeline>(
   // @ts-ignore
   'ScrollTimeline'
 );
-export const setT = (isClient() && window.setTimeout) as (
+export const setT = (isBrowser ? window.setTimeout : noop) as (
   handler: TimerHandler,
   timeout?: number
 ) => number;
-export const clearT = (isClient() && window.clearTimeout) as (id?: number) => void;
+export const clearT = (isBrowser ? window.clearTimeout : noop) as (id?: number) => void;

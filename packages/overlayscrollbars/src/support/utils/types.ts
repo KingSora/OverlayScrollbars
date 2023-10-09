@@ -1,7 +1,7 @@
-import { isClient } from '~/support/compatibility/server';
+import { isBrowser } from '~/support/compatibility/isBrowser';
 import type { PlainObject } from '~/typings';
 
-const ElementNodeType = isClient() && Node.ELEMENT_NODE;
+const ElementNodeType = isBrowser && Node.ELEMENT_NODE;
 const { toString, hasOwnProperty } = Object.prototype;
 
 export const isUndefined = (obj: any): obj is undefined => obj === undefined;

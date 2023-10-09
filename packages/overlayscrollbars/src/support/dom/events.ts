@@ -83,7 +83,7 @@ export const on = <T extends Event = Event>(
         : listener
     ) as EventListener;
 
-    push(offListeners, off.bind(null, target, eventName, finalListener, capture));
+    push(offListeners, off.bind(0, target, eventName, finalListener, capture));
     target.addEventListener(eventName, finalListener, nativeOptions);
   });
 

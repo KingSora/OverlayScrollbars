@@ -1,6 +1,7 @@
 import { isNumber, isFunction } from '~/support/utils/types';
 import { from } from '~/support/utils/array';
 import { rAF, cAF, setT, clearT } from '~/support/compatibility/apis';
+import { noop } from './noop';
 
 type DebounceTiming = number | false | null | undefined;
 
@@ -27,8 +28,6 @@ export interface Debounced<FunctionToDebounce extends (...args: any) => any> {
   (...args: Parameters<FunctionToDebounce>): ReturnType<FunctionToDebounce>;
   _flush(): void;
 }
-
-export const noop = () => {}; // eslint-disable-line
 
 /**
  * Creates a timeout and cleartimeout tuple. The timeout function always clears the previously created timeout before it runs.
@@ -61,7 +60,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
   let maxTimeoutId: number | undefined;
   let prevArguments: Parameters<FunctionToDebounce> | null | undefined;
   let latestArguments: Parameters<FunctionToDebounce> | null | undefined;
-  let clear: () => void = noop;
+  let clear = noop;
   const { _timeout, _maxDelay, _mergeParams } = options || {};
 
   const invokeFunctionToDebounce = function (args: IArguments) {

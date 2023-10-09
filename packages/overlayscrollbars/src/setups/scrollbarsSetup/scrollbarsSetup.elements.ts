@@ -366,7 +366,7 @@ export const createScrollbarsSetupElements = (
       scrollbarsAddRemoveClass(classNameScrollbarTransitionless);
     }, 300);
 
-    return () => runEachAndClear(destroyFns);
+    return runEachAndClear.bind(0, destroyFns);
   };
 
   generateHorizontalScrollbarStructure();

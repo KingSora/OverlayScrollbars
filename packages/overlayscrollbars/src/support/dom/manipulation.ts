@@ -102,9 +102,8 @@ export const removeElements = (nodes: NodeCollection): void => {
   if (isArrayLike(nodes)) {
     each(from(nodes), (e) => removeElements(e));
   } else if (nodes) {
+    // element.remove() not supported in IE11
     const parentElm = parent(nodes);
-    if (parentElm) {
-      parentElm.removeChild(nodes);
-    }
+    parentElm && parentElm.removeChild(nodes);
   }
 };

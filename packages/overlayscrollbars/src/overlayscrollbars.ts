@@ -419,16 +419,13 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
         );
       },
       update: (_force?: boolean) => setupsUpdate({ _force, _takeRecords: true }),
-      destroy: () => destroy(false),
+      destroy: destroy.bind(0, false),
       plugin: <P extends InstancePlugin>(plugin: P) =>
         instancePluginModuleInstances[keys(plugin)[0]] as
           | InferInstancePluginModuleInstance<P>
           | undefined,
     };
-    const resizeUpdate = () => {
-      instance.update(true);
-    };
-
+    const resizeUpdate = instance.update.bind(0, true);
     push(destroyFns, [
       _addZoomListener(resizeUpdate),
       _addResizeListener(resizeUpdate),

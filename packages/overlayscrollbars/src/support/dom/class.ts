@@ -1,6 +1,5 @@
 import { isString } from '~/support/utils/types';
-import { each } from '~/support/utils/array';
-import { keys } from '~/support/utils/object';
+import { each, from } from '~/support/utils/array';
 
 type ClassContainingElement = Node | Element | false | null | undefined;
 type ClassName = string | false | null | undefined;
@@ -60,20 +59,11 @@ export const addClass = (elm: ClassContainingElement, className: ClassName): (()
  * @param classNameB ClassName B.
  */
 export const diffClass = (classNameA: ClassName, classNameB: ClassName) => {
-  const classNameASplit = classNameA && classNameA.split(' ');
-  const classNameBSplit = classNameB && classNameB.split(' ');
-  const tempObj: Record<string, number> = {};
+  const set = new Set<string>(classNameA ? classNameA.split(' ') : []);
 
-  each(classNameASplit, (className) => {
-    tempObj[className] = 1;
-  });
-  each(classNameBSplit, (className) => {
-    if (tempObj[className]) {
-      delete tempObj[className];
-    } else {
-      tempObj[className] = 1;
-    }
+  each(classNameB ? classNameB.split(' ') : [], (className) => {
+    set.has(className) ? set.delete(className) : set.add(className);
   });
 
-  return keys(tempObj);
+  return from(set);
 };

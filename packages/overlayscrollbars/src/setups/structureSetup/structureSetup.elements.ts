@@ -237,7 +237,7 @@ export const createStructureSetupElements = (
         )
       );
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
-  const destroy = () => runEachAndClear(destroyFns);
+  const destroy = runEachAndClear.bind(0, destroyFns);
   const appendElements = () => {
     attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
     attr(_padding, dataAttributePadding, '');

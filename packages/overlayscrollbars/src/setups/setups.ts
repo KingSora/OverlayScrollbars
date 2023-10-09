@@ -161,7 +161,7 @@ export const createSetups = (
       scrollLeft(_viewport, initialScrollLeft);
       scrollTop(_viewport, initialScrollTop);
 
-      return () => runEachAndClear(destroyFns);
+      return runEachAndClear.bind(0, destroyFns);
     },
     update,
     () => ({

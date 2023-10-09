@@ -67,9 +67,9 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
     }
   };
 
-  const addEvent: AddEvent<EventArgs> = ((
+  const addEvent: AddEvent<EventArgs> = (
     nameOrEventListeners: keyof EventArgs | EventListeners<EventArgs>,
-    listenerOrPure:
+    listenerOrPure?:
       | EventListener<EventArgs, keyof EventArgs>
       | EventListener<EventArgs, keyof EventArgs>[]
       | boolean
@@ -96,7 +96,7 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
     });
 
     return runEachAndClear.bind(0, offFns);
-  }) as AddEvent<EventArgs>; // sorry!
+  };
 
   const triggerEvent: TriggerEvent<EventArgs> = (name, args) => {
     const eventSet = events.get(name);

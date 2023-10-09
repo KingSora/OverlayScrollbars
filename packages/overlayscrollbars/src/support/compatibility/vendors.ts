@@ -1,5 +1,5 @@
 import { each } from '~/support/utils/array';
-import { isClient } from '~/support/compatibility/server';
+import { isBrowser } from '~/support/compatibility/isBrowser';
 import { hasOwnProperty } from '~/support/utils/object';
 import { createDiv } from '~/support/dom/create';
 
@@ -103,7 +103,7 @@ export const cssPropertyValue = (
  * @param name The name of the JS function, object or constructor.
  */
 export const jsAPI = <T = any>(name: JsApiName): T | undefined => {
-  if (isClient()) {
+  if (isBrowser) {
     let result: any = jsCache[name] || window[name];
 
     if (hasOwnProperty(jsCache, name)) {

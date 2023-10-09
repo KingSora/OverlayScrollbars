@@ -1,4 +1,4 @@
-import { each, keys } from '~/support/utils';
+import { each } from '~/support/utils';
 import { isString, isNumber, isArray, isUndefined } from '~/support/utils/types';
 import type { PlainObject, StyleObject, StyleObjectKey } from '~/typings';
 
@@ -98,8 +98,8 @@ export function style<CustomCssProps>(
     return getStylesResult;
   }
   elm &&
-    each(keys(styles), (key: StyleObjectKey) =>
-      setCSSVal(elm, key, styles[key as keyof typeof styles]!)
+    each(styles, (_, key) =>
+      setCSSVal(elm, key as StyleObjectKey, styles[key as keyof typeof styles]!)
     );
 }
 
