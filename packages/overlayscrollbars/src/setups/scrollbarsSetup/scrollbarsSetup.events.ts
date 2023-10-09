@@ -1,5 +1,5 @@
 import {
-  directionIsRTL,
+  getDirectionIsRTL,
   getBoundingClientRect,
   offsetSize,
   on,
@@ -98,7 +98,7 @@ const createInteractiveScrollEvents = (
       const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
       const scrollDeltaPercent = (invertedScale * deltaMovement) / handleTrackDiff;
       const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
-      const isRTL = directionIsRTL(_scrollbar);
+      const isRTL = getDirectionIsRTL(_scrollbar);
       const negateMultiplactor =
         isRTL && isHorizontal ? (_rtlScrollBehavior.n || _rtlScrollBehavior.i ? 1 : -1) : 1;
 

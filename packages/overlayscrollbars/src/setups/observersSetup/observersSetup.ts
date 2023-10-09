@@ -1,64 +1,72 @@
 import {
-  debounce,
-  isArray,
-  isNumber,
-  each,
-  indexOf,
-  isString,
+  ResizeObserverConstructor,
+  assignDeep,
   attr,
-  removeAttr,
+  closest,
+  createCache,
+  debounce,
+  getDirectionIsRTL,
+  domRectHasDimensions,
+  each,
+  equalWH,
+  fractionalSize,
+  indexOf,
+  isArray,
+  isFunction,
+  isNumber,
+  isString,
   keys,
   liesBetween,
-  scrollSize,
-  equalWH,
-  createCache,
-  fractionalSize,
-  isFunction,
-  ResizeObserverConstructor,
-  closest,
-  assignDeep,
-  push,
+  removeAttr,
   scrollLeft,
+  scrollSize,
   scrollTop,
-  noop,
-  domRectHasDimensions,
 } from '~/support';
+import { type PartialOptions } from '~/options';
+import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
 import { getEnvironment } from '~/environment';
 import {
+  classNameScrollbar,
   dataAttributeHost,
+  dataAttributeViewport,
   dataValueHostOverflowVisible,
   dataValueHostUpdating,
-  classNameScrollbar,
   dataValueViewportArrange,
-  dataAttributeViewport,
   dataValueViewportOverflowVisible,
 } from '~/classnames';
-import { createSizeObserver, createTrinsicObserver, createDOMObserver } from '~/observers';
 import type { OptionsCheckFn } from '~/options';
-import type { PlainObject } from '~/typings';
-import type { DOMObserver, SizeObserverCallbackParams } from '~/observers';
-import type { CacheValues, WH } from '~/support';
-import type { StructureSetupState } from '~/setups/structureSetup';
+import type { SizeObserverCallbackParams } from '~/observers';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
-import type {
-  StructureSetupUpdate,
-  StructureSetupUpdateHints,
-} from '~/setups/structureSetup/structureSetup.update';
+import type { Setup } from '~/setups';
+import type { CacheValues, WH } from '~/support';
+import type { PlainObject } from '~/typings';
 
-export type StructureSetupObserversUpdate = (checkOption: OptionsCheckFn) => void;
+export interface ObserversSetupState {
+  _heightIntrinsic: boolean;
+  _directionIsRTL: boolean;
+}
 
-export type StructureSetupObservers = [
-  destroy: () => void,
-  appendElements: () => void,
-  updateObservers: () => Partial<StructureSetupUpdateHints>,
-  updateObserversOptions: StructureSetupObserversUpdate
-];
+export interface ObserversSetupUpdateInfo {
+  _checkOption: OptionsCheckFn;
+  _changedOptions?: PartialOptions;
+  _force?: boolean;
+  _takeRecords?: boolean;
+}
 
-type ExcludeFromTuple<T extends readonly any[], E> = T extends [infer F, ...infer R]
-  ? [F] extends [E]
-    ? ExcludeFromTuple<R, E>
-    : [F, ...ExcludeFromTuple<R, E>]
-  : [];
+export type ObserversSetupUpdateHints = {
+  _sizeChanged?: boolean;
+  _directionChanged?: boolean;
+  _heightIntrinsicChanged?: boolean;
+  _hostMutation?: boolean;
+  _contentMutation?: boolean;
+  _appear?: boolean;
+};
+
+export type ObserversSetup = Setup<
+  ObserversSetupUpdateInfo,
+  ObserversSetupState,
+  ObserversSetupUpdateHints
+>;
 
 const hostSelector = `[${dataAttributeHost}]`;
 
@@ -69,16 +77,19 @@ const viewportAttrsFromTarget = ['tabindex'];
 const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
 const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
 
-export const createStructureSetupObservers = (
+export const createObserversSetup = (
   structureSetupElements: StructureSetupElementsObj,
-  state: StructureSetupState,
-  structureSetupUpdate: (
-    ...args: ExcludeFromTuple<Parameters<StructureSetupUpdate>, Parameters<StructureSetupUpdate>[0]>
-  ) => any
-): StructureSetupObservers => {
+  onObserversUpdated: (updateHints: ObserversSetupUpdateHints) => void
+): ObserversSetup => {
   let debounceTimeout: number | false | undefined;
   let debounceMaxDelay: number | false | undefined;
-  let contentMutationObserver: DOMObserver<true> | undefined;
+  let updateContentMutationObserver: (() => void) | undefined;
+  let destroyContentMutationObserver: (() => void) | undefined;
+
+  const state: ObserversSetupState = {
+    _heightIntrinsic: false,
+    _directionIsRTL: getDirectionIsRTL(structureSetupElements._host),
+  };
   const {
     _host,
     _viewport,
@@ -126,10 +137,12 @@ export const createStructureSetupObservers = (
       };
     }
   );
+
   const contentMutationObserverAttr = _isTextarea
     ? baseStyleChangingAttrsTextarea
     : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
-  const structureSetupUpdateWithDebouncedAdaptiveUpdateHints = debounce(structureSetupUpdate, {
+
+  const onObserversUpdatedDebounced = debounce(onObserversUpdated, {
     _timeout: () => debounceTimeout,
     _maxDelay: () => debounceMaxDelay,
     _mergeParams(prev, curr) {
@@ -142,7 +155,7 @@ export const createStructureSetupObservers = (
             obj[key] = prevObj[key as keyof typeof prevObj] || currObj[key as keyof typeof currObj];
             return obj;
           }, {} as PlainObject),
-      ] as [Partial<StructureSetupUpdateHints>];
+      ] as [Partial<ObserversSetupUpdateHints>];
     },
   });
 
@@ -158,74 +171,77 @@ export const createStructureSetupObservers = (
       }
     });
   };
-  const onTrinsicChanged = (heightIntrinsicCache: CacheValues<boolean>, fromRecords?: true) => {
+
+  const onTrinsicChanged = (
+    heightIntrinsicCache: CacheValues<boolean>,
+    fromRecords?: true
+  ): ObserversSetupUpdateHints => {
     const [heightIntrinsic, heightIntrinsicChanged] = heightIntrinsicCache;
-    const updateHints: Partial<StructureSetupUpdateHints> = {
+    const updateHints = {
       _heightIntrinsicChanged: heightIntrinsicChanged,
     };
-    assignDeep(state, { _heightIntrinsic: heightIntrinsic });
 
-    !fromRecords && structureSetupUpdate(updateHints);
+    assignDeep(state, { _heightIntrinsic: heightIntrinsic });
+    !fromRecords && onObserversUpdated(updateHints);
+
     return updateHints;
   };
+
   const onSizeChanged = ({
     _sizeChanged,
     _directionIsRTLCache,
     _appear,
   }: SizeObserverCallbackParams) => {
-    const updateFn =
-      !_sizeChanged || _appear
-        ? structureSetupUpdate
-        : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
+    const updateFn = !_sizeChanged || _appear ? onObserversUpdated : onObserversUpdatedDebounced;
+    const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache || [];
 
-    let directionChanged = false;
-    if (_directionIsRTLCache) {
-      const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache;
-      directionChanged = directionIsRTLChanged;
-
-      assignDeep(state, { _directionIsRTL: directionIsRTL });
-    }
-
-    updateFn({ _sizeChanged, _appear, _directionChanged: directionChanged });
+    assignDeep(state, { _directionIsRTL: directionIsRTL || false });
+    updateFn({ _sizeChanged, _appear, _directionChanged: directionIsRTLChanged });
   };
-  const onContentMutation = (contentChangedThroughEvent: boolean, fromRecords?: true) => {
+
+  const onContentMutation = (
+    contentChangedThroughEvent: boolean,
+    fromRecords?: true
+  ): ObserversSetupUpdateHints => {
     const [, contentSizeChanged] = updateContentSizeCache();
-    const updateHints: Partial<StructureSetupUpdateHints> = {
+    const updateHints = {
       _contentMutation: contentSizeChanged,
     };
     // if contentChangedThroughEvent is true its already debounced
-    const updateFn = contentChangedThroughEvent
-      ? structureSetupUpdate
-      : structureSetupUpdateWithDebouncedAdaptiveUpdateHints;
+    const updateFn = contentChangedThroughEvent ? onObserversUpdated : onObserversUpdatedDebounced;
 
-    if (contentSizeChanged) {
-      !fromRecords && updateFn(updateHints);
-    }
+    contentSizeChanged && !fromRecords && updateFn(updateHints);
+
     return updateHints;
   };
+
   const onHostMutation = (
     targetChangedAttrs: string[],
     targetStyleChanged: boolean,
     fromRecords?: true
-  ) => {
-    const updateHints: Partial<StructureSetupUpdateHints> = { _hostMutation: targetStyleChanged };
-    if (targetStyleChanged) {
-      !fromRecords && structureSetupUpdateWithDebouncedAdaptiveUpdateHints(updateHints);
+  ): ObserversSetupUpdateHints => {
+    const updateHints = { _hostMutation: targetStyleChanged };
+
+    if (targetStyleChanged && !fromRecords) {
+      onObserversUpdatedDebounced(updateHints);
     } else if (!_viewportIsTarget) {
       updateViewportAttrsFromHost(targetChangedAttrs);
     }
+
     return updateHints;
   };
 
-  const [destroyTrinsicObserver, appendTrinsicObserver, updateTrinsicObserver] =
-    _content || !_flexboxGlue ? createTrinsicObserver(_host, onTrinsicChanged) : [noop, noop, noop];
-  const [destroySizeObserver, appendSizeObserver] = !_viewportIsTarget
-    ? createSizeObserver(_host, onSizeChanged, {
-        _appear: true,
-        _direction: true,
-      })
-    : [noop, noop];
-  const [destroyHostMutationObserver, updateHostMutationObserver] = createDOMObserver(
+  const [constructTrinsicObserver, updateTrinsicObserver] =
+    _content || !_flexboxGlue ? createTrinsicObserver(_host, onTrinsicChanged) : [];
+
+  const constructSizeObserver =
+    !_viewportIsTarget &&
+    createSizeObserver(_host, onSizeChanged, {
+      _appear: true,
+      _direction: true,
+    });
+
+  const [constructHostMutationObserver, updateHostMutationObserver] = createDOMObserver(
     _host,
     false,
     onHostMutation,
@@ -249,81 +265,38 @@ export const createStructureSetupObservers = (
       prevContentRect = currRContentRect;
     });
 
-  return [
-    () => {
-      destroyTrinsicObserver();
-      destroySizeObserver();
-      contentMutationObserver && contentMutationObserver[0](); // destroy
-      viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
-      destroyHostMutationObserver();
-    },
-    () => {
+  return {
+    _create: () => {
       // order is matter!
-      viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
       updateViewportAttrsFromHost();
-      appendSizeObserver();
-      appendTrinsicObserver();
-    },
-    () => {
-      const updateHints: Partial<StructureSetupUpdateHints> = {};
-      const hostUpdateResult = updateHostMutationObserver();
-      const trinsicUpdateResult = updateTrinsicObserver();
-      const contentUpdateResult = contentMutationObserver && contentMutationObserver[1](); // update
+      viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
+      const destroySizeObserver = constructSizeObserver && constructSizeObserver();
+      const destroyTrinsicObserver = constructTrinsicObserver && constructTrinsicObserver();
+      const destroyHostMutationObserver = constructHostMutationObserver();
 
-      if (hostUpdateResult) {
-        assignDeep(
-          updateHints,
-          onHostMutation.apply(
-            0,
-            push(hostUpdateResult, true) as [
-              ...updateResult: typeof hostUpdateResult,
-              fromRecords: true
-            ]
-          )
-        );
-      }
-      if (trinsicUpdateResult) {
-        assignDeep(
-          updateHints,
-          onTrinsicChanged.apply(
-            0,
-            push(trinsicUpdateResult as any[], true) as [
-              ...updateResult: typeof trinsicUpdateResult,
-              fromRecords: true
-            ]
-          )
-        );
-      }
-      if (contentUpdateResult) {
-        assignDeep(
-          updateHints,
-          onContentMutation.apply(
-            0,
-            push(contentUpdateResult, true) as [
-              ...updateResult: typeof contentUpdateResult,
-              fromRecords: true
-            ]
-          )
-        );
-      }
-
-      return updateHints;
+      return () => {
+        viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
+        destroySizeObserver && destroySizeObserver();
+        destroyTrinsicObserver && destroyTrinsicObserver();
+        destroyContentMutationObserver && destroyContentMutationObserver();
+        destroyHostMutationObserver();
+      };
     },
-    (checkOption) => {
-      const [ignoreMutation] = checkOption('update.ignoreMutation');
-      const [attributes, attributesChanged] = checkOption('update.attributes');
-      const [elementEvents, elementEventsChanged] = checkOption('update.elementEvents');
-      const [debounceValue, debounceChanged] = checkOption('update.debounce');
-      const updateContentMutationObserver = elementEventsChanged || attributesChanged;
+    _update: ({ _checkOption, _takeRecords }) => {
+      const updateHints: ObserversSetupUpdateHints = {};
+      const [ignoreMutation] = _checkOption('update.ignoreMutation');
+      const [attributes, attributesChanged] = _checkOption('update.attributes');
+      const [elementEvents, elementEventsChanged] = _checkOption('update.elementEvents');
+      const [debounceValue, debounceChanged] = _checkOption('update.debounce');
+      const contentMutationObserverChanged = elementEventsChanged || attributesChanged;
       const ignoreMutationFromOptions = (mutation: MutationRecord) =>
         isFunction(ignoreMutation) && ignoreMutation(mutation);
 
-      if (updateContentMutationObserver) {
-        if (contentMutationObserver) {
-          contentMutationObserver[1](); // update
-          contentMutationObserver[0](); // destroy
-        }
-        contentMutationObserver = createDOMObserver(
+      if (contentMutationObserverChanged) {
+        updateContentMutationObserver && updateContentMutationObserver();
+        destroyContentMutationObserver && destroyContentMutationObserver();
+
+        const [construct, update] = createDOMObserver(
           _content || _viewport,
           true,
           onContentMutation,
@@ -332,23 +305,26 @@ export const createStructureSetupObservers = (
             _eventContentChange: elementEvents,
             _nestedTargetSelector: hostSelector,
             _ignoreContentChange: (mutation, isNestedTarget) => {
-              const { target, attributeName } = mutation;
+              const { target: mutationTarget, attributeName } = mutation;
               const ignore =
                 !isNestedTarget && attributeName && !_viewportIsTarget
-                  ? liesBetween(target, hostSelector, viewportSelector)
+                  ? liesBetween(mutationTarget, hostSelector, viewportSelector)
                   : false;
               return (
                 ignore ||
-                !!closest(target, `.${classNameScrollbar}`) || // ignore explicitely all scrollbar elements
+                !!closest(mutationTarget, `.${classNameScrollbar}`) || // ignore explicitely all scrollbar elements
                 !!ignoreMutationFromOptions(mutation)
               );
             },
           }
         );
+
+        destroyContentMutationObserver = construct();
+        updateContentMutationObserver = update;
       }
 
       if (debounceChanged) {
-        structureSetupUpdateWithDebouncedAdaptiveUpdateHints._flush();
+        onObserversUpdatedDebounced._flush();
         if (isArray(debounceValue)) {
           const timeout = debounceValue[0];
           const maxWait = debounceValue[1];
@@ -362,6 +338,28 @@ export const createStructureSetupObservers = (
           debounceMaxDelay = false;
         }
       }
+
+      if (_takeRecords) {
+        const hostUpdateResult = updateHostMutationObserver();
+        const trinsicUpdateResult = updateTrinsicObserver && updateTrinsicObserver();
+        const contentUpdateResult =
+          updateContentMutationObserver && updateContentMutationObserver();
+
+        hostUpdateResult &&
+          assignDeep(
+            updateHints,
+            onHostMutation(hostUpdateResult[0], hostUpdateResult[1], _takeRecords)
+          );
+
+        trinsicUpdateResult &&
+          assignDeep(updateHints, onTrinsicChanged(trinsicUpdateResult[0], _takeRecords));
+
+        contentUpdateResult &&
+          assignDeep(updateHints, onContentMutation(contentUpdateResult[0], _takeRecords));
+      }
+
+      return updateHints;
     },
-  ];
+    _state: state,
+  };
 };

@@ -3,7 +3,7 @@ import { isString, isPlainObject } from '~/support/utils/types';
 import {
   style,
   topRightBottomLeft,
-  directionIsRTL,
+  getDirectionIsRTL,
   getTrasformTranslateValue,
 } from '~/support/dom/style';
 
@@ -126,14 +126,14 @@ describe('dom style', () => {
   describe('directionIsRTL', () => {
     test('normal', () => {
       document.body.setAttribute('style', 'direction: rtl');
-      expect(directionIsRTL(document.body)).toBe(true);
+      expect(getDirectionIsRTL(document.body)).toBe(true);
 
       document.body.setAttribute('style', 'direction: ltr');
-      expect(directionIsRTL(document.body)).toBe(false);
+      expect(getDirectionIsRTL(document.body)).toBe(false);
     });
 
     test('null', () => {
-      expect(directionIsRTL(null)).toBe(false);
+      expect(getDirectionIsRTL(null)).toBe(false);
     });
   });
 

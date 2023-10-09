@@ -37,23 +37,16 @@ const domSnapshot = (element?: HTMLElement) => {
 };
 
 const createStructureSetupElementsProxy = (target: InitializationTarget) => {
-  const [structureElements, , destroyStructureElements] = createStructureSetupElements(target);
-  const [elements, appendElements, destroy] = createScrollbarsSetupElements(
+  const [structureElements] = createStructureSetupElements(target);
+  const [elements, appendElements] = createScrollbarsSetupElements(
     target,
     structureElements,
     () => () => {}
   );
 
-  appendElements();
+  const destroy = appendElements();
 
-  return [
-    elements,
-    () => {
-      destroyStructureElements();
-      destroy();
-    },
-    structureElements,
-  ] as [
+  return [elements, destroy, structureElements] as [
     elements: ScrollbarsSetupElementsObj,
     destroy: () => void,
     structureElements: StructureSetupElementsObj

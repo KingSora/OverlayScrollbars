@@ -14,8 +14,7 @@ import type { WH, CacheValues } from '~/support';
 
 export type TrinsicObserverCallback = (heightIntrinsic: CacheValues<boolean>) => any;
 export type TrinsicObserver = [
-  destroy: () => void,
-  append: () => void,
+  construct: () => () => void,
   update: () => void | false | null | undefined | Parameters<TrinsicObserverCallback>
 ];
 
@@ -36,7 +35,6 @@ export const createTrinsicObserver = (
 ): TrinsicObserver => {
   let intersectionObserverInstance: undefined | IntersectionObserver;
   const trinsicObserver = createDiv(classNameTrinsicObserver);
-  const offListeners: (() => void)[] = [];
   const [updateHeightIntrinsicCache] = createCache({
     _initialValue: false,
   });
@@ -59,17 +57,15 @@ export const createTrinsicObserver = (
 
   return [
     () => {
-      runEachAndClear(offListeners);
-      removeElements(trinsicObserver);
-    },
-    () => {
+      const destroyFns: (() => void)[] = [];
+
       if (IntersectionObserverConstructor) {
         intersectionObserverInstance = new IntersectionObserverConstructor(
           (entries) => intersectionObserverCallback(entries),
           { root: target }
         );
         intersectionObserverInstance.observe(trinsicObserver);
-        push(offListeners, () => {
+        push(destroyFns, () => {
           intersectionObserverInstance!.disconnect();
         });
       } else {
@@ -77,16 +73,17 @@ export const createTrinsicObserver = (
           const newSize = offsetSize(trinsicObserver);
           triggerOnTrinsicChangedCallback(newSize);
         };
-        const [destroySizeObserver, appendSizeObserver] = createSizeObserver(
-          trinsicObserver,
-          onSizeChanged
-        );
-        push(offListeners, destroySizeObserver);
-        appendSizeObserver();
+        const constructSizeObserver = createSizeObserver(trinsicObserver, onSizeChanged);
+        push(destroyFns, constructSizeObserver());
         onSizeChanged();
       }
 
       appendChildren(target, trinsicObserver);
+
+      return () => {
+        runEachAndClear(destroyFns);
+        removeElements(trinsicObserver);
+      };
     },
     () =>
       intersectionObserverInstance &&

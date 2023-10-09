@@ -103,7 +103,7 @@ export function style<CustomCssProps>(
     );
 }
 
-export const directionIsRTL = (elm: HTMLElement | false | null | undefined): boolean =>
+export const getDirectionIsRTL = (elm: HTMLElement | false | null | undefined): boolean =>
   style(elm, 'direction') === 'rtl';
 
 /**

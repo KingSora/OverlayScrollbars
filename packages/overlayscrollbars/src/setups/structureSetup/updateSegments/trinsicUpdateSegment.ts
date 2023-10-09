@@ -8,15 +8,14 @@ import type { CreateStructureUpdateSegment } from '~/setups/structureSetup/struc
  * @returns
  */
 export const createTrinsicUpdateSegment: CreateStructureUpdateSegment = (
-  structureSetupElements,
-  state
+  structureSetupElements
 ) => {
   const { _content } = structureSetupElements;
 
-  return (updateHints) => {
+  return ({ _observersUpdateHints, _observersState }) => {
     const { _flexboxGlue } = getEnvironment();
-    const { _heightIntrinsic } = state;
-    const { _heightIntrinsicChanged } = updateHints;
+    const { _heightIntrinsicChanged } = _observersUpdateHints || {};
+    const { _heightIntrinsic } = _observersState;
     const heightIntrinsicChanged = (_content || !_flexboxGlue) && _heightIntrinsicChanged;
 
     if (heightIntrinsicChanged) {
@@ -24,10 +23,5 @@ export const createTrinsicUpdateSegment: CreateStructureUpdateSegment = (
         height: _heightIntrinsic ? '' : '100%',
       });
     }
-
-    return {
-      _sizeChanged: heightIntrinsicChanged,
-      _contentMutation: heightIntrinsicChanged,
-    };
   };
 };

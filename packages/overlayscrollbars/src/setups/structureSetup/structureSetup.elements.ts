@@ -47,8 +47,8 @@ import type {
 
 export type StructureSetupElements = [
   elements: StructureSetupElementsObj,
-  appendElements: () => void,
-  destroy: () => void
+  appendElements: () => () => void,
+  canceled: () => void
 ];
 
 export interface StructureSetupElementsObj {
@@ -237,6 +237,7 @@ export const createStructureSetupElements = (
         )
       );
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
+  const destroy = () => runEachAndClear(destroyFns);
   const appendElements = () => {
     attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
     attr(_padding, dataAttributePadding, '');
@@ -313,7 +314,9 @@ export const createStructureSetupElements = (
 
     // @ts-ignore
     targetContents = 0;
+
+    return destroy;
   };
 
-  return [evaluatedTargetObj, appendElements, runEachAndClear.bind(0, destroyFns)];
+  return [evaluatedTargetObj, appendElements, destroy];
 };

@@ -21,16 +21,16 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
     topRightBottomLeft.bind(0, _host, 'padding', '')
   );
 
-  return (updateHints, checkOption, force) => {
-    let [padding, paddingChanged] = currentPaddingCache(force);
+  return ({ _checkOption, _observersUpdateHints, _observersState, _force }) => {
+    let [padding, paddingChanged] = currentPaddingCache(_force);
     const { _nativeScrollbarsHiding: _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
-    const { _directionIsRTL } = state;
-    const { _sizeChanged, _contentMutation, _directionChanged } = updateHints;
-    const [paddingAbsolute, paddingAbsoluteChanged] = checkOption('paddingAbsolute');
+    const { _sizeChanged, _contentMutation, _directionChanged } = _observersUpdateHints || {};
+    const { _directionIsRTL } = _observersState;
+    const [paddingAbsolute, paddingAbsoluteChanged] = _checkOption('paddingAbsolute');
     const contentMutation = !_flexboxGlue && _contentMutation;
 
     if (_sizeChanged || paddingChanged || contentMutation) {
-      [padding, paddingChanged] = updatePaddingCache(force);
+      [padding, paddingChanged] = updatePaddingCache(_force);
     }
 
     const paddingStyleChanged =

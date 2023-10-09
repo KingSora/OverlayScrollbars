@@ -1,4 +1,4 @@
-import { each, scrollLeft, scrollTop, assignDeep, keys } from '~/support';
+import { each, scrollLeft, scrollTop, assignDeep } from '~/support';
 import { getEnvironment } from '~/environment';
 import { dataValueHostUpdating } from '~/classnames';
 import {
@@ -6,55 +6,26 @@ import {
   createPaddingUpdateSegment,
   createOverflowUpdateSegment,
 } from '~/setups/structureSetup/updateSegments';
-import type { OptionsCheckFn } from '~/options';
-import type { SetupUpdateSegment } from '~/setups';
-import type { StructureSetupState } from '~/setups/structureSetup';
+import type {
+  StructureSetupState,
+  StructureSetupUpdateHints,
+  StructureSetupUpdateInfo,
+} from '~/setups/structureSetup';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
+
+export type StructureSetupUpdate = (
+  updateInfo: StructureSetupUpdateInfo
+) => StructureSetupUpdateHints;
+
+export type StructureUpdateSegment = (
+  updateInfo: StructureSetupUpdateInfo,
+  updateHints: Readonly<StructureSetupUpdateHints>
+) => StructureSetupUpdateHints | void;
 
 export type CreateStructureUpdateSegment = (
   structureSetupElements: StructureSetupElementsObj,
   state: StructureSetupState
-) => StructureSetupUpdateSegment;
-
-export type StructureSetupUpdateSegment = SetupUpdateSegment<StructureSetupUpdateHints>;
-
-export type StructureSetupUpdate = (
-  checkOption: OptionsCheckFn,
-  updateHints: Partial<StructureSetupUpdateHints>,
-  force?: boolean
-) => StructureSetupUpdateHints;
-
-export interface StructureSetupUpdateHints {
-  _sizeChanged: boolean;
-  _directionChanged: boolean;
-  _heightIntrinsicChanged: boolean;
-  _overflowEdgeChanged: boolean;
-  _overflowAmountChanged: boolean;
-  _overflowStyleChanged: boolean;
-  _paddingStyleChanged: boolean;
-  _hostMutation: boolean;
-  _contentMutation: boolean;
-  _appear: boolean;
-}
-
-const prepareUpdateHints = <T extends StructureSetupUpdateHints>(
-  leading: Required<T>,
-  adaptive?: Partial<T>,
-  force?: boolean
-): Required<T> => {
-  const result: Partial<T> = {};
-  const finalAdaptive: Partial<T> = adaptive || {};
-  const objKeys = keys(leading).concat(keys(finalAdaptive));
-
-  each(objKeys, (key: keyof T) => {
-    const leadingValue = leading[key];
-    const adaptiveValue = finalAdaptive[key];
-    // @ts-ignore
-    result[key] = !!(force || leadingValue || adaptiveValue);
-  });
-
-  return result as Required<T>;
-};
+) => StructureUpdateSegment;
 
 export const createStructureSetupUpdate = (
   structureSetupElements: StructureSetupElementsObj,
@@ -65,48 +36,21 @@ export const createStructureSetupUpdate = (
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
 
-  const updateSegments: StructureSetupUpdateSegment[] = [
+  const updateSegments: StructureUpdateSegment[] = [
     createTrinsicUpdateSegment(structureSetupElements, state),
     createPaddingUpdateSegment(structureSetupElements, state),
     createOverflowUpdateSegment(structureSetupElements, state),
   ];
 
-  return (
-    checkOption: OptionsCheckFn,
-    updateHints: Partial<StructureSetupUpdateHints>,
-    force?: boolean
-  ) => {
-    const initialUpdateHints = prepareUpdateHints(
-      assignDeep(
-        {
-          _sizeChanged: false,
-          _paddingStyleChanged: false,
-          _directionChanged: false,
-          _heightIntrinsicChanged: false,
-          _overflowEdgeChanged: false,
-          _overflowAmountChanged: false,
-          _overflowStyleChanged: false,
-          _hostMutation: false,
-          _contentMutation: false,
-          _appear: false,
-        },
-        updateHints
-      ),
-      {},
-      force
-    );
+  return (updateInfo) => {
+    const updateHints: StructureSetupUpdateHints = {};
     const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
     const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
     const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
     _viewportAddRemoveClass('', dataValueHostUpdating, true);
 
-    let adaptivedUpdateHints: Required<StructureSetupUpdateHints> = initialUpdateHints;
     each(updateSegments, (updateSegment) => {
-      adaptivedUpdateHints = prepareUpdateHints<StructureSetupUpdateHints>(
-        adaptivedUpdateHints,
-        updateSegment(adaptivedUpdateHints, checkOption, !!force) || {},
-        force
-      );
+      assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
     });
 
     scrollLeft(_viewport, scrollOffsetX);
@@ -118,6 +62,6 @@ export const createStructureSetupUpdate = (
       scrollTop(_target, 0);
     }
 
-    return adaptivedUpdateHints;
+    return updateHints;
   };
 };

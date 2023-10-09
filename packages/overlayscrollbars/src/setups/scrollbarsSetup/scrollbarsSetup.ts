@@ -1,4 +1,4 @@
-import { noop, on, runEachAndClear, selfClearTimeout } from '~/support';
+import { noop, on, push, runEachAndClear, selfClearTimeout } from '~/support';
 import { getEnvironment } from '~/environment';
 import { createScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
 import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
@@ -13,25 +13,33 @@ import {
   classNameScrollbarRtl,
   classNameScrollbarAutoHide,
 } from '~/classnames';
-import { type ReadonlyOptions, createOptionCheck } from '~/options';
+import { type ReadonlyOptions } from '~/options';
+import type { OptionsCheckFn, PartialOptions } from '~/options';
 import type { ScrollbarsSetupElementsObj } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
-import type { StructureSetupUpdateHints } from '~/setups/structureSetup/structureSetup.update';
-import type { Setup, StructureSetup } from '~/setups';
+import type {
+  ObserversSetup,
+  ObserversSetupUpdateHints,
+  Setup,
+  StructureSetup,
+  StructureSetupUpdateHints,
+} from '~/setups';
 import type { InitializationTarget } from '~/initialization';
 import type { OverflowStyle } from '~/typings';
-import type { PartialOptions } from '../../../dist/types/overlayscrollbars';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
 
 export interface ScrollbarsSetupUpdateInfo {
-  _changedOptions: PartialOptions;
-  _force: boolean;
-  _structureUpdateHints: Partial<StructureSetupUpdateHints>;
+  _checkOption: OptionsCheckFn;
+  _changedOptions?: PartialOptions;
+  _force?: boolean;
+  _observersUpdateHints?: ObserversSetupUpdateHints;
+  _structureUpdateHints?: StructureSetupUpdateHints;
 }
 
 export interface ScrollbarsSetup
   extends Setup<ScrollbarsSetupUpdateInfo, ScrollbarsSetupState, void> {
+  /** The elements created by the scrollbars setup. */
   _elements: ScrollbarsSetupElementsObj;
 }
 
@@ -41,6 +49,7 @@ const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'm
 export const createScrollbarsSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions,
+  observersSetupState: ObserversSetup['_state'],
   structureSetupState: StructureSetup['_state'],
   structureSetupElements: StructureSetup['_elements'],
   onScroll: (event: Event) => void
@@ -59,7 +68,7 @@ export const createScrollbarsSetup = (
   const [auotHideMoveTimeout, clearAutoHideTimeout] = selfClearTimeout(100);
   const [autoHideSuspendTimeout, clearAutoHideSuspendTimeout] = selfClearTimeout(100);
   const [auotHideTimeout, clearAutoTimeout] = selfClearTimeout(() => instanceAutoHideDelay);
-  const [elements, appendElements, destroyElements] = createScrollbarsSetupElements(
+  const [elements, appendElements] = createScrollbarsSetupElements(
     target,
     structureSetupElements,
     createScrollbarsSetupEvents(options, structureSetupState)
@@ -104,7 +113,7 @@ export const createScrollbarsSetup = (
     clearAutoHideSuspendTimeout,
     cancelScrollAnimationFrame,
     cancelMouseMoveAnimationFrame,
-    destroyElements,
+    () => instanceAutoHideSuspendScrollDestroyFn(),
 
     on(_host, 'pointerover', onHostMouseEnter, { _once: true }),
     on(_host, 'pointerenter', onHostMouseEnter),
@@ -143,35 +152,25 @@ export const createScrollbarsSetup = (
 
   return {
     _create: () => {
-      appendElements();
-
-      return () => {
-        runEachAndClear(destroyFns);
-        instanceAutoHideSuspendScrollDestroyFn();
-      };
+      push(destroyFns, appendElements());
+      return () => runEachAndClear(destroyFns);
     },
-    _update: ({ _changedOptions, _force, _structureUpdateHints }) => {
-      const {
-        _overflowEdgeChanged,
-        _overflowAmountChanged,
-        _overflowStyleChanged,
-        _directionChanged,
-        _appear,
-      } = _structureUpdateHints;
+    _update: ({ _checkOption, _force, _observersUpdateHints, _structureUpdateHints }) => {
+      const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
+        _structureUpdateHints || {};
+      const { _directionChanged, _appear } = _observersUpdateHints || {};
       const { _nativeScrollbarsOverlaid } = getEnvironment();
-      const checkOption = createOptionCheck(options, _changedOptions, _force);
-      const { _overflowAmount, _overflowStyle, _directionIsRTL, _hasOverflow } =
-        structureSetupState;
-      const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = checkOption(
-        'showNativeOverlaidScrollbars'
-      );
-      const [theme, themeChanged] = checkOption('scrollbars.theme');
-      const [visibility, visibilityChanged] = checkOption('scrollbars.visibility');
-      const [autoHide, autoHideChanged] = checkOption('scrollbars.autoHide');
-      const [autoHideSuspend, autoHideSuspendChanged] = checkOption('scrollbars.autoHideSuspend');
-      const [autoHideDelay] = checkOption('scrollbars.autoHideDelay');
-      const [dragScroll, dragScrollChanged] = checkOption('scrollbars.dragScroll');
-      const [clickScroll, clickScrollChanged] = checkOption('scrollbars.clickScroll');
+      const { _directionIsRTL } = observersSetupState;
+      const { _overflowAmount, _overflowStyle, _hasOverflow } = structureSetupState;
+      const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
+        _checkOption('showNativeOverlaidScrollbars');
+      const [theme, themeChanged] = _checkOption('scrollbars.theme');
+      const [visibility, visibilityChanged] = _checkOption('scrollbars.visibility');
+      const [autoHide, autoHideChanged] = _checkOption('scrollbars.autoHide');
+      const [autoHideSuspend, autoHideSuspendChanged] = _checkOption('scrollbars.autoHideSuspend');
+      const [autoHideDelay] = _checkOption('scrollbars.autoHideDelay');
+      const [dragScroll, dragScrollChanged] = _checkOption('scrollbars.dragScroll');
+      const [clickScroll, clickScrollChanged] = _checkOption('scrollbars.clickScroll');
 
       const trulyAppeared = _appear && !_force;
       const hasOverflow = _hasOverflow.x || _hasOverflow.y;
@@ -213,6 +212,7 @@ export const createScrollbarsSetup = (
       if (showNativeOverlaidScrollbarsChanged) {
         _scrollbarsAddRemoveClass(classNameScrollbarThemeNone, showNativeOverlaidScrollbars);
       }
+
       if (themeChanged) {
         _scrollbarsAddRemoveClass(prevTheme);
         _scrollbarsAddRemoveClass(theme, true);
@@ -230,12 +230,15 @@ export const createScrollbarsSetup = (
         autoHideNotNever = autoHide !== 'never';
         manageScrollbarsAutoHide(!autoHideNotNever, true);
       }
+
       if (dragScrollChanged) {
         _scrollbarsAddRemoveClass(classNameScrollbarHandleInteractive, dragScroll);
       }
+
       if (clickScrollChanged) {
         _scrollbarsAddRemoveClass(classNameScrollbarTrackInteractive, clickScroll);
       }
+
       if (updateVisibility) {
         const xVisible = setScrollbarVisibility(_overflowStyle.x, true);
         const yVisible = setScrollbarVisibility(_overflowStyle.y, false);
@@ -243,6 +246,7 @@ export const createScrollbarsSetup = (
 
         _scrollbarsAddRemoveClass(classNameScrollbarCornerless, !hasCorner);
       }
+
       if (updateScrollbars) {
         _refreshScrollbarsHandleLength(structureSetupState);
         _refreshScrollbarsHandleOffset(structureSetupState);

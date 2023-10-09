@@ -2,7 +2,7 @@ import {
   addClass,
   appendChildren,
   createDiv,
-  directionIsRTL,
+  getDirectionIsRTL,
   each,
   getTrasformTranslateValue,
   indexOf,
@@ -43,7 +43,7 @@ import type {
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import type { ScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
 import type { StyleObject } from '~/typings';
-import type { StructureSetupState } from '~/setups';
+import type { StructureSetupState } from '../structureSetup';
 
 export interface ScrollbarStructure {
   _scrollbar: HTMLElement;
@@ -79,8 +79,7 @@ export interface ScrollbarsSetupElementsObj {
 
 export type ScrollbarsSetupElements = [
   elements: ScrollbarsSetupElementsObj,
-  appendElements: () => void,
-  destroy: () => void
+  appendElements: () => () => void
 ];
 
 const animateElement = (
@@ -227,7 +226,7 @@ export const createScrollbarsSetupElements = (
           _track,
           _scrollOffsetElement,
           structureSetupState,
-          directionIsRTL(_scrollbar),
+          getDirectionIsRTL(_scrollbar),
           isHorizontal
         );
         // eslint-disable-next-line no-self-compare
@@ -290,7 +289,7 @@ export const createScrollbarsSetupElements = (
           _handle,
           isHorizontal ? scrollTimelineX : scrollTimelineY,
           getScrollbarHandleAnimationKeyFrames(
-            isHorizontal && directionIsRTL(_scrollbar),
+            isHorizontal && getDirectionIsRTL(_scrollbar),
             isHorizontal
           )
         ),
@@ -366,6 +365,8 @@ export const createScrollbarsSetupElements = (
     setT(() => {
       scrollbarsAddRemoveClass(classNameScrollbarTransitionless);
     }, 300);
+
+    return () => runEachAndClear(destroyFns);
   };
 
   generateHorizontalScrollbarStructure();
@@ -393,6 +394,5 @@ export const createScrollbarsSetupElements = (
       },
     },
     appendElements,
-    runEachAndClear.bind(0, destroyFns),
   ];
 };

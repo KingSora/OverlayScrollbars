@@ -74,7 +74,7 @@ export type DOMObserverOptions<ContentObserver extends boolean> = ContentObserve
   : DOMTargetObserverOptions;
 
 export type DOMObserver<ContentObserver extends boolean> = [
-  destroy: () => void,
+  construct: () => () => void,
   update: () => void | false | Parameters<DOMObserverCallback<ContentObserver>>
 ];
 
@@ -279,24 +279,25 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     observerCallback(mutations)
   );
 
-  // Connect
-  mutationObserver.observe(target, {
-    attributes: true,
-    attributeOldValue: true,
-    attributeFilter: observedAttributes,
-    subtree: isContentObserver,
-    childList: isContentObserver,
-    characterData: isContentObserver,
-  });
-  isConnected = true;
-
   return [
     () => {
-      if (isConnected) {
-        destroyEventContentChange();
-        mutationObserver.disconnect();
-        isConnected = false;
-      }
+      mutationObserver.observe(target, {
+        attributes: true,
+        attributeOldValue: true,
+        attributeFilter: observedAttributes,
+        subtree: isContentObserver,
+        childList: isContentObserver,
+        characterData: isContentObserver,
+      });
+      isConnected = true;
+
+      return () => {
+        if (isConnected) {
+          destroyEventContentChange();
+          mutationObserver.disconnect();
+          isConnected = false;
+        }
+      };
     },
     () => {
       if (isConnected) {

@@ -7,15 +7,15 @@ describe('createTrinsicObserver', () => {
 
   test('trinsic observer', () => {
     const callback = jest.fn();
-    const [destroy, append, update] = createTrinsicObserver(document.body, callback);
+    const [construct, update] = createTrinsicObserver(document.body, callback);
 
-    expect(destroy).toEqual(expect.any(Function));
-    expect(append).toEqual(expect.any(Function));
+    expect(construct).toEqual(expect.any(Function));
     expect(update).toEqual(expect.any(Function));
 
     expect(document.body.innerHTML).toBe('');
 
-    append();
+    const destroy = construct();
+    expect(destroy).toEqual(expect.any(Function));
 
     expect(document.body.innerHTML).not.toBe('');
 

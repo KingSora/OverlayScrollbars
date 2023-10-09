@@ -14,7 +14,7 @@ import { getOptionsDiff } from '~/options';
 import { getEnvironment } from '~/environment';
 import { cancelInitialization } from '~/initialization';
 import { addInstance, getInstance, removeInstance } from '~/instances';
-import { createStructureSetup, createScrollbarsSetup } from '~/setups';
+import { createSetups } from '~/setups';
 import {
   addPlugins,
   getStaticPluginModuleInstance,
@@ -275,38 +275,55 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       validateOptions(options)
     );
     const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
-    const {
-      _create: structureSetupCreate,
-      _update: structureSetupUpdate,
-      _state: structureSetupState,
-      _elements: structureSetupElements,
-      _addOnUpdatedListener,
-    } = createStructureSetup(target, currentOptions);
-    const {
-      _create: scrollbarsSetupCreate,
-      _update: scrollbarsSetupUpdate,
-      _elements: scrollbarsSetupElements,
-    } = createScrollbarsSetup(
+    const [setupsCreate, setupsUpdate, setupsState, setupsElements, setupsCanceled] = createSetups(
       target,
       currentOptions,
-      structureSetupState,
-      structureSetupElements,
+      ({ _changedOptions, _force }, { _observersUpdateHints, _structureUpdateHints }) => {
+        const {
+          _sizeChanged,
+          _directionChanged,
+          _heightIntrinsicChanged,
+          _contentMutation,
+          _hostMutation,
+        } = _observersUpdateHints;
+
+        const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
+          _structureUpdateHints;
+
+        triggerEvent('updated', [
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          instance,
+          {
+            updateHints: {
+              sizeChanged: _sizeChanged,
+              directionChanged: _directionChanged,
+              heightIntrinsicChanged: _heightIntrinsicChanged,
+              overflowEdgeChanged: _overflowEdgeChanged,
+              overflowAmountChanged: _overflowAmountChanged,
+              overflowStyleChanged: _overflowStyleChanged,
+              contentMutation: _contentMutation,
+              hostMutation: _hostMutation,
+            },
+            changedOptions: _changedOptions || {},
+            force: !!_force,
+          },
+        ]);
+      },
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       (scrollEvent) => triggerEvent('scroll', [instance, scrollEvent])
     );
-    const update = (changedOptions: PartialOptions, force?: boolean): boolean =>
-      structureSetupUpdate({ _changedOptions: changedOptions, _force: !!force });
-    const forceUpdate = update.bind(0, {}, true);
-    const destroy = (canceled?: boolean) => {
+
+    const destroy = (canceled: boolean) => {
       removeInstance(instanceTarget);
       runEachAndClear(destroyFns);
 
       destroyed = true;
 
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      triggerEvent('destroyed', [instance, !!canceled]);
+      triggerEvent('destroyed', [instance, canceled]);
       removeEvent();
     };
+
     const instance: OverlayScrollbars = {
       options(newOptions?: PartialOptions, pure?: boolean) {
         if (newOptions) {
@@ -317,7 +334,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           );
           if (!isEmptyObject(changedOptions)) {
             assignDeep(currentOptions, changedOptions);
-            update(changedOptions);
+            setupsUpdate({ _changedOptions: changedOptions });
           }
         }
         return assignDeep({}, currentOptions);
@@ -327,6 +344,8 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
         name && listener && removeEvent(name, listener as any);
       },
       state() {
+        const { _observersSetupState, _structureSetupState } = setupsState();
+        const { _directionIsRTL } = _observersSetupState;
         const {
           _overflowEdge,
           _overflowAmount,
@@ -334,8 +353,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           _hasOverflow,
           _padding,
           _paddingAbsolute,
-          _directionIsRTL,
-        } = structureSetupState;
+        } = _structureSetupState;
         return assignDeep(
           {},
           {
@@ -359,8 +377,8 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           _content,
           _scrollOffsetElement,
           _scrollEventElement,
-        } = structureSetupElements;
-        const { _horizontal, _vertical } = scrollbarsSetupElements;
+        } = setupsElements._structureSetupElements;
+        const { _horizontal, _vertical } = setupsElements._scrollbarsSetupElements;
         const translateScrollbarStructure = (
           scrollbarStructure: ScrollbarStructure
         ): ScrollbarElements => {
@@ -380,11 +398,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           return assignDeep({}, translatedStructure, {
             clone: () => {
               const result = translateScrollbarStructure(_clone());
-              scrollbarsSetupUpdate({
-                _changedOptions: {},
-                _force: false,
-                _structureUpdateHints: {},
-              });
+              setupsUpdate({ _cloneScrollbar: true });
               return result;
             },
           });
@@ -404,24 +418,22 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           }
         );
       },
-      update: (force?: boolean) => update({}, force),
-      destroy: destroy.bind(0),
+      update: (_force?: boolean) => setupsUpdate({ _force, _takeRecords: true }),
+      destroy: () => destroy(false),
       plugin: <P extends InstancePlugin>(plugin: P) =>
         instancePluginModuleInstances[keys(plugin)[0]] as
           | InferInstancePluginModuleInstance<P>
           | undefined,
     };
+    const resizeUpdate = () => {
+      instance.update(true);
+    };
 
-    push(destroyFns, _addZoomListener(forceUpdate));
-    push(destroyFns, _addResizeListener(forceUpdate));
-
-    _addOnUpdatedListener((updateHints, changedOptions, force: boolean) => {
-      scrollbarsSetupUpdate({
-        _changedOptions: changedOptions,
-        _force: force,
-        _structureUpdateHints: updateHints,
-      });
-    });
+    push(destroyFns, [
+      _addZoomListener(resizeUpdate),
+      _addResizeListener(resizeUpdate),
+      setupsCanceled,
+    ]);
 
     // valid inside plugins
     addInstance(instanceTarget, instance);
@@ -436,7 +448,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
     if (
       cancelInitialization(
-        structureSetupElements._isBody,
+        setupsElements._structureSetupElements._isBody,
         _getDefaultInitialization().cancel,
         !targetIsElement && target.cancel
       )
@@ -445,41 +457,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       return instance;
     }
 
-    push(destroyFns, structureSetupCreate());
-    push(destroyFns, scrollbarsSetupCreate());
+    push(destroyFns, setupsCreate());
 
     triggerEvent('initialized', [instance]);
-
-    _addOnUpdatedListener((updateHints, changedOptions, force) => {
-      const {
-        _sizeChanged,
-        _directionChanged,
-        _heightIntrinsicChanged,
-        _overflowEdgeChanged,
-        _overflowAmountChanged,
-        _overflowStyleChanged,
-        _contentMutation,
-        _hostMutation,
-      } = updateHints;
-
-      triggerEvent('updated', [
-        instance,
-        {
-          updateHints: {
-            sizeChanged: _sizeChanged,
-            directionChanged: _directionChanged,
-            heightIntrinsicChanged: _heightIntrinsicChanged,
-            overflowEdgeChanged: _overflowEdgeChanged,
-            overflowAmountChanged: _overflowAmountChanged,
-            overflowStyleChanged: _overflowStyleChanged,
-            contentMutation: _contentMutation,
-            hostMutation: _hostMutation,
-          },
-          changedOptions,
-          force,
-        },
-      ]);
-    });
 
     instance.update(true);
 

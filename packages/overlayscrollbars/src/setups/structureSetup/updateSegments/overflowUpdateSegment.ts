@@ -315,20 +315,22 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       )
     : [(() => doViewportArrange) as ArrangeViewport, (() => [noop]) as UndoArrangeViewport];
 
-  return (updateHints, checkOption, force) => {
+  return (
+    { _checkOption, _observersUpdateHints, _observersState, _force },
+    { _paddingStyleChanged }
+  ) => {
     const {
       _sizeChanged,
       _hostMutation,
       _contentMutation,
-      _paddingStyleChanged,
       _heightIntrinsicChanged,
       _directionChanged,
-    } = updateHints;
-    const { _heightIntrinsic, _directionIsRTL } = state;
-    const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = checkOption(
+    } = _observersUpdateHints || {};
+    const { _heightIntrinsic, _directionIsRTL } = _observersState;
+    const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = _checkOption(
       'showNativeOverlaidScrollbars'
     );
-    const [overflow, overflowChanged] = checkOption('overflow');
+    const [overflow, overflowChanged] = _checkOption('overflow');
 
     const showNativeOverlaidScrollbars =
       showNativeOverlaidScrollbarsOption &&
@@ -346,10 +348,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const overflowYVisible = overflowIsVisible(overflow.y);
     const overflowVisible = overflowXVisible || overflowYVisible;
 
-    let sizeFractionCache = getCurrentSizeFraction(force);
-    let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(force);
-    let overflowAmuntCache = getCurrentOverflowAmountCache(force);
-    let overflowEdgeCache = getCurrentOverflowEdgeCache(force);
+    let sizeFractionCache = getCurrentSizeFraction(_force);
+    let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(_force);
+    let overflowAmuntCache = getCurrentOverflowAmountCache(_force);
+    let overflowEdgeCache = getCurrentOverflowEdgeCache(_force);
 
     let preMeasureViewportOverflowState: ViewportOverflowState | undefined;
 
@@ -386,9 +388,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         _directionIsRTL,
         preMeasureViewportOverflowState
       );
-      const [sizeFraction, sizeFractionChanged] = (sizeFractionCache = updateSizeFraction(force));
+      const [sizeFraction, sizeFractionChanged] = (sizeFractionCache = updateSizeFraction(_force));
       const [viewportScrollSize, viewportScrollSizeChanged] = (viewportScrollSizeCache =
-        updateViewportScrollSizeCache(force));
+        updateViewportScrollSizeCache(_force));
       const viewportclientSize = clientSize(_viewport);
       let arrangedViewportScrollSize = viewportScrollSize;
       let arrangedViewportClientSize = viewportclientSize;
@@ -433,7 +435,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       overflowEdgeCache = updateOverflowEdge(overflowAmountClientSize);
       overflowAmuntCache = updateOverflowAmountCache(
         getOverflowAmount(overflowAmountScrollSize, overflowAmountClientSize),
-        force
+        _force
       );
     }
 
