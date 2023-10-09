@@ -146,13 +146,13 @@ export const dynamicInitializationElement = <Args extends any[]>(
 
 export const cancelInitialization = (
   isBody: boolean,
-  defaultCancelInitialization: Initialization['cancel'],
   cancelInitializationValue?: DeepPartial<Initialization['cancel']> | false | null | undefined
 ): boolean => {
   const { nativeScrollbarsOverlaid, body } = cancelInitializationValue || {};
-  const { _nativeScrollbarsOverlaid, _nativeScrollbarsHiding } = getEnvironment();
+  const { _nativeScrollbarsOverlaid, _nativeScrollbarsHiding, _getDefaultInitialization } =
+    getEnvironment();
   const { nativeScrollbarsOverlaid: defaultNativeScrollbarsOverlaid, body: defaultbody } =
-    defaultCancelInitialization;
+    _getDefaultInitialization().cancel;
 
   const resolvedNativeScrollbarsOverlaid =
     nativeScrollbarsOverlaid ?? defaultNativeScrollbarsOverlaid;

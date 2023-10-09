@@ -33,7 +33,7 @@ describe('initialization', () => {
             elm
           ),
           (result: HTMLElement) => expect(result).toBe(elm),
-        ],
+        ] as const,
         null: [
           staticInitializationElement<[a: boolean, b: string]>(
             args,
@@ -42,7 +42,7 @@ describe('initialization', () => {
             null
           ),
           (result: HTMLElement) => expect(result).toBe(fallbackElm),
-        ],
+        ] as const,
         false: [
           staticInitializationElement<[a: boolean, b: string]>(
             args,
@@ -51,7 +51,7 @@ describe('initialization', () => {
             false
           ),
           (result: HTMLElement) => expect(result).toBe(fallbackElm),
-        ],
+        ] as const,
         undefined: [
           staticInitializationElement<[a: boolean, b: string]>(
             args,
@@ -60,7 +60,7 @@ describe('initialization', () => {
             undefined
           ),
           (result: HTMLElement) => expect(result).toBe(defaultElm),
-        ],
+        ] as const,
       };
 
       const fns = {
@@ -76,7 +76,7 @@ describe('initialization', () => {
             expect(elmFn).toHaveBeenCalledTimes(1);
             expect(elmFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         null: [
           staticInitializationElement<[a: boolean, b: string]>(
             args,
@@ -89,7 +89,7 @@ describe('initialization', () => {
             expect(nullFn).toHaveBeenCalledTimes(1);
             expect(nullFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         false: [
           staticInitializationElement<[a: boolean, b: string]>(
             args,
@@ -102,16 +102,16 @@ describe('initialization', () => {
             expect(falseFn).toHaveBeenCalledTimes(1);
             expect(falseFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
       };
 
       Object.keys(values).forEach((key) => {
-        const [result, assertion] = values[key];
+        const [result, assertion] = values[key as keyof typeof values];
         assertion(result);
       });
 
       Object.keys(fns).forEach((key) => {
-        const [result, assertion] = fns[key];
+        const [result, assertion] = fns[key as keyof typeof fns];
         assertion(result);
       });
     });
@@ -129,15 +129,15 @@ describe('initialization', () => {
         elm: [
           staticInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, elm),
           (result: HTMLElement) => expect(result).toBe(elm),
-        ],
+        ] as const,
         null: [
           staticInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, null),
           (result: HTMLElement) => expect(result).toBe(fallbackElm),
-        ],
+        ] as const,
         false: [
           staticInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, false),
           (result: HTMLElement) => expect(result).toBe(fallbackElm),
-        ],
+        ] as const,
       };
 
       const fns = {
@@ -148,7 +148,7 @@ describe('initialization', () => {
             expect(elmFn).toHaveBeenCalledTimes(1);
             expect(elmFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         null: [
           staticInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, nullFn),
           (result: HTMLElement) => {
@@ -156,7 +156,7 @@ describe('initialization', () => {
             expect(nullFn).toHaveBeenCalledTimes(1);
             expect(nullFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         false: [
           staticInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, falseFn),
           (result: HTMLElement) => {
@@ -164,16 +164,16 @@ describe('initialization', () => {
             expect(falseFn).toHaveBeenCalledTimes(1);
             expect(falseFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
       };
 
       Object.keys(values).forEach((key) => {
-        const [result, assertion] = values[key];
+        const [result, assertion] = values[key as keyof typeof values];
         assertion(result);
       });
 
       Object.keys(fns).forEach((key) => {
-        const [result, assertion] = fns[key];
+        const [result, assertion] = fns[key as keyof typeof fns];
         assertion(result);
       });
     });
@@ -200,7 +200,7 @@ describe('initialization', () => {
             elm
           ),
           (result: HTMLElement | false) => expect(result).toBe(elm),
-        ],
+        ] as const,
         null: [
           dynamicInitializationElement<[a: boolean, b: string]>(
             args,
@@ -209,7 +209,7 @@ describe('initialization', () => {
             null
           ),
           (result: HTMLElement | false) => expect(result).toBe(false),
-        ],
+        ] as const,
         false: [
           dynamicInitializationElement<[a: boolean, b: string]>(
             args,
@@ -218,7 +218,7 @@ describe('initialization', () => {
             false
           ),
           (result: HTMLElement | false) => expect(result).toBe(false),
-        ],
+        ] as const,
         true: [
           dynamicInitializationElement<[a: boolean, b: string]>(
             args,
@@ -227,7 +227,7 @@ describe('initialization', () => {
             true
           ),
           (result: HTMLElement | false) => expect(result).toBe(fallbackElm),
-        ],
+        ] as const,
         undefined: [
           dynamicInitializationElement<[a: boolean, b: string]>(
             args,
@@ -236,7 +236,7 @@ describe('initialization', () => {
             undefined
           ),
           (result: HTMLElement | false) => expect(result).toBe(defaultElm),
-        ],
+        ] as const,
       };
 
       const fns = {
@@ -252,7 +252,7 @@ describe('initialization', () => {
             expect(elmFn).toHaveBeenCalledTimes(1);
             expect(elmFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         null: [
           dynamicInitializationElement<[a: boolean, b: string]>(
             args,
@@ -265,7 +265,7 @@ describe('initialization', () => {
             expect(snullFn).toHaveBeenCalledTimes(1);
             expect(snullFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         false: [
           dynamicInitializationElement<[a: boolean, b: string]>(
             args,
@@ -278,7 +278,7 @@ describe('initialization', () => {
             expect(falseFn).toHaveBeenCalledTimes(1);
             expect(falseFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         true: [
           dynamicInitializationElement<[a: boolean, b: string]>(
             args,
@@ -291,16 +291,16 @@ describe('initialization', () => {
             expect(falseFn).toHaveBeenCalledTimes(1);
             expect(falseFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
       };
 
       Object.keys(values).forEach((key) => {
-        const [result, assertion] = values[key];
+        const [result, assertion] = values[key as keyof typeof values];
         assertion(result);
       });
 
       Object.keys(fns).forEach((key) => {
-        const [result, assertion] = fns[key];
+        const [result, assertion] = fns[key as keyof typeof fns];
         assertion(result);
       });
     });
@@ -319,19 +319,19 @@ describe('initialization', () => {
         elm: [
           dynamicInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, elm),
           (result: HTMLElement | false) => expect(result).toBe(elm),
-        ],
+        ] as const,
         null: [
           dynamicInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, null),
           (result: HTMLElement | false) => expect(result).toBe(false),
-        ],
+        ] as const,
         false: [
           dynamicInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, false),
           (result: HTMLElement | false) => expect(result).toBe(false),
-        ],
+        ] as const,
         true: [
           dynamicInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, true),
           (result: HTMLElement | false) => expect(result).toBe(fallbackElm),
-        ],
+        ] as const,
       };
 
       const fns = {
@@ -342,7 +342,7 @@ describe('initialization', () => {
             expect(elmFn).toHaveBeenCalledTimes(1);
             expect(elmFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         null: [
           dynamicInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, nullFn),
           (result: HTMLElement | false) => {
@@ -350,7 +350,7 @@ describe('initialization', () => {
             expect(nullFn).toHaveBeenCalledTimes(1);
             expect(nullFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         false: [
           dynamicInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, falseFn),
           (result: HTMLElement | false) => {
@@ -358,7 +358,7 @@ describe('initialization', () => {
             expect(falseFn).toHaveBeenCalledTimes(1);
             expect(falseFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
         true: [
           dynamicInitializationElement<[a: boolean, b: string]>(args, fallbackElmFn, trueFn),
           (result: HTMLElement | false) => {
@@ -366,16 +366,16 @@ describe('initialization', () => {
             expect(falseFn).toHaveBeenCalledTimes(1);
             expect(falseFn).toHaveBeenLastCalledWith(...args);
           },
-        ],
+        ] as const,
       };
 
       Object.keys(values).forEach((key) => {
-        const [result, assertion] = values[key];
+        const [result, assertion] = values[key as keyof typeof values];
         assertion(result);
       });
 
       Object.keys(fns).forEach((key) => {
-        const [result, assertion] = fns[key];
+        const [result, assertion] = fns[key as keyof typeof fns];
         assertion(result);
       });
     });
@@ -424,6 +424,9 @@ describe('initialization', () => {
               (getEnvironment as jest.Mock).mockImplementation(() => ({
                 ...jest.requireActual('~/environment').getEnvironment(),
                 ...env,
+                _getDefaultInitialization: () => ({
+                  cancel: defaultCancelInitialization,
+                }),
               }));
               const hasOverlaidScrollbars =
                 env._nativeScrollbarsOverlaid.x || env._nativeScrollbarsOverlaid.y;
@@ -432,9 +435,7 @@ describe('initialization', () => {
                 (initializationValue.nativeScrollbarsOverlaid ??
                   defaultCancelInitialization.nativeScrollbarsOverlaid);
 
-              expect(
-                cancelInitialization(false, defaultCancelInitialization, initializationValue)
-              ).toEqual(expected);
+              expect(cancelInitialization(false, initializationValue)).toEqual(expected);
             });
           });
         });
@@ -476,22 +477,19 @@ describe('initialization', () => {
             (getEnvironment as jest.Mock).mockImplementation(() => ({
               ...jest.requireActual('~/environment').getEnvironment(),
               ...env,
+              _getDefaultInitialization: () => ({
+                cancel: defaultCancelInitialization,
+              }),
             }));
             const hasOverlaidScrollbars =
               env._nativeScrollbarsOverlaid.x || env._nativeScrollbarsOverlaid.y;
             const expected =
               hasOverlaidScrollbars && defaultCancelInitialization.nativeScrollbarsOverlaid;
 
-            expect(cancelInitialization(false, defaultCancelInitialization)).toEqual(expected);
-            expect(cancelInitialization(false, defaultCancelInitialization, undefined)).toEqual(
-              expected
-            );
-            expect(cancelInitialization(false, defaultCancelInitialization, null)).toEqual(
-              expected
-            );
-            expect(cancelInitialization(false, defaultCancelInitialization, false)).toEqual(
-              expected
-            );
+            expect(cancelInitialization(false)).toEqual(expected);
+            expect(cancelInitialization(false, undefined)).toEqual(expected);
+            expect(cancelInitialization(false, null)).toEqual(expected);
+            expect(cancelInitialization(false, false)).toEqual(expected);
           });
         });
       });
@@ -523,6 +521,9 @@ describe('initialization', () => {
                     (getEnvironment as jest.Mock).mockImplementation(() => ({
                       ...jest.requireActual('~/environment').getEnvironment(),
                       ...env,
+                      _getDefaultInitialization: () => ({
+                        cancel: defaultCancelInitialization,
+                      }),
                     }));
                     const defaultBody = defaultCancelInitialization.body;
                     const bodyValue = initializationValue.body;
@@ -530,9 +531,7 @@ describe('initialization', () => {
                     const expected =
                       isBody && (finalBody === null ? !env._nativeScrollbarsHiding : finalBody);
 
-                    expect(
-                      cancelInitialization(isBody, defaultCancelInitialization, initializationValue)
-                    ).toEqual(expected);
+                    expect(cancelInitialization(isBody, initializationValue)).toEqual(expected);
                   });
                 }
               );
@@ -563,21 +562,18 @@ describe('initialization', () => {
               (getEnvironment as jest.Mock).mockImplementation(() => ({
                 ...jest.requireActual('~/environment').getEnvironment(),
                 ...env,
+                _getDefaultInitialization: () => ({
+                  cancel: defaultCancelInitialization,
+                }),
               }));
               const defaultBody = defaultCancelInitialization.body;
               const expected =
                 isBody && (defaultBody === null ? !env._nativeScrollbarsHiding : defaultBody);
 
-              expect(cancelInitialization(isBody, defaultCancelInitialization)).toEqual(expected);
-              expect(cancelInitialization(isBody, defaultCancelInitialization, undefined)).toEqual(
-                expected
-              );
-              expect(cancelInitialization(isBody, defaultCancelInitialization, null)).toEqual(
-                expected
-              );
-              expect(cancelInitialization(isBody, defaultCancelInitialization, false)).toEqual(
-                expected
-              );
+              expect(cancelInitialization(isBody)).toEqual(expected);
+              expect(cancelInitialization(isBody, undefined)).toEqual(expected);
+              expect(cancelInitialization(isBody, null)).toEqual(expected);
+              expect(cancelInitialization(isBody, false)).toEqual(expected);
             });
           });
         });
