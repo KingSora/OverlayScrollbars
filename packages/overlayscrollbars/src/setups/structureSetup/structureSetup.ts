@@ -42,9 +42,9 @@ export type StructureSetupUpdateHints = {
 export type StructureSetup = [
   ...Setup<StructureSetupUpdateInfo, StructureSetupState, StructureSetupUpdateHints>,
   /** The elements created by the structure setup. */
-  elements: StructureSetupElementsObj,
+  StructureSetupElementsObj,
   /** Function to be called when the initialization was canceled. */
-  canceled: () => void
+  () => void
 ];
 
 export type StructureUpdateSegment = (

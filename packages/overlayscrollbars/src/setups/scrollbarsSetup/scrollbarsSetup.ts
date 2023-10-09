@@ -41,7 +41,7 @@ export interface ScrollbarsSetupUpdateInfo {
 export type ScrollbarsSetup = [
   ...Setup<ScrollbarsSetupUpdateInfo, ScrollbarsSetupState, void>,
   /** The elements created by the scrollbars setup. */
-  elements: ScrollbarsSetupElementsObj
+  ScrollbarsSetupElementsObj
 ];
 
 // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
