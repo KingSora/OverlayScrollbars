@@ -1,4 +1,4 @@
-import { createCache, topRightBottomLeft, equalTRBL, style, assignDeep } from '~/support';
+import { createCache, topRightBottomLeft, equalTRBL, style, assignDeep, bind } from '~/support';
 import { getEnvironment } from '~/environment';
 import type { StyleObject } from '~/typings';
 import type { CreateStructureUpdateSegment } from '../structureSetup';
@@ -17,7 +17,7 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
       _equal: equalTRBL,
       _initialValue: topRightBottomLeft(),
     },
-    topRightBottomLeft.bind(0, _host, 'padding', '')
+    bind(topRightBottomLeft, _host, 'padding', '')
   );
 
   return ({ _checkOption, _observersUpdateHints, _observersState, _force }) => {

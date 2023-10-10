@@ -1,4 +1,4 @@
-import { each, isEmptyObject, keys, runEachAndClear, scrollLeft, scrollTop } from '~/support';
+import { bind, each, isEmptyObject, keys, runEachAndClear, scrollLeft, scrollTop } from '~/support';
 import { createOptionCheck } from '~/options';
 import type { DeepReadonly } from '~/typings';
 import type { InitializationTarget, PartialOptions, ReadonlyOptions } from '..';
@@ -161,7 +161,7 @@ export const createSetups = (
       scrollLeft(_viewport, initialScrollLeft);
       scrollTop(_viewport, initialScrollTop);
 
-      return runEachAndClear.bind(0, destroyFns);
+      return bind(runEachAndClear, destroyFns);
     },
     update,
     () => ({

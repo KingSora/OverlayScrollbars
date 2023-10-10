@@ -19,6 +19,7 @@ import {
   createEventListenerHub,
   debounce,
   scrollT,
+  bind,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -194,7 +195,7 @@ const createEnvironment = (): InternalEnvironment => {
       _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
       _equal: equalXY,
     },
-    getNativeScrollbarSize.bind(0, body, envElm, envChildElm, true)
+    bind(getNativeScrollbarSize, body, envElm, envChildElm, true)
   );
   const [nativeScrollbarsSize] = getNativeScrollbarSizeCache();
   const nativeScrollbarsHiding = getNativeScrollbarsHiding(envElm);
@@ -219,14 +220,16 @@ const createEnvironment = (): InternalEnvironment => {
     },
   };
   const staticDefaultOptions = assignDeep({}, defaultOptions);
-  const getDefaultOptions = (assignDeep as typeof assignDeep<Options, Options>).bind(
-    0,
+  const getDefaultOptions = bind(
+    assignDeep as typeof assignDeep<Options, Options>,
     {} as Options,
     staticDefaultOptions
   );
-  const getDefaultInitialization = (
-    assignDeep as typeof assignDeep<Initialization, Initialization>
-  ).bind(0, {} as Initialization, staticDefaultInitialization);
+  const getDefaultInitialization = bind(
+    assignDeep as typeof assignDeep<Initialization, Initialization>,
+    {} as Initialization,
+    staticDefaultInitialization
+  );
 
   const env: InternalEnvironment = {
     _nativeScrollbarsSize: nativeScrollbarsSize,
@@ -236,8 +239,8 @@ const createEnvironment = (): InternalEnvironment => {
     _scrollTimeline: !!scrollT,
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
-    _addZoomListener: addEvent.bind(0, 'z'),
-    _addResizeListener: addEvent.bind(0, 'r'),
+    _addZoomListener: bind(addEvent, 'z'),
+    _addResizeListener: bind(addEvent, 'r'),
     _getDefaultInitialization: getDefaultInitialization,
     _setDefaultInitialization: (newInitializationStrategy) =>
       assignDeep(staticDefaultInitialization, newInitializationStrategy) &&
@@ -258,7 +261,7 @@ const createEnvironment = (): InternalEnvironment => {
   removeElements(envElm);
 
   // needed in case content has css viewport units
-  windowAddEventListener('resize', debouncedWindowResize.bind(0, false));
+  windowAddEventListener('resize', bind(debouncedWindowResize, false));
 
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
     let resizeFn:
@@ -271,8 +274,7 @@ const createEnvironment = (): InternalEnvironment => {
         scrollbarsHidingPluginName
       );
       resizeFn = resizeFn || (scrollbarsHidingPlugin && scrollbarsHidingPlugin._envWindowZoom());
-      resizeFn &&
-        resizeFn(env, updateNativeScrollbarSizeCache, debouncedWindowResize.bind(0, true));
+      resizeFn && resizeFn(env, updateNativeScrollbarSizeCache, bind(debouncedWindowResize, true));
     });
   }
 

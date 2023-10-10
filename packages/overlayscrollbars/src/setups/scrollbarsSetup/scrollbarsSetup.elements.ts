@@ -19,6 +19,7 @@ import {
   scrollTop,
   setT,
   style,
+  bind,
 } from '~/support';
 import {
   classNameScrollbar,
@@ -295,8 +296,8 @@ export const createScrollbarsSetupElements = (
         ),
       ]);
     };
-    horizontalScrollbars.forEach(forEachFn.bind(0, true));
-    verticalScrollbars.forEach(forEachFn.bind(0, false));
+    horizontalScrollbars.forEach(bind(forEachFn, true));
+    verticalScrollbars.forEach(bind(forEachFn, false));
   };
   const refreshScrollbarsScrollbarOffset = () => {
     if (!scrollTimelineY && !scrollTimelineY) {
@@ -341,7 +342,7 @@ export const createScrollbarsSetupElements = (
 
     push(arrToPush, result);
     push(destroyFns, [
-      removeElements.bind(0, scrollbar),
+      bind(removeElements, scrollbar),
       cancelElementAnimations,
       scrollbarsSetupEvents(
         result,
@@ -356,8 +357,8 @@ export const createScrollbarsSetupElements = (
 
     return result;
   };
-  const generateHorizontalScrollbarStructure = generateScrollbarDOM.bind(0, true);
-  const generateVerticalScrollbarStructure = generateScrollbarDOM.bind(0, false);
+  const generateHorizontalScrollbarStructure = bind(generateScrollbarDOM, true);
+  const generateVerticalScrollbarStructure = bind(generateScrollbarDOM, false);
   const appendElements = () => {
     appendChildren(evaluatedScrollbarSlot, horizontalScrollbars[0]._scrollbar);
     appendChildren(evaluatedScrollbarSlot, verticalScrollbars[0]._scrollbar);
@@ -366,7 +367,7 @@ export const createScrollbarsSetupElements = (
       scrollbarsAddRemoveClass(classNameScrollbarTransitionless);
     }, 300);
 
-    return runEachAndClear.bind(0, destroyFns);
+    return bind(runEachAndClear, destroyFns);
   };
 
   generateHorizontalScrollbarStructure();
@@ -384,13 +385,13 @@ export const createScrollbarsSetupElements = (
         _scrollTimeline: scrollTimelineX,
         _scrollbarStructures: horizontalScrollbars,
         _clone: generateHorizontalScrollbarStructure,
-        _style: scrollbarStyle.bind(0, horizontalScrollbars),
+        _style: bind(scrollbarStyle, horizontalScrollbars),
       },
       _vertical: {
         _scrollTimeline: scrollTimelineY,
         _scrollbarStructures: verticalScrollbars,
         _clone: generateVerticalScrollbarStructure,
-        _style: scrollbarStyle.bind(0, verticalScrollbars),
+        _style: bind(scrollbarStyle, verticalScrollbars),
       },
     },
     appendElements,

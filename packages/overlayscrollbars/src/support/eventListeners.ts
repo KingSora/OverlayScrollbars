@@ -1,6 +1,7 @@
 import { isArray, isBoolean, isFunction, isString } from '~/support/utils/types';
 import { keys } from '~/support/utils/object';
 import { each, push, from, isEmptyArray, runEachAndClear } from '~/support/utils/array';
+import { bind } from './utils';
 
 export type EventListener<EventArgs extends Record<string, any[]>, N extends keyof EventArgs> = (
   ...args: EventArgs[N]
@@ -80,9 +81,13 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
 
       manageListener((currListener) => {
         isFunction(currListener) && eventSet.add(currListener);
-      }, listenerOrPure as any);
+      }, listenerOrPure as Exclude<typeof listenerOrPure, boolean>);
 
-      return removeEvent.bind(0, nameOrEventListeners as any, listenerOrPure as any);
+      return bind(
+        removeEvent,
+        nameOrEventListeners,
+        listenerOrPure as Exclude<typeof listenerOrPure, boolean>
+      );
     }
     if (isBoolean(listenerOrPure) && listenerOrPure) {
       removeEvent();
@@ -95,7 +100,7 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
       eventListener && push(offFns, addEvent(key, eventListener));
     });
 
-    return runEachAndClear.bind(0, offFns);
+    return bind(runEachAndClear, offFns);
   };
 
   const triggerEvent: TriggerEvent<EventArgs> = (name, args) => {
@@ -103,7 +108,7 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
 
     each(from(eventSet), (event) => {
       if (args && !isEmptyArray(args)) {
-        (event as (...eventArgs: EventArgs[keyof EventArgs]) => void).apply(0, args as any);
+        (event as (...eventArgs: EventArgs[keyof EventArgs]) => void).apply(0, args);
       } else {
         (event as () => void)();
       }

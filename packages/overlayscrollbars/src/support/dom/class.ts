@@ -1,5 +1,6 @@
 import { isString } from '~/support/utils/types';
 import { each, from } from '~/support/utils/array';
+import { bind } from '../utils';
 
 type ClassContainingElement = Node | Element | false | null | undefined;
 type ClassName = string | false | null | undefined;
@@ -50,7 +51,7 @@ export const removeClass = (elm: ClassContainingElement, className: ClassName): 
  */
 export const addClass = (elm: ClassContainingElement, className: ClassName): (() => void) => {
   classListAction(elm, className, (classList, clazz) => classList.add(clazz));
-  return removeClass.bind(0, elm, className);
+  return bind(removeClass, elm, className);
 };
 
 /**

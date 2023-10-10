@@ -9,6 +9,7 @@ import {
   isArray,
   push,
   runEachAndClear,
+  bind,
 } from '~/support';
 import { getOptionsDiff } from '~/options';
 import { getEnvironment } from '~/environment';
@@ -418,13 +419,13 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
         );
       },
       update: (_force?: boolean) => setupsUpdate({ _force, _takeRecords: true }),
-      destroy: destroy.bind(0, false),
+      destroy: bind(destroy, false),
       plugin: <P extends InstancePlugin>(plugin: P) =>
         instancePluginModuleInstances[keys(plugin)[0]] as
           | InferInstancePluginModuleInstance<P>
           | undefined,
     };
-    const resizeUpdate = instance.update.bind(0, true);
+    const resizeUpdate = bind(instance.update, true);
     push(destroyFns, [
       _addZoomListener(resizeUpdate),
       _addResizeListener(resizeUpdate),

@@ -10,6 +10,7 @@ import {
   attrClass,
   noop,
   assignDeep,
+  bind,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -55,7 +56,7 @@ export type HideNativeScrollbars = (
 ) => void;
 
 const { max } = Math;
-const max0 = max.bind(0, 0);
+const max0 = bind(max, 0, 0);
 const strVisible = 'visible';
 const strHidden = 'hidden';
 const overlaidScrollbarsHideOffset = 42;
@@ -118,12 +119,12 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
-    fractionalSize.bind(0, _viewport)
+    bind(fractionalSize, _viewport)
   );
 
   const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache<
     WH<number>
-  >(whCacheOptions, scrollSize.bind(0, _viewport));
+  >(whCacheOptions, bind(scrollSize, _viewport));
 
   const [updateOverflowAmountCache, getCurrentOverflowAmountCache] =
     createCache<WH<number>>(whCacheOptions);

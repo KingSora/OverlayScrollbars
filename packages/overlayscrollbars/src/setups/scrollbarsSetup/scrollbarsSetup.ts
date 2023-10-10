@@ -1,4 +1,4 @@
-import { noop, on, push, runEachAndClear, selfClearTimeout } from '~/support';
+import { bind, noop, on, push, runEachAndClear, selfClearTimeout } from '~/support';
 import { getEnvironment } from '~/environment';
 import { createScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
 import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
@@ -92,7 +92,7 @@ export const createScrollbarsSetup = (
     if (removeAutoHide) {
       _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden);
     } else {
-      const hide = _scrollbarsAddRemoveClass.bind(0, classNameScrollbarAutoHideHidden, true);
+      const hide = bind(_scrollbarsAddRemoveClass, classNameScrollbarAutoHideHidden, true);
       if (instanceAutoHideDelay > 0 && !delayless) {
         auotHideTimeout(hide);
       } else {
@@ -154,7 +154,7 @@ export const createScrollbarsSetup = (
   return [
     () => {
       push(destroyFns, appendElements());
-      return runEachAndClear.bind(0, destroyFns);
+      return bind(runEachAndClear, destroyFns);
     },
     ({ _checkOption, _force, _observersUpdateHints, _structureUpdateHints }) => {
       const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
@@ -199,7 +199,7 @@ export const createScrollbarsSetup = (
             instanceAutoHideSuspendScrollDestroyFn = on(
               _scrollEventElement,
               'scroll',
-              manageAutoHideSuspension.bind(0, true),
+              bind(manageAutoHideSuspension, true),
               {
                 _once: true,
               }

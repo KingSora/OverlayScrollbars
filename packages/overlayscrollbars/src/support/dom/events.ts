@@ -1,5 +1,6 @@
 import { isUndefined } from '~/support/utils/types';
 import { each, push, runEachAndClear } from '~/support/utils/array';
+import { bind } from '../utils';
 
 let passiveEventsSupport: boolean | undefined;
 const supportPassiveEvents = (): boolean => {
@@ -83,11 +84,11 @@ export const on = <T extends Event = Event>(
         : listener
     ) as EventListener;
 
-    push(offListeners, off.bind(0, target, eventName, finalListener, capture));
+    push(offListeners, bind(off, target, eventName, finalListener, capture));
     target.addEventListener(eventName, finalListener, nativeOptions);
   });
 
-  return runEachAndClear.bind(0, offListeners);
+  return bind(runEachAndClear, offListeners);
 };
 
 /**

@@ -19,6 +19,7 @@ import {
   hasAttrClass,
   noop,
   on,
+  bind,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -80,7 +81,7 @@ export interface StructureSetupElementsObj {
 }
 
 const tabIndexStr = 'tabindex';
-const createNewDiv = createDiv.bind(0, '');
+const createNewDiv = bind(createDiv, '');
 
 const unwrap = (elm: HTMLElement | false | null | undefined) => {
   appendChildren(parent(elm), contents(elm));
@@ -120,16 +121,16 @@ export const createStructureSetupElements = (
   const docElement = ownerDocument.documentElement;
   const isBody = targetElement === ownerDocument.body;
   const wnd = ownerDocument.defaultView as Window;
-  const staticInitializationElement = generalStaticInitializationElement.bind(0, [targetElement]);
-  const dynamicInitializationElement = generalDynamicInitializationElement.bind(0, [targetElement]);
-  const resolveInitialization = generalResolveInitialization.bind(0, [targetElement]);
-  const generateViewportElement = staticInitializationElement.bind(
-    0,
+  const staticInitializationElement = bind(generalStaticInitializationElement, [targetElement]);
+  const dynamicInitializationElement = bind(generalDynamicInitializationElement, [targetElement]);
+  const resolveInitialization = bind(generalResolveInitialization, [targetElement]);
+  const generateViewportElement = bind(
+    staticInitializationElement,
     createNewDiv,
     defaultViewportInitialization
   );
-  const generateContentElement = dynamicInitializationElement.bind(
-    0,
+  const generateContentElement = bind(
+    dynamicInitializationElement,
     createNewDiv,
     defaultContentInitialization
   );
@@ -236,7 +237,7 @@ export const createStructureSetupElements = (
         )
       );
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
-  const destroy = runEachAndClear.bind(0, destroyFns);
+  const destroy = bind(runEachAndClear, destroyFns);
   const appendElements = () => {
     attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
     attr(_padding, dataAttributePadding, '');
@@ -287,11 +288,11 @@ export const createStructureSetupElements = (
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
       attrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden, true);
-      push(destroyFns, removeAttr.bind(0, _viewport, dataAttributeViewport));
+      push(destroyFns, bind(removeAttr, _viewport, dataAttributeViewport));
     }
     if (_viewportArrange) {
       insertBefore(_viewport, _viewportArrange);
-      push(destroyFns, removeElements.bind(0, _viewportArrange));
+      push(destroyFns, bind(removeElements, _viewportArrange));
     }
     if (setViewportFocus) {
       const ogTabindex = attr(_viewport, tabIndexStr);

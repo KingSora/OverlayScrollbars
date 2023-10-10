@@ -29,6 +29,11 @@ export interface Debounced<FunctionToDebounce extends (...args: any) => any> {
   _flush(): void;
 }
 
+export const bind = <A extends any[], B extends any[], R>(
+  fn: (...args: [...A, ...B]) => R,
+  ...args: A
+): ((...args: B) => R) => fn.bind(0, ...args);
+
 /**
  * Creates a timeout and cleartimeout tuple. The timeout function always clears the previously created timeout before it runs.
  * @param timeout The timeout in ms. If no timeout (or 0) is passed requestAnimationFrame is used instead of setTimeout.

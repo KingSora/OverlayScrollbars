@@ -12,6 +12,7 @@ import {
   cAF,
   rAF,
   stopPropagation,
+  bind,
 } from '~/support';
 import {
   classNameSizeObserverListenerScroll,
@@ -94,7 +95,7 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
 
         rAF!(reset);
 
-        return [observeAppearChange ? onScroll.bind(0, false) : reset, offListeners];
+        return [observeAppearChange ? bind(onScroll, false) : reset, offListeners];
       },
   },
 }))() satisfies StaticPlugin<typeof sizeObserverPluginName>;

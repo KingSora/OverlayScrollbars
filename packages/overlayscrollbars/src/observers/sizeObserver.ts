@@ -17,6 +17,7 @@ import {
   appendChildren,
   getDirectionIsRTL,
   domRectHasDimensions,
+  bind,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -59,7 +60,7 @@ export const createSizeObserver = (
   const sizeObserverPlugin =
     getStaticPluginModuleInstance<typeof SizeObserverPlugin>(sizeObserverPluginName);
   const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
-  const getIsDirectionRTL = getDirectionIsRTL.bind(0, target);
+  const getIsDirectionRTL = bind(getDirectionIsRTL, target);
   const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | false>({
     _initialValue: false,
     _alwaysUpdateValues: true,

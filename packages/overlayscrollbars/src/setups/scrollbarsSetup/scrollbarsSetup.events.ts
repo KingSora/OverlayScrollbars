@@ -11,6 +11,7 @@ import {
   closest,
   push,
   attrClass,
+  bind,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import { getEnvironment } from '~/environment';
@@ -70,7 +71,7 @@ const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentEl
   on(
     scrollbar,
     'mousedown',
-    on.bind(0, documentElm, 'click', stopPropagation, { _once: true, _capture: true }),
+    bind(on, documentElm, 'click', stopPropagation, { _once: true, _capture: true }),
     { _capture: true }
   );
 
@@ -113,8 +114,8 @@ const createInteractiveScrollEvents = (
 
     if (continuePointerDown(pointerDownEvent, options, isDragScroll)) {
       const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
-      const getHandleRect = getBoundingClientRect.bind(0, _handle);
-      const getTrackRect = getBoundingClientRect.bind(0, _track);
+      const getHandleRect = bind(getBoundingClientRect, _handle);
+      const getTrackRect = bind(getBoundingClientRect, _track);
       const getHandleOffset = (handleRect?: DOMRect, trackRect?: DOMRect) =>
         (handleRect || getHandleRect())[leftTopKey] - (trackRect || getTrackRect())[leftTopKey];
       const moveHandleRelative = createRelativeHandleMove(
@@ -135,7 +136,7 @@ const createInteractiveScrollEvents = (
       };
 
       const offFns = [
-        attrClass.bind(0, hostElm, dataAttributeHost, dataValueHostScrollbarPressed),
+        bind(attrClass, hostElm, dataAttributeHost, dataValueHostScrollbarPressed),
         on(documentElm, releasePointerCaptureEvents, releasePointerCapture),
         on(documentElm, 'selectstart', (event: Event) => preventDefault(event), {
           _passive: false,
@@ -191,12 +192,12 @@ export const createScrollbarsSetupEvents =
     const scrollByFn = !!scrollOffsetElm.scrollBy;
     let wheelScrollBy = true;
 
-    return runEachAndClear.bind(0, [
+    return bind(runEachAndClear, [
       on(_scrollbar, 'pointerenter', () => {
         scrollbarsAddRemoveClass(classNameScrollbarInteraction, true);
       }),
       on(_scrollbar, 'pointerleave pointercancel', () => {
-        scrollbarsAddRemoveClass.bind(classNameScrollbarInteraction, false);
+        scrollbarsAddRemoveClass(classNameScrollbarInteraction, false);
       }),
       on(
         _scrollbar,

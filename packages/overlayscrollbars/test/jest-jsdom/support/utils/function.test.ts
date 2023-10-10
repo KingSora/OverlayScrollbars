@@ -1,4 +1,4 @@
-import { debounce, selfClearTimeout } from '~/support/utils/function';
+import { bind, debounce, selfClearTimeout } from '~/support/utils/function';
 import { rAF, cAF, setT, clearT } from '~/support/compatibility/apis';
 
 jest.useFakeTimers();
@@ -314,6 +314,15 @@ describe('function', () => {
         expect(i).toBe(3 * 3);
       });
     });
+  });
+
+  test('bind', () => {
+    const myFn = (a: number, b: number) => a + b;
+    const boundFn = bind(myFn, 1);
+    expect(typeof boundFn).toBe('function');
+    expect(boundFn(1)).toBe(2);
+    expect(boundFn(2)).toBe(3);
+    expect(bind(myFn, 10, 1)()).toBe(11);
   });
 
   describe('selfClearTimeout', () => {
