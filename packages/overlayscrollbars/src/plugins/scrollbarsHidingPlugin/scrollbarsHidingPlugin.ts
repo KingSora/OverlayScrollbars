@@ -1,4 +1,4 @@
-import { keys, attr, style, noop, each, assignDeep, windowSize, attrClass } from '~/support';
+import { keys, attr, style, noop, each, assignDeep, windowSize, attrClass, wnd } from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
 import type { StyleObject, StyleObjectKey } from '~/typings';
@@ -32,13 +32,14 @@ export type UndoArrangeViewport = (
 let contentArrangeCounter = 0;
 const { round, abs } = Math;
 const getWindowDPR = (): number => {
+  const screen = wnd.screen;
   // eslint-disable-next-line
   // @ts-ignore
-  const dDPI = window.screen.deviceXDPI || 0;
+  const dDPI = screen.deviceXDPI || 0;
   // eslint-disable-next-line
   // @ts-ignore
-  const sDPI = window.screen.logicalXDPI || 1;
-  return window.devicePixelRatio || dDPI / sDPI;
+  const sDPI = screen.logicalXDPI || 1;
+  return wnd.devicePixelRatio || dDPI / sDPI;
 };
 
 const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {

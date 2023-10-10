@@ -1,1 +1,3 @@
-export const isBrowser = typeof window !== 'undefined';
+import { wnd } from '../utils/alias';
+
+export const isBrowser = typeof wnd !== 'undefined';

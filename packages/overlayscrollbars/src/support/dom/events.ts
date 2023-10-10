@@ -1,6 +1,7 @@
 import { isUndefined } from '~/support/utils/types';
 import { each, push, runEachAndClear } from '~/support/utils/array';
 import { bind } from '../utils';
+import { wnd } from '../utils/alias';
 
 let passiveEventsSupport: boolean | undefined;
 const supportPassiveEvents = (): boolean => {
@@ -9,7 +10,7 @@ const supportPassiveEvents = (): boolean => {
     try {
       /* eslint-disable */
       // @ts-ignore
-      window.addEventListener(
+      wnd.addEventListener(
         'test',
         null,
         Object.defineProperty({}, 'passive', {

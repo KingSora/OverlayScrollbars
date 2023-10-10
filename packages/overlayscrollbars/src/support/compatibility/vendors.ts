@@ -2,6 +2,7 @@ import { each } from '~/support/utils/array';
 import { isBrowser } from '~/support/compatibility/isBrowser';
 import { hasOwnProperty } from '~/support/utils/object';
 import { createDiv } from '~/support/dom/create';
+import { wnd } from '../utils/alias';
 
 const firstLetterToUpper = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);
 const getDummyStyle = (): CSSStyleDeclaration => createDiv().style;
@@ -104,14 +105,14 @@ export const cssPropertyValue = (
  */
 export const jsAPI = <T = any>(name: JsApiName): T | undefined => {
   if (isBrowser) {
-    let result: any = jsCache[name] || window[name];
+    let result: any = jsCache[name] || wnd[name];
 
     if (hasOwnProperty(jsCache, name)) {
       return result;
     }
 
     each(jsPrefixes, (prefix: string) => {
-      result = result || window[(prefix + firstLetterToUpper(name)) as JsApiName];
+      result = result || wnd[(prefix + firstLetterToUpper(name)) as JsApiName];
       return !result;
     });
 

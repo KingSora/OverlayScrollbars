@@ -120,7 +120,7 @@ export const createStructureSetupElements = (
   const ownerDocument = targetElement.ownerDocument;
   const docElement = ownerDocument.documentElement;
   const isBody = targetElement === ownerDocument.body;
-  const wnd = ownerDocument.defaultView as Window;
+  const docWnd = ownerDocument.defaultView as Window;
   const staticInitializationElement = bind(generalStaticInitializationElement, [targetElement]);
   const dynamicInitializationElement = bind(generalDynamicInitializationElement, [targetElement]);
   const resolveInitialization = bind(generalResolveInitialization, [targetElement]);
@@ -164,7 +164,8 @@ export const createStructureSetupElements = (
   const hostElement = viewportIsTargetBody ? viewportElement : nonBodyHostElement;
   const contentElement = viewportIsContent ? viewportIsContentContent : possibleContentElement;
   const activeElm = ownerDocument.activeElement;
-  const setViewportFocus = !viewportIsTarget && wnd.top === wnd && activeElm === targetElement;
+  const setViewportFocus =
+    !viewportIsTarget && docWnd.top === docWnd && activeElm === targetElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: hostElement,
@@ -184,7 +185,7 @@ export const createStructureSetupElements = (
       createUniqueViewportArrangeElement(env),
     _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
     _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
-    _windowElm: wnd,
+    _windowElm: docWnd,
     _documentElm: ownerDocument,
     _isTextarea: isTextarea,
     _isBody: isBody,

@@ -11,6 +11,7 @@ import {
   noop,
   assignDeep,
   bind,
+  wnd,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -70,7 +71,7 @@ const xyCacheOptions = {
 };
 
 const getOverflowAmount = (viewportScrollSize: WH<number>, viewportClientSize: WH<number>) => {
-  const tollerance = window.devicePixelRatio % 1 !== 0 ? 1 : 0;
+  const tollerance = wnd.devicePixelRatio % 1 !== 0 ? 1 : 0;
   const amount = {
     w: max0(viewportScrollSize.w - viewportClientSize.w),
     h: max0(viewportScrollSize.h - viewportClientSize.h),

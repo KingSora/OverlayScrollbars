@@ -20,6 +20,7 @@ import {
   debounce,
   scrollT,
   bind,
+  wnd,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -130,8 +131,7 @@ const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   try {
     result =
       style(testElm, cssProperty('scrollbar-width') as StyleObjectKey) === 'none' ||
-      window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') ===
-        'none';
+      wnd.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
   } catch (ex) {}
   revertClass();
   return result;
@@ -251,7 +251,7 @@ const createEnvironment = (): InternalEnvironment => {
     _staticDefaultInitialization: assignDeep({}, staticDefaultInitialization),
     _staticDefaultOptions: assignDeep({}, staticDefaultOptions),
   };
-  const windowAddEventListener = window.addEventListener;
+  const windowAddEventListener = wnd.addEventListener;
   const debouncedWindowResize = debounce((zoom: boolean) => triggerEvent(zoom ? 'z' : 'r'), {
     _timeout: 33,
     _maxDelay: 99,

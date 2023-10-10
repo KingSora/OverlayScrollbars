@@ -1,4 +1,5 @@
 import { getBoundingClientRect } from '~/support/dom/dimensions';
+import { wnd } from '../utils/alias';
 
 export interface XY<T = number> {
   x: T;
@@ -18,8 +19,8 @@ export const absoluteCoordinates = (elm: HTMLElement | null | undefined): Readon
   const rect = elm ? getBoundingClientRect(elm) : 0;
   return rect
     ? {
-        x: rect.left + window.pageYOffset, //IE11 compat
-        y: rect.top + window.pageXOffset, //IE11 compat
+        x: rect.left + wnd.pageYOffset, //IE11 compat
+        y: rect.top + wnd.pageXOffset, //IE11 compat
       }
     : zeroObj;
 };

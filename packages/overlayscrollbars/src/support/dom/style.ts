@@ -1,4 +1,4 @@
-import { each } from '~/support/utils';
+import { each, wnd } from '~/support/utils';
 import { isString, isNumber, isArray, isUndefined } from '~/support/utils/types';
 import type { PlainObject, StyleObject, StyleObjectKey } from '~/typings';
 
@@ -87,7 +87,7 @@ export function style<CustomCssProps>(
   if (getStyles) {
     let getStylesResult: string | PlainObject = getSingleStyle ? '' : {};
     if (elm) {
-      const computedStyle: CSSStyleDeclaration = window.getComputedStyle(elm, null);
+      const computedStyle: CSSStyleDeclaration = wnd.getComputedStyle(elm, null);
       getStylesResult = getSingleStyle
         ? getCSSVal(elm, computedStyle, styles)
         : styles.reduce((result, key) => {

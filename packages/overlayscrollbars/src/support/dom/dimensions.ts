@@ -1,4 +1,5 @@
 import { style } from '~/support/dom/style';
+import { wnd } from '../utils/alias';
 
 export interface WH<T = number> {
   w: T;
@@ -16,9 +17,9 @@ const zeroObj: WH = {
 /**
  * Returns the window inner- width and height.
  */
-export const windowSize = (): WH => ({
-  w: window.innerWidth,
-  h: window.innerHeight,
+export const windowSize = (): Readonly<WH> => ({
+  w: wnd.innerWidth,
+  h: wnd.innerHeight,
 });
 
 /**
