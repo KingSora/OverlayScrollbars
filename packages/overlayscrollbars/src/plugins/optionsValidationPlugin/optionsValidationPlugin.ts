@@ -62,7 +62,7 @@ export const optionsValidationPluginModuleName = '__osOptionsValidationPlugin';
 
 export const OptionsValidationPlugin = /* @__PURE__ */ (() => ({
   [optionsValidationPluginModuleName]: {
-    osStatic:
+    static:
       () =>
       (options: PartialOptions, doWriteErrors?: boolean): PartialOptions => {
         const [validated, foreign] = validateOptions(optionsTemplate, options, doWriteErrors);

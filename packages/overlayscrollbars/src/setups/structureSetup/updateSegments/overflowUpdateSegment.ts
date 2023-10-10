@@ -107,10 +107,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _nativeScrollbarsHiding,
     _nativeScrollbarsOverlaid,
   } = getEnvironment();
-  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<
-    typeof scrollbarsHidingPluginName,
-    typeof ScrollbarsHidingPlugin
-  >(scrollbarsHidingPluginName);
+  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
+    scrollbarsHidingPluginName
+  );
   const doViewportArrange =
     !_viewportIsTarget &&
     !_nativeScrollbarsHiding &&

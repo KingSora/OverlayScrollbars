@@ -26,7 +26,7 @@ export const sizeObserverPluginName = '__osSizeObserverPlugin';
 
 export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
   [sizeObserverPluginName]: {
-    osStatic:
+    static:
       () =>
       (
         listenerElement: HTMLElement,

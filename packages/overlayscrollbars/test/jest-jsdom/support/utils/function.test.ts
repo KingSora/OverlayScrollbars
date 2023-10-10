@@ -1,4 +1,4 @@
-import { noop, debounce, selfClearTimeout } from '~/support/utils/function';
+import { debounce, selfClearTimeout } from '~/support/utils/function';
 import { rAF, cAF, setT, clearT } from '~/support/compatibility/apis';
 
 jest.useFakeTimers();
@@ -20,11 +20,6 @@ jest.mock('~/support/compatibility/apis', () => {
 });
 
 describe('function', () => {
-  test('noop', () => {
-    expect(typeof noop).toBe('function');
-    expect(noop()).toBe(undefined);
-  });
-
   describe('debounce', () => {
     describe('timeout', () => {
       test('without timeout', () => {

@@ -1,4 +1,12 @@
-import { addPlugins, pluginModules } from '~/plugins';
+import {
+  addPlugins,
+  pluginModules,
+  registerPluginModuleInstances,
+  staticPluginModuleInstances,
+  getStaticPluginModuleInstance,
+} from '~/plugins';
+import { OverlayScrollbars } from '~/overlayscrollbars';
+import type { InstancePlugin, Plugin, PluginModuleInstance, StaticPlugin } from '~/plugins';
 
 describe('plugins', () => {
   test('pluginModules', () => {
@@ -28,5 +36,65 @@ describe('plugins', () => {
     expect(pluginModules.myPlugin3Module1).toBe(myPlugin3.myPlugin3Module1);
     expect(pluginModules.myPlugin3Module2).toBe(myPlugin3.myPlugin3Module2);
     expect(Object.entries(pluginModules)).toHaveLength(4);
+  });
+
+  test('registerPluginModuleInstances', () => {
+    const staticTestPlugin = {
+      staticTestPlugin: {
+        static: () => ({
+          staticTestPluginInstance: 'static',
+        }),
+      },
+    } satisfies StaticPlugin;
+
+    const instanceTestPlugin = {
+      instanceTestPlugin: {
+        instance: () => ({
+          instanceTestPluginInstance: 'instance',
+        }),
+      },
+    } satisfies InstancePlugin;
+
+    const testPlugin = {
+      testPlugin: {
+        static: () => ({
+          testPluginInstance: 'static',
+        }),
+        instance: () => ({
+          testPluginInstance: 'instance',
+        }),
+      },
+    } satisfies Plugin;
+
+    const map: Record<string, PluginModuleInstance> = {};
+    const instance = {} as OverlayScrollbars; // fake instance
+
+    registerPluginModuleInstances(staticTestPlugin, OverlayScrollbars);
+    registerPluginModuleInstances(instanceTestPlugin, OverlayScrollbars, instance, map);
+    registerPluginModuleInstances(testPlugin, OverlayScrollbars);
+    registerPluginModuleInstances(testPlugin, OverlayScrollbars, instance, map);
+
+    expect(staticPluginModuleInstances['staticTestPlugin']).toEqual(
+      staticTestPlugin.staticTestPlugin.static()
+    );
+    expect(staticPluginModuleInstances['instanceTestPlugin']).not.toBeDefined();
+    expect(staticPluginModuleInstances['testPlugin']).toEqual(testPlugin.testPlugin.static());
+    expect(map['instanceTestPlugin']).toEqual(instanceTestPlugin.instanceTestPlugin.instance());
+    expect(map['testPlugin']).toEqual(testPlugin.testPlugin.instance());
+  });
+
+  test('getStaticPluginModuleInstance', () => {
+    const staticPlugin = {
+      staticPlugin: {
+        static: () => ({
+          staticPluginInstance: 'static',
+        }),
+      },
+    } satisfies StaticPlugin;
+
+    registerPluginModuleInstances(staticPlugin, OverlayScrollbars);
+
+    const pluginInstance = getStaticPluginModuleInstance<typeof staticPlugin>('staticPlugin');
+    expect(pluginInstance?.staticPluginInstance).toBe('static');
   });
 });

@@ -5,7 +5,7 @@ export const clickScrollPluginModuleName = '__osClickScrollPlugin';
 
 export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
   [clickScrollPluginModuleName]: {
-    osStatic:
+    static:
       () =>
       (
         moveHandleRelative: (deltaMovement: number) => void,

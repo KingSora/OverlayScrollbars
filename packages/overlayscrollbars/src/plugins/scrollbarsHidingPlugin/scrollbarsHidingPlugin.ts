@@ -51,7 +51,7 @@ export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';
 
 export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
   [scrollbarsHidingPluginName]: {
-    osStatic: () => ({
+    static: () => ({
       _createUniqueViewportArrangeElement: (env: InternalEnvironment): false | HTMLStyleElement => {
         const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _cssCustomProperties } = env;
         const create =

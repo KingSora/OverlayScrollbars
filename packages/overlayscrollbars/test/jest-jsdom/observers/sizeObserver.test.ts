@@ -60,14 +60,16 @@ describe('createSizeObserver', () => {
 
   describe('with sizeObserverPlugin', () => {
     const mockSizeObserverPluginFn = jest.fn((...args) =>
-      // @ts-ignore
-      SizeObserverPlugin[sizeObserverPluginName].osStatic()(...args)
+      SizeObserverPlugin[sizeObserverPluginName].static()(
+        // @ts-ignore
+        ...args
+      )
     );
-    const mockSizeObserverPlugin: typeof SizeObserverPlugin = {
+    const mockSizeObserverPlugin = {
       [sizeObserverPluginName]: {
-        osStatic: () => mockSizeObserverPluginFn,
+        static: () => mockSizeObserverPluginFn,
       },
-    };
+    } satisfies typeof SizeObserverPlugin;
 
     beforeEach(() => {
       mockResizeObserverConstructor(false);

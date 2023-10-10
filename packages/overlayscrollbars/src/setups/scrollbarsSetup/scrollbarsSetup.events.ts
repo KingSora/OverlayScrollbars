@@ -153,10 +153,9 @@ const createInteractiveScrollEvents = (
       if (instantClickScroll) {
         moveHandleRelative(startOffset);
       } else if (!isDragScroll) {
-        const animateClickScroll = getStaticPluginModuleInstance<
-          typeof clickScrollPluginModuleName,
-          typeof ClickScrollPlugin
-        >(clickScrollPluginModuleName);
+        const animateClickScroll = getStaticPluginModuleInstance<typeof ClickScrollPlugin>(
+          clickScrollPluginModuleName
+        );
 
         animateClickScroll &&
           push(

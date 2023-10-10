@@ -267,10 +267,9 @@ const createEnvironment = (): InternalEnvironment => {
           InferStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>['_envWindowZoom']
         >;
     windowAddEventListener('resize', () => {
-      const scrollbarsHidingPlugin = getStaticPluginModuleInstance<
-        typeof scrollbarsHidingPluginName,
-        typeof ScrollbarsHidingPlugin
-      >(scrollbarsHidingPluginName);
+      const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
+        scrollbarsHidingPluginName
+      );
       resizeFn = resizeFn || (scrollbarsHidingPlugin && scrollbarsHidingPlugin._envWindowZoom());
       resizeFn &&
         resizeFn(env, updateNativeScrollbarSizeCache, debouncedWindowResize.bind(0, true));

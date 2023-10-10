@@ -92,10 +92,9 @@ export const createStructureSetupElements = (
 ): StructureSetupElements => {
   const env = getEnvironment();
   const { _getDefaultInitialization, _nativeScrollbarsHiding } = env;
-  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<
-    typeof scrollbarsHidingPluginName,
-    typeof ScrollbarsHidingPlugin
-  >(scrollbarsHidingPluginName);
+  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
+    scrollbarsHidingPluginName
+  );
   const createUniqueViewportArrangeElement =
     scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
   const { elements: defaultInitElements } = _getDefaultInitialization();

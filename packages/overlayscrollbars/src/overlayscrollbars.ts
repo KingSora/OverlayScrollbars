@@ -71,9 +71,9 @@ export interface OverlayScrollbarsStatic {
    * Adds one or multiple plugins.
    * @param plugin Either a signle or an array of plugins to add.
    */
-  plugin<P extends StaticPlugin | [StaticPlugin, ...StaticPlugin[]]>(
+  plugin<P extends Plugin | [Plugin, ...Plugin[]]>(
     plugin: P
-  ): P extends [StaticPlugin, ...StaticPlugin[]]
+  ): P extends [Plugin, ...Plugin[]]
     ? {
         [K in keyof P]: P[K] extends StaticPlugin ? InferStaticPluginModuleInstance<P[K]> : void;
       }
@@ -262,10 +262,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     const destroyFns: (() => void)[] = [];
     const instancePluginModuleInstances: Record<string, PluginModuleInstance> = {};
     const validateOptions = (newOptions: PartialOptions) => {
-      const pluginValidate = getStaticPluginModuleInstance<
-        typeof optionsValidationPluginModuleName,
-        typeof OptionsValidationPlugin
-      >(optionsValidationPluginModuleName);
+      const pluginValidate = getStaticPluginModuleInstance<typeof OptionsValidationPlugin>(
+        optionsValidationPluginModuleName
+      );
       return pluginValidate ? pluginValidate(newOptions, true) : newOptions;
     };
     const currentOptions: ReadonlyOptions = assignDeep(

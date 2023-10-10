@@ -56,10 +56,8 @@ export const createSizeObserver = (
   options?: SizeObserverOptions
 ): SizeObserver => {
   const { _direction: observeDirectionChange, _appear: observeAppearChange } = options || {};
-  const sizeObserverPlugin = getStaticPluginModuleInstance<
-    typeof sizeObserverPluginName,
-    typeof SizeObserverPlugin
-  >(sizeObserverPluginName);
+  const sizeObserverPlugin =
+    getStaticPluginModuleInstance<typeof SizeObserverPlugin>(sizeObserverPluginName);
   const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
   const getIsDirectionRTL = getDirectionIsRTL.bind(0, target);
   const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | false>({
