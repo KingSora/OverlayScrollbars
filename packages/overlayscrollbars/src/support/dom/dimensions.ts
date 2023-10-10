@@ -1,4 +1,4 @@
-import { style } from '~/support/dom/style';
+import { style } from './style';
 import { wnd } from '../utils/alias';
 
 export interface WH<T = number> {

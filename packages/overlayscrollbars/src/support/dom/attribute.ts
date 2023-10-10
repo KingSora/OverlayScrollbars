@@ -1,5 +1,5 @@
-import { from } from '~/support/utils/array';
-import { isNumber, isString, isUndefined } from '~/support/utils/types';
+import { from } from '../utils/array';
+import { isNumber, isString, isUndefined } from '../utils/types';
 
 type GetSetPropName = 'scrollLeft' | 'scrollTop' | 'value';
 

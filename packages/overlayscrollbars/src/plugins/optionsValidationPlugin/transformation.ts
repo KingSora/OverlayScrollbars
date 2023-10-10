@@ -1,12 +1,11 @@
-import { isArray } from '~/support/utils/types';
-import { each } from '~/support/utils';
+import { isArray, each } from '~/support';
 import type { OptionsObject } from '~/options';
 import type {
   OptionsTemplate,
   OptionsTemplateNativeTypes,
   OptionsTemplateTypes,
   OptionsTemplateValue,
-} from '~/plugins/optionsValidationPlugin/validation';
+} from './validation';
 import type { PlainObject } from '~/typings';
 
 export interface OptionsWithOptionsTemplateTransformation<T> {

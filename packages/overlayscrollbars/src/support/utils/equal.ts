@@ -1,6 +1,8 @@
-import { each } from '~/support/utils/array';
-import type { WH, XY, TRBL } from '~/support/dom';
+import type { WH } from '../dom/dimensions';
+import type { XY } from '../dom/offset';
+import type { TRBL } from '../dom/style';
 import type { PlainObject } from '~/typings';
+import { each } from './array';
 
 /**
  * Compares two objects and returns true if all values of the passed prop names are identical, false otherwise or if one of the two object is falsy.

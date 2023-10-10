@@ -1,7 +1,3 @@
-import {
-  validateOptions,
-  optionsTemplateTypes as oTypes,
-} from '~/plugins/optionsValidationPlugin/validation';
 import type {
   Options,
   PartialOptions,
@@ -9,11 +5,9 @@ import type {
   ScrollbarsVisibilityBehavior,
   ScrollbarsAutoHideBehavior,
 } from '~/options';
-import type {
-  OptionsTemplate,
-  OptionsTemplateValue,
-} from '~/plugins/optionsValidationPlugin/validation';
+import type { OptionsTemplate, OptionsTemplateValue } from './validation';
 import type { StaticPlugin } from '~/plugins';
+import { validateOptions, optionsTemplateTypes as oTypes } from './validation';
 
 const numberAllowedValues: OptionsTemplateValue<number> = oTypes.number;
 const booleanAllowedValues: OptionsTemplateValue<boolean> = oTypes.boolean;

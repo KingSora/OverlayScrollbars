@@ -1,1 +1,1 @@
-export * from '~/setups/observersSetup/observersSetup';
+export * from './observersSetup';

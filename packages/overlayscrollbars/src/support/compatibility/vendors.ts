@@ -1,7 +1,7 @@
-import { each } from '~/support/utils/array';
-import { isBrowser } from '~/support/compatibility/isBrowser';
-import { hasOwnProperty } from '~/support/utils/object';
-import { createDiv } from '~/support/dom/create';
+import { each } from '../utils/array';
+import { isBrowser } from '../compatibility/isBrowser';
+import { hasOwnProperty } from '../utils/object';
+import { createDiv } from '../dom/create';
 import { wnd } from '../utils/alias';
 
 const firstLetterToUpper = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);

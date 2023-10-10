@@ -1,5 +1,15 @@
-import { each, hasOwnProperty, keys, push, isEmptyObject } from '~/support/utils';
-import { type, isArray, isUndefined, isPlainObject, isString } from '~/support/utils/types';
+import {
+  each,
+  hasOwnProperty,
+  keys,
+  push,
+  isEmptyObject,
+  type,
+  isArray,
+  isUndefined,
+  isPlainObject,
+  isString,
+} from '~/support';
 import type { PlainObject, DeepPartial } from '~/typings';
 import type { OptionsObject } from '~/options';
 

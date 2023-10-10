@@ -1,5 +1,5 @@
-import { isBrowser } from '~/support/compatibility/isBrowser';
-import { jsAPI } from '~/support/compatibility/vendors';
+import { isBrowser } from './isBrowser';
+import { jsAPI } from './vendors';
 import { noop } from '../utils/noop';
 import { wnd } from '../utils/alias';
 

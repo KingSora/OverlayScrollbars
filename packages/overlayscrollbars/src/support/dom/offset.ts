@@ -1,4 +1,4 @@
-import { getBoundingClientRect } from '~/support/dom/dimensions';
+import { getBoundingClientRect } from './dimensions';
 import { wnd } from '../utils/alias';
 
 export interface XY<T = number> {

@@ -1,6 +1,6 @@
-import { isString } from '~/support/utils/types';
-import { each, from } from '~/support/utils/array';
-import { bind } from '../utils';
+import { isString } from '../utils/types';
+import { each, from } from '../utils/array';
+import { bind } from '../utils/function';
 
 type ClassContainingElement = Node | Element | false | null | undefined;
 type ClassName = string | false | null | undefined;

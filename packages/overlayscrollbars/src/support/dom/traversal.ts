@@ -1,6 +1,6 @@
-import { isBrowser } from '~/support/compatibility/isBrowser';
-import { isElement } from '~/support/utils/types';
-import { push, from } from '~/support/utils/array';
+import { isBrowser } from '../compatibility/isBrowser';
+import { isElement } from '../utils/types';
+import { push, from } from '../utils/array';
 
 type InputElementType = Node | Element | Node | false | null | undefined;
 type OutputElementType = Node | Element | false | null | undefined;

@@ -1,7 +1,7 @@
-import { isArray, isBoolean, isFunction, isString } from '~/support/utils/types';
-import { keys } from '~/support/utils/object';
-import { each, push, from, isEmptyArray, runEachAndClear } from '~/support/utils/array';
-import { bind } from './utils';
+import { isArray, isBoolean, isFunction, isString } from './utils/types';
+import { keys } from './utils/object';
+import { each, push, from, isEmptyArray, runEachAndClear } from './utils/array';
+import { bind } from './utils/function';
 
 export type EventListener<EventArgs extends Record<string, any[]>, N extends keyof EventArgs> = (
   ...args: EventArgs[N]

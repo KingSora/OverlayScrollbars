@@ -26,10 +26,7 @@ import type { XY } from '~/support';
 import type { ClickScrollPlugin } from '~/plugins';
 import type { ReadonlyOptions } from '~/options';
 import type { StructureSetupState } from '~/setups';
-import type {
-  ScrollbarsSetupElementsObj,
-  ScrollbarStructure,
-} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
+import type { ScrollbarsSetupElementsObj, ScrollbarStructure } from './scrollbarsSetup.elements';
 
 export type ScrollbarsSetupEvents = (
   scrollbarStructure: ScrollbarStructure,

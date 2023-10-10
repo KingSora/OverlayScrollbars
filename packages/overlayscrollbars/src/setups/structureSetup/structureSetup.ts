@@ -1,13 +1,13 @@
-import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
 import { type PartialOptions } from '~/options';
 import { getEnvironment } from '~/environment';
 import { assignDeep, each, scrollLeft, scrollTop, type TRBL, type XY } from '~/support';
 import { dataValueHostUpdating } from '~/classnames';
 import type { OptionsCheckFn } from '~/options';
-import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
+import type { StructureSetupElementsObj } from './structureSetup.elements';
 import type { ObserversSetupState, ObserversSetupUpdateHints, Setup } from '~/setups';
 import type { InitializationTarget } from '~/initialization';
 import type { StyleObject, OverflowStyle } from '~/typings';
+import { createStructureSetupElements } from './structureSetup.elements';
 import {
   createOverflowUpdateSegment,
   createPaddingUpdateSegment,

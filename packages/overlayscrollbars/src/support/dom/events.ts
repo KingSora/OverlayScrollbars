@@ -1,6 +1,6 @@
-import { isUndefined } from '~/support/utils/types';
-import { each, push, runEachAndClear } from '~/support/utils/array';
-import { bind } from '../utils';
+import { isUndefined } from '../utils/types';
+import { each, push, runEachAndClear } from '../utils/array';
+import { bind } from '../utils/function';
 import { wnd } from '../utils/alias';
 
 let passiveEventsSupport: boolean | undefined;

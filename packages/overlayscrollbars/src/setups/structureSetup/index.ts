@@ -1,1 +1,1 @@
-export * from '~/setups/structureSetup/structureSetup';
+export * from './structureSetup';

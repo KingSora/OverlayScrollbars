@@ -1,4 +1,4 @@
-import { rAF, cAF } from '~/support/compatibility';
+import { rAF, cAF } from '../compatibility/apis';
 import { isFunction } from './types';
 
 const { max } = Math;

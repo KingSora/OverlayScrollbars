@@ -36,7 +36,7 @@ import {
 } from '~/classnames';
 import type { OptionsCheckFn } from '~/options';
 import type { SizeObserverCallbackParams } from '~/observers';
-import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
 import type { Setup } from '~/setups';
 import type { CacheValues, WH } from '~/support';
 import type { PlainObject } from '~/typings';

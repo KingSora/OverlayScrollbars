@@ -1,5 +1,5 @@
-import { isBrowser } from '~/support/compatibility/isBrowser';
 import type { PlainObject } from '~/typings';
+import { isBrowser } from '../compatibility/isBrowser';
 
 const ElementNodeType = isBrowser && Node.ELEMENT_NODE;
 const { toString, hasOwnProperty } = Object.prototype;

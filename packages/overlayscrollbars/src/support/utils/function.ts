@@ -1,6 +1,6 @@
-import { isNumber, isFunction } from '~/support/utils/types';
-import { from } from '~/support/utils/array';
-import { rAF, cAF, setT, clearT } from '~/support/compatibility/apis';
+import { isNumber, isFunction } from './types';
+import { from } from './array';
+import { rAF, cAF, setT, clearT } from '../compatibility/apis';
 import { noop } from './noop';
 
 type DebounceTiming = number | false | null | undefined;

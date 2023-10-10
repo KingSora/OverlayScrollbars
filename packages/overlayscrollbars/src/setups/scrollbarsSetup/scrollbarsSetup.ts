@@ -1,7 +1,5 @@
 import { bind, noop, on, push, runEachAndClear, selfClearTimeout } from '~/support';
 import { getEnvironment } from '~/environment';
-import { createScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
-import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import {
   classNameScrollbarThemeNone,
   classNameScrollbarVisible,
@@ -15,7 +13,7 @@ import {
 } from '~/classnames';
 import { type ReadonlyOptions } from '~/options';
 import type { OptionsCheckFn, PartialOptions } from '~/options';
-import type { ScrollbarsSetupElementsObj } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
+import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup.elements';
 import type {
   ObserversSetupState,
   ObserversSetupUpdateHints,
@@ -26,6 +24,8 @@ import type {
 import type { InitializationTarget } from '~/initialization';
 import type { OverflowStyle } from '~/typings';
 import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
+import { createScrollbarsSetupElements } from './scrollbarsSetup.elements';
+import { createScrollbarsSetupEvents } from './scrollbarsSetup.events';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}

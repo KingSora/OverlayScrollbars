@@ -1,5 +1,5 @@
-import { isArrayLike, isString } from '~/support/utils/types';
 import type { PlainObject } from '~/typings';
+import { isArrayLike, isString } from './types';
 
 type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
 

@@ -32,19 +32,19 @@ import {
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { dynamicInitializationElement as generalDynamicInitializationElement } from '~/initialization';
-import {
-  getScrollbarHandleLengthRatio,
-  getScrollbarHandleOffsetRatio,
-} from '~/setups/scrollbarsSetup/scrollbarsSetup.calculations';
 import type {
   InitializationTarget,
   InitializationTargetElement,
   InitializationTargetObject,
 } from '~/initialization';
-import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
-import type { ScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
+import type { ScrollbarsSetupEvents } from './scrollbarsSetup.events';
 import type { StyleObject } from '~/typings';
 import type { StructureSetupState } from '../structureSetup';
+import {
+  getScrollbarHandleLengthRatio,
+  getScrollbarHandleOffsetRatio,
+} from './scrollbarsSetup.calculations';
 
 export interface ScrollbarStructure {
   _scrollbar: HTMLElement;
