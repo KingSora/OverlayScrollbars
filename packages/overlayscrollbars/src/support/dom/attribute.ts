@@ -12,12 +12,6 @@ type Attr = {
     | void;
 };
 
-type GetSetProp<T> = {
-  (elm: HTMLElement | false | null | undefined): T;
-  (elm: HTMLElement | false | null | undefined, value: T | false | null): void;
-  (elm: HTMLElement | false | null | undefined, value?: T | false | null): T | void;
-};
-
 const getSetProp = (
   topLeft: GetSetPropName,
   fallback: number | string,
@@ -99,27 +93,27 @@ export const hasAttrClass = (
  * @param elm The element of which the scrollLeft value shall be get or set.
  * @param value The scrollLeft value which shall be set.
  */
-export const scrollLeft = ((
+export const scrollLeft = (
   elm: HTMLElement | false | null | undefined,
   value?: number | false | null
-): number | void => getSetProp('scrollLeft', 0, elm, value) as number) as GetSetProp<number>;
+): number | void => getSetProp('scrollLeft', 0, elm, value) as number;
 
 /**
  * Gets or sets the scrollTop value of the given element depending whether the value attribute is given.
  * @param elm The element of which the scrollTop value shall be get or set.
  * @param value The scrollTop value which shall be set.
  */
-export const scrollTop = ((
+export const scrollTop = (
   elm: HTMLElement | false | null | undefined,
   value?: number | false | null
-): number | void => getSetProp('scrollTop', 0, elm, value) as number) as GetSetProp<number>;
+): number | void => getSetProp('scrollTop', 0, elm, value) as number;
 
 /**
  * Gets or sets the value of the given input element depending whether the value attribute is given.
  * @param elm The input element of which the value shall be get or set.
  * @param value The value which shall be set.
  */
-export const val = ((
+export const val = (
   elm: HTMLInputElement | false | null | undefined,
   value?: string
-): string | void => getSetProp('value', '', elm, value) as string) as GetSetProp<string>;
+): string | void => getSetProp('value', '', elm, value) as string;
