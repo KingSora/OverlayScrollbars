@@ -6,6 +6,7 @@ import { noop } from '../utils/noop';
 import { keys } from '../utils';
 
 let passiveEventsSupport: boolean | undefined;
+const passiveStr = 'passive';
 const supportPassiveEvents = (): boolean => {
   if (isUndefined(passiveEventsSupport)) {
     passiveEventsSupport = false;
@@ -13,9 +14,9 @@ const supportPassiveEvents = (): boolean => {
       /* eslint-disable */
       // @ts-ignore
       wnd.addEventListener(
-        'test',
+        passiveStr,
         noop,
-        Object.defineProperty({}, 'passive', {
+        Object.defineProperty({}, passiveStr, {
           get() {
             passiveEventsSupport = true;
           },

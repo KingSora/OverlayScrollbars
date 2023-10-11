@@ -105,6 +105,13 @@ export const isEmptyArray = (array: any[] | null | undefined): boolean =>
   !!array && array.length === 0;
 
 /**
+ * Deduplicates all items of the array.
+ * @param array The array to be deduplicated.
+ * @returns The deduplicated array.
+ */
+export const deduplicateArray = <T extends any[]>(array: T): T => from(new Set(array)) as T;
+
+/**
  * Calls all functions in the passed array/set of functions.
  * @param arr The array filled with function which shall be called.
  * @param args The args with which each function is called.
