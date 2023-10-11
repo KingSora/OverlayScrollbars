@@ -19,7 +19,7 @@ import {
   addClass,
   removeClass,
   diffClass,
-  on,
+  addEventListener,
 } from '~/support';
 import { createDOMObserver } from '~/observers';
 
@@ -560,7 +560,7 @@ const addRemoveTransitionElmsFn = async () => {
     addClass(elm, 'active');
 
     await new Promise((resolve) => {
-      on(
+      addEventListener(
         elm,
         'transitionend',
         async () => {

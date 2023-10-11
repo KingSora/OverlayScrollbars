@@ -5,7 +5,7 @@ import {
   offsetSize,
   scrollLeft,
   scrollTop,
-  on,
+  addEventListener,
   addClass,
   equalWH,
   push,
@@ -82,8 +82,8 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
         const offListeners = push(
           [],
           [
-            on(expandElement, scrollEventName, onScroll),
-            on(shrinkElement, scrollEventName, onScroll),
+            addEventListener(expandElement, scrollEventName, onScroll),
+            addEventListener(shrinkElement, scrollEventName, onScroll),
           ]
         );
 

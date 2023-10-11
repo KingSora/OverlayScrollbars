@@ -1,5 +1,4 @@
 import { each } from '../utils/array';
-import { isBrowser } from '../compatibility/isBrowser';
 import { hasOwnProperty } from '../utils/object';
 import { createDiv } from '../dom/create';
 import { wnd } from '../utils/alias';
@@ -104,19 +103,17 @@ export const cssPropertyValue = (
  * @param name The name of the JS function, object or constructor.
  */
 export const jsAPI = <T = any>(name: JsApiName): T | undefined => {
-  if (isBrowser) {
-    let result: any = jsCache[name] || wnd[name];
+  let result: any = jsCache[name] || wnd[name];
 
-    if (hasOwnProperty(jsCache, name)) {
-      return result;
-    }
-
-    each(jsPrefixes, (prefix: string) => {
-      result = result || wnd[(prefix + firstLetterToUpper(name)) as JsApiName];
-      return !result;
-    });
-
-    jsCache[name] = result;
+  if (hasOwnProperty(jsCache, name)) {
     return result;
   }
+
+  each(jsPrefixes, (prefix: string) => {
+    result = result || wnd[(prefix + firstLetterToUpper(name)) as JsApiName];
+    return !result;
+  });
+
+  jsCache[name] = result;
+  return result;
 };

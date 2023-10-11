@@ -6,7 +6,7 @@ import {
   isString,
   MutationObserverConstructor,
   isEmptyArray,
-  on,
+  addEventListener,
   attr,
   is,
   find,
@@ -125,15 +125,15 @@ const createEventContentChange = (
           const isTargetChild = target.contains(elm);
 
           if (isTargetChild) {
-            const off = on(elm, eventNames, (event: Event) => {
+            const removeListener = addEventListener(elm, eventNames, (event: Event) => {
               if (destroyed) {
-                off();
+                removeListener();
                 map!.delete(elm);
               } else {
                 callback(event);
               }
             });
-            map!.set(elm, push(entries, off));
+            map!.set(elm, push(entries, removeListener));
           } else {
             runEachAndClear(entries);
             map!.delete(elm);

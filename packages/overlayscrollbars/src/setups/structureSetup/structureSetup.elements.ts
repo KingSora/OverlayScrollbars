@@ -18,7 +18,7 @@ import {
   attrClass,
   hasAttrClass,
   noop,
-  on,
+  addEventListener,
   bind,
 } from '~/support';
 import {
@@ -303,7 +303,7 @@ export const createStructureSetupElements = (
 
       const revertViewportTabIndex = () =>
         ogTabindex ? attr(_viewport, tabIndexStr, ogTabindex) : removeAttr(_viewport, tabIndexStr);
-      const off = on(ownerDocument, 'pointerdown keydown', () => {
+      const off = addEventListener(ownerDocument, 'pointerdown keydown', () => {
         revertViewportTabIndex();
         off();
       });

@@ -21,6 +21,8 @@ import {
   scrollT,
   bind,
   wnd,
+  addEventListener,
+  noop,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -32,7 +34,7 @@ import { defaultOptions } from '~/options';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { XY, EventListener } from '~/support';
 import type { Options, PartialOptions } from '~/options';
-import type { InferStaticPluginModuleInstance, ScrollbarsHidingPlugin } from '~/plugins';
+import type { ScrollbarsHidingPlugin } from '~/plugins';
 import type { Initialization, PartialInitialization } from '~/initialization';
 import type { StyleObjectKey } from './typings';
 
@@ -251,8 +253,8 @@ const createEnvironment = (): InternalEnvironment => {
     _staticDefaultInitialization: assignDeep({}, staticDefaultInitialization),
     _staticDefaultOptions: assignDeep({}, staticDefaultOptions),
   };
-  const windowAddEventListener = wnd.addEventListener;
-  const debouncedWindowResize = debounce((zoom: boolean) => triggerEvent(zoom ? 'z' : 'r'), {
+  const windowAddResizeEventListener = bind(addEventListener, wnd, 'resize');
+  const debouncedWindowResize = debounce((event: 'z' | 'r') => triggerEvent(event), {
     _timeout: 33,
     _maxDelay: 99,
   });
@@ -261,20 +263,15 @@ const createEnvironment = (): InternalEnvironment => {
   removeElements(envElm);
 
   // needed in case content has css viewport units
-  windowAddEventListener('resize', bind(debouncedWindowResize, false));
+  windowAddResizeEventListener(bind(debouncedWindowResize, 'r'));
 
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
-    let resizeFn:
-      | undefined
-      | ReturnType<
-          InferStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>['_envWindowZoom']
-        >;
-    windowAddEventListener('resize', () => {
+    windowAddResizeEventListener(() => {
       const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
         scrollbarsHidingPluginName
       );
-      resizeFn = resizeFn || (scrollbarsHidingPlugin && scrollbarsHidingPlugin._envWindowZoom());
-      resizeFn && resizeFn(env, updateNativeScrollbarSizeCache, bind(debouncedWindowResize, true));
+      const resizeFn = scrollbarsHidingPlugin ? scrollbarsHidingPlugin._envWindowZoom() : noop;
+      resizeFn(env, updateNativeScrollbarSizeCache, bind(debouncedWindowResize, 'z'));
     });
   }
 

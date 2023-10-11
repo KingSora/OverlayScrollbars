@@ -1,4 +1,4 @@
-import { bind, noop, on, push, runEachAndClear, selfClearTimeout } from '~/support';
+import { bind, noop, addEventListener, push, runEachAndClear, selfClearTimeout } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
   classNameScrollbarThemeNone,
@@ -116,15 +116,15 @@ export const createScrollbarsSetup = (
     cancelMouseMoveAnimationFrame,
     () => instanceAutoHideSuspendScrollDestroyFn(),
 
-    on(_host, 'pointerover', onHostMouseEnter, { _once: true }),
-    on(_host, 'pointerenter', onHostMouseEnter),
-    on(_host, 'pointerleave', (event: PointerEvent) => {
+    addEventListener(_host, 'pointerover', onHostMouseEnter, { _once: true }),
+    addEventListener(_host, 'pointerenter', onHostMouseEnter),
+    addEventListener(_host, 'pointerleave', (event: PointerEvent) => {
       if (isHoverablePointerType(event)) {
         mouseInHost = false;
         autoHideIsLeave && manageScrollbarsAutoHide(false);
       }
     }),
-    on(_host, 'pointermove', (event: PointerEvent) => {
+    addEventListener(_host, 'pointermove', (event: PointerEvent) => {
       isHoverablePointerType(event) &&
         autoHideIsMove &&
         requestMouseMoveAnimationFrame(() => {
@@ -135,7 +135,7 @@ export const createScrollbarsSetup = (
           });
         });
     }),
-    on(_scrollEventElement, 'scroll', (event) => {
+    addEventListener(_scrollEventElement, 'scroll', (event) => {
       requestScrollAnimationFrame(() => {
         _refreshScrollbarsHandleOffset(structureSetupState);
 
@@ -152,10 +152,7 @@ export const createScrollbarsSetup = (
   ];
 
   return [
-    () => {
-      push(destroyFns, appendElements());
-      return bind(runEachAndClear, destroyFns);
-    },
+    () => bind(runEachAndClear, push(destroyFns, appendElements())),
     ({ _checkOption, _force, _observersUpdateHints, _structureUpdateHints }) => {
       const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
         _structureUpdateHints || {};
@@ -196,7 +193,7 @@ export const createScrollbarsSetup = (
           manageAutoHideSuspension(false);
           instanceAutoHideSuspendScrollDestroyFn();
           autoHideSuspendTimeout(() => {
-            instanceAutoHideSuspendScrollDestroyFn = on(
+            instanceAutoHideSuspendScrollDestroyFn = addEventListener(
               _scrollEventElement,
               'scroll',
               bind(manageAutoHideSuspension, true),
@@ -252,8 +249,8 @@ export const createScrollbarsSetup = (
         _refreshScrollbarsHandleLength(structureSetupState);
         _refreshScrollbarsHandleOffset(structureSetupState);
         _refreshScrollbarsHandleOffsetTimeline(structureSetupState);
-        _refreshScrollbarsScrollbarOffsetTimeline(structureSetupState);
         _refreshScrollbarsScrollbarOffset();
+        _refreshScrollbarsScrollbarOffsetTimeline(structureSetupState);
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.x, true);
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.y, false);

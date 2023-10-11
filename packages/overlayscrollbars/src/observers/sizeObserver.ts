@@ -5,7 +5,7 @@ import {
   scrollTop,
   runEachAndClear,
   removeElements,
-  on,
+  addEventListener,
   addClass,
   push,
   ResizeObserverConstructor,
@@ -172,7 +172,7 @@ export const createSizeObserver = (
 
       push(
         destroyFns,
-        on(sizeObserver, 'scroll', (event: Event) => {
+        addEventListener(sizeObserver, 'scroll', (event: Event) => {
           const directionIsRTLCacheValues = updateDirectionIsRTLCache();
           const [directionIsRTLCache, directionIsRTLCacheChanged, directionIsRTLCachePrevious] =
             directionIsRTLCacheValues;
@@ -197,7 +197,7 @@ export const createSizeObserver = (
       addClass(sizeObserver, classNameSizeObserverAppear);
       push(
         destroyFns,
-        on(sizeObserver, 'animationstart', appearCallback, {
+        addEventListener(sizeObserver, 'animationstart', appearCallback, {
           // Fire only once for "CSS is ready" event if ResizeObserver strategy is used
           _once: !!ResizeObserverConstructor,
         })
