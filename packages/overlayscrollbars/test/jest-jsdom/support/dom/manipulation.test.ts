@@ -6,6 +6,7 @@ import {
   insertBefore,
   insertAfter,
   removeElements,
+  parent,
 } from '~/support/dom';
 import { each, isArray, isHTMLElement } from '~/support/utils';
 
@@ -38,7 +39,7 @@ const compareToNative = (
         e.remove();
       }
     });
-    target[method](...elms);
+    (target as any)[method](...elms);
     expect(Array.from(slotElm.childNodes)).toEqual(snapshot);
   } else {
     clearSlotElm();
@@ -67,7 +68,7 @@ const compareToNative = (
       });
     });
 
-    target[method](...realElms);
+    (target as any)[method](...realElms);
 
     const mapIds = (elm: Node) => (isHTMLElement(elm) ? elm.getAttribute('id') || '' : '');
     const snapshotIdArr: Array<string> = snapshot.map(mapIds);
@@ -87,11 +88,16 @@ describe('dom manipulation', () => {
       const { childNodes } = slotElm;
       const { length } = childNodes;
 
-      appendChildren(slotElm, createdDiv);
+      const remove = appendChildren(slotElm, createdDiv);
+      expect(typeof remove).toBe('function');
       expect(createdDiv).toBe(childNodes[childNodes.length - 1]);
       expect(childNodes.length).toBe(length + 1);
 
       compareToNative(slotElm, 'append', Array.from(childNodes), createdDiv);
+
+      expect(parent(createdDiv)).not.toBe(null);
+      remove();
+      expect(parent(createdDiv)).toBe(null);
     });
 
     test('multiple created', () => {
@@ -99,43 +105,68 @@ describe('dom manipulation', () => {
       const { childNodes } = slotElm;
       const { length } = childNodes;
 
-      appendChildren(slotElm, createdDivs);
+      const remove = appendChildren(slotElm, createdDivs);
+      expect(typeof remove).toBe('function');
       expect(createdDivs[0]).toBe(childNodes[childNodes.length - 3]);
       expect(createdDivs[1]).toBe(childNodes[childNodes.length - 2]);
       expect(createdDivs[2]).toBe(childNodes[childNodes.length - 1]);
       expect(childNodes.length).toBe(length + createdDivs.length);
 
       compareToNative(slotElm, 'append', Array.from(childNodes), createdDivs);
+
+      expect(parent(createdDivs[0])).not.toBe(null);
+      expect(parent(createdDivs[1])).not.toBe(null);
+      expect(parent(createdDivs[2])).not.toBe(null);
+      remove();
+      expect(parent(createdDivs[0])).toBe(null);
+      expect(parent(createdDivs[1])).toBe(null);
+      expect(parent(createdDivs[2])).toBe(null);
     });
 
     test('single existing', () => {
       const { childNodes } = slotElm;
       const elm = childNodes[1];
 
-      appendChildren(slotElm, elm);
+      const remove = appendChildren(slotElm, elm);
+      expect(typeof remove).toBe('function');
       expect(elm).toBe(childNodes[childNodes.length - 1]);
 
       compareToNative(slotElm, 'append', Array.from(childNodes), elm, true);
+
+      remove();
+      expect(parent(elm)).toBe(null);
     });
 
     test('multiple existing', () => {
       const { childNodes } = slotElm;
       const elms = [childNodes[1], childNodes[0], childNodes[2]];
 
-      appendChildren(slotElm, elms);
+      const remove = appendChildren(slotElm, elms);
+      expect(typeof remove).toBe('function');
       expect(elms[0]).toBe(childNodes[childNodes.length - 3]);
       expect(elms[1]).toBe(childNodes[childNodes.length - 2]);
       expect(elms[2]).toBe(childNodes[childNodes.length - 1]);
 
       compareToNative(slotElm, 'append', Array.from(childNodes), elms, true);
+
+      remove();
+      expect(parent(elms[0])).toBe(null);
+      expect(parent(elms[1])).toBe(null);
+      expect(parent(elms[2])).toBe(null);
     });
 
     test('none', () => {
       const { childNodes } = slotElm;
       const { length } = childNodes;
 
-      appendChildren(slotElm, null);
-      appendChildren(null, childNodes);
+      const removeA = appendChildren(slotElm, null);
+      const removeB = appendChildren(null, childNodes);
+
+      expect(typeof removeA).toBe('function');
+      expect(typeof removeB).toBe('function');
+
+      removeA();
+      removeB();
 
       expect(childNodes.length).toBe(length);
     });

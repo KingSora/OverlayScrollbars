@@ -2,11 +2,11 @@ import {
   createDiv,
   offsetSize,
   runEachAndClear,
-  removeElements,
   createCache,
   push,
   IntersectionObserverConstructor,
   appendChildren,
+  bind,
 } from '~/support';
 import { createSizeObserver } from '~/observers/sizeObserver';
 import { classNameTrinsicObserver } from '~/classnames';
@@ -39,8 +39,8 @@ export const createTrinsicObserver = (
     _initialValue: false,
   });
   const triggerOnTrinsicChangedCallback = (
-    updateValue?: IntersectionObserverEntry | WH<number>,
-    fromRecords?: true
+    updateValue: IntersectionObserverEntry | WH<number> | undefined,
+    fromRecords?: boolean
   ): void | Parameters<TrinsicObserverCallback> => {
     if (updateValue) {
       const heightIntrinsic = updateHeightIntrinsicCache(isHeightIntrinsic(updateValue));
@@ -52,8 +52,10 @@ export const createTrinsicObserver = (
       );
     }
   };
-  const intersectionObserverCallback = (entries: IntersectionObserverEntry[], fromRecords?: true) =>
-    entries && entries.length > 0 && triggerOnTrinsicChangedCallback(entries.pop(), fromRecords);
+  const intersectionObserverCallback = (
+    fromRecords: boolean,
+    entries: IntersectionObserverEntry[]
+  ) => triggerOnTrinsicChangedCallback(entries.pop(), fromRecords);
 
   return [
     () => {
@@ -61,7 +63,7 @@ export const createTrinsicObserver = (
 
       if (IntersectionObserverConstructor) {
         intersectionObserverInstance = new IntersectionObserverConstructor(
-          (entries) => intersectionObserverCallback(entries),
+          bind(intersectionObserverCallback, false),
           { root: target }
         );
         intersectionObserverInstance.observe(trinsicObserver);
@@ -73,20 +75,16 @@ export const createTrinsicObserver = (
           const newSize = offsetSize(trinsicObserver);
           triggerOnTrinsicChangedCallback(newSize);
         };
-        const constructSizeObserver = createSizeObserver(trinsicObserver, onSizeChanged);
-        push(destroyFns, constructSizeObserver());
+        push(destroyFns, createSizeObserver(trinsicObserver, onSizeChanged)());
         onSizeChanged();
       }
 
-      appendChildren(target, trinsicObserver);
+      push(destroyFns, appendChildren(target, trinsicObserver));
 
-      return () => {
-        runEachAndClear(destroyFns);
-        removeElements(trinsicObserver);
-      };
+      return bind(runEachAndClear, destroyFns);
     },
     () =>
       intersectionObserverInstance &&
-      intersectionObserverCallback(intersectionObserverInstance.takeRecords(), true),
+      intersectionObserverCallback(true, intersectionObserverInstance.takeRecords()),
   ];
 };

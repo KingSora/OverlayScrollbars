@@ -4,20 +4,18 @@ import {
   scrollLeft,
   scrollTop,
   runEachAndClear,
-  removeElements,
   addEventListener,
   addClass,
   push,
   ResizeObserverConstructor,
-  isArray,
-  isBoolean,
   removeClass,
-  isObject,
   stopPropagation,
   appendChildren,
   getDirectionIsRTL,
   domRectHasDimensions,
   bind,
+  noop,
+  isArray,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -80,24 +78,19 @@ export const createSizeObserver = (
     const sizeObserver = baseElements[0] as HTMLElement;
     const listenerElement = sizeObserver.firstChild as HTMLElement;
     const onSizeChangedCallbackProxy = (
-      sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry[] | Event | boolean
+      sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry | Event | boolean
     ) => {
-      const isResizeObserverCall =
-        isArray(sizeChangedContext) &&
-        sizeChangedContext.length > 0 &&
-        isObject(sizeChangedContext[0]);
-
-      const hasDirectionCache =
-        !isResizeObserverCall && isBoolean((sizeChangedContext as CacheValues<boolean>)[0]);
+      const isResizeObserverCall = sizeChangedContext instanceof ResizeObserverEntry;
+      const hasDirectionCache = !isResizeObserverCall && isArray(sizeChangedContext);
 
       let skip = false;
-      let appear: boolean | number | undefined = false;
+      let appear = false;
       let doDirectionScroll = true; // always true if sizeChangedContext is Event (appear callback or RO. Polyfill)
 
       // if triggered from RO.
       if (isResizeObserverCall) {
         const [currRContentRect, , prevContentRect] = updateResizeObserverContentRectCache(
-          (sizeChangedContext as ResizeObserverEntry[]).pop()!.contentRect
+          sizeChangedContext.contentRect
         );
         const hasDimensions = domRectHasDimensions(currRContentRect);
         const hadDimensions = domRectHasDimensions(prevContentRect);
@@ -117,9 +110,7 @@ export const createSizeObserver = (
       }
 
       if (observeDirectionChange && doDirectionScroll) {
-        const rtl = hasDirectionCache
-          ? (sizeChangedContext as CacheValues<boolean>)[0]
-          : getDirectionIsRTL(sizeObserver);
+        const rtl = hasDirectionCache ? sizeChangedContext[0] : getDirectionIsRTL(sizeObserver);
         scrollLeft(
           sizeObserver,
           rtl
@@ -136,18 +127,18 @@ export const createSizeObserver = (
       if (!skip) {
         onSizeChangedCallback({
           _sizeChanged: !hasDirectionCache,
-          _directionIsRTLCache: hasDirectionCache
-            ? (sizeChangedContext as CacheValues<boolean>)
-            : undefined,
-          _appear: !!appear,
+          _directionIsRTLCache: hasDirectionCache ? sizeChangedContext : undefined,
+          _appear: appear,
         });
       }
     };
-    let appearCallback: ((...args: any) => any) | undefined | false =
+    let appearCallback: typeof onSizeChangedCallbackProxy | undefined | false =
       observeAppearChange && onSizeChangedCallbackProxy;
 
     if (ResizeObserverConstructor) {
-      const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
+      const resizeObserverInstance = new ResizeObserverConstructor((entries) =>
+        onSizeChangedCallbackProxy(entries.pop())
+      );
       resizeObserverInstance.observe(listenerElement);
       push(destroyFns, () => {
         resizeObserverInstance.disconnect();
@@ -160,6 +151,8 @@ export const createSizeObserver = (
       );
       appearCallback = pluginAppearCallback;
       push(destroyFns, pluginOffListeners);
+    } else {
+      return noop;
     }
 
     if (observeDirectionChange) {
@@ -172,7 +165,7 @@ export const createSizeObserver = (
 
       push(
         destroyFns,
-        addEventListener(sizeObserver, 'scroll', (event: Event) => {
+        addEventListener(sizeObserver, 'scroll', (event) => {
           const directionIsRTLCacheValues = updateDirectionIsRTLCache();
           const [directionIsRTLCache, directionIsRTLCacheChanged, directionIsRTLCachePrevious] =
             directionIsRTLCacheValues;
@@ -204,13 +197,8 @@ export const createSizeObserver = (
       );
     }
 
-    if (ResizeObserverConstructor || sizeObserverPlugin) {
-      appendChildren(target, sizeObserver);
-    }
+    push(destroyFns, appendChildren(target, sizeObserver));
 
-    return () => {
-      runEachAndClear(destroyFns);
-      removeElements(sizeObserver);
-    };
+    return bind(runEachAndClear, destroyFns);
   };
 };

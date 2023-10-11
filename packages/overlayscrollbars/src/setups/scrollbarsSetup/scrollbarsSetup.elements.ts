@@ -337,11 +337,10 @@ export const createScrollbarsSetupElements = (
       addClass(scrollbar, classNameScrollbarNoCssCustomProps);
     }
 
-    appendChildren(scrollbar, track);
-    appendChildren(track, handle);
-
     push(arrToPush, result);
     push(destroyFns, [
+      appendChildren(scrollbar, track),
+      appendChildren(track, handle),
       bind(removeElements, scrollbar),
       cancelElementAnimations,
       scrollbarsSetupEvents(
