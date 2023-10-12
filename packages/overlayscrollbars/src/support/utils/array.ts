@@ -101,8 +101,7 @@ export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => {
  * Check whether the passed array is empty.
  * @param array The array which shall be checked.
  */
-export const isEmptyArray = (array: any[] | null | undefined): boolean =>
-  !!array && array.length === 0;
+export const isEmptyArray = (array: any[] | null | undefined): boolean => !!array && !array.length;
 
 /**
  * Deduplicates all items of the array.

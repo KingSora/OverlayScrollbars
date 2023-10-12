@@ -12,6 +12,7 @@ import {
   push,
   attrClass,
   bind,
+  mathRound,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import { getEnvironment } from '~/environment';
@@ -38,13 +39,12 @@ export type ScrollbarsSetupEvents = (
   isHorizontal?: boolean
 ) => () => void;
 
-const { round } = Math;
 const getScale = (element: HTMLElement): XY<number> => {
   const { width, height } = getBoundingClientRect(element);
   const { w, h } = offsetSize(element);
   return {
-    x: round(width) / w || 1,
-    y: round(height) / h || 1,
+    x: mathRound(width) / w || 1,
+    y: mathRound(height) / h || 1,
   };
 };
 const continuePointerDown = (

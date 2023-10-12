@@ -1,4 +1,16 @@
-import { keys, attr, style, noop, each, assignDeep, windowSize, attrClass, wnd } from '~/support';
+import {
+  keys,
+  attr,
+  style,
+  noop,
+  each,
+  assignDeep,
+  windowSize,
+  attrClass,
+  wnd,
+  mathAbs,
+  mathRound,
+} from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
 import type { StyleObject, StyleObjectKey } from '~/typings';
@@ -30,7 +42,6 @@ export type UndoArrangeViewport = (
 ) => UndoViewportArrangeResult;
 
 let contentArrangeCounter = 0;
-const { round, abs } = Math;
 const getWindowDPR = (): number => {
   const screen = wnd.screen;
   // eslint-disable-next-line
@@ -43,8 +54,8 @@ const getWindowDPR = (): number => {
 };
 
 const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
-  const absValOne = abs(valOne);
-  const absValTwo = abs(valTwo);
+  const absValOne = mathAbs(valOne);
+  const absValTwo = mathAbs(valTwo);
   return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
 };
 
@@ -241,12 +252,12 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
           }
 
           const deltaAbsSize = {
-            w: abs(deltaSize.w),
-            h: abs(deltaSize.h),
+            w: mathAbs(deltaSize.w),
+            h: mathAbs(deltaSize.h),
           };
           const deltaAbsRatio = {
-            w: abs(round(sizeNew.w / (size.w / 100.0))),
-            h: abs(round(sizeNew.h / (size.h / 100.0))),
+            w: mathAbs(mathRound(sizeNew.w / (size.w / 100.0))),
+            h: mathAbs(mathRound(sizeNew.h / (size.h / 100.0))),
           };
           const dprNew = getWindowDPR();
           const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;

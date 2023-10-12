@@ -1,10 +1,10 @@
 import { bind, debounce, selfClearTimeout } from '~/support/utils/function';
-import { rAF, cAF, setT, clearT } from '~/support/compatibility/apis';
+import { rAF, cAF, setT, clearT } from '~/support/utils/alias';
 
 jest.useFakeTimers();
 
-jest.mock('~/support/compatibility/apis', () => {
-  const originalModule = jest.requireActual('~/support/compatibility/apis');
+jest.mock('~/support/utils/alias', () => {
+  const originalModule = jest.requireActual('~/support/utils/alias');
   const mockRAF = (arg: any) => setTimeout(arg, 0);
   return {
     ...originalModule,

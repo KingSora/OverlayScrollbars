@@ -3,6 +3,7 @@ import type { XY } from '../dom/offset';
 import type { TRBL } from '../dom/style';
 import type { PlainObject } from '~/typings';
 import { each } from './array';
+import { mathRound } from './alias';
 
 /**
  * Compares two objects and returns true if all values of the passed prop names are identical, false otherwise or if one of the two object is falsy.
@@ -62,4 +63,4 @@ export const equalTRBL = (a?: TRBL, b?: TRBL) => equal<TRBL>(a, b, ['t', 'r', 'b
  * @param round Whether the values should be rounded.
  */
 export const equalBCRWH = (a?: DOMRect, b?: DOMRect, round?: boolean) =>
-  equal<DOMRect>(a, b, ['width', 'height'], round && ((value) => Math.round(value)));
+  equal<DOMRect>(a, b, ['width', 'height'], round && ((value) => mathRound(value)));

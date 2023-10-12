@@ -1,4 +1,4 @@
-import { animateNumber, noop } from '~/support';
+import { animateNumber, noop, setT } from '~/support';
 import type { StaticPlugin } from '~/plugins';
 
 export const clickScrollPluginModuleName = '__osClickScrollPlugin';
@@ -34,7 +34,7 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
                 if (iteration) {
                   animateClickScroll(animationProgress);
                 } else {
-                  const firstIterationPauseTimeout = setTimeout(() => {
+                  const firstIterationPauseTimeout = setT(() => {
                     animateClickScroll(animationProgress);
                   }, 222);
                   clear = () => {

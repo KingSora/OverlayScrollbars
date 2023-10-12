@@ -1,6 +1,6 @@
 import { isNumber, isFunction } from './types';
 import { from } from './array';
-import { rAF, cAF, setT, clearT } from '../compatibility/apis';
+import { rAF, cAF, setT, clearT } from './alias';
 import { noop } from './noop';
 
 type DebounceTiming = number | false | null | undefined;

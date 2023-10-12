@@ -20,6 +20,7 @@ import {
   setT,
   style,
   bind,
+  mathMax,
 } from '~/support';
 import {
   classNameScrollbar,
@@ -103,7 +104,7 @@ const getScrollbarHandleAnimationKeyFrames = (directionRTL: boolean, isHorizonta
   ],
   [isHorizontal ? (directionRTL ? 'right' : 'left') : 'top']: ['0%', '100%'],
 });
-const maxScrollbarOffsetFrameValue = (value: number) => `${Math.max(0, value - 0.5)}px`;
+const maxScrollbarOffsetFrameValue = (value: number) => `${mathMax(0, value - 0.5)}px`;
 const animateScrollbarOffset = (
   scrollbar: HTMLElement,
   scrollTimeline: AnimationTimeline | null,

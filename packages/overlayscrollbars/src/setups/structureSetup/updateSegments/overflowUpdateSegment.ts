@@ -12,6 +12,7 @@ import {
   assignDeep,
   bind,
   wnd,
+  mathMax,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -56,8 +57,7 @@ export type HideNativeScrollbars = (
   viewportStyleObj: StyleObject
 ) => void;
 
-const { max } = Math;
-const max0 = bind(max, 0, 0);
+const max0 = bind(mathMax, 0);
 const strVisible = 'visible';
 const strHidden = 'hidden';
 const overlaidScrollbarsHideOffset = 42;
@@ -414,8 +414,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       }
 
       const overflowAmountScrollSize = {
-        w: max0(max(viewportScrollSize.w, arrangedViewportScrollSize.w) + sizeFraction.w),
-        h: max0(max(viewportScrollSize.h, arrangedViewportScrollSize.h) + sizeFraction.h),
+        w: max0(mathMax(viewportScrollSize.w, arrangedViewportScrollSize.w) + sizeFraction.w),
+        h: max0(mathMax(viewportScrollSize.h, arrangedViewportScrollSize.h) + sizeFraction.h),
       };
       const overflowAmountClientSize = {
         w: max0(
