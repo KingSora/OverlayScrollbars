@@ -14,13 +14,12 @@ import {
   removeClass,
   removeElements,
   runEachAndClear,
-  scrollLeft,
   scrollT,
-  scrollTop,
   setT,
   style,
   bind,
   mathMax,
+  getElmentScroll,
 } from '~/support';
 import {
   classNameScrollbar,
@@ -250,12 +249,7 @@ export const createScrollbarsSetupElements = (
     return [
       elm,
       {
-        transform: elm
-          ? getTrasformTranslateValue([
-              `${scrollLeft(_scrollOffsetElement)}px`,
-              `${scrollTop(_scrollOffsetElement)}px`,
-            ])
-          : '',
+        transform: elm ? getTrasformTranslateValue(getElmentScroll(_scrollOffsetElement)) : '',
       },
     ] as [HTMLElement | false, StyleObject];
   };

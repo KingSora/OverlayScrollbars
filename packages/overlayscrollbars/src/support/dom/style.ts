@@ -1,7 +1,8 @@
 import type { PlainObject, StyleObject, StyleObjectKey } from '~/typings';
+import type { XY } from './offset';
 import { wnd } from '../utils/alias';
 import { each } from '../utils/array';
-import { isString, isNumber, isArray, isUndefined } from '../utils/types';
+import { isString, isNumber, isArray, isUndefined, isObject } from '../utils/types';
 
 export interface TRBL {
   t: number;
@@ -134,9 +135,9 @@ export const topRightBottomLeft = (
 };
 
 export const getTrasformTranslateValue = (
-  value: string | number | [x: string | number, y: string | number],
+  value: string | number | XY<string | number>,
   isHorizontal?: boolean
 ) =>
   `translate${
-    isArray(value) ? `(${value[0]},${value[1]})` : `${isHorizontal ? 'X' : 'Y'}(${value})`
+    isObject(value) ? `(${value.x},${value.y})` : `${isHorizontal ? 'X' : 'Y'}(${value})`
   }`;

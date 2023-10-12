@@ -1,5 +1,4 @@
 import {
-  getDirectionIsRTL,
   getBoundingClientRect,
   offsetSize,
   addEventListener,
@@ -15,7 +14,6 @@ import {
   mathRound,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
-import { getEnvironment } from '~/environment';
 import {
   classNameScrollbarHandle,
   classNameScrollbarInteraction,
@@ -81,8 +79,7 @@ const createInteractiveScrollEvents = (
   structureSetupState: StructureSetupState,
   isHorizontal?: boolean
 ) => {
-  const { _rtlScrollBehavior } = getEnvironment();
-  const { _handle, _track, _scrollbar } = scrollbarStructure;
+  const { _handle, _track } = scrollbarStructure;
   const scrollLeftTopKey = `scroll${isHorizontal ? 'Left' : 'Top'}` as 'scrollLeft' | 'scrollTop';
   const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY'; // for pointer event (can't use xy because of IE11)
   const widthHeightKey = isHorizontal ? 'width' : 'height';
@@ -96,11 +93,8 @@ const createInteractiveScrollEvents = (
       const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
       const scrollDeltaPercent = (invertedScale * deltaMovement) / handleTrackDiff;
       const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
-      const isRTL = getDirectionIsRTL(_scrollbar);
-      const negateMultiplactor =
-        isRTL && isHorizontal ? (_rtlScrollBehavior.n || _rtlScrollBehavior.i ? 1 : -1) : 1;
 
-      scrollOffsetElement[scrollLeftTopKey] = mouseDownScroll + scrollDelta * negateMultiplactor;
+      scrollOffsetElement[scrollLeftTopKey] = mouseDownScroll + scrollDelta;
     };
 
   return addEventListener(_track, 'pointerdown', (pointerDownEvent: PointerEvent) => {

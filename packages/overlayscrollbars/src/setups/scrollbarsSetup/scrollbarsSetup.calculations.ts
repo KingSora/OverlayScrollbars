@@ -1,8 +1,40 @@
-import { getBoundingClientRect, mathMax, mathMin, mathRound } from '~/support';
+import {
+  getBoundingClientRect,
+  getRTLCompatibleScrollBounds,
+  mathMax,
+  mathMin,
+  mathRound,
+} from '~/support';
 import { getEnvironment } from '~/environment';
+import type { Environment } from '~/environment';
 import type { StructureSetupState } from '~/setups';
 
 const capNumber = (min: number, max: number, number: number) => mathMax(min, mathMin(max, number));
+
+export const getScrollbarHandleOffsetPercent = (
+  scrollPos: number,
+  overflowAmount: number,
+  rtlScrollBehavior?: Environment['rtlScrollBehavior'] | false
+) => {
+  const rawScrollPosMax = mathRound(overflowAmount);
+  const [scrollPositionMin, scrollPositionMax] = getRTLCompatibleScrollBounds(
+    rawScrollPosMax,
+    rtlScrollBehavior
+  );
+
+  const scrollPercentNegate = (scrollPositionMax - scrollPos) / scrollPositionMax;
+  const scrollPercentInvert = scrollPos / scrollPositionMin;
+  const scrollPercentNone = scrollPos / scrollPositionMax;
+  const rawScrollPercent = rtlScrollBehavior
+    ? rtlScrollBehavior.n
+      ? scrollPercentNegate
+      : rtlScrollBehavior.i
+      ? scrollPercentInvert
+      : scrollPercentNone
+    : scrollPercentNone;
+
+  return capNumber(0, 1, rawScrollPercent);
+};
 
 export const getScrollbarHandleLengthRatio = (
   scrollbarHandle: HTMLElement,
@@ -36,20 +68,15 @@ export const getScrollbarHandleOffsetRatio = (
   const axis = isHorizontal ? 'x' : 'y';
   const scrollLeftTop = isHorizontal ? 'Left' : 'Top';
   const { _overflowAmount } = structureSetupState;
-  const scrollPositionMax = mathRound(_overflowAmount[axis]);
-  // cap scroll position in min / max bounds to prevent overscroll visual glitches (https://github.com/KingSora/OverlayScrollbars/issues/559)
-  const scrollPosition = capNumber(
-    0,
-    scrollPositionMax,
-    scrollOffsetElement[`scroll${scrollLeftTop}`]
-  );
-  const handleRTL = isHorizontal && isRTL;
-  const rtlNormalizedScrollPosition = _rtlScrollBehavior.i
-    ? scrollPosition
-    : scrollPositionMax - scrollPosition;
-  const finalScrollPosition = handleRTL ? rtlNormalizedScrollPosition : scrollPosition;
-  const scrollPercent = mathMin(1, finalScrollPosition / scrollPositionMax);
   const lengthRatio = getScrollbarHandleLengthRatio(scrollbarHandle, scrollbarTrack, isHorizontal);
 
-  return (1 / lengthRatio) * (1 - lengthRatio) * scrollPercent;
+  return (
+    (1 / lengthRatio) *
+    (1 - lengthRatio) *
+    getScrollbarHandleOffsetPercent(
+      scrollOffsetElement[`scroll${scrollLeftTop}`],
+      _overflowAmount[axis],
+      isHorizontal && isRTL && _rtlScrollBehavior
+    )
+  );
 };

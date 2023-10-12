@@ -7,7 +7,6 @@ import {
   clientSize,
   absoluteCoordinates,
   offsetSize,
-  scrollLeft,
   removeAttr,
   removeElements,
   equalBCRWH,
@@ -23,6 +22,7 @@ import {
   wnd,
   addEventListener,
   noop,
+  scrollElementTo,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -145,11 +145,11 @@ const getRtlScrollBehavior = (
 ): { i: boolean; n: boolean } => {
   const strHidden = 'hidden';
   style(parentElm, { overflowX: strHidden, overflowY: strHidden, direction: 'rtl' });
-  scrollLeft(parentElm, 0);
+  scrollElementTo(parentElm, { x: 0 });
 
   const parentOffset = absoluteCoordinates(parentElm);
   const childOffset = absoluteCoordinates(childElm);
-  scrollLeft(parentElm, -999); // https://github.com/KingSora/OverlayScrollbars/issues/187
+  scrollElementTo(parentElm, { x: -999 }); // https://github.com/KingSora/OverlayScrollbars/issues/187
   const childOffsetAfterScroll = absoluteCoordinates(childElm);
   return {
     /**

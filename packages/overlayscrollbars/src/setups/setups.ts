@@ -1,4 +1,12 @@
-import { bind, each, isEmptyObject, keys, runEachAndClear, scrollLeft, scrollTop } from '~/support';
+import {
+  bind,
+  each,
+  getElmentScroll,
+  isEmptyObject,
+  keys,
+  runEachAndClear,
+  scrollElementTo,
+} from '~/support';
 import { createOptionCheck } from '~/options';
 import type { DeepReadonly } from '~/typings';
 import type { InitializationTarget, PartialOptions, ReadonlyOptions } from '..';
@@ -153,13 +161,11 @@ export const createSetups = (
     () => {
       const { _target, _viewport, _documentElm, _isBody } = structureSetupElements;
       const scrollingElement = _isBody ? _documentElm.documentElement : _target;
-      const initialScrollLeft = scrollLeft(scrollingElement);
-      const initialScrollTop = scrollTop(scrollingElement);
+      const initialScroll = getElmentScroll(scrollingElement);
 
       const destroyFns = [observersSetupCreate(), structureSetupCreate(), scrollbarsSetupCreate()];
 
-      scrollLeft(_viewport, initialScrollLeft);
-      scrollTop(_viewport, initialScrollTop);
+      scrollElementTo(_viewport, initialScroll);
 
       return bind(runEachAndClear, destroyFns);
     },

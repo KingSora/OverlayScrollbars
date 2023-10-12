@@ -7,3 +7,4 @@ export * from './style';
 export * from './manipulation';
 export * from './offset';
 export * from './traversal';
+export * from './scroll';

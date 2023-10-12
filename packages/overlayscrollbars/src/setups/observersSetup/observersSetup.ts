@@ -18,9 +18,9 @@ import {
   keys,
   liesBetween,
   removeAttr,
-  scrollLeft,
   scrollSize,
-  scrollTop,
+  getElmentScroll,
+  scrollElementTo,
 } from '~/support';
 import { type PartialOptions } from '~/options';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
@@ -112,8 +112,7 @@ export const createObserversSetup = (
         dataValueHostOverflowVisible
       );
       const hasVpStyle = _viewportHasClass(dataValueViewportArrange, '');
-      const scrollOffsetX = hasVpStyle && scrollLeft(_viewport);
-      const scrollOffsetY = hasVpStyle && scrollTop(_viewport);
+      const scrollOffset = hasVpStyle && getElmentScroll(_viewport);
       _viewportAddRemoveClass(dataValueViewportOverflowVisible, dataValueHostOverflowVisible);
       _viewportAddRemoveClass(dataValueViewportArrange, '');
       _viewportAddRemoveClass('', dataValueHostUpdating, true);
@@ -129,8 +128,8 @@ export const createObserversSetup = (
       );
       _viewportAddRemoveClass(dataValueViewportArrange, '', hasVpStyle);
       _viewportAddRemoveClass('', dataValueHostUpdating);
-      scrollLeft(_viewport, scrollOffsetX);
-      scrollTop(_viewport, scrollOffsetY);
+      scrollElementTo(_viewport, scrollOffset);
+
       return {
         w: viewportScroll.w + contentScroll.w + fractional.w,
         h: viewportScroll.h + contentScroll.h + fractional.h,

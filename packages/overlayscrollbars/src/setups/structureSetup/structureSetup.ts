@@ -1,6 +1,6 @@
 import { type PartialOptions } from '~/options';
 import { getEnvironment } from '~/environment';
-import { assignDeep, each, scrollLeft, scrollTop, type TRBL, type XY } from '~/support';
+import { assignDeep, each, getElmentScroll, scrollElementTo, type TRBL, type XY } from '~/support';
 import { dataValueHostUpdating } from '~/classnames';
 import type { OptionsCheckFn } from '~/options';
 import type { StructureSetupElementsObj } from './structureSetup.elements';
@@ -103,22 +103,18 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     (updateInfo) => {
       const updateHints: StructureSetupUpdateHints = {};
       const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
-      const scrollOffsetX = adjustScrollOffset && scrollLeft(_viewport);
-      const scrollOffsetY = adjustScrollOffset && scrollTop(_viewport);
+      const scrollOffset = adjustScrollOffset && getElmentScroll(_viewport);
+
       _viewportAddRemoveClass('', dataValueHostUpdating, true);
 
       each(updateSegments, (updateSegment) => {
         assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
       });
 
-      scrollLeft(_viewport, scrollOffsetX);
-      scrollTop(_viewport, scrollOffsetY);
       _viewportAddRemoveClass('', dataValueHostUpdating);
 
-      if (!_viewportIsTarget) {
-        scrollLeft(_target, 0);
-        scrollTop(_target, 0);
-      }
+      scrollElementTo(_viewport, scrollOffset);
+      !_viewportIsTarget && scrollElementTo(_target, 0);
 
       return updateHints;
     },

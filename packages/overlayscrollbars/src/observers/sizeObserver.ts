@@ -1,8 +1,6 @@
 import {
   createCache,
   createDOM,
-  scrollLeft,
-  scrollTop,
   runEachAndClear,
   addEventListener,
   addClass,
@@ -16,6 +14,8 @@ import {
   bind,
   noop,
   isArray,
+  getRTLCompatibleScrollPosition,
+  scrollElementTo,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -111,17 +111,10 @@ export const createSizeObserver = (
 
       if (observeDirectionChange && doDirectionScroll) {
         const rtl = hasDirectionCache ? sizeChangedContext[0] : getDirectionIsRTL(sizeObserver);
-        scrollLeft(
-          sizeObserver,
-          rtl
-            ? rtlScrollBehavior.n
-              ? -scrollAmount
-              : rtlScrollBehavior.i
-              ? 0
-              : scrollAmount
-            : scrollAmount
-        );
-        scrollTop(sizeObserver, scrollAmount);
+        scrollElementTo(sizeObserver, {
+          x: getRTLCompatibleScrollPosition(scrollAmount, scrollAmount, rtl && rtlScrollBehavior),
+          y: scrollAmount,
+        });
       }
 
       if (!skip) {

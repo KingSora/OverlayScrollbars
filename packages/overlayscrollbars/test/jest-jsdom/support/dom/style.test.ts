@@ -139,8 +139,8 @@ describe('dom style', () => {
 
   describe('getTrasformTranslateValue', () => {
     test('horizontal and vertical', () => {
-      expect(getTrasformTranslateValue(['1px', '1%'])).toBe('translate(1px,1%)');
-      expect(getTrasformTranslateValue([0, 1])).toBe('translate(0,1)');
+      expect(getTrasformTranslateValue({ x: '1px', y: '1%' })).toBe('translate(1px,1%)');
+      expect(getTrasformTranslateValue({ x: 0, y: 1 })).toBe('translate(0,1)');
     });
 
     test('horizontal only', () => {

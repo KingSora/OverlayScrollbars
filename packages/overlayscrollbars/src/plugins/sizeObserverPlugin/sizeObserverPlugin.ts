@@ -3,8 +3,6 @@ import {
   style,
   appendChildren,
   offsetSize,
-  scrollLeft,
-  scrollTop,
   addEventListener,
   addClass,
   equalWH,
@@ -12,6 +10,7 @@ import {
   rAF,
   stopPropagation,
   bind,
+  scrollElementTo,
 } from '~/support';
 import {
   classNameSizeObserverListenerScroll,
@@ -47,10 +46,8 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
         let rAFId: number;
 
         const reset = () => {
-          scrollLeft(expandElement, scrollAmount);
-          scrollTop(expandElement, scrollAmount);
-          scrollLeft(shrinkElement, scrollAmount);
-          scrollTop(shrinkElement, scrollAmount);
+          scrollElementTo(expandElement, scrollAmount);
+          scrollElementTo(shrinkElement, scrollAmount);
         };
         const onResized = (appear?: unknown) => {
           rAFId = 0;
