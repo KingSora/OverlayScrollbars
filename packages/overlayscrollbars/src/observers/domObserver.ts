@@ -2,7 +2,6 @@ import {
   each,
   noop,
   debounce,
-  indexOf,
   MutationObserverConstructor,
   addEventListener,
   attr,
@@ -13,6 +12,7 @@ import {
   bind,
   isEmptyArray,
   deduplicateArray,
+  inArray,
 } from '~/support';
 
 type DOMContentObserverCallback = (contentChangedThroughEvent: boolean) => any;
@@ -205,7 +205,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         const attributeValue = attr(mutationTarget as HTMLElement, attributeName || '');
         const attributeChanged = isAttrChange && oldValue !== attributeValue;
         const styleChangingAttrChanged =
-          indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
+          inArray(finalStyleChangingAttributes, attributeName) && attributeChanged;
 
         // if is content observer and something changed in children
         if (isContentObserver && (isChildListType || !targetIsMutationTarget)) {

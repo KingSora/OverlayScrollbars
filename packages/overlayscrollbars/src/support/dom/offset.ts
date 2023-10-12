@@ -16,7 +16,7 @@ const zeroObj: XY = {
  * @param elm The element of which the offset- top and left coordinates shall be returned.
  */
 export const absoluteCoordinates = (elm: HTMLElement | null | undefined): Readonly<XY> => {
-  const rect = elm ? getBoundingClientRect(elm) : 0;
+  const rect = elm && getBoundingClientRect(elm);
   return rect
     ? {
         x: rect.left + wnd.pageYOffset, //IE11 compat

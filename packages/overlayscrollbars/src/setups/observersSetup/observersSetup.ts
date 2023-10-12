@@ -10,7 +10,6 @@ import {
   each,
   equalWH,
   fractionalSize,
-  indexOf,
   isArray,
   isFunction,
   isNumber,
@@ -21,6 +20,7 @@ import {
   scrollSize,
   getElmentScroll,
   scrollElementTo,
+  inArray,
 } from '~/support';
 import { type PartialOptions } from '~/options';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
@@ -160,7 +160,7 @@ export const createObserversSetup = (
 
   const updateViewportAttrsFromHost = (attributes?: string[]) => {
     each(attributes || viewportAttrsFromTarget, (attribute) => {
-      if (indexOf(viewportAttrsFromTarget, attribute) > -1) {
+      if (inArray(viewportAttrsFromTarget, attribute)) {
         const hostAttr = attr(_host, attribute);
         if (isString(hostAttr)) {
           attr(_viewport, attribute, hostAttr);

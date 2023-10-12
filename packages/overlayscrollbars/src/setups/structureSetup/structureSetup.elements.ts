@@ -7,7 +7,6 @@ import {
   insertAfter,
   addClass,
   parent,
-  indexOf,
   removeElements,
   push,
   runEachAndClear,
@@ -20,6 +19,7 @@ import {
   noop,
   addEventListener,
   bind,
+  inArray,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -215,7 +215,7 @@ export const createStructureSetupElements = (
     return push(arr, value && isHTMLElement(value) && !parent(value) ? value : false);
   }, [] as Array<HTMLElement | false>);
   const elementIsGenerated = (elm: HTMLElement | false) =>
-    elm ? indexOf(generatedElements, elm) > -1 : null;
+    elm ? inArray(generatedElements, elm) : null;
   const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [
     () => {

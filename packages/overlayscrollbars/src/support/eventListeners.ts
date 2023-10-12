@@ -104,9 +104,7 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
   };
 
   const triggerEvent: TriggerEvent<EventArgs> = (name, args) => {
-    const eventSet = events.get(name);
-
-    each(from(eventSet), (event) => {
+    each(from(events.get(name)), (event) => {
       if (args && !isEmptyArray(args)) {
         (event as (...eventArgs: EventArgs[keyof EventArgs]) => void).apply(0, args);
       } else {

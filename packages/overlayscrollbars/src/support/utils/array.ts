@@ -52,13 +52,12 @@ export function each<T>(
 }
 
 /**
- * Returns the index of the given inside the given array or -1 if the given item isn't part of the given array.
+ * Returns true when the passed item is in the passed array and false otherwise.
  * @param arr The array.
  * @param item The item.
- * @param fromIndex The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.
+ * @returns Whether the item is in the array.
  */
-export const indexOf = <T = any>(arr: T[], item: T, fromIndex?: number): number =>
-  arr.indexOf(item, fromIndex);
+export const inArray = <T = any>(arr: T[], item: T): boolean => arr.indexOf(item) >= 0;
 
 /**
  * Pushesh all given items into the given array and returns it.

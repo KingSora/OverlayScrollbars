@@ -2,7 +2,7 @@ import {
   push,
   each,
   from,
-  indexOf,
+  inArray,
   deduplicateArray,
   runEachAndClear,
   isEmptyArray,
@@ -311,9 +311,9 @@ describe('array utilities', () => {
     });
   });
 
-  test('indexOf', () => {
-    const idx = indexOf([1, 2, 3], 2);
-    expect(idx).toBe(1);
+  test('inArray', () => {
+    expect(inArray([1, 2, 3], 2)).toBe(true);
+    expect(inArray([1, 2, 3], 4)).toBe(false);
   });
 
   test('deduplicateArray', () => {

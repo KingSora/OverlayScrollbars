@@ -5,7 +5,6 @@ import {
   getDirectionIsRTL,
   each,
   getTrasformTranslateValue,
-  indexOf,
   isArray,
   isBoolean,
   isEmptyArray,
@@ -20,6 +19,7 @@ import {
   bind,
   mathMax,
   getElmentScroll,
+  inArray,
 } from '~/support';
 import {
   classNameScrollbar,
@@ -166,7 +166,7 @@ export const createScrollbarsSetupElements = (
   const cancelElementAnimations = (elements?: HTMLElement | HTMLElement[]) => {
     elementAnimations.forEach((currAnimations, element) => {
       const doCancel = elements
-        ? indexOf(isArray(elements) ? elements : [elements], element) > -1
+        ? inArray(isArray(elements) ? elements : [elements], element)
         : true;
       if (doCancel) {
         (currAnimations || []).forEach((animation) => {
