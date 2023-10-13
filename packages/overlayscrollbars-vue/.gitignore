@@ -6,3 +6,4 @@
 
 # Miscellaneous
 /.coverage
+/.playwright

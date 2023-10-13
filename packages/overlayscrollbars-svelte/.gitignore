@@ -3,6 +3,7 @@ node_modules
 /build
 /.svelte-kit
 /dist
+/.playwright
 .env
 .env.*
 !.env.example

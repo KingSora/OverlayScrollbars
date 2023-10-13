@@ -9,6 +9,7 @@ module.exports = defineConfig({
   workers: 4,
   fullyParallel: true,
   reporter: 'list',
+  outputDir: '.playwright',
   projects: [
     {
       name: 'Chromium',

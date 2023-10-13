@@ -4,6 +4,7 @@
 # Tests generated output
 .build/
 .fixtures/
+.playwright/
 
 # Node
 /node_modules
