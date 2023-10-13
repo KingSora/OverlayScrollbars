@@ -8,8 +8,9 @@ import {
   scrollElementTo,
 } from '~/support';
 import { createOptionCheck } from '~/options';
+import type { OptionsCheckFn, Options, PartialOptions, ReadonlyOptions } from '~/options';
 import type { DeepReadonly } from '~/typings';
-import type { InitializationTarget, PartialOptions, ReadonlyOptions } from '..';
+import type { InitializationTarget } from '~/initialization';
 import type { ObserversSetupState, ObserversSetupUpdateHints } from './observersSetup';
 import type { StructureSetupState, StructureSetupUpdateHints } from './structureSetup';
 import type { StructureSetupElementsObj } from './structureSetup/structureSetup.elements';
@@ -18,10 +19,16 @@ import { createObserversSetup } from './observersSetup';
 import { createScrollbarsSetup } from './scrollbarsSetup';
 import { createStructureSetup } from './structureSetup';
 
-export type SetupUpdateHints = Partial<Record<string, boolean>>;
+export type SetupUpdateHints = Partial<Record<`_${string}`, boolean>>;
+
+export type SetupUpdateInfo = {
+  _checkOption: OptionsCheckFn<Options>;
+  _changedOptions: PartialOptions;
+  _force: boolean;
+};
 
 export type Setup<
-  U extends Record<string, any>,
+  U extends SetupUpdateInfo,
   S extends Readonly<Record<string, any>>,
   H extends SetupUpdateHints | void
 > = [
@@ -70,7 +77,7 @@ export type Setups = [
 const booleanUpdateHints = <T extends SetupUpdateHints>(hints: T): Required<T> => {
   const booleanHints: Required<SetupUpdateHints> = {};
   each(hints, (value, key) => {
-    booleanHints[key] = !!value;
+    booleanHints[key as keyof typeof booleanHints] = !!value;
   });
   return booleanHints as Required<T>;
 };
@@ -112,11 +119,18 @@ export const createSetups = (
     updateInfo: SetupsUpdateInfo,
     observerUpdateHints?: ObserversSetupUpdateHints
   ): boolean => {
-    const { _changedOptions, _force, _takeRecords, _cloneScrollbar } = updateInfo;
-    const _checkOption = createOptionCheck(options, _changedOptions || {}, _force);
+    const {
+      _changedOptions: rawChangedOptions,
+      _force: rawForce,
+      _takeRecords,
+      _cloneScrollbar,
+    } = updateInfo;
+    const _changedOptions = rawChangedOptions || {};
+    const _force = !!rawForce;
+    const _checkOption = createOptionCheck(options, _changedOptions, _force);
 
     if (_cloneScrollbar) {
-      scrollbarsSetupUpdate({ _checkOption, _changedOptions });
+      scrollbarsSetupUpdate({ _checkOption, _changedOptions, _force });
       return false;
     }
 

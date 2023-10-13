@@ -12,12 +12,12 @@ import {
   classNameScrollbarAutoHide,
 } from '~/classnames';
 import { type ReadonlyOptions } from '~/options';
-import type { OptionsCheckFn, PartialOptions } from '~/options';
 import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup.elements';
 import type {
   ObserversSetupState,
   ObserversSetupUpdateHints,
   Setup,
+  SetupUpdateInfo,
   StructureSetupState,
   StructureSetupUpdateHints,
 } from '~/setups';
@@ -30,10 +30,7 @@ import { createScrollbarsSetupEvents } from './scrollbarsSetup.events';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
 
-export interface ScrollbarsSetupUpdateInfo {
-  _checkOption: OptionsCheckFn;
-  _changedOptions?: PartialOptions;
-  _force?: boolean;
+export interface ScrollbarsSetupUpdateInfo extends SetupUpdateInfo {
   _observersUpdateHints?: ObserversSetupUpdateHints;
   _structureUpdateHints?: StructureSetupUpdateHints;
 }
@@ -43,9 +40,6 @@ export type ScrollbarsSetup = [
   /** The elements created by the scrollbars setup. */
   ScrollbarsSetupElementsObj
 ];
-
-// needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
-const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
 
 export const createScrollbarsSetup = (
   target: InitializationTarget,
@@ -72,7 +66,7 @@ export const createScrollbarsSetup = (
   const [elements, appendElements] = createScrollbarsSetupElements(
     target,
     structureSetupElements,
-    createScrollbarsSetupEvents(options, structureSetupState)
+    createScrollbarsSetupEvents(options, structureSetupElements, structureSetupState)
   );
   const { _host, _scrollEventElement, _isBody } = structureSetupElements;
   const {
@@ -100,6 +94,10 @@ export const createScrollbarsSetup = (
       }
     }
   };
+
+  // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
+  const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
+
   const onHostMouseEnter = (event: PointerEvent) => {
     if (isHoverablePointerType(event)) {
       mouseInHost = autoHideIsLeave;

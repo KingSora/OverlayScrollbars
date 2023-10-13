@@ -40,8 +40,6 @@ export interface SizeObserverCallbackParams {
 
 export type SizeObserver = () => () => void;
 
-const scrollAmount = 3333333;
-
 /**
  * Creates a size observer which observes any size, padding, border, margin and box-sizing changes of the target element. Depending on the options also direction and appear can be observed.
  * @param target The target element which shall be observed.
@@ -54,6 +52,7 @@ export const createSizeObserver = (
   onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
 ): SizeObserver => {
+  const scrollAmount = 3333333;
   const { _direction: observeDirectionChange, _appear: observeAppearChange } = options || {};
   const sizeObserverPlugin =
     getStaticPluginModuleInstance<typeof SizeObserverPlugin>(sizeObserverPluginName);

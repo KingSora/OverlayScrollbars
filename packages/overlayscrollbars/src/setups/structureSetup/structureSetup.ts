@@ -1,4 +1,3 @@
-import { type PartialOptions } from '~/options';
 import { getEnvironment } from '~/environment';
 import {
   assignDeep,
@@ -17,9 +16,13 @@ import {
   type XY,
 } from '~/support';
 import { dataValueHostUpdating } from '~/classnames';
-import type { OptionsCheckFn } from '~/options';
 import type { StructureSetupElementsObj } from './structureSetup.elements';
-import type { ObserversSetupState, ObserversSetupUpdateHints, Setup } from '~/setups';
+import type {
+  ObserversSetupState,
+  ObserversSetupUpdateHints,
+  Setup,
+  SetupUpdateInfo,
+} from '~/setups';
 import type { InitializationTarget } from '~/initialization';
 import type { StyleObject, OverflowStyle } from '~/typings';
 import { createStructureSetupElements } from './structureSetup.elements';
@@ -39,12 +42,9 @@ export interface StructureSetupState {
   _hasOverflow: XY<boolean>;
 }
 
-export interface StructureSetupUpdateInfo {
-  _checkOption: OptionsCheckFn;
-  _changedOptions?: PartialOptions;
-  _force?: boolean;
-  _observersUpdateHints?: ObserversSetupUpdateHints;
+export interface StructureSetupUpdateInfo extends SetupUpdateInfo {
   _observersState: ObserversSetupState;
+  _observersUpdateHints?: ObserversSetupUpdateHints;
 }
 
 export type StructureSetupUpdateHints = {

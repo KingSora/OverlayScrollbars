@@ -10,7 +10,7 @@ import {
 } from '~/support';
 import type { DeepPartial, DeepReadonly } from '~/typings';
 
-export type OptionsField = string | number;
+export type OptionsField = string;
 
 export type OptionsPrimitiveValue =
   | boolean
@@ -211,13 +211,9 @@ export type ReadonlyOptions = DeepReadonly<Options>;
 
 export type PartialOptions = DeepPartial<Options>;
 
-export type OptionsFieldsPath = OptionsObjectFieldPath<Options>;
-
-export type OptionsFieldsPathType<Path extends string> = OptionsObjectFieldPathType<Options, Path>;
-
-export type OptionsCheckFn = <T extends OptionsFieldsPath>(
-  path: T
-) => [value: OptionsFieldsPathType<T>, changed: boolean];
+export type OptionsCheckFn<O extends OptionsObject> = <P extends OptionsObjectFieldPath<O>>(
+  path: P
+) => [value: OptionsObjectFieldPathType<O, P>, changed: boolean];
 
 export const defaultOptions: ReadonlyOptions = {
   paddingAbsolute: false,
@@ -281,6 +277,10 @@ export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): D
 };
 
 export const createOptionCheck =
-  (options: ReadonlyOptions, changedOptions: PartialOptions, force?: boolean): OptionsCheckFn =>
+  <T extends OptionsObject>(
+    options: T,
+    changedOptions: DeepPartial<T>,
+    force?: boolean
+  ): OptionsCheckFn<T> =>
   (path) =>
     [getPropByPath(options, path), force || getPropByPath(changedOptions, path) !== undefined];

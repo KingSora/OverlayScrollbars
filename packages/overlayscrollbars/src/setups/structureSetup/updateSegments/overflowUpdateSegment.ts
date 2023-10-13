@@ -69,33 +69,6 @@ export type HideNativeScrollbars = (
   viewportStyleObj: StyleObject
 ) => void;
 
-const max0 = bind(mathMax, 0);
-const strVisible = 'visible';
-const overlaidScrollbarsHideOffset = 42;
-const whCacheOptions = {
-  _equal: equalWH,
-  _initialValue: { w: 0, h: 0 },
-};
-const xyCacheOptions = {
-  _equal: equalXY,
-  _initialValue: { x: strHidden, y: strHidden } as XY<OverflowStyle>,
-};
-
-const getOverflowAmount = (viewportScrollSize: WH<number>, viewportClientSize: WH<number>) => {
-  const tollerance = wnd.devicePixelRatio % 1 !== 0 ? 1 : 0;
-  const amount = {
-    w: max0(viewportScrollSize.w - viewportClientSize.w),
-    h: max0(viewportScrollSize.h - viewportClientSize.h),
-  };
-
-  return {
-    w: amount.w > tollerance ? amount.w : 0,
-    h: amount.h > tollerance ? amount.h : 0,
-  };
-};
-
-const overflowIsVisible = (overflowBehavior: string) => overflowBehavior.indexOf(strVisible) === 0;
-
 /**
  * Lifecycle with the responsibility to set the correct overflow and scrollbar hiding styles of the viewport element.
  * @param structureUpdateHub
@@ -114,6 +87,32 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   },
   state
 ) => {
+  const max0 = bind(mathMax, 0);
+  const strVisible = 'visible';
+  const overlaidScrollbarsHideOffset = 42;
+  const whCacheOptions = {
+    _equal: equalWH,
+    _initialValue: { w: 0, h: 0 },
+  };
+  const xyCacheOptions = {
+    _equal: equalXY,
+    _initialValue: { x: strHidden, y: strHidden } as XY<OverflowStyle>,
+  };
+  const getOverflowAmount = (viewportScrollSize: WH<number>, viewportClientSize: WH<number>) => {
+    const tollerance = wnd.devicePixelRatio % 1 !== 0 ? 1 : 0;
+    const amount = {
+      w: max0(viewportScrollSize.w - viewportClientSize.w),
+      h: max0(viewportScrollSize.h - viewportClientSize.h),
+    };
+
+    return {
+      w: amount.w > tollerance ? amount.w : 0,
+      h: amount.h > tollerance ? amount.h : 0,
+    };
+  };
+  const overflowIsVisible = (overflowBehavior: string) =>
+    overflowBehavior.indexOf(strVisible) === 0;
+
   const {
     _nativeScrollbarsSize,
     _flexboxGlue,

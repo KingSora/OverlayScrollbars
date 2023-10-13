@@ -18,11 +18,6 @@ export type TrinsicObserver = [
   update: () => void | false | null | undefined | Parameters<TrinsicObserverCallback>
 ];
 
-const isHeightIntrinsic = (ioEntryOrSize: IntersectionObserverEntry | WH<number>): boolean =>
-  (ioEntryOrSize as WH<number>).h === 0 ||
-  (ioEntryOrSize as IntersectionObserverEntry).isIntersecting ||
-  (ioEntryOrSize as IntersectionObserverEntry).intersectionRatio > 0;
-
 /**
  * Creates a trinsic observer which observes changes to intrinsic or extrinsic sizing for the height of the target element.
  * @param target The element which shall be observed.
@@ -34,6 +29,10 @@ export const createTrinsicObserver = (
   onTrinsicChangedCallback: TrinsicObserverCallback
 ): TrinsicObserver => {
   let intersectionObserverInstance: undefined | IntersectionObserver;
+  const isHeightIntrinsic = (ioEntryOrSize: IntersectionObserverEntry | WH<number>): boolean =>
+    (ioEntryOrSize as WH<number>).h === 0 ||
+    (ioEntryOrSize as IntersectionObserverEntry).isIntersecting ||
+    (ioEntryOrSize as IntersectionObserverEntry).intersectionRatio > 0;
   const trinsicObserver = createDiv(classNameTrinsicObserver);
   const [updateHeightIntrinsicCache] = createCache({
     _initialValue: false,

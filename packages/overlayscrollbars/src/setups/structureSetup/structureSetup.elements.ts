@@ -80,14 +80,6 @@ export interface StructureSetupElementsObj {
   ) => void;
 }
 
-const tabIndexStr = 'tabindex';
-const createNewDiv = bind(createDiv, '');
-
-const unwrap = (elm: HTMLElement | false | null | undefined) => {
-  appendChildren(parent(elm), contents(elm));
-  removeElements(elm);
-};
-
 export const createStructureSetupElements = (
   target: InitializationTarget
 ): StructureSetupElements => {
@@ -124,6 +116,7 @@ export const createStructureSetupElements = (
   const staticInitializationElement = bind(generalStaticInitializationElement, [targetElement]);
   const dynamicInitializationElement = bind(generalDynamicInitializationElement, [targetElement]);
   const resolveInitialization = bind(generalResolveInitialization, [targetElement]);
+  const createNewDiv = bind(createDiv, '');
   const generateViewportElement = bind(
     staticInitializationElement,
     createNewDiv,
@@ -252,6 +245,10 @@ export const createStructureSetupElements = (
       isBody && !viewportIsTarget
         ? addClass(parent(targetElement), classNameScrollbarHidden)
         : noop;
+    const unwrap = (elm: HTMLElement | false | null | undefined) => {
+      appendChildren(parent(elm), contents(elm));
+      removeElements(elm);
+    };
 
     // only insert host for textarea after target if it was generated
     if (isTextareaHostGenerated) {
@@ -296,6 +293,7 @@ export const createStructureSetupElements = (
       push(destroyFns, bind(removeElements, _viewportArrange));
     }
     if (setViewportFocus) {
+      const tabIndexStr = 'tabindex';
       const ogTabindex = attr(_viewport, tabIndexStr);
 
       attr(_viewport, tabIndexStr, '-1');

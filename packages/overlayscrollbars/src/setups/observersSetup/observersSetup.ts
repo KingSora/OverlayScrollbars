@@ -22,7 +22,6 @@ import {
   scrollElementTo,
   inArray,
 } from '~/support';
-import { type PartialOptions } from '~/options';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
 import { getEnvironment } from '~/environment';
 import {
@@ -34,10 +33,9 @@ import {
   dataValueViewportArrange,
   dataValueViewportOverflowVisible,
 } from '~/classnames';
-import type { OptionsCheckFn } from '~/options';
 import type { SizeObserverCallbackParams } from '~/observers';
 import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
-import type { Setup } from '~/setups';
+import type { Setup, SetupUpdateInfo } from '~/setups';
 import type { CacheValues, WH } from '~/support';
 import type { PlainObject } from '~/typings';
 
@@ -46,10 +44,7 @@ export interface ObserversSetupState {
   _directionIsRTL: boolean;
 }
 
-export interface ObserversSetupUpdateInfo {
-  _checkOption: OptionsCheckFn;
-  _changedOptions?: PartialOptions;
-  _force?: boolean;
+export interface ObserversSetupUpdateInfo extends SetupUpdateInfo {
   _takeRecords?: boolean;
 }
 
@@ -68,16 +63,6 @@ export type ObserversSetup = Setup<
   ObserversSetupUpdateHints
 >;
 
-const strUpdateDot = `update.`;
-const hostSelector = `[${dataAttributeHost}]`;
-
-// TODO: observer textarea attrs if textarea
-
-const viewportSelector = `[${dataAttributeViewport}]`;
-const viewportAttrsFromTarget = ['tabindex'];
-const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
-const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
-
 export const createObserversSetup = (
   structureSetupElements: StructureSetupElementsObj,
   onObserversUpdated: (updateHints: ObserversSetupUpdateHints) => void
@@ -86,6 +71,16 @@ export const createObserversSetup = (
   let debounceMaxDelay: number | false | undefined;
   let updateContentMutationObserver: (() => void) | undefined;
   let destroyContentMutationObserver: (() => void) | undefined;
+
+  const strUpdateDot = `update.`;
+  const hostSelector = `[${dataAttributeHost}]`;
+
+  // TODO: observer textarea attrs if textarea
+
+  const viewportSelector = `[${dataAttributeViewport}]`;
+  const viewportAttrsFromTarget = ['tabindex'];
+  const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
+  const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
 
   const state: ObserversSetupState = {
     _heightIntrinsic: false,

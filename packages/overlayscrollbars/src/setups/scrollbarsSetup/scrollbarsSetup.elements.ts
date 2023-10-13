@@ -85,51 +85,6 @@ export type ScrollbarsSetupElements = [
   appendElements: () => () => void
 ];
 
-const animateElement = (
-  element: HTMLElement,
-  scrollTimeline: AnimationTimeline | undefined,
-  keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
-  composite?: CompositeOperation
-): Animation | false | null | undefined =>
-  scrollTimeline &&
-  element.animate(keyframes, {
-    // @ts-ignore
-    timeline: scrollTimeline,
-    composite,
-  });
-
-const getScrollbarHandleAnimationKeyFrames = (directionRTL: boolean, isHorizontal?: boolean) => ({
-  transform: [
-    getTrasformTranslateValue(`0%`, isHorizontal),
-    getTrasformTranslateValue(isHorizontal && directionRTL ? '100%' : '-100%', isHorizontal),
-  ],
-  [isHorizontal ? (directionRTL ? 'right' : 'left') : 'top']: ['0%', '100%'],
-});
-const maxScrollbarOffsetFrameValue = (value: number) => `${mathMax(0, value - 0.5)}px`;
-const animateScrollbarOffset = (
-  scrollbar: HTMLElement,
-  scrollTimeline: AnimationTimeline | undefined,
-  maxTransformValue: number,
-  isHorizontal?: boolean
-) =>
-  animateElement(
-    scrollbar,
-    scrollTimeline,
-    {
-      transform: [
-        getTrasformTranslateValue(`0px`, isHorizontal),
-        getTrasformTranslateValue(maxScrollbarOffsetFrameValue(maxTransformValue), isHorizontal),
-      ],
-    },
-    'add'
-  );
-const initScrollTimeline = (element: HTMLElement, axis: 'x' | 'y') =>
-  scrollT &&
-  new scrollT({
-    source: element,
-    axis,
-  });
-
 export const createScrollbarsSetupElements = (
   target: InitializationTarget,
   structureSetupElements: StructureSetupElementsObj,
@@ -139,7 +94,6 @@ export const createScrollbarsSetupElements = (
   const { scrollbars: defaultInitScrollbars } = _getDefaultInitialization();
   const { slot: defaultInitScrollbarsSlot } = defaultInitScrollbars;
   const {
-    _documentElm,
     _target,
     _host,
     _viewport,
@@ -151,8 +105,14 @@ export const createScrollbarsSetupElements = (
   const { scrollbars: scrollbarsInit } = (_targetIsElm ? {} : target) as InitializationTargetObject;
   const { slot: initScrollbarsSlot } = scrollbarsInit || {};
   const elementAnimations = new Map<HTMLElement, Array<Animation | false | null | undefined>>();
-  const scrollTimelineX = initScrollTimeline(_scrollOffsetElement, 'x');
-  const scrollTimelineY = initScrollTimeline(_scrollOffsetElement, 'y');
+  const initScrollTimeline = (axis: 'x' | 'y') =>
+    scrollT &&
+    new scrollT({
+      source: _scrollOffsetElement,
+      axis,
+    });
+  const scrollTimelineX = initScrollTimeline('x');
+  const scrollTimelineY = initScrollTimeline('y');
 
   const evaluatedScrollbarSlot = generalDynamicInitializationElement<
     [InitializationTargetElement, HTMLElement, HTMLElement]
@@ -254,6 +214,35 @@ export const createScrollbarsSetupElements = (
       },
     ] as [HTMLElement | false, StyleObject];
   };
+  const animateElement = (
+    element: HTMLElement,
+    scrollTimeline: AnimationTimeline | undefined,
+    keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
+    composite?: CompositeOperation
+  ): Animation | false | null | undefined =>
+    scrollTimeline &&
+    element.animate(keyframes, {
+      // @ts-ignore
+      timeline: scrollTimeline,
+      composite,
+    });
+  const animateScrollbarOffset = (
+    scrollbar: HTMLElement,
+    scrollTimeline: AnimationTimeline | undefined,
+    maxTransformValue: number,
+    isHorizontal?: boolean
+  ) =>
+    animateElement(
+      scrollbar,
+      scrollTimeline,
+      {
+        transform: [
+          getTrasformTranslateValue(`0px`, isHorizontal),
+          getTrasformTranslateValue(`${mathMax(0, maxTransformValue - 0.5)}px`, isHorizontal),
+        ],
+      },
+      'add'
+    );
 
   const destroyFns: (() => void)[] = [];
   const horizontalScrollbars: ScrollbarStructure[] = [];
@@ -280,16 +269,19 @@ export const createScrollbarsSetupElements = (
   };
   const refreshScrollbarsHandleOffsetTimeline = () => {
     const forEachFn = (isHorizontal: boolean, { _scrollbar, _handle }: ScrollbarStructure) => {
+      const directionRTL = isHorizontal && getDirectionIsRTL(_scrollbar);
       cancelElementAnimations(_handle);
       elementAnimations.set(_handle, [
-        animateElement(
-          _handle,
-          isHorizontal ? scrollTimelineX : scrollTimelineY,
-          getScrollbarHandleAnimationKeyFrames(
-            isHorizontal && getDirectionIsRTL(_scrollbar),
-            isHorizontal
-          )
-        ),
+        animateElement(_handle, isHorizontal ? scrollTimelineX : scrollTimelineY, {
+          transform: [
+            getTrasformTranslateValue(`0%`, isHorizontal),
+            getTrasformTranslateValue(
+              isHorizontal && directionRTL ? '100%' : '-100%',
+              isHorizontal
+            ),
+          ],
+          [isHorizontal ? (directionRTL ? 'right' : 'left') : 'top']: ['0%', '100%'],
+        }),
       ]);
     };
     horizontalScrollbars.forEach(bind(forEachFn, true));
@@ -339,15 +331,7 @@ export const createScrollbarsSetupElements = (
       appendChildren(track, handle),
       bind(removeElements, scrollbar),
       cancelElementAnimations,
-      scrollbarsSetupEvents(
-        result,
-        scrollbarsAddRemoveClass,
-        _documentElm,
-        _host,
-        _scrollOffsetElement,
-        isHorizontal ? scrollTimelineX : scrollTimelineY,
-        isHorizontal
-      ),
+      scrollbarsSetupEvents(result, scrollbarsAddRemoveClass, isHorizontal),
     ]);
 
     return result;
