@@ -202,7 +202,10 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         const isChildListType = type === 'childList';
         const targetIsMutationTarget = target === mutationTarget;
         const isAttrChange = isAttributesType && attributeName;
-        const attributeValue = attr(mutationTarget as HTMLElement, attributeName || '');
+        // isAttrChange check needed, otherwise mutationTarget might not be a valid HTMLElement
+        const attributeValue = isAttrChange
+          ? attr(mutationTarget as HTMLElement, attributeName || '')
+          : null;
         const attributeChanged = isAttrChange && oldValue !== attributeValue;
         const styleChangingAttrChanged =
           inArray(finalStyleChangingAttributes, attributeName) && attributeChanged;
