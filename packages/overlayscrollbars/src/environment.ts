@@ -23,6 +23,9 @@ import {
   addEventListener,
   noop,
   scrollElementTo,
+  strHidden,
+  strOverflowX,
+  strOverflowY,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -143,8 +146,7 @@ const getRtlScrollBehavior = (
   parentElm: HTMLElement,
   childElm: HTMLElement
 ): { i: boolean; n: boolean } => {
-  const strHidden = 'hidden';
-  style(parentElm, { overflowX: strHidden, overflowY: strHidden, direction: 'rtl' });
+  style(parentElm, { [strOverflowX]: strHidden, [strOverflowY]: strHidden, direction: 'rtl' });
   scrollElementTo(parentElm, { x: 0 });
 
   const parentOffset = absoluteCoordinates(parentElm);

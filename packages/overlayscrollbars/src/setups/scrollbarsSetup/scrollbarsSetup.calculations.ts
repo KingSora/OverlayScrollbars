@@ -4,6 +4,8 @@ import {
   mathMax,
   mathMin,
   mathRound,
+  strHeight,
+  strWidth,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import type { Environment } from '~/environment';
@@ -50,7 +52,7 @@ export const getScrollbarHandleLengthRatio = (
     const overflowAmount = _overflowAmount[axis];
     return capNumber(0, 1, viewportSize / (viewportSize + overflowAmount));
   }
-  const axis = isHorizontal ? 'width' : 'height';
+  const axis = isHorizontal ? strWidth : strHeight;
   const handleSize = getBoundingClientRect(scrollbarHandle)[axis];
   const trackSize = getBoundingClientRect(scrollbarTrack)[axis];
   return capNumber(0, 1, handleSize / trackSize);

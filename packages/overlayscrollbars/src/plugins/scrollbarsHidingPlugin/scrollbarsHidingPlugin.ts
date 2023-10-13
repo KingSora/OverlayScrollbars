@@ -10,6 +10,15 @@ import {
   wnd,
   mathAbs,
   mathRound,
+  strMarginBottom,
+  strMarginLeft,
+  strMarginRight,
+  strPaddingBottom,
+  strPaddingLeft,
+  strPaddingRight,
+  strPaddingTop,
+  strWidth,
+  strHeight,
 } from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
@@ -111,8 +120,8 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
             const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
             const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
             const viewportArrangeHorizontalPaddingKey: keyof StyleObject = directionIsRTL
-              ? 'paddingRight'
-              : 'paddingLeft';
+              ? strPaddingRight
+              : strPaddingLeft;
             const viewportArrangeHorizontalPaddingValue = _viewportPaddingStyle[
               viewportArrangeHorizontalPaddingKey
             ] as number;
@@ -153,8 +162,8 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                   // @ts-ignore
                   const ruleStyle = cssRules[0].style;
 
-                  ruleStyle.width = arrangeSize.w;
-                  ruleStyle.height = arrangeSize.h;
+                  ruleStyle[strWidth] = arrangeSize.w;
+                  ruleStyle[strHeight] = arrangeSize.h;
                 }
               }
             } else {
@@ -187,18 +196,18 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
             const { _scrollbarsHideOffsetArrange } = finalViewportOverflowState;
             const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
             const finalPaddingStyle: StyleObject = {};
-            const assignProps = (props: string) =>
-              each(props.split(' '), (prop) => {
+            const assignProps = (props: string[]) =>
+              each(props, (prop) => {
                 finalPaddingStyle[prop as StyleObjectKey] =
                   viewportPaddingStyle[prop as StyleObjectKey];
               });
 
             if (arrangeX) {
-              assignProps('marginBottom paddingTop paddingBottom');
+              assignProps([strMarginBottom, strPaddingTop, strPaddingBottom]);
             }
 
             if (arrangeY) {
-              assignProps('marginLeft marginRight paddingLeft paddingRight');
+              assignProps([strMarginLeft, strMarginRight, strPaddingLeft, strPaddingRight]);
             }
 
             const prevStyle = style(viewport, keys(finalPaddingStyle) as StyleObjectKey[]);
@@ -207,7 +216,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
             attrClass(viewport, dataAttributeViewport, dataValueViewportArrange);
 
             if (!flexboxGlue) {
-              finalPaddingStyle.height = '';
+              finalPaddingStyle[strHeight] = '';
             }
 
             style(viewport, finalPaddingStyle);

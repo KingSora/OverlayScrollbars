@@ -1,4 +1,4 @@
-import { style } from '~/support';
+import { strHeight, style } from '~/support';
 import { getEnvironment } from '~/environment';
 import type { CreateStructureUpdateSegment } from '../structureSetup';
 
@@ -17,7 +17,7 @@ export const createTrinsicUpdateSegment: CreateStructureUpdateSegment =
 
     if (heightIntrinsicChanged) {
       style(_content, {
-        height: _heightIntrinsic ? '' : '100%',
+        [strHeight]: _heightIntrinsic ? '' : '100%',
       });
     }
   };

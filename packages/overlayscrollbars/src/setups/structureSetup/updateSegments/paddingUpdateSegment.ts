@@ -1,4 +1,19 @@
-import { createCache, topRightBottomLeft, equalTRBL, style, assignDeep, bind } from '~/support';
+import {
+  createCache,
+  topRightBottomLeft,
+  equalTRBL,
+  style,
+  assignDeep,
+  bind,
+  strMarginBottom,
+  strMarginLeft,
+  strMarginRight,
+  strPaddingBottom,
+  strPaddingLeft,
+  strPaddingRight,
+  strPaddingTop,
+  strWidth,
+} from '~/support';
 import { getEnvironment } from '~/environment';
 import type { StyleObject } from '~/typings';
 import type { CreateStructureUpdateSegment } from '../structureSetup';
@@ -42,19 +57,19 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
       const paddingVertical = padding.t + padding.b;
 
       const paddingStyle: StyleObject = {
-        marginRight: paddingRelative && !_directionIsRTL ? -paddingHorizontal : 0,
-        marginBottom: paddingRelative ? -paddingVertical : 0,
-        marginLeft: paddingRelative && _directionIsRTL ? -paddingHorizontal : 0,
+        [strMarginRight]: paddingRelative && !_directionIsRTL ? -paddingHorizontal : 0,
+        [strMarginBottom]: paddingRelative ? -paddingVertical : 0,
+        [strMarginLeft]: paddingRelative && _directionIsRTL ? -paddingHorizontal : 0,
         top: paddingRelative ? -padding.t : 0,
         right: paddingRelative ? (_directionIsRTL ? -padding.r : 'auto') : 0,
         left: paddingRelative ? (_directionIsRTL ? 'auto' : -padding.l) : 0,
-        width: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
+        [strWidth]: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
       };
       const viewportStyle: StyleObject = {
-        paddingTop: paddingRelative ? padding.t : 0,
-        paddingRight: paddingRelative ? padding.r : 0,
-        paddingBottom: paddingRelative ? padding.b : 0,
-        paddingLeft: paddingRelative ? padding.l : 0,
+        [strPaddingTop]: paddingRelative ? padding.t : 0,
+        [strPaddingRight]: paddingRelative ? padding.r : 0,
+        [strPaddingBottom]: paddingRelative ? padding.b : 0,
+        [strPaddingLeft]: paddingRelative ? padding.l : 0,
       };
 
       // if there is no padding element apply the style to the viewport element instead

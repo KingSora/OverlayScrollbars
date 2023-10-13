@@ -12,6 +12,8 @@ import {
   attrClass,
   bind,
   mathRound,
+  strWidth,
+  strHeight,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import {
@@ -33,16 +35,16 @@ export type ScrollbarsSetupEvents = (
   documentElm: Document,
   hostElm: HTMLElement,
   scrollOffsetElm: HTMLElement,
-  scrollTimeline: AnimationTimeline | null,
+  scrollTimeline: AnimationTimeline | undefined,
   isHorizontal?: boolean
 ) => () => void;
 
 const getScale = (element: HTMLElement): XY<number> => {
-  const { width, height } = getBoundingClientRect(element);
+  const rect = getBoundingClientRect(element);
   const { w, h } = offsetSize(element);
   return {
-    x: mathRound(width) / w || 1,
-    y: mathRound(height) / h || 1,
+    x: mathRound(rect[strWidth]) / w || 1,
+    y: mathRound(rect[strHeight]) / h || 1,
   };
 };
 const continuePointerDown = (
@@ -82,7 +84,7 @@ const createInteractiveScrollEvents = (
   const { _handle, _track } = scrollbarStructure;
   const scrollLeftTopKey = `scroll${isHorizontal ? 'Left' : 'Top'}` as 'scrollLeft' | 'scrollTop';
   const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY'; // for pointer event (can't use xy because of IE11)
-  const widthHeightKey = isHorizontal ? 'width' : 'height';
+  const widthHeightKey = isHorizontal ? strWidth : strHeight;
   const leftTopKey = isHorizontal ? 'left' : 'top'; // for BCR (can't use xy because of IE11)
   const whKey = isHorizontal ? 'w' : 'h';
   const xyKey = isHorizontal ? 'x' : 'y';

@@ -6,3 +6,4 @@ export * from './object';
 export * from './types';
 export * from './noop';
 export * from './alias';
+export * from './strings';

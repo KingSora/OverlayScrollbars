@@ -13,6 +13,18 @@ import {
   bind,
   wnd,
   mathMax,
+  windowSize,
+  strMarginBottom,
+  strMarginLeft,
+  strMarginRight,
+  strPaddingBottom,
+  strPaddingLeft,
+  strPaddingRight,
+  strWidth,
+  strHeight,
+  strHidden,
+  strOverflowX,
+  strOverflowY,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -59,7 +71,6 @@ export type HideNativeScrollbars = (
 
 const max0 = bind(mathMax, 0);
 const strVisible = 'visible';
-const strHidden = 'hidden';
 const overlaidScrollbarsHideOffset = 42;
 const whCacheOptions = {
   _equal: equalWH,
@@ -144,7 +155,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     heightIntrinsic: boolean
   ) => {
     style(_viewport, {
-      height: '',
+      [strHeight]: '',
     });
 
     if (heightIntrinsic) {
@@ -159,7 +170,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       const subtractXScrollbar = !(_nativeScrollbarsOverlaid.x && isContentBox);
 
       style(_viewport, {
-        height:
+        [strHeight]:
           hostClientSize.h +
           fSize.h +
           (_overflowScroll.x && subtractXScrollbar ? _scrollbarsHideOffset.x : 0) -
@@ -205,9 +216,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     };
 
     const [xOverflowStyle, xOverflowScroll, xScrollbarsHideOffset, xScrollbarsHideOffsetArrange] =
-      getStatePerAxis('overflowX', _nativeScrollbarsOverlaid.x, _nativeScrollbarsSize.x);
+      getStatePerAxis(strOverflowX, _nativeScrollbarsOverlaid.x, _nativeScrollbarsSize.x);
     const [yOverflowStyle, yOverflowScroll, yScrollbarsHideOffset, yScrollbarsHideOffsetArrange] =
-      getStatePerAxis('overflowY', _nativeScrollbarsOverlaid.y, _nativeScrollbarsSize.y);
+      getStatePerAxis(strOverflowY, _nativeScrollbarsOverlaid.y, _nativeScrollbarsSize.y);
 
     return {
       _overflowStyle: {
@@ -256,8 +267,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const [overflowX, visibleBehaviorX] = setAxisOverflowStyle(overflowOption.x, hasOverflow.x);
     const [overflowY, visibleBehaviorY] = setAxisOverflowStyle(overflowOption.y, hasOverflow.y);
 
-    viewportStyleObj.overflowX = visibleBehaviorX && overflowY ? visibleBehaviorX : overflowX;
-    viewportStyleObj.overflowY = visibleBehaviorY && overflowX ? visibleBehaviorY : overflowY;
+    viewportStyleObj[strOverflowX] = visibleBehaviorX && overflowY ? visibleBehaviorX : overflowX;
+    viewportStyleObj[strOverflowY] = visibleBehaviorY && overflowX ? visibleBehaviorY : overflowY;
 
     return getViewportOverflowState(showNativeOverlaidScrollbars, viewportStyleObj);
   };
@@ -279,27 +290,27 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
     const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
     const { _viewportPaddingStyle: viewportPaddingStyle } = state;
-    const horizontalMarginKey: keyof StyleObject = directionIsRTL ? 'marginLeft' : 'marginRight';
+    const horizontalMarginKey: keyof StyleObject = directionIsRTL ? strMarginLeft : strMarginRight;
     const viewportHorizontalPaddingKey: keyof StyleObject = directionIsRTL
-      ? 'paddingLeft'
-      : 'paddingRight';
+      ? strPaddingLeft
+      : strPaddingRight;
     const horizontalMarginValue = viewportPaddingStyle[horizontalMarginKey] as number;
-    const verticalMarginValue = viewportPaddingStyle.marginBottom as number;
+    const verticalMarginValue = viewportPaddingStyle[strMarginBottom] as number;
     const horizontalPaddingValue = viewportPaddingStyle[viewportHorizontalPaddingKey] as number;
-    const verticalPaddingValue = viewportPaddingStyle.paddingBottom as number;
+    const verticalPaddingValue = viewportPaddingStyle[strPaddingBottom] as number;
 
     // horizontal
-    viewportStyleObj.width = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
+    viewportStyleObj[strWidth] = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
     viewportStyleObj[horizontalMarginKey] = -hideOffsetY + horizontalMarginValue;
 
     // vertical
-    viewportStyleObj.marginBottom = -hideOffsetX + verticalMarginValue;
+    viewportStyleObj[strMarginBottom] = -hideOffsetX + verticalMarginValue;
 
     // viewport arrange additional styles
     if (viewportArrange) {
       viewportStyleObj[viewportHorizontalPaddingKey] =
         horizontalPaddingValue + (arrangeY ? hideOffsetY : 0);
-      viewportStyleObj.paddingBottom = verticalPaddingValue + (arrangeX ? hideOffsetX : 0);
+      viewportStyleObj[strPaddingBottom] = verticalPaddingValue + (arrangeX ? hideOffsetX : 0);
     }
   };
 
@@ -413,20 +424,22 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         arrangedViewportScrollSize = scrollSize(_viewport);
       }
 
+      const windowInnerSize = windowSize(_windowElm);
       const overflowAmountScrollSize = {
         w: max0(mathMax(viewportScrollSize.w, arrangedViewportScrollSize.w) + sizeFraction.w),
         h: max0(mathMax(viewportScrollSize.h, arrangedViewportScrollSize.h) + sizeFraction.h),
       };
+
       const overflowAmountClientSize = {
         w: max0(
           (viewportIsTargetBody
-            ? _windowElm.innerWidth
+            ? windowInnerSize.w
             : arrangedViewportClientSize.w + max0(viewportclientSize.w - viewportScrollSize.w)) +
             sizeFraction.w
         ),
         h: max0(
           (viewportIsTargetBody
-            ? _windowElm.innerHeight + sizeFraction.h
+            ? windowInnerSize.h
             : arrangedViewportClientSize.h + max0(viewportclientSize.h - viewportScrollSize.h)) +
             sizeFraction.h
         ),
@@ -464,12 +477,12 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       adjustFlexboxGlue
     ) {
       const viewportStyle: StyleObject = {
-        marginRight: 0,
-        marginBottom: 0,
-        marginLeft: 0,
-        width: '',
-        overflowY: '',
-        overflowX: '',
+        [strMarginRight]: 0,
+        [strMarginBottom]: 0,
+        [strMarginLeft]: 0,
+        [strWidth]: '',
+        [strOverflowX]: '',
+        [strOverflowY]: '',
       };
       const viewportOverflowState = setViewportOverflowState(
         showNativeOverlaidScrollbars,
@@ -498,8 +511,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       }
 
       if (_viewportIsTarget) {
-        attr(_host, dataAttributeHostOverflowX, viewportStyle.overflowX as string);
-        attr(_host, dataAttributeHostOverflowY, viewportStyle.overflowY as string);
+        attr(_host, dataAttributeHostOverflowX, viewportStyle[strOverflowX] as string);
+        attr(_host, dataAttributeHostOverflowY, viewportStyle[strOverflowY] as string);
       } else {
         style(_viewport, viewportStyle);
       }

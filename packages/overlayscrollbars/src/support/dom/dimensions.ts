@@ -1,6 +1,7 @@
 import { style } from './style';
 import { mathRound, wnd } from '../utils/alias';
 import { bind } from '../utils/function';
+import { strHeight, strWidth } from '../utils/strings';
 
 export interface WH<T = number> {
   w: T;
@@ -28,11 +29,8 @@ const getElmWidthHeightProperty = <E extends HTMLElement | Window>(
 /**
  * Returns the window inner- width and height.
  */
-export const windowSize = bind(
-  getElmWidthHeightProperty<Window>,
-  'inner',
-  wnd
-) satisfies () => Readonly<WH>;
+export const windowSize = (customWnd?: Window): Readonly<WH> =>
+  getElmWidthHeightProperty('inner', customWnd || wnd);
 
 /**
  * Returns the scroll- width and height of the passed element. If the element is null the width and height values are 0.
@@ -63,8 +61,8 @@ export const scrollSize = bind(getElmWidthHeightProperty<HTMLElement>, 'scroll')
  * @param elm The element of which the fractional- width and height shall be returned.
  */
 export const fractionalSize = (elm: HTMLElement | false | null | undefined): Readonly<WH> => {
-  const cssWidth = parseFloat(style(elm, 'width')) || 0;
-  const cssHeight = parseFloat(style(elm, 'height')) || 0;
+  const cssWidth = parseFloat(style(elm, strWidth)) || 0;
+  const cssHeight = parseFloat(style(elm, strHeight)) || 0;
   return {
     w: cssWidth - mathRound(cssWidth),
     h: cssHeight - mathRound(cssHeight),
@@ -88,4 +86,4 @@ export const hasDimensions = (elm: HTMLElement | false | null | undefined): bool
  * Determines whether the passed DOM Rect has any dimensions.
  */
 export const domRectHasDimensions = (rect?: DOMRectReadOnly | false | null) =>
-  !!(rect && (rect.height || rect.width));
+  !!(rect && (rect[strHeight] || rect[strWidth]));

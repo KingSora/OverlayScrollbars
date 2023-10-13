@@ -1,6 +1,21 @@
 import { type PartialOptions } from '~/options';
 import { getEnvironment } from '~/environment';
-import { assignDeep, each, getElmentScroll, scrollElementTo, type TRBL, type XY } from '~/support';
+import {
+  assignDeep,
+  each,
+  getElmentScroll,
+  scrollElementTo,
+  strHidden,
+  strMarginBottom,
+  strMarginLeft,
+  strMarginRight,
+  strPaddingBottom,
+  strPaddingLeft,
+  strPaddingRight,
+  strPaddingTop,
+  type TRBL,
+  type XY,
+} from '~/support';
 import { dataValueHostUpdating } from '~/classnames';
 import type { OptionsCheckFn } from '~/options';
 import type { StructureSetupElementsObj } from './structureSetup.elements';
@@ -68,19 +83,19 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     },
     _paddingAbsolute: false,
     _viewportPaddingStyle: {
-      marginRight: 0,
-      marginBottom: 0,
-      marginLeft: 0,
-      paddingTop: 0,
-      paddingRight: 0,
-      paddingBottom: 0,
-      paddingLeft: 0,
+      [strMarginRight]: 0,
+      [strMarginBottom]: 0,
+      [strMarginLeft]: 0,
+      [strPaddingTop]: 0,
+      [strPaddingRight]: 0,
+      [strPaddingBottom]: 0,
+      [strPaddingLeft]: 0,
     },
     _overflowEdge: { x: 0, y: 0 },
     _overflowAmount: { x: 0, y: 0 },
     _overflowStyle: {
-      x: 'hidden',
-      y: 'hidden',
+      x: strHidden,
+      y: strHidden,
     },
     _hasOverflow: {
       x: false,

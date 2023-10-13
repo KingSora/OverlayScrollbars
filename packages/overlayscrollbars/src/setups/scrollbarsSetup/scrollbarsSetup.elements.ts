@@ -20,6 +20,8 @@ import {
   mathMax,
   getElmentScroll,
   inArray,
+  strWidth,
+  strHeight,
 } from '~/support';
 import {
   classNameScrollbar,
@@ -53,7 +55,7 @@ export interface ScrollbarStructure {
 }
 
 export interface ScrollbarsSetupElement {
-  _scrollTimeline: AnimationTimeline | null;
+  _scrollTimeline: AnimationTimeline | undefined;
   _scrollbarStructures: ScrollbarStructure[];
   _clone: () => ScrollbarStructure;
   _style: (
@@ -85,7 +87,7 @@ export type ScrollbarsSetupElements = [
 
 const animateElement = (
   element: HTMLElement,
-  scrollTimeline: AnimationTimeline | null,
+  scrollTimeline: AnimationTimeline | undefined,
   keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
   composite?: CompositeOperation
 ): Animation | false | null | undefined =>
@@ -106,7 +108,7 @@ const getScrollbarHandleAnimationKeyFrames = (directionRTL: boolean, isHorizonta
 const maxScrollbarOffsetFrameValue = (value: number) => `${mathMax(0, value - 0.5)}px`;
 const animateScrollbarOffset = (
   scrollbar: HTMLElement,
-  scrollTimeline: AnimationTimeline | null,
+  scrollTimeline: AnimationTimeline | undefined,
   maxTransformValue: number,
   isHorizontal?: boolean
 ) =>
@@ -122,12 +124,11 @@ const animateScrollbarOffset = (
     'add'
   );
 const initScrollTimeline = (element: HTMLElement, axis: 'x' | 'y') =>
-  scrollT
-    ? new scrollT({
-        source: element,
-        axis,
-      })
-    : null;
+  scrollT &&
+  new scrollT({
+    source: element,
+    axis,
+  });
 
 export const createScrollbarsSetupElements = (
   target: InitializationTarget,
@@ -207,7 +208,7 @@ export const createScrollbarsSetupElements = (
       return [
         _handle,
         {
-          [isHorizontal ? 'width' : 'height']: `${(
+          [isHorizontal ? strWidth : strHeight]: `${(
             getScrollbarHandleLengthRatio(_handle, _track, isHorizontal, structureSetupState) * 100
           ).toFixed(3)}%`,
         },

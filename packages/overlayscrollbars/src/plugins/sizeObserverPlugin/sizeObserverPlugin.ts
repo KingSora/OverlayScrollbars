@@ -11,6 +11,8 @@ import {
   stopPropagation,
   bind,
   scrollElementTo,
+  strWidth,
+  strHeight,
 } from '~/support';
 import {
   classNameSizeObserverListenerScroll,
@@ -83,8 +85,8 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
 
         // lets assume that the divs will never be that large and a constant value is enough
         style(expandElementChild, {
-          width: scrollAmount,
-          height: scrollAmount,
+          [strWidth]: scrollAmount,
+          [strHeight]: scrollAmount,
         });
 
         rAF!(reset);
