@@ -228,9 +228,17 @@ $os-theme-light-handle-bg-active: rgba(255, 255, 255, 0.66);
       right: $os-theme-dark-light-size;
       height: $os-theme-dark-light-size;
 
+      &.os-scrollbar-cornerless {
+        right: 0;
+      }
+
       &.os-scrollbar-rtl {
         left: $os-theme-dark-light-size;
         right: 0;
+
+        &.os-scrollbar-cornerless {
+          left: 0;
+        }
       }
 
       .os-scrollbar-handle {
@@ -252,6 +260,10 @@ $os-theme-light-handle-bg-active: rgba(255, 255, 255, 0.66);
       padding: $os-theme-dark-light-padding-axis $os-theme-dark-light-padding-perpendicular;
       bottom: $os-theme-dark-light-size;
       width: $os-theme-dark-light-size;
+
+      &.os-scrollbar-cornerless {
+        bottom: 0;
+      }
 
       .os-scrollbar-handle {
         min-height: $os-theme-dark-light-handle-min-size;

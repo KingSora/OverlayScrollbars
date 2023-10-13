@@ -7,6 +7,7 @@
 - Finalize and document the plugin system which makes it possible to create "static" and / or "instance" plugins.
 - The static `OverlayScrollbars.plugin` function returns a "static" plugins instance(s) for the registered plugins.
 - A new `instance.plugin` function which returns a "instance" plugins instance.
+- window `resize` events will now update instances only if it is needed and only what is needed.  
 
 ### Improvements
 

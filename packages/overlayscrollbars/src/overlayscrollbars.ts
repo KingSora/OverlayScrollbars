@@ -425,10 +425,16 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           | InferInstancePluginModuleInstance<P>
           | undefined,
     };
-    const resizeUpdate = bind(instance.update, true);
+    const onWindowResize = () => {
+      const { _structureSetupState } = setupsState();
+      const { _hasOverflow } = _structureSetupState;
+      const _windowResize = _hasOverflow.x || _hasOverflow.y;
+
+      _windowResize && setupsUpdate({ _windowResize });
+    };
     push(destroyFns, [
-      _addZoomListener(resizeUpdate),
-      _addResizeListener(resizeUpdate),
+      _addZoomListener(onWindowResize),
+      _addResizeListener(onWindowResize),
       setupsCanceled,
     ]);
 

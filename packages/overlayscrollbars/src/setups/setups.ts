@@ -50,6 +50,8 @@ export interface SetupsUpdateInfo {
   _takeRecords?: boolean;
   /** Whether one or more scrollbars has been cloned. */
   _cloneScrollbar?: boolean;
+  /** Whether the window was resized because of a zoom or resize. */
+  _windowResize?: boolean;
 }
 
 export interface SetupsUpdateHints {
@@ -122,6 +124,7 @@ export const createSetups = (
       _force: rawForce,
       _takeRecords,
       _cloneScrollbar,
+      _windowResize,
     } = updateInfo;
     const _changedOptions = rawChangedOptions || {};
     const _force = !!rawForce;
@@ -143,6 +146,14 @@ export const createSetups = (
           _takeRecords,
         })
       );
+
+    if (_windowResize) {
+      assignDeep(observersHints, {
+        _sizeChanged: true,
+        _contentMutation: true,
+      } satisfies ObserversSetupUpdateHints);
+    }
+
     const structureHints = structureSetupUpdate(
       assignDeep({}, baseUpdateInfoObj, {
         _observersState: observersSetupState,

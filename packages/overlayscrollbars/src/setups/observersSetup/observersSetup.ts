@@ -189,7 +189,8 @@ export const createObserversSetup = (
     const updateFn = !_sizeChanged || _appear ? onObserversUpdated : onObserversUpdatedDebounced;
     const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache || [];
 
-    assignDeep(state, { _directionIsRTL: directionIsRTL || false });
+    _directionIsRTLCache && assignDeep(state, { _directionIsRTL: directionIsRTL });
+
     updateFn({ _sizeChanged, _appear, _directionChanged: directionIsRTLChanged });
   };
 
@@ -233,6 +234,7 @@ export const createObserversSetup = (
     createSizeObserver(_host, onSizeChanged, {
       _appear: true,
       _direction: true,
+      _ignoreWindowResize: true,
     });
 
   const [constructHostMutationObserver, updateHostMutationObserver] = createDOMObserver(

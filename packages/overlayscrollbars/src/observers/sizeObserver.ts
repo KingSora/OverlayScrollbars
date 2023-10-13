@@ -16,6 +16,8 @@ import {
   isArray,
   getRTLCompatibleScrollPosition,
   scrollElementTo,
+  selfClearTimeout,
+  wnd,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -28,8 +30,12 @@ import type { CacheValues } from '~/support';
 import type { SizeObserverPlugin } from '~/plugins';
 
 export interface SizeObserverOptions {
+  /** Whether direction changes should be observed. */
   _direction?: boolean;
+  /** Whether appearing should be observed. */
   _appear?: boolean;
+  /** Whether window resizes should be detected and ignored. */
+  _ignoreWindowResize?: boolean;
 }
 
 export interface SizeObserverCallbackParams {
@@ -52,12 +58,18 @@ export const createSizeObserver = (
   onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
 ): SizeObserver => {
+  let isWindowResize = false;
   const scrollAmount = 3333333;
-  const { _direction: observeDirectionChange, _appear: observeAppearChange } = options || {};
+  const {
+    _direction: observeDirectionChange,
+    _appear: observeAppearChange,
+    _ignoreWindowResize,
+  } = options || {};
   const sizeObserverPlugin =
     getStaticPluginModuleInstance<typeof SizeObserverPlugin>(sizeObserverPluginName);
   const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
   const getIsDirectionRTL = bind(getDirectionIsRTL, target);
+  const [setIsWindowResizeResetTimeout, clearIsWindowResizeResetTimeout] = selfClearTimeout(33); // assume 1000 / 30 (30fps)
   const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | false>({
     _initialValue: false,
     _alwaysUpdateValues: true,
@@ -70,7 +82,15 @@ export const createSizeObserver = (
   });
 
   return () => {
-    const destroyFns: (() => void)[] = [];
+    const destroyFns: (() => void)[] = [
+      clearIsWindowResizeResetTimeout,
+      addEventListener(wnd, 'resize', () => {
+        isWindowResize = !!_ignoreWindowResize;
+        setIsWindowResizeResetTimeout(() => {
+          isWindowResize = false;
+        });
+      }),
+    ];
     const baseElements = createDOM(
       `<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`
     );
@@ -94,8 +114,8 @@ export const createSizeObserver = (
         const hasDimensions = domRectHasDimensions(currRContentRect);
         const hadDimensions = domRectHasDimensions(prevContentRect);
         const firstCall = !prevContentRect;
-        skip = (firstCall && !!hadDimensions) || !hasDimensions; // skip on initial RO. call (if the element visible) or if display is none
         appear = !hadDimensions && hasDimensions;
+        skip = (firstCall && !!hadDimensions) || !hasDimensions || isWindowResize; // skip on initial RO. call (if the element visible) or if display is none or when window resize
 
         doDirectionScroll = !skip; // direction scroll when not skipping
       }
@@ -116,13 +136,15 @@ export const createSizeObserver = (
         });
       }
 
-      if (!skip) {
+      if (!skip && !appear) {
         onSizeChangedCallback({
           _sizeChanged: !hasDirectionCache,
           _directionIsRTLCache: hasDirectionCache ? sizeChangedContext : undefined,
           _appear: appear,
         });
       }
+
+      isWindowResize = false;
     };
     let appearCallback: typeof onSizeChangedCallbackProxy | undefined | false =
       observeAppearChange && onSizeChangedCallbackProxy;
