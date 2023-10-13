@@ -81,17 +81,10 @@ export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements
     <Dynamic
       component={finalProps.element}
       data-overlayscrollbars-initialize=""
-      ref={(ref: any) => {
-        setElementRef(ref);
-      }}
+      ref={setElementRef}
       {...other}
     >
-      <div
-        data-overlayscrollbars-contents=""
-        ref={(ref: any) => {
-          setChildrenRef(ref);
-        }}
-      >
+      <div data-overlayscrollbars-contents="" ref={setChildrenRef}>
         {children(() => finalProps.children)()}
       </div>
     </Dynamic>
