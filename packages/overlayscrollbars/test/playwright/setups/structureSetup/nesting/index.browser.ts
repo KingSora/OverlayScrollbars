@@ -4,13 +4,13 @@ import should from 'should';
 import { timeout, setTestResult, waitForOrFailTest, resize } from '@~local/browser-testing';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import { addClass, each, isArray, removeAttr, style } from '~/support';
-import { addPlugins, ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
+import { ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
 
 if (!window.ResizeObserver) {
-  addPlugins(SizeObserverPlugin);
+  OverlayScrollbars.plugin(SizeObserverPlugin);
 }
 if (!OverlayScrollbars.env().scrollbarsHiding) {
-  addPlugins(ScrollbarsHidingPlugin);
+  OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 }
 
 // @ts-ignore
@@ -215,6 +215,7 @@ const start = async () => {
   setTestResult(null);
 
   await testResizeElements();
+  await timeout(100);
   await testBetweenElements(); // has to be last
 
   setTestResult(true);

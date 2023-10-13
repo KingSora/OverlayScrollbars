@@ -109,10 +109,6 @@ html[data-overlayscrollbars] > body {
 /**
  * structure setup 
  */
-
-[data-overlayscrollbars~='host'] {
-  position: relative;
-}
 [data-overlayscrollbars~='host'],
 [data-overlayscrollbars-padding] {
   display: flex;
@@ -157,6 +153,7 @@ html[data-overlayscrollbars] > body {
 
 [data-overlayscrollbars~='host'],
 [data-overlayscrollbars~='viewport'] {
+  position: relative;
   overflow: hidden;
 }
 [data-overlayscrollbars~='overflowVisible'],

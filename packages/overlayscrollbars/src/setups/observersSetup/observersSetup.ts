@@ -72,7 +72,6 @@ export const createObserversSetup = (
   let updateContentMutationObserver: (() => void) | undefined;
   let destroyContentMutationObserver: (() => void) | undefined;
 
-  const strUpdateDot = `update.`;
   const hostSelector = `[${dataAttributeHost}]`;
 
   // TODO: observer textarea attrs if textarea
@@ -279,10 +278,11 @@ export const createObserversSetup = (
     },
     ({ _checkOption, _takeRecords }) => {
       const updateHints: ObserversSetupUpdateHints = {};
-      const [ignoreMutation] = _checkOption(`${strUpdateDot}ignoreMutation`);
-      const [attributes, attributesChanged] = _checkOption(`${strUpdateDot}attributes`);
-      const [elementEvents, elementEventsChanged] = _checkOption(`${strUpdateDot}elementEvents`);
-      const [debounceValue, debounceChanged] = _checkOption(`${strUpdateDot}debounce`);
+
+      const [ignoreMutation] = _checkOption('update.ignoreMutation');
+      const [attributes, attributesChanged] = _checkOption('update.attributes');
+      const [elementEvents, elementEventsChanged] = _checkOption('update.elementEvents');
+      const [debounceValue, debounceChanged] = _checkOption('update.debounce');
       const contentMutationObserverChanged = elementEventsChanged || attributesChanged;
       const ignoreMutationFromOptions = (mutation: MutationRecord) =>
         isFunction(ignoreMutation) && ignoreMutation(mutation);

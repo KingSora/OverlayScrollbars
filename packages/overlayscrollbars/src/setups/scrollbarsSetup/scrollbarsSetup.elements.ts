@@ -207,10 +207,11 @@ export const createScrollbarsSetupElements = (
   const styleScrollbarPosition = (structure: ScrollbarStructure) => {
     const { _scrollbar } = structure;
     const elm = doRefreshScrollbarOffset(_scrollbar) && _scrollbar;
+    const scroll = getElmentScroll(_scrollOffsetElement);
     return [
       elm,
       {
-        transform: elm ? getTrasformTranslateValue(getElmentScroll(_scrollOffsetElement)) : '',
+        transform: elm ? getTrasformTranslateValue({ x: `${scroll.x}px`, y: `${scroll.y}px` }) : '',
       },
     ] as [HTMLElement | false, StyleObject];
   };
