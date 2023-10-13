@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.4.0
+
+### Features
+
+- Finalize and document the plugin system which makes it possible to create "static" and / or "instance" plugins.
+- The static `OverlayScrollbars.plugin` function returns a "static" plugins instance(s) for the registered plugins.
+- A new `instance.plugin` function which returns a "instance" plugins instance.
+
+### Improvements
+
+- Small internal rewrite to improve stability, performance and bundle size.
+
 ## 2.3.2
 
 ### Bug Fixes

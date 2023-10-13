@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.6
+
+### Bug Fixes
+
+- Make sure component is stateless and children won't update more often than needed.
+
 ## 0.5.5
 
 ### Bug Fixes

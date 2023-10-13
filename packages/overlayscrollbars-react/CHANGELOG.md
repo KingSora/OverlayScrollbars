@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.3
+
+### Bug Fixes
+
+- Make sure component is stateless and children won't update more often than needed. ([#565](https://github.com/KingSora/OverlayScrollbars/issues/565))
+
 ## 0.5.2
 
 - Improve `Server Side Rendering` behavior by creating additional markup only on the client with the hydration phase.

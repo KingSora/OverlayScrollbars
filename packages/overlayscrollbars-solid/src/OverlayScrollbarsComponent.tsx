@@ -6,7 +6,6 @@ import {
   createEffect,
   createRenderEffect,
   createSignal,
-  onMount,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { JSX, ParentProps, ComponentProps, Ref } from 'solid-js';
@@ -48,12 +47,7 @@ export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements
   );
   const [elementRef, setElementRef] = createSignal<HTMLDivElement | undefined>();
   const [childrenRef, setChildrenRef] = createSignal<HTMLDivElement | undefined>();
-  const [hydrated, setHydrated] = createSignal(false);
   const [initialize, instance] = createOverlayScrollbars(finalProps);
-
-  onMount(async () => {
-    setHydrated(true);
-  });
 
   createEffect(() => {
     const currElement = elementRef();
@@ -92,18 +86,14 @@ export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements
       }}
       {...other}
     >
-      {hydrated() ? (
-        <div
-          data-overlayscrollbars-contents
-          ref={(ref: any) => {
-            setChildrenRef(ref);
-          }}
-        >
-          {children(() => finalProps.children)()}
-        </div>
-      ) : (
-        children(() => finalProps.children)()
-      )}
+      <div
+        data-overlayscrollbars-contents=""
+        ref={(ref: any) => {
+          setChildrenRef(ref);
+        }}
+      >
+        {children(() => finalProps.children)()}
+      </div>
     </Dynamic>
   );
 };

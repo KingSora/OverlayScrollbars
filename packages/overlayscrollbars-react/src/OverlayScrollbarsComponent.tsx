@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import type { PartialOptions, EventListeners } from 'overlayscrollbars';
 import type { ComponentPropsWithoutRef, ElementRef, ForwardedRef } from 'react';
@@ -36,17 +36,12 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
   const Tag = element;
   const elementRef = useRef<ElementRef<T>>(null);
   const childrenRef = useRef<HTMLDivElement>(null);
-  const [hydrated, setHydrated] = useState(false);
   const [initialize, osInstance] = useOverlayScrollbars({ options, events, defer });
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
 
   useEffect(() => {
     const { current: elm } = elementRef;
     const { current: childrenElm } = childrenRef;
-    if (hydrated && elm && childrenElm) {
+    if (elm && childrenElm) {
       initialize({
         target: elm as any,
         elements: {
@@ -56,7 +51,7 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
       });
     }
     return () => osInstance()?.destroy();
-  }, [hydrated, initialize, element]);
+  }, [initialize, element]);
 
   useImperativeHandle(
     ref,
@@ -72,13 +67,9 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
   return (
     // @ts-ignore
     <Tag data-overlayscrollbars-initialize="" ref={elementRef} {...other}>
-      {hydrated ? (
-        <div ref={childrenRef} data-overlayscrollbars-contents>
-          {children}
-        </div>
-      ) : (
-        children
-      )}
+      <div data-overlayscrollbars-contents="" ref={childrenRef}>
+        {children}
+      </div>
     </Tag>
   );
 };

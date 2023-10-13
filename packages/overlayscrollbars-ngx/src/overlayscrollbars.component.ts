@@ -35,11 +35,11 @@ const mergeEventListeners = (emits: EventListeners, events: EventListeners) =>
   template: `
     <div
       overlayScrollbars
+      data-overlayscrollbars-contents=""
       [options]="options"
       [events]="mergeEvents(events)"
       [defer]="defer"
       #content
-      data-overlayscrollbars-contents=""
     >
       <ng-content></ng-content>
     </div>

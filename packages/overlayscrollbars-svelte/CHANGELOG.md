@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.2
+
+### Bug Fixes
+
+- Make sure component is stateless and children won't update more often than needed.
+
 ## 0.5.1
 
 - Improve `Server Side Rendering` behavior by creating additional markup only on the client with the hydration phase.
