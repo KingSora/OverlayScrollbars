@@ -21,8 +21,6 @@ import {
 } from '~/classnames';
 import type { StaticPlugin } from '../plugins';
 
-const scrollAmount = 3333333;
-const scrollEventName = 'scroll';
 export const sizeObserverPluginName = '__osSizeObserverPlugin';
 
 export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
@@ -34,6 +32,8 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
         onSizeChangedCallback: (appear: boolean) => any,
         observeAppearChange: boolean | null | undefined
       ): [appearCallback: () => any, offFns: (() => any)[]] => {
+        const scrollAmount = 3333333;
+        const scrollEventName = 'scroll';
         const observerElementChildren = createDOM(
           `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
         );

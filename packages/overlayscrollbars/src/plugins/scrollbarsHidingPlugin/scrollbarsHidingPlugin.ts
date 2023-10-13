@@ -51,22 +51,6 @@ export type UndoArrangeViewport = (
 ) => UndoViewportArrangeResult;
 
 let contentArrangeCounter = 0;
-const getWindowDPR = (): number => {
-  const screen = wnd.screen;
-  // eslint-disable-next-line
-  // @ts-ignore
-  const dDPI = screen.deviceXDPI || 0;
-  // eslint-disable-next-line
-  // @ts-ignore
-  const sDPI = screen.logicalXDPI || 1;
-  return wnd.devicePixelRatio || dDPI / sDPI;
-};
-
-const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
-  const absValOne = mathAbs(valOne);
-  const absValTwo = mathAbs(valTwo);
-  return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
-};
 
 export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';
 
@@ -244,6 +228,25 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
       _envWindowZoom: () => {
         let size = { w: 0, h: 0 };
         let dpr = 0;
+        const getWindowDPR = (): number => {
+          const screen = wnd.screen;
+          // eslint-disable-next-line
+          // @ts-ignore
+          const dDPI = screen.deviceXDPI || 0;
+          // eslint-disable-next-line
+          // @ts-ignore
+          const sDPI = screen.logicalXDPI || 1;
+          return wnd.devicePixelRatio || dDPI / sDPI;
+        };
+        const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
+          const absValOne = mathAbs(valOne);
+          const absValTwo = mathAbs(valTwo);
+          return !(
+            absValOne === absValTwo ||
+            absValOne + 1 === absValTwo ||
+            absValOne - 1 === absValTwo
+          );
+        };
 
         return (
           envInstance: InternalEnvironment,
