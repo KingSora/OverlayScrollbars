@@ -565,16 +565,6 @@ describe('overlayscrollbars', () => {
           },
         });
 
-        Object.defineProperty(HTMLElement.prototype, 'scrollWidth', {
-          configurable: true,
-          get: function () {
-            return this._scrollWidth || 0;
-          },
-          set(val) {
-            this._scrollWidth = val;
-          },
-        });
-
         Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
           configurable: true,
           get: function () {
@@ -582,6 +572,16 @@ describe('overlayscrollbars', () => {
           },
           set(val) {
             this._clientHeight = val;
+          },
+        });
+
+        Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+          configurable: true,
+          get: function () {
+            return this._offsetHeight || 0;
+          },
+          set(val) {
+            this._offsetHeight = val;
           },
         });
 
