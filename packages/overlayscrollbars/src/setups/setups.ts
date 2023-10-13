@@ -1,4 +1,5 @@
 import {
+  assignDeep,
   bind,
   each,
   getElmentScroll,
@@ -19,7 +20,7 @@ import { createObserversSetup } from './observersSetup';
 import { createScrollbarsSetup } from './scrollbarsSetup';
 import { createStructureSetup } from './structureSetup';
 
-export type SetupUpdateHints = Partial<Record<`_${string}`, boolean>>;
+export type SetupUpdateHints = Partial<Record<string, boolean>>;
 
 export type SetupUpdateInfo = {
   _checkOption: OptionsCheckFn<Options>;
@@ -74,17 +75,6 @@ export type Setups = [
   canceled: () => void
 ];
 
-const booleanUpdateHints = <T extends SetupUpdateHints>(hints: T): Required<T> => {
-  const booleanHints: Required<SetupUpdateHints> = {};
-  each(hints, (value, key) => {
-    booleanHints[key as keyof typeof booleanHints] = !!value;
-  });
-  return booleanHints as Required<T>;
-};
-
-const updateHintsAreTruthy = (hints: SetupUpdateHints) =>
-  keys(hints).some((key) => !!hints[key as keyof typeof hints]);
-
 export const createSetups = (
   target: InitializationTarget,
   options: ReadonlyOptions,
@@ -115,6 +105,14 @@ export const createSetups = (
       onScroll
     );
 
+  const booleanUpdateHints = <T extends SetupUpdateHints>(hints: T): Required<T> =>
+    each(assignDeep({}, hints) as Required<T>, (value, key, booleanHints) => {
+      booleanHints[key as keyof T] = !!value as T[keyof T];
+    });
+
+  const updateHintsAreTruthy = (hints: SetupUpdateHints) =>
+    keys(hints).some((key) => !!hints[key as keyof typeof hints]);
+
   const update = (
     updateInfo: SetupsUpdateInfo,
     observerUpdateHints?: ObserversSetupUpdateHints
@@ -127,40 +125,41 @@ export const createSetups = (
     } = updateInfo;
     const _changedOptions = rawChangedOptions || {};
     const _force = !!rawForce;
-    const _checkOption = createOptionCheck(options, _changedOptions, _force);
+    const baseUpdateInfoObj: SetupUpdateInfo = {
+      _checkOption: createOptionCheck(options, _changedOptions, _force),
+      _changedOptions,
+      _force,
+    };
 
     if (_cloneScrollbar) {
-      scrollbarsSetupUpdate({ _checkOption, _changedOptions, _force });
+      scrollbarsSetupUpdate(baseUpdateInfoObj);
       return false;
     }
 
     const observersHints =
       observerUpdateHints ||
-      observersSetupUpdate({
-        _checkOption,
-        _changedOptions,
-        _takeRecords,
-        _force,
-      });
-    const structureHints = structureSetupUpdate({
-      _checkOption,
-      _changedOptions,
-      _observersState: observersSetupState,
-      _observersUpdateHints: observersHints,
-      _force,
-    });
-    scrollbarsSetupUpdate({
-      _checkOption,
-      _changedOptions,
-      _observersUpdateHints: observersHints,
-      _structureUpdateHints: structureHints,
-      _force,
-    });
+      observersSetupUpdate(
+        assignDeep({}, baseUpdateInfoObj, {
+          _takeRecords,
+        })
+      );
+    const structureHints = structureSetupUpdate(
+      assignDeep({}, baseUpdateInfoObj, {
+        _observersState: observersSetupState,
+        _observersUpdateHints: observersHints,
+      })
+    );
+    scrollbarsSetupUpdate(
+      assignDeep({}, baseUpdateInfoObj, {
+        _observersUpdateHints: observersHints,
+        _structureUpdateHints: structureHints,
+      })
+    );
 
     const truthyObserversHints = updateHintsAreTruthy(observersHints);
     const truthyStructureHints = updateHintsAreTruthy(structureHints);
     const changed =
-      truthyObserversHints || truthyStructureHints || !isEmptyObject(_changedOptions) || !!_force;
+      truthyObserversHints || truthyStructureHints || !isEmptyObject(_changedOptions) || _force;
 
     changed &&
       onUpdated(updateInfo, {
@@ -176,7 +175,6 @@ export const createSetups = (
       const { _target, _viewport, _documentElm, _isBody } = structureSetupElements;
       const scrollingElement = _isBody ? _documentElm.documentElement : _target;
       const initialScroll = getElmentScroll(scrollingElement);
-
       const destroyFns = [observersSetupCreate(), structureSetupCreate(), scrollbarsSetupCreate()];
 
       scrollElementTo(_viewport, initialScroll);

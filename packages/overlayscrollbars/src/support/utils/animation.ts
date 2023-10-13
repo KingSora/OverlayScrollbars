@@ -1,8 +1,6 @@
 import { mathMax, rAF, cAF } from './alias';
 import { isFunction } from './types';
 
-const animationCurrentTime = () => performance.now();
-
 /**
  * percent: current percent (0 - 1),
  * time: current time (duration * percent),
@@ -17,6 +15,8 @@ export type EasingFn = (
   max: number,
   duration: number
 ) => number;
+
+const animationCurrentTime = () => performance.now();
 
 export const animateNumber = (
   from: number,

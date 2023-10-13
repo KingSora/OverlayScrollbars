@@ -78,9 +78,7 @@ export const createTrinsicObserver = (
         onSizeChanged();
       }
 
-      push(destroyFns, appendChildren(target, trinsicObserver));
-
-      return bind(runEachAndClear, destroyFns);
+      return bind(runEachAndClear, push(destroyFns, appendChildren(target, trinsicObserver)));
     },
     () =>
       intersectionObserverInstance &&

@@ -189,8 +189,6 @@ export const createSizeObserver = (
       );
     }
 
-    push(destroyFns, appendChildren(target, sizeObserver));
-
-    return bind(runEachAndClear, destroyFns);
+    return bind(runEachAndClear, push(destroyFns, appendChildren(target, sizeObserver)));
   };
 };

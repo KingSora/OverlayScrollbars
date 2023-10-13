@@ -273,15 +273,9 @@ export const createStructureSetupElements = (
       removeAttr(_viewport, dataAttributeHostOverflowY);
       removeAttr(_viewport, dataAttributeViewport);
 
-      if (elementIsGenerated(_content)) {
-        unwrap(_content);
-      }
-      if (elementIsGenerated(_viewport)) {
-        unwrap(_viewport);
-      }
-      if (elementIsGenerated(_padding)) {
-        unwrap(_padding);
-      }
+      elementIsGenerated(_content) && unwrap(_content);
+      elementIsGenerated(_viewport) && unwrap(_viewport);
+      elementIsGenerated(_padding) && unwrap(_padding);
     });
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
