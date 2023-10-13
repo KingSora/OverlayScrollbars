@@ -67,7 +67,7 @@ const constructSizeObserver = createSizeObserver(
       }
     });
   },
-  { _direction: true, _appear: true }
+  { _direction: true, _appear: true, _ignoreWindowResize: true }
 );
 const destroySizeObserver = constructSizeObserver();
 
