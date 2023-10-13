@@ -1,8 +1,5 @@
-import { noop, on, runEachAndClear, selfClearTimeout } from '~/support';
+import { bind, noop, addEventListener, push, runEachAndClear, selfClearTimeout } from '~/support';
 import { getEnvironment } from '~/environment';
-import { createState, createOptionCheck } from '~/setups/setups';
-import { createScrollbarsSetupEvents } from '~/setups/scrollbarsSetup/scrollbarsSetup.events';
-import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
 import {
   classNameScrollbarThemeNone,
   classNameScrollbarVisible,
@@ -14,38 +11,44 @@ import {
   classNameScrollbarRtl,
   classNameScrollbarAutoHide,
 } from '~/classnames';
-import type { ScrollbarsSetupElementsObj } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
-import type { StructureSetupUpdateHints } from '~/setups/structureSetup/structureSetup.update';
+import { type ReadonlyOptions } from '~/options';
+import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup.elements';
 import type {
-  ReadonlyOptions,
-  ScrollbarsVisibilityBehavior,
-  ScrollbarsAutoHideBehavior,
-} from '~/options';
-import type { Setup, StructureSetupState, StructureSetupStaticState } from '~/setups';
+  ObserversSetupState,
+  ObserversSetupUpdateHints,
+  Setup,
+  SetupUpdateInfo,
+  StructureSetupState,
+  StructureSetupUpdateHints,
+} from '~/setups';
 import type { InitializationTarget } from '~/initialization';
-import type { DeepPartial, OverflowStyle } from '~/typings';
+import type { OverflowStyle } from '~/typings';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
+import { createScrollbarsSetupElements } from './scrollbarsSetup.elements';
+import { createScrollbarsSetupEvents } from './scrollbarsSetup.events';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScrollbarsSetupState {}
 
-export interface ScrollbarsSetupStaticState {
-  _elements: ScrollbarsSetupElementsObj;
-  _appendElements: () => void;
+export interface ScrollbarsSetupUpdateInfo extends SetupUpdateInfo {
+  _observersUpdateHints?: ObserversSetupUpdateHints;
+  _structureUpdateHints?: StructureSetupUpdateHints;
 }
 
-// needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
-const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
+export type ScrollbarsSetup = [
+  ...Setup<ScrollbarsSetupUpdateInfo, ScrollbarsSetupState, void>,
+  /** The elements created by the scrollbars setup. */
+  ScrollbarsSetupElementsObj
+];
 
 export const createScrollbarsSetup = (
   target: InitializationTarget,
   options: ReadonlyOptions,
-  structureSetupState: (() => StructureSetupState) & StructureSetupStaticState,
+  observersSetupState: ObserversSetupState,
+  structureSetupState: StructureSetupState,
+  structureSetupElements: StructureSetupElementsObj,
   onScroll: (event: Event) => void
-): Setup<
-  ScrollbarsSetupState,
-  ScrollbarsSetupStaticState,
-  [DeepPartial<StructureSetupUpdateHints>]
-> => {
+): ScrollbarsSetup => {
   let autoHideIsMove: boolean | undefined;
   let autoHideIsLeave: boolean | undefined;
   let autoHideNotNever: boolean | undefined;
@@ -54,20 +57,18 @@ export const createScrollbarsSetup = (
   let instanceAutoHideSuspendScrollDestroyFn = noop;
   let instanceAutoHideDelay = 0;
 
-  const state = createState({});
-  const [getState] = state;
   const [requestMouseMoveAnimationFrame, cancelMouseMoveAnimationFrame] = selfClearTimeout();
   const [requestScrollAnimationFrame, cancelScrollAnimationFrame] = selfClearTimeout();
   const [scrollTimeout, clearScrollTimeout] = selfClearTimeout(100);
   const [auotHideMoveTimeout, clearAutoHideTimeout] = selfClearTimeout(100);
   const [autoHideSuspendTimeout, clearAutoHideSuspendTimeout] = selfClearTimeout(100);
   const [auotHideTimeout, clearAutoTimeout] = selfClearTimeout(() => instanceAutoHideDelay);
-  const [elements, appendElements, destroyElements] = createScrollbarsSetupElements(
+  const [elements, appendElements] = createScrollbarsSetupElements(
     target,
-    structureSetupState._elements,
-    createScrollbarsSetupEvents(options, structureSetupState)
+    structureSetupElements,
+    createScrollbarsSetupEvents(options, structureSetupElements, structureSetupState)
   );
-  const { _host, _scrollEventElement, _isBody } = structureSetupState._elements;
+  const { _host, _scrollEventElement, _isBody } = structureSetupElements;
   const {
     _scrollbarsAddRemoveClass,
     _refreshScrollbarsHandleLength,
@@ -85,7 +86,7 @@ export const createScrollbarsSetup = (
     if (removeAutoHide) {
       _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden);
     } else {
-      const hide = () => _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden, true);
+      const hide = bind(_scrollbarsAddRemoveClass, classNameScrollbarAutoHideHidden, true);
       if (instanceAutoHideDelay > 0 && !delayless) {
         auotHideTimeout(hide);
       } else {
@@ -93,6 +94,10 @@ export const createScrollbarsSetup = (
       }
     }
   };
+
+  // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
+  const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
+
   const onHostMouseEnter = (event: PointerEvent) => {
     if (isHoverablePointerType(event)) {
       mouseInHost = autoHideIsLeave;
@@ -107,17 +112,17 @@ export const createScrollbarsSetup = (
     clearAutoHideSuspendTimeout,
     cancelScrollAnimationFrame,
     cancelMouseMoveAnimationFrame,
-    destroyElements,
+    () => instanceAutoHideSuspendScrollDestroyFn(),
 
-    on(_host, 'pointerover', onHostMouseEnter, { _once: true }),
-    on(_host, 'pointerenter', onHostMouseEnter),
-    on(_host, 'pointerleave', (event: PointerEvent) => {
+    addEventListener(_host, 'pointerover', onHostMouseEnter, { _once: true }),
+    addEventListener(_host, 'pointerenter', onHostMouseEnter),
+    addEventListener(_host, 'pointerleave', (event: PointerEvent) => {
       if (isHoverablePointerType(event)) {
         mouseInHost = false;
         autoHideIsLeave && manageScrollbarsAutoHide(false);
       }
     }),
-    on(_host, 'pointermove', (event: PointerEvent) => {
+    addEventListener(_host, 'pointermove', (event: PointerEvent) => {
       isHoverablePointerType(event) &&
         autoHideIsMove &&
         requestMouseMoveAnimationFrame(() => {
@@ -128,9 +133,9 @@ export const createScrollbarsSetup = (
           });
         });
     }),
-    on(_scrollEventElement, 'scroll', (event) => {
+    addEventListener(_scrollEventElement, 'scroll', (event) => {
       requestScrollAnimationFrame(() => {
-        _refreshScrollbarsHandleOffset(structureSetupState());
+        _refreshScrollbarsHandleOffset(structureSetupState);
 
         autoHideNotNever && manageScrollbarsAutoHide(true);
         scrollTimeout(() => {
@@ -143,40 +148,27 @@ export const createScrollbarsSetup = (
       _refreshScrollbarsScrollbarOffset();
     }),
   ];
-  const scrollbarsSetupState = getState.bind(0) as (() => ScrollbarsSetupState) &
-    ScrollbarsSetupStaticState;
-  scrollbarsSetupState._elements = elements;
-  scrollbarsSetupState._appendElements = appendElements;
 
   return [
-    (changedOptions, force, structureUpdateHints) => {
-      const {
-        _overflowEdgeChanged,
-        _overflowAmountChanged,
-        _overflowStyleChanged,
-        _directionChanged,
-        _appear,
-      } = structureUpdateHints;
+    () => bind(runEachAndClear, push(destroyFns, appendElements())),
+    ({ _checkOption, _force, _observersUpdateHints, _structureUpdateHints }) => {
+      const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
+        _structureUpdateHints || {};
+      const { _directionChanged, _appear } = _observersUpdateHints || {};
       const { _nativeScrollbarsOverlaid } = getEnvironment();
-      const checkOption = createOptionCheck(options, changedOptions, force);
-      const currStructureSetupState = structureSetupState();
-      const { _overflowAmount, _overflowStyle, _directionIsRTL, _hasOverflow } =
-        currStructureSetupState;
+      const { _directionIsRTL } = observersSetupState;
+      const { _overflowAmount, _overflowStyle, _hasOverflow } = structureSetupState;
       const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
-        checkOption<boolean>('showNativeOverlaidScrollbars');
-      const [theme, themeChanged] = checkOption<string | null>('scrollbars.theme');
-      const [visibility, visibilityChanged] =
-        checkOption<ScrollbarsVisibilityBehavior>('scrollbars.visibility');
-      const [autoHide, autoHideChanged] =
-        checkOption<ScrollbarsAutoHideBehavior>('scrollbars.autoHide');
-      const [autoHideSuspend, autoHideSuspendChanged] = checkOption<boolean>(
-        'scrollbars.autoHideSuspend'
-      );
-      const [autoHideDelay] = checkOption<number>('scrollbars.autoHideDelay');
-      const [dragScroll, dragScrollChanged] = checkOption<boolean>('scrollbars.dragScroll');
-      const [clickScroll, clickScrollChanged] = checkOption<boolean>('scrollbars.clickScroll');
+        _checkOption('showNativeOverlaidScrollbars');
+      const [theme, themeChanged] = _checkOption('scrollbars.theme');
+      const [visibility, visibilityChanged] = _checkOption('scrollbars.visibility');
+      const [autoHide, autoHideChanged] = _checkOption('scrollbars.autoHide');
+      const [autoHideSuspend, autoHideSuspendChanged] = _checkOption('scrollbars.autoHideSuspend');
+      const [autoHideDelay] = _checkOption('scrollbars.autoHideDelay');
+      const [dragScroll, dragScrollChanged] = _checkOption('scrollbars.dragScroll');
+      const [clickScroll, clickScrollChanged] = _checkOption('scrollbars.clickScroll');
 
-      const trulyAppeared = _appear && !force;
+      const trulyAppeared = _appear && !_force;
       const hasOverflow = _hasOverflow.x || _hasOverflow.y;
       const updateScrollbars = _overflowEdgeChanged || _overflowAmountChanged || _directionChanged;
       const updateVisibility = _overflowStyleChanged || visibilityChanged;
@@ -199,10 +191,10 @@ export const createScrollbarsSetup = (
           manageAutoHideSuspension(false);
           instanceAutoHideSuspendScrollDestroyFn();
           autoHideSuspendTimeout(() => {
-            instanceAutoHideSuspendScrollDestroyFn = on(
+            instanceAutoHideSuspendScrollDestroyFn = addEventListener(
               _scrollEventElement,
               'scroll',
-              manageAutoHideSuspension.bind(0, true),
+              bind(manageAutoHideSuspension, true),
               {
                 _once: true,
               }
@@ -216,6 +208,7 @@ export const createScrollbarsSetup = (
       if (showNativeOverlaidScrollbarsChanged) {
         _scrollbarsAddRemoveClass(classNameScrollbarThemeNone, showNativeOverlaidScrollbars);
       }
+
       if (themeChanged) {
         _scrollbarsAddRemoveClass(prevTheme);
         _scrollbarsAddRemoveClass(theme, true);
@@ -233,12 +226,15 @@ export const createScrollbarsSetup = (
         autoHideNotNever = autoHide !== 'never';
         manageScrollbarsAutoHide(!autoHideNotNever, true);
       }
+
       if (dragScrollChanged) {
         _scrollbarsAddRemoveClass(classNameScrollbarHandleInteractive, dragScroll);
       }
+
       if (clickScrollChanged) {
         _scrollbarsAddRemoveClass(classNameScrollbarTrackInteractive, clickScroll);
       }
+
       if (updateVisibility) {
         const xVisible = setScrollbarVisibility(_overflowStyle.x, true);
         const yVisible = setScrollbarVisibility(_overflowStyle.y, false);
@@ -246,22 +242,20 @@ export const createScrollbarsSetup = (
 
         _scrollbarsAddRemoveClass(classNameScrollbarCornerless, !hasCorner);
       }
+
       if (updateScrollbars) {
-        _refreshScrollbarsHandleLength(currStructureSetupState);
-        _refreshScrollbarsHandleOffset(currStructureSetupState);
-        _refreshScrollbarsHandleOffsetTimeline(currStructureSetupState);
-        _refreshScrollbarsScrollbarOffsetTimeline(currStructureSetupState);
+        _refreshScrollbarsHandleLength(structureSetupState);
+        _refreshScrollbarsHandleOffset(structureSetupState);
+        _refreshScrollbarsHandleOffsetTimeline(structureSetupState);
         _refreshScrollbarsScrollbarOffset();
+        _refreshScrollbarsScrollbarOffsetTimeline(structureSetupState);
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.x, true);
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.y, false);
         _scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL && !_isBody);
       }
     },
-    scrollbarsSetupState,
-    () => {
-      runEachAndClear(destroyFns);
-      instanceAutoHideSuspendScrollDestroyFn();
-    },
+    {},
+    elements,
   ];
 };

@@ -6,7 +6,7 @@ import type {
   AddEvent as GeneralAddEvent,
   RemoveEvent as GeneralRemoveEvent,
   TriggerEvent as GeneralTriggerEvent,
-} from '~/support/eventListeners';
+} from '~/support';
 
 /**
  * Describes the changes that happend due to an update.

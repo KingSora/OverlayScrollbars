@@ -1,17 +1,22 @@
-import { isUndefined } from '~/support/utils/types';
-import { each, push, runEachAndClear } from '~/support/utils/array';
+import { isUndefined } from '../utils/types';
+import { each, runEachAndClear } from '../utils/array';
+import { bind } from '../utils/function';
+import { wnd } from '../utils/alias';
+import { noop } from '../utils/noop';
+import { keys } from '../utils';
 
 let passiveEventsSupport: boolean | undefined;
+const passiveStr = 'passive';
 const supportPassiveEvents = (): boolean => {
   if (isUndefined(passiveEventsSupport)) {
     passiveEventsSupport = false;
     try {
       /* eslint-disable */
       // @ts-ignore
-      window.addEventListener(
-        'test',
-        null,
-        Object.defineProperty({}, 'passive', {
+      wnd.addEventListener(
+        passiveStr,
+        noop,
+        Object.defineProperty({}, passiveStr, {
           get() {
             passiveEventsSupport = true;
           },
@@ -24,20 +29,24 @@ const supportPassiveEvents = (): boolean => {
 };
 const splitEventNames = (eventNames: string) => eventNames.split(' ');
 
-export interface OnOptions {
+export interface EventListenerOptions {
   _capture?: boolean;
   _passive?: boolean;
   _once?: boolean;
 }
 
+export type EventListenerMap = {
+  [eventNames: string]: (event: Event) => any;
+};
+
 /**
- * Removes the passed event listener for the passed events with the passed options.
+ * Removes the passed event listener for the passed event names with the passed options.
  * @param target The element from which the listener shall be removed.
  * @param eventNames The eventsnames for which the listener shall be removed.
  * @param listener The listener which shall be removed.
  * @param capture The options of the removed listener.
  */
-export const off = <T extends Event = Event>(
+export const removeEventListener = <T extends Event = Event>(
   target: EventTarget,
   eventNames: string,
   listener: (event: T) => any,
@@ -49,23 +58,22 @@ export const off = <T extends Event = Event>(
 };
 
 /**
- * Adds the passed event listener for the passed eventnames with the passed options.
+ * Adds the passed event listener for the passed event names with the passed options.
  * @param target The element to which the listener shall be added.
  * @param eventNames The eventsnames for which the listener shall be called.
  * @param listener The listener which is called on the eventnames.
  * @param options The options of the added listener.
  */
-export const on = <T extends Event = Event>(
+export const addEventListener = <T extends Event = Event>(
   target: EventTarget,
   eventNames: string,
   listener: (event: T) => any,
-  options?: OnOptions
+  options?: EventListenerOptions
 ): (() => void) => {
   const doSupportPassiveEvents = supportPassiveEvents();
   const passive = (doSupportPassiveEvents && options && options._passive) ?? doSupportPassiveEvents;
   const capture = (options && options._capture) || false;
   const once = (options && options._once) || false;
-  const offListeners: (() => void)[] = [];
   const nativeOptions: AddEventListenerOptions | boolean = doSupportPassiveEvents
     ? {
         passive,
@@ -73,22 +81,41 @@ export const on = <T extends Event = Event>(
       }
     : capture;
 
-  each(splitEventNames(eventNames), (eventName) => {
-    const finalListener = (
-      once
-        ? (evt: T) => {
-            target.removeEventListener(eventName, finalListener, capture);
-            listener && listener(evt);
-          }
-        : listener
-    ) as EventListener;
+  return bind(
+    runEachAndClear,
+    splitEventNames(eventNames).map((eventName) => {
+      const finalListener = (
+        once
+          ? (evt: T) => {
+              removeEventListener(target, eventName, finalListener, capture);
+              listener(evt);
+            }
+          : listener
+      ) as EventListener;
 
-    push(offListeners, off.bind(null, target, eventName, finalListener, capture));
-    target.addEventListener(eventName, finalListener, nativeOptions);
-  });
-
-  return runEachAndClear.bind(0, offListeners);
+      target.addEventListener(eventName, finalListener, nativeOptions);
+      return bind(removeEventListener, target, eventName, finalListener, capture);
+    })
+  );
 };
+
+/**
+ * Adds the passed event listeners for the passed event names with the passed options.
+ * @param target The element to which the listener shall be added.
+ * @param eventListenerMap A map which descirbes the event names and event listeners to be added.
+ * @param options The options of the added listeners.
+ */
+export const addEventListeners = (
+  target: EventTarget,
+  eventListenerMap: EventListenerMap,
+  options?: EventListenerOptions
+): (() => void) =>
+  bind(
+    runEachAndClear,
+    keys(eventListenerMap).map((eventNames) =>
+      addEventListener(target, eventNames, eventListenerMap[eventNames], options)
+    )
+  );
 
 /**
  * Shorthand for the stopPropagation event Method.

@@ -1,16 +1,14 @@
-import { each } from '~/support/utils/array';
-import { attr } from '~/support/dom/attribute';
-import { contents } from '~/support/dom/traversal';
-import { removeElements } from '~/support/dom/manipulation';
+import { each } from '../utils/array';
+import { attr } from './attribute';
+import { contents } from './traversal';
+import { removeElements } from './manipulation';
 
 /**
  * Creates a div DOM node.
  */
 export const createDiv = (classNames?: string): HTMLDivElement => {
   const div = document.createElement('div');
-  if (classNames) {
-    attr(div, 'class', classNames);
-  }
+  attr(div, 'class', classNames);
   return div;
 };
 

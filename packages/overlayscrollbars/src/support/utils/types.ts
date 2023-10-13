@@ -1,8 +1,9 @@
-import { isClient } from '~/support/compatibility/server';
 import type { PlainObject } from '~/typings';
+import { isBrowser } from '../compatibility/isBrowser';
 
-const ElementNodeType = isClient() && Node.ELEMENT_NODE;
+const ElementNodeType = isBrowser && Node.ELEMENT_NODE;
 const { toString, hasOwnProperty } = Object.prototype;
+const typeRgx = /^\[object (.+)\]$/;
 
 export const isUndefined = (obj: any): obj is undefined => obj === undefined;
 
@@ -11,10 +12,7 @@ export const isNull = (obj: any): obj is null => obj === null;
 export const type = (obj: any): string =>
   isUndefined(obj) || isNull(obj)
     ? `${obj}`
-    : toString
-        .call(obj)
-        .replace(/^\[object (.+)\]$/, '$1')
-        .toLowerCase();
+    : toString.call(obj).replace(typeRgx, '$1').toLowerCase();
 
 export const isNumber = (obj: any): obj is number => typeof obj === 'number';
 

@@ -1,8 +1,7 @@
 import {
-  directionIsRTL,
   getBoundingClientRect,
   offsetSize,
-  on,
+  addEventListener,
   preventDefault,
   runEachAndClear,
   stopPropagation,
@@ -11,9 +10,12 @@ import {
   closest,
   push,
   attrClass,
+  bind,
+  mathRound,
+  strWidth,
+  strHeight,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
-import { getEnvironment } from '~/environment';
 import {
   classNameScrollbarHandle,
   classNameScrollbarInteraction,
@@ -21,196 +23,153 @@ import {
   dataAttributeHost,
   dataValueHostScrollbarPressed,
 } from '~/classnames';
-import type { XY } from '~/support';
 import type { ClickScrollPlugin } from '~/plugins';
 import type { ReadonlyOptions } from '~/options';
 import type { StructureSetupState } from '~/setups';
-import type {
-  ScrollbarsSetupElementsObj,
-  ScrollbarStructure,
-} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
+import type { ScrollbarsSetupElementsObj, ScrollbarStructure } from './scrollbarsSetup.elements';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
 
 export type ScrollbarsSetupEvents = (
   scrollbarStructure: ScrollbarStructure,
   scrollbarsAddRemoveClass: ScrollbarsSetupElementsObj['_scrollbarsAddRemoveClass'],
-  documentElm: Document,
-  hostElm: HTMLElement,
-  scrollOffsetElm: HTMLElement,
-  scrollTimeline: AnimationTimeline | null,
   isHorizontal?: boolean
 ) => () => void;
 
-const { round } = Math;
-const getScale = (element: HTMLElement): XY<number> => {
-  const { width, height } = getBoundingClientRect(element);
-  const { w, h } = offsetSize(element);
-  return {
-    x: round(width) / w || 1,
-    y: round(height) / h || 1,
-  };
-};
-const continuePointerDown = (
-  event: PointerEvent,
+export const createScrollbarsSetupEvents = (
   options: ReadonlyOptions,
-  isDragScroll: boolean
-) => {
-  const scrollbarOptions = options.scrollbars;
-  const { button, isPrimary, pointerType } = event;
-  const { pointers } = scrollbarOptions;
-  return (
-    button === 0 &&
-    isPrimary &&
-    scrollbarOptions[isDragScroll ? 'dragScroll' : 'clickScroll'] &&
-    (pointers || []).includes(pointerType)
-  );
-};
-const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpointercapture';
+  structureSetupElements: StructureSetupElementsObj,
+  structureSetupState: StructureSetupState
+): ScrollbarsSetupEvents => {
+  const { _host, _scrollOffsetElement, _documentElm } = structureSetupElements;
+  const createInteractiveScrollEvents = (
+    scrollbarStructure: ScrollbarStructure,
+    isHorizontal?: boolean
+  ) => {
+    const { _handle, _track } = scrollbarStructure;
+    const scrollLeftTopKey = `scroll${isHorizontal ? 'Left' : 'Top'}` as 'scrollLeft' | 'scrollTop';
+    const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY'; // for pointer event (can't use xy because of IE11)
+    const widthHeightKey = isHorizontal ? strWidth : strHeight;
+    const leftTopKey = isHorizontal ? 'left' : 'top'; // for BCR (can't use xy because of IE11)
+    const whKey = isHorizontal ? 'w' : 'h';
+    const xyKey = isHorizontal ? 'x' : 'y';
+    const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpointercapture';
 
-const createRootClickStopPropagationEvents = (scrollbar: HTMLElement, documentElm: Document) =>
-  on(
-    scrollbar,
-    'mousedown',
-    on.bind(0, documentElm, 'click', stopPropagation, { _once: true, _capture: true }),
-    { _capture: true }
-  );
+    const createRelativeHandleMove =
+      (mouseDownScroll: number, invertedScale: number) => (deltaMovement: number) => {
+        const { _overflowAmount } = structureSetupState;
+        const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
+        const scrollDeltaPercent = (invertedScale * deltaMovement) / handleTrackDiff;
+        const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
 
-const createInteractiveScrollEvents = (
-  options: ReadonlyOptions,
-  hostElm: HTMLElement,
-  documentElm: Document,
-  scrollbarStructure: ScrollbarStructure,
-  scrollOffsetElement: HTMLElement,
-  structureSetupState: () => StructureSetupState,
-  isHorizontal?: boolean
-) => {
-  const { _rtlScrollBehavior } = getEnvironment();
-  const { _handle, _track, _scrollbar } = scrollbarStructure;
-  const scrollLeftTopKey = `scroll${isHorizontal ? 'Left' : 'Top'}` as 'scrollLeft' | 'scrollTop';
-  const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY'; // for pointer event (can't use xy because of IE11)
-  const widthHeightKey = isHorizontal ? 'width' : 'height';
-  const leftTopKey = isHorizontal ? 'left' : 'top'; // for BCR (can't use xy because of IE11)
-  const whKey = isHorizontal ? 'w' : 'h';
-  const xyKey = isHorizontal ? 'x' : 'y';
-
-  const createRelativeHandleMove =
-    (mouseDownScroll: number, invertedScale: number) => (deltaMovement: number) => {
-      const { _overflowAmount } = structureSetupState();
-      const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
-      const scrollDeltaPercent = (invertedScale * deltaMovement) / handleTrackDiff;
-      const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
-      const isRTL = directionIsRTL(_scrollbar);
-      const negateMultiplactor =
-        isRTL && isHorizontal ? (_rtlScrollBehavior.n || _rtlScrollBehavior.i ? 1 : -1) : 1;
-
-      scrollOffsetElement[scrollLeftTopKey] = mouseDownScroll + scrollDelta * negateMultiplactor;
-    };
-
-  return on(_track, 'pointerdown', (pointerDownEvent: PointerEvent) => {
-    const isDragScroll =
-      closest(pointerDownEvent.target as Node, `.${classNameScrollbarHandle}`) === _handle;
-    const pointerCaptureElement = isDragScroll ? _handle : _track;
-    attrClass(hostElm, dataAttributeHost, dataValueHostScrollbarPressed, true);
-
-    if (continuePointerDown(pointerDownEvent, options, isDragScroll)) {
-      const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
-      const getHandleRect = () => getBoundingClientRect(_handle);
-      const getTrackRect = () => getBoundingClientRect(_track);
-      const getHandleOffset = (handleRect?: DOMRect, trackRect?: DOMRect) =>
-        (handleRect || getHandleRect())[leftTopKey] - (trackRect || getTrackRect())[leftTopKey];
-      const moveHandleRelative = createRelativeHandleMove(
-        scrollOffsetElement[scrollLeftTopKey] || 0,
-        1 / getScale(scrollOffsetElement)[xyKey]
-      );
-      const pointerDownOffset = pointerDownEvent[clientXYKey];
-      const handleRect = getHandleRect();
-      const trackRect = getTrackRect();
-      const handleLength = handleRect[widthHeightKey];
-      const handleCenter = getHandleOffset(handleRect, trackRect) + handleLength / 2;
-      const relativeTrackPointerOffset = pointerDownOffset - trackRect[leftTopKey];
-      const startOffset = isDragScroll ? 0 : relativeTrackPointerOffset - handleCenter;
-      const releasePointerCapture = (pointerUpEvent: PointerEvent) => {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        runEachAndClear(offFns);
-        pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
+        _scrollOffsetElement[scrollLeftTopKey] = mouseDownScroll + scrollDelta;
       };
 
-      const offFns = [
-        attrClass.bind(0, hostElm, dataAttributeHost, dataValueHostScrollbarPressed),
-        on(documentElm, releasePointerCaptureEvents, releasePointerCapture),
-        on(documentElm, 'selectstart', (event: Event) => preventDefault(event), {
-          _passive: false,
-        }),
-        on(_track, releasePointerCaptureEvents, releasePointerCapture),
-        on(_track, 'pointermove', (pointerMoveEvent: PointerEvent) => {
-          const relativeMovement = pointerMoveEvent[clientXYKey] - pointerDownOffset;
+    return addEventListener(_track, 'pointerdown', (pointerDownEvent: PointerEvent) => {
+      const isDragScroll =
+        closest(pointerDownEvent.target as Node, `.${classNameScrollbarHandle}`) === _handle;
+      const pointerCaptureElement = isDragScroll ? _handle : _track;
 
-          if (isDragScroll || instantClickScroll) {
-            moveHandleRelative(startOffset + relativeMovement);
-          }
-        }),
-      ];
+      const scrollbarOptions = options.scrollbars;
+      const { button, isPrimary, pointerType } = pointerDownEvent;
+      const { pointers } = scrollbarOptions;
 
-      if (instantClickScroll) {
-        moveHandleRelative(startOffset);
-      } else if (!isDragScroll) {
-        const animateClickScroll = getStaticPluginModuleInstance<
-          typeof clickScrollPluginModuleName,
-          typeof ClickScrollPlugin
-        >(clickScrollPluginModuleName);
+      const continuePointerDown =
+        button === 0 &&
+        isPrimary &&
+        scrollbarOptions[isDragScroll ? 'dragScroll' : 'clickScroll'] &&
+        (pointers || []).includes(pointerType);
 
-        animateClickScroll &&
-          push(
-            offFns,
-            animateClickScroll(
-              moveHandleRelative,
-              getHandleOffset,
-              startOffset,
-              handleLength,
-              relativeTrackPointerOffset
-            )
+      attrClass(_host, dataAttributeHost, dataValueHostScrollbarPressed, true);
+
+      if (continuePointerDown) {
+        const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
+        const getHandleRect = bind(getBoundingClientRect, _handle);
+        const getTrackRect = bind(getBoundingClientRect, _track);
+        const getHandleOffset = (handleRect?: DOMRect, trackRect?: DOMRect) =>
+          (handleRect || getHandleRect())[leftTopKey] - (trackRect || getTrackRect())[leftTopKey];
+        const axisScale =
+          mathRound(getBoundingClientRect(_scrollOffsetElement)[widthHeightKey]) /
+            offsetSize(_scrollOffsetElement)[whKey] || 1;
+        const moveHandleRelative = createRelativeHandleMove(
+          _scrollOffsetElement[scrollLeftTopKey] || 0,
+          1 / axisScale
+        );
+        const pointerDownOffset = pointerDownEvent[clientXYKey];
+        const handleRect = getHandleRect();
+        const trackRect = getTrackRect();
+        const handleLength = handleRect[widthHeightKey];
+        const handleCenter = getHandleOffset(handleRect, trackRect) + handleLength / 2;
+        const relativeTrackPointerOffset = pointerDownOffset - trackRect[leftTopKey];
+        const startOffset = isDragScroll ? 0 : relativeTrackPointerOffset - handleCenter;
+        const releasePointerCapture = (pointerUpEvent: PointerEvent) => {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          runEachAndClear(offFns);
+          pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
+        };
+
+        const offFns = [
+          bind(attrClass, _host, dataAttributeHost, dataValueHostScrollbarPressed),
+          addEventListener(_documentElm, releasePointerCaptureEvents, releasePointerCapture),
+          addEventListener(_documentElm, 'selectstart', (event: Event) => preventDefault(event), {
+            _passive: false,
+          }),
+          addEventListener(_track, releasePointerCaptureEvents, releasePointerCapture),
+          addEventListener(_track, 'pointermove', (pointerMoveEvent: PointerEvent) => {
+            const relativeMovement = pointerMoveEvent[clientXYKey] - pointerDownOffset;
+
+            if (isDragScroll || instantClickScroll) {
+              moveHandleRelative(startOffset + relativeMovement);
+            }
+          }),
+        ];
+
+        if (instantClickScroll) {
+          moveHandleRelative(startOffset);
+        } else if (!isDragScroll) {
+          const animateClickScroll = getStaticPluginModuleInstance<typeof ClickScrollPlugin>(
+            clickScrollPluginModuleName
           );
+
+          animateClickScroll &&
+            push(
+              offFns,
+              animateClickScroll(
+                moveHandleRelative,
+                getHandleOffset,
+                startOffset,
+                handleLength,
+                relativeTrackPointerOffset
+              )
+            );
+        }
+
+        pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);
       }
+    });
+  };
 
-      pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);
-    }
-  });
-};
-
-export const createScrollbarsSetupEvents =
-  (
-    options: ReadonlyOptions,
-    structureSetupState: () => StructureSetupState
-  ): ScrollbarsSetupEvents =>
-  (
-    scrollbarStructure,
-    scrollbarsAddRemoveClass,
-    documentElm,
-    hostElm,
-    scrollOffsetElm,
-    scrollTimeline,
-    isHorizontal
-  ) => {
+  return (scrollbarStructure, scrollbarsAddRemoveClass, isHorizontal) => {
     const { _scrollbar } = scrollbarStructure;
-    const [wheelTimeout, clearScrollTimeout] = selfClearTimeout(333);
-    const scrollByFn = !!scrollOffsetElm.scrollBy;
+    const [wheelTimeout, clearWheelTimeout] = selfClearTimeout(333);
+    const scrollByFn = !!_scrollOffsetElement.scrollBy;
     let wheelScrollBy = true;
 
-    return runEachAndClear.bind(0, [
-      on(_scrollbar, 'pointerenter', () => {
+    return bind(runEachAndClear, [
+      addEventListener(_scrollbar, 'pointerenter', () => {
         scrollbarsAddRemoveClass(classNameScrollbarInteraction, true);
       }),
-      on(_scrollbar, 'pointerleave pointercancel', () => {
-        scrollbarsAddRemoveClass(classNameScrollbarInteraction);
+      addEventListener(_scrollbar, 'pointerleave pointercancel', () => {
+        scrollbarsAddRemoveClass(classNameScrollbarInteraction, false);
       }),
-      on(
+      addEventListener(
         _scrollbar,
         'wheel',
         (wheelEvent: WheelEvent) => {
           const { deltaX, deltaY, deltaMode } = wheelEvent;
 
           // the first wheel event is swallowed, simulate scroll to compensate for it
-          if (scrollByFn && wheelScrollBy && deltaMode === 0 && parent(_scrollbar) === hostElm) {
-            scrollOffsetElm.scrollBy({
+          if (scrollByFn && wheelScrollBy && deltaMode === 0 && parent(_scrollbar) === _host) {
+            _scrollOffsetElement.scrollBy({
               left: deltaX,
               top: deltaY,
               behavior: 'smooth',
@@ -228,16 +187,18 @@ export const createScrollbarsSetupEvents =
         },
         { _passive: false, _capture: true }
       ),
-      createRootClickStopPropagationEvents(_scrollbar, documentElm),
-      createInteractiveScrollEvents(
-        options,
-        hostElm,
-        documentElm,
-        scrollbarStructure,
-        scrollOffsetElm,
-        structureSetupState,
-        isHorizontal
+      // rootClickStopPropagationEvent
+      addEventListener(
+        _scrollbar,
+        'mousedown',
+        bind(addEventListener, _documentElm, 'click', stopPropagation, {
+          _once: true,
+          _capture: true,
+        }),
+        { _capture: true }
       ),
-      clearScrollTimeout,
+      createInteractiveScrollEvents(scrollbarStructure, isHorizontal),
+      clearWheelTimeout,
     ]);
   };
+};

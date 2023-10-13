@@ -1,6 +1,8 @@
-import { each, keys } from '~/support/utils';
-import { isString, isNumber, isArray, isUndefined } from '~/support/utils/types';
 import type { PlainObject, StyleObject, StyleObjectKey } from '~/typings';
+import type { XY } from './offset';
+import { wnd } from '../utils/alias';
+import { each } from '../utils/array';
+import { isString, isNumber, isArray, isUndefined, isObject } from '../utils/types';
 
 export interface TRBL {
   t: number;
@@ -87,7 +89,7 @@ export function style<CustomCssProps>(
   if (getStyles) {
     let getStylesResult: string | PlainObject = getSingleStyle ? '' : {};
     if (elm) {
-      const computedStyle: CSSStyleDeclaration = window.getComputedStyle(elm, null);
+      const computedStyle: CSSStyleDeclaration = wnd.getComputedStyle(elm, null);
       getStylesResult = getSingleStyle
         ? getCSSVal(elm, computedStyle, styles)
         : styles.reduce((result, key) => {
@@ -98,12 +100,12 @@ export function style<CustomCssProps>(
     return getStylesResult;
   }
   elm &&
-    each(keys(styles), (key: StyleObjectKey) =>
-      setCSSVal(elm, key, styles[key as keyof typeof styles]!)
+    each(styles, (_, key) =>
+      setCSSVal(elm, key as StyleObjectKey, styles[key as keyof typeof styles]!)
     );
 }
 
-export const directionIsRTL = (elm: HTMLElement | false | null | undefined): boolean =>
+export const getDirectionIsRTL = (elm: HTMLElement | false | null | undefined): boolean =>
   style(elm, 'direction') === 'rtl';
 
 /**
@@ -133,9 +135,9 @@ export const topRightBottomLeft = (
 };
 
 export const getTrasformTranslateValue = (
-  value: string | number | [x: string | number, y: string | number],
+  value: string | number | XY<string | number>,
   isHorizontal?: boolean
 ) =>
   `translate${
-    isArray(value) ? `(${value[0]},${value[1]})` : `${isHorizontal ? 'X' : 'Y'}(${value})`
+    isObject(value) ? `(${value.x},${value.y})` : `${isHorizontal ? 'X' : 'Y'}(${value})`
   }`;

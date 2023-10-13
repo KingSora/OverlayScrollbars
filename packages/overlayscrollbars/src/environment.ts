@@ -7,7 +7,6 @@ import {
   clientSize,
   absoluteCoordinates,
   offsetSize,
-  scrollLeft,
   removeAttr,
   removeElements,
   equalBCRWH,
@@ -19,6 +18,14 @@ import {
   createEventListenerHub,
   debounce,
   scrollT,
+  bind,
+  wnd,
+  addEventListener,
+  noop,
+  scrollElementTo,
+  strHidden,
+  strOverflowX,
+  strOverflowY,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -30,7 +37,7 @@ import { defaultOptions } from '~/options';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { XY, EventListener } from '~/support';
 import type { Options, PartialOptions } from '~/options';
-import type { InferStaticPluginModuleInstance, ScrollbarsHidingPlugin } from '~/plugins';
+import type { ScrollbarsHidingPlugin } from '~/plugins';
 import type { Initialization, PartialInitialization } from '~/initialization';
 import type { StyleObjectKey } from './typings';
 
@@ -129,8 +136,7 @@ const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   try {
     result =
       style(testElm, cssProperty('scrollbar-width') as StyleObjectKey) === 'none' ||
-      window.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') ===
-        'none';
+      wnd.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
   } catch (ex) {}
   revertClass();
   return result;
@@ -140,13 +146,12 @@ const getRtlScrollBehavior = (
   parentElm: HTMLElement,
   childElm: HTMLElement
 ): { i: boolean; n: boolean } => {
-  const strHidden = 'hidden';
-  style(parentElm, { overflowX: strHidden, overflowY: strHidden, direction: 'rtl' });
-  scrollLeft(parentElm, 0);
+  style(parentElm, { [strOverflowX]: strHidden, [strOverflowY]: strHidden, direction: 'rtl' });
+  scrollElementTo(parentElm, { x: 0 });
 
   const parentOffset = absoluteCoordinates(parentElm);
   const childOffset = absoluteCoordinates(childElm);
-  scrollLeft(parentElm, -999); // https://github.com/KingSora/OverlayScrollbars/issues/187
+  scrollElementTo(parentElm, { x: -999 }); // https://github.com/KingSora/OverlayScrollbars/issues/187
   const childOffsetAfterScroll = absoluteCoordinates(childElm);
   return {
     /**
@@ -194,7 +199,7 @@ const createEnvironment = (): InternalEnvironment => {
       _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
       _equal: equalXY,
     },
-    getNativeScrollbarSize.bind(0, body, envElm, envChildElm, true)
+    bind(getNativeScrollbarSize, body, envElm, envChildElm, true)
   );
   const [nativeScrollbarsSize] = getNativeScrollbarSizeCache();
   const nativeScrollbarsHiding = getNativeScrollbarsHiding(envElm);
@@ -219,14 +224,16 @@ const createEnvironment = (): InternalEnvironment => {
     },
   };
   const staticDefaultOptions = assignDeep({}, defaultOptions);
-  const getDefaultOptions = (assignDeep as typeof assignDeep<Options, Options>).bind(
-    0,
+  const getDefaultOptions = bind(
+    assignDeep as typeof assignDeep<Options, Options>,
     {} as Options,
     staticDefaultOptions
   );
-  const getDefaultInitialization = (
-    assignDeep as typeof assignDeep<Initialization, Initialization>
-  ).bind(0, {} as Initialization, staticDefaultInitialization);
+  const getDefaultInitialization = bind(
+    assignDeep as typeof assignDeep<Initialization, Initialization>,
+    {} as Initialization,
+    staticDefaultInitialization
+  );
 
   const env: InternalEnvironment = {
     _nativeScrollbarsSize: nativeScrollbarsSize,
@@ -236,8 +243,8 @@ const createEnvironment = (): InternalEnvironment => {
     _scrollTimeline: !!scrollT,
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
-    _addZoomListener: addEvent.bind(0, 'z'),
-    _addResizeListener: addEvent.bind(0, 'r'),
+    _addZoomListener: bind(addEvent, 'z'),
+    _addResizeListener: bind(addEvent, 'r'),
     _getDefaultInitialization: getDefaultInitialization,
     _setDefaultInitialization: (newInitializationStrategy) =>
       assignDeep(staticDefaultInitialization, newInitializationStrategy) &&
@@ -248,8 +255,8 @@ const createEnvironment = (): InternalEnvironment => {
     _staticDefaultInitialization: assignDeep({}, staticDefaultInitialization),
     _staticDefaultOptions: assignDeep({}, staticDefaultOptions),
   };
-  const windowAddEventListener = window.addEventListener;
-  const debouncedWindowResize = debounce((zoom: boolean) => triggerEvent(zoom ? 'z' : 'r'), {
+  const windowAddResizeEventListener = bind(addEventListener, wnd, 'resize');
+  const debouncedWindowResize = debounce((event: 'z' | 'r') => triggerEvent(event), {
     _timeout: 33,
     _maxDelay: 99,
   });
@@ -258,22 +265,15 @@ const createEnvironment = (): InternalEnvironment => {
   removeElements(envElm);
 
   // needed in case content has css viewport units
-  windowAddEventListener('resize', debouncedWindowResize.bind(0, false));
+  windowAddResizeEventListener(bind(debouncedWindowResize, 'r'));
 
   if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
-    let resizeFn:
-      | undefined
-      | ReturnType<
-          InferStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>['_envWindowZoom']
-        >;
-    windowAddEventListener('resize', () => {
-      const scrollbarsHidingPlugin = getStaticPluginModuleInstance<
-        typeof scrollbarsHidingPluginName,
-        typeof ScrollbarsHidingPlugin
-      >(scrollbarsHidingPluginName);
-      resizeFn = resizeFn || (scrollbarsHidingPlugin && scrollbarsHidingPlugin._envWindowZoom());
-      resizeFn &&
-        resizeFn(env, updateNativeScrollbarSizeCache, debouncedWindowResize.bind(0, true));
+    windowAddResizeEventListener(() => {
+      const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
+        scrollbarsHidingPluginName
+      );
+      const resizeFn = scrollbarsHidingPlugin ? scrollbarsHidingPlugin._envWindowZoom() : noop;
+      resizeFn(env, updateNativeScrollbarSizeCache, bind(debouncedWindowResize, 'z'));
     });
   }
 

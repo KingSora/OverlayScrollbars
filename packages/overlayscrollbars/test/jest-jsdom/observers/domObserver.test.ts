@@ -2,8 +2,8 @@ import { createDOMObserver } from '~/observers';
 
 jest.useFakeTimers();
 
-jest.mock('~/support/compatibility/apis', () => {
-  const originalModule = jest.requireActual('~/support/compatibility/apis');
+jest.mock('~/support/utils/alias', () => {
+  const originalModule = jest.requireActual('~/support/utils/alias');
   const mockRAF = (arg: any) => setTimeout(arg, 0);
   return {
     ...originalModule,
@@ -28,13 +28,16 @@ describe('createDOMObserver', () => {
       document.body.innerHTML = '<div></div>';
       const callback = jest.fn();
       const div = document.body.firstElementChild as HTMLElement;
-      const [destroy, update] = createDOMObserver(document.body, false, callback, {
+      const [construct, update] = createDOMObserver(document.body, false, callback, {
         _attributes: ['style', 'class', 'id'],
         _styleChangingAttributes: ['id'],
       });
 
-      expect(destroy).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
       expect(update).toEqual(expect.any(Function));
+
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
 
       expect(callback).not.toHaveBeenCalled();
 
@@ -77,18 +80,23 @@ describe('createDOMObserver', () => {
       div.remove();
       await Promise.resolve();
       expect(callback).toHaveBeenCalledTimes(4);
+
+      destroy();
     });
 
     test('update', async () => {
       document.body.innerHTML = '<div></div>';
       const callback = jest.fn();
-      const [destroy, update] = createDOMObserver(document.body, false, callback, {
+      const [construct, update] = createDOMObserver(document.body, false, callback, {
         _attributes: ['style', 'class', 'id'],
         _styleChangingAttributes: ['data-stylechanged'],
       });
 
-      expect(destroy).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
       expect(update).toEqual(expect.any(Function));
+
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
 
       expect(callback).not.toHaveBeenCalled();
 
@@ -116,18 +124,23 @@ describe('createDOMObserver', () => {
       expect(callback).toHaveBeenCalledTimes(1);
       const changed = update();
       expect(changed).toBeFalsy();
+
+      destroy();
     });
 
     test('destroy', async () => {
       document.body.innerHTML = '<div></div>';
       const callback = jest.fn();
       const div = document.body.firstElementChild as HTMLElement;
-      const [destroy, update] = createDOMObserver(document.body, false, callback, {
+      const [construct, update] = createDOMObserver(document.body, false, callback, {
         _attributes: ['style', 'class', 'id'],
       });
 
-      expect(destroy).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
       expect(update).toEqual(expect.any(Function));
+
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
 
       expect(callback).not.toHaveBeenCalled();
 
@@ -161,13 +174,16 @@ describe('createDOMObserver', () => {
       document.body.innerHTML = '<div></div>';
       const callback = jest.fn();
       const div = document.body.firstElementChild as HTMLElement;
-      const [destroy, update] = createDOMObserver(document.body, true, callback, {
+      const [construct, update] = createDOMObserver(document.body, true, callback, {
         _attributes: ['style', 'class', 'id'],
       });
 
-      expect(destroy).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
       expect(update).toEqual(expect.any(Function));
 
+      const destroy = construct();
+
+      expect(destroy).toEqual(expect.any(Function));
       expect(callback).not.toHaveBeenCalled();
 
       document.body.style.width = '100px';
@@ -207,6 +223,8 @@ describe('createDOMObserver', () => {
       await Promise.resolve();
       expect(callback).toHaveBeenCalledTimes(4);
       expect(callback).toHaveBeenCalledWith(false);
+
+      destroy();
     });
 
     test('ignoreContentChange', async () => {
@@ -214,14 +232,16 @@ describe('createDOMObserver', () => {
       const callback = jest.fn();
       const ignoreContentChange = jest.fn(() => true);
       const div = document.body.firstElementChild as HTMLElement;
-      const [destroy, update] = createDOMObserver(document.body, true, callback, {
+      const [construct, update] = createDOMObserver(document.body, true, callback, {
         _attributes: ['style', 'class', 'id'],
         _ignoreContentChange: ignoreContentChange,
       });
 
-      expect(destroy).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
       expect(update).toEqual(expect.any(Function));
 
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
       expect(callback).not.toHaveBeenCalled();
       expect(ignoreContentChange).not.toHaveBeenCalled();
 
@@ -250,13 +270,15 @@ describe('createDOMObserver', () => {
       await Promise.resolve();
       expect(ignoreContentChange).toHaveBeenCalledTimes(6);
       expect(callback).not.toHaveBeenCalled();
+
+      destroy();
     });
 
     test('eventContentChange', async () => {
       document.body.innerHTML = '<div></div><p></p>';
       const callback = jest.fn();
       const div = document.body.firstElementChild as HTMLElement;
-      const [destroy, update] = createDOMObserver(document.body, true, callback, {
+      const [construct, update] = createDOMObserver(document.body, true, callback, {
         _attributes: ['style', 'class', 'id'],
         _eventContentChange: [
           ['*', 'click'],
@@ -265,9 +287,11 @@ describe('createDOMObserver', () => {
         ],
       });
 
-      expect(destroy).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
       expect(update).toEqual(expect.any(Function));
 
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
       expect(callback).not.toHaveBeenCalled();
 
       const paragraph = document.createElement('p');
@@ -362,13 +386,15 @@ describe('createDOMObserver', () => {
       jest.runAllTimers();
 
       expect(callback).toHaveBeenCalledTimes(12);
+
+      destroy();
     });
 
     test('update', async () => {
       document.body.innerHTML = '<div></div>';
       const callback = jest.fn();
       const div = document.body.firstElementChild as HTMLElement;
-      const [destroy, update] = createDOMObserver(document.body, true, callback, {
+      const [construct, update] = createDOMObserver(document.body, true, callback, {
         _attributes: ['style', 'class', 'id'],
         _eventContentChange: [
           ['*', 'click'],
@@ -377,9 +403,11 @@ describe('createDOMObserver', () => {
         ],
       });
 
-      expect(destroy).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
       expect(update).toEqual(expect.any(Function));
 
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
       expect(callback).not.toHaveBeenCalled();
 
       div.style.width = '100px';
@@ -409,13 +437,15 @@ describe('createDOMObserver', () => {
       const change = update();
       expect(change).toBeFalsy();
       expect(callback).toHaveBeenCalledTimes(1);
+
+      destroy();
     });
 
     test('destroy', async () => {
       document.body.innerHTML = '<div></div><p></p>';
       const callback = jest.fn();
       const div = document.body.firstElementChild as HTMLElement;
-      const [destroy, update] = createDOMObserver(document.body, true, callback, {
+      const [construct, update] = createDOMObserver(document.body, true, callback, {
         _attributes: ['style', 'class', 'id'],
         _eventContentChange: [
           ['*', 'click'],
@@ -424,9 +454,11 @@ describe('createDOMObserver', () => {
         ],
       });
 
-      expect(destroy).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
       expect(update).toEqual(expect.any(Function));
 
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
       expect(callback).not.toHaveBeenCalled();
 
       div.style.width = '100px';

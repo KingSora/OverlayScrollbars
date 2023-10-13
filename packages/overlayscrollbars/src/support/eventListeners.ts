@@ -1,6 +1,7 @@
-import { isArray, isBoolean, isFunction, isString } from '~/support/utils/types';
-import { keys } from '~/support/utils/object';
-import { each, push, from, isEmptyArray, runEachAndClear } from '~/support/utils/array';
+import { isArray, isBoolean, isFunction, isString } from './utils/types';
+import { keys } from './utils/object';
+import { each, push, from, isEmptyArray, runEachAndClear } from './utils/array';
+import { bind } from './utils/function';
 
 export type EventListener<EventArgs extends Record<string, any[]>, N extends keyof EventArgs> = (
   ...args: EventArgs[N]
@@ -67,9 +68,9 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
     }
   };
 
-  const addEvent: AddEvent<EventArgs> = ((
+  const addEvent: AddEvent<EventArgs> = (
     nameOrEventListeners: keyof EventArgs | EventListeners<EventArgs>,
-    listenerOrPure:
+    listenerOrPure?:
       | EventListener<EventArgs, keyof EventArgs>
       | EventListener<EventArgs, keyof EventArgs>[]
       | boolean
@@ -80,9 +81,13 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
 
       manageListener((currListener) => {
         isFunction(currListener) && eventSet.add(currListener);
-      }, listenerOrPure as any);
+      }, listenerOrPure as Exclude<typeof listenerOrPure, boolean>);
 
-      return removeEvent.bind(0, nameOrEventListeners as any, listenerOrPure as any);
+      return bind(
+        removeEvent,
+        nameOrEventListeners,
+        listenerOrPure as Exclude<typeof listenerOrPure, boolean>
+      );
     }
     if (isBoolean(listenerOrPure) && listenerOrPure) {
       removeEvent();
@@ -95,15 +100,13 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
       eventListener && push(offFns, addEvent(key, eventListener));
     });
 
-    return runEachAndClear.bind(0, offFns);
-  }) as AddEvent<EventArgs>; // sorry!
+    return bind(runEachAndClear, offFns);
+  };
 
   const triggerEvent: TriggerEvent<EventArgs> = (name, args) => {
-    const eventSet = events.get(name);
-
-    each(from(eventSet), (event) => {
+    each(from(events.get(name)), (event) => {
       if (args && !isEmptyArray(args)) {
-        (event as (...eventArgs: EventArgs[keyof EventArgs]) => void).apply(0, args as any);
+        (event as (...eventArgs: EventArgs[keyof EventArgs]) => void).apply(0, args);
       } else {
         (event as () => void)();
       }

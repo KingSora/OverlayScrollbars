@@ -1,4 +1,25 @@
-import { keys, attr, style, noop, each, assignDeep, windowSize, attrClass } from '~/support';
+import {
+  keys,
+  attr,
+  style,
+  noop,
+  each,
+  assignDeep,
+  windowSize,
+  attrClass,
+  wnd,
+  mathAbs,
+  mathRound,
+  strMarginBottom,
+  strMarginLeft,
+  strMarginRight,
+  strPaddingBottom,
+  strPaddingLeft,
+  strPaddingRight,
+  strPaddingTop,
+  strWidth,
+  strHeight,
+} from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
 import type { StyleObject, StyleObjectKey } from '~/typings';
@@ -30,28 +51,12 @@ export type UndoArrangeViewport = (
 ) => UndoViewportArrangeResult;
 
 let contentArrangeCounter = 0;
-const { round, abs } = Math;
-const getWindowDPR = (): number => {
-  // eslint-disable-next-line
-  // @ts-ignore
-  const dDPI = window.screen.deviceXDPI || 0;
-  // eslint-disable-next-line
-  // @ts-ignore
-  const sDPI = window.screen.logicalXDPI || 1;
-  return window.devicePixelRatio || dDPI / sDPI;
-};
-
-const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
-  const absValOne = abs(valOne);
-  const absValTwo = abs(valTwo);
-  return !(absValOne === absValTwo || absValOne + 1 === absValTwo || absValOne - 1 === absValTwo);
-};
 
 export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';
 
 export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
   [scrollbarsHidingPluginName]: {
-    osStatic: () => ({
+    static: () => ({
       _createUniqueViewportArrangeElement: (env: InternalEnvironment): false | HTMLStyleElement => {
         const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _cssCustomProperties } = env;
         const create =
@@ -76,7 +81,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
         flexboxGlue: boolean,
         viewport: HTMLElement,
         viewportArrange: HTMLStyleElement | false | null | undefined,
-        getState: () => StructureSetupState,
+        state: StructureSetupState,
         getViewportOverflowState: GetViewportOverflowState,
         hideNativeScrollbars: HideNativeScrollbars
       ): [ArrangeViewport, UndoArrangeViewport] => {
@@ -94,13 +99,13 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
           directionIsRTL
         ) => {
           if (doViewportArrange) {
-            const { _viewportPaddingStyle } = getState();
+            const { _viewportPaddingStyle } = state;
             const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
             const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
             const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
             const viewportArrangeHorizontalPaddingKey: keyof StyleObject = directionIsRTL
-              ? 'paddingRight'
-              : 'paddingLeft';
+              ? strPaddingRight
+              : strPaddingLeft;
             const viewportArrangeHorizontalPaddingValue = _viewportPaddingStyle[
               viewportArrangeHorizontalPaddingKey
             ] as number;
@@ -141,8 +146,8 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                   // @ts-ignore
                   const ruleStyle = cssRules[0].style;
 
-                  ruleStyle.width = arrangeSize.w;
-                  ruleStyle.height = arrangeSize.h;
+                  ruleStyle[strWidth] = arrangeSize.w;
+                  ruleStyle[strHeight] = arrangeSize.h;
                 }
               }
             } else {
@@ -171,22 +176,22 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
           if (doViewportArrange) {
             const finalViewportOverflowState =
               viewportOverflowState || getViewportOverflowState(showNativeOverlaidScrollbars);
-            const { _viewportPaddingStyle: viewportPaddingStyle } = getState();
+            const { _viewportPaddingStyle: viewportPaddingStyle } = state;
             const { _scrollbarsHideOffsetArrange } = finalViewportOverflowState;
             const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
             const finalPaddingStyle: StyleObject = {};
-            const assignProps = (props: string) =>
-              each(props.split(' '), (prop) => {
+            const assignProps = (props: string[]) =>
+              each(props, (prop) => {
                 finalPaddingStyle[prop as StyleObjectKey] =
                   viewportPaddingStyle[prop as StyleObjectKey];
               });
 
             if (arrangeX) {
-              assignProps('marginBottom paddingTop paddingBottom');
+              assignProps([strMarginBottom, strPaddingTop, strPaddingBottom]);
             }
 
             if (arrangeY) {
-              assignProps('marginLeft marginRight paddingLeft paddingRight');
+              assignProps([strMarginLeft, strMarginRight, strPaddingLeft, strPaddingRight]);
             }
 
             const prevStyle = style(viewport, keys(finalPaddingStyle) as StyleObjectKey[]);
@@ -195,7 +200,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
             attrClass(viewport, dataAttributeViewport, dataValueViewportArrange);
 
             if (!flexboxGlue) {
-              finalPaddingStyle.height = '';
+              finalPaddingStyle[strHeight] = '';
             }
 
             style(viewport, finalPaddingStyle);
@@ -223,6 +228,25 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
       _envWindowZoom: () => {
         let size = { w: 0, h: 0 };
         let dpr = 0;
+        const getWindowDPR = (): number => {
+          const screen = wnd.screen;
+          // eslint-disable-next-line
+          // @ts-ignore
+          const dDPI = screen.deviceXDPI || 0;
+          // eslint-disable-next-line
+          // @ts-ignore
+          const sDPI = screen.logicalXDPI || 1;
+          return wnd.devicePixelRatio || dDPI / sDPI;
+        };
+        const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
+          const absValOne = mathAbs(valOne);
+          const absValTwo = mathAbs(valTwo);
+          return !(
+            absValOne === absValTwo ||
+            absValOne + 1 === absValTwo ||
+            absValOne - 1 === absValTwo
+          );
+        };
 
         return (
           envInstance: InternalEnvironment,
@@ -240,12 +264,12 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
           }
 
           const deltaAbsSize = {
-            w: abs(deltaSize.w),
-            h: abs(deltaSize.h),
+            w: mathAbs(deltaSize.w),
+            h: mathAbs(deltaSize.h),
           };
           const deltaAbsRatio = {
-            w: abs(round(sizeNew.w / (size.w / 100.0))),
-            h: abs(round(sizeNew.h / (size.h / 100.0))),
+            w: mathAbs(mathRound(sizeNew.w / (size.w / 100.0))),
+            h: mathAbs(mathRound(sizeNew.h / (size.h / 100.0))),
           };
           const dprNew = getWindowDPR();
           const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;

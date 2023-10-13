@@ -1,4 +1,12 @@
-import { push, each, from, indexOf, runEachAndClear, isEmptyArray } from '~/support/utils/array';
+import {
+  push,
+  each,
+  from,
+  inArray,
+  deduplicateArray,
+  runEachAndClear,
+  isEmptyArray,
+} from '~/support/utils/array';
 
 describe('array utilities', () => {
   describe('push', () => {
@@ -161,7 +169,7 @@ describe('array utilities', () => {
           c: 3,
         };
         each(obj, (value, key, src) => {
-          expect(value).toBe(obj[key]);
+          expect(value).toBe(obj[key as keyof typeof obj]);
           expect(obj).toBe(src);
         });
       });
@@ -303,9 +311,15 @@ describe('array utilities', () => {
     });
   });
 
-  test('indexOf', () => {
-    const idx = indexOf([1, 2, 3], 2);
-    expect(idx).toBe(1);
+  test('inArray', () => {
+    expect(inArray([1, 2, 3], 2)).toBe(true);
+    expect(inArray([1, 2, 3], 4)).toBe(false);
+  });
+
+  test('deduplicateArray', () => {
+    expect(deduplicateArray(['a', 'b', 'c', 'a'])).toHaveLength(3);
+    expect(deduplicateArray(['a', 'a', 'a', 'a'])).toHaveLength(1);
+    expect(Array.isArray(deduplicateArray([]))).toBe(true);
   });
 
   test('isEmptyArray', () => {

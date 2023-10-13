@@ -1,1 +1,1 @@
-export * from '~/plugins/sizeObserverPlugin/sizeObserverPlugin';
+export * from './sizeObserverPlugin';

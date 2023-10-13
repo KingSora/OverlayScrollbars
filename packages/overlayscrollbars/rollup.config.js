@@ -115,7 +115,6 @@ Released under the MIT license.`,
           },
           compress: {
             defaults: false,
-            hoist_funs: true, // eslint-disable-line camelcase
           },
           format: {
             beautify: true,

@@ -1,12 +1,11 @@
-import { isArray } from '~/support/utils/types';
-import { each, keys } from '~/support/utils';
+import { isArray, each } from '~/support';
+import type { OptionsObject } from '~/options';
 import type {
   OptionsTemplate,
-  OptionsObjectType,
   OptionsTemplateNativeTypes,
   OptionsTemplateTypes,
   OptionsTemplateValue,
-} from '~/plugins/optionsValidationPlugin/validation';
+} from './validation';
 import type { PlainObject } from '~/typings';
 
 export interface OptionsWithOptionsTemplateTransformation<T> {
@@ -20,7 +19,7 @@ export type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes
 ];
 
 export type OptionsWithOptionsTemplate<T> = {
-  [P in keyof T]: T[P] extends OptionsObjectType
+  [P in keyof T]: T[P] extends OptionsObject
     ? OptionsWithOptionsTemplate<T[P]>
     : T[P] extends OptionsTemplateNativeTypes
     ? OptionsWithOptionsTemplateValue<T[P]>
@@ -40,9 +39,9 @@ export const transformOptions = <T>(
     _options: {},
   };
 
-  each(keys(optionsWithOptionsTemplate), (key: Extract<keyof T, string>) => {
+  each(optionsWithOptionsTemplate, (_, key) => {
     const val: PlainObject | OptionsTemplateTypes | Array<OptionsTemplateTypes> =
-      optionsWithOptionsTemplate[key];
+      optionsWithOptionsTemplate[key as Extract<keyof T, string>];
 
     if (isArray(val)) {
       result._options[key] = val[0];

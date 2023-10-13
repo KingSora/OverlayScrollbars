@@ -1,8 +1,18 @@
-import { each, hasOwnProperty, keys, push, isEmptyObject } from '~/support/utils';
-import { type, isArray, isUndefined, isPlainObject, isString } from '~/support/utils/types';
+import {
+  each,
+  hasOwnProperty,
+  keys,
+  push,
+  isEmptyObject,
+  type,
+  isArray,
+  isUndefined,
+  isPlainObject,
+  isString,
+} from '~/support';
 import type { PlainObject, DeepPartial } from '~/typings';
+import type { OptionsObject } from '~/options';
 
-export type OptionsObjectType = Record<string, unknown>;
 export type OptionsFunctionType = (this: any, ...args: any[]) => any;
 export type OptionsTemplateType<T extends OptionsTemplateNativeTypes> = ExtractPropsKey<
   OptionsTemplateTypeMap,
@@ -18,7 +28,7 @@ export type OptionsTemplateValue<T extends OptionsTemplateNativeTypes = string> 
   : OptionsTemplateValueNonEnum<T>;
 
 export type OptionsTemplate<T> = {
-  [P in keyof T]: T[P] extends OptionsObjectType
+  [P in keyof T]: T[P] extends OptionsObject
     ? OptionsTemplate<T[P]>
     : T[P] extends OptionsTemplateNativeTypes
     ? OptionsTemplateValue<T[P]>
@@ -26,8 +36,8 @@ export type OptionsTemplate<T> = {
 };
 
 export type OptionsValidationResult<T> = [
-  DeepPartial<T>, // validated
-  Record<string, unknown> // foreign
+  validated: DeepPartial<T>,
+  foreign: Record<string, unknown>
 ];
 
 type OptionsTemplateTypeMap = {
@@ -37,7 +47,7 @@ type OptionsTemplateTypeMap = {
   __TPL_array_TYPE__: Array<any> | ReadonlyArray<any>;
   __TPL_function_TYPE__: OptionsFunctionType;
   __TPL_null_TYPE__: null;
-  __TPL_object_TYPE__: OptionsObjectType;
+  __TPL_object_TYPE__: OptionsObject;
 };
 
 type OptionsTemplateValueNonEnum<T extends OptionsTemplateNativeTypes> =
@@ -53,7 +63,7 @@ type OptionsTemplateTypesDictionary = {
   readonly number: OptionsTemplateType<number>;
   readonly string: OptionsTemplateType<string>;
   readonly array: OptionsTemplateType<Array<any>>;
-  readonly object: OptionsTemplateType<OptionsObjectType>;
+  readonly object: OptionsTemplateType<OptionsObject>;
   readonly function: OptionsTemplateType<OptionsFunctionType>;
   readonly null: OptionsTemplateType<null>;
 };

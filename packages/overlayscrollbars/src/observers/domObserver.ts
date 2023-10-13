@@ -2,17 +2,17 @@ import {
   each,
   noop,
   debounce,
-  indexOf,
-  isString,
   MutationObserverConstructor,
-  isEmptyArray,
-  on,
+  addEventListener,
   attr,
   is,
   find,
   push,
-  from,
   runEachAndClear,
+  bind,
+  isEmptyArray,
+  deduplicateArray,
+  inArray,
 } from '~/support';
 
 type DOMContentObserverCallback = (contentChangedThroughEvent: boolean) => any;
@@ -74,7 +74,7 @@ export type DOMObserverOptions<ContentObserver extends boolean> = ContentObserve
   : DOMTargetObserverOptions;
 
 export type DOMObserver<ContentObserver extends boolean> = [
-  destroy: () => void,
+  construct: () => () => void,
   update: () => void | false | Parameters<DOMObserverCallback<ContentObserver>>
 ];
 
@@ -96,57 +96,45 @@ const createEventContentChange = (
   callback: (...args: any) => any,
   eventContentChange?: DOMObserverEventContentChange
 ): EventContentChange => {
-  let map: WeakMap<Node, (() => any)[]> | undefined; // weak map to prevent memory leak for detached elements
   let destroyed = false;
+  const map = eventContentChange ? new WeakMap<Node, (() => any)[]>() : false; // weak map to prevent memory leak for detached elements
   const destroy = () => {
     destroyed = true;
   };
   const updateElements: EventContentChangeUpdateElement = (getElements) => {
-    if (eventContentChange) {
-      const eventElmList = eventContentChange.reduce<Array<[Node[], string]>>((arr, item) => {
-        if (item) {
-          const [selector, eventNames] = item;
-          const elements =
-            eventNames &&
-            selector &&
-            (getElements ? getElements(selector) : find(selector, target));
-
-          if (elements && elements.length && eventNames && isString(eventNames)) {
-            push(arr, [elements, eventNames.trim()], true);
-          }
-        }
-        return arr;
-      }, []);
+    if (map && eventContentChange) {
+      const eventElmList = eventContentChange.map((item) => {
+        const [selector, eventNames] = item || [];
+        const elements = eventNames && selector ? (getElements || find)(selector, target) : [];
+        return [elements, eventNames] as const;
+      });
 
       each(eventElmList, (item) =>
         each(item[0], (elm) => {
           const eventNames = item[1];
-          const entries = map!.get(elm) || [];
+          const entries = map.get(elm) || [];
           const isTargetChild = target.contains(elm);
 
-          if (isTargetChild) {
-            const off = on(elm, eventNames, (event: Event) => {
+          if (isTargetChild && eventNames) {
+            const removeListener = addEventListener(elm, eventNames.trim(), (event: Event) => {
               if (destroyed) {
-                off();
-                map!.delete(elm);
+                removeListener();
+                map.delete(elm);
               } else {
                 callback(event);
               }
             });
-            map!.set(elm, push(entries, off));
+            map.set(elm, push(entries, removeListener));
           } else {
             runEachAndClear(entries);
-            map!.delete(elm);
+            map.delete(elm);
           }
         })
       );
     }
   };
 
-  if (eventContentChange) {
-    map = new WeakMap();
-    updateElements();
-  }
+  updateElements();
 
   return [destroy, updateElements];
 };
@@ -189,121 +177,121 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   const finalStyleChangingAttributes = _styleChangingAttributes || [];
   const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
   const observerCallback = (
-    mutations: MutationRecord[],
-    fromRecords?: true
+    fromRecords: boolean,
+    mutations: MutationRecord[]
   ): void | Parameters<DOMObserverCallback<ContentObserver>> => {
-    const ignoreTargetChange = _ignoreTargetChange || noop;
-    const ignoreContentChange = _ignoreContentChange || noop;
-    const totalChangedNodes: Set<Node> = new Set();
-    const targetChangedAttrs: Set<string> = new Set();
-    let targetStyleChanged = false;
-    let contentChanged = false;
-    let childListChanged = false;
+    if (!isEmptyArray(mutations)) {
+      const ignoreTargetChange = _ignoreTargetChange || noop;
+      const ignoreContentChange = _ignoreContentChange || noop;
+      const totalChangedNodes: Node[] = [];
+      const targetChangedAttrs: string[] = [];
+      let targetStyleChanged: boolean | '' | null | undefined = false;
+      let contentChanged: boolean | '' | null | undefined = false;
+      let childListChanged: boolean | '' | null | undefined = false;
 
-    each(mutations, (mutation) => {
-      const {
-        attributeName,
-        target: mutationTarget,
-        type,
-        oldValue,
-        addedNodes,
-        removedNodes,
-      } = mutation;
-      const isAttributesType = type === 'attributes';
-      const isChildListType = type === 'childList';
-      const targetIsMutationTarget = target === mutationTarget;
-      const attributeValue =
-        isAttributesType && isString(attributeName)
-          ? attr(mutationTarget as HTMLElement, attributeName!)
-          : 0;
-      const attributeChanged = attributeValue !== 0 && oldValue !== attributeValue;
-      const styleChangingAttrChanged =
-        indexOf(finalStyleChangingAttributes, attributeName) > -1 && attributeChanged;
+      each(mutations, (mutation) => {
+        const {
+          attributeName,
+          target: mutationTarget,
+          type,
+          oldValue,
+          addedNodes,
+          removedNodes,
+        } = mutation;
+        const isAttributesType = type === 'attributes';
+        const isChildListType = type === 'childList';
+        const targetIsMutationTarget = target === mutationTarget;
+        const isAttrChange = isAttributesType && attributeName;
+        const attributeValue = attr(mutationTarget as HTMLElement, attributeName || '');
+        const attributeChanged = isAttrChange && oldValue !== attributeValue;
+        const styleChangingAttrChanged =
+          inArray(finalStyleChangingAttributes, attributeName) && attributeChanged;
 
-      // if is content observer and something changed in children
-      if (isContentObserver && (isChildListType || !targetIsMutationTarget)) {
-        const notOnlyAttrChanged = !isAttributesType;
-        const contentAttrChanged = isAttributesType && attributeChanged;
-        const isNestedTarget =
-          contentAttrChanged && _nestedTargetSelector && is(mutationTarget, _nestedTargetSelector);
-        const baseAssertion = isNestedTarget
-          ? !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue)
-          : notOnlyAttrChanged || contentAttrChanged;
-        const contentFinalChanged =
-          baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
+        // if is content observer and something changed in children
+        if (isContentObserver && (isChildListType || !targetIsMutationTarget)) {
+          const contentAttrChanged = isAttributesType && attributeChanged;
+          const isNestedTarget =
+            contentAttrChanged &&
+            _nestedTargetSelector &&
+            is(mutationTarget, _nestedTargetSelector);
+          const baseAssertion = isNestedTarget
+            ? !ignoreTargetChange(mutationTarget, attributeName, oldValue, attributeValue)
+            : !isAttributesType || contentAttrChanged;
+          const contentFinalChanged =
+            baseAssertion && !ignoreContentChange(mutation, !!isNestedTarget, target, options);
 
-        each(addedNodes, (node) => totalChangedNodes.add(node));
-        each(removedNodes, (node) => totalChangedNodes.add(node));
+          each(addedNodes, (node) => push(totalChangedNodes, node));
+          each(removedNodes, (node) => push(totalChangedNodes, node));
 
-        contentChanged = contentChanged || contentFinalChanged;
-        childListChanged = childListChanged || isChildListType;
-      }
-      // if is target observer and target attr changed
-      if (
-        !isContentObserver &&
-        targetIsMutationTarget &&
-        attributeChanged &&
-        !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue)
-      ) {
-        targetChangedAttrs.add(attributeName!);
-        targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
-      }
-    });
+          contentChanged = contentChanged || contentFinalChanged;
+          childListChanged = childListChanged || isChildListType;
+        }
+        // if is target observer and target attr changed
+        if (
+          !isContentObserver &&
+          targetIsMutationTarget &&
+          attributeChanged &&
+          !ignoreTargetChange(mutationTarget, attributeName!, oldValue, attributeValue)
+        ) {
+          push(targetChangedAttrs, attributeName);
+          targetStyleChanged = targetStyleChanged || styleChangingAttrChanged;
+        }
+      });
 
-    // adds / removes the new elements from the event content change
-    if (totalChangedNodes.size > 0) {
+      // adds / removes the new elements from the event content change
       updateEventContentChangeElements((selector: string) =>
-        from(totalChangedNodes).reduce<Node[]>((arr, node) => {
+        deduplicateArray(totalChangedNodes).reduce<Node[]>((arr, node) => {
           push(arr, find(selector, node));
           return is(node, selector) ? push(arr, node) : arr;
         }, [])
       );
-    }
 
-    if (isContentObserver) {
-      !fromRecords && contentChanged && (callback as DOMContentObserverCallback)(false);
-      return [false] as Parameters<DOMObserverCallback<ContentObserver>>;
-    }
+      if (isContentObserver) {
+        !fromRecords && contentChanged && (callback as DOMContentObserverCallback)(false);
+        return [false] satisfies Parameters<DOMObserverCallback<true>> as Parameters<
+          DOMObserverCallback<ContentObserver>
+        >;
+      }
 
-    if (targetChangedAttrs.size > 0 || targetStyleChanged) {
-      const args: Parameters<DOMTargetObserverCallback> = [
-        from(targetChangedAttrs),
-        targetStyleChanged,
-      ];
-      !fromRecords && (callback as DOMTargetObserverCallback).apply(0, args);
+      if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
+        const args = [
+          deduplicateArray(targetChangedAttrs),
+          targetStyleChanged,
+        ] satisfies Parameters<DOMTargetObserverCallback> & Parameters<DOMObserverCallback<false>>;
+        !fromRecords && (callback as DOMTargetObserverCallback).apply(0, args);
 
-      return args as Parameters<DOMObserverCallback<ContentObserver>>;
+        return args as Parameters<DOMObserverCallback<ContentObserver>>;
+      }
     }
   };
-  const mutationObserver: MutationObserver = new MutationObserverConstructor!((mutations) =>
-    observerCallback(mutations)
+  const mutationObserver: MutationObserver = new MutationObserverConstructor!(
+    bind(observerCallback, false)
   );
-
-  // Connect
-  mutationObserver.observe(target, {
-    attributes: true,
-    attributeOldValue: true,
-    attributeFilter: observedAttributes,
-    subtree: isContentObserver,
-    childList: isContentObserver,
-    characterData: isContentObserver,
-  });
-  isConnected = true;
 
   return [
     () => {
-      if (isConnected) {
-        destroyEventContentChange();
-        mutationObserver.disconnect();
-        isConnected = false;
-      }
+      mutationObserver.observe(target, {
+        attributes: true,
+        attributeOldValue: true,
+        attributeFilter: observedAttributes,
+        subtree: isContentObserver,
+        childList: isContentObserver,
+        characterData: isContentObserver,
+      });
+      isConnected = true;
+
+      return () => {
+        if (isConnected) {
+          destroyEventContentChange();
+          mutationObserver.disconnect();
+          isConnected = false;
+        }
+      };
     },
     () => {
       if (isConnected) {
         debouncedEventContentChange._flush();
-
-        const records = mutationObserver.takeRecords();
-        return !isEmptyArray(records) && observerCallback(records, true);
+        return observerCallback(true, mutationObserver.takeRecords());
       }
     },
   ];

@@ -1,3 +1,4 @@
-export * from '~/setups/setups';
-export * from '~/setups/structureSetup';
-export * from '~/setups/scrollbarsSetup';
+export * from './setups';
+export * from './observersSetup';
+export * from './structureSetup';
+export * from './scrollbarsSetup';

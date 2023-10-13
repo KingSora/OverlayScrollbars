@@ -29,6 +29,7 @@ interface StructureSetupElementsProxy {
   input: InitializationTarget;
   elements: StructureSetupElementsObj;
   destroy: () => void;
+  canceled: () => void;
 }
 
 type TargetType = 'element' | 'textarea' | 'body';
@@ -179,20 +180,21 @@ const assertCorrectDOMStructure = (
 
 const createStructureSetupElementsProxy = (
   target: InitializationTarget,
-  { tabindex = false, autoAppend = true } = {}
+  { tabindex = false } = {}
 ): StructureSetupElementsProxy => {
-  const [elements, appendElements, destroy] = createStructureSetupElements(target);
+  const [elements, appendElements, canceled] = createStructureSetupElements(target);
   // simulate tabindex inheritance from host via mutation observer
   if (tabindex) {
     elements._viewport.setAttribute('tabindex', elements._target.getAttribute('tabindex')!);
   }
-  if (autoAppend) {
-    appendElements();
-  }
+
+  const destroy = appendElements();
+
   return {
     input: target,
     elements,
     destroy,
+    canceled,
   };
 };
 
@@ -1461,8 +1463,8 @@ describe('structureSetup.elements', () => {
       const target = document.body;
       target.setAttribute(dataAttributeInitialize, '');
 
-      const { destroy } = createStructureSetupElementsProxy(target, { autoAppend: false });
-      destroy();
+      const { canceled } = createStructureSetupElementsProxy(target);
+      canceled();
 
       expect(document.body.getAttribute(dataAttributeInitialize)).toBe(null);
     });

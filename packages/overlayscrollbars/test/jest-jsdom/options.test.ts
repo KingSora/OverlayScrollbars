@@ -1,4 +1,6 @@
-import { defaultOptions, getOptionsDiff } from '~/options';
+import { createOptionCheck, defaultOptions, getOptionsDiff } from '~/options';
+import { assignDeep } from '~/support';
+import type { PartialOptions } from '~/options';
 
 describe('options', () => {
   test('defaultOptions', () => {
@@ -51,6 +53,81 @@ describe('options', () => {
           ...changed,
         })
       ).toEqual(changed);
+    });
+
+    test('diff same looking primitive options', () => {
+      const options = {
+        a: 1,
+        b: {
+          c: '2',
+          d: false,
+          e: {
+            f: [],
+          },
+        },
+      };
+      const changed = {
+        a: 1,
+        b: {
+          c: '2',
+          d: false,
+          e: {
+            f: [],
+          },
+        },
+      };
+
+      expect(getOptionsDiff(options, changed)).toEqual({});
+
+      expect(
+        getOptionsDiff(options, {
+          ...options,
+          ...changed,
+        })
+      ).toEqual({});
+    });
+
+    test('diff same looking primitive and non-primitive options', () => {
+      const gFn = () => {};
+      const options = {
+        a: 1,
+        b: {
+          c: '2',
+          d: [() => {}],
+          e: {
+            f: [],
+            g: gFn,
+          },
+        },
+      };
+      const changed = {
+        a: 1,
+        b: {
+          c: '2',
+          d: [() => {}],
+          e: {
+            f: [],
+            g: gFn,
+          },
+        },
+      };
+
+      expect(getOptionsDiff(options, changed)).toEqual({
+        b: {
+          d: changed.b.d,
+        },
+      });
+
+      expect(
+        getOptionsDiff(options, {
+          ...options,
+          ...changed,
+        })
+      ).toEqual({
+        b: {
+          d: changed.b.d,
+        },
+      });
     });
 
     test('diff nested options', () => {
@@ -239,6 +316,120 @@ describe('options', () => {
         ).toEqual(changed);
 
         expect(getOptionsDiff(options, changed)).toEqual(changed);
+      });
+    });
+  });
+
+  describe('createOptionCheck', () => {
+    test('Complete path', () => {
+      const checkOptions = createOptionCheck(
+        defaultOptions,
+        Object.fromEntries(
+          Object.entries(defaultOptions).filter(([field]) => field === 'scrollbars')
+        )
+      );
+      const [overflowX, overflowXChanged] = checkOptions('overflow.x');
+      const [showNativeOverlaidScrollbars, showNativeOverlaidScrollbarsChanged] = checkOptions(
+        'showNativeOverlaidScrollbars'
+      );
+      const [updateIgnoreMutation, updateIgnoreMutationChanged] =
+        checkOptions('update.ignoreMutation');
+      const [scrollbarsPointers, scrollbarsPointersChanged] = checkOptions('scrollbars.pointers');
+      const [scrollbarsAutoHide, scrollbarsAutoHideChanged] = checkOptions('scrollbars.autoHide');
+
+      expect(overflowX).toBe(defaultOptions.overflow.x);
+      expect(showNativeOverlaidScrollbars).toBe(defaultOptions.showNativeOverlaidScrollbars);
+      expect(updateIgnoreMutation).toBe(defaultOptions.update.ignoreMutation);
+      expect(scrollbarsPointers).toBe(defaultOptions.scrollbars.pointers);
+      expect(scrollbarsAutoHide).toBe(defaultOptions.scrollbars.autoHide);
+      expect(overflowXChanged).toBe(false);
+      expect(showNativeOverlaidScrollbarsChanged).toBe(false);
+      expect(updateIgnoreMutationChanged).toBe(false);
+      expect(scrollbarsPointersChanged).toBe(true);
+      expect(scrollbarsAutoHideChanged).toBe(true);
+    });
+
+    test('Incomplete path', () => {
+      const checkOptions = createOptionCheck(
+        defaultOptions,
+        Object.fromEntries(Object.entries(defaultOptions).filter(([field]) => field === 'update'))
+      );
+      const [overflow, overflowChanged] = checkOptions('overflow');
+      const [update, updateChanged] = checkOptions('update');
+      const [updateIgnoreMutation, updateIgnoreMutationChanged] =
+        checkOptions('update.ignoreMutation');
+      const [scrollbars, scrollbarsChanged] = checkOptions('scrollbars');
+
+      expect(overflow).toBe(defaultOptions.overflow);
+      expect(update).toBe(defaultOptions.update);
+      expect(updateIgnoreMutation).toBe(defaultOptions.update.ignoreMutation);
+      expect(scrollbars).toBe(defaultOptions.scrollbars);
+      expect(overflowChanged).toBe(false);
+      expect(updateChanged).toBe(true);
+      expect(updateIgnoreMutationChanged).toBe(true);
+      expect(scrollbarsChanged).toBe(false);
+    });
+
+    test('with options diff', () => {
+      const changedOps: PartialOptions = {
+        overflow: {
+          x: 'hidden',
+        },
+        paddingAbsolute: defaultOptions.paddingAbsolute,
+      };
+      const ops = assignDeep({}, defaultOptions, changedOps);
+      const checkOptionsOverflowXHidden = createOptionCheck(
+        ops,
+        getOptionsDiff(defaultOptions, changedOps)
+      );
+
+      const [paddingAbsolute, paddingAbsoluteChanged] =
+        checkOptionsOverflowXHidden('paddingAbsolute');
+      const [overflow, overflowChanged] = checkOptionsOverflowXHidden('overflow');
+      const [overflowX, overflowXChanged] = checkOptionsOverflowXHidden('overflow.x');
+      const [overflowY, overflowYChanged] = checkOptionsOverflowXHidden('overflow.y');
+      expect(overflow).toEqual({ x: 'hidden', y: defaultOptions.overflow.y });
+      expect(overflowX).toEqual('hidden');
+      expect(overflowY).toEqual(defaultOptions.overflow.y);
+      expect(paddingAbsolute).toEqual(defaultOptions.paddingAbsolute);
+      expect(overflowChanged).toBe(true);
+      expect(overflowXChanged).toBe(true);
+      expect(overflowYChanged).toBe(false);
+      expect(paddingAbsoluteChanged).toBe(false);
+    });
+
+    [false, true].forEach((force) => {
+      test(`force: ${force}`, () => {
+        const checkOptions = createOptionCheck(defaultOptions, {}, force);
+        const [overflow, overflowChanged] = checkOptions('overflow');
+        const [overflowX, overflowXChanged] = checkOptions('overflow.x');
+        const [overflowY, overflowYChanged] = checkOptions('overflow.y');
+        const [paddingAbsolute, paddingAbsoluteChanged] = checkOptions('paddingAbsolute');
+        const [update, updateChanged] = checkOptions('update');
+        const [updateDebounce, updateDebounceChanged] = checkOptions('update.debounce');
+        const [updateElementEvents, updateElementEventsChanged] =
+          checkOptions('update.elementEvents');
+        const [scrollbars, scrollbarsChanged] = checkOptions('scrollbars');
+        const [scrollbarsPointers, scrollbarsPointersChanged] = checkOptions('scrollbars.pointers');
+
+        expect(overflow).toBe(defaultOptions.overflow);
+        expect(overflowX).toBe(defaultOptions.overflow.x);
+        expect(overflowY).toBe(defaultOptions.overflow.y);
+        expect(paddingAbsolute).toBe(defaultOptions.paddingAbsolute);
+        expect(update).toBe(defaultOptions.update);
+        expect(updateDebounce).toBe(defaultOptions.update.debounce);
+        expect(updateElementEvents).toBe(defaultOptions.update.elementEvents);
+        expect(scrollbars).toBe(defaultOptions.scrollbars);
+        expect(scrollbarsPointers).toBe(defaultOptions.scrollbars.pointers);
+        expect(overflowChanged).toBe(force);
+        expect(overflowXChanged).toBe(force);
+        expect(overflowYChanged).toBe(force);
+        expect(paddingAbsoluteChanged).toBe(force);
+        expect(updateChanged).toBe(force);
+        expect(updateDebounceChanged).toBe(force);
+        expect(updateElementEventsChanged).toBe(force);
+        expect(scrollbarsChanged).toBe(force);
+        expect(scrollbarsPointersChanged).toBe(force);
       });
     });
   });

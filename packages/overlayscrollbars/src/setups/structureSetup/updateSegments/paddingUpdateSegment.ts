@@ -1,7 +1,22 @@
-import { createCache, topRightBottomLeft, equalTRBL, style, assignDeep } from '~/support';
+import {
+  createCache,
+  topRightBottomLeft,
+  equalTRBL,
+  style,
+  assignDeep,
+  bind,
+  strMarginBottom,
+  strMarginLeft,
+  strMarginRight,
+  strPaddingBottom,
+  strPaddingLeft,
+  strPaddingRight,
+  strPaddingTop,
+  strWidth,
+} from '~/support';
 import { getEnvironment } from '~/environment';
 import type { StyleObject } from '~/typings';
-import type { CreateStructureUpdateSegment } from '~/setups/structureSetup/structureSetup.update';
+import type { CreateStructureUpdateSegment } from '../structureSetup';
 
 /**
  * Lifecycle with the responsibility to adjust the padding styling of the padding and viewport element.
@@ -9,29 +24,27 @@ import type { CreateStructureUpdateSegment } from '~/setups/structureSetup/struc
  * @returns
  */
 export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
-  structureSetupElements,
+  { _host, _padding, _viewport, _viewportIsTarget: _isSingleElm },
   state
 ) => {
-  const [getState, setState] = state;
-  const { _host, _padding, _viewport, _viewportIsTarget: _isSingleElm } = structureSetupElements;
   const [updatePaddingCache, currentPaddingCache] = createCache(
     {
       _equal: equalTRBL,
       _initialValue: topRightBottomLeft(),
     },
-    topRightBottomLeft.bind(0, _host, 'padding', '')
+    bind(topRightBottomLeft, _host, 'padding', '')
   );
 
-  return (updateHints, checkOption, force) => {
-    let [padding, paddingChanged] = currentPaddingCache(force);
+  return ({ _checkOption, _observersUpdateHints, _observersState, _force }) => {
+    let [padding, paddingChanged] = currentPaddingCache(_force);
     const { _nativeScrollbarsHiding: _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
-    const { _directionIsRTL } = getState();
-    const { _sizeChanged, _contentMutation, _directionChanged } = updateHints;
-    const [paddingAbsolute, paddingAbsoluteChanged] = checkOption('paddingAbsolute');
+    const { _sizeChanged, _contentMutation, _directionChanged } = _observersUpdateHints || {};
+    const { _directionIsRTL } = _observersState;
+    const [paddingAbsolute, paddingAbsoluteChanged] = _checkOption('paddingAbsolute');
     const contentMutation = !_flexboxGlue && _contentMutation;
 
     if (_sizeChanged || paddingChanged || contentMutation) {
-      [padding, paddingChanged] = updatePaddingCache(force);
+      [padding, paddingChanged] = updatePaddingCache(_force);
     }
 
     const paddingStyleChanged =
@@ -44,26 +57,26 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
       const paddingVertical = padding.t + padding.b;
 
       const paddingStyle: StyleObject = {
-        marginRight: paddingRelative && !_directionIsRTL ? -paddingHorizontal : 0,
-        marginBottom: paddingRelative ? -paddingVertical : 0,
-        marginLeft: paddingRelative && _directionIsRTL ? -paddingHorizontal : 0,
+        [strMarginRight]: paddingRelative && !_directionIsRTL ? -paddingHorizontal : 0,
+        [strMarginBottom]: paddingRelative ? -paddingVertical : 0,
+        [strMarginLeft]: paddingRelative && _directionIsRTL ? -paddingHorizontal : 0,
         top: paddingRelative ? -padding.t : 0,
         right: paddingRelative ? (_directionIsRTL ? -padding.r : 'auto') : 0,
         left: paddingRelative ? (_directionIsRTL ? 'auto' : -padding.l) : 0,
-        width: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
+        [strWidth]: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
       };
       const viewportStyle: StyleObject = {
-        paddingTop: paddingRelative ? padding.t : 0,
-        paddingRight: paddingRelative ? padding.r : 0,
-        paddingBottom: paddingRelative ? padding.b : 0,
-        paddingLeft: paddingRelative ? padding.l : 0,
+        [strPaddingTop]: paddingRelative ? padding.t : 0,
+        [strPaddingRight]: paddingRelative ? padding.r : 0,
+        [strPaddingBottom]: paddingRelative ? padding.b : 0,
+        [strPaddingLeft]: paddingRelative ? padding.l : 0,
       };
 
       // if there is no padding element apply the style to the viewport element instead
       style(_padding || _viewport, paddingStyle);
       style(_viewport, viewportStyle);
 
-      setState({
+      assignDeep(state, {
         _padding: padding,
         _paddingAbsolute: !paddingRelative,
         _viewportPaddingStyle: _padding

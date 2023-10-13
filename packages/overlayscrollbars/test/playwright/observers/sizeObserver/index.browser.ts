@@ -50,7 +50,7 @@ const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const resizesSlot: HTMLButtonElement | null = document.querySelector('#resizes');
 const preInitChildren = targetElm?.children.length;
 
-const [destroySizeObserver, appendSizeObserver] = createSizeObserver(
+const constructSizeObserver = createSizeObserver(
   targetElm as HTMLElement,
   ({ _directionIsRTLCache, _sizeChanged }) => {
     if (_sizeChanged) {
@@ -69,7 +69,7 @@ const [destroySizeObserver, appendSizeObserver] = createSizeObserver(
   },
   { _direction: true, _appear: true }
 );
-appendSizeObserver();
+const destroySizeObserver = constructSizeObserver();
 
 const selectCallback = generateClassChangeSelectCallback(targetElm as HTMLElement);
 const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) => {

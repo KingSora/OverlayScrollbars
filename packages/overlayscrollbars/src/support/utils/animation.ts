@@ -1,8 +1,5 @@
-import { rAF, cAF } from '~/support/compatibility';
+import { mathMax, rAF, cAF } from './alias';
 import { isFunction } from './types';
-
-const { max } = Math;
-const animationCurrentTime = () => performance.now();
 
 /**
  * percent: current percent (0 - 1),
@@ -19,6 +16,8 @@ export type EasingFn = (
   duration: number
 ) => number;
 
+const animationCurrentTime = () => performance.now();
+
 export const animateNumber = (
   from: number,
   to: number,
@@ -28,14 +27,14 @@ export const animateNumber = (
 ): ((complete?: boolean) => void) => {
   let animationFrameId = 0;
   const timeStart = animationCurrentTime();
-  const finalDuration = max(0, duration);
+  const finalDuration = mathMax(0, duration);
   const frame = (complete?: boolean) => {
     const timeNow = animationCurrentTime();
     const timeElapsed = timeNow - timeStart;
     const stopAnimation = timeElapsed >= finalDuration;
     const percent = complete
       ? 1
-      : 1 - (max(0, timeStart + finalDuration - timeNow) / finalDuration || 0);
+      : 1 - (mathMax(0, timeStart + finalDuration - timeNow) / finalDuration || 0);
     const progress =
       (to - from) *
         (isFunction(easing)

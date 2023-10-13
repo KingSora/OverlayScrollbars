@@ -1,5 +1,10 @@
-import { off, preventDefault, stopPropagation, stopAndPrevent } from '~/support/dom/events';
-import type { OnOptions } from '~/support/dom/events';
+import {
+  removeEventListener,
+  preventDefault,
+  stopPropagation,
+  stopAndPrevent,
+} from '~/support/dom/events';
+import type { EventListenerOptions } from '~/support/dom/events';
 
 const testElm = document.body;
 const mockEventListener = (
@@ -28,13 +33,18 @@ const mockEventListener = (
 };
 
 describe('dom events', () => {
-  describe('on', () => {
-    let eventsModule: any;
-    const onOffTest = (passive: boolean, eventNames: string, options?: OnOptions) => {
+  describe('addEventListener & addEventListeners', () => {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    let eventsModule: typeof import('~/support/dom/events') | undefined;
+    const onOffTest = (
+      passiveSupported: boolean,
+      eventNames: string,
+      options?: EventListenerOptions
+    ) => {
       const once = options?._once;
-      const expectObjAdd = passive
+      const expectObjAdd = passiveSupported
         ? {
-            passive: (options && options._passive) ?? passive,
+            passive: (options && options._passive) ?? passiveSupported,
             capture: (options && options._capture) || false,
           }
         : options?._capture || false;
@@ -45,11 +55,11 @@ describe('dom events', () => {
       const eventListener = () => {};
 
       const revert = mockEventListener(
-        passive,
+        passiveSupported,
         (name: string, listener: any, ...args: any) => {
           if (once) {
             const onceRemoveMockFn = jest.fn();
-            const revertOnceMock = mockEventListener(passive, jest.fn(), onceRemoveMockFn);
+            const revertOnceMock = mockEventListener(passiveSupported, jest.fn(), onceRemoveMockFn);
 
             listener();
             expect(onceRemoveMockFn).toHaveBeenCalledWith(name, listener, expectObjRemove);
@@ -61,7 +71,14 @@ describe('dom events', () => {
         },
         mockFnRemove
       );
-      const removeFn = eventsModule.on(testElm, eventNames, eventListener, options);
+      const listenerRemoveFn = eventsModule?.addEventListener(
+        testElm,
+        eventNames,
+        eventListener,
+        options
+      );
+
+      expect(typeof listenerRemoveFn).toBe('function');
 
       eventNames.split(' ').forEach((eventName, index) => {
         expect(mockFnAdd).toHaveBeenCalledWith(
@@ -71,7 +88,36 @@ describe('dom events', () => {
         );
       });
 
-      removeFn();
+      listenerRemoveFn!();
+      eventNames.split(' ').forEach((eventName, index) => {
+        expect(mockFnRemove).toHaveBeenCalledWith(
+          eventName,
+          once ? onceListeners[index] : eventListener,
+          expectObjRemove
+        );
+      });
+
+      revert();
+
+      const listenersRemoveFn = eventsModule?.addEventListeners(
+        testElm,
+        {
+          [eventNames]: eventListener,
+        },
+        options
+      );
+
+      expect(typeof listenersRemoveFn).toBe('function');
+
+      eventNames.split(' ').forEach((eventName, index) => {
+        expect(mockFnAdd).toHaveBeenCalledWith(
+          eventName,
+          once ? onceListeners[index] : eventListener,
+          expectObjAdd
+        );
+      });
+
+      listenerRemoveFn!();
       eventNames.split(' ').forEach((eventName, index) => {
         expect(mockFnRemove).toHaveBeenCalledWith(
           eventName,
@@ -111,13 +157,13 @@ describe('dom events', () => {
     });
   });
 
-  describe('off', () => {
+  describe('removeEventListener', () => {
     const offTest = (eventNames: string, options?: boolean) => {
       const mockFnRemove = jest.fn();
       const listener = () => {};
       const revert = mockEventListener(false, jest.fn(), mockFnRemove);
 
-      off(testElm, eventNames, listener, options);
+      removeEventListener(testElm, eventNames, listener, options);
       eventNames.split(' ').forEach((eventName) => {
         expect(mockFnRemove).toHaveBeenCalledWith(eventName, listener, options);
       });

@@ -1,4 +1,5 @@
-import { getBoundingClientRect } from '~/support/dom/dimensions';
+import { getBoundingClientRect } from './dimensions';
+import { wnd } from '../utils/alias';
 
 export interface XY<T = number> {
   x: T;
@@ -14,12 +15,12 @@ const zeroObj: XY = {
  * Returns the offset- left and top coordinates of the passed element relative to the document. If the element is null the top and left values are 0.
  * @param elm The element of which the offset- top and left coordinates shall be returned.
  */
-export const absoluteCoordinates = (elm: HTMLElement | null | undefined): XY => {
-  const rect = elm ? getBoundingClientRect(elm) : 0;
+export const absoluteCoordinates = (elm: HTMLElement | null | undefined): Readonly<XY> => {
+  const rect = elm && getBoundingClientRect(elm);
   return rect
     ? {
-        x: rect.left + window.pageYOffset, //IE11 compat
-        y: rect.top + window.pageXOffset, //IE11 compat
+        x: rect.left + wnd.pageYOffset, //IE11 compat
+        y: rect.top + wnd.pageXOffset, //IE11 compat
       }
     : zeroObj;
 };
@@ -28,7 +29,7 @@ export const absoluteCoordinates = (elm: HTMLElement | null | undefined): XY => 
  * Returns the offset- left and top coordinates of the passed element. If the element is null the top and left values are 0.
  * @param elm The element of which the offset- top and left coordinates shall be returned.
  */
-export const offsetCoordinates = (elm: HTMLElement | null | undefined): XY =>
+export const offsetCoordinates = (elm: HTMLElement | null | undefined): Readonly<XY> =>
   elm
     ? {
         x: elm.offsetLeft,

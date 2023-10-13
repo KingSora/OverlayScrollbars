@@ -7,7 +7,6 @@ import {
   insertAfter,
   addClass,
   parent,
-  indexOf,
   removeElements,
   push,
   runEachAndClear,
@@ -18,7 +17,9 @@ import {
   attrClass,
   hasAttrClass,
   noop,
-  on,
+  addEventListener,
+  bind,
+  inArray,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -47,8 +48,8 @@ import type {
 
 export type StructureSetupElements = [
   elements: StructureSetupElementsObj,
-  appendElements: () => void,
-  destroy: () => void
+  appendElements: () => () => void,
+  canceled: () => void
 ];
 
 export interface StructureSetupElementsObj {
@@ -79,23 +80,14 @@ export interface StructureSetupElementsObj {
   ) => void;
 }
 
-const tabIndexStr = 'tabindex';
-const createNewDiv = createDiv.bind(0, '');
-
-const unwrap = (elm: HTMLElement | false | null | undefined) => {
-  appendChildren(parent(elm), contents(elm));
-  removeElements(elm);
-};
-
 export const createStructureSetupElements = (
   target: InitializationTarget
 ): StructureSetupElements => {
   const env = getEnvironment();
   const { _getDefaultInitialization, _nativeScrollbarsHiding } = env;
-  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<
-    typeof scrollbarsHidingPluginName,
-    typeof ScrollbarsHidingPlugin
-  >(scrollbarsHidingPluginName);
+  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
+    scrollbarsHidingPluginName
+  );
   const createUniqueViewportArrangeElement =
     scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
   const { elements: defaultInitElements } = _getDefaultInitialization();
@@ -120,17 +112,18 @@ export const createStructureSetupElements = (
   const ownerDocument = targetElement.ownerDocument;
   const docElement = ownerDocument.documentElement;
   const isBody = targetElement === ownerDocument.body;
-  const wnd = ownerDocument.defaultView as Window;
-  const staticInitializationElement = generalStaticInitializationElement.bind(0, [targetElement]);
-  const dynamicInitializationElement = generalDynamicInitializationElement.bind(0, [targetElement]);
-  const resolveInitialization = generalResolveInitialization.bind(0, [targetElement]);
-  const generateViewportElement = staticInitializationElement.bind(
-    0,
+  const docWnd = ownerDocument.defaultView as Window;
+  const staticInitializationElement = bind(generalStaticInitializationElement, [targetElement]);
+  const dynamicInitializationElement = bind(generalDynamicInitializationElement, [targetElement]);
+  const resolveInitialization = bind(generalResolveInitialization, [targetElement]);
+  const createNewDiv = bind(createDiv, '');
+  const generateViewportElement = bind(
+    staticInitializationElement,
     createNewDiv,
     defaultViewportInitialization
   );
-  const generateContentElement = dynamicInitializationElement.bind(
-    0,
+  const generateContentElement = bind(
+    dynamicInitializationElement,
     createNewDiv,
     defaultContentInitialization
   );
@@ -164,7 +157,8 @@ export const createStructureSetupElements = (
   const hostElement = viewportIsTargetBody ? viewportElement : nonBodyHostElement;
   const contentElement = viewportIsContent ? viewportIsContentContent : possibleContentElement;
   const activeElm = ownerDocument.activeElement;
-  const setViewportFocus = !viewportIsTarget && wnd.top === wnd && activeElm === targetElement;
+  const setViewportFocus =
+    !viewportIsTarget && docWnd.top === docWnd && activeElm === targetElement;
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: hostElement,
@@ -184,7 +178,7 @@ export const createStructureSetupElements = (
       createUniqueViewportArrangeElement(env),
     _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
     _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
-    _windowElm: wnd,
+    _windowElm: docWnd,
     _documentElm: ownerDocument,
     _isTextarea: isTextarea,
     _isBody: isBody,
@@ -214,7 +208,7 @@ export const createStructureSetupElements = (
     return push(arr, value && isHTMLElement(value) && !parent(value) ? value : false);
   }, [] as Array<HTMLElement | false>);
   const elementIsGenerated = (elm: HTMLElement | false) =>
-    elm ? indexOf(generatedElements, elm) > -1 : null;
+    elm ? inArray(generatedElements, elm) : null;
   const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [
     () => {
@@ -237,6 +231,7 @@ export const createStructureSetupElements = (
         )
       );
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
+  const destroy = bind(runEachAndClear, destroyFns);
   const appendElements = () => {
     attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
     attr(_padding, dataAttributePadding, '');
@@ -250,6 +245,10 @@ export const createStructureSetupElements = (
       isBody && !viewportIsTarget
         ? addClass(parent(targetElement), classNameScrollbarHidden)
         : noop;
+    const unwrap = (elm: HTMLElement | false | null | undefined) => {
+      appendChildren(parent(elm), contents(elm));
+      removeElements(elm);
+    };
 
     // only insert host for textarea after target if it was generated
     if (isTextareaHostGenerated) {
@@ -274,26 +273,21 @@ export const createStructureSetupElements = (
       removeAttr(_viewport, dataAttributeHostOverflowY);
       removeAttr(_viewport, dataAttributeViewport);
 
-      if (elementIsGenerated(_content)) {
-        unwrap(_content);
-      }
-      if (elementIsGenerated(_viewport)) {
-        unwrap(_viewport);
-      }
-      if (elementIsGenerated(_padding)) {
-        unwrap(_padding);
-      }
+      elementIsGenerated(_content) && unwrap(_content);
+      elementIsGenerated(_viewport) && unwrap(_viewport);
+      elementIsGenerated(_padding) && unwrap(_padding);
     });
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
       attrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden, true);
-      push(destroyFns, removeAttr.bind(0, _viewport, dataAttributeViewport));
+      push(destroyFns, bind(removeAttr, _viewport, dataAttributeViewport));
     }
     if (_viewportArrange) {
       insertBefore(_viewport, _viewportArrange);
-      push(destroyFns, removeElements.bind(0, _viewportArrange));
+      push(destroyFns, bind(removeElements, _viewportArrange));
     }
     if (setViewportFocus) {
+      const tabIndexStr = 'tabindex';
       const ogTabindex = attr(_viewport, tabIndexStr);
 
       attr(_viewport, tabIndexStr, '-1');
@@ -301,7 +295,7 @@ export const createStructureSetupElements = (
 
       const revertViewportTabIndex = () =>
         ogTabindex ? attr(_viewport, tabIndexStr, ogTabindex) : removeAttr(_viewport, tabIndexStr);
-      const off = on(ownerDocument, 'pointerdown keydown', () => {
+      const off = addEventListener(ownerDocument, 'pointerdown keydown', () => {
         revertViewportTabIndex();
         off();
       });
@@ -313,7 +307,9 @@ export const createStructureSetupElements = (
 
     // @ts-ignore
     targetContents = 0;
+
+    return destroy;
   };
 
-  return [evaluatedTargetObj, appendElements, runEachAndClear.bind(0, destroyFns)];
+  return [evaluatedTargetObj, appendElements, destroy];
 };

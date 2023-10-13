@@ -1,3 +1,3 @@
-export * from '~/setups/structureSetup/updateSegments/trinsicUpdateSegment';
-export * from '~/setups/structureSetup/updateSegments/paddingUpdateSegment';
-export * from '~/setups/structureSetup/updateSegments/overflowUpdateSegment';
+export * from './trinsicUpdateSegment';
+export * from './paddingUpdateSegment';
+export * from './overflowUpdateSegment';

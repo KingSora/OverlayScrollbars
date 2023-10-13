@@ -12,8 +12,8 @@ import type { PartialOptions } from '~/options';
 
 jest.useFakeTimers();
 
-jest.mock('~/support/compatibility/apis', () => {
-  const originalModule = jest.requireActual('~/support/compatibility/apis');
+jest.mock('~/support/utils/alias', () => {
+  const originalModule = jest.requireActual('~/support/utils/alias');
   const mockRAF = (arg: any) => setTimeout(arg, 0);
   return {
     ...originalModule,
@@ -612,12 +612,12 @@ describe('overlayscrollbars', () => {
 
     const dummyPlugin = {
       dummyPlugin: {
-        osStatic: (staticObj) => {
+        static: (staticObj) => {
           expect(staticObj).toBe(OverlayScrollbars);
           osStaticPlugin();
           return { dummyPluginStaticInstance: 1 as const };
         },
-        osInstance: (instanceObj, staticObj) => {
+        instance: (instanceObj, staticObj) => {
           expect(OverlayScrollbars.valid(instanceObj)).toBe(true);
           expect(staticObj).toBe(OverlayScrollbars);
           osInstancePlugin();
@@ -630,12 +630,12 @@ describe('overlayscrollbars', () => {
 
     const dummyPlugin2 = {
       dummyPlugin2: {
-        osStatic: (staticObj) => {
+        static: (staticObj) => {
           // @ts-ignore
           staticObj.staticObjPluginFn = staticObjPluginFn;
           return { dummyPlugin2StaticInstance: 2 as const };
         },
-        osInstance: (instanceObj, staticObj) => {
+        instance: (instanceObj, staticObj) => {
           // @ts-ignore
           instanceObj.instanceObjPluginFn = instanceObjPluginFn;
           // @ts-ignore
@@ -673,7 +673,7 @@ describe('overlayscrollbars', () => {
     expect(instanceObjPluginFn).not.toHaveBeenCalled();
     // @ts-ignore
     osInstance.instanceObjPluginFn();
-
+    // @ts-ignore
     expect(osInstance.plugin(emptyPlugin)).not.toBeDefined();
 
     expect(osInstance.plugin(dummyPlugin)).toBeDefined();

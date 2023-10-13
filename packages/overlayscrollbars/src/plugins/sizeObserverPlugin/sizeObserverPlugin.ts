@@ -3,15 +3,16 @@ import {
   style,
   appendChildren,
   offsetSize,
-  scrollLeft,
-  scrollTop,
-  on,
+  addEventListener,
   addClass,
   equalWH,
-  push,
   cAF,
   rAF,
   stopPropagation,
+  bind,
+  scrollElementTo,
+  strWidth,
+  strHeight,
 } from '~/support';
 import {
   classNameSizeObserverListenerScroll,
@@ -20,24 +21,22 @@ import {
 } from '~/classnames';
 import type { StaticPlugin } from '../plugins';
 
-const scrollAmount = 3333333;
-const scrollEventName = 'scroll';
 export const sizeObserverPluginName = '__osSizeObserverPlugin';
 
 export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
   [sizeObserverPluginName]: {
-    osStatic:
+    static:
       () =>
       (
         listenerElement: HTMLElement,
         onSizeChangedCallback: (appear: boolean) => any,
         observeAppearChange: boolean | null | undefined
       ): [appearCallback: () => any, offFns: (() => any)[]] => {
+        const scrollAmount = 3333333;
+        const scrollEventName = 'scroll';
         const observerElementChildren = createDOM(
           `<div class="${classNameSizeObserverListenerItem}" dir="ltr"><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}"></div></div><div class="${classNameSizeObserverListenerItem}"><div class="${classNameSizeObserverListenerItemFinal}" style="width: 200%; height: 200%"></div></div></div>`
         );
-        appendChildren(listenerElement, observerElementChildren);
-        addClass(listenerElement, classNameSizeObserverListenerScroll);
         const observerElementChildrenRoot = observerElementChildren[0] as HTMLElement;
         const shrinkElement = observerElementChildrenRoot.lastChild as HTMLElement;
         const expandElement = observerElementChildrenRoot.firstChild as HTMLElement;
@@ -49,10 +48,8 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
         let rAFId: number;
 
         const reset = () => {
-          scrollLeft(expandElement, scrollAmount);
-          scrollTop(expandElement, scrollAmount);
-          scrollLeft(shrinkElement, scrollAmount);
-          scrollTop(shrinkElement, scrollAmount);
+          scrollElementTo(expandElement, scrollAmount);
+          scrollElementTo(shrinkElement, scrollAmount);
         };
         const onResized = (appear?: unknown) => {
           rAFId = 0;
@@ -78,23 +75,23 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
 
           reset();
         };
-        const offListeners = push(
-          [],
-          [
-            on(expandElement, scrollEventName, onScroll),
-            on(shrinkElement, scrollEventName, onScroll),
-          ]
-        );
+        const destroyFns = [
+          appendChildren(listenerElement, observerElementChildren),
+          addEventListener(expandElement, scrollEventName, onScroll),
+          addEventListener(shrinkElement, scrollEventName, onScroll),
+        ];
+
+        addClass(listenerElement, classNameSizeObserverListenerScroll);
 
         // lets assume that the divs will never be that large and a constant value is enough
         style(expandElementChild, {
-          width: scrollAmount,
-          height: scrollAmount,
+          [strWidth]: scrollAmount,
+          [strHeight]: scrollAmount,
         });
 
         rAF!(reset);
 
-        return [observeAppearChange ? onScroll.bind(0, false) : reset, offListeners];
+        return [observeAppearChange ? bind(onScroll, false) : reset, destroyFns];
       },
   },
 }))() satisfies StaticPlugin<typeof sizeObserverPluginName>;

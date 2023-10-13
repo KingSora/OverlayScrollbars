@@ -18,8 +18,8 @@ import type { InitializationTarget } from '~/initialization';
 
 jest.useFakeTimers();
 
-jest.mock('~/support/compatibility/apis', () => {
-  const originalModule = jest.requireActual('~/support/compatibility/apis');
+jest.mock('~/support/utils/alias', () => {
+  const originalModule = jest.requireActual('~/support/utils/alias');
   return {
     ...originalModule,
     // @ts-ignore
@@ -37,23 +37,16 @@ const domSnapshot = (element?: HTMLElement) => {
 };
 
 const createStructureSetupElementsProxy = (target: InitializationTarget) => {
-  const [structureElements, , destroyStructureElements] = createStructureSetupElements(target);
-  const [elements, appendElements, destroy] = createScrollbarsSetupElements(
+  const [structureElements] = createStructureSetupElements(target);
+  const [elements, appendElements] = createScrollbarsSetupElements(
     target,
     structureElements,
     () => () => {}
   );
 
-  appendElements();
+  const destroy = appendElements();
 
-  return [
-    elements,
-    () => {
-      destroyStructureElements();
-      destroy();
-    },
-    structureElements,
-  ] as [
+  return [elements, destroy, structureElements] as [
     elements: ScrollbarsSetupElementsObj,
     destroy: () => void,
     structureElements: StructureSetupElementsObj

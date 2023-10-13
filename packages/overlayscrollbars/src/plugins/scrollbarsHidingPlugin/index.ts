@@ -1,1 +1,1 @@
-export * from '~/plugins/scrollbarsHidingPlugin/scrollbarsHidingPlugin';
+export * from './scrollbarsHidingPlugin';

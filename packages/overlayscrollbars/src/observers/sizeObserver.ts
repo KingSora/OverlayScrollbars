@@ -1,22 +1,21 @@
 import {
   createCache,
   createDOM,
-  scrollLeft,
-  scrollTop,
   runEachAndClear,
-  removeElements,
-  on,
+  addEventListener,
   addClass,
   push,
   ResizeObserverConstructor,
-  isArray,
-  isBoolean,
   removeClass,
-  isObject,
   stopPropagation,
   appendChildren,
-  directionIsRTL,
+  getDirectionIsRTL,
   domRectHasDimensions,
+  bind,
+  noop,
+  isArray,
+  getRTLCompatibleScrollPosition,
+  scrollElementTo,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -39,9 +38,7 @@ export interface SizeObserverCallbackParams {
   _appear?: boolean;
 }
 
-export type SizeObserver = [destroy: () => void, append: () => void];
-
-const scrollAmount = 3333333;
+export type SizeObserver = () => () => void;
 
 /**
  * Creates a size observer which observes any size, padding, border, margin and box-sizing changes of the target element. Depending on the options also direction and appear can be observed.
@@ -55,18 +52,12 @@ export const createSizeObserver = (
   onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
 ): SizeObserver => {
+  const scrollAmount = 3333333;
   const { _direction: observeDirectionChange, _appear: observeAppearChange } = options || {};
-  const sizeObserverPlugin = getStaticPluginModuleInstance<
-    typeof sizeObserverPluginName,
-    typeof SizeObserverPlugin
-  >(sizeObserverPluginName);
+  const sizeObserverPlugin =
+    getStaticPluginModuleInstance<typeof SizeObserverPlugin>(sizeObserverPluginName);
   const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
-  const baseElements = createDOM(
-    `<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`
-  );
-  const sizeObserver = baseElements[0] as HTMLElement;
-  const listenerElement = sizeObserver.firstChild as HTMLElement;
-  const getIsDirectionRTL = directionIsRTL.bind(0, target);
+  const getIsDirectionRTL = bind(getDirectionIsRTL, target);
   const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | false>({
     _initialValue: false,
     _alwaysUpdateValues: true,
@@ -77,142 +68,127 @@ export const createSizeObserver = (
         (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
       ),
   });
-  const onSizeChangedCallbackProxy = (
-    sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry[] | Event | boolean
-  ) => {
-    const isResizeObserverCall =
-      isArray(sizeChangedContext) &&
-      sizeChangedContext.length > 0 &&
-      isObject(sizeChangedContext[0]);
 
-    const hasDirectionCache =
-      !isResizeObserverCall && isBoolean((sizeChangedContext as CacheValues<boolean>)[0]);
+  return () => {
+    const destroyFns: (() => void)[] = [];
+    const baseElements = createDOM(
+      `<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`
+    );
+    const sizeObserver = baseElements[0] as HTMLElement;
+    const listenerElement = sizeObserver.firstChild as HTMLElement;
+    const onSizeChangedCallbackProxy = (
+      sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry | Event | boolean
+    ) => {
+      const isResizeObserverCall = sizeChangedContext instanceof ResizeObserverEntry;
+      const hasDirectionCache = !isResizeObserverCall && isArray(sizeChangedContext);
 
-    let skip = false;
-    let appear: boolean | number | undefined = false;
-    let doDirectionScroll = true; // always true if sizeChangedContext is Event (appear callback or RO. Polyfill)
+      let skip = false;
+      let appear = false;
+      let doDirectionScroll = true; // always true if sizeChangedContext is Event (appear callback or RO. Polyfill)
 
-    // if triggered from RO.
-    if (isResizeObserverCall) {
-      const [currRContentRect, , prevContentRect] = updateResizeObserverContentRectCache(
-        (sizeChangedContext as ResizeObserverEntry[]).pop()!.contentRect
-      );
-      const hasDimensions = domRectHasDimensions(currRContentRect);
-      const hadDimensions = domRectHasDimensions(prevContentRect);
-      const firstCall = !prevContentRect;
-      skip = (firstCall && !!hadDimensions) || !hasDimensions; // skip on initial RO. call (if the element visible) or if display is none
-      appear = !hadDimensions && hasDimensions;
+      // if triggered from RO.
+      if (isResizeObserverCall) {
+        const [currRContentRect, , prevContentRect] = updateResizeObserverContentRectCache(
+          sizeChangedContext.contentRect
+        );
+        const hasDimensions = domRectHasDimensions(currRContentRect);
+        const hadDimensions = domRectHasDimensions(prevContentRect);
+        const firstCall = !prevContentRect;
+        skip = (firstCall && !!hadDimensions) || !hasDimensions; // skip on initial RO. call (if the element visible) or if display is none
+        appear = !hadDimensions && hasDimensions;
 
-      doDirectionScroll = !skip; // direction scroll when not skipping
-    }
-    // else if its triggered with DirectionCache
-    else if (hasDirectionCache) {
-      [, doDirectionScroll] = sizeChangedContext as CacheValues<boolean>; // direction scroll when DirectionCache changed, false otherwise
-    }
-    // else if it triggered with appear from polyfill
-    else {
-      appear = sizeChangedContext === true;
-    }
+        doDirectionScroll = !skip; // direction scroll when not skipping
+      }
+      // else if its triggered with DirectionCache
+      else if (hasDirectionCache) {
+        [, doDirectionScroll] = sizeChangedContext as CacheValues<boolean>; // direction scroll when DirectionCache changed, false otherwise
+      }
+      // else if it triggered with appear from polyfill
+      else {
+        appear = sizeChangedContext === true;
+      }
 
-    if (observeDirectionChange && doDirectionScroll) {
-      const rtl = hasDirectionCache
-        ? (sizeChangedContext as CacheValues<boolean>)[0]
-        : directionIsRTL(sizeObserver);
-      scrollLeft(
-        sizeObserver,
-        rtl
-          ? rtlScrollBehavior.n
-            ? -scrollAmount
-            : rtlScrollBehavior.i
-            ? 0
-            : scrollAmount
-          : scrollAmount
-      );
-      scrollTop(sizeObserver, scrollAmount);
-    }
-
-    if (!skip) {
-      onSizeChangedCallback({
-        _sizeChanged: !hasDirectionCache,
-        _directionIsRTLCache: hasDirectionCache
-          ? (sizeChangedContext as CacheValues<boolean>)
-          : undefined,
-        _appear: !!appear,
-      });
-    }
-  };
-  const offListeners: (() => void)[] = [];
-
-  return [
-    () => {
-      runEachAndClear(offListeners);
-      removeElements(sizeObserver);
-    },
-    () => {
-      let appearCallback: ((...args: any) => any) | undefined | false =
-        observeAppearChange && onSizeChangedCallbackProxy;
-
-      if (ResizeObserverConstructor) {
-        const resizeObserverInstance = new ResizeObserverConstructor(onSizeChangedCallbackProxy);
-        resizeObserverInstance.observe(listenerElement);
-        push(offListeners, () => {
-          resizeObserverInstance.disconnect();
+      if (observeDirectionChange && doDirectionScroll) {
+        const rtl = hasDirectionCache ? sizeChangedContext[0] : getDirectionIsRTL(sizeObserver);
+        scrollElementTo(sizeObserver, {
+          x: getRTLCompatibleScrollPosition(scrollAmount, scrollAmount, rtl && rtlScrollBehavior),
+          y: scrollAmount,
         });
-      } else if (sizeObserverPlugin) {
-        const [pluginAppearCallback, pluginOffListeners] = sizeObserverPlugin(
-          listenerElement,
-          onSizeChangedCallbackProxy,
-          observeAppearChange
-        );
-        appearCallback = pluginAppearCallback;
-        push(offListeners, pluginOffListeners);
       }
 
-      if (observeDirectionChange) {
-        const [updateDirectionIsRTLCache] = createCache(
-          {
-            _initialValue: undefined,
-          },
-          getIsDirectionRTL
-        );
-
-        push(
-          offListeners,
-          on(sizeObserver, 'scroll', (event: Event) => {
-            const directionIsRTLCacheValues = updateDirectionIsRTLCache();
-            const [directionIsRTLCache, directionIsRTLCacheChanged, directionIsRTLCachePrevious] =
-              directionIsRTLCacheValues;
-            if (directionIsRTLCacheChanged) {
-              removeClass(listenerElement, 'ltr rtl');
-              addClass(listenerElement, directionIsRTLCache ? 'rtl' : 'ltr');
-
-              onSizeChangedCallbackProxy([
-                !!directionIsRTLCache,
-                directionIsRTLCacheChanged,
-                directionIsRTLCachePrevious,
-              ]);
-            }
-
-            stopPropagation(event);
-          })
-        );
+      if (!skip) {
+        onSizeChangedCallback({
+          _sizeChanged: !hasDirectionCache,
+          _directionIsRTLCache: hasDirectionCache ? sizeChangedContext : undefined,
+          _appear: appear,
+        });
       }
+    };
+    let appearCallback: typeof onSizeChangedCallbackProxy | undefined | false =
+      observeAppearChange && onSizeChangedCallbackProxy;
 
-      // appearCallback is always needed on scroll-observer strategy to reset it
-      if (appearCallback) {
-        addClass(sizeObserver, classNameSizeObserverAppear);
-        push(
-          offListeners,
-          on(sizeObserver, 'animationstart', appearCallback, {
-            // Fire only once for "CSS is ready" event if ResizeObserver strategy is used
-            _once: !!ResizeObserverConstructor,
-          })
-        );
-      }
+    if (ResizeObserverConstructor) {
+      const resizeObserverInstance = new ResizeObserverConstructor((entries) =>
+        onSizeChangedCallbackProxy(entries.pop())
+      );
+      resizeObserverInstance.observe(listenerElement);
+      push(destroyFns, () => {
+        resizeObserverInstance.disconnect();
+      });
+    } else if (sizeObserverPlugin) {
+      const [pluginAppearCallback, pluginOffListeners] = sizeObserverPlugin(
+        listenerElement,
+        onSizeChangedCallbackProxy,
+        observeAppearChange
+      );
+      appearCallback = pluginAppearCallback;
+      push(destroyFns, pluginOffListeners);
+    } else {
+      return noop;
+    }
 
-      if (ResizeObserverConstructor || sizeObserverPlugin) {
-        appendChildren(target, sizeObserver);
-      }
-    },
-  ];
+    if (observeDirectionChange) {
+      const [updateDirectionIsRTLCache] = createCache(
+        {
+          _initialValue: undefined,
+        },
+        getIsDirectionRTL
+      );
+
+      push(
+        destroyFns,
+        addEventListener(sizeObserver, 'scroll', (event) => {
+          const directionIsRTLCacheValues = updateDirectionIsRTLCache();
+          const [directionIsRTLCache, directionIsRTLCacheChanged, directionIsRTLCachePrevious] =
+            directionIsRTLCacheValues;
+          if (directionIsRTLCacheChanged) {
+            removeClass(listenerElement, 'ltr rtl');
+            addClass(listenerElement, directionIsRTLCache ? 'rtl' : 'ltr');
+
+            onSizeChangedCallbackProxy([
+              !!directionIsRTLCache,
+              directionIsRTLCacheChanged,
+              directionIsRTLCachePrevious,
+            ]);
+          }
+
+          stopPropagation(event);
+        })
+      );
+    }
+
+    // appearCallback is always needed on scroll-observer strategy to reset it
+    if (appearCallback) {
+      addClass(sizeObserver, classNameSizeObserverAppear);
+      push(
+        destroyFns,
+        addEventListener(sizeObserver, 'animationstart', appearCallback, {
+          // Fire only once for "CSS is ready" event if ResizeObserver strategy is used
+          _once: !!ResizeObserverConstructor,
+        })
+      );
+    }
+
+    return bind(runEachAndClear, push(destroyFns, appendChildren(target, sizeObserver)));
+  };
 };

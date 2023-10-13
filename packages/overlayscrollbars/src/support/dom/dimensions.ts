@@ -1,11 +1,13 @@
-import { style } from '~/support/dom/style';
+import { style } from './style';
+import { mathRound, wnd } from '../utils/alias';
+import { bind } from '../utils/function';
+import { strHeight, strWidth } from '../utils/strings';
 
 export interface WH<T = number> {
   w: T;
   h: T;
 }
 
-const { round } = Math;
 const elementHasDimensions = (elm: HTMLElement): boolean =>
   !!(elm.offsetWidth || elm.offsetHeight || elm.getClientRects().length);
 const zeroObj: WH = {
@@ -13,60 +15,57 @@ const zeroObj: WH = {
   h: 0,
 };
 
+const getElmWidthHeightProperty = <E extends HTMLElement | Window>(
+  property: E extends HTMLElement ? 'client' | 'offset' | 'scroll' : 'inner',
+  elm: E | false | null | undefined
+): Readonly<WH> =>
+  elm
+    ? {
+        w: (elm as any)[`${property}Width`],
+        h: (elm as any)[`${property}Height`],
+      }
+    : zeroObj;
+
 /**
  * Returns the window inner- width and height.
  */
-export const windowSize = (): WH => ({
-  w: window.innerWidth,
-  h: window.innerHeight,
-});
+export const windowSize = (customWnd?: Window): Readonly<WH> =>
+  getElmWidthHeightProperty('inner', customWnd || wnd);
 
 /**
  * Returns the scroll- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the scroll- width and height shall be returned.
  */
-export const offsetSize = (elm: HTMLElement | null | undefined): WH =>
-  elm
-    ? {
-        w: elm.offsetWidth,
-        h: elm.offsetHeight,
-      }
-    : zeroObj;
+export const offsetSize = bind(getElmWidthHeightProperty<HTMLElement>, 'offset') satisfies (
+  elm: HTMLElement | false | null | undefined
+) => Readonly<WH>;
 
 /**
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const clientSize = (elm: HTMLElement | false | null | undefined): WH =>
-  elm
-    ? {
-        w: elm.clientWidth,
-        h: elm.clientHeight,
-      }
-    : zeroObj;
+export const clientSize = bind(getElmWidthHeightProperty<HTMLElement>, 'client') satisfies (
+  elm: HTMLElement | false | null | undefined
+) => Readonly<WH>;
 
 /**
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const scrollSize = (elm: HTMLElement | false | null | undefined): WH =>
-  elm
-    ? {
-        w: elm.scrollWidth,
-        h: elm.scrollHeight,
-      }
-    : zeroObj;
+export const scrollSize = bind(getElmWidthHeightProperty<HTMLElement>, 'scroll') satisfies (
+  elm: HTMLElement | false | null | undefined
+) => Readonly<WH>;
 
 /**
  * Returns the fractional- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the fractional- width and height shall be returned.
  */
-export const fractionalSize = (elm: HTMLElement | false | null | undefined): WH => {
-  const cssHeight = parseFloat(style(elm, 'height')) || 0;
-  const cssWidth = parseFloat(style(elm, 'width')) || 0;
+export const fractionalSize = (elm: HTMLElement | false | null | undefined): Readonly<WH> => {
+  const cssWidth = parseFloat(style(elm, strWidth)) || 0;
+  const cssHeight = parseFloat(style(elm, strHeight)) || 0;
   return {
-    w: cssWidth - round(cssWidth),
-    h: cssHeight - round(cssHeight),
+    w: cssWidth - mathRound(cssWidth),
+    h: cssHeight - mathRound(cssHeight),
   };
 };
 
@@ -81,10 +80,10 @@ export const getBoundingClientRect = (elm: HTMLElement): DOMRect => elm.getBound
  * @param elm The element.
  */
 export const hasDimensions = (elm: HTMLElement | false | null | undefined): boolean =>
-  !!elm && elementHasDimensions(elm as HTMLElement);
+  !!elm && elementHasDimensions(elm);
 
 /**
  * Determines whether the passed DOM Rect has any dimensions.
  */
 export const domRectHasDimensions = (rect?: DOMRectReadOnly | false | null) =>
-  !!(rect && (rect.height || rect.width));
+  !!(rect && (rect[strHeight] || rect[strWidth]));

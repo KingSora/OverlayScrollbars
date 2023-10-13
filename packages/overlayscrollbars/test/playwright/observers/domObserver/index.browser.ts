@@ -19,7 +19,7 @@ import {
   addClass,
   removeClass,
   diffClass,
-  on,
+  addEventListener,
 } from '~/support';
 import { createDOMObserver } from '~/observers';
 
@@ -95,7 +95,7 @@ const contentChange: Array<[string?, string?]> = [['img', 'load']];
 const domTargetObserverObservations: DOMTargetObserverResult[] = [];
 const domContentObserverObservations: DOMContentObserverResult[] = [];
 
-const targetDomObserver = createDOMObserver(
+const [constructTargetDomObserver, updateTargetDomObserver] = createDOMObserver(
   document.querySelector('#target')!,
   false,
   (changedTargetAttrs: string[], styleChanged: boolean) => {
@@ -142,6 +142,7 @@ const targetDomObserver = createDOMObserver(
     },
   }
 );
+const destroyTargetDomObserver = constructTargetDomObserver();
 
 const createContentDomOserver = (
   eventContentChange: Array<[string?, string?] | null | undefined>
@@ -189,7 +190,19 @@ const createContentDomOserver = (
     }
   );
 
-let contentDomObserver = createContentDomOserver(contentChange);
+let destroyContentDomObserver: (() => void) | undefined;
+let updateContentDomObserver: (() => void) | undefined;
+
+const createNewContentDomOserver = (
+  eventContentChange: Array<[string?, string?] | null | undefined>
+) => {
+  destroyContentDomObserver && destroyContentDomObserver();
+  const [construct, update] = createContentDomOserver(eventContentChange);
+  destroyContentDomObserver = construct();
+  updateContentDomObserver = update;
+};
+
+createNewContentDomOserver(contentChange);
 
 const getTotalObservations = () =>
   domTargetObserverObservations.length + domContentObserverObservations.length;
@@ -493,9 +506,7 @@ const addRemoveImgElmsFn = async (changeless = false) => {
   const addChanged = async (
     newEventContentChange: Array<[string?, string?] | null | undefined>
   ) => {
-    const [destroyA] = contentDomObserver;
-    destroyA();
-    contentDomObserver = createContentDomOserver(newEventContentChange);
+    createNewContentDomOserver(newEventContentChange);
 
     const img = new Image(1, 1);
     img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
@@ -514,9 +525,7 @@ const addRemoveImgElmsFn = async (changeless = false) => {
       compare(1);
     });
 
-    const [destroyB] = contentDomObserver;
-    destroyB();
-    contentDomObserver = createContentDomOserver(contentChange);
+    createNewContentDomOserver(contentChange);
   };
 
   if (!changeless) {
@@ -551,7 +560,7 @@ const addRemoveTransitionElmsFn = async () => {
     addClass(elm, 'active');
 
     await new Promise((resolve) => {
-      on(
+      addEventListener(
         elm,
         'transitionend',
         async () => {
@@ -596,9 +605,9 @@ const addRemoveTransitionElmsFn = async () => {
     });
 
     await startTransition(elm, expectTransitionEndContentChange && true);
-    const [destroy] = contentDomObserver;
-    destroy();
-    contentDomObserver = createContentDomOserver(contentChange);
+
+    createNewContentDomOserver(contentChange);
+
     await startTransition(elm, expectTransitionEndContentChange && false);
 
     removeElements(elm);
@@ -608,11 +617,7 @@ const addRemoveTransitionElmsFn = async () => {
 
   await add(false);
 
-  const [destroy] = contentDomObserver;
-  destroy();
-  contentDomObserver = createContentDomOserver(
-    contentChange.concat([['.transition', 'transitionend']])
-  );
+  createNewContentDomOserver(contentChange.concat([['.transition', 'transitionend']]));
 
   await add(true);
 };
@@ -740,17 +745,14 @@ const start = async () => {
 
   await addRemoveImgElmsFn();
 
-  const [destroyTarget, updateTarget] = targetDomObserver;
-  updateTarget();
-  destroyTarget();
-  destroyTarget();
-  updateTarget();
+  updateTargetDomObserver();
+  destroyTargetDomObserver();
+  destroyTargetDomObserver();
+  updateTargetDomObserver();
 
-  const [destroyContent, updateContent] = contentDomObserver;
-  updateContent();
-  destroyContent();
-  destroyContent();
-  updateContent();
+  updateContentDomObserver && updateContentDomObserver();
+  destroyContentDomObserver && destroyContentDomObserver();
+  updateContentDomObserver && updateContentDomObserver();
 
   await addRemoveImgElmsFn(true); // won't trigger changes after destroy
 

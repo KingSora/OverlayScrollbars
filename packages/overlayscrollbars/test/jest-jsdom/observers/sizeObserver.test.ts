@@ -37,16 +37,16 @@ describe('createSizeObserver', () => {
 
     test('size observer', () => {
       const callback = jest.fn();
-      const [destroy, append] = createSizeObserver(document.body, callback);
+      const construct = createSizeObserver(document.body, callback);
 
-      expect(destroy).toEqual(expect.any(Function));
-      expect(append).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
 
       expect(document.body.innerHTML).toBe('');
 
       expect(mockResizeObserver).not.toHaveBeenCalled();
 
-      append();
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
 
       expect(mockResizeObserver).toHaveBeenCalledTimes(1);
 
@@ -60,14 +60,16 @@ describe('createSizeObserver', () => {
 
   describe('with sizeObserverPlugin', () => {
     const mockSizeObserverPluginFn = jest.fn((...args) =>
-      // @ts-ignore
-      SizeObserverPlugin[sizeObserverPluginName].osStatic()(...args)
+      SizeObserverPlugin[sizeObserverPluginName].static()(
+        // @ts-ignore
+        ...args
+      )
     );
-    const mockSizeObserverPlugin: typeof SizeObserverPlugin = {
+    const mockSizeObserverPlugin = {
       [sizeObserverPluginName]: {
-        osStatic: () => mockSizeObserverPluginFn,
+        static: () => mockSizeObserverPluginFn,
       },
-    };
+    } satisfies typeof SizeObserverPlugin;
 
     beforeEach(() => {
       mockResizeObserverConstructor(false);
@@ -83,16 +85,16 @@ describe('createSizeObserver', () => {
       registerPluginModuleInstances(mockSizeObserverPlugin, OverlayScrollbars);
 
       const callback = jest.fn();
-      const [destroy, append] = createSizeObserver(document.body, callback);
+      const construct = createSizeObserver(document.body, callback);
 
-      expect(destroy).toEqual(expect.any(Function));
-      expect(append).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
 
       expect(document.body.innerHTML).toBe('');
 
       expect(mockSizeObserverPluginFn).not.toHaveBeenCalled();
 
-      append();
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
 
       expect(mockSizeObserverPluginFn).toHaveBeenCalledTimes(1);
 
@@ -107,14 +109,14 @@ describe('createSizeObserver', () => {
   describe('with neither', () => {
     test('size observer', () => {
       const callback = jest.fn();
-      const [destroy, append] = createSizeObserver(document.body, callback);
+      const construct = createSizeObserver(document.body, callback);
 
-      expect(destroy).toEqual(expect.any(Function));
-      expect(append).toEqual(expect.any(Function));
+      expect(construct).toEqual(expect.any(Function));
 
       expect(document.body.innerHTML).toBe('');
 
-      append();
+      const destroy = construct();
+      expect(destroy).toEqual(expect.any(Function));
 
       expect(document.body.innerHTML).toBe('');
 

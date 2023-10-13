@@ -1,5 +1,5 @@
-import { isArray, isFunction, isPlainObject, isNull } from '~/support/utils/types';
-import { each } from '~/support/utils/array';
+import { isArray, isFunction, isPlainObject, isNull } from './types';
+import { each } from './array';
 
 /**
  * Determines whether the passed object has a property with the passed name.
@@ -56,7 +56,7 @@ export const assignDeep: AssignDeep = <T, U, V, W, X, Y, Z>(
 
   each(sources, (source) => {
     // Extend the base object
-    each(keys(source), (key: keyof T) => {
+    each(source, (_, key) => {
       const copy: any = source[key];
 
       // Prevent Object.prototype pollution
@@ -69,7 +69,7 @@ export const assignDeep: AssignDeep = <T, U, V, W, X, Y, Z>(
 
       // Recurse if we're merging plain objects or arrays
       if (copy && isPlainObject(copy)) {
-        const src = target[key];
+        const src = target[key as keyof T];
         let clone: any = src;
 
         // Ensure proper type for the source value
@@ -80,9 +80,9 @@ export const assignDeep: AssignDeep = <T, U, V, W, X, Y, Z>(
         }
 
         // Never move original objects, clone them
-        target[key] = assignDeep(clone, copy) as any;
+        target[key as keyof T] = assignDeep(clone, copy) as any;
       } else {
-        target[key] = copyIsArray ? copy.slice() : copy;
+        target[key as keyof T] = copyIsArray ? copy.slice() : copy;
       }
     });
   });

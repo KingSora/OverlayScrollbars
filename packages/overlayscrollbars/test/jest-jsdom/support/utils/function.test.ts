@@ -1,10 +1,10 @@
-import { noop, debounce, selfClearTimeout } from '~/support/utils/function';
-import { rAF, cAF, setT, clearT } from '~/support/compatibility/apis';
+import { bind, debounce, selfClearTimeout } from '~/support/utils/function';
+import { rAF, cAF, setT, clearT } from '~/support/utils/alias';
 
 jest.useFakeTimers();
 
-jest.mock('~/support/compatibility/apis', () => {
-  const originalModule = jest.requireActual('~/support/compatibility/apis');
+jest.mock('~/support/utils/alias', () => {
+  const originalModule = jest.requireActual('~/support/utils/alias');
   const mockRAF = (arg: any) => setTimeout(arg, 0);
   return {
     ...originalModule,
@@ -20,11 +20,6 @@ jest.mock('~/support/compatibility/apis', () => {
 });
 
 describe('function', () => {
-  test('noop', () => {
-    expect(typeof noop).toBe('function');
-    expect(noop()).toBe(undefined);
-  });
-
   describe('debounce', () => {
     describe('timeout', () => {
       test('without timeout', () => {
@@ -319,6 +314,15 @@ describe('function', () => {
         expect(i).toBe(3 * 3);
       });
     });
+  });
+
+  test('bind', () => {
+    const myFn = (a: number, b: number) => a + b;
+    const boundFn = bind(myFn, 1);
+    expect(typeof boundFn).toBe('function');
+    expect(boundFn(1)).toBe(2);
+    expect(boundFn(2)).toBe(3);
+    expect(bind(myFn, 10, 1)()).toBe(11);
   });
 
   describe('selfClearTimeout', () => {

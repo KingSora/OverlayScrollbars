@@ -1,22 +1,36 @@
+import { getEnvironment } from '~/environment';
 import {
-  createEventListenerHub,
-  directionIsRTL,
-  isEmptyObject,
-  keys,
-  scrollLeft,
-  scrollTop,
+  assignDeep,
+  each,
+  getElmentScroll,
+  scrollElementTo,
+  strHidden,
+  strMarginBottom,
+  strMarginLeft,
+  strMarginRight,
+  strPaddingBottom,
+  strPaddingLeft,
+  strPaddingRight,
+  strPaddingTop,
+  type TRBL,
+  type XY,
 } from '~/support';
-import { createState, createOptionCheck } from '~/setups/setups';
-import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
-import { createStructureSetupUpdate } from '~/setups/structureSetup/structureSetup.update';
-import { createStructureSetupObservers } from '~/setups/structureSetup/structureSetup.observers';
-import type { StructureSetupUpdateHints } from '~/setups/structureSetup/structureSetup.update';
-import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
-import type { TRBL, XY, EventListener } from '~/support';
-import type { PartialOptions, ReadonlyOptions } from '~/options';
-import type { Setup } from '~/setups';
+import { dataValueHostUpdating } from '~/classnames';
+import type { StructureSetupElementsObj } from './structureSetup.elements';
+import type {
+  ObserversSetupState,
+  ObserversSetupUpdateHints,
+  Setup,
+  SetupUpdateInfo,
+} from '~/setups';
 import type { InitializationTarget } from '~/initialization';
 import type { StyleObject, OverflowStyle } from '~/typings';
+import { createStructureSetupElements } from './structureSetup.elements';
+import {
+  createOverflowUpdateSegment,
+  createPaddingUpdateSegment,
+  createTrinsicUpdateSegment,
+} from './updateSegments';
 
 export interface StructureSetupState {
   _padding: TRBL;
@@ -26,115 +40,101 @@ export interface StructureSetupState {
   _overflowAmount: XY<number>;
   _overflowStyle: XY<OverflowStyle>;
   _hasOverflow: XY<boolean>;
-  _heightIntrinsic: boolean;
-  _directionIsRTL: boolean;
 }
 
-export interface StructureSetupStaticState {
-  _elements: StructureSetupElementsObj;
-  _appendElements: () => void;
-  _addOnUpdatedListener: (listener: EventListener<StructureSetupEventMap, 'u'>) => void;
+export interface StructureSetupUpdateInfo extends SetupUpdateInfo {
+  _observersState: ObserversSetupState;
+  _observersUpdateHints?: ObserversSetupUpdateHints;
 }
 
-type StructureSetupEventMap = {
-  u: [updateHints: StructureSetupUpdateHints, changedOptions: PartialOptions, force: boolean];
+export type StructureSetupUpdateHints = {
+  _overflowEdgeChanged?: boolean;
+  _overflowAmountChanged?: boolean;
+  _overflowStyleChanged?: boolean;
+  _paddingStyleChanged?: boolean;
 };
 
-const initialXYNumber = { x: 0, y: 0 };
-const createInitialStructureSetupUpdateState = (
-  elements: StructureSetupElementsObj
-): StructureSetupState => ({
-  _padding: {
-    t: 0,
-    r: 0,
-    b: 0,
-    l: 0,
-  },
-  _paddingAbsolute: false,
-  _viewportPaddingStyle: {
-    marginRight: 0,
-    marginBottom: 0,
-    marginLeft: 0,
-    paddingTop: 0,
-    paddingRight: 0,
-    paddingBottom: 0,
-    paddingLeft: 0,
-  },
-  _overflowEdge: initialXYNumber,
-  _overflowAmount: initialXYNumber,
-  _overflowStyle: {
-    x: 'hidden',
-    y: 'hidden',
-  },
-  _hasOverflow: {
-    x: false,
-    y: false,
-  },
-  _heightIntrinsic: false,
-  _directionIsRTL: directionIsRTL(elements._host),
-});
+export type StructureSetup = [
+  ...Setup<StructureSetupUpdateInfo, StructureSetupState, StructureSetupUpdateHints>,
+  /** The elements created by the structure setup. */
+  StructureSetupElementsObj,
+  /** Function to be called when the initialization was canceled. */
+  () => void
+];
 
-export const createStructureSetup = (
-  target: InitializationTarget,
-  options: ReadonlyOptions
-): Setup<StructureSetupState, StructureSetupStaticState, [], boolean> => {
-  const checkOptionsFallback = createOptionCheck(options, {});
-  const [addEvent, removeEvent, triggerEvent] = createEventListenerHub<StructureSetupEventMap>();
-  const [elements, appendStructureElements, destroyElements] = createStructureSetupElements(target);
-  const state = createState(createInitialStructureSetupUpdateState(elements));
-  const [getState, setState] = state;
-  const updateStructure = createStructureSetupUpdate(elements, state);
-  const triggerUpdateEvent: (...args: StructureSetupEventMap['u']) => boolean = (
-    updateHints,
-    changedOptions,
-    force
-  ) => {
-    const truthyUpdateHints = keys(updateHints).some(
-      (key) => !!updateHints[key as keyof StructureSetupUpdateHints]
-    );
-    const changed = truthyUpdateHints || !isEmptyObject(changedOptions) || force;
-    if (changed) {
-      triggerEvent('u', [updateHints, changedOptions, force]);
-    }
-    return changed;
+export type StructureUpdateSegment = (
+  updateInfo: StructureSetupUpdateInfo,
+  updateHints: Readonly<StructureSetupUpdateHints>
+) => StructureSetupUpdateHints | void;
+
+export type CreateStructureUpdateSegment = (
+  structureSetupElements: StructureSetupElementsObj,
+  state: StructureSetupState
+) => StructureUpdateSegment;
+
+export const createStructureSetup = (target: InitializationTarget): StructureSetup => {
+  const [elements, appendStructureElements, canceled] = createStructureSetupElements(target);
+  const state: StructureSetupState = {
+    _padding: {
+      t: 0,
+      r: 0,
+      b: 0,
+      l: 0,
+    },
+    _paddingAbsolute: false,
+    _viewportPaddingStyle: {
+      [strMarginRight]: 0,
+      [strMarginBottom]: 0,
+      [strMarginLeft]: 0,
+      [strPaddingTop]: 0,
+      [strPaddingRight]: 0,
+      [strPaddingBottom]: 0,
+      [strPaddingLeft]: 0,
+    },
+    _overflowEdge: { x: 0, y: 0 },
+    _overflowAmount: { x: 0, y: 0 },
+    _overflowStyle: {
+      x: strHidden,
+      y: strHidden,
+    },
+    _hasOverflow: {
+      x: false,
+      y: false,
+    },
   };
-  const [destroyObservers, appendObserverElements, updateObservers, updateObserversOptions] =
-    createStructureSetupObservers(elements, setState, (updateHints) =>
-      triggerUpdateEvent(updateStructure(checkOptionsFallback, updateHints), {}, false)
-    );
+  const { _target, _viewport, _viewportAddRemoveClass, _viewportIsTarget } = elements;
+  const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _flexboxGlue } = getEnvironment();
+  const doViewportArrange =
+    !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
 
-  const structureSetupState = getState.bind(0) as (() => StructureSetupState) &
-    StructureSetupStaticState;
-  structureSetupState._addOnUpdatedListener = (listener) => addEvent('u', listener);
-  structureSetupState._appendElements = () => {
-    const { _target, _viewport, _documentElm, _isBody } = elements;
-    const scrollingElement = _isBody ? _documentElm.documentElement : _target;
-    const initialScrollLeft = scrollLeft(scrollingElement);
-    const initialScrollTop = scrollTop(scrollingElement);
-
-    appendObserverElements();
-    appendStructureElements();
-
-    scrollLeft(_viewport, initialScrollLeft);
-    scrollTop(_viewport, initialScrollTop);
-  };
-  structureSetupState._elements = elements;
+  const updateSegments: StructureUpdateSegment[] = [
+    createTrinsicUpdateSegment(elements, state),
+    createPaddingUpdateSegment(elements, state),
+    createOverflowUpdateSegment(elements, state),
+  ];
 
   return [
-    (changedOptions, force?) => {
-      const checkOption = createOptionCheck(options, changedOptions, force);
-      updateObserversOptions(checkOption);
-      return triggerUpdateEvent(
-        updateStructure(checkOption, updateObservers(), force),
-        changedOptions,
-        !!force
-      );
+    appendStructureElements,
+    (updateInfo) => {
+      const updateHints: StructureSetupUpdateHints = {};
+      const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
+      const scrollOffset = adjustScrollOffset && getElmentScroll(_viewport);
+
+      _viewportAddRemoveClass('', dataValueHostUpdating, true);
+
+      each(updateSegments, (updateSegment) => {
+        assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
+      });
+
+      _viewportAddRemoveClass('', dataValueHostUpdating);
+
+      scrollElementTo(_viewport, scrollOffset);
+      !_viewportIsTarget && scrollElementTo(_target, 0);
+
+      return updateHints;
     },
-    structureSetupState,
-    () => {
-      removeEvent();
-      destroyObservers();
-      destroyElements();
-    },
+    state,
+    elements,
+    canceled,
   ];
 };

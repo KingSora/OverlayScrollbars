@@ -1,5 +1,5 @@
-import { isArrayLike, isString } from '~/support/utils/types';
 import type { PlainObject } from '~/typings';
+import { isArrayLike, isString } from './types';
 
 type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
 
@@ -26,18 +26,18 @@ export function each<T>(
   arrayLikeObject: ArrayLike<T> | false | null | undefined,
   callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown
 ): ArrayLike<T> | false | null | undefined;
+export function each<T extends PlainObject>(
+  obj: T,
+  callback: (value: any, indexOrKey: string, source: T) => boolean | unknown
+): T;
+export function each<T extends PlainObject>(
+  obj: T | false | null | undefined,
+  callback: (value: any, indexOrKey: string, source: T) => boolean | unknown
+): T | false | null | undefined;
 export function each(
-  obj: PlainObject,
-  callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown
-): PlainObject;
-export function each(
-  obj: PlainObject | false | null | undefined,
-  callback: (value: any, indexOrKey: string, source: PlainObject) => boolean | unknown
-): PlainObject | false | null | undefined;
-export function each<T>(
-  source: Array<T> | ArrayLike<T> | ReadonlyArray<T> | PlainObject | false | null | undefined,
-  callback: (value: T, indexOrKey: any, source: any) => boolean | unknown
-): Array<T> | ArrayLike<T> | ReadonlyArray<T> | PlainObject | false | null | undefined {
+  source: Array<any> | ArrayLike<any> | ReadonlyArray<any> | PlainObject | false | null | undefined,
+  callback: (value: any, indexOrKey: any, source: any) => boolean | unknown
+): Array<any> | ArrayLike<any> | ReadonlyArray<any> | PlainObject | false | null | undefined {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
       if (callback(source[i], i, source) === false) {
@@ -52,13 +52,12 @@ export function each<T>(
 }
 
 /**
- * Returns the index of the given inside the given array or -1 if the given item isn't part of the given array.
+ * Returns true when the passed item is in the passed array and false otherwise.
  * @param arr The array.
  * @param item The item.
- * @param fromIndex The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.
+ * @returns Whether the item is in the array.
  */
-export const indexOf = <T = any>(arr: T[], item: T, fromIndex?: number): number =>
-  arr.indexOf(item, fromIndex);
+export const inArray = <T = any>(arr: T[], item: T): boolean => arr.indexOf(item) >= 0;
 
 /**
  * Pushesh all given items into the given array and returns it.
@@ -101,8 +100,14 @@ export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => {
  * Check whether the passed array is empty.
  * @param array The array which shall be checked.
  */
-export const isEmptyArray = (array: any[] | null | undefined): boolean =>
-  !!array && array.length === 0;
+export const isEmptyArray = (array: any[] | null | undefined): boolean => !!array && !array.length;
+
+/**
+ * Deduplicates all items of the array.
+ * @param array The array to be deduplicated.
+ * @returns The deduplicated array.
+ */
+export const deduplicateArray = <T extends any[]>(array: T): T => from(new Set(array)) as T;
 
 /**
  * Calls all functions in the passed array/set of functions.
