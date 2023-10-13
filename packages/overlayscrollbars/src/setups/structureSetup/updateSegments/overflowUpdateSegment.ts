@@ -401,9 +401,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       const [sizeFraction, sizeFractionChanged] = (sizeFractionCache = updateSizeFraction(_force));
       const [viewportScrollSize, viewportScrollSizeChanged] = (viewportScrollSizeCache =
         updateViewportScrollSizeCache(_force));
-      const viewportclientSize = clientSize(_viewport);
+      const viewportClientSize = clientSize(_viewport);
       let arrangedViewportScrollSize = viewportScrollSize;
-      let arrangedViewportClientSize = viewportclientSize;
+      let arrangedViewportClientSize = viewportClientSize;
 
       redoViewportArrange();
 
@@ -433,13 +433,13 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         w: max0(
           (viewportIsTargetBody
             ? windowInnerSize.w
-            : arrangedViewportClientSize.w + max0(viewportclientSize.w - viewportScrollSize.w)) +
+            : arrangedViewportClientSize.w + max0(viewportClientSize.w - viewportScrollSize.w)) +
             sizeFraction.w
         ),
         h: max0(
           (viewportIsTargetBody
             ? windowInnerSize.h
-            : arrangedViewportClientSize.h + max0(viewportclientSize.h - viewportScrollSize.h)) +
+            : arrangedViewportClientSize.h + max0(viewportClientSize.h - viewportScrollSize.h)) +
             sizeFraction.h
         ),
       };

@@ -529,25 +529,82 @@ describe('overlayscrollbars', () => {
       expect(osInstance.update()).toBe(true);
     });
 
-    test('environment resize listener', () => {
-      const updated = jest.fn();
-      OverlayScrollbars(
-        div,
-        {},
-        {
-          updated,
-        }
-      );
+    describe('environment resize listener', () => {
+      test('without overflow', () => {
+        const updated = jest.fn();
+        OverlayScrollbars(
+          div,
+          {},
+          {
+            updated,
+          }
+        );
 
-      expect(updated).toHaveBeenCalledTimes(1);
+        expect(updated).toHaveBeenCalledTimes(1);
 
-      window.dispatchEvent(new Event('resize'));
+        window.dispatchEvent(new Event('resize'));
 
-      expect(updated).toHaveBeenCalledTimes(1);
+        expect(updated).toHaveBeenCalledTimes(1);
 
-      jest.runAllTimers();
+        jest.runAllTimers();
 
-      expect(updated).toHaveBeenCalledTimes(2);
+        expect(updated).toHaveBeenCalledTimes(1);
+      });
+
+      test('with overflow', () => {
+        const updated = jest.fn();
+        const instance = OverlayScrollbars(div, {});
+
+        Object.defineProperty(HTMLElement.prototype, 'scrollHeight', {
+          configurable: true,
+          get: function () {
+            return this._scrollHeight || 0;
+          },
+          set(val) {
+            this._scrollHeight = val;
+          },
+        });
+
+        Object.defineProperty(HTMLElement.prototype, 'scrollWidth', {
+          configurable: true,
+          get: function () {
+            return this._scrollWidth || 0;
+          },
+          set(val) {
+            this._scrollWidth = val;
+          },
+        });
+
+        Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+          configurable: true,
+          get: function () {
+            return this._clientHeight || 0;
+          },
+          set(val) {
+            this._clientHeight = val;
+          },
+        });
+
+        // @ts-ignore
+        instance.elements().viewport.scrollHeight = 300;
+        // @ts-ignore
+        instance.elements().viewport.clientHeight = 100;
+        // @ts-ignore
+        instance.elements().viewport.offsetHeight = 100;
+
+        instance.update(true);
+        instance.on('updated', updated);
+
+        expect(updated).toHaveBeenCalledTimes(0);
+
+        window.dispatchEvent(new Event('resize'));
+
+        expect(updated).toHaveBeenCalledTimes(0);
+
+        jest.runAllTimers();
+
+        expect(updated).toHaveBeenCalledTimes(1);
+      });
     });
   });
 
