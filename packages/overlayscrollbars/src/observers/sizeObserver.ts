@@ -114,8 +114,8 @@ export const createSizeObserver = (
         const hasDimensions = domRectHasDimensions(currRContentRect);
         const hadDimensions = domRectHasDimensions(prevContentRect);
         const firstCall = !prevContentRect;
-        appear = !hadDimensions && hasDimensions;
-        skip = (firstCall && !!hadDimensions) || !hasDimensions || isWindowResize; // skip on initial RO. call (if the element visible) or if display is none or when window resize
+        appear = !firstCall && !hadDimensions && hasDimensions;
+        skip = !appear && ((firstCall && !!hadDimensions) || !hasDimensions || isWindowResize); // skip on initial RO. call (if the element visible) or if display is none or when window resize
 
         doDirectionScroll = !skip; // direction scroll when not skipping
       }
@@ -136,7 +136,7 @@ export const createSizeObserver = (
         });
       }
 
-      if (!skip && !appear) {
+      if (!skip) {
         onSizeChangedCallback({
           _sizeChanged: !hasDirectionCache,
           _directionIsRTLCache: hasDirectionCache ? sizeChangedContext : undefined,
