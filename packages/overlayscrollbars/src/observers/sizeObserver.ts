@@ -121,7 +121,7 @@ export const createSizeObserver = (
       }
       // else if its triggered with DirectionCache
       else if (hasDirectionCache) {
-        [, doDirectionScroll] = sizeChangedContext as CacheValues<boolean>; // direction scroll when DirectionCache changed, false otherwise
+        [, doDirectionScroll] = sizeChangedContext; // direction scroll when DirectionCache changed, false otherwise
       }
       // else if it triggered with appear from polyfill
       else {
