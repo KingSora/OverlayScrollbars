@@ -167,7 +167,6 @@ export const createScrollbarsSetup = (
       const [autoHideDelay] = _checkOption('scrollbars.autoHideDelay');
       const [dragScroll, dragScrollChanged] = _checkOption('scrollbars.dragScroll');
       const [clickScroll, clickScrollChanged] = _checkOption('scrollbars.clickScroll');
-
       const trulyAppeared = _appear && !_force;
       const hasOverflow = _hasOverflow.x || _hasOverflow.y;
       const updateScrollbars = _overflowEdgeChanged || _overflowAmountChanged || _directionChanged;

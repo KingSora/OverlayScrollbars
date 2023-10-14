@@ -97,7 +97,7 @@ export const createSizeObserver = (
     const sizeObserver = baseElements[0] as HTMLElement;
     const listenerElement = sizeObserver.firstChild as HTMLElement;
     const onSizeChangedCallbackProxy = (
-      sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry | Event | boolean
+      sizeChangedContext?: CacheValues<boolean> | ResizeObserverEntry | boolean
     ) => {
       const isResizeObserverCall = sizeChangedContext instanceof ResizeObserverEntry;
       const hasDirectionCache = !isResizeObserverCall && isArray(sizeChangedContext);
@@ -204,7 +204,7 @@ export const createSizeObserver = (
       addClass(sizeObserver, classNameSizeObserverAppear);
       push(
         destroyFns,
-        addEventListener(sizeObserver, 'animationstart', appearCallback, {
+        addEventListener(sizeObserver, 'animationstart', bind(appearCallback, true), {
           // Fire only once for "CSS is ready" event if ResizeObserver strategy is used
           _once: !!ResizeObserverConstructor,
         })

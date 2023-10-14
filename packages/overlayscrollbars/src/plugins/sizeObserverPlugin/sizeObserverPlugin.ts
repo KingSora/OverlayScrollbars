@@ -31,7 +31,7 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
         listenerElement: HTMLElement,
         onSizeChangedCallback: (appear: boolean) => any,
         observeAppearChange: boolean | null | undefined
-      ): [appearCallback: () => any, offFns: (() => any)[]] => {
+      ): [appearCallback: () => void, offFns: (() => any)[]] => {
         const scrollAmount = 3333333;
         const scrollEventName = 'scroll';
         const observerElementChildren = createDOM(
