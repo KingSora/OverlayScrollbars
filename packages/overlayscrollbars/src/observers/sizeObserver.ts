@@ -18,6 +18,7 @@ import {
   scrollElementTo,
   selfClearTimeout,
   wnd,
+  domRectAppeared,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -73,12 +74,6 @@ export const createSizeObserver = (
   const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | false>({
     _initialValue: false,
     _alwaysUpdateValues: true,
-    _equal: (currVal, newVal) =>
-      !(
-        !currVal || // if no initial value
-        // if from display: none to display: block
-        (!domRectHasDimensions(currVal) && domRectHasDimensions(newVal))
-      ),
   });
 
   return () => {
@@ -112,10 +107,10 @@ export const createSizeObserver = (
           sizeChangedContext.contentRect
         );
         const hasDimensions = domRectHasDimensions(currRContentRect);
-        const hadDimensions = domRectHasDimensions(prevContentRect);
+        const appeared = domRectAppeared(currRContentRect, prevContentRect);
         const firstCall = !prevContentRect;
-        appear = !firstCall && !hadDimensions && hasDimensions;
-        skip = !appear && ((firstCall && !!hadDimensions) || !hasDimensions || isWindowResize); // skip on initial RO. call (if the element visible) or if display is none or when window resize
+        appear = firstCall || appeared;
+        skip = !appear && (!hasDimensions || isWindowResize); // skip if display is none or when window resize
 
         doDirectionScroll = !skip; // direction scroll when not skipping
       }
@@ -138,16 +133,14 @@ export const createSizeObserver = (
 
       if (!skip) {
         onSizeChangedCallback({
-          _sizeChanged: !hasDirectionCache,
           _directionIsRTLCache: hasDirectionCache ? sizeChangedContext : undefined,
+          _sizeChanged: !hasDirectionCache,
           _appear: appear,
         });
       }
 
       isWindowResize = false;
     };
-    let appearCallback: typeof onSizeChangedCallbackProxy | undefined | false =
-      observeAppearChange && onSizeChangedCallbackProxy;
 
     if (ResizeObserverConstructor) {
       const resizeObserverInstance = new ResizeObserverConstructor((entries) =>
@@ -158,13 +151,16 @@ export const createSizeObserver = (
         resizeObserverInstance.disconnect();
       });
     } else if (sizeObserverPlugin) {
-      const [pluginAppearCallback, pluginOffListeners] = sizeObserverPlugin(
+      const [pluginAppearCallback, pluginDestroyFns] = sizeObserverPlugin(
         listenerElement,
         onSizeChangedCallbackProxy,
         observeAppearChange
       );
-      appearCallback = pluginAppearCallback;
-      push(destroyFns, pluginOffListeners);
+      push(destroyFns, [
+        pluginDestroyFns,
+        addClass(sizeObserver, classNameSizeObserverAppear),
+        addEventListener(sizeObserver, 'animationstart', pluginAppearCallback),
+      ]);
     } else {
       return noop;
     }
@@ -195,18 +191,6 @@ export const createSizeObserver = (
           }
 
           stopPropagation(event);
-        })
-      );
-    }
-
-    // appearCallback is always needed on scroll-observer strategy to reset it
-    if (appearCallback) {
-      addClass(sizeObserver, classNameSizeObserverAppear);
-      push(
-        destroyFns,
-        addEventListener(sizeObserver, 'animationstart', bind(appearCallback, true), {
-          // Fire only once for "CSS is ready" event if ResizeObserver strategy is used
-          _once: !!ResizeObserverConstructor,
         })
       );
     }

@@ -24,7 +24,7 @@ import type { CreateStructureUpdateSegment } from '../structureSetup';
  * @returns
  */
 export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
-  { _host, _padding, _viewport, _viewportIsTarget: _isSingleElm },
+  { _host, _padding, _viewport, _viewportIsTarget },
   state
 ) => {
   const [updatePaddingCache, currentPaddingCache] = createCache(
@@ -37,22 +37,22 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
 
   return ({ _checkOption, _observersUpdateHints, _observersState, _force }) => {
     let [padding, paddingChanged] = currentPaddingCache(_force);
-    const { _nativeScrollbarsHiding: _nativeScrollbarStyling, _flexboxGlue } = getEnvironment();
+    const { _nativeScrollbarsHiding, _flexboxGlue } = getEnvironment();
     const { _sizeChanged, _contentMutation, _directionChanged } = _observersUpdateHints || {};
     const { _directionIsRTL } = _observersState;
     const [paddingAbsolute, paddingAbsoluteChanged] = _checkOption('paddingAbsolute');
-    const contentMutation = !_flexboxGlue && _contentMutation;
+    const contentMutation = _force || (!_flexboxGlue && _contentMutation);
 
     if (_sizeChanged || paddingChanged || contentMutation) {
       [padding, paddingChanged] = updatePaddingCache(_force);
     }
 
     const paddingStyleChanged =
-      !_isSingleElm && (paddingAbsoluteChanged || _directionChanged || paddingChanged);
+      !_viewportIsTarget && (paddingAbsoluteChanged || _directionChanged || paddingChanged);
 
     if (paddingStyleChanged) {
       // if there is no padding element and no scrollbar styling, paddingAbsolute isn't supported
-      const paddingRelative = !paddingAbsolute || (!_padding && !_nativeScrollbarStyling);
+      const paddingRelative = !paddingAbsolute || (!_padding && !_nativeScrollbarsHiding);
       const paddingHorizontal = padding.r + padding.l;
       const paddingVertical = padding.t + padding.b;
 

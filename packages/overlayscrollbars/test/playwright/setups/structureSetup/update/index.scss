@@ -317,7 +317,7 @@ body {
 
 // disable native scrollbar styling detection
 body.nsh {
-  [data-overlayscrollbars-viewport~='scrollbarHidden'].os-environment {
+  .os-scrollbar-hidden.os-environment {
     scrollbar-width: auto !important;
   }
   .os-scrollbar-hidden.os-environment::-webkit-scrollbar,

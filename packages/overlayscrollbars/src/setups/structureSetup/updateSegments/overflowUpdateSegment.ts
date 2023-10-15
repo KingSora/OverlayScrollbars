@@ -354,6 +354,12 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         _hostMutation ||
         showNativeOverlaidScrollbarsChanged ||
         _heightIntrinsicChanged);
+    const adjustViewportArrange =
+      _sizeChanged ||
+      _paddingStyleChanged ||
+      _contentMutation ||
+      _directionChanged ||
+      showNativeOverlaidScrollbarsChanged;
     const overflowXVisible = overflowIsVisible(overflow.x);
     const overflowYVisible = overflowIsVisible(overflow.y);
     const overflowVisible = overflowXVisible || overflowYVisible;
@@ -378,13 +384,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       fixFlexboxGlue(preMeasureViewportOverflowState, _heightIntrinsic);
     }
 
-    if (
-      _sizeChanged ||
-      _paddingStyleChanged ||
-      _contentMutation ||
-      _directionChanged ||
-      showNativeOverlaidScrollbarsChanged
-    ) {
+    if (adjustViewportArrange) {
       if (overflowVisible) {
         _viewportAddRemoveClass(
           dataValueViewportOverflowVisible,
@@ -463,8 +463,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       (overflowXVisible && overflowYVisible && (hasOverflow.x || hasOverflow.y)) ||
       (overflowXVisible && hasOverflow.x && !hasOverflow.y) ||
       (overflowYVisible && hasOverflow.y && !hasOverflow.x);
-
-    if (
+    const adjustVuewportStyle =
       _paddingStyleChanged ||
       _directionChanged ||
       sizeFractionChanged ||
@@ -473,8 +472,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       overflowAmountChanged ||
       overflowChanged ||
       showNativeOverlaidScrollbarsChanged ||
-      adjustFlexboxGlue
-    ) {
+      adjustFlexboxGlue ||
+      adjustViewportArrange;
+
+    if (adjustVuewportStyle) {
       const viewportStyle: StyleObject = {
         [strMarginRight]: 0,
         [strMarginBottom]: 0,

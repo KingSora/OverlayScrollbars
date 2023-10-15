@@ -8,6 +8,8 @@ import {
   fractionalSize,
   getBoundingClientRect,
   hasDimensions,
+  domRectHasDimensions,
+  domRectAppeared,
 } from '~/support/dom/dimensions';
 
 describe('dom dimensions', () => {
@@ -84,6 +86,104 @@ describe('dom dimensions', () => {
 
   test('getBoundingClientRect', () => {
     expect(getBoundingClientRect(document.body)).toEqual(document.body.getBoundingClientRect());
+  });
+
+  test('domRectHasDimensions', () => {
+    expect(
+      domRectHasDimensions({
+        width: 0,
+        height: 0,
+        bottom: 1,
+        left: 1,
+        right: 1,
+        top: 1,
+        x: 1,
+        y: 1,
+        toJSON: () => '',
+      })
+    ).toBe(false);
+    expect(
+      domRectHasDimensions({
+        width: 0,
+        height: 1,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        x: 0,
+        y: 0,
+        toJSON: () => '',
+      })
+    ).toBe(true);
+    expect(
+      domRectHasDimensions({
+        width: 1,
+        height: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        x: 0,
+        y: 0,
+        toJSON: () => '',
+      })
+    ).toBe(true);
+  });
+
+  test('domRectAppeared', () => {
+    expect(
+      domRectAppeared(
+        {
+          width: 1,
+          height: 1,
+          bottom: 1,
+          left: 1,
+          right: 1,
+          top: 1,
+          x: 1,
+          y: 1,
+          toJSON: () => '',
+        },
+        {
+          width: 0,
+          height: 1,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          top: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => '',
+        }
+      )
+    ).toBe(false);
+
+    expect(
+      domRectAppeared(
+        {
+          width: 1,
+          height: 1,
+          bottom: 1,
+          left: 1,
+          right: 1,
+          top: 1,
+          x: 1,
+          y: 1,
+          toJSON: () => '',
+        },
+        {
+          width: 0,
+          height: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          top: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => '',
+        }
+      )
+    ).toBe(true);
   });
 
   describe('hasDimensions', () => {

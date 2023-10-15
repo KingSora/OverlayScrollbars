@@ -19,8 +19,9 @@ import type { WH } from '~/support';
 if (!window.ResizeObserver) {
   OverlayScrollbars.plugin(SizeObserverPlugin);
 }
-
+let updates = 0;
 let sizeIterations = 0;
+let appearIterations = 0;
 let directionIterations = 0;
 const contentBox = (elm: HTMLElement | null): WH<number> => {
   if (elm) {
@@ -52,7 +53,7 @@ const preInitChildren = targetElm?.children.length;
 
 const constructSizeObserver = createSizeObserver(
   targetElm as HTMLElement,
-  ({ _directionIsRTLCache, _sizeChanged }) => {
+  ({ _directionIsRTLCache, _sizeChanged, _appear }) => {
     if (_sizeChanged) {
       sizeIterations += 1;
     }
@@ -61,9 +62,15 @@ const constructSizeObserver = createSizeObserver(
       directionIterations += 1;
     }
 
+    if (_appear) {
+      appearIterations += 1;
+    }
+
+    updates += 1;
+
     requestAnimationFrame(() => {
       if (resizesSlot) {
-        resizesSlot.textContent = (directionIterations + sizeIterations).toString();
+        resizesSlot.textContent = `${updates}, (size=${sizeIterations}, dir=${directionIterations}, appear=${appearIterations})`;
       }
     });
   },
@@ -76,37 +83,45 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
   interface IterateSelect {
     currSizeIterations: number;
     currDirectionIterations: number;
+    currAppearIterations: number;
     currOffsetSize: WH<number>;
     currContentSize: WH<number>;
     currDir: string;
     currBoxSizing: string;
+    currHasDimensions: boolean;
   }
 
   await iterateSelect<IterateSelect>(select, {
     beforeEach() {
       const currSizeIterations = sizeIterations;
       const currDirectionIterations = directionIterations;
+      const currAppearIterations = appearIterations;
       const currOffsetSize = offsetSize(targetElm as HTMLElement);
       const currContentSize = contentBox(targetElm as HTMLElement);
       const currDir = style(targetElm as HTMLElement, 'direction');
       const currBoxSizing = style(targetElm as HTMLElement, 'boxSizing');
+      const currHasDimensions = hasDimensions(targetElm as HTMLElement);
 
       return {
         currSizeIterations,
         currDirectionIterations,
+        currAppearIterations,
         currOffsetSize,
         currContentSize,
         currDir,
         currBoxSizing,
+        currHasDimensions,
       };
     },
     async check({
       currSizeIterations,
       currDirectionIterations,
+      currAppearIterations,
       currOffsetSize,
       currContentSize,
       currDir,
       currBoxSizing,
+      currHasDimensions,
     }) {
       const newOffsetSize = offsetSize(targetElm as HTMLElement);
       const newContentSize = contentBox(targetElm as HTMLElement);
@@ -164,12 +179,22 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
         });
       }
 
-      if (dimensions && (offsetSizeChanged || contentSizeChanged)) {
+      if (currHasDimensions && dimensions && (offsetSizeChanged || contentSizeChanged)) {
         await waitForOrFailTest(() => {
           should.equal(
             sizeIterations,
             currSizeIterations + 1,
             'Size change was detected correctly.'
+          );
+        });
+      }
+
+      if (!currHasDimensions && dimensions) {
+        await waitForOrFailTest(() => {
+          should.equal(
+            appearIterations,
+            currAppearIterations + 1,
+            'Appear change was detected correctly.'
           );
         });
       }
@@ -256,6 +281,7 @@ const start = async () => {
   console.log('init size changes:', sizeIterations);
   should.ok(directionIterations > 0, 'Initial direction observations are fired.');
   should.ok(sizeIterations > 0, 'Initial size observations are fired.');
+  should.ok(appearIterations > 0, 'Initial appear observations are fired.');
 
   targetElm?.removeAttribute('style');
   await iterateDisplay();

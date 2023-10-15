@@ -114,6 +114,7 @@ export const resize = (element: HTMLElement) => {
   });
 
   return {
+    resizeBtn,
     addResizeListener(listener: ResizeListener) {
       resizeListeners.push(listener);
     },

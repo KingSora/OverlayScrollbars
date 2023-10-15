@@ -155,8 +155,8 @@ export const createScrollbarsSetup = (
       const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
         _structureUpdateHints || {};
       const { _directionChanged, _appear } = _observersUpdateHints || {};
-      const { _nativeScrollbarsOverlaid } = getEnvironment();
       const { _directionIsRTL } = observersSetupState;
+      const { _nativeScrollbarsOverlaid } = getEnvironment();
       const { _overflowAmount, _overflowStyle, _hasOverflow } = structureSetupState;
       const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
         _checkOption('showNativeOverlaidScrollbars');
@@ -169,7 +169,8 @@ export const createScrollbarsSetup = (
       const [clickScroll, clickScrollChanged] = _checkOption('scrollbars.clickScroll');
       const trulyAppeared = _appear && !_force;
       const hasOverflow = _hasOverflow.x || _hasOverflow.y;
-      const updateScrollbars = _overflowEdgeChanged || _overflowAmountChanged || _directionChanged;
+      const updateScrollbars =
+        _overflowEdgeChanged || _overflowAmountChanged || _directionChanged || _force;
       const updateVisibility = _overflowStyleChanged || visibilityChanged;
       const showNativeOverlaidScrollbars =
         showNativeOverlaidScrollbarsOption &&

@@ -191,6 +191,27 @@ selectCallbackEnv(containerBoxSizingSelect);
 selectCallbackEnv(containerDirectionSelect);
 selectCallbackEnv(containerMinMaxSelect);
 
+// initialize resize handles always after OverlayScrollbars was initialized to preserve correct parent elements
+const targetResizeInstance = resize(target!);
+targetResizeInstance.addResizeListener((width, height) => {
+  style(comparison, { width, height });
+});
+const targetResizeResizeInstance = resize(targetResize!);
+targetResizeResizeInstance.addResizeListener((width, height) => {
+  style(comparisonResize, { width, height });
+});
+
+if (!useContentElement) {
+  envElms.forEach((elm) => {
+    addClass(elm, 'intrinsicHack');
+  });
+} else {
+  const elms = contents(comparison);
+  addClass(comparisonContentElm, 'comparisonContent');
+  appendChildren(comparison, comparisonContentElm);
+  appendChildren(comparisonContentElm, elms);
+}
+
 // @ts-ignore
 const osInstance =
   // @ts-ignore
@@ -200,6 +221,9 @@ const osInstance =
       paddingAbsolute: initialPaddingAbsolute,
     },
     {
+      initialized(instance) {
+        instance.elements().target.append(targetResizeInstance.resizeBtn);
+      },
       updated(instance) {
         updateCount++;
         const { paddingAbsolute, overflow } = instance.options();
@@ -900,22 +924,3 @@ const start = async () => {
 };
 
 startBtn!.addEventListener('click', start);
-
-// initialize resize handles always after OverlayScrollbars was initialized to preserve correct parent elements
-resize(target!).addResizeListener((width, height) => {
-  style(comparison, { width, height });
-});
-resize(targetResize!).addResizeListener((width, height) => {
-  style(comparisonResize, { width, height });
-});
-
-if (!useContentElement) {
-  envElms.forEach((elm) => {
-    addClass(elm, 'intrinsicHack');
-  });
-} else {
-  const elms = contents(comparison);
-  addClass(comparisonContentElm, 'comparisonContent');
-  appendChildren(comparison, comparisonContentElm);
-  appendChildren(comparisonContentElm, elms);
-}

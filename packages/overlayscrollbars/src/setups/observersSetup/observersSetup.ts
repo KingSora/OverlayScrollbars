@@ -6,7 +6,6 @@ import {
   createCache,
   debounce,
   getDirectionIsRTL,
-  domRectHasDimensions,
   each,
   equalWH,
   fractionalSize,
@@ -21,6 +20,7 @@ import {
   getElmentScroll,
   scrollElementTo,
   inArray,
+  domRectAppeared,
 } from '~/support';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
 import { getEnvironment } from '~/environment';
@@ -71,6 +71,9 @@ export const createObserversSetup = (
   let debounceMaxDelay: number | false | undefined;
   let updateContentMutationObserver: (() => void) | undefined;
   let destroyContentMutationObserver: (() => void) | undefined;
+  let prevContentRect: DOMRectReadOnly | undefined;
+
+  const { _nativeScrollbarsHiding } = getEnvironment();
 
   const hostSelector = `[${dataAttributeHost}]`;
 
@@ -186,12 +189,24 @@ export const createObserversSetup = (
     _directionIsRTLCache,
     _appear,
   }: SizeObserverCallbackParams) => {
-    const updateFn = !_sizeChanged || _appear ? onObserversUpdated : onObserversUpdatedDebounced;
+    const exclusiveSizeChange = _sizeChanged && !_appear && !_directionIsRTLCache;
+    const updateFn =
+      // use debounceed update:
+      // if native scrollbars hiding is supported
+      // and if the update is more than just a exclusive sizeChange (e.g. size change + appear, or size change + direction)
+      !exclusiveSizeChange && _nativeScrollbarsHiding
+        ? onObserversUpdatedDebounced
+        : onObserversUpdated;
+
     const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache || [];
 
     _directionIsRTLCache && assignDeep(state, { _directionIsRTL: directionIsRTL });
 
-    updateFn({ _sizeChanged, _appear, _directionChanged: directionIsRTLChanged });
+    updateFn({
+      _sizeChanged: _sizeChanged || _appear,
+      _appear,
+      _directionChanged: directionIsRTLChanged,
+    });
   };
 
   const onContentMutation = (
@@ -202,6 +217,7 @@ export const createObserversSetup = (
     const updateHints = {
       _contentMutation: contentSizeChanged,
     };
+
     // if contentChangedThroughEvent is true its already debounced
     const updateFn = contentChangedThroughEvent ? onObserversUpdated : onObserversUpdatedDebounced;
 
@@ -247,18 +263,16 @@ export const createObserversSetup = (
     }
   );
 
-  let prevContentRect: DOMRectReadOnly | undefined;
   const viewportIsTargetResizeObserver =
     _viewportIsTarget &&
     ResizeObserverConstructor &&
     new ResizeObserverConstructor((entries) => {
-      const currRContentRect = entries[entries.length - 1].contentRect;
-      const hasDimensions = domRectHasDimensions(currRContentRect);
-      const hadDimensions = domRectHasDimensions(prevContentRect);
-      const _appear = !hadDimensions && hasDimensions;
-
-      onSizeChanged({ _sizeChanged: true, _appear });
-      prevContentRect = currRContentRect;
+      const currContentRect = entries[entries.length - 1].contentRect;
+      onSizeChanged({
+        _sizeChanged: true,
+        _appear: domRectAppeared(currContentRect, prevContentRect),
+      });
+      prevContentRect = currContentRect;
     });
 
   return [
@@ -278,7 +292,7 @@ export const createObserversSetup = (
         destroyHostMutationObserver();
       };
     },
-    ({ _checkOption, _takeRecords }) => {
+    ({ _checkOption, _takeRecords, _force }) => {
       const updateHints: ObserversSetupUpdateHints = {};
 
       const [ignoreMutation] = _checkOption('update.ignoreMutation');
@@ -286,6 +300,7 @@ export const createObserversSetup = (
       const [elementEvents, elementEventsChanged] = _checkOption('update.elementEvents');
       const [debounceValue, debounceChanged] = _checkOption('update.debounce');
       const contentMutationObserverChanged = elementEventsChanged || attributesChanged;
+      const takeRecords = _takeRecords || _force;
       const ignoreMutationFromOptions = (mutation: MutationRecord) =>
         isFunction(ignoreMutation) && ignoreMutation(mutation);
 
@@ -336,7 +351,7 @@ export const createObserversSetup = (
         }
       }
 
-      if (_takeRecords) {
+      if (takeRecords) {
         const hostUpdateResult = updateHostMutationObserver();
         const trinsicUpdateResult = updateTrinsicObserver && updateTrinsicObserver();
         const contentUpdateResult =
@@ -345,14 +360,14 @@ export const createObserversSetup = (
         hostUpdateResult &&
           assignDeep(
             updateHints,
-            onHostMutation(hostUpdateResult[0], hostUpdateResult[1], _takeRecords)
+            onHostMutation(hostUpdateResult[0], hostUpdateResult[1], takeRecords)
           );
 
         trinsicUpdateResult &&
-          assignDeep(updateHints, onTrinsicChanged(trinsicUpdateResult[0], _takeRecords));
+          assignDeep(updateHints, onTrinsicChanged(trinsicUpdateResult[0], takeRecords));
 
         contentUpdateResult &&
-          assignDeep(updateHints, onContentMutation(contentUpdateResult[0], _takeRecords));
+          assignDeep(updateHints, onContentMutation(contentUpdateResult[0], takeRecords));
       }
 
       return updateHints;

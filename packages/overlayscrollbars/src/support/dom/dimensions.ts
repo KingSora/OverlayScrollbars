@@ -87,3 +87,18 @@ export const hasDimensions = (elm: HTMLElement | false | null | undefined): bool
  */
 export const domRectHasDimensions = (rect?: DOMRectReadOnly | false | null) =>
   !!(rect && (rect[strHeight] || rect[strWidth]));
+
+/**
+ * Determines whether current DOM Rect has appeared according the the previous dom rect..
+ * @param currContentRect The current DOM Rect.
+ * @param prevContentRect The previous DOM Rect.
+ * @returns Whether the dom rect appeared.
+ */
+export const domRectAppeared = (
+  currContentRect: DOMRectReadOnly | false | null | undefined,
+  prevContentRect: DOMRectReadOnly | false | null | undefined
+) => {
+  const rectHasDimensions = domRectHasDimensions(currContentRect);
+  const rectHadDimensions = domRectHasDimensions(prevContentRect);
+  return !rectHadDimensions && rectHasDimensions;
+};
