@@ -19,6 +19,7 @@ import {
   selfClearTimeout,
   wnd,
   domRectAppeared,
+  concat,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -158,10 +159,13 @@ export const createSizeObserver = (
       );
       push(
         destroyFns,
-        [
-          addClass(sizeObserver, classNameSizeObserverAppear),
-          addEventListener(sizeObserver, 'animationstart', pluginAppearCallback),
-        ].concat(pluginDestroyFns)
+        concat(
+          [
+            addClass(sizeObserver, classNameSizeObserverAppear),
+            addEventListener(sizeObserver, 'animationstart', pluginAppearCallback),
+          ],
+          pluginDestroyFns
+        )
       );
     } else {
       return noop;

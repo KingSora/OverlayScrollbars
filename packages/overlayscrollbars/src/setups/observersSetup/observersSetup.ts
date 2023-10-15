@@ -21,6 +21,7 @@ import {
   scrollElementTo,
   inArray,
   domRectAppeared,
+  concat,
 } from '~/support';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
 import { getEnvironment } from '~/environment';
@@ -137,7 +138,7 @@ export const createObserversSetup = (
 
   const contentMutationObserverAttr = _isTextarea
     ? baseStyleChangingAttrsTextarea
-    : baseStyleChangingAttrs.concat(baseStyleChangingAttrsTextarea);
+    : concat(baseStyleChangingAttrs, baseStyleChangingAttrsTextarea);
 
   const onObserversUpdatedDebounced = debounce(onObserversUpdated, {
     _timeout: () => debounceTimeout,
@@ -146,12 +147,10 @@ export const createObserversSetup = (
       const [prevObj] = prev;
       const [currObj] = curr;
       return [
-        keys(prevObj)
-          .concat(keys(currObj))
-          .reduce((obj, key) => {
-            obj[key] = prevObj[key as keyof typeof prevObj] || currObj[key as keyof typeof currObj];
-            return obj;
-          }, {} as PlainObject),
+        concat(keys(prevObj), keys(currObj)).reduce((obj, key) => {
+          obj[key] = prevObj[key as keyof typeof prevObj] || currObj[key as keyof typeof currObj];
+          return obj;
+        }, {} as PlainObject),
       ] as [Partial<ObserversSetupUpdateHints>];
     },
   });
@@ -259,7 +258,7 @@ export const createObserversSetup = (
     onHostMutation,
     {
       _styleChangingAttributes: baseStyleChangingAttrs,
-      _attributes: baseStyleChangingAttrs.concat(viewportAttrsFromTarget),
+      _attributes: concat(baseStyleChangingAttrs, viewportAttrsFromTarget),
     }
   );
 
@@ -313,7 +312,7 @@ export const createObserversSetup = (
           true,
           onContentMutation,
           {
-            _attributes: contentMutationObserverAttr.concat(attributes || []),
+            _attributes: concat(contentMutationObserverAttr, attributes || []),
             _eventContentChange: elementEvents,
             _nestedTargetSelector: hostSelector,
             _ignoreContentChange: (mutation, isNestedTarget) => {

@@ -7,6 +7,7 @@ import {
   hasOwnProperty,
   isFunction,
   isEmptyObject,
+  concat,
 } from '~/support';
 import type { DeepPartial, DeepReadonly } from '~/typings';
 
@@ -242,7 +243,7 @@ export const defaultOptions: ReadonlyOptions = {
 
 export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): DeepPartial<T> => {
   const diff: DeepPartial<T> = {};
-  const optionsKeys = keys(newOptions).concat(keys(currOptions)) as Array<
+  const optionsKeys = concat(keys(newOptions), keys(currOptions)) as Array<
     keyof T & keyof DeepPartial<T>
   >;
 

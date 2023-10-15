@@ -1,4 +1,4 @@
-import { each } from '../utils/array';
+import { concat, each } from '../utils/array';
 import { hasOwnProperty } from '../utils/object';
 import { createDiv } from '../dom/create';
 import { wnd } from '../utils/alias';
@@ -80,7 +80,7 @@ export const cssPropertyValue = (
   const dummyStyle: CSSStyleDeclaration = getDummyStyle();
   const possbleValues: Array<string> = values.split(' ');
   const preparedSuffix: string = suffix || '';
-  const cssPrefixesWithFirstEmpty = [''].concat(cssPrefixes);
+  const cssPrefixesWithFirstEmpty = concat([''], cssPrefixes);
 
   each(possbleValues, (possibleValue: string) => {
     each(cssPrefixesWithFirstEmpty, (prefix: string) => {

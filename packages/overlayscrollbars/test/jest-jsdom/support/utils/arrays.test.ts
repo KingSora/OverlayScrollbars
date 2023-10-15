@@ -3,6 +3,7 @@ import {
   each,
   from,
   inArray,
+  concat,
   deduplicateArray,
   runEachAndClear,
   isEmptyArray,
@@ -90,6 +91,7 @@ describe('array utilities', () => {
       });
     });
   });
+
   describe('each', () => {
     describe('each through Array', () => {
       test('returns input', () => {
@@ -314,6 +316,14 @@ describe('array utilities', () => {
   test('inArray', () => {
     expect(inArray([1, 2, 3], 2)).toBe(true);
     expect(inArray([1, 2, 3], 4)).toBe(false);
+  });
+
+  test('concat', () => {
+    const a = [1, 2, 3];
+    const b = [4, 5, 6];
+    expect(concat(a, b)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(a).toEqual([1, 2, 3]);
+    expect(b).toEqual([4, 5, 6]);
   });
 
   test('deduplicateArray', () => {

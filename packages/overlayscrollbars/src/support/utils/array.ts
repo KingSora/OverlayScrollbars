@@ -60,6 +60,14 @@ export function each(
 export const inArray = <T = any>(arr: T[], item: T): boolean => arr.indexOf(item) >= 0;
 
 /**
+ * Concats two arrays and returns an new array without modifying any of the passed arrays.
+ * @param a Array A.
+ * @param b Array B.
+ * @returns A new array which has the entries of both arrays.
+ */
+export const concat = <T>(a: T[] | ReadonlyArray<T>, b: T[] | ReadonlyArray<T>): T[] => a.concat(b);
+
+/**
  * Pushesh all given items into the given array and returns it.
  * @param array The array the items shall be pushed into.
  * @param items The items which shall be pushed into the array.

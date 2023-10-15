@@ -22,6 +22,7 @@ import {
   inArray,
   strWidth,
   strHeight,
+  concat,
 } from '~/support';
 import {
   classNameScrollbar,
@@ -295,7 +296,7 @@ export const createScrollbarsSetupElements = (
     }
   };
   const refreshScrollbarsScrollbarOffsetTimeline = ({ _overflowAmount }: StructureSetupState) => {
-    verticalScrollbars.concat(horizontalScrollbars).forEach(({ _scrollbar }) => {
+    concat(verticalScrollbars, horizontalScrollbars).forEach(({ _scrollbar }) => {
       cancelElementAnimations(_scrollbar);
       if (doRefreshScrollbarOffset(_scrollbar)) {
         elementAnimations.set(_scrollbar, [

@@ -13,6 +13,7 @@ import {
   isEmptyArray,
   deduplicateArray,
   inArray,
+  concat,
 } from '~/support';
 
 type DOMContentObserverCallback = (contentChangedThroughEvent: boolean) => any;
@@ -175,7 +176,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
   // MutationObserver
   const finalAttributes = _attributes || [];
   const finalStyleChangingAttributes = _styleChangingAttributes || [];
-  const observedAttributes = finalAttributes.concat(finalStyleChangingAttributes);
+  const observedAttributes = concat(finalAttributes, finalStyleChangingAttributes);
   const observerCallback = (
     fromRecords: boolean,
     mutations: MutationRecord[]
