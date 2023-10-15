@@ -471,6 +471,8 @@ interface OverlayScrollbars {
   elements(): Elements;
 
   destroy(): void;
+
+  plugin<P extends InstancePlugin>(osPlugin: P): InferInstancePluginModuleInstance<P> | void;
 }
 ```
 
@@ -483,7 +485,7 @@ interface OverlayScrollbarsStatic {
   (target: InitializationTarget): OverlayScrollbars | undefined;
   (target: InitializationTarget, options: PartialOptions, eventListeners?: EventListeners): OverlayScrollbars;
 
-  plugin(plugin: Plugin | Plugin[]): void;
+  plugin(plugin: Plugin | Plugin[]): InferStaticPluginModuleInstance<Plugin> | InferStaticPluginModuleInstance<Plugin>[];
 
   valid(osInstance: any): osInstance is OverlayScrollbars;
 
@@ -660,11 +662,125 @@ OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
 ```
 
-### Writing Plugins
+### Plugins in depth
 
-> __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
+<details>
+  <summary>
+    This is a in depth topic. Click here to read it.
+  </summary>
+  <br />
 
-You can write and publish your own Plugins. This section is a work in progress.
+Plugins are plain objects with a **single field**, the name of the field is the name of the plugin. This name is the plugins identifier and _must_ be unique across all plugin. In case multiple plugins have the same name, the last added plugin overwrites  previously added plugins.
+
+#### Plugin Modules
+
+A Plugin module is the constructor of a plugin modules instance. There are two kinds of plugin modules: `static` and `instance`. A single plugin must have one or more modules. Plugin modules can return an instance, but doesnt have to.
+
+#### Static Plugin Module
+
+The `static` plugin module is invoked when the plugin is added with the `OverlayScrollbars.plugin` function.
+
+Example plugin with a `static` module:
+```js
+const staticPlugin = {
+  // plugin has the name `examplePlugin`
+  examplePlugin: {
+    // static function describes a static module and returns the module instance or void / undefined if no instance is needed
+    // the `osStatic` parameter is the global `OverlayScrollbars` object
+    static: (osStatic) => {
+      let count = 0;
+      const staticPluginModuleInstance = {
+        getCount: () => count,
+        increment: () => { count++ },
+      }
+      return staticPluginModuleInstance;
+    }
+  }
+}
+```
+
+When the plugin is added with the `OverlayScrollbars.plugin` function, the static module instance is returned:
+```js
+const staticModuleInstance = OverlayScrollbars.plugin(staticPlugin); // plugins static module is initialized
+staticModuleInstance.count; // 0
+staticModuleInstance.increment();
+staticModuleInstance.count; // 1
+```
+
+#### Instance Plugin Module
+
+The `instance` plugin module is invoked when a new `OverlayScrollbars` instance is created but before the `initialized` event is invoked.
+
+Example plugin with a `instance` module:
+```js
+const instancePlugin = {
+  // plugin has the name `examplePlugin`
+  examplePlugin: {
+    // instance function describes a instance module and returns the module instance or void / undefined if no instance is needed
+    // the `osInstance` parameter is the OverlayScrollbar instance the plugin is bound to
+    // the `osStatic` parameter is the gobal OverlayScrollbar object
+    instance: (osInstance, osStatic) => {
+      let count = 0;
+      const instancePluginModuleInstance = {
+        getCount: () => count,
+        increment: () => { count++ },
+      }
+      return instancePluginModuleInstance;
+    }
+  }
+}
+```
+
+When the plugin is added with the `OverlayScrollbars.plugin` function all OverlayScrollbar instances will add the plugin automatically from that point on. Already created instances will not have the plugin. The instance modules instance is returned with the `osInstance.plugin` function:
+```js
+OverlayScrollbars.plugin(instancePlugin); // plugin is added
+
+const osInstance = OverlayScrollbars(document.body, {}); // plugins instance module is initialized
+const instancePluginInstance = osInstance.plugin(instancePlugin);
+
+instancePluginInstance.count; // 0
+instancePluginInstance.increment();
+instancePluginInstance.count; // 1
+```
+
+#### TypeScript
+
+For TypeScript users the plugin system provides various types to improve the developer experience:
+
+```ts
+// Describes a OverlayScrollbar plugin.
+export type Plugin<
+  // the name of the plugin
+  Name extends string = string,
+  // the module instance type of the static module
+  S extends PluginModuleInstance | void = PluginModuleInstance | void, 
+  // the module instance type of the instance module
+  I extends PluginModuleInstance | void = PluginModuleInstance | void 
+> = {
+  [pluginName in Name]: PluginModule<S, I>;
+};
+
+// Describes a OverlayScrollbar plugin which has only a static module.
+export type StaticPlugin<
+  Name extends string = string,
+  T extends PluginModuleInstance = PluginModuleInstance
+> = Plugin<Name, T, void>;
+
+// Describes a OverlayScrollbar plugin which has only a instance module.
+export type InstancePlugin<
+  Name extends string = string,
+  T extends PluginModuleInstance = PluginModuleInstance
+> = Plugin<Name, void, T>;
+
+// Infers the type of the static modules instance of the passed plugin.
+export type InferStaticPluginModuleInstance<T extends StaticPlugin>;
+
+// Infers the type of the instance modules instance of the passed plugin.
+export type InferInstancePluginModuleInstance<T extends InstancePlugin>;
+```
+
+</details>
+
 
 ## FAQ
 

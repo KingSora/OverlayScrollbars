@@ -19,7 +19,7 @@ export type PluginModule<
        * @param osStatic The static object the plugin is bound to.
        * @returns The plugins instance object or a falsy value if the plugin doesn't need any instance object.
        */
-      static: S | ((osStatic: OverlayScrollbarsStatic) => S | void);
+      static: (osStatic: OverlayScrollbarsStatic) => S | void;
     }
   : object) &
   (I extends PluginModuleInstance
@@ -29,6 +29,7 @@ export type PluginModule<
          * The function will be called each time a new instance is created.
          * The plugin can add new methods or fields to the passed instance object.
          * @param osInstance The instance object the plugin is bound to.
+         * @param osStatic The static object the plugin is bound to.
          * @returns The plugins instance object or a falsy value if the plugin doesn't need any instance object.
          */
         instance: (osInstance: OverlayScrollbars, osStatic: OverlayScrollbarsStatic) => I | void;
@@ -43,20 +44,29 @@ export type Plugin<
   S extends PluginModuleInstance | void = PluginModuleInstance | void,
   I extends PluginModuleInstance | void = PluginModuleInstance | void
 > = {
-  /** The field is the plugin (module) name. Module names must be globally unique, please choose wisely. */
+  /** The field is the plugins name. Plugin names must be globally unique, please choose wisely. */
   [pluginName in Name]: PluginModule<S, I>;
 };
 
+/**
+ * Describes a OverlayScrollbar plugin which has only a static module.
+ */
 export type StaticPlugin<
   Name extends string = string,
   T extends PluginModuleInstance = PluginModuleInstance
 > = Plugin<Name, T, void>;
 
+/**
+ * Describes a OverlayScrollbar plugin which has only a instance module.
+ */
 export type InstancePlugin<
   Name extends string = string,
   T extends PluginModuleInstance = PluginModuleInstance
 > = Plugin<Name, void, T>;
 
+/**
+ * Infers the type of the static modules instance of the passed plugin.
+ */
 export type InferStaticPluginModuleInstance<T extends StaticPlugin> = T extends StaticPlugin<
   infer Name
 >
@@ -65,6 +75,9 @@ export type InferStaticPluginModuleInstance<T extends StaticPlugin> = T extends 
     : void
   : void;
 
+/**
+ * Infers the type of the instance modules instance of the passed plugin.
+ */
 export type InferInstancePluginModuleInstance<T extends InstancePlugin> = T extends InstancePlugin<
   infer Name
 >

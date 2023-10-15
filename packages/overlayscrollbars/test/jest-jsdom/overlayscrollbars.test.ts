@@ -31,6 +31,7 @@ jest.mock('~/support/utils/alias', () => {
 const bodyElm = document.body;
 const div = document.createElement('div');
 const div2 = document.createElement('div');
+const div3 = document.createElement('div');
 
 bodyElm.append(div);
 bodyElm.append(div2);
@@ -657,6 +658,7 @@ describe('overlayscrollbars', () => {
   test('plugin', () => {
     const osStaticPlugin = jest.fn();
     const osInstancePlugin = jest.fn();
+    const osInstancePluginInitializedEvent = jest.fn();
     const staticObjPluginFn = jest.fn();
     const staticObjPluginFn2 = jest.fn();
     const instanceObjPluginFn = jest.fn();
@@ -670,16 +672,31 @@ describe('overlayscrollbars', () => {
     const dummyPlugin = {
       dummyPlugin: {
         static: (staticObj) => {
+          let count = 0;
           expect(staticObj).toBe(OverlayScrollbars);
           osStaticPlugin();
-          return { dummyPluginStaticInstance: 1 as const };
+          return {
+            dummyPluginStaticInstance: 'dummyPluginStatic',
+            getCount: () => count,
+            increment: () => {
+              count++;
+            },
+          };
         },
         instance: (instanceObj, staticObj) => {
+          let count = 0;
           expect(OverlayScrollbars.valid(instanceObj)).toBe(true);
           expect(staticObj).toBe(OverlayScrollbars);
           osInstancePlugin();
+
+          instanceObj.on('initialized', osInstancePluginInitializedEvent);
+
           return {
-            dummyPluginInstance: 'dummyPlugin',
+            dummyPluginInstanceInstance: 'dummyPluginInstance',
+            getCount: () => count,
+            increment: () => {
+              count++;
+            },
           };
         },
       },
@@ -713,7 +730,11 @@ describe('overlayscrollbars', () => {
     expect(plugins).toHaveLength(4);
     expect(emptyPluginInstance).toBe(undefined);
     expect(neverPluginInstance).toBe(undefined);
-    expect(dummyPluginStaticInstance.dummyPluginStaticInstance).toBe(1);
+    expect(dummyPluginStaticInstance.dummyPluginStaticInstance).toBe('dummyPluginStatic');
+    expect(dummyPluginStaticInstance.getCount()).toBe(0);
+    expect(typeof dummyPluginStaticInstance.increment).toBe('function');
+    dummyPluginStaticInstance.increment();
+    expect(dummyPluginStaticInstance.getCount()).toBe(1);
     expect(dummyPlugin2StaticInstance.dummyPlugin2StaticInstance).toBe(2);
     expect(osStaticPlugin).toHaveBeenCalledTimes(1);
 
@@ -724,29 +745,52 @@ describe('overlayscrollbars', () => {
     expect(staticObjPluginFn).toHaveBeenCalledTimes(1);
 
     expect(osInstancePlugin).not.toHaveBeenCalled();
+    expect(osInstancePluginInitializedEvent).not.toHaveBeenCalled();
     const osInstance = OverlayScrollbars(div, {});
     expect(osInstancePlugin).toHaveBeenCalledTimes(1);
+    expect(osInstancePluginInitializedEvent).toHaveBeenCalledTimes(1);
+    const osInstance2 = OverlayScrollbars(div2, {});
+    expect(osInstancePlugin).toHaveBeenCalledTimes(2);
+    expect(osInstancePluginInitializedEvent).toHaveBeenCalledTimes(2);
 
+    expect(instanceObjPluginFn).not.toHaveBeenCalled();
     expect(instanceObjPluginFn).not.toHaveBeenCalled();
     // @ts-ignore
     osInstance.instanceObjPluginFn();
+    expect(instanceObjPluginFn).toHaveBeenCalledTimes(1);
+    // @ts-ignore
+    osInstance2.instanceObjPluginFn();
+    expect(instanceObjPluginFn).toHaveBeenCalledTimes(2);
     // @ts-ignore
     expect(osInstance.plugin(emptyPlugin)).not.toBeDefined();
+    // @ts-ignore
+    expect(osInstance2.plugin(emptyPlugin)).not.toBeDefined();
 
-    expect(osInstance.plugin(dummyPlugin)).toBeDefined();
-    expect(osInstance.plugin(dummyPlugin)?.dummyPluginInstance).toBe('dummyPlugin');
+    const checkInstancePluginInstance = (
+      pluginInstance: ReturnType<typeof osInstance.plugin<typeof dummyPlugin>>
+    ) => {
+      expect(pluginInstance).toBeDefined();
+      expect(pluginInstance?.dummyPluginInstanceInstance).toBe('dummyPluginInstance');
+      expect(pluginInstance?.getCount()).toBe(0);
+      expect(typeof pluginInstance?.increment).toBe('function');
 
-    expect(osInstance.plugin(dummyPlugin2)).not.toBeDefined();
+      pluginInstance?.increment();
 
-    expect(instanceObjPluginFn).toHaveBeenCalledTimes(1);
+      expect(pluginInstance?.getCount()).toBe(1);
 
-    expect(osStaticPlugin).toHaveBeenCalledTimes(1);
-    expect(osInstancePlugin).toHaveBeenCalledTimes(1);
+      expect(osInstance.plugin(dummyPlugin2)).not.toBeDefined();
+    };
 
-    OverlayScrollbars(div2, {});
+    checkInstancePluginInstance(osInstance.plugin(dummyPlugin));
+    checkInstancePluginInstance(osInstance2.plugin(dummyPlugin));
 
     expect(osStaticPlugin).toHaveBeenCalledTimes(1);
     expect(osInstancePlugin).toHaveBeenCalledTimes(2);
+
+    OverlayScrollbars(div3, {});
+
+    expect(osStaticPlugin).toHaveBeenCalledTimes(1);
+    expect(osInstancePlugin).toHaveBeenCalledTimes(3);
   });
 
   test('build in plugins', () => {
