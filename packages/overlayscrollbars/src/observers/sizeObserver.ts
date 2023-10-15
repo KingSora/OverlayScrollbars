@@ -156,11 +156,13 @@ export const createSizeObserver = (
         onSizeChangedCallbackProxy,
         observeAppearChange
       );
-      push(destroyFns, [
-        pluginDestroyFns,
-        addClass(sizeObserver, classNameSizeObserverAppear),
-        addEventListener(sizeObserver, 'animationstart', pluginAppearCallback),
-      ]);
+      push(
+        destroyFns,
+        [
+          addClass(sizeObserver, classNameSizeObserverAppear),
+          addEventListener(sizeObserver, 'animationstart', pluginAppearCallback),
+        ].concat(pluginDestroyFns)
+      );
     } else {
       return noop;
     }
