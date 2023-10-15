@@ -79,7 +79,6 @@ a:focus-visible {
 button {
   appearance: none;
   display: block;
-  color: inherit;
   background: var(--foreground-color);
   border: none;
   color: var(--background-color);
