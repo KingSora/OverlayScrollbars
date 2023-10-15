@@ -727,6 +727,7 @@ describe('overlayscrollbars', () => {
       dummyPluginStaticInstance,
       dummyPlugin2StaticInstance,
     ] = plugins;
+
     expect(plugins).toHaveLength(4);
     expect(emptyPluginInstance).toBe(undefined);
     expect(neverPluginInstance).toBe(undefined);

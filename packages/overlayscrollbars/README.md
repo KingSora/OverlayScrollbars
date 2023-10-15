@@ -142,8 +142,6 @@ To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to 
   </summary>
   <br />
   
-> __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description of all possibilities.
-
 The only required field is the `target` field. This is the field to which the plugin is applied to.  
 If you use the object initialization only with the `target` field, the outcome is equivalent to the element initialization:
 ```js
@@ -386,6 +384,68 @@ Indicates whether you can click on the scrollbar track for scrolling.
 
 The [`PointerTypes`](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pointerType) the plugin should react to.
 
+#### TypeScript 
+
+```ts
+// The options of a OverlayScrollbars instance.
+export type Options = {
+  // Whether the padding shall be absolute.
+  paddingAbsolute: boolean;
+  // Whether to show the native scrollbars. Has only an effect it the native scrollbars are overlaid.
+  showNativeOverlaidScrollbars: boolean;
+  // Customizes the automatic update behavior.
+  update: {
+    /**
+     * The given Event(s) from the elements with the given selector(s) will trigger an update.
+     * Useful for everything the MutationObserver and ResizeObserver can't detect
+     * e.g.: and Images `load` event or the `transitionend` / `animationend` events.
+     */
+    elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
+    /**
+     * The debounce which is used to detect content changes.
+     * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds.
+     * If a single number customizes only the `timeout`.
+     *
+     * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
+     */
+    debounce: [timeout: number, maxWait: number] | number | null;
+    /**
+     * HTML attributes which will trigger an update if they're changed.
+     * Basic attributes like `id`, `class`, `style` etc. are always observed and doesn't have to be added explicitly.
+     */
+    attributes: string[] | null;
+    // A function which makes it possible to ignore a content mutation or null if nothing shall be ignored.
+    ignoreMutation: ((mutation: MutationRecord) => any) | null;
+  };
+  // Customizes the overflow behavior per axis.
+  overflow: {
+    // The overflow behavior of the horizontal (x) axis.
+    x: OverflowBehavior;
+    // The overflow behavior of the vertical (y) axis.
+    y: OverflowBehavior;
+  };
+  // Customizes appearance of the scrollbars.
+  scrollbars: {
+    // The scrollbars theme. The theme value will be added as `class` to all `scrollbar` elements of the instance.
+    theme: string | null;
+    // The scrollbars visibility behavior.
+    visibility: ScrollbarsVisibilityBehavior;
+    // The scrollbars auto hide behavior.
+    autoHide: ScrollbarsAutoHideBehavior;
+    // The scrollbars auto hide delay in milliseconds.
+    autoHideDelay: number;
+    // Whether the scrollbars auto hide behavior is suspended until a scroll happened.
+    autoHideSuspend: boolean;
+    // Whether its possible to drag the handle of a scrollbar to scroll the viewport.
+    dragScroll: boolean;
+    // Whether its possible to click the track of a scrollbar to scroll the viewport.
+    clickScroll: boolean;
+    // An array of pointer types which shall be supported.
+    pointers: string[] | null;
+  };
+};
+```
+
 </details>
 
 ## Events
@@ -407,91 +467,345 @@ OverlayScrollbars(document.querySelector('#myElement'), {}, {
   </summary>
   <br />
 
-> __Note__: Every event receives the `instance` from which it was invoked as the first argument. Always.
+> __Note__: Every event receives the `instance` from which it was dispatched as the first argument. Always.
 
 ### `initialized`
 
 | arguments  | description |
 | :--- | :--- |
-| `instance` | The instance which invoked the event. |
+| `instance` | The instance which dispatched the event. |
 
-Is invoked after all generated elements, observers and events were appended to the DOM.
+Is dispatched after all generated elements, observers and events were appended to the DOM.
 
 ### `updated`
 
 | arguments  | description |
 | :--- | :--- |
-| `instance` | The instance which invoked the event. |
+| `instance` | The instance which dispatched the event. |
 | `onUpdatedArgs` | An `object` which describes the update in detail. |
 
-> __Note__: If an update was triggered but nothing changed, the event won't be invoked.
+> __Note__: If an update was triggered but nothing changed, the event won't be dispatched.
 
-Is invoked after the instace was updated. 
+Is dispatched after the instace was updated. 
 
 ### `destroyed`
 
 | arguments  | description |
 | :--- | :--- |
-| `instance` | The instance which invoked the event. |
+| `instance` | The instance which dispatched the event. |
 | `canceled` | An `boolean` which indicates whether the initialization was canceled and thus destroyed. |
 
-Is invoked after all generated elements, observers and events were removed from the DOM.
+Is dispatched after all generated elements, observers and events were removed from the DOM.
 
 ### `scroll`
 
 | arguments  | description |
 | :--- | :--- |
-| `instance` | The instance which invoked the event. |
+| `instance` | The instance which dispatched the event. |
 | `event` | The original `event` argument of the DOM event. |
 
-Is invoked by scrolling the viewport.
+Is dispatched by scrolling the viewport.
+
+#### TypeScript 
+
+```ts
+// A mapping between event names and their listener arguments.
+export type EventListenerArgs = {
+  // Dispatched after all elements are initialized and appended.
+  initialized: [instance: OverlayScrollbars];
+  // Dispatched after an update.
+  updated: [instance: OverlayScrollbars, onUpdatedArgs: OnUpdatedEventListenerArgs];
+  // Dispatched after all elements, observers and events are destroyed.
+  destroyed: [instance: OverlayScrollbars, canceled: boolean];
+  // Dispatched on scroll.
+  scroll: [instance: OverlayScrollbars, event: Event];
+};
+
+export interface OnUpdatedEventListenerArgs {
+  // Hints which describe what changed in the DOM.
+  updateHints: {
+    // Whether the size of the host element changed.
+    sizeChanged: boolean;
+    // Whether the direction of the host element changed.
+    directionChanged: boolean;
+    // Whether the intrinsic height behavior changed.
+    heightIntrinsicChanged: boolean;
+    // Whether the overflow edge (clientWidth / clientHeight) of the viewport element changed.
+    overflowEdgeChanged: boolean;
+    // Whether the overflow amount changed.
+    overflowAmountChanged: boolean;
+    // Whether the overflow style changed.
+    overflowStyleChanged: boolean;
+    // Whether an host mutation took place.
+    hostMutation: boolean;
+    // Whether an content mutation took place.
+    contentMutation: boolean;
+  };
+  // The changed options.
+  changedOptions: PartialOptions;
+  // Whether the update happened with an force invalidated cache.
+  force: boolean;
+}
+```
 
 </details>
 
 ## Instance
 
-> __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
+The OverlayScrollbars instance is created by calling the `OverlayScrollbars` function with an element and options object.
 
-```ts
-interface OverlayScrollbars {
-  options(): Options;
-  options(newOptions: PartialOptions, pure?: boolean): Options;
-
-  on(eventListeners: EventListeners, pure?: boolean): () => void;
-  on<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>): () => void;
-  on<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): () => void;
-
-  off<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>): void;
-  off<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): void;
-
-  update(force?: boolean): boolean;
-
-  state(): State;
-
-  elements(): Elements;
-
-  destroy(): void;
-
-  plugin<P extends InstancePlugin>(osPlugin: P): InferInstancePluginModuleInstance<P> | void;
-}
+```js
+const osInstance = OverlayScrollbars(document.body, {});
 ```
 
-## Static Methods
+### Instance Methods
 
-> __Note__: For now please refer to the <b>TypeScript definitions</b> for a more detailed description.
+<details>
+  <summary>
+    This is a in depth topic. Click here to read it.
+  </summary>
 
-```ts
-interface OverlayScrollbarsStatic {
-  (target: InitializationTarget): OverlayScrollbars | undefined;
-  (target: InitializationTarget, options: PartialOptions, eventListeners?: EventListeners): OverlayScrollbars;
+  ### `options(): Options`
 
-  plugin(plugin: Plugin | Plugin[]): InferStaticPluginModuleInstance<Plugin> | InferStaticPluginModuleInstance<Plugin>[];
+  Get the current options of the instance.
 
-  valid(osInstance: any): osInstance is OverlayScrollbars;
+  | returns | description |
+  | :--- | :--- |
+  | `Options` | The current options. |
 
-  env(): Environment;
-}
+  ### `options(newOptions, pure?): Options`
+
+  Sets the current options of the instance.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | newOptions | `PartialOptions` | The new (partial) options which should be applied. |
+  | pure | `boolean / undefined` | Whether all already added event listeners will be removed before the new listeners are added. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `Options` | The complete new options. |
+
+  ### `on(eventListeners, pure?): Function`
+
+  Adds event listeners to the instance.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | eventListeners | `EventListeners` | An object which contains the added listeners. The fields are the event names and the values the listeners. |
+  | pure | `boolean / undefined` | Whether all already added event listeners will be removed before the new listeners are added. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `Function` | A function which removes all added event listeners. |
+
+  ### `on(name, listener): Function`
+
+  Adds a single event listener to the instance.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | name | `string` | The event name. |
+  | listener | `Function` | The function which is invoked when the event is dispatched. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `Function` | A function which removes the added event listener. |
+  
+  ### `on(name, listeners): Function`
+
+  Adds multiple event listeners to the instance.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | name | `string` | The event name. |
+  | listeners | `Function[]` | The functions which are invoked when the event is dispatched. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `Function` | A function which removes the added event listeners. |
+
+  ### `off(name, listener): void`
+
+  Removes a single event listener from the instance.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | name | `string` | The event name. |
+  | listener | `Function` | The function to be removed. |
+
+  ### `off(name, listeners): void`
+
+  Removes multiple event listeners from the instance.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | name | `string` | The event name. |
+  | listeners | `Function[]` | The functions to be removed. |
+
+  ### `update(force?): boolean`
+
+  Updates the instance.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | force | `boolean / undefined` |  Whether the update should force the cache to be invalidated. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `Function` | A boolean which indicates whether the `update` event was triggered through this update. |
+
+  ### `state(): State`
+
+  Gets the instances state.
+
+  | returns | description |
+  | :--- | :--- |
+  | `State` | An object which describes the state of the instance. |
+
+  ### `elements(): Elements`
+
+  Gets the instances elments.
+
+  | returns | description |
+  | :--- | :--- |
+  | `Elements` | An object which describes the elements of the instance. |
+
+  ### `destroy(): void`
+
+  Destroys the instance and removes all added elements.
+
+  ### `plugin(plugin: object): object | undefined`
+
+  Gets the instance modules instance of the passed plugin.
+
+  | returns | description |
+  | :--- | :--- |
+  | `object / undefined` | An object which describes the plugins instance modules instance or `undefined` if no instance was found. |
+
+  #### TypeScript 
+
+  ```ts
+  // A simplified version of the OverlayScrollbars TypeScript interface.
+  interface OverlayScrollbars {
+    // Get the current options of the instance.
+    options(): Options;
+    // Sets the current options of the instance.
+    options(newOptions: PartialOptions, pure?: boolean): Options;
+
+    // Adds event listeners to the instance.
+    on(eventListeners: EventListeners, pure?: boolean): () => void;
+    // Adds a single event listener to the instance.
+    on<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>): () => void;
+    // Adds multiple event listeners to the instance.
+    on<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): () => void;
+
+    // Removes a single event listener from the instance.
+    off<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>): void;
+    // Removes multiple event listeners from the instance.
+    off<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): void;
+
+    // Updates the instance.
+    update(force?: boolean): boolean;
+
+    // Gets the instances state.
+    state(): State;
+
+    // Gets the instances elements.
+    elements(): Elements;
+
+    // Destroys the instance and removes all added elements.
+    destroy(): void;
+
+    // Gets the instance modules instance of the passed plugin.
+    plugin<P extends InstancePlugin>(osPlugin: P): InferInstancePluginModuleInstance<P> | undefined;
+  }
+  ```
+</details>
+
+
+## Static Object
+
+The static `OverlayScrollbars` object.
+
+```js
+OverlayScrollbars.plugin(SomePlugin);
 ```
+
+### Static Object Methods
+
+<details>
+  <summary>
+    This is a in depth topic. Click here to read it.
+  </summary>
+
+  ### `plugin(plugin): object | undefined`
+
+  Adds a single plugin.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | plugin | `object` | The plugin to be added. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `object / void` | An object which describes the plugins static modules instance or `void` if no instance was found. |
+
+  ### `plugin(plugins): (object | void)[]`
+
+  Adds multiple plugins.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | plugins | `object[]` | The plugins to be added. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `(object / void)[]` | An array which describes the plugins static modules instances or `undefined` if no instance was found. |
+
+  ### `valid(osInstance): boolean`
+
+  Checks whether the passed value is a valid and not destroyed overlayscrollbars instance
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | osInstance | `any` | The value to be checked. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `boolean` | Whether the passed value is a valid and not destroyed overlayscrollbars instance. |
+
+  ### `env(): Environment`
+
+  Gets the environment.
+
+  | returns | description |
+  | :--- | :--- |
+  | `Environment` | An object which described the environment. |
+
+  #### TypeScript
+
+  ```ts
+  // The OverlayScrollbars static object.
+  interface OverlayScrollbarsStatic {
+    // Gets the instance of the passed target or `undefined` the target has no instance.
+    (target: InitializationTarget): OverlayScrollbars | undefined;
+    // Initializes OverlayScrollbars to the passed target with passed options and event listeners.
+    (target: InitializationTarget, options: PartialOptions, eventListeners?: EventListeners): OverlayScrollbars;
+
+    // Adds a single plugin.
+    plugin(plugin: Plugin): InferStaticPluginModuleInstance<Plugin>
+    // Adds multiple plugins.
+    plugin(plugins: Plugin[]): InferStaticPluginModuleInstance<Plugin>[];
+
+    // Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
+    valid(osInstance: any): osInstance is OverlayScrollbars;
+
+    // Gets the environment.
+    env(): Environment;
+  }
+  ```
+</details>
 
 ## Styling
 
@@ -672,7 +986,7 @@ OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
 
 Plugins are plain objects with a **single field**, the name of the field is the name of the plugin. This name is the plugins identifier and _must_ be unique across all plugin. In case multiple plugins have the same name, the last added plugin overwrites  previously added plugins.
 
-#### Plugin Modules
+### Plugin Modules
 
 A Plugin module is the constructor of a plugin modules instance. There are two kinds of plugin modules: `static` and `instance`. A single plugin must have one or more modules. Plugin modules can return an instance, but doesnt have to.
 
@@ -701,7 +1015,7 @@ const staticPlugin = {
 
 When the plugin is added with the `OverlayScrollbars.plugin` function, the static module instance is returned:
 ```js
-const staticModuleInstance = OverlayScrollbars.plugin(staticPlugin); // plugins static module is initialized
+const staticModuleInstance = OverlayScrollbars.plugin(staticPlugin); // plugins static module is invoked
 staticModuleInstance.count; // 0
 staticModuleInstance.increment();
 staticModuleInstance.count; // 1
@@ -709,7 +1023,7 @@ staticModuleInstance.count; // 1
 
 #### Instance Plugin Module
 
-The `instance` plugin module is invoked when a new `OverlayScrollbars` instance is created but before the `initialized` event is invoked.
+The `instance` plugin module is invoked when a new `OverlayScrollbars` instance is created but before the `initialized` event is dispatched.
 
 Example plugin with a `instance` module:
 ```js
@@ -735,7 +1049,7 @@ When the plugin is added with the `OverlayScrollbars.plugin` function all Overla
 ```js
 OverlayScrollbars.plugin(instancePlugin); // plugin is added
 
-const osInstance = OverlayScrollbars(document.body, {}); // plugins instance module is initialized
+const osInstance = OverlayScrollbars(document.body, {}); // plugins instance module is invoked
 const instancePluginInstance = osInstance.plugin(instancePlugin);
 
 instancePluginInstance.count; // 0

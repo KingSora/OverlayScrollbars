@@ -69,25 +69,33 @@ export interface OverlayScrollbarsStatic {
   ): OverlayScrollbars;
 
   /**
-   * Adds one or multiple plugins.
-   * @param plugin Either a signle or an array of plugins to add.
+   * Adds a single plugin.
+   * @param plugin The plugin to be added.
+   * @returns The plugins static modules instance or `void` if no instance was found.
    */
-  plugin<P extends Plugin | [Plugin, ...Plugin[]]>(
+  plugin<P extends Plugin>(
     plugin: P
+  ): P extends StaticPlugin ? InferStaticPluginModuleInstance<P> : void;
+  /**
+   * Adds multiple plugins.
+   * @param plugins The plugins to be added.
+   * @returns The plugins static modules instances or `void` if no instance was found.
+   */
+  plugin<P extends [Plugin, ...Plugin[]]>(
+    plugins: P
   ): P extends [Plugin, ...Plugin[]]
     ? {
         [K in keyof P]: P[K] extends StaticPlugin ? InferStaticPluginModuleInstance<P[K]> : void;
       }
-    : P extends StaticPlugin
-    ? InferStaticPluginModuleInstance<P>
     : void;
+
   /**
    * Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
    * @param osInstance The value which shall be checked.
    */
   valid(osInstance: any): osInstance is OverlayScrollbars;
   /**
-   * Returns the overlayscrollbars environment.
+   * Gets the environment.
    */
   env(): Environment;
 }
@@ -185,13 +193,13 @@ export interface Elements {
  * Describes a OverlayScrollbars instance.
  */
 export interface OverlayScrollbars {
-  /** Get the current options of the instance. */
+  /** Gets the current options of the instance. */
   options(): Options;
   /**
    * Sets the options of the instance.
    * If the new options are partially filled, they're deeply merged with either the current options or the current default options.
-   * @param newOptions The new options.
-   * @param pure If true the new options will be merged with the current default options instead of the current options.
+   * @param newOptions The new options which should be applied.
+   * @param pure Whether the newOptions should be merged with the current options or with the default options.
    * @returns Returns the current options of the instance.
    */
   options(newOptions: PartialOptions, pure?: boolean): Options;
@@ -199,12 +207,12 @@ export interface OverlayScrollbars {
   /**
    * Adds event listeners to the instance.
    * @param eventListeners An object which contains the added listeners.
-   * @param pure If true all already added event listeners will be removed before the new listeners are added.
+   * @param pure Whether all already added event listeners will be removed before the new listeners are added.
    * @returns Returns a function which removes the added listeners.
    */
   on(eventListeners: EventListeners, pure?: boolean): () => void;
   /**
-   * Adds an event listener to the instance.
+   * Adds a single event listener to the instance.
    * @param name The name of the event.
    * @param listener The listener which is invoked on that event.
    * @returns Returns a function which removes the added listeners.
@@ -219,7 +227,7 @@ export interface OverlayScrollbars {
   on<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): () => void;
 
   /**
-   * Removes an event listener from the instance.
+   * Removes a single event listener from the instance.
    * @param name The name of the event.
    * @param listener The listener which shall be removed.
    */
@@ -242,7 +250,7 @@ export interface OverlayScrollbars {
   state(): State;
   /** Returns the elements of the instance. */
   elements(): Elements;
-  /** Destroys the instance. */
+  /** Destroys the instance and removes all added elements. */
   destroy(): void;
   /** Returns the instance of the passed plugin or `undefined` if no instance was found. */
   plugin<P extends InstancePlugin>(osPlugin: P): InferInstancePluginModuleInstance<P> | undefined;
@@ -470,7 +478,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   return potentialInstance!;
 };
 
-OverlayScrollbars.plugin = (plugins) => {
+OverlayScrollbars.plugin = (plugins: Plugin | Plugin[]) => {
   const isArr = isArray(plugins);
   const pluginsToAdd: Plugin<string, void | PluginModuleInstance, void | PluginModuleInstance>[] =
     isArr ? plugins : [plugins];

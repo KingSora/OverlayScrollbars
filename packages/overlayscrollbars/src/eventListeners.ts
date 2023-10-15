@@ -33,7 +33,7 @@ export interface OnUpdatedEventListenerArgs {
   };
   /** The changed options. */
   changedOptions: PartialOptions;
-  /** Whether the update happened with and force invalidated cache. */
+  /** Whether the update happened with an force invalidated cache. */
   force: boolean;
 }
 
@@ -41,13 +41,13 @@ export interface OnUpdatedEventListenerArgs {
  * A mapping between event names and their listener arguments.
  */
 export type EventListenerArgs = {
-  /** Triggered after all elements are initialized and appended. */
+  /** Dispatched after all elements are initialized and appended. */
   initialized: [instance: OverlayScrollbars];
-  /** Triggered after an update. */
+  /** Dispatched after an update. */
   updated: [instance: OverlayScrollbars, onUpdatedArgs: OnUpdatedEventListenerArgs];
-  /** Triggered after all elements, observers and events are destroyed. */
+  /** Dispatched after all elements, observers and events are destroyed. */
   destroyed: [instance: OverlayScrollbars, canceled: boolean];
-  /** Triggered on scroll. */
+  /** Dispatched on scroll. */
   scroll: [instance: OverlayScrollbars, event: Event];
 };
 

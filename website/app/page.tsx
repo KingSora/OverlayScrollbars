@@ -121,9 +121,6 @@ const IndexPage = () => {
       )}
 
       <p className="text-center text-sm text-primary-gray2 mx-auto max-w-screen-sm my-11 font-medium">
-        This page is a work in progress. For now refer to the TypeScript definitions for a more
-        detailed documentation.
-        <br />
         Looking for the v1 docs? <Link href="/v1">Follow this link</Link>.
       </p>
       <div className="mx-auto flex sm:flex-row justify-center gap-2 items-center flex-wrap">

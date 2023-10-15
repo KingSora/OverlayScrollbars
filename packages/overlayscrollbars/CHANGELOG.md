@@ -12,6 +12,7 @@
 ### Improvements
 
 - Small internal rewrite to improve stability, performance and bundle size.
+- Improvements the documentation and README.
 
 ## 2.3.2
 

@@ -138,7 +138,7 @@ export type ScrollbarsAutoHideBehavior =
   | 'leave';
 
 /**
- * Describes the options of a OverlayScrollbars instance.
+ * The options of a OverlayScrollbars instance.
  */
 export type Options = {
   /** Whether the padding shall be absolute. */
