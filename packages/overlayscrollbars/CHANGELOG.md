@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.1
+
+### Improvements
+
+- Add compatibility `exports` field to `package.json` so the `'overlayscrollbars/styles/overlayscrollbars.css'` import works in all node versions. [#570](https://github.com/KingSora/OverlayScrollbars/issues/570)
+
 ## 2.4.0
 
 ### Features

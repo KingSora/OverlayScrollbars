@@ -42,7 +42,9 @@ module.exports = createRollupConfig({
             import: './overlayscrollbars.mjs',
             types: './types/overlayscrollbars.d.ts',
           },
+          './package.json': './package.json',
           './overlayscrollbars.css': './styles/overlayscrollbars.css',
+          './styles/overlayscrollbars.css': './styles/overlayscrollbars.css',
         },
         sideEffects: ['*.css', '*.scss', '*.sass'],
       };
