@@ -4,7 +4,7 @@
 
 ### Improvements
 
-- Makes plugins compatible with "pure" environments such as `react` and all other component frameworks / libraries.
+- Makes custom instance plugins compatible with "pure" environments such as `react` and all other component frameworks / libraries.
 
 ## 2.4.1
 
