@@ -115,7 +115,11 @@ const ExamplesPage = () => {
             ]
           )}
         </div>
-        <GoogleAd adSlotId="4341025139" format={{ height: 100, width: 800 }} className="w-full" />
+        <GoogleAd
+          adSlotId="4341025139"
+          format={{ height: 100, width: 800 }}
+          className="w-full min-w-0"
+        />
       </main>
     </PageContainer>
   );
