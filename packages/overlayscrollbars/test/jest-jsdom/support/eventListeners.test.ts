@@ -20,7 +20,7 @@ describe('eventListeners', () => {
       });
       triggerEvent('onBoolean', [true, 'hi']);
       triggerEvent('onString', ['hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       expect(onBooleanA).toHaveBeenCalledTimes(1);
       expect(onBooleanA).toHaveBeenLastCalledWith(true, 'hi');
@@ -44,7 +44,7 @@ describe('eventListeners', () => {
       const onUndefinedB = jest.fn();
       const [addEvent, , triggerEvent] = createEventListenerHub<EventMap>();
       triggerEvent('onBoolean', [true, 'hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       addEvent('onBoolean', onBooleanA);
       addEvent('onUndefined', [onUndefinedA, onUndefinedB]);
@@ -56,7 +56,7 @@ describe('eventListeners', () => {
       expect(onUndefinedA).not.toHaveBeenCalled();
       expect(onUndefinedB).not.toHaveBeenCalled();
 
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       expect(onUndefinedA).toHaveBeenCalledTimes(1);
       expect(onUndefinedA).toHaveBeenLastCalledWith();
@@ -66,7 +66,7 @@ describe('eventListeners', () => {
       addEvent('onBoolean', onBooleanB);
 
       triggerEvent('onBoolean', [false, 'hi2']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       expect(onBooleanA).toHaveBeenCalledTimes(2);
       expect(onBooleanA).toHaveBeenLastCalledWith(false, 'hi2');
@@ -108,13 +108,13 @@ describe('eventListeners', () => {
 
       triggerEvent('onBoolean', [true, 'hi']);
       triggerEvent('onString', ['hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       removeEvents();
 
       triggerEvent('onBoolean', [true, 'hi']);
       triggerEvent('onString', ['hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       expect(onBooleanA).toHaveBeenCalledTimes(1);
       expect(onBooleanA).toHaveBeenLastCalledWith(true, 'hi');
@@ -146,7 +146,7 @@ describe('eventListeners', () => {
 
       triggerEvent('onBoolean', [true, 'hi']);
       triggerEvent('onString', ['hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       expect(onBooleanA).toHaveBeenCalledTimes(1);
       expect(onBooleanB).toHaveBeenCalledTimes(1);
@@ -166,7 +166,7 @@ describe('eventListeners', () => {
       const removeUndefined = addEvent('onUndefined', [onUndefinedA, onUndefinedB]);
 
       triggerEvent('onBoolean', [true, 'hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
       expect(onBooleanA).toHaveBeenCalledTimes(1);
       expect(onBooleanB).toHaveBeenCalledTimes(1);
       expect(onUndefinedA).toHaveBeenCalledTimes(1);
@@ -175,7 +175,7 @@ describe('eventListeners', () => {
       removeUndefined();
 
       triggerEvent('onBoolean', [true, 'hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
       expect(onBooleanA).toHaveBeenCalledTimes(2);
       expect(onBooleanB).toHaveBeenCalledTimes(2);
       expect(onUndefinedA).toHaveBeenCalledTimes(1);
@@ -194,7 +194,7 @@ describe('eventListeners', () => {
       addEvent('onBoolean', [onBooleanA, onBooleanB]);
       addEvent('onUndefined', [onUndefinedA, onUndefinedB]);
       triggerEvent('onBoolean', [true, 'hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       expect(onBooleanA).toHaveBeenCalledTimes(3);
       expect(onBooleanB).toHaveBeenCalledTimes(4);
@@ -203,7 +203,7 @@ describe('eventListeners', () => {
 
       removeEvent('onBoolean');
       triggerEvent('onBoolean', [true, 'hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       expect(onBooleanA).toHaveBeenCalledTimes(3);
       expect(onBooleanB).toHaveBeenCalledTimes(4);
@@ -212,7 +212,7 @@ describe('eventListeners', () => {
 
       addEvent('onBoolean', [onBooleanA, onBooleanB]);
       triggerEvent('onBoolean', [true, 'hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       expect(onBooleanA).toHaveBeenCalledTimes(4);
       expect(onBooleanB).toHaveBeenCalledTimes(5);
@@ -221,7 +221,7 @@ describe('eventListeners', () => {
 
       removeEvent();
       triggerEvent('onBoolean', [true, 'hi']);
-      triggerEvent('onUndefined');
+      triggerEvent('onUndefined', []);
 
       expect(onBooleanA).toHaveBeenCalledTimes(4);
       expect(onBooleanB).toHaveBeenCalledTimes(5);

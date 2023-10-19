@@ -1,5 +1,5 @@
 import { defaultOptions } from '~/options';
-import { assignDeep } from '~/support';
+import { assignDeep, noop } from '~/support';
 import {
   ClickScrollPlugin,
   OptionsValidationPlugin,
@@ -659,6 +659,7 @@ describe('overlayscrollbars', () => {
     const osStaticPlugin = jest.fn();
     const osInstancePlugin = jest.fn();
     const osInstancePluginInitializedEvent = jest.fn();
+    const osInstancePluginDestroyedEvent = jest.fn();
     const staticObjPluginFn = jest.fn();
     const staticObjPluginFn2 = jest.fn();
     const instanceObjPluginFn = jest.fn();
@@ -683,13 +684,14 @@ describe('overlayscrollbars', () => {
             },
           };
         },
-        instance: (instanceObj, staticObj) => {
+        instance: (instanceObj, event, staticObj) => {
           let count = 0;
           expect(OverlayScrollbars.valid(instanceObj)).toBe(true);
           expect(staticObj).toBe(OverlayScrollbars);
           osInstancePlugin();
 
-          instanceObj.on('initialized', osInstancePluginInitializedEvent);
+          event('initialized', osInstancePluginInitializedEvent);
+          event('destroyed', osInstancePluginDestroyedEvent);
 
           return {
             dummyPluginInstanceInstance: 'dummyPluginInstance',
@@ -709,7 +711,9 @@ describe('overlayscrollbars', () => {
           staticObj.staticObjPluginFn = staticObjPluginFn;
           return { dummyPlugin2StaticInstance: 2 as const };
         },
-        instance: (instanceObj, staticObj) => {
+        instance: (instanceObj, event, staticObj) => {
+          event('destroyed', osInstancePluginDestroyedEvent);
+
           // @ts-ignore
           instanceObj.instanceObjPluginFn = instanceObjPluginFn;
           // @ts-ignore
@@ -792,6 +796,30 @@ describe('overlayscrollbars', () => {
 
     expect(osStaticPlugin).toHaveBeenCalledTimes(1);
     expect(osInstancePlugin).toHaveBeenCalledTimes(3);
+
+    osInstance.on({
+      initialized: noop,
+      destroyed: noop,
+      scroll: noop,
+      updated: noop,
+    });
+
+    osInstance2.on(
+      {
+        initialized: noop,
+        destroyed: noop,
+        scroll: noop,
+        updated: noop,
+      },
+      true
+    );
+
+    expect(osInstancePluginDestroyedEvent).not.toHaveBeenCalled();
+
+    osInstance.destroy();
+    osInstance2.destroy();
+
+    expect(osInstancePluginDestroyedEvent).toHaveBeenCalledTimes(2);
   });
 
   test('build in plugins', () => {

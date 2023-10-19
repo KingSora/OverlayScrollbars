@@ -68,11 +68,12 @@ describe('plugins', () => {
 
     const map: Record<string, PluginModuleInstance> = {};
     const instance = {} as OverlayScrollbars; // fake instance
+    const event = (() => {}) as any; // fake event
 
     registerPluginModuleInstances(staticTestPlugin, OverlayScrollbars);
-    registerPluginModuleInstances(instanceTestPlugin, OverlayScrollbars, instance, map);
+    registerPluginModuleInstances(instanceTestPlugin, OverlayScrollbars, [instance, event, map]);
     registerPluginModuleInstances(testPlugin, OverlayScrollbars);
-    registerPluginModuleInstances(testPlugin, OverlayScrollbars, instance, map);
+    registerPluginModuleInstances(testPlugin, OverlayScrollbars, [instance, event, map]);
 
     expect(staticPluginModuleInstances['staticTestPlugin']).toEqual(
       staticTestPlugin.staticTestPlugin.static()

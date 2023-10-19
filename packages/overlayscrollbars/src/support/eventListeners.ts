@@ -31,7 +31,7 @@ export type AddEvent<EventArgs extends Record<string, any[]>> = {
 };
 
 export type TriggerEvent<EventArgs extends Record<string, any[]>> = {
-  <N extends keyof EventArgs>(name: N, args?: EventArgs[N]): void;
+  <N extends keyof EventArgs>(name: N, args: EventArgs[N]): void;
 };
 
 export type EventListenerHub<EventArgs extends Record<string, any[]>> = [

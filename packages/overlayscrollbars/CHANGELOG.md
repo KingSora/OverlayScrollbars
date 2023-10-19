@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.2
+
+### Improvements
+
+- Makes plugins compatible with "pure" environments such as `react` and all other component frameworks / libraries.
+
 ## 2.4.1
 
 ### Improvements

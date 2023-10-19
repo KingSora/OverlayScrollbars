@@ -256,7 +256,7 @@ const createEnvironment = (): InternalEnvironment => {
     _staticDefaultOptions: assignDeep({}, staticDefaultOptions),
   };
   const windowAddResizeEventListener = bind(addEventListener, wnd, 'resize');
-  const debouncedWindowResize = debounce((event: 'z' | 'r') => triggerEvent(event), {
+  const debouncedWindowResize = debounce((event: 'z' | 'r') => triggerEvent(event, []), {
     _timeout: 33,
     _maxDelay: 99,
   });

@@ -1,7 +1,31 @@
 import { each, keys } from '~/support';
 import type { OverlayScrollbars, OverlayScrollbarsStatic } from '~/overlayscrollbars';
+import type { EventListener, EventListenerArgs, EventListeners } from '..';
 
 export type PluginModuleInstance = Record<string | number | symbol, any>;
+
+export type InstancePluginEvent = {
+  /**
+   * Adds event listeners to the instance.
+   * @param eventListeners An object which contains the added listeners.
+   * @returns Returns a function which removes the added listeners.
+   */
+  (eventListeners: EventListeners): () => void;
+  /**
+   * Adds a single event listener to the instance.
+   * @param name The name of the event.
+   * @param listener The listener which is invoked on that event.
+   * @returns Returns a function which removes the added listeners.
+   */
+  <N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>): () => void;
+  /**
+   * Adds multiple event listeners to the instance.
+   * @param name The name of the event.
+   * @param listener The listeners which are invoked on that event.
+   * @returns Returns a function which removes the added listeners.
+   */
+  <N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): () => void;
+};
 
 /**
  * Describes a OverlayScrollbars plugin module.
@@ -29,10 +53,15 @@ export type PluginModule<
          * The function will be called each time a new instance is created.
          * The plugin can add new methods or fields to the passed instance object.
          * @param osInstance The instance object the plugin is bound to.
+         * @param event A function which adds events to the instance which can't be removed from outside the plugin. (instance events added with the `on` function can be removed with the optional `pure` parameter)
          * @param osStatic The static object the plugin is bound to.
          * @returns The plugins instance object or a falsy value if the plugin doesn't need any instance object.
          */
-        instance: (osInstance: OverlayScrollbars, osStatic: OverlayScrollbarsStatic) => I | void;
+        instance: (
+          osInstance: OverlayScrollbars,
+          event: InstancePluginEvent,
+          osStatic: OverlayScrollbarsStatic
+        ) => I | void;
       }
     : object);
 
@@ -108,32 +137,37 @@ export const addPlugins = (addedPlugin: Plugin[]) => {
 export const registerPluginModuleInstances = (
   plugin: Plugin,
   staticObj: OverlayScrollbarsStatic,
-  instanceObj?: OverlayScrollbars,
-  map?: Record<string, PluginModuleInstance>
+  instanceInfo?: [
+    instanceObj: OverlayScrollbars,
+    event: InstancePluginEvent,
+    instancePluginMap?: Record<string, PluginModuleInstance>
+  ]
 ): Array<PluginModuleInstance | void> =>
   keys(plugin).map((name) => {
     const { static: osStatic, instance: osInstance } = (
       plugin as Plugin<string, PluginModuleInstance, PluginModuleInstance>
     )[name];
-    const ctor = instanceObj ? osInstance : osStatic;
+    const [instanceObj, event, instancePluginMap] = instanceInfo || [];
+    const ctor = instanceInfo ? osInstance : osStatic;
     if (ctor) {
-      const instance = instanceObj
+      const instance = instanceInfo
         ? (
             ctor as Extract<
               typeof ctor,
               (
                 osInstance: OverlayScrollbars,
+                event: InstancePluginEvent,
                 osStatic: OverlayScrollbarsStatic
               ) => PluginModuleInstance | void
             >
-          )(instanceObj, staticObj)
+          )(instanceObj!, event!, staticObj)
         : (
             ctor as Extract<
               typeof ctor,
               (osStatic: OverlayScrollbarsStatic) => PluginModuleInstance | void
             >
           )(staticObj);
-      return ((map || staticPluginModuleInstances)[name] = instance);
+      return ((instancePluginMap || staticPluginModuleInstances)[name] = instance);
     }
   });
 

@@ -32,6 +32,7 @@ export type {
   Plugin,
   StaticPlugin,
   InstancePlugin,
+  InstancePluginEvent,
   InferStaticPluginModuleInstance,
   InferInstancePluginModuleInstance,
 } from '~/plugins';

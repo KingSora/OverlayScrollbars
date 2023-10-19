@@ -199,7 +199,7 @@ export interface OverlayScrollbars {
    * Sets the options of the instance.
    * If the new options are partially filled, they're deeply merged with either the current options or the current default options.
    * @param newOptions The new options which should be applied.
-   * @param pure Whether the newOptions should be merged with the current options or with the default options.
+   * @param pure Whether the options should be reset before the new options are added.
    * @returns Returns the current options of the instance.
    */
   options(newOptions: PartialOptions, pure?: boolean): Options;
@@ -281,7 +281,14 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       _getDefaultOptions(),
       validateOptions(options)
     );
-    const [addEvent, removeEvent, triggerEvent] = createEventListenerHub(eventListeners);
+    const [addPluginEvent, removePluginEvents, triggerPluginEvent] =
+      createEventListenerHub<EventListenerArgs>();
+    const [addInstanceEvent, removeInstanceEvents, triggerInstanceEvent] =
+      createEventListenerHub(eventListeners);
+    const triggerEvent: typeof triggerPluginEvent = (name, args) => {
+      triggerInstanceEvent(name, args);
+      triggerPluginEvent(name, args);
+    };
     const [setupsConstruct, setupsUpdate, setupsState, setupsElements, setupsCanceled] =
       createSetups(
         target,
@@ -329,7 +336,8 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       triggerEvent('destroyed', [instance, canceled]);
-      removeEvent();
+      removePluginEvents();
+      removeInstanceEvents();
     };
 
     const instance: OverlayScrollbars = {
@@ -347,9 +355,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
         }
         return assignDeep({}, currentOptions);
       },
-      on: addEvent,
+      on: addInstanceEvent,
       off: (name, listener) => {
-        name && listener && removeEvent(name, listener as any);
+        name && listener && removeInstanceEvents(name, listener);
       },
       state() {
         const { _observersSetupState, _structureSetupState } = setupsState();
@@ -440,6 +448,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
       _windowResize && setupsUpdate({ _windowResize });
     };
+
     push(destroyFns, [
       _addZoomListener(onWindowResize),
       _addResizeListener(onWindowResize),
@@ -450,12 +459,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     addInstance(instanceTarget, instance);
 
     // init plugins
-    registerPluginModuleInstances(
-      pluginModules,
-      OverlayScrollbars,
+    registerPluginModuleInstances(pluginModules, OverlayScrollbars, [
       instance,
-      instancePluginModuleInstances
-    );
+      addPluginEvent,
+      instancePluginModuleInstances,
+    ]);
 
     if (
       cancelInitialization(
