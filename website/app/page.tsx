@@ -5,6 +5,7 @@ import { Link } from '~/components/Link';
 import { Icon } from '~/components/Icon';
 import IndexMdx from '~/components/index.mdx';
 import { PageContainer } from '~/components/PageContainer';
+import { GoogleAd } from '~/components/google-ad';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
@@ -174,9 +175,13 @@ const IndexPage = () => {
         </Link>
       </nav>
 
-      <main className="prose prose-primary mx-auto pb-32">
+      <GoogleAd className="my-6" adSlotId="7030767653" format={{ height: 100 }} />
+
+      <main className="prose prose-primary mx-auto pb-12">
         <IndexMdx />
       </main>
+
+      <GoogleAd className="my-6" adSlotId="3179152550" format="horizontal" />
     </PageContainer>
   );
 };
