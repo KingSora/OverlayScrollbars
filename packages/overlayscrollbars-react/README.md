@@ -51,7 +51,7 @@ The first step is to import the CSS file into your app:
 import 'overlayscrollbars/overlayscrollbars.css';
 ```
 
-> __Note__: In older node versions use `'overlayscrollbars/styles/overlayscrollbars.css'` as the import path for the CSS file.
+> __Note__: If the path `'overlayscrollbars/overlayscrollbars.css'` is not working use `'overlayscrollbars/styles/overlayscrollbars.css'` as the import path for the CSS file.
 
 ## Component
 
