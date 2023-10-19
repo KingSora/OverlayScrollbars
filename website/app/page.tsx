@@ -175,13 +175,13 @@ const IndexPage = () => {
         </Link>
       </nav>
 
-      <GoogleAd className="my-6" adSlotId="7030767653" format={{ height: 100 }} />
+      <GoogleAd className="my-6" adSlotId="7030767653" format={{ height: 100, width: 800 }} />
 
       <main className="prose prose-primary mx-auto pb-12">
         <IndexMdx />
       </main>
 
-      <GoogleAd className="my-6" adSlotId="3179152550" format="horizontal" />
+      <GoogleAd className="my-6" adSlotId="3179152550" format={{ height: 100, width: 800 }} />
     </PageContainer>
   );
 };
