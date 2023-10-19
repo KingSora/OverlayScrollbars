@@ -207,7 +207,7 @@ export interface OverlayScrollbars {
   /**
    * Adds event listeners to the instance.
    * @param eventListeners An object which contains the added listeners.
-   * @param pure Whether all already added event listeners will be removed before the new listeners are added.
+   * @param pure Whether all already added event listeners should be removed before the new listeners are added.
    * @returns Returns a function which removes the added listeners.
    */
   on(eventListeners: EventListeners, pure?: boolean): () => void;

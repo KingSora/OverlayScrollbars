@@ -557,7 +557,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | newOptions | `PartialOptions` | The new (partial) options which should be applied. |
-  | pure | `boolean / undefined` | Whether all already added event listeners will be removed before the new listeners are added. |
+  | pure | `boolean / undefined` | Whether the options should be reset before the new options are added. |
 
   | returns | description |
   | :--- | :--- |
@@ -570,7 +570,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | eventListeners | `EventListeners` | An object which contains the added listeners. The fields are the event names and the values the listeners. |
-  | pure | `boolean / undefined` | Whether all already added event listeners will be removed before the new listeners are added. |
+  | pure | `boolean / undefined` | Whether all already added event listeners should be removed before the new listeners are added. |
 
   | returns | description |
   | :--- | :--- |
@@ -1009,13 +1009,27 @@ const instancePlugin = {
   examplePlugin: {
     // instance function describes a instance module and returns the module instance or void / undefined if no instance is needed
     // the `osInstance` parameter is the OverlayScrollbar instance the plugin is bound to
+    // the `event` parameter is a function which adds events to the instance which can't be removed from outside the plugin
     // the `osStatic` parameter is the gobal OverlayScrollbar object
-    instance: (osInstance, osStatic) => {
+    instance: (osInstance, event, osStatic) => {
       let count = 0;
+
       const instancePluginModuleInstance = {
         getCount: () => count,
         increment: () => { count++ },
       }
+
+      // event which fires when the instance was initialized
+      event('initialized', () => {
+        console.log("instance initialized");
+      });
+
+      // event which fires when the viewport was scrolled
+      const removeScrollEvent = event('scroll', () => {
+        console.log("viewport scrolled");
+        removeScrollEvent(); // removes the event after the first scroll
+      });
+      
       return instancePluginModuleInstance;
     }
   }
@@ -1035,8 +1049,6 @@ instancePluginInstance.count; // 1
 ```
 
 #### TypeScript
-
-For TypeScript users the plugin system provides various types to improve the developer experience:
 
 ```ts
 // Describes a OverlayScrollbar plugin.

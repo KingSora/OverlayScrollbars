@@ -593,7 +593,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | eventListeners | `EventListeners` | An object which contains the added listeners. The fields are the event names and the values the listeners. |
-  | pure | `boolean / undefined` | Whether all already added event listeners will be removed before the new listeners are added. |
+  | pure | `boolean / undefined` | Whether all already added event listeners should be removed before the new listeners are added. |
 
   | returns | description |
   | :--- | :--- |
