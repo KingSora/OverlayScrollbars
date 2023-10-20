@@ -160,60 +160,81 @@ describe('environment', () => {
     });
   });
 
-  describe('addZoomListener', () => {
-    test('with scrollbarsHidingPlugin registered before environment was created', async () => {
-      const { registerPluginModuleInstances } = await import('~/plugins');
-      registerPluginModuleInstances(ScrollbarsHidingPlugin, OverlayScrollbars);
+  describe('addResizeListener', () => {
+    const createMockScrollbarsHidingPlugin = (
+      original: typeof ScrollbarsHidingPlugin,
+      zoomFn: jest.Func
+    ): typeof ScrollbarsHidingPlugin => {
+      return {
+        __osScrollbarsHidingPlugin: {
+          static: (...args) => {
+            const originalResult = original.__osScrollbarsHidingPlugin.static(...args);
+            return {
+              ...originalResult,
+              _envWindowZoom: () => zoomFn,
+            };
+          },
+        },
+      };
+    };
 
-      const { _addZoomListener } = getEnv();
+    test('without any plugin with native scrollbars hiding', () => {
+      const { _addResizeListener } = getEnv();
       const listener = jest.fn();
 
-      _addZoomListener(listener);
+      _addResizeListener(listener);
+
+      expect(listener).not.toHaveBeenCalled();
+
       window.dispatchEvent(new Event('resize'));
 
-      jest.advanceTimersByTime(33);
-
       expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledWith(expect.any(Boolean));
+    });
+
+    test('with scrollbarsHidingPlugin registered before environment was created', async () => {
+      const { registerPluginModuleInstances } = await import('~/plugins');
+      const zoomFn = jest.fn();
+      registerPluginModuleInstances(
+        createMockScrollbarsHidingPlugin(ScrollbarsHidingPlugin, zoomFn),
+        OverlayScrollbars
+      );
+
+      const { _addResizeListener } = getEnv();
+      const listener = jest.fn();
+
+      _addResizeListener(listener);
+      expect(listener).not.toHaveBeenCalled();
+      expect(zoomFn).not.toHaveBeenCalled();
+
+      window.dispatchEvent(new Event('resize'));
+
+      expect(zoomFn).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledWith(expect.any(Boolean));
     });
 
     test('with scrollbarsHidingPlugin registered after environment was created', async () => {
-      const { _addZoomListener } = getEnv();
+      const { _addResizeListener } = getEnv();
+      const zoomFn = jest.fn();
       const listener = jest.fn();
 
-      _addZoomListener(listener);
+      _addResizeListener(listener);
 
       const { registerPluginModuleInstances } = await import('~/plugins');
-      registerPluginModuleInstances(ScrollbarsHidingPlugin, OverlayScrollbars);
+      registerPluginModuleInstances(
+        createMockScrollbarsHidingPlugin(ScrollbarsHidingPlugin, zoomFn),
+        OverlayScrollbars
+      );
+
+      expect(listener).not.toHaveBeenCalled();
+      expect(zoomFn).not.toHaveBeenCalled();
 
       window.dispatchEvent(new Event('resize'));
 
-      jest.advanceTimersByTime(33);
-
+      expect(zoomFn).toHaveBeenCalledTimes(1);
       expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledWith(expect.any(Boolean));
     });
-
-    test('without scrollbarsHidingPlugin', () => {
-      const { _addZoomListener } = getEnv();
-      const listener = jest.fn();
-
-      _addZoomListener(listener);
-      window.dispatchEvent(new Event('resize'));
-
-      expect(listener).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  test('addResizeListener', () => {
-    const { _addResizeListener } = getEnv();
-    const listener = jest.fn();
-
-    _addResizeListener(listener);
-    window.dispatchEvent(new Event('resize'));
-
-    expect(listener).not.toHaveBeenCalled();
-
-    jest.advanceTimersByTime(33);
-
-    expect(listener).toHaveBeenCalledTimes(1);
   });
 });
