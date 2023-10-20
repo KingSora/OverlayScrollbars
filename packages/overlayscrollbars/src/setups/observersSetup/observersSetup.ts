@@ -56,6 +56,7 @@ export type ObserversSetupUpdateHints = {
   _hostMutation?: boolean;
   _contentMutation?: boolean;
   _appear?: boolean;
+  _scrollbarSizeChanged?: boolean;
 };
 
 export type ObserversSetup = Setup<
@@ -98,7 +99,7 @@ export const createObserversSetup = (
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = structureSetupElements;
-  const { _flexboxGlue } = getEnvironment();
+  const { _flexboxGlue, _addResizeListener } = getEnvironment();
 
   const [updateContentSizeCache] = createCache<WH<number>>(
     {
@@ -212,15 +213,15 @@ export const createObserversSetup = (
     contentChangedThroughEvent: boolean,
     fromRecords?: true
   ): ObserversSetupUpdateHints => {
-    const [, contentSizeChanged] = updateContentSizeCache();
+    const [, _contentMutation] = updateContentSizeCache();
     const updateHints = {
-      _contentMutation: contentSizeChanged,
+      _contentMutation,
     };
 
     // if contentChangedThroughEvent is true its already debounced
     const updateFn = contentChangedThroughEvent ? onObserversUpdated : onObserversUpdatedDebounced;
 
-    contentSizeChanged && !fromRecords && updateFn(updateHints);
+    _contentMutation && !fromRecords && updateFn(updateHints);
 
     return updateHints;
   };
@@ -249,7 +250,6 @@ export const createObserversSetup = (
     createSizeObserver(_host, onSizeChanged, {
       _appear: true,
       _direction: true,
-      _ignoreWindowResize: true,
     });
 
   const [constructHostMutationObserver, updateHostMutationObserver] = createDOMObserver(
@@ -282,6 +282,10 @@ export const createObserversSetup = (
       const destroySizeObserver = constructSizeObserver && constructSizeObserver();
       const destroyTrinsicObserver = constructTrinsicObserver && constructTrinsicObserver();
       const destroyHostMutationObserver = constructHostMutationObserver();
+      const removeResizeListener = _addResizeListener((_scrollbarSizeChanged) => {
+        const [, _contentMutation] = updateContentSizeCache();
+        onObserversUpdatedDebounced({ _scrollbarSizeChanged, _contentMutation });
+      });
 
       return () => {
         viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
@@ -289,6 +293,7 @@ export const createObserversSetup = (
         destroyTrinsicObserver && destroyTrinsicObserver();
         destroyContentMutationObserver && destroyContentMutationObserver();
         destroyHostMutationObserver();
+        removeResizeListener();
       };
     },
     ({ _checkOption, _takeRecords, _force }) => {

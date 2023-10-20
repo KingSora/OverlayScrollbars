@@ -250,9 +250,8 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
 
         return (
           envInstance: InternalEnvironment,
-          updateNativeScrollbarSizeCache: UpdateCache<XY<number>>,
-          triggerEvent: () => void
-        ) => {
+          updateNativeScrollbarSizeCache: UpdateCache<XY<number>>
+        ): boolean | undefined => {
           const sizeNew = windowSize();
           const deltaSize = {
             w: sizeNew.w - size.w,
@@ -276,19 +275,19 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
           const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
           const dprChanged = dprNew !== dpr && dprNew > 0;
           const isZoom = deltaIsBigger && difference && dprChanged;
+          let scrollbarSizeChanged;
+          let scrollbarSize;
 
           if (isZoom) {
-            const [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache();
+            [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache();
 
             assignDeep(envInstance._nativeScrollbarsSize, scrollbarSize); // keep the object same!
-
-            if (scrollbarSizeChanged) {
-              triggerEvent();
-            }
           }
 
           size = sizeNew;
           dpr = dprNew;
+
+          return scrollbarSizeChanged;
         };
       },
     }),

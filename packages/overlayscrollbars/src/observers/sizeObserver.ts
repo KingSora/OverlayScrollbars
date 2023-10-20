@@ -16,8 +16,6 @@ import {
   isArray,
   getRTLCompatibleScrollPosition,
   scrollElementTo,
-  selfClearTimeout,
-  wnd,
   domRectAppeared,
   concat,
 } from '~/support';
@@ -36,8 +34,6 @@ export interface SizeObserverOptions {
   _direction?: boolean;
   /** Whether appearing should be observed. */
   _appear?: boolean;
-  /** Whether window resizes should be detected and ignored. */
-  _ignoreWindowResize?: boolean;
 }
 
 export interface SizeObserverCallbackParams {
@@ -60,33 +56,19 @@ export const createSizeObserver = (
   onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
 ): SizeObserver => {
-  let isWindowResize = false;
   const scrollAmount = 3333333;
-  const {
-    _direction: observeDirectionChange,
-    _appear: observeAppearChange,
-    _ignoreWindowResize,
-  } = options || {};
+  const { _direction: observeDirectionChange, _appear: observeAppearChange } = options || {};
   const sizeObserverPlugin =
     getStaticPluginModuleInstance<typeof SizeObserverPlugin>(sizeObserverPluginName);
   const { _rtlScrollBehavior: rtlScrollBehavior } = getEnvironment();
   const getIsDirectionRTL = bind(getDirectionIsRTL, target);
-  const [setIsWindowResizeResetTimeout, clearIsWindowResizeResetTimeout] = selfClearTimeout(33); // assume 1000 / 30 (30fps)
   const [updateResizeObserverContentRectCache] = createCache<DOMRectReadOnly | false>({
     _initialValue: false,
     _alwaysUpdateValues: true,
   });
 
   return () => {
-    const destroyFns: (() => void)[] = [
-      clearIsWindowResizeResetTimeout,
-      addEventListener(wnd, 'resize', () => {
-        isWindowResize = !!_ignoreWindowResize;
-        setIsWindowResizeResetTimeout(() => {
-          isWindowResize = false;
-        });
-      }),
-    ];
+    const destroyFns: (() => void)[] = [];
     const baseElements = createDOM(
       `<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`
     );
@@ -111,7 +93,7 @@ export const createSizeObserver = (
         const appeared = domRectAppeared(currRContentRect, prevContentRect);
         const firstCall = !prevContentRect;
         appear = firstCall || appeared;
-        skip = !appear && (!hasDimensions || isWindowResize); // skip if display is none or when window resize
+        skip = !appear && !hasDimensions; // skip if display is none or when window resize
 
         doDirectionScroll = !skip; // direction scroll when not skipping
       }
@@ -139,8 +121,6 @@ export const createSizeObserver = (
           _appear: appear,
         });
       }
-
-      isWindowResize = false;
     };
 
     if (ResizeObserverConstructor) {

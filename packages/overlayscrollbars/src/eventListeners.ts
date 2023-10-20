@@ -30,6 +30,8 @@ export interface OnUpdatedEventListenerArgs {
     hostMutation: boolean;
     /** Whether an content mutation took place. */
     contentMutation: boolean;
+    /** Whether the host element appeared. */
+    appear: boolean;
   };
   /** The changed options. */
   changedOptions: PartialOptions;

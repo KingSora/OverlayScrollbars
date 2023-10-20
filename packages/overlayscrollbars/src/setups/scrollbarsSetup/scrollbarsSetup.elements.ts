@@ -23,6 +23,7 @@ import {
   strWidth,
   strHeight,
   concat,
+  assignDeep,
 } from '~/support';
 import {
   classNameScrollbar,
@@ -46,6 +47,7 @@ import type { StyleObject } from '~/typings';
 import type { StructureSetupState } from '../structureSetup';
 import {
   getScrollbarHandleLengthRatio,
+  getScrollbarHandleOffsetPercent,
   getScrollbarHandleOffsetRatio,
 } from './scrollbarsSetup.calculations';
 
@@ -159,6 +161,8 @@ export const createScrollbarsSetupElements = (
       style(elm, styles);
     });
   };
+  const ratioToCssPercent = (ratio: number) => `${(ratio * 100).toFixed(3)}%`;
+  const numberToCssPx = (number: number) => `${number}px`;
   const scrollbarStructureRefreshHandleLength = (
     scrollbarStructures: ScrollbarStructure[],
     structureSetupState: StructureSetupState,
@@ -169,9 +173,9 @@ export const createScrollbarsSetupElements = (
       return [
         _handle,
         {
-          [isHorizontal ? strWidth : strHeight]: `${(
-            getScrollbarHandleLengthRatio(_handle, _track, isHorizontal, structureSetupState) * 100
-          ).toFixed(3)}%`,
+          [isHorizontal ? strWidth : strHeight]: ratioToCssPercent(
+            getScrollbarHandleLengthRatio(_handle, _track, isHorizontal, structureSetupState)
+          ),
         },
       ];
     });
@@ -181,38 +185,42 @@ export const createScrollbarsSetupElements = (
     structureSetupState: StructureSetupState,
     isHorizontal?: boolean
   ) => {
-    if (!scrollTimelineY && !scrollTimelineY) {
-      scrollbarStyle(scrollbarStructures, (structure) => {
-        const { _handle, _track, _scrollbar } = structure;
-        const offsetRatio = getScrollbarHandleOffsetRatio(
-          _handle,
-          _track,
-          _scrollOffsetElement,
-          structureSetupState,
-          getDirectionIsRTL(_scrollbar),
-          isHorizontal
-        );
-        // eslint-disable-next-line no-self-compare
-        const validOffsetRatio = offsetRatio === offsetRatio; // is false when offset is NaN
-        return [
-          _handle,
-          {
-            transform: validOffsetRatio
-              ? getTrasformTranslateValue(`${(offsetRatio * 100).toFixed(3)}%`, isHorizontal)
-              : '',
-          },
-        ];
-      });
-    }
+    scrollbarStyle(scrollbarStructures, (structure) => {
+      const { _handle, _track, _scrollbar } = structure;
+      const { _rtlScrollBehavior } = getEnvironment();
+      const axis = isHorizontal ? 'x' : 'y';
+      const scrollLeftTop = isHorizontal ? 'Left' : 'Top';
+      const { _overflowAmount } = structureSetupState;
+      const isRTL = getDirectionIsRTL(_scrollbar);
+      const offsetRatio = getScrollbarHandleOffsetRatio(
+        _handle,
+        _track,
+        getScrollbarHandleOffsetPercent(
+          _scrollOffsetElement[`scroll${scrollLeftTop}`],
+          _overflowAmount[axis],
+          isHorizontal && isRTL && _rtlScrollBehavior
+        ),
+        isHorizontal
+      );
+
+      return [
+        _handle,
+        {
+          transform: getTrasformTranslateValue(ratioToCssPercent(offsetRatio), isHorizontal),
+        },
+      ];
+    });
   };
   const styleScrollbarPosition = (structure: ScrollbarStructure) => {
     const { _scrollbar } = structure;
     const elm = doRefreshScrollbarOffset(_scrollbar) && _scrollbar;
-    const scroll = getElmentScroll(_scrollOffsetElement);
+    const { x, y } = getElmentScroll(_scrollOffsetElement);
     return [
       elm,
       {
-        transform: elm ? getTrasformTranslateValue({ x: `${scroll.x}px`, y: `${scroll.y}px` }) : '',
+        transform: elm
+          ? getTrasformTranslateValue({ x: numberToCssPx(x), y: numberToCssPx(y) })
+          : '',
       },
     ] as [HTMLElement | false, StyleObject];
   };
@@ -239,8 +247,11 @@ export const createScrollbarsSetupElements = (
       scrollTimeline,
       {
         transform: [
-          getTrasformTranslateValue(`0px`, isHorizontal),
-          getTrasformTranslateValue(`${mathMax(0, maxTransformValue - 0.5)}px`, isHorizontal),
+          getTrasformTranslateValue(numberToCssPx(0), isHorizontal),
+          getTrasformTranslateValue(
+            numberToCssPx(mathMax(0, maxTransformValue - 0.5)),
+            isHorizontal
+          ),
         ],
       },
       'add'
@@ -266,24 +277,39 @@ export const createScrollbarsSetupElements = (
     scrollbarStructureRefreshHandleLength(verticalScrollbars, structureSetupState);
   };
   const refreshScrollbarsHandleOffset = (structureSetupState: StructureSetupState) => {
-    scrollbarStructureRefreshHandleOffset(horizontalScrollbars, structureSetupState, true);
-    scrollbarStructureRefreshHandleOffset(verticalScrollbars, structureSetupState);
+    if (!scrollTimelineX && !scrollTimelineY) {
+      scrollbarStructureRefreshHandleOffset(horizontalScrollbars, structureSetupState, true);
+      scrollbarStructureRefreshHandleOffset(verticalScrollbars, structureSetupState);
+    }
   };
   const refreshScrollbarsHandleOffsetTimeline = () => {
-    const forEachFn = (isHorizontal: boolean, { _scrollbar, _handle }: ScrollbarStructure) => {
+    const forEachFn = (
+      isHorizontal: boolean,
+      { _scrollbar, _track, _handle }: ScrollbarStructure
+    ) => {
       const directionRTL = isHorizontal && getDirectionIsRTL(_scrollbar);
+      const getRatio = bind(getScrollbarHandleOffsetRatio, _handle, _track);
+      const start = getRatio(directionRTL ? 1 : 0, isHorizontal);
+      const end = getRatio(directionRTL ? 0 : 1, isHorizontal);
       cancelElementAnimations(_handle);
       elementAnimations.set(_handle, [
-        animateElement(_handle, isHorizontal ? scrollTimelineX : scrollTimelineY, {
-          transform: [
-            getTrasformTranslateValue(`0%`, isHorizontal),
-            getTrasformTranslateValue(
-              isHorizontal && directionRTL ? '100%' : '-100%',
-              isHorizontal
-            ),
-          ],
-          [isHorizontal ? (directionRTL ? 'right' : 'left') : 'top']: ['0%', '100%'],
-        }),
+        animateElement(
+          _handle,
+          isHorizontal ? scrollTimelineX : scrollTimelineY,
+          assignDeep(
+            {
+              transform: [
+                getTrasformTranslateValue(ratioToCssPercent(start), isHorizontal),
+                getTrasformTranslateValue(ratioToCssPercent(end), isHorizontal),
+              ],
+            },
+            directionRTL
+              ? {
+                  clear: ['left'], // dummy keyframe for direction rtl animation because of chrome bug
+                }
+              : {}
+          )
+        ),
       ]);
     };
     horizontalScrollbars.forEach(bind(forEachFn, true));

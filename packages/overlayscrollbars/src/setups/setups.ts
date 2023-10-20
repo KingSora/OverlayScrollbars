@@ -1,7 +1,6 @@
 import {
   assignDeep,
   bind,
-  each,
   getElmentScroll,
   isEmptyObject,
   keys,
@@ -50,13 +49,11 @@ export interface SetupsUpdateInfo {
   _takeRecords?: boolean;
   /** Whether one or more scrollbars has been cloned. */
   _cloneScrollbar?: boolean;
-  /** Whether the window was resized because of a zoom or resize. */
-  _windowResize?: boolean;
 }
 
 export interface SetupsUpdateHints {
-  readonly _observersUpdateHints: Required<DeepReadonly<ObserversSetupUpdateHints>>;
-  readonly _structureUpdateHints: Required<DeepReadonly<StructureSetupUpdateHints>>;
+  readonly _observersUpdateHints: DeepReadonly<ObserversSetupUpdateHints>;
+  readonly _structureUpdateHints: DeepReadonly<StructureSetupUpdateHints>;
 }
 
 export interface SetupsState {
@@ -107,11 +104,6 @@ export const createSetups = (
       onScroll
     );
 
-  const booleanUpdateHints = <T extends SetupUpdateHints>(hints: T): Required<T> =>
-    each(assignDeep({}, hints) as Required<T>, (value, key, booleanHints) => {
-      booleanHints[key as keyof T] = !!value as T[keyof T];
-    });
-
   const updateHintsAreTruthy = (hints: SetupUpdateHints) =>
     keys(hints).some((key) => !!hints[key as keyof typeof hints]);
 
@@ -124,7 +116,6 @@ export const createSetups = (
       _force: rawForce,
       _takeRecords,
       _cloneScrollbar,
-      _windowResize,
     } = updateInfo;
     const _changedOptions = rawChangedOptions || {};
     const _force = !!rawForce;
@@ -147,13 +138,6 @@ export const createSetups = (
         })
       );
 
-    if (_windowResize) {
-      assignDeep(observersHints, {
-        _sizeChanged: true,
-        _contentMutation: true,
-      } satisfies ObserversSetupUpdateHints);
-    }
-
     const structureHints = structureSetupUpdate(
       assignDeep({}, baseUpdateInfoObj, {
         _observersState: observersSetupState,
@@ -174,8 +158,8 @@ export const createSetups = (
 
     changed &&
       onUpdated(updateInfo, {
-        _observersUpdateHints: booleanUpdateHints(observersHints),
-        _structureUpdateHints: booleanUpdateHints(structureHints),
+        _observersUpdateHints: observersHints,
+        _structureUpdateHints: structureHints,
       });
 
     return changed;

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.4.3
+
+### Bug Fixes
+
+- Bug where the instance wasn't updated when the `window` resized. [#578](https://github.com/KingSora/OverlayScrollbars/issues/578)
+
+### Improvements
+
+- Further improvements to the update strategy to make finer grained updates.
+
 ## 2.4.2
 
 ### Improvements

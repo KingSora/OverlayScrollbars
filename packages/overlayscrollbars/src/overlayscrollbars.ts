@@ -262,7 +262,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
   options?: PartialOptions,
   eventListeners?: EventListeners
 ) => {
-  const { _getDefaultOptions, _addZoomListener, _addResizeListener } = getEnvironment();
+  const { _getDefaultOptions } = getEnvironment();
   const targetIsElement = isHTMLElement(target);
   const instanceTarget = targetIsElement ? target : target.target;
   const potentialInstance = getInstance(instanceTarget);
@@ -300,6 +300,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
             _heightIntrinsicChanged,
             _contentMutation,
             _hostMutation,
+            _appear,
           } = _observersUpdateHints;
 
           const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
@@ -310,14 +311,15 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
             instance,
             {
               updateHints: {
-                sizeChanged: _sizeChanged,
-                directionChanged: _directionChanged,
-                heightIntrinsicChanged: _heightIntrinsicChanged,
-                overflowEdgeChanged: _overflowEdgeChanged,
-                overflowAmountChanged: _overflowAmountChanged,
-                overflowStyleChanged: _overflowStyleChanged,
-                contentMutation: _contentMutation,
-                hostMutation: _hostMutation,
+                sizeChanged: !!_sizeChanged,
+                directionChanged: !!_directionChanged,
+                heightIntrinsicChanged: !!_heightIntrinsicChanged,
+                overflowEdgeChanged: !!_overflowEdgeChanged,
+                overflowAmountChanged: !!_overflowAmountChanged,
+                overflowStyleChanged: !!_overflowStyleChanged,
+                contentMutation: !!_contentMutation,
+                hostMutation: !!_hostMutation,
+                appear: !!_appear,
               },
               changedOptions: _changedOptions || {},
               force: !!_force,
@@ -441,19 +443,8 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           | InferInstancePluginModuleInstance<P>
           | undefined,
     };
-    const onWindowResize = () => {
-      const { _structureSetupState } = setupsState();
-      const { _hasOverflow } = _structureSetupState;
-      const _windowResize = _hasOverflow.x || _hasOverflow.y;
 
-      _windowResize && setupsUpdate({ _windowResize });
-    };
-
-    push(destroyFns, [
-      _addZoomListener(onWindowResize),
-      _addResizeListener(onWindowResize),
-      setupsCanceled,
-    ]);
+    push(destroyFns, [setupsCanceled]);
 
     // valid inside plugins
     addInstance(instanceTarget, instance);

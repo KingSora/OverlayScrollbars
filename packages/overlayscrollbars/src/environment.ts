@@ -16,11 +16,9 @@ import {
   createCache,
   equalXY,
   createEventListenerHub,
-  debounce,
   scrollT,
   bind,
   wnd,
-  addEventListener,
   noop,
   scrollElementTo,
   strHidden,
@@ -42,8 +40,7 @@ import type { Initialization, PartialInitialization } from '~/initialization';
 import type { StyleObjectKey } from './typings';
 
 type EnvironmentEventArgs = {
-  z: [];
-  r: [];
+  r: [scrollbarSizeChanged?: boolean];
 };
 
 /**
@@ -100,7 +97,6 @@ export interface InternalEnvironment {
   readonly _scrollTimeline: boolean;
   readonly _staticDefaultInitialization: Initialization;
   readonly _staticDefaultOptions: Options;
-  _addZoomListener(listener: EventListener<EnvironmentEventArgs, 'z'>): () => void;
   _addResizeListener(listener: EventListener<EnvironmentEventArgs, 'r'>): () => void;
   _getDefaultInitialization(): Initialization;
   _setDefaultInitialization(newInitialization: PartialInitialization): Initialization;
@@ -243,7 +239,6 @@ const createEnvironment = (): InternalEnvironment => {
     _scrollTimeline: !!scrollT,
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
-    _addZoomListener: bind(addEvent, 'z'),
     _addResizeListener: bind(addEvent, 'r'),
     _getDefaultInitialization: getDefaultInitialization,
     _setDefaultInitialization: (newInitializationStrategy) =>
@@ -255,27 +250,23 @@ const createEnvironment = (): InternalEnvironment => {
     _staticDefaultInitialization: assignDeep({}, staticDefaultInitialization),
     _staticDefaultOptions: assignDeep({}, staticDefaultOptions),
   };
-  const windowAddResizeEventListener = bind(addEventListener, wnd, 'resize');
-  const debouncedWindowResize = debounce((event: 'z' | 'r') => triggerEvent(event, []), {
-    _timeout: 33,
-    _maxDelay: 99,
-  });
 
   removeAttr(envElm, 'style');
   removeElements(envElm);
 
   // needed in case content has css viewport units
-  windowAddResizeEventListener(bind(debouncedWindowResize, 'r'));
-
-  if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
-    windowAddResizeEventListener(() => {
+  wnd.addEventListener('resize', () => {
+    let scrollbarSizeChanged;
+    if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
       const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
         scrollbarsHidingPluginName
       );
-      const resizeFn = scrollbarsHidingPlugin ? scrollbarsHidingPlugin._envWindowZoom() : noop;
-      resizeFn(env, updateNativeScrollbarSizeCache, bind(debouncedWindowResize, 'z'));
-    });
-  }
+      const zoomFn = scrollbarsHidingPlugin ? scrollbarsHidingPlugin._envWindowZoom() : noop;
+      scrollbarSizeChanged = !!zoomFn(env, updateNativeScrollbarSizeCache);
+    }
+
+    triggerEvent('r', [scrollbarSizeChanged]);
+  });
 
   return env;
 };

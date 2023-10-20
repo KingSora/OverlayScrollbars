@@ -112,6 +112,7 @@ html[data-overlayscrollbars] > body {
 [data-overlayscrollbars~='host'],
 [data-overlayscrollbars-padding] {
   display: flex;
+  align-items: stretch !important;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
 }

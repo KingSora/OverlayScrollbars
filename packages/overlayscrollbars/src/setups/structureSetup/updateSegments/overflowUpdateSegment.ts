@@ -335,6 +335,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _contentMutation,
       _heightIntrinsicChanged,
       _directionChanged,
+      _scrollbarSizeChanged,
     } = _observersUpdateHints || {};
     const { _heightIntrinsic, _directionIsRTL } = _observersState;
     const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = _checkOption(
@@ -359,6 +360,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _paddingStyleChanged ||
       _contentMutation ||
       _directionChanged ||
+      _scrollbarSizeChanged ||
       showNativeOverlaidScrollbarsChanged;
     const overflowXVisible = overflowIsVisible(overflow.x);
     const overflowYVisible = overflowIsVisible(overflow.y);
@@ -463,9 +465,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       (overflowXVisible && overflowYVisible && (hasOverflow.x || hasOverflow.y)) ||
       (overflowXVisible && hasOverflow.x && !hasOverflow.y) ||
       (overflowYVisible && hasOverflow.y && !hasOverflow.x);
-    const adjustVuewportStyle =
+    const adjustViewportStyle =
       _paddingStyleChanged ||
       _directionChanged ||
+      _scrollbarSizeChanged ||
       sizeFractionChanged ||
       viewportScrollSizeChanged ||
       overflowEdgeChanged ||
@@ -475,7 +478,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       adjustFlexboxGlue ||
       adjustViewportArrange;
 
-    if (adjustVuewportStyle) {
+    if (adjustViewportStyle) {
       const viewportStyle: StyleObject = {
         [strMarginRight]: 0,
         [strMarginBottom]: 0,

@@ -7,7 +7,6 @@ import {
   strHeight,
   strWidth,
 } from '~/support';
-import { getEnvironment } from '~/environment';
 import type { Environment } from '~/environment';
 import type { StructureSetupState } from '~/setups';
 
@@ -61,24 +60,10 @@ export const getScrollbarHandleLengthRatio = (
 export const getScrollbarHandleOffsetRatio = (
   scrollbarHandle: HTMLElement,
   scrollbarTrack: HTMLElement,
-  scrollOffsetElement: HTMLElement,
-  structureSetupState: StructureSetupState,
-  isRTL: boolean,
+  scrollPercent: number,
   isHorizontal?: boolean
 ) => {
-  const { _rtlScrollBehavior } = getEnvironment();
-  const axis = isHorizontal ? 'x' : 'y';
-  const scrollLeftTop = isHorizontal ? 'Left' : 'Top';
-  const { _overflowAmount } = structureSetupState;
   const lengthRatio = getScrollbarHandleLengthRatio(scrollbarHandle, scrollbarTrack, isHorizontal);
 
-  return (
-    (1 / lengthRatio) *
-    (1 - lengthRatio) *
-    getScrollbarHandleOffsetPercent(
-      scrollOffsetElement[`scroll${scrollLeftTop}`],
-      _overflowAmount[axis],
-      isHorizontal && isRTL && _rtlScrollBehavior
-    )
-  );
+  return (1 / lengthRatio) * (1 - lengthRatio) * scrollPercent;
 };
