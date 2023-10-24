@@ -161,8 +161,12 @@ export const createScrollbarsSetupElements = (
       style(elm, styles);
     });
   };
-  const ratioToCssPercent = (ratio: number) => `${(ratio * 100).toFixed(3)}%`;
-  const numberToCssPx = (number: number) => `${number}px`;
+  const validFiniteNumber = (number: number) => {
+    const notNaN = number || 0;
+    return isFinite(notNaN) ? notNaN : 0;
+  };
+  const ratioToCssPercent = (ratio: number) => `${(validFiniteNumber(ratio) * 100).toFixed(3)}%`;
+  const numberToCssPx = (number: number) => `${validFiniteNumber(number)}px`;
   const scrollbarStructureRefreshHandleLength = (
     scrollbarStructures: ScrollbarStructure[],
     structureSetupState: StructureSetupState,
