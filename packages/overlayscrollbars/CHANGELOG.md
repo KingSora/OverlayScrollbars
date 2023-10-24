@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.4
+
+### Bug Fixes
+
+- Fix a bug where ScrollTimeline animation keyframe could contain `NaN` or `Infinity` values triggering a warning. [#581](https://github.com/KingSora/OverlayScrollbars/issues/581)
+
+
 ## 2.4.3
 
 ### Bug Fixes
