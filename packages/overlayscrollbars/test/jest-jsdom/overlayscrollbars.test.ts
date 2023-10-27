@@ -376,6 +376,30 @@ describe('overlayscrollbars', () => {
             osInstance.options(defaultOptions, true);
             expect(updated).toHaveBeenCalledTimes(6);
           });
+
+          test('undefined values are ignored for initial options', () => {
+            const initialOpts: PartialOptions = {
+              paddingAbsolute: undefined,
+              overflow: undefined,
+            };
+            const osInstance = OverlayScrollbars(div, initialOpts);
+            expect(osInstance.options()).toEqual(assignDeep({}, defaultOptions));
+          });
+
+          test('undefined values are ignored when changing options', () => {
+            const initialOpts: PartialOptions = {
+              paddingAbsolute: true,
+              overflow: {
+                y: 'hidden',
+              },
+            };
+            const osInstance = OverlayScrollbars(div, initialOpts);
+            osInstance.options({
+              paddingAbsolute: undefined,
+              overflow: undefined,
+            });
+            expect(osInstance.options()).toEqual(assignDeep({}, defaultOptions, initialOpts));
+          });
         });
       });
     });

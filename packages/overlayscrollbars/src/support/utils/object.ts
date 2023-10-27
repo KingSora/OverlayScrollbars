@@ -1,3 +1,4 @@
+import type { PlainObject } from '~/typings';
 import { isArray, isFunction, isPlainObject, isNull } from './types';
 import { each } from './array';
 
@@ -90,6 +91,15 @@ export const assignDeep: AssignDeep = <T, U, V, W, X, Y, Z>(
   // Return the modified object
   return target as any;
 };
+
+export const removeUndefinedProperties = <T extends PlainObject>(target: T, deep?: boolean): T =>
+  each(assignDeep({}, target), (value, key, copy) => {
+    if (value === undefined) {
+      delete copy[key];
+    } else if (deep && value && isPlainObject(value)) {
+      copy[key as keyof typeof copy] = removeUndefinedProperties(value, deep) as any;
+    }
+  });
 
 /**
  * Returns true if the given object is empty, false otherwise.

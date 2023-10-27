@@ -10,6 +10,7 @@ import {
   push,
   runEachAndClear,
   bind,
+  removeUndefinedProperties,
 } from '~/support';
 import { getOptionsDiff } from '~/options';
 import { getEnvironment } from '~/environment';
@@ -271,10 +272,13 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
     const destroyFns: (() => void)[] = [];
     const instancePluginModuleInstances: Record<string, PluginModuleInstance> = {};
     const validateOptions = (newOptions: PartialOptions) => {
+      const newOptionsWithoutUndefined = removeUndefinedProperties(newOptions, true);
       const pluginValidate = getStaticPluginModuleInstance<typeof OptionsValidationPlugin>(
         optionsValidationPluginModuleName
       );
-      return pluginValidate ? pluginValidate(newOptions, true) : newOptions;
+      return pluginValidate
+        ? pluginValidate(newOptionsWithoutUndefined, true)
+        : newOptionsWithoutUndefined;
     };
     const currentOptions: ReadonlyOptions = assignDeep(
       {},

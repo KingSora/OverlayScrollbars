@@ -1,4 +1,10 @@
-import { assignDeep, keys, hasOwnProperty, isEmptyObject } from '~/support/utils/object';
+import {
+  assignDeep,
+  keys,
+  hasOwnProperty,
+  isEmptyObject,
+  removeUndefinedProperties,
+} from '~/support/utils/object';
 import { isPlainObject } from '~/support/utils/types';
 
 describe('object utilities', () => {
@@ -167,6 +173,41 @@ describe('object utilities', () => {
         foo: 1,
         deep: { foo: null, text: '' },
       });
+    });
+
+    test('undefined values', () => {
+      const filled: Deep = {
+        foo: {
+          bar: true,
+          baz: true,
+        },
+        foo2: document,
+      };
+
+      expect(assignDeep({}, filled, { foo: undefined })).toEqual({
+        ...filled,
+        foo: undefined,
+      });
+    });
+  });
+
+  describe('removeUndefinedProperties', () => {
+    test('not deep', () => {
+      const input = { a: undefined, array: [1, 2, 3, undefined], deep: { b: undefined } };
+      const result = removeUndefinedProperties(input);
+
+      expect(result).not.toBe(input);
+      expect(result).toEqual({ array: [1, 2, 3, undefined], deep: { b: undefined } });
+      expect(input).toEqual({ a: undefined, array: [1, 2, 3, undefined], deep: { b: undefined } });
+    });
+
+    test('deep', () => {
+      const input = { a: undefined, array: [1, 2, 3, undefined], deep: { b: undefined } };
+      const result = removeUndefinedProperties(input, true);
+
+      expect(result).not.toBe(input);
+      expect(result).toEqual({ array: [1, 2, 3, undefined], deep: {} });
+      expect(input).toEqual({ a: undefined, array: [1, 2, 3, undefined], deep: { b: undefined } });
     });
   });
 
