@@ -5,7 +5,7 @@
 ### Bug Fixes
 
 - Fix a bug where ScrollTimeline animation keyframe could contain `NaN` or `Infinity` values triggering a warning. [#581](https://github.com/KingSora/OverlayScrollbars/issues/581)
-
+- Treat explicitly assigned `undefined` values for options as if they would be left out. [#586](https://github.com/KingSora/OverlayScrollbars/issues/586)
 
 ## 2.4.3
 
