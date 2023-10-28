@@ -145,7 +145,7 @@ export const createScrollbarsSetup = (
 
       onScroll(event);
 
-      _refreshScrollbarsScrollbarOffset();
+      _refreshScrollbarsScrollbarOffset(structureSetupState);
     }),
   ];
 
@@ -247,7 +247,7 @@ export const createScrollbarsSetup = (
         _refreshScrollbarsHandleLength(structureSetupState);
         _refreshScrollbarsHandleOffset(structureSetupState);
         _refreshScrollbarsHandleOffsetTimeline(structureSetupState);
-        _refreshScrollbarsScrollbarOffset();
+        _refreshScrollbarsScrollbarOffset(structureSetupState);
         _refreshScrollbarsScrollbarOffsetTimeline(structureSetupState);
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.x, true);

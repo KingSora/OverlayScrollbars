@@ -1,12 +1,4 @@
-import {
-  getBoundingClientRect,
-  getRTLCompatibleScrollBounds,
-  mathMax,
-  mathMin,
-  mathRound,
-  strHeight,
-  strWidth,
-} from '~/support';
+import { getRTLCompatibleScrollBounds, mathMax, mathMin, mathRound } from '~/support';
 import type { Environment } from '~/environment';
 import type { StructureSetupState } from '~/setups';
 
@@ -38,32 +30,23 @@ export const getScrollbarHandleOffsetPercent = (
 };
 
 export const getScrollbarHandleLengthRatio = (
-  scrollbarHandle: HTMLElement,
-  scrollbarTrack: HTMLElement,
-  isHorizontal?: boolean,
-  structureSetupState?: StructureSetupState
+  structureSetupState: StructureSetupState,
+  isHorizontal?: boolean
 ) => {
-  if (structureSetupState) {
-    const axis = isHorizontal ? 'x' : 'y';
-    const { _overflowAmount, _overflowEdge } = structureSetupState;
+  const axis = isHorizontal ? 'x' : 'y';
+  const { _overflowAmount, _overflowEdge } = structureSetupState;
+  const viewportSize = _overflowEdge[axis];
+  const overflowAmount = _overflowAmount[axis];
 
-    const viewportSize = _overflowEdge[axis];
-    const overflowAmount = _overflowAmount[axis];
-    return capNumber(0, 1, viewportSize / (viewportSize + overflowAmount));
-  }
-  const axis = isHorizontal ? strWidth : strHeight;
-  const handleSize = getBoundingClientRect(scrollbarHandle)[axis];
-  const trackSize = getBoundingClientRect(scrollbarTrack)[axis];
-  return capNumber(0, 1, handleSize / trackSize);
+  return capNumber(0, 1, viewportSize / (viewportSize + overflowAmount));
 };
 
 export const getScrollbarHandleOffsetRatio = (
-  scrollbarHandle: HTMLElement,
-  scrollbarTrack: HTMLElement,
+  structureSetupState: StructureSetupState,
   scrollPercent: number,
   isHorizontal?: boolean
 ) => {
-  const lengthRatio = getScrollbarHandleLengthRatio(scrollbarHandle, scrollbarTrack, isHorizontal);
+  const lengthRatio = getScrollbarHandleLengthRatio(structureSetupState, isHorizontal);
 
   return (1 / lengthRatio) * (1 - lengthRatio) * scrollPercent;
 };
