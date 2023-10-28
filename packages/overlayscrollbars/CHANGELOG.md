@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.5
+
+### Improvements
+
+- The scrollbar handle calculation is no longer dependent on the scrollbar track and scrollbar handle size. This makes transitions possible and improves the performance because element measuring is no longer required. [#587](https://github.com/KingSora/OverlayScrollbars/issues/587)
+
 ## 2.4.4
 
 ### Bug Fixes

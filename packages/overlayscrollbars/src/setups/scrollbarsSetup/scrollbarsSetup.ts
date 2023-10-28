@@ -66,6 +66,7 @@ export const createScrollbarsSetup = (
   const [elements, appendElements] = createScrollbarsSetupElements(
     target,
     structureSetupElements,
+    structureSetupState,
     createScrollbarsSetupEvents(options, structureSetupElements, structureSetupState)
   );
   const { _host, _scrollEventElement, _isBody } = structureSetupElements;
@@ -135,7 +136,7 @@ export const createScrollbarsSetup = (
     }),
     addEventListener(_scrollEventElement, 'scroll', (event) => {
       requestScrollAnimationFrame(() => {
-        _refreshScrollbarsHandleOffset(structureSetupState);
+        _refreshScrollbarsHandleOffset();
 
         autoHideNotNever && manageScrollbarsAutoHide(true);
         scrollTimeout(() => {
@@ -145,7 +146,7 @@ export const createScrollbarsSetup = (
 
       onScroll(event);
 
-      _refreshScrollbarsScrollbarOffset(structureSetupState);
+      _refreshScrollbarsScrollbarOffset();
     }),
   ];
 
@@ -244,11 +245,11 @@ export const createScrollbarsSetup = (
       }
 
       if (updateScrollbars) {
-        _refreshScrollbarsHandleLength(structureSetupState);
-        _refreshScrollbarsHandleOffset(structureSetupState);
-        _refreshScrollbarsHandleOffsetTimeline(structureSetupState);
-        _refreshScrollbarsScrollbarOffset(structureSetupState);
-        _refreshScrollbarsScrollbarOffsetTimeline(structureSetupState);
+        _refreshScrollbarsHandleLength();
+        _refreshScrollbarsHandleOffset();
+        _refreshScrollbarsHandleOffsetTimeline();
+        _refreshScrollbarsScrollbarOffset();
+        _refreshScrollbarsScrollbarOffsetTimeline();
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.x, true);
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.y, false);
