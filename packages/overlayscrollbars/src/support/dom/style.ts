@@ -65,6 +65,11 @@ const setCSSVal = (elm: HTMLElement, prop: StyleObjectKey, val: string | number)
   } catch (e) {}
 };
 
+const validFiniteNumber = (number: number) => {
+  const notNaN = number || 0;
+  return isFinite(notNaN) ? notNaN : 0;
+};
+
 /**
  * Gets or sets the passed styles to the passed element.
  * @param elm The element to which the styles shall be applied to / be read from.
@@ -141,3 +146,8 @@ export const getTrasformTranslateValue = (
   `translate${
     isObject(value) ? `(${value.x},${value.y})` : `${isHorizontal ? 'X' : 'Y'}(${value})`
   }`;
+
+export const ratioToCssPercent = (ratio: number) =>
+  `${(validFiniteNumber(ratio) * 100).toFixed(3)}%`;
+
+export const numberToCssPx = (number: number) => `${validFiniteNumber(number)}px`;

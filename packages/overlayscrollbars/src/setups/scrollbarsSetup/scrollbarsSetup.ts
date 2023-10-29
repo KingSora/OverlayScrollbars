@@ -74,8 +74,6 @@ export const createScrollbarsSetup = (
     _scrollbarsAddRemoveClass,
     _refreshScrollbarsHandleLength,
     _refreshScrollbarsHandleOffset,
-    _refreshScrollbarsHandleOffsetTimeline,
-    _refreshScrollbarsScrollbarOffsetTimeline,
     _refreshScrollbarsScrollbarOffset,
   } = elements;
   const manageAutoHideSuspension = (add: boolean) => {
@@ -245,11 +243,10 @@ export const createScrollbarsSetup = (
       }
 
       if (updateScrollbars) {
+        // order is matter! length has to be refreshed before offset
         _refreshScrollbarsHandleLength();
         _refreshScrollbarsHandleOffset();
-        _refreshScrollbarsHandleOffsetTimeline();
         _refreshScrollbarsScrollbarOffset();
-        _refreshScrollbarsScrollbarOffsetTimeline();
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.x, true);
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.y, false);
