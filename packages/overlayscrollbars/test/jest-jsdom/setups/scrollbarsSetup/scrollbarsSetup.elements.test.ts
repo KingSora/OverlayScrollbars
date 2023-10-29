@@ -1,5 +1,4 @@
 import { createScrollbarsSetupElements } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
-import { createStructureSetupElements } from '~/setups/structureSetup/structureSetup.elements';
 import {
   classNameScrollbar,
   classNameScrollbarHorizontal,
@@ -8,6 +7,7 @@ import {
   classNameScrollbarHandle,
   classNameScrollbarTransitionless,
 } from '~/classnames';
+import { createStructureSetup } from '~/setups';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import type {
   ScrollbarsSetupElement,
@@ -37,16 +37,17 @@ const domSnapshot = (element?: HTMLElement) => {
 };
 
 const createStructureSetupElementsProxy = (target: InitializationTarget) => {
-  const [structureElements] = createStructureSetupElements(target);
+  const [, , structureSetupState, structureSetupElements] = createStructureSetup(target);
   const [elements, appendElements] = createScrollbarsSetupElements(
     target,
-    structureElements,
+    structureSetupElements,
+    structureSetupState,
     () => () => {}
   );
 
   const destroy = appendElements();
 
-  return [elements, destroy, structureElements] as [
+  return [elements, destroy, structureSetupElements] as [
     elements: ScrollbarsSetupElementsObj,
     destroy: () => void,
     structureElements: StructureSetupElementsObj
