@@ -84,7 +84,7 @@ You can use OverlayScrollbars without any bundler or package manager.
 Simply download it from the [Releases](https://github.com/KingSora/OverlayScrollbars/releases) or use a [CDN](https://cdnjs.com/libraries/overlayscrollbars).
 
 - Use the javascript files with the `.browser` extension.
-- Use the javascript files with the `.es5` extension if you need to support older browsers like IE11, otherwise use the `.es6` files.
+- Use the javascript files with the `.es5` extension if you need to support older browsers, otherwise use the `.es6` files.
 - For production use the javascript / stylesheet files with the `.min` extension. 
 
 Embedd OverlayScrollbars manually in your HTML:

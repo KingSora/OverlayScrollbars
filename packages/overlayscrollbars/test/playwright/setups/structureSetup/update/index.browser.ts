@@ -105,16 +105,12 @@ const expectedOverflowVisibleBehavior = (
 };
 
 // @ts-ignore
-const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
 const ff = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
-
-msie11 && addClass(document.body, 'msie11');
 
 const initialPaddingAbsolute = hasClass(document.body, 'pa');
 const isFastTestRun = hasClass(document.body, 'fast');
 const useContentElement = false;
-const fixedDigits = msie11 ? 1 : 3;
+const fixedDigits = 3;
 const fixedDigitsOffset = 3;
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
@@ -593,11 +589,6 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     }
 
     await timeout(1);
-
-    // steady pace for ie11 / edge or it will freeze progressively
-    if (msie11 || msedge) {
-      await timeout(25);
-    }
   });
 };
 

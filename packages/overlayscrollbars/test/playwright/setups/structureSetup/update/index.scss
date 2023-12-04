@@ -282,25 +282,6 @@ body {
   max-width: none;
 }
 
-// ie11 doesn't respect percentage max-width in display: inline-block elements, they can always expand to infinity
-.msie11 {
-  .column {
-    min-width: 900px;
-  }
-  .minMaxNone.widthAuto > .container {
-    max-width: 700px;
-  }
-}
-
-.intrinsicHack {
-  &.heightAuto,
-  &.envHeightAuto {
-    .percent {
-      height: auto;
-    }
-  }
-}
-
 .comparisonContent {
   height: 100%;
 }
