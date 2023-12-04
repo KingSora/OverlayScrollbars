@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.5.0
+
+### Breaking Changes
+
+Although not a major release, I've decided to drop `IE11` support in this version.
+This change should be beneficial to the majority of users.
+
+- The size of the js bundle decreased by `~6%`.
+- The size of the css bundle decreased by `~18%`.
+- The fields `flexboxGlue` and `cssCustomProperties` are removed from the `Environment`. (returning object from `OverlayScrollbars.env()`)
+
 ## 2.4.5
 
 ### Improvements
