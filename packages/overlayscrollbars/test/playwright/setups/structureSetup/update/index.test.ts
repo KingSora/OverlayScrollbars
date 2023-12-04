@@ -59,23 +59,6 @@ const createTests = (fast?: boolean) => {
 
             await expectSuccess(page);
           });
-
-          test('without flexbox glue & css custom props', async ({ page }) => {
-            await page.click('#fbg');
-            await page.click('#ccp');
-
-            await expectSuccess(page);
-          });
-
-          if (!nativeScrollbarHiding) {
-            test('with fully overlaid scrollbars and flexbox glue', async ({ page }) => {
-              await page.click('#fo');
-              await page.click('#fbg');
-              await page.click('#ccp');
-
-              await expectSuccess(page);
-            });
-          }
         });
       });
     });

@@ -8,14 +8,12 @@ import { addClass } from '~/support';
   /**
    * fast: faster but not so accurate run
    * nsh: native scrollbar hiding
-   * fbg: flexbox glue
-   * ccp: css custom props
    * po: partially overlaid
    * fo: fully overlaid
    * vpt: viewport is target
    * pa: padding absolute
    */
-  ['fast', 'nsh', 'fbg', 'ccp', 'po', 'fo', 'vpt', 'pa'].forEach((param) => {
+  ['fast', 'nsh', 'po', 'fo', 'vpt', 'pa'].forEach((param) => {
     const paramValue = Boolean(params.get(param));
 
     if (paramValue) {

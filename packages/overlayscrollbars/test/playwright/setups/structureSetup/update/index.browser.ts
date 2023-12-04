@@ -896,7 +896,7 @@ const start = async () => {
 
     setTestResult(true);
   } catch (e: any) {
-    const { scrollbarsSize, scrollbarsOverlaid, scrollbarsHiding, rtlScrollBehavior, flexboxGlue } =
+    const { scrollbarsSize, scrollbarsOverlaid, scrollbarsHiding, rtlScrollBehavior } =
       OverlayScrollbars.env();
     console.error(
       e.message,
@@ -912,7 +912,6 @@ const start = async () => {
           scrollbarsOverlaid,
           scrollbarsHiding,
           rtlScrollBehavior,
-          flexboxGlue,
         },
         opts: targetOptionsSlot!.textContent,
         flags: document.body.getAttribute('class'),

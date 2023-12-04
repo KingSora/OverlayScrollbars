@@ -133,10 +133,6 @@ body {
   white-space: nowrap;
 }
 
-.fbg .textwrap {
-  display: none !important;
-}
-
 .end::before {
   content: '';
   position: absolute;
@@ -323,20 +319,6 @@ body.nsh {
   .os-scrollbar-hidden.os-environment::-webkit-scrollbar,
   .os-scrollbar-hidden.os-environment::-webkit-scrollbar-corner {
     display: block !important;
-  }
-}
-
-// disable flexboxglue detection
-body.fbg {
-  .os-environment-flexbox-glue.os-environment {
-    display: block !important;
-  }
-}
-
-// disable css custom props detection
-body.ccp {
-  .os-environment {
-    z-index: 0 !important;
   }
 }
 
