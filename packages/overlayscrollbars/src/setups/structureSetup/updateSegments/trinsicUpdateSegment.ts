@@ -1,5 +1,4 @@
 import { strHeight, style } from '~/support';
-import { getEnvironment } from '~/environment';
 import type { CreateStructureUpdateSegment } from '../structureSetup';
 
 /**
@@ -10,11 +9,9 @@ import type { CreateStructureUpdateSegment } from '../structureSetup';
 export const createTrinsicUpdateSegment: CreateStructureUpdateSegment =
   ({ _content }) =>
   ({ _observersUpdateHints, _observersState, _force }) => {
-    const { _flexboxGlue } = getEnvironment();
     const { _heightIntrinsicChanged } = _observersUpdateHints || {};
     const { _heightIntrinsic } = _observersState;
-    const heightIntrinsicChanged =
-      (_content || !_flexboxGlue) && (_heightIntrinsicChanged || _force);
+    const heightIntrinsicChanged = _content && (_heightIntrinsicChanged || _force);
 
     if (heightIntrinsicChanged) {
       style(_content, {

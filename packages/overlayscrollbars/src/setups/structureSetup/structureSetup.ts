@@ -103,7 +103,7 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     },
   };
   const { _target, _viewport, _viewportAddRemoveClass, _viewportIsTarget } = elements;
-  const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _flexboxGlue } = getEnvironment();
+  const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } = getEnvironment();
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
 
@@ -117,7 +117,7 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     appendStructureElements,
     (updateInfo) => {
       const updateHints: StructureSetupUpdateHints = {};
-      const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
+      const adjustScrollOffset = doViewportArrange;
       const scrollOffset = adjustScrollOffset && getElmentScroll(_viewport);
 
       _viewportAddRemoveClass('', dataValueHostUpdating, true);

@@ -7,11 +7,7 @@ import {
 import type { EventListenerOptions } from '~/support/dom/events';
 
 const testElm = document.body;
-const mockEventListener = (
-  passive?: boolean,
-  add?: (...args: any) => any,
-  remove?: (...args: any) => any
-) => {
+const mockEventListener = (add?: (...args: any) => any, remove?: (...args: any) => any) => {
   const originalAdd = testElm.addEventListener;
   const originalRemove = testElm.removeEventListener;
   const originalWindow = window.addEventListener;
@@ -21,9 +17,6 @@ const mockEventListener = (
   }
   if (remove) {
     testElm.removeEventListener = remove;
-  }
-  if (!passive) {
-    window.addEventListener = () => {};
   }
   return () => {
     testElm.addEventListener = originalAdd;
@@ -36,41 +29,31 @@ describe('dom events', () => {
   describe('addEventListener & addEventListeners', () => {
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports
     let eventsModule: typeof import('~/support/dom/events') | undefined;
-    const onOffTest = (
-      passiveSupported: boolean,
-      eventNames: string,
-      options?: EventListenerOptions
-    ) => {
+    const onOffTest = (eventNames: string, options?: EventListenerOptions) => {
       const once = options?._once;
-      const expectObjAdd = passiveSupported
-        ? {
-            passive: (options && options._passive) ?? passiveSupported,
-            capture: (options && options._capture) || false,
-          }
-        : options?._capture || false;
+      const expectObjAdd = {
+        passive: (options && options._passive) ?? true,
+        capture: (options && options._capture) || false,
+      };
       const expectObjRemove = options?._capture || false;
       const onceListeners: (() => void)[] = [];
       const mockFnRemove = jest.fn();
       const mockFnAdd = jest.fn();
       const eventListener = () => {};
 
-      const revert = mockEventListener(
-        passiveSupported,
-        (name: string, listener: any, ...args: any) => {
-          if (once) {
-            const onceRemoveMockFn = jest.fn();
-            const revertOnceMock = mockEventListener(passiveSupported, jest.fn(), onceRemoveMockFn);
+      const revert = mockEventListener((name: string, listener: any, ...args: any) => {
+        if (once) {
+          const onceRemoveMockFn = jest.fn();
+          const revertOnceMock = mockEventListener(jest.fn(), onceRemoveMockFn);
 
-            listener();
-            expect(onceRemoveMockFn).toHaveBeenCalledWith(name, listener, expectObjRemove);
+          listener();
+          expect(onceRemoveMockFn).toHaveBeenCalledWith(name, listener, expectObjRemove);
 
-            revertOnceMock();
-            onceListeners.push(listener);
-          }
-          mockFnAdd(name, listener, ...args);
-        },
-        mockFnRemove
-      );
+          revertOnceMock();
+          onceListeners.push(listener);
+        }
+        mockFnAdd(name, listener, ...args);
+      }, mockFnRemove);
       const listenerRemoveFn = eventsModule?.addEventListener(
         testElm,
         eventNames,
@@ -136,22 +119,20 @@ describe('dom events', () => {
       })
     );
 
-    [true, false].forEach((passiveSupport) => {
-      describe(`passive event listeners support: ${passiveSupport}`, () => {
-        ['testEventName', 'testEventName testEventName2 testEventName3'].forEach((eventNames) => {
-          const title = eventNames.split(' ').length === 1 ? 'single' : 'multiple';
-          test(title, () => {
-            onOffTest(passiveSupport, eventNames);
-            onOffTest(passiveSupport, eventNames, { _capture: true });
-            onOffTest(passiveSupport, eventNames, { _capture: false });
-            onOffTest(passiveSupport, eventNames, { _capture: true, _passive: true });
-            onOffTest(passiveSupport, eventNames, { _capture: false, _passive: false });
-            onOffTest(passiveSupport, eventNames, { _capture: true, _passive: false });
-            onOffTest(passiveSupport, eventNames, { _capture: false, _passive: true });
+    describe(`passive event listeners support`, () => {
+      ['testEventName', 'testEventName testEventName2 testEventName3'].forEach((eventNames) => {
+        const title = eventNames.split(' ').length === 1 ? 'single' : 'multiple';
+        test(title, () => {
+          onOffTest(eventNames);
+          onOffTest(eventNames, { _capture: true });
+          onOffTest(eventNames, { _capture: false });
+          onOffTest(eventNames, { _capture: true, _passive: true });
+          onOffTest(eventNames, { _capture: false, _passive: false });
+          onOffTest(eventNames, { _capture: true, _passive: false });
+          onOffTest(eventNames, { _capture: false, _passive: true });
 
-            onOffTest(passiveSupport, eventNames, { _once: true });
-            onOffTest(passiveSupport, eventNames, { _once: false });
-          });
+          onOffTest(eventNames, { _once: true });
+          onOffTest(eventNames, { _once: false });
         });
       });
     });
@@ -161,7 +142,7 @@ describe('dom events', () => {
     const offTest = (eventNames: string, options?: boolean) => {
       const mockFnRemove = jest.fn();
       const listener = () => {};
-      const revert = mockEventListener(false, jest.fn(), mockFnRemove);
+      const revert = mockEventListener(jest.fn(), mockFnRemove);
 
       removeEventListener(testElm, eventNames, listener, options);
       eventNames.split(' ').forEach((eventName) => {

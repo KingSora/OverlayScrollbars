@@ -268,7 +268,7 @@ const assertCorrectSetupElements = (
 
   expect(typeof destroy).toBe('function');
 
-  const { _nativeScrollbarsHiding, _cssCustomProperties, _getDefaultInitialization } = environment;
+  const { _getDefaultInitialization } = environment;
   const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
     host: defaultHostInitStrategy,
@@ -278,7 +278,6 @@ const assertCorrectSetupElements = (
   } = defaultInitElements;
   const inputIsElement = isHTMLElement(input);
   const inputAsObj = input as InitializationTargetObject;
-  const styleElm = document.querySelector('style');
   const checkStrategyDependendElements = (
     elm: Element | null,
     initialization:
@@ -348,12 +347,6 @@ const assertCorrectSetupElements = (
       }
     }
   };
-
-  if (_nativeScrollbarsHiding || _cssCustomProperties || _viewportIsTarget) {
-    expect(styleElm).toBeFalsy();
-  } else {
-    expect(styleElm).toBeTruthy();
-  }
 
   if (_viewportIsContent) {
     const { content: defaultContentInit } = defaultInitElements;
@@ -469,13 +462,6 @@ const envNativeScrollbarStyling = {
     _nativeScrollbarsHiding: true,
   },
 };
-const envCssCustomProperties = {
-  name: 'custom css properties',
-  env: {
-    ...env,
-    _cssCustomProperties: true,
-  },
-};
 const envInitStrategyMin = {
   name: 'initialization strategy min',
   env: {
@@ -551,7 +537,6 @@ describe('structureSetup.elements', () => {
   [
     envDefault,
     envNativeScrollbarStyling,
-    envCssCustomProperties,
     envInitStrategyMin,
     envInitStrategyMax,
     envInitStrategyAssigned,

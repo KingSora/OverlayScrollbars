@@ -10,7 +10,6 @@ import {
   removeElements,
   push,
   runEachAndClear,
-  insertBefore,
   attr,
   keys,
   removeAttr,
@@ -33,13 +32,11 @@ import {
   dataAttributeContent,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
-import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
   resolveInitialization as generalResolveInitialization,
 } from '~/initialization';
-import type { ScrollbarsHidingPlugin } from '~/plugins';
 import type {
   InitializationTarget,
   InitializationTargetElement,
@@ -58,7 +55,6 @@ export interface StructureSetupElementsObj {
   _viewport: HTMLElement;
   _padding: HTMLElement | false;
   _content: HTMLElement | false;
-  _viewportArrange: HTMLStyleElement | false | null | undefined;
   _scrollOffsetElement: HTMLElement;
   _scrollEventElement: HTMLElement | Document;
   // ctx ----
@@ -85,11 +81,6 @@ export const createStructureSetupElements = (
 ): StructureSetupElements => {
   const env = getEnvironment();
   const { _getDefaultInitialization, _nativeScrollbarsHiding } = env;
-  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
-    scrollbarsHidingPluginName
-  );
-  const createUniqueViewportArrangeElement =
-    scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
   const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
     host: defaultHostInitialization,
@@ -171,11 +162,6 @@ export const createStructureSetupElements = (
         paddingInitialization
       ),
     _content: contentElement,
-    _viewportArrange:
-      !viewportIsTarget &&
-      !_nativeScrollbarsHiding &&
-      createUniqueViewportArrangeElement &&
-      createUniqueViewportArrangeElement(env),
     _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
     _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
     _windowElm: docWnd,
@@ -209,7 +195,7 @@ export const createStructureSetupElements = (
   }, [] as Array<HTMLElement | false>);
   const elementIsGenerated = (elm: HTMLElement | false) =>
     elm ? inArray(generatedElements, elm) : null;
-  const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
+  const { _target, _host, _padding, _viewport, _content } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [
     () => {
       // always remove dataAttributeHost & dataAttributeInitialize from host and from <html> element if target is body
@@ -281,10 +267,6 @@ export const createStructureSetupElements = (
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
       attrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden, true);
       push(destroyFns, bind(removeAttr, _viewport, dataAttributeViewport));
-    }
-    if (_viewportArrange) {
-      insertBefore(_viewport, _viewportArrange);
-      push(destroyFns, bind(removeElements, _viewportArrange));
     }
     if (setViewportFocus) {
       const tabIndexStr = 'tabindex';

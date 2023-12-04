@@ -75,16 +75,7 @@ export type HideNativeScrollbars = (
  * @returns
  */
 export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
-  {
-    _host,
-    _padding,
-    _viewport,
-    _viewportArrange,
-    _viewportIsTarget,
-    _viewportAddRemoveClass,
-    _isBody,
-    _windowElm,
-  },
+  { _host, _padding, _viewport, _viewportIsTarget, _viewportAddRemoveClass, _isBody, _windowElm },
   state
 ) => {
   const max0 = bind(mathMax, 0);
@@ -113,12 +104,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const overflowIsVisible = (overflowBehavior: string) =>
     overflowBehavior.indexOf(strVisible) === 0;
 
-  const {
-    _nativeScrollbarsSize,
-    _flexboxGlue,
-    _nativeScrollbarsHiding,
-    _nativeScrollbarsOverlaid,
-  } = getEnvironment();
+  const { _nativeScrollbarsSize, _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } =
+    getEnvironment();
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
   );
@@ -316,9 +303,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const [arrangeViewport, undoViewportArrange] = scrollbarsHidingPlugin
     ? scrollbarsHidingPlugin._overflowUpdateSegment(
         doViewportArrange,
-        _flexboxGlue,
         _viewport,
-        _viewportArrange,
         state,
         getViewportOverflowState,
         hideNativeScrollbars
@@ -349,7 +334,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _nativeScrollbarsOverlaid.y;
     const adjustFlexboxGlue =
       !_viewportIsTarget &&
-      !_flexboxGlue &&
       (_sizeChanged ||
         _contentMutation ||
         _hostMutation ||

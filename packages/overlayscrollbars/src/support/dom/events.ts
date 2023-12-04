@@ -1,33 +1,7 @@
-import { isUndefined } from '../utils/types';
 import { each, runEachAndClear } from '../utils/array';
 import { bind } from '../utils/function';
-import { wnd } from '../utils/alias';
-import { noop } from '../utils/noop';
 import { keys } from '../utils';
 
-let passiveEventsSupport: boolean | undefined;
-const passiveStr = 'passive';
-const supportPassiveEvents = (): boolean => {
-  // IE11 doesn't support passive events
-  if (isUndefined(passiveEventsSupport)) {
-    passiveEventsSupport = false;
-    try {
-      /* eslint-disable */
-      // @ts-ignore
-      wnd.addEventListener(
-        passiveStr,
-        noop,
-        Object.defineProperty({}, passiveStr, {
-          get() {
-            passiveEventsSupport = true;
-          },
-        })
-      );
-      /* eslint-enable */
-    } catch {}
-  }
-  return passiveEventsSupport;
-};
 const splitEventNames = (eventNames: string) => eventNames.split(' ');
 
 export interface EventListenerOptions {
@@ -71,16 +45,13 @@ export const addEventListener = <T extends Event = Event>(
   listener: (event: T) => any,
   options?: EventListenerOptions
 ): (() => void) => {
-  const doSupportPassiveEvents = supportPassiveEvents();
-  const passive = (doSupportPassiveEvents && options && options._passive) ?? doSupportPassiveEvents;
+  const passive = (options && options._passive) ?? true;
   const capture = (options && options._capture) || false;
   const once = (options && options._once) || false;
-  const nativeOptions: AddEventListenerOptions | boolean = doSupportPassiveEvents
-    ? {
-        passive,
-        capture,
-      }
-    : capture;
+  const nativeOptions: AddEventListenerOptions = {
+    passive,
+    capture,
+  };
 
   return bind(
     runEachAndClear,

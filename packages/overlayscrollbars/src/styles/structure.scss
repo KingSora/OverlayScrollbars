@@ -4,14 +4,13 @@
 
 .os-environment {
   scroll-behavior: auto !important;
-  --os-custom-prop: -1;
   position: fixed;
   opacity: 0;
   visibility: hidden;
   overflow: scroll;
   height: 200px;
   width: 200px;
-  z-index: var(--os-custom-prop);
+  z-index: -1;
 
   div {
     width: 200%;

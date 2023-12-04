@@ -278,23 +278,8 @@ describe('array utilities', () => {
       document.body.innerHTML = '';
     });
 
-    test('fallback', () => {
-      document.body.innerHTML = '<div></div><div></div><div></div>';
-      const arrFrom = Array.from;
-      // @ts-ignore
-      Array.from = undefined;
-      const fromChildNodes = from(document.body.childNodes);
-      Array.from = arrFrom;
-      expect(fromChildNodes).toEqual(Array.from(document.body.childNodes));
-      document.body.innerHTML = '';
-    });
-
-    test('fallback with Set', () => {
-      const arrFrom = Array.from;
-      // @ts-ignore
-      Array.from = undefined;
+    test('Array.from with Set', () => {
       const fromResult = from(new Set([1, 2, 3]));
-      Array.from = arrFrom;
       expect(fromResult).toEqual([1, 2, 3]);
     });
   });

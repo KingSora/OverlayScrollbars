@@ -10,7 +10,7 @@ import rollupConfig from '~/../rollup.config';
 
 const cleanBundle = true;
 const cleanFixture = true;
-const expectedBundleDiff = 2300;
+const expectedBundleDiff = 2000;
 
 const normalizePath = (pathName: string) =>
   pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName;

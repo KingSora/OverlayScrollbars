@@ -37,11 +37,11 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
 
   return ({ _checkOption, _observersUpdateHints, _observersState, _force }) => {
     let [padding, paddingChanged] = currentPaddingCache(_force);
-    const { _nativeScrollbarsHiding, _flexboxGlue } = getEnvironment();
+    const { _nativeScrollbarsHiding } = getEnvironment();
     const { _sizeChanged, _contentMutation, _directionChanged } = _observersUpdateHints || {};
     const { _directionIsRTL } = _observersState;
     const [paddingAbsolute, paddingAbsoluteChanged] = _checkOption('paddingAbsolute');
-    const contentMutation = _force || (!_flexboxGlue && _contentMutation);
+    const contentMutation = _force || _contentMutation;
 
     if (_sizeChanged || paddingChanged || contentMutation) {
       [padding, paddingChanged] = updatePaddingCache(_force);

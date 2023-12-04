@@ -9,10 +9,7 @@ import {
   offsetSize,
   removeAttr,
   removeElements,
-  equalBCRWH,
-  getBoundingClientRect,
   assignDeep,
-  cssProperty,
   createCache,
   equalXY,
   createEventListenerHub,
@@ -25,12 +22,7 @@ import {
   strOverflowX,
   strOverflowY,
 } from '~/support';
-import {
-  classNameEnvironment,
-  classNameEnvironmentFlexboxGlue,
-  classNameEnvironmentFlexboxGlueMax,
-  classNameScrollbarHidden,
-} from '~/classnames';
+import { classNameEnvironment, classNameScrollbarHidden } from '~/classnames';
 import { defaultOptions } from '~/options';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { XY, EventListener } from '~/support';
@@ -55,10 +47,6 @@ export interface Environment {
   scrollbarsHiding: boolean;
   /** The rtl scroll behavior of the browser. */
   rtlScrollBehavior: { n: boolean; i: boolean };
-  /** Whether the browser supports all needed Flexbox features for OverlayScrollbars to work in a more performant way. */
-  flexboxGlue: boolean;
-  /** Whether the browser supports custom css properties. (also known as css variables) */
-  cssCustomProperties: boolean;
   /** Whether the browser supports the ScrollTimeline API. */
   scrollTimeline: boolean;
   /** The default Initialization to use if nothing else is specified. */
@@ -92,8 +80,6 @@ export interface InternalEnvironment {
   readonly _nativeScrollbarsOverlaid: XY<boolean>;
   readonly _nativeScrollbarsHiding: boolean;
   readonly _rtlScrollBehavior: { n: boolean; i: boolean };
-  readonly _flexboxGlue: boolean;
-  readonly _cssCustomProperties: boolean;
   readonly _scrollTimeline: boolean;
   readonly _staticDefaultInitialization: Initialization;
   readonly _staticDefaultOptions: Options;
@@ -131,7 +117,7 @@ const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   const revertClass = addClass(testElm, classNameScrollbarHidden);
   try {
     result =
-      style(testElm, cssProperty('scrollbar-width') as StyleObjectKey) === 'none' ||
+      style(testElm, 'scrollbar-width' as StyleObjectKey) === 'none' ||
       wnd.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
   } catch (ex) {}
   revertClass();
@@ -165,24 +151,6 @@ const getRtlScrollBehavior = (
      */
     n: childOffset.x !== childOffsetAfterScroll.x,
   };
-};
-
-const getFlexboxGlue = (parentElm: HTMLElement, childElm: HTMLElement): boolean => {
-  // IE11 doesn't support "flexbox glue"
-  const revertFbxGlue = addClass(parentElm, classNameEnvironmentFlexboxGlue);
-  const minOffsetsizeParent = getBoundingClientRect(parentElm);
-  const minOffsetsize = getBoundingClientRect(childElm);
-  const supportsMin = equalBCRWH(minOffsetsize, minOffsetsizeParent, true);
-
-  const revertFbxGlueMax = addClass(parentElm, classNameEnvironmentFlexboxGlueMax);
-  const maxOffsetsizeParent = getBoundingClientRect(parentElm);
-  const maxOffsetsize = getBoundingClientRect(childElm);
-  const supportsMax = equalBCRWH(maxOffsetsize, maxOffsetsizeParent, true);
-
-  revertFbxGlue();
-  revertFbxGlueMax();
-
-  return supportsMin && supportsMax;
 };
 
 const createEnvironment = (): InternalEnvironment => {
@@ -236,10 +204,8 @@ const createEnvironment = (): InternalEnvironment => {
     _nativeScrollbarsSize: nativeScrollbarsSize,
     _nativeScrollbarsOverlaid: nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding: nativeScrollbarsHiding,
-    _cssCustomProperties: style(envElm, 'zIndex') === '-1', // IE11 doesn't support css custom props
     _scrollTimeline: !!scrollT,
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
-    _flexboxGlue: getFlexboxGlue(envElm, envChildElm),
     _addResizeListener: bind(addEvent, 'r'),
     _getDefaultInitialization: getDefaultInitialization,
     _setDefaultInitialization: (newInitializationStrategy) =>

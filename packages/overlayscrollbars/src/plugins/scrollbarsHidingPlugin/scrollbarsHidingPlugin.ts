@@ -1,6 +1,5 @@
 import {
   keys,
-  attr,
   style,
   noop,
   each,
@@ -17,8 +16,6 @@ import {
   strPaddingLeft,
   strPaddingRight,
   strPaddingTop,
-  strWidth,
-  strHeight,
 } from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
@@ -50,37 +47,14 @@ export type UndoArrangeViewport = (
   viewportOverflowState?: ViewportOverflowState
 ) => UndoViewportArrangeResult;
 
-let contentArrangeCounter = 0;
-
 export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';
 
 export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
   [scrollbarsHidingPluginName]: {
     static: () => ({
-      _createUniqueViewportArrangeElement: (env: InternalEnvironment): false | HTMLStyleElement => {
-        const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _cssCustomProperties } = env;
-        const create =
-          !_cssCustomProperties &&
-          !_nativeScrollbarsHiding &&
-          (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
-        const result = create ? document.createElement('style') : false;
-
-        if (result) {
-          attr(
-            result,
-            'id',
-            `${dataAttributeViewport}-${dataValueViewportArrange}-${contentArrangeCounter}`
-          );
-          contentArrangeCounter++;
-        }
-
-        return result;
-      },
       _overflowUpdateSegment: (
         doViewportArrange: boolean,
-        flexboxGlue: boolean,
         viewport: HTMLElement,
-        viewportArrange: HTMLStyleElement | false | null | undefined,
         state: StructureSetupState,
         getViewportOverflowState: GetViewportOverflowState,
         hideNativeScrollbars: HideNativeScrollbars
@@ -127,35 +101,10 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                   : '',
             };
 
-            // adjust content arrange / before element
-            if (viewportArrange) {
-              const { sheet } = viewportArrange;
-              if (sheet) {
-                const { cssRules } = sheet;
-                if (cssRules) {
-                  if (!cssRules.length) {
-                    sheet.insertRule(
-                      `#${attr(
-                        viewportArrange,
-                        'id'
-                      )} + [${dataAttributeViewport}~='${dataValueViewportArrange}']::before {}`,
-                      0
-                    );
-                  }
-
-                  // @ts-ignore
-                  const ruleStyle = cssRules[0].style;
-
-                  ruleStyle[strWidth] = arrangeSize.w;
-                  ruleStyle[strHeight] = arrangeSize.h;
-                }
-              }
-            } else {
-              style<'--os-vaw' | '--os-vah'>(viewport, {
-                '--os-vaw': arrangeSize.w,
-                '--os-vah': arrangeSize.h,
-              });
-            }
+            style<'--os-vaw' | '--os-vah'>(viewport, {
+              '--os-vaw': arrangeSize.w,
+              '--os-vah': arrangeSize.h,
+            });
           }
 
           return doViewportArrange;
@@ -198,10 +147,6 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
 
             // add class
             attrClass(viewport, dataAttributeViewport, dataValueViewportArrange);
-
-            if (!flexboxGlue) {
-              finalPaddingStyle[strHeight] = '';
-            }
 
             style(viewport, finalPaddingStyle);
 

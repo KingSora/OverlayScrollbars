@@ -2,8 +2,6 @@ const dataAttributePrefix = `data-overlayscrollbars`;
 
 // environment
 export const classNameEnvironment = 'os-environment';
-export const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
-export const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
 
 // misc
 export const classNameScrollbarHidden = `os-scrollbar-hidden`;
@@ -45,7 +43,6 @@ export const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverLi
 export const classNameTrinsicObserver = 'os-trinsic-observer';
 
 // scrollbars
-export const classNameScrollbarNoCssCustomProps = 'os-no-css-vars';
 export const classNameScrollbarThemeNone = 'os-theme-none';
 export const classNameScrollbar = 'os-scrollbar';
 export const classNameScrollbarRtl = `${classNameScrollbar}-rtl`;

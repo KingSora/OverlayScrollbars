@@ -99,7 +99,7 @@ export const createObserversSetup = (
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = structureSetupElements;
-  const { _flexboxGlue, _addResizeListener } = getEnvironment();
+  const { _addResizeListener } = getEnvironment();
 
   const [updateContentSizeCache] = createCache<WH<number>>(
     {
@@ -242,8 +242,9 @@ export const createObserversSetup = (
     return updateHints;
   };
 
-  const [constructTrinsicObserver, updateTrinsicObserver] =
-    _content || !_flexboxGlue ? createTrinsicObserver(_host, onTrinsicChanged) : [];
+  const [constructTrinsicObserver, updateTrinsicObserver] = _content
+    ? createTrinsicObserver(_host, onTrinsicChanged)
+    : [];
 
   const constructSizeObserver =
     !_viewportIsTarget &&

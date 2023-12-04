@@ -76,22 +76,14 @@ const contents = (elm: InputElementType): ReadonlyArray<ChildNode> =>
  */
 const parent = (elm: InputElementType): OutputElementType => elm && elm.parentElement;
 
-const closest = (elm: InputElementType, selector: string): OutputElementType => {
-  if (isElement(elm)) {
-    // IE11 doesnt support closest
-    const closestFn = getElmPrototype.closest;
-    if (closestFn) {
-      return closestFn.call(elm, selector);
-    }
-
-    do {
-      if (is(elm, selector)) {
-        return elm as Element;
-      }
-      elm = parent(elm);
-    } while (elm);
-  }
-};
+/**
+ * Returns the closest element to the passed element which matches the given selector.
+ * @param elm The element.
+ * @param selector The selector.
+ * @returns The closest element to the passed element which matches the given selector.
+ */
+const closest = (elm: InputElementType, selector: string): OutputElementType =>
+  isElement(elm) && elm.closest(selector);
 
 /**
  * Determines whether the given element lies between two selectors in the DOM.
