@@ -168,6 +168,7 @@ const getRtlScrollBehavior = (
 };
 
 const getFlexboxGlue = (parentElm: HTMLElement, childElm: HTMLElement): boolean => {
+  // IE11 doesn't support "flexbox glue"
   const revertFbxGlue = addClass(parentElm, classNameEnvironmentFlexboxGlue);
   const minOffsetsizeParent = getBoundingClientRect(parentElm);
   const minOffsetsize = getBoundingClientRect(childElm);
@@ -235,7 +236,7 @@ const createEnvironment = (): InternalEnvironment => {
     _nativeScrollbarsSize: nativeScrollbarsSize,
     _nativeScrollbarsOverlaid: nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding: nativeScrollbarsHiding,
-    _cssCustomProperties: style(envElm, 'zIndex') === '-1',
+    _cssCustomProperties: style(envElm, 'zIndex') === '-1', // IE11 doesn't support css custom props
     _scrollTimeline: !!scrollT,
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),

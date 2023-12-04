@@ -4,7 +4,7 @@ import {
   from,
   inArray,
   concat,
-  deduplicateArray,
+  cloneArray,
   runEachAndClear,
   isEmptyArray,
 } from '~/support/utils/array';
@@ -327,9 +327,9 @@ describe('array utilities', () => {
   });
 
   test('deduplicateArray', () => {
-    expect(deduplicateArray(['a', 'b', 'c', 'a'])).toHaveLength(3);
-    expect(deduplicateArray(['a', 'a', 'a', 'a'])).toHaveLength(1);
-    expect(Array.isArray(deduplicateArray([]))).toBe(true);
+    expect(cloneArray(['a', 'b', 'c', 'a'])).toHaveLength(3);
+    expect(cloneArray(['a', 'a', 'a', 'a'])).toHaveLength(1);
+    expect(Array.isArray(cloneArray([]))).toBe(true);
   });
 
   test('isEmptyArray', () => {

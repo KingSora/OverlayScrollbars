@@ -84,6 +84,7 @@ export const push = <T>(array: T[], items: T | ArrayLike<T>, arrayIsSingleItem?:
  * @param arr The object from which the array instance shall be created.
  */
 export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => {
+  // IE11 doesnt have support for Array.from
   const original = Array.from;
   const result: T[] = [];
 
@@ -115,7 +116,7 @@ export const isEmptyArray = (array: any[] | null | undefined): boolean => !!arra
  * @param array The array to be deduplicated.
  * @returns The deduplicated array.
  */
-export const deduplicateArray = <T extends any[]>(array: T): T => from(new Set(array)) as T;
+export const cloneArray = <T extends any[]>(array: T): T => from(new Set(array)) as T;
 
 /**
  * Calls all functions in the passed array/set of functions.

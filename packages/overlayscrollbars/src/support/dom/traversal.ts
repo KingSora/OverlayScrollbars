@@ -78,6 +78,7 @@ const parent = (elm: InputElementType): OutputElementType => elm && elm.parentEl
 
 const closest = (elm: InputElementType, selector: string): OutputElementType => {
   if (isElement(elm)) {
+    // IE11 doesnt support closest
     const closestFn = getElmPrototype.closest;
     if (closestFn) {
       return closestFn.call(elm, selector);

@@ -8,6 +8,7 @@ import { keys } from '../utils';
 let passiveEventsSupport: boolean | undefined;
 const passiveStr = 'passive';
 const supportPassiveEvents = (): boolean => {
+  // IE11 doesn't support passive events
   if (isUndefined(passiveEventsSupport)) {
     passiveEventsSupport = false;
     try {
