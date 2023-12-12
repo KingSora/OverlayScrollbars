@@ -1,5 +1,5 @@
 const path = require('path');
-const { terser: rollupTerser } = require('rollup-plugin-terser');
+const rollupTerser = require('@rollup/plugin-terser');
 const {
   rollupBabel,
   rollupTs,
@@ -71,8 +71,8 @@ module.exports = (resolve, options) => {
           rollupAlias(resolve, alias),
           rollupScss(resolve, sourcemap, extractStyles, false),
           rollupTs(input),
-          rollupBabel(resolve, generatedCode === 'es2015'),
           rollupCommonjs(sourcemap, resolve),
+          rollupBabel(resolve, generatedCode === 'es2015'),
           ...plugins,
         ],
       };
