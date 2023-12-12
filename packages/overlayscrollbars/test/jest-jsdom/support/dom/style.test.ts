@@ -1,7 +1,8 @@
 import { isEmptyObject } from '~/support/utils/object';
 import { isString, isPlainObject } from '~/support/utils/types';
 import {
-  style,
+  getStyles,
+  setStyles,
   topRightBottomLeft,
   getDirectionIsRTL,
   getTrasformTranslateValue,
@@ -12,76 +13,74 @@ describe('dom style', () => {
     document.body.removeAttribute('style');
   });
 
-  describe('style', () => {
-    describe('get', () => {
-      test('single', () => {
-        expect(isString(style(document.body, 'width'))).toBe(true);
-      });
-
-      test('multiple', () => {
-        const widthHeight = style(document.body, ['width', 'height']);
-        expect(isPlainObject(widthHeight)).toBe(true);
-        expect(isString(widthHeight.width)).toBe(true);
-        expect(isString(widthHeight.height)).toBe(true);
-      });
-
-      test('null', () => {
-        expect(style(null, 'width')).toBe('');
-
-        const widthHeight = style(null, ['width', 'height']);
-        expect(isPlainObject(widthHeight)).toBe(true);
-        expect(isEmptyObject(widthHeight)).toBe(true);
-      });
+  describe('getStyles', () => {
+    test('single', () => {
+      expect(isString(getStyles(document.body, 'width'))).toBe(true);
     });
 
-    describe('set', () => {
-      test('single', () => {
-        expect(document.body.style.width).toBe('');
-        style(document.body, { width: '123px' });
-        expect(document.body.style.width).toBe('123px');
+    test('multiple', () => {
+      const widthHeight = getStyles(document.body, ['width', 'height']);
+      expect(isPlainObject(widthHeight)).toBe(true);
+      expect(isString(widthHeight.width)).toBe(true);
+      expect(isString(widthHeight.height)).toBe(true);
+    });
 
-        expect(document.body.style.getPropertyValue('--custom')).toBe('');
-        style<'--custom'>(document.body, { '--custom': '123px' });
-        expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
-      });
+    test('null', () => {
+      expect(getStyles(null, 'width')).toBe('');
 
-      test('single add px', () => {
-        expect(document.body.style.width).toBe('');
-        style(document.body, { width: 123 });
-        expect(document.body.style.width).toBe('123px');
-      });
+      const widthHeight = getStyles(null, ['width', 'height']);
+      expect(isPlainObject(widthHeight)).toBe(true);
+      expect(isEmptyObject(widthHeight)).toBe(true);
+    });
+  });
 
-      test('single dont add px', () => {
-        expect(document.body.style.opacity).toBe('');
-        style(document.body, { opacity: 0.5 });
-        expect(document.body.style.opacity).toBe('0.5');
-      });
+  describe('setStyles', () => {
+    test('single', () => {
+      expect(document.body.style.width).toBe('');
+      setStyles(document.body, { width: '123px' });
+      expect(document.body.style.width).toBe('123px');
 
-      test('multiple', () => {
-        expect(document.body.style.width).toBe('');
-        expect(document.body.style.height).toBe('');
-        expect(document.body.style.opacity).toBe('');
-        expect(document.body.style.zIndex).toBe('');
-        expect(document.body.style.lineHeight).toBe('');
-        expect(document.body.style.getPropertyValue('--custom')).toBe('');
-        style<'--custom'>(document.body, {
-          width: '123px',
-          height: 321,
-          opacity: '0.5',
-          zIndex: 1,
-          '--custom': '123px',
-        });
-        expect(document.body.style.width).toBe('123px');
-        expect(document.body.style.height).toBe('321px');
-        expect(document.body.style.opacity).toBe('0.5');
-        expect(document.body.style.zIndex).toBe('1');
-        expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
-      });
+      expect(document.body.style.getPropertyValue('--custom')).toBe('');
+      setStyles<'--custom'>(document.body, { '--custom': '123px' });
+      expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
+    });
 
-      test('null', () => {
-        expect(style(null, { width: '123px' })).toBe(undefined);
-        expect(style(null, { width: '123px', height: '321px' })).toBe(undefined);
+    test('single add px', () => {
+      expect(document.body.style.width).toBe('');
+      setStyles(document.body, { width: 123 });
+      expect(document.body.style.width).toBe('123px');
+    });
+
+    test('single dont add px', () => {
+      expect(document.body.style.opacity).toBe('');
+      setStyles(document.body, { opacity: '0.5' });
+      expect(document.body.style.opacity).toBe('0.5');
+    });
+
+    test('multiple', () => {
+      expect(document.body.style.width).toBe('');
+      expect(document.body.style.height).toBe('');
+      expect(document.body.style.opacity).toBe('');
+      expect(document.body.style.zIndex).toBe('');
+      expect(document.body.style.lineHeight).toBe('');
+      expect(document.body.style.getPropertyValue('--custom')).toBe('');
+      setStyles<'--custom'>(document.body, {
+        width: '123px',
+        height: 321,
+        opacity: '0.5',
+        zIndex: '1',
+        '--custom': '123px',
       });
+      expect(document.body.style.width).toBe('123px');
+      expect(document.body.style.height).toBe('321px');
+      expect(document.body.style.opacity).toBe('0.5');
+      expect(document.body.style.zIndex).toBe('1');
+      expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
+    });
+
+    test('null', () => {
+      expect(setStyles(null, { width: '123px' })).toBe(undefined);
+      expect(setStyles(null, { width: '123px', height: '321px' })).toBe(undefined);
     });
   });
 

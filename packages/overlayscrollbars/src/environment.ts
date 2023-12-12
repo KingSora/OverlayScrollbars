@@ -1,7 +1,6 @@
 import {
   createDOM,
   addClass,
-  style,
   appendChildren,
   fractionalSize,
   clientSize,
@@ -24,6 +23,8 @@ import {
   strHidden,
   strOverflowX,
   strOverflowY,
+  getStyles,
+  setStyles,
 } from '~/support';
 import {
   classNameEnvironment,
@@ -131,9 +132,9 @@ const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   const revertClass = addClass(testElm, classNameScrollbarHidden);
   try {
     result =
-      style(testElm, cssProperty('scrollbar-width') as StyleObjectKey) === 'none' ||
-      wnd.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
-  } catch (ex) {}
+      getStyles(testElm, cssProperty('scrollbar-width') as StyleObjectKey) === 'none' ||
+      getStyles(testElm, 'display', '::-webkit-scrollbar') === 'none';
+  } catch {}
   revertClass();
   return result;
 };
@@ -142,7 +143,7 @@ const getRtlScrollBehavior = (
   parentElm: HTMLElement,
   childElm: HTMLElement
 ): { i: boolean; n: boolean } => {
-  style(parentElm, { [strOverflowX]: strHidden, [strOverflowY]: strHidden, direction: 'rtl' });
+  setStyles(parentElm, { [strOverflowX]: strHidden, [strOverflowY]: strHidden, direction: 'rtl' });
   scrollElementTo(parentElm, { x: 0 });
 
   const parentOffset = absoluteCoordinates(parentElm);
@@ -236,7 +237,7 @@ const createEnvironment = (): InternalEnvironment => {
     _nativeScrollbarsSize: nativeScrollbarsSize,
     _nativeScrollbarsOverlaid: nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding: nativeScrollbarsHiding,
-    _cssCustomProperties: style(envElm, 'zIndex') === '-1', // IE11 doesn't support css custom props
+    _cssCustomProperties: getStyles(envElm, 'zIndex') === '-1', // IE11 doesn't support css custom props
     _scrollTimeline: !!scrollT,
     _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _flexboxGlue: getFlexboxGlue(envElm, envChildElm),

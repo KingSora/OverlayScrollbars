@@ -1,4 +1,4 @@
-import { style } from './style';
+import { getStyles } from './style';
 import { mathRound, wnd } from '../utils/alias';
 import { bind } from '../utils/function';
 import { strHeight, strWidth } from '../utils/strings';
@@ -61,8 +61,8 @@ export const scrollSize = bind(getElmWidthHeightProperty<HTMLElement>, 'scroll')
  * @param elm The element of which the fractional- width and height shall be returned.
  */
 export const fractionalSize = (elm: HTMLElement | false | null | undefined): Readonly<WH> => {
-  const cssWidth = parseFloat(style(elm, strWidth)) || 0;
-  const cssHeight = parseFloat(style(elm, strHeight)) || 0;
+  const cssWidth = parseFloat(getStyles(elm, strWidth)) || 0;
+  const cssHeight = parseFloat(getStyles(elm, strHeight)) || 0;
   return {
     w: cssWidth - mathRound(cssWidth),
     h: cssHeight - mathRound(cssHeight),

@@ -15,7 +15,6 @@ import {
   runEachAndClear,
   scrollT,
   setT,
-  style,
   bind,
   mathMax,
   getElmentScroll,
@@ -26,6 +25,7 @@ import {
   assignDeep,
   ratioToCssPercent,
   numberToCssPx,
+  setStyles,
 } from '~/support';
 import {
   classNameScrollbar,
@@ -159,7 +159,7 @@ export const createScrollbarsSetupElements = (
   ) => {
     each(scrollbarStructures, (scrollbarStructure) => {
       const [elm, styles] = elmStyle(scrollbarStructure);
-      style(elm, styles);
+      setStyles(elm, styles);
     });
   };
   const animateElement = (

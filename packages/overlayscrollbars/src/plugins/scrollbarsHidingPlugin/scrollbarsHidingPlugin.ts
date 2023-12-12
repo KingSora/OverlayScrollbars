@@ -1,7 +1,6 @@
 import {
   keys,
   attr,
-  style,
   noop,
   each,
   assignDeep,
@@ -19,6 +18,8 @@ import {
   strPaddingTop,
   strWidth,
   strHeight,
+  getStyles,
+  setStyles,
 } from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
@@ -151,7 +152,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                 }
               }
             } else {
-              style<'--os-vaw' | '--os-vah'>(viewport, {
+              setStyles<'--os-vaw' | '--os-vah'>(viewport, {
                 '--os-vaw': arrangeSize.w,
                 '--os-vah': arrangeSize.h,
               });
@@ -194,7 +195,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
               assignProps([strMarginLeft, strMarginRight, strPaddingLeft, strPaddingRight]);
             }
 
-            const prevStyle = style(viewport, keys(finalPaddingStyle) as StyleObjectKey[]);
+            const prevStyle = getStyles(viewport, keys(finalPaddingStyle) as StyleObjectKey[]);
 
             // add class
             attrClass(viewport, dataAttributeViewport, dataValueViewportArrange);
@@ -203,7 +204,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
               finalPaddingStyle[strHeight] = '';
             }
 
-            style(viewport, finalPaddingStyle);
+            setStyles(viewport, finalPaddingStyle);
 
             return [
               () => {
@@ -213,7 +214,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                   doViewportArrange,
                   prevStyle
                 );
-                style(viewport, prevStyle);
+                setStyles(viewport, prevStyle);
                 // remove class
                 attrClass(viewport, dataAttributeViewport, dataValueViewportArrange, true);
               },

@@ -3,7 +3,7 @@ import './index.scss';
 import should from 'should';
 import { timeout, setTestResult, waitForOrFailTest, resize } from '@~local/browser-testing';
 import { OverlayScrollbars } from '~/overlayscrollbars';
-import { addClass, each, isArray, removeAttr, style } from '~/support';
+import { addClass, each, isArray, removeAttr, getStyles, setStyles } from '~/support';
 import { ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
 
 if (!window.ResizeObserver) {
@@ -136,11 +136,11 @@ resize(resizeBetweenC!);
 
 const resizeBetween = async (betweenElm: HTMLElement) => {
   const styleObj = {
-    width: parseInt(style(betweenElm, 'width'), 10) + 50,
-    height: parseInt(style(betweenElm, 'height'), 10) + 50,
+    width: parseInt(getStyles(betweenElm, 'width'), 10) + 50,
+    height: parseInt(getStyles(betweenElm, 'height'), 10) + 50,
   };
   const updateCountsBefore = [rootUpdateCount, aUpdateCount, bUpdateCount, cUpdateCount];
-  style(betweenElm, styleObj);
+  setStyles(betweenElm, styleObj);
 
   await timeout(250);
   const updateCountsAfter = [rootUpdateCount, aUpdateCount, bUpdateCount, cUpdateCount];
@@ -155,11 +155,11 @@ const resizeBetween = async (betweenElm: HTMLElement) => {
 
 const resizeResize = async (resizeElm: HTMLElement) => {
   const styleObj = {
-    width: parseInt(style(resizeElm, 'width'), 10) - 10,
-    height: parseInt(style(resizeElm, 'height'), 10) - 10,
+    width: parseInt(getStyles(resizeElm, 'width'), 10) - 10,
+    height: parseInt(getStyles(resizeElm, 'height'), 10) - 10,
   };
   const updateCountsBefore = [rootUpdateCount, aUpdateCount, bUpdateCount, cUpdateCount];
-  style(resizeElm, styleObj);
+  setStyles(resizeElm, styleObj);
 
   await timeout(250);
   const updateCountsAfter = [rootUpdateCount, aUpdateCount, bUpdateCount, cUpdateCount];

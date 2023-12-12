@@ -1,4 +1,4 @@
-import { strHeight, style } from '~/support';
+import { setStyles, strHeight } from '~/support';
 import { getEnvironment } from '~/environment';
 import type { CreateStructureUpdateSegment } from '../structureSetup';
 
@@ -17,7 +17,7 @@ export const createTrinsicUpdateSegment: CreateStructureUpdateSegment =
       (_content || !_flexboxGlue) && (_heightIntrinsicChanged || _force);
 
     if (heightIntrinsicChanged) {
-      style(_content, {
+      setStyles(_content, {
         [strHeight]: _heightIntrinsic ? '' : '100%',
       });
     }

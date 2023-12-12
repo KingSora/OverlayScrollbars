@@ -17,7 +17,6 @@ import {
   clientSize,
   from,
   getBoundingClientRect,
-  style,
   parent,
   addClass,
   removeAttr,
@@ -28,6 +27,8 @@ import {
   createDiv,
   removeElements,
   removeClass,
+  setStyles,
+  getStyles,
 } from '~/support';
 import { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~/plugins';
 import type { WH } from '~/support';
@@ -194,11 +195,11 @@ selectCallbackEnv(containerMinMaxSelect);
 // initialize resize handles always after OverlayScrollbars was initialized to preserve correct parent elements
 const targetResizeInstance = resize(target!);
 targetResizeInstance.addResizeListener((width, height) => {
-  style(comparison, { width, height });
+  setStyles(comparison, { width, height });
 });
 const targetResizeResizeInstance = resize(targetResize!);
 targetResizeResizeInstance.addResizeListener((width, height) => {
-  style(comparisonResize, { width, height });
+  setStyles(comparisonResize, { width, height });
 });
 
 if (!useContentElement) {
@@ -365,10 +366,10 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     const { x: overflowOptionX, y: overflowOptionY } = osInstance.options().overflow;
     const overflowOptionXVisible = isVisibleOverflow(overflowOptionX);
     const overflowOptionYVisible = isVisibleOverflow(overflowOptionY);
-    const hostOverflowStyle = style(target, 'overflow');
-    const paddingOverflowStyle = style(targetPadding, 'overflow');
-    const viewportOverflowXStyle = style(targetViewport!, 'overflowX');
-    const viewportOverflowYStyle = style(targetViewport!, 'overflowY');
+    const hostOverflowStyle = getStyles(target, 'overflow');
+    const paddingOverflowStyle = getStyles(targetPadding, 'overflow');
+    const viewportOverflowXStyle = getStyles(targetViewport!, 'overflowX');
+    const viewportOverflowYStyle = getStyles(targetViewport!, 'overflowY');
 
     // ==== check scroll values:
 
@@ -683,13 +684,13 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
       metrics: getMetrics(comparison!),
     };
 
-    style(targetResize, styleObj);
-    style(comparisonResize, styleObj);
+    setStyles(targetResize, styleObj);
+    setStyles(comparisonResize, styleObj);
 
     await checkMetrics(before);
   };
   const setSmallestOverflow = async (width?: boolean, height?: boolean) => {
-    const { maxWidth, maxHeight } = style(comparison, ['maxWidth', 'maxHeight']);
+    const { maxWidth, maxHeight } = getStyles(comparison, ['maxWidth', 'maxHeight']);
 
     if (maxWidth !== 'none' && maxHeight !== 'none') {
       const addOverflow = 1;
@@ -697,14 +698,17 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
         updCount: updateCount,
         metrics: getMetrics(comparison!),
       };
-      const { paddingRight, paddingBottom } = style(comparison, ['paddingRight', 'paddingBottom']);
+      const { paddingRight, paddingBottom } = getStyles(comparison, [
+        'paddingRight',
+        'paddingBottom',
+      ]);
       const comparisonViewport = getComparisonViewport();
       const comparisonContentBox = contentBox(comparisonViewport);
       const widthOverflow = width ? comparisonContentBox.w + addOverflow : 0;
       const heightOverflow = height ? comparisonContentBox.h + addOverflow : 0;
       const styleObj = { width: widthOverflow, height: heightOverflow };
 
-      style(comparisonResize, styleObj);
+      setStyles(comparisonResize, styleObj);
 
       const overflowAmount = {
         width: comparisonViewport!.scrollWidth - comparisonViewport!.clientWidth,
@@ -718,7 +722,7 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
         styleObj.height += parseFloat(paddingBottom);
       }
 
-      style(comparisonResize, styleObj);
+      setStyles(comparisonResize, styleObj);
 
       if (width) {
         while (
@@ -726,7 +730,7 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
           addOverflow - 1
         ) {
           styleObj.width += addOverflow;
-          style(comparisonResize, styleObj);
+          setStyles(comparisonResize, styleObj);
         }
       }
 
@@ -736,7 +740,7 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
           addOverflow - 1
         ) {
           styleObj.height += addOverflow;
-          style(comparisonResize, styleObj);
+          setStyles(comparisonResize, styleObj);
         }
       }
 
@@ -773,7 +777,7 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
         }
       });
 
-      style(targetResize, styleObj);
+      setStyles(targetResize, styleObj);
 
       await checkMetrics(before);
     }
@@ -788,20 +792,20 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
     const widthOverflow = width ? comparisonContentBox.w + 1000 : 0;
     const heightOverflow = height ? comparisonContentBox.h + 1000 : 0;
     const styleObj = { width: widthOverflow, height: heightOverflow };
-    style(targetResize, styleObj);
-    style(comparisonResize, styleObj);
+    setStyles(targetResize, styleObj);
+    setStyles(comparisonResize, styleObj);
 
     await checkMetrics(before);
   };
   const iterateOverflow = async () => {
-    style(targetResize, { boxSizing: 'border-box' });
-    style(comparisonResize, { boxSizing: 'border-box' });
-    style(targetPercent, { display: 'none' });
-    style(comparisonPercent, { display: 'none' });
-    style(targetTextwrap, { display: 'none' });
-    style(comparisonTextwrap, { display: 'none' });
-    style(targetEnd, { display: 'none' });
-    style(comparisonEnd, { display: 'none' });
+    setStyles(targetResize, { boxSizing: 'border-box' });
+    setStyles(comparisonResize, { boxSizing: 'border-box' });
+    setStyles(targetPercent, { display: 'none' });
+    setStyles(comparisonPercent, { display: 'none' });
+    setStyles(targetTextwrap, { display: 'none' });
+    setStyles(comparisonTextwrap, { display: 'none' });
+    setStyles(targetEnd, { display: 'none' });
+    setStyles(comparisonEnd, { display: 'none' });
 
     await setNoOverflow();
     await setSmallestOverflow(true, false);

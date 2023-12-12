@@ -1,7 +1,6 @@
 import {
   createCache,
   attr,
-  style,
   scrollSize,
   fractionalSize,
   equalWH,
@@ -25,6 +24,8 @@ import {
   strHidden,
   strOverflowX,
   strOverflowY,
+  setStyles,
+  getStyles,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -153,7 +154,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     viewportOverflowState: ViewportOverflowState,
     heightIntrinsic: boolean
   ) => {
-    style(_viewport, {
+    setStyles(_viewport, {
       [strHeight]: '',
     });
 
@@ -164,11 +165,11 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       const hostClientSize = clientSize(_host);
 
       // padding subtraction is only needed if padding is absolute or if viewport is content-box
-      const isContentBox = style(_viewport, 'boxSizing') === 'content-box';
+      const isContentBox = getStyles(_viewport, 'boxSizing') === 'content-box';
       const paddingVertical = _paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
       const subtractXScrollbar = !(_nativeScrollbarsOverlaid.x && isContentBox);
 
-      style(_viewport, {
+      setStyles(_viewport, {
         [strHeight]:
           hostClientSize.h +
           fSize.h +
@@ -195,7 +196,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       isOverlaid: boolean,
       nativeScrollbarSize: number
     ) => {
-      const overflowStyle = style(_viewport, styleKey);
+      const overflowStyle = getStyles(_viewport, styleKey);
       // can't do something like "viewportStyleObj && viewportStyleObj[styleKey] || overflowStyle" here!
       const objectPrefferedOverflowStyle = viewportStyleObj
         ? viewportStyleObj[styleKey]
@@ -517,7 +518,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         attr(_host, dataAttributeHostOverflowX, viewportStyle[strOverflowX] as string);
         attr(_host, dataAttributeHostOverflowY, viewportStyle[strOverflowY] as string);
       } else {
-        style(_viewport, viewportStyle);
+        setStyles(_viewport, viewportStyle);
       }
     }
 
