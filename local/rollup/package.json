@@ -18,7 +18,7 @@
     "rollup-plugin-license": "^2.8.1",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-scss": "^3.0.0",
-    "rollup-plugin-serve": "^1.1.0",
+    "rollup-plugin-serve": "^2.0.0",
     "rollup-plugin-styles": "^4.0.0",
     "@rollup/plugin-virtual": "^3.0.1",
     "rollup-plugin-typescript2": "^0.32.1"
