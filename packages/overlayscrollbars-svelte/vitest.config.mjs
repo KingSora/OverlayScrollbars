@@ -15,7 +15,13 @@ export default mergeConfig(
       ...vitestConfig.test,
       coverage: {
         ...vitestConfig.test.coverage,
-        exclude: ['**/Test.svelte'],
+        exclude: [
+          'env.d.ts',
+          'svelte.config.js',
+          '**/.svelte-kit/**/*',
+          '**/Test.svelte',
+          '**/OverlayScrollbarsComponent.types.ts',
+        ],
       },
     },
   }

@@ -40,10 +40,14 @@
     },
     "./overlayscrollbars.scss": "./src/index.scss"
   },
-  "sideEffects": ["*.css", "*.scss", "*.sass"],
+  "sideEffects": [
+    "*.css",
+    "*.scss",
+    "*.sass"
+  ],
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
-    "rollup-plugin-summary": "^2.0.0"
+    "rollup-plugin-filesize": "^10.0.0"
   },
   "scripts": {
     "build": "rollup -c",

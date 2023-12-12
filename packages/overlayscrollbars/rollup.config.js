@@ -1,6 +1,7 @@
 const { dirname, basename, resolve } = require('path');
 const rollupTerser = require('@rollup/plugin-terser');
 // const { summary } = require('rollup-plugin-summary');
+const filesize = require('rollup-plugin-filesize');
 const createRollupConfig = require('@~local/rollup');
 const { devDependencies, peerDependencies, version } = require('./package.json');
 
@@ -129,7 +130,7 @@ Released under the MIT license.`,
         }),
       ],
     },
-    plugins: [],
+    plugins: [filesize()],
     treeshake: {
       propertyReadSideEffects: false,
       moduleSideEffects: false,
