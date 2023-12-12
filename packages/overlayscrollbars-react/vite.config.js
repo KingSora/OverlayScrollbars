@@ -16,7 +16,7 @@ export default defineConfig({
       fileName: (format) => `overlayscrollbars-react.${format}.js`,
     },
     rollupOptions: {
-      external: ['react', 'overlayscrollbars'],
+      external: ['react', 'react/jsx-runtime', 'overlayscrollbars'],
       output: {
         globals: {
           react: 'React',
@@ -66,5 +66,8 @@ export default defineConfig({
       ],
     },
   },
-  plugins: [esbuildResolve(), react({ jsxRuntime: 'classic' })],
+  plugins: [
+    esbuildResolve(),
+    react(process.env.VITEST ? { jsxRuntime: 'automatic' } : { jsxRuntime: 'classic' }),
+  ],
 });

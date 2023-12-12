@@ -11,9 +11,11 @@ module.exports = defineConfig({
     include,
     coverage: {
       reportsDirectory: './.coverage/unit',
-      // https://github.com/vitest-dev/vitest/issues/2190
-      // without this the setup file or the test files show up in the final coverage on the CI
-      exclude: [`**/${setupFileName}`, ...include],
+    },
+    poolOptions: {
+      threads: {
+        singleThread: true,
+      },
     },
   },
 });

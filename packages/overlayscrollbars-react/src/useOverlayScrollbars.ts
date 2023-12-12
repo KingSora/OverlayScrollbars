@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React, { useEffect, useMemo, useRef } from 'react';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import type { InitializationTarget } from 'overlayscrollbars';
 import type {

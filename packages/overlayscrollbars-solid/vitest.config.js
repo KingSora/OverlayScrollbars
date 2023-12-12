@@ -12,8 +12,10 @@ export default mergeConfig(
   {
     test: {
       ...vitestConfig.test,
-      deps: {
-        inline: [/solid-testing-library/],
+      server: {
+        deps: {
+          inline: [/solid-testing-library/],
+        },
       },
     },
   }
