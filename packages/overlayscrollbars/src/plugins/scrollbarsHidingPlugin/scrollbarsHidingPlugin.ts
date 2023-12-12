@@ -152,7 +152,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                 }
               }
             } else {
-              setStyles<'--os-vaw' | '--os-vah'>(viewport, {
+              setStyles(viewport, {
                 '--os-vaw': arrangeSize.w,
                 '--os-vah': arrangeSize.h,
               });

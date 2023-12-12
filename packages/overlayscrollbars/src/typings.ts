@@ -12,10 +12,12 @@ export type NonEmptyObject<T extends Record<string, unknown>> = T extends Record
   ? never
   : T;
 
-export type StyleObjectKey = Extract<keyof CSSStyleDeclaration, string>;
+export type StyleObjectKey = Extract<keyof CSSStyleDeclaration, string> | `--${string}`;
 
-export type StyleObject<CustomCssProps = ''> = {
-  [Key in StyleObjectKey | (CustomCssProps extends string ? CustomCssProps : '')]?: string | number;
+export type StyleObjectValue = string | number;
+
+export type StyleObject = {
+  [Key in StyleObjectKey]?: StyleObjectValue;
 };
 
 export type OverflowStyle = 'scroll' | 'hidden' | 'visible';

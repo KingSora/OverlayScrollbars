@@ -1,4 +1,4 @@
-import type { PlainObject, StyleObject, StyleObjectKey } from '~/typings';
+import type { PlainObject, StyleObject, StyleObjectKey, StyleObjectValue } from '~/typings';
 import type { XY } from './offset';
 import { wnd } from '../utils/alias';
 import { each } from '../utils/array';
@@ -11,38 +11,26 @@ export interface TRBL {
   l: number;
 }
 
-export type CSSStyleProperty = Extract<keyof CSSStyleDeclaration, string>;
-
 const customCssPropRegex = /^--/;
 
-const parseToZeroOrNumber = (value?: string, toFloat?: boolean): number => {
-  const finalValue = value || '';
-  /* istanbul ignore next */
-  const num = toFloat ? parseFloat(finalValue) : parseInt(finalValue, 10);
-  // num === num means num is not NaN
-  /* istanbul ignore next */
-  return num === num ? num : 0; // eslint-disable-line no-self-compare
-};
-
-const getCSSVal = (computedStyle: CSSStyleDeclaration, prop: CSSStyleProperty): string =>
-  computedStyle.getPropertyValue(prop) || computedStyle[prop] + '';
+const getCSSVal = (computedStyle: CSSStyleDeclaration, prop: StyleObjectKey): string =>
+  computedStyle.getPropertyValue(prop) || computedStyle[prop as any] || '';
 
 const validFiniteNumber = (number: number) => {
   const notNaN = number || 0;
   return isFinite(notNaN) ? notNaN : 0;
 };
 
+const parseToZeroOrNumber = (value?: string): number => validFiniteNumber(parseFloat(value || ''));
+
 export const ratioToCssPercent = (ratio: number) =>
   `${(validFiniteNumber(ratio) * 100).toFixed(3)}%`;
 
 export const numberToCssPx = (number: number) => `${validFiniteNumber(number)}px`;
 
-export function setStyles<CustomCssProps>(
-  elm: HTMLElement | false | null | undefined,
-  styles: StyleObject<CustomCssProps>
-): void {
+export function setStyles(elm: HTMLElement | false | null | undefined, styles: StyleObject): void {
   elm &&
-    each(styles, (rawValue: string | number, name) => {
+    each(styles, (rawValue: StyleObjectValue, name) => {
       try {
         const elmStyle = elm.style;
         const value = isNumber(rawValue) ? numberToCssPx(rawValue) : rawValue + '';
@@ -108,10 +96,10 @@ export const topRightBottomLeft = (
   const left = `${finalPrefix}left${finalSuffix}` as StyleObjectKey;
   const result = getStyles(elm, [top, right, bottom, left]);
   return {
-    t: parseToZeroOrNumber(result[top], true),
-    r: parseToZeroOrNumber(result[right], true),
-    b: parseToZeroOrNumber(result[bottom], true),
-    l: parseToZeroOrNumber(result[left], true),
+    t: parseToZeroOrNumber(result[top]),
+    r: parseToZeroOrNumber(result[right]),
+    b: parseToZeroOrNumber(result[bottom]),
+    l: parseToZeroOrNumber(result[left]),
   };
 };
 

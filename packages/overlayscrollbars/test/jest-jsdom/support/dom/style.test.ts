@@ -19,10 +19,13 @@ describe('dom style', () => {
     });
 
     test('multiple', () => {
-      const widthHeight = getStyles(document.body, ['width', 'height']);
-      expect(isPlainObject(widthHeight)).toBe(true);
-      expect(isString(widthHeight.width)).toBe(true);
-      expect(isString(widthHeight.height)).toBe(true);
+      document.body.style.setProperty('--value', '123');
+      const multiple = getStyles(document.body, ['width', 'height', '--read', '--value']);
+      expect(isPlainObject(multiple)).toBe(true);
+      expect(isString(multiple.width)).toBe(true);
+      expect(isString(multiple.height)).toBe(true);
+      expect(multiple['--read']).toBe('');
+      expect(multiple['--value']).toBe('123');
     });
 
     test('null', () => {
@@ -41,7 +44,7 @@ describe('dom style', () => {
       expect(document.body.style.width).toBe('123px');
 
       expect(document.body.style.getPropertyValue('--custom')).toBe('');
-      setStyles<'--custom'>(document.body, { '--custom': '123px' });
+      setStyles(document.body, { '--custom': '123px' });
       expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
     });
 
@@ -63,19 +66,19 @@ describe('dom style', () => {
       expect(document.body.style.opacity).toBe('');
       expect(document.body.style.zIndex).toBe('');
       expect(document.body.style.lineHeight).toBe('');
-      expect(document.body.style.getPropertyValue('--custom')).toBe('');
-      setStyles<'--custom'>(document.body, {
+      expect(document.body.style.getPropertyValue('--write')).toBe('');
+      setStyles(document.body, {
         width: '123px',
         height: 321,
         opacity: '0.5',
         zIndex: '1',
-        '--custom': '123px',
+        '--write': '123',
       });
       expect(document.body.style.width).toBe('123px');
       expect(document.body.style.height).toBe('321px');
       expect(document.body.style.opacity).toBe('0.5');
       expect(document.body.style.zIndex).toBe('1');
-      expect(document.body.style.getPropertyValue('--custom')).toBe('123px');
+      expect(document.body.style.getPropertyValue('--write')).toBe('123');
     });
 
     test('null', () => {
