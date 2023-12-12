@@ -93,7 +93,7 @@
     "lint:fix": "eslint --fix ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
     "prettier": "prettier --check ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
     "prettier:fix": "prettier --write ./packages/**/{src,test}/**/*.{js,jsx,ts,tsx}",
-    "ci:test": "run-p test:*",
-    "ci:e2e": "run-p e2e:*"
+    "ci:test": "run-s test:*",
+    "ci:e2e": "run-s e2e:*"
   }
 }
