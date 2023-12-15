@@ -23,8 +23,8 @@
   },
   "devDependencies": {
     "@types/node": "18.7.20",
-    "@types/react": "18.0.21",
-    "@types/react-dom": "18.0.6",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.17",
     "@types/ua-parser-js": "^0.7.36",
     "rehype-pretty-code": "^0.4.0",
     "rehype-slug": "^5.0.1",
