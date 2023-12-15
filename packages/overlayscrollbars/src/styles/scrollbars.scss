@@ -49,14 +49,20 @@ body > .os-scrollbar {
   right: auto;
   left: 0;
 }
-.os-scrollbar-visible,
-.os-scrollbar-interaction.os-scrollbar-visible {
+// classname when the scrollbars is visible due to the `visibility` option
+.os-scrollbar-visible {
   opacity: 1;
   visibility: visible;
 }
+// classname for auto-hiding the scrollbars due to the `autoHide` option
 .os-scrollbar-auto-hide.os-scrollbar-auto-hide-hidden {
   opacity: 0;
   visibility: hidden;
+}
+// classname for overriding auto-hiding if the user is interacting with the scrollbar directly (hovering etc.)
+.os-scrollbar-interaction.os-scrollbar-visible {
+  opacity: 1;
+  visibility: visible;
 }
 .os-scrollbar-unusable,
 .os-scrollbar-unusable *,

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.6
+
+### Bug Fixes
+
+- If the pointer (mouse, pen etc.) is interacting with the scrollbar, the `autoHide` option will wait until the interacting is finished. [#597](https://github.com/KingSora/OverlayScrollbars/issues/597)
+
 ## 2.4.5
 
 ### Improvements
