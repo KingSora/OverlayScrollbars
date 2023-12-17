@@ -174,10 +174,8 @@ export const createScrollbarsSetupElements = (
     elementAnimations.forEach((currAnimations, element) => {
       const doCancel = elements ? inArray(createOrKeepArray(elements), element) : true;
       if (doCancel) {
-        (currAnimations || []).forEach((animation) => {
-          if (animation) {
-            animation.cancel();
-          }
+        each(currAnimations || [], (animation) => {
+          animation && animation.cancel();
         });
         elementAnimations.delete(element);
       }
@@ -245,7 +243,7 @@ export const createScrollbarsSetupElements = (
     isHorizontal?: boolean
   ) => {
     if (scrollTimelineX && scrollTimelineY) {
-      scrollbarStructures.forEach((structure: ScrollbarStructure) => {
+      each(scrollbarStructures, (structure: ScrollbarStructure) => {
         const { _scrollbar, _handle } = structure;
         const getRatio = bind(getScrollbarHandleOffsetRatio, structureSetupState, structure);
         const directionRTL = isHorizontal && getDirectionIsRTL(_scrollbar);
