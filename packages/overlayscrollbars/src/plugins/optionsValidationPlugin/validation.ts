@@ -5,10 +5,10 @@ import {
   push,
   isEmptyObject,
   type,
-  isArray,
   isUndefined,
   isPlainObject,
   isString,
+  createOrKeepArray,
 } from '~/support';
 import type { PlainObject, DeepPartial } from '~/typings';
 import type { OptionsObject } from '~/options';
@@ -134,9 +134,8 @@ const validateRecursive = <T extends PlainObject>(
       const errorEnumStrings: Array<string> = [];
       const errorPossibleTypes: Array<string> = [];
       const optionsValueType = type(optionsValue) as keyof typeof optionsTemplateTypes;
-      const templateValueArr: Array<string | OptionsTemplateTypes> = !isArray(templateValue)
-        ? [templateValue as string | OptionsTemplateTypes]
-        : (templateValue as Array<OptionsTemplateTypes>);
+      const templateValueArr: Array<string | OptionsTemplateTypes> =
+        createOrKeepArray(templateValue);
 
       each(templateValueArr, (currTemplateType) => {
         // if currType value isn't inside possibleTemplateTypes we assume its a enum string value
