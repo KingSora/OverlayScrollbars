@@ -129,18 +129,6 @@ export const createScrollbarsSetupElements = (
   );
   const doRefreshScrollbarOffset = (scrollbar: HTMLElement) =>
     _viewportIsTarget && !_isBody && parent(scrollbar) === _viewport;
-  const animateElement = (
-    element: HTMLElement,
-    scrollTimeline: AnimationTimeline | undefined,
-    keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
-    composite?: CompositeOperation
-  ): PotentialAnimation =>
-    scrollTimeline &&
-    element.animate(keyframes, {
-      // @ts-ignore
-      timeline: scrollTimeline,
-      composite,
-    });
   const getScrollbarOffsetKeyframes = (
     overflowAmount: number,
     isHorizontal?: boolean,
@@ -197,7 +185,12 @@ export const createScrollbarsSetupElements = (
     } else {
       elementAnimations.set(
         element,
-        concat(activeAnimations, [animateElement(element, timeline, keyframes, composite)])
+        concat(activeAnimations, [
+          element.animate(keyframes, {
+            timeline,
+            composite,
+          }),
+        ])
       );
     }
   };
@@ -335,26 +328,33 @@ export const createScrollbarsSetupElements = (
         const directionRTL = !!horizontalScrollbars.find(({ _scrollbar }) =>
           getDirectionIsRTL(_scrollbar)
         );
+        const setScrollbarElementAnimation = (
+          scrollbar: HTMLElement,
+          timeline: AnimationTimeline,
+          overflowAmount: number,
+          isHorizontal?: boolean,
+          rtl?: boolean
+        ) =>
+          setElementAnimation(
+            scrollbar,
+            timeline,
+            addDirectionRTLKeyframes(
+              getScrollbarOffsetKeyframes(overflowAmount, isHorizontal, rtl),
+              directionRTL
+            ),
+            'add'
+          );
+
         each(concat(verticalScrollbars, horizontalScrollbars), ({ _scrollbar }) => {
           if (doRefreshScrollbarOffset(_scrollbar)) {
-            setElementAnimation(
+            setScrollbarElementAnimation(
               _scrollbar,
               scrollTimelineX,
-              addDirectionRTLKeyframes(
-                getScrollbarOffsetKeyframes(_overflowAmount.x, true, directionRTL),
-                directionRTL
-              ),
-              'add'
+              _overflowAmount.x,
+              true,
+              directionRTL
             );
-            setElementAnimation(
-              _scrollbar,
-              scrollTimelineY,
-              addDirectionRTLKeyframes(
-                getScrollbarOffsetKeyframes(_overflowAmount.y),
-                directionRTL
-              ),
-              'add'
-            );
+            setScrollbarElementAnimation(_scrollbar, scrollTimelineY, _overflowAmount.y);
           } else {
             cancelElementAnimations(_scrollbar);
           }

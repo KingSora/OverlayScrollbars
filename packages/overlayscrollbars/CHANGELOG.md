@@ -5,7 +5,7 @@
 ### Bug Fixes
 
 - If the pointer (mouse, pen etc.) is interacting with the scrollbar, the `autoHide` option will wait until the interacting is finished. [#597](https://github.com/KingSora/OverlayScrollbars/issues/597)
-- ScrollTimeline animations are not canceled anymore when they are updated. Instead the animations keyframe effect is switched out. [#598](https://github.com/KingSora/OverlayScrollbars/issues/598)
+- `ScrollTimeline` animations are not canceled anymore when they are updated. Instead the animations keyframe effect is switched out preventing flickering. [#598](https://github.com/KingSora/OverlayScrollbars/issues/598)
 
 ## 2.4.5
 
