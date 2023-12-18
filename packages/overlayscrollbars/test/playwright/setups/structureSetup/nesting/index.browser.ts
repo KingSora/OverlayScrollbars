@@ -153,7 +153,7 @@ const resizeBetween = async (betweenElm: HTMLElement) => {
   removeAttr(betweenElm, 'style');
 };
 
-const resizeResize = async (resizeElm: HTMLElement) => {
+const resizeResizer = async (resizeElm: HTMLElement) => {
   const styleObj = {
     width: parseInt(getStyles(resizeElm, 'width'), 10) - 10,
     height: parseInt(getStyles(resizeElm, 'height'), 10) - 10,
@@ -202,10 +202,10 @@ const testBetweenElements = async () => {
 const testResizeElements = async () => {
   await waitForOrFailTest(
     async () => {
-      await resizeResize(resizeRoot!);
-      await resizeResize(resizeA!);
-      await resizeResize(resizeB!);
-      await resizeResize(resizeC!);
+      await resizeResizer(resizeRoot!);
+      await resizeResizer(resizeA!);
+      await resizeResizer(resizeB!);
+      await resizeResizer(resizeC!);
     },
     { timeout: 5000 }
   );
