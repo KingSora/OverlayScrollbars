@@ -5,6 +5,11 @@ playwrightRollup();
 
 test.describe('scrollbarsSetup.scrollbars', () => {
   test.beforeEach(async ({ page }) => {
+    // test scrollbar click event propagation stop
+    await page.click('body > .os-scrollbar');
+    await page.click('body > .os-scrollbar > .os-scrollbar-track');
+    await page.click('body > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle');
+
     await page.click('#targetA .os-scrollbar');
     await page.click('#targetA .os-scrollbar-track');
     await page.click('#targetA .os-scrollbar-handle');

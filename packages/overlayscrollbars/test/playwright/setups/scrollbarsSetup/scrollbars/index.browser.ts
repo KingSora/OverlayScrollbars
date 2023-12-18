@@ -24,7 +24,6 @@ OverlayScrollbars.env().setDefaultInitialization({
 
 const startButton: HTMLElement | null = document.querySelector('#start');
 const directionRTLButton: HTMLElement | null = document.querySelector('#directionRTL');
-const stage: HTMLElement | null = document.querySelector('#stage');
 const stageResizer: HTMLElement | null = document.querySelector('#stageResizer');
 const targetA: HTMLElement | null = document.querySelector('#targetA');
 const targetB: HTMLElement | null = document.querySelector('#targetB');
@@ -46,6 +45,8 @@ const scrollInstance = (osInstance: OverlayScrollbars) => {
 };
 
 resize(stageResizer!);
+
+const osInstanceBody = OverlayScrollbars(document.body, {});
 
 const osInstanceA = OverlayScrollbars(targetA!, {});
 const osInstanceB = OverlayScrollbars(
@@ -154,7 +155,7 @@ const resizeStageResizer = async () => {
 const assertScrollbarDirection = async (osInstance: OverlayScrollbars, directionIsRTL: boolean) => {
   const { directionRTL: instanceDirectionRTL } = osInstance.state();
   const { scrollbarHorizontal, scrollbarVertical, host } = osInstance.elements();
-  const hostId = host.getAttribute('id');
+  const hostId = host === document.body ? 'body' : host.getAttribute('id');
   const hostBcr = host.getBoundingClientRect();
   const scrollbarHorizontalBcr = scrollbarHorizontal.scrollbar.getBoundingClientRect();
   const scrollbarVerticalBcr = scrollbarVertical.scrollbar.getBoundingClientRect();
@@ -192,7 +193,7 @@ const assertScrollbarDirection = async (osInstance: OverlayScrollbars, direction
 
 const assetScrollbarClickStopsPropagation = (osInstance: OverlayScrollbars) => {
   const { host, scrollbarHorizontal, scrollbarVertical } = osInstance.elements();
-  const hostId = host.getAttribute('id');
+  const hostId = host === document.body ? 'body' : host.getAttribute('id');
   const isScrollbarElement = (
     element: EventTarget | null,
     scrollbarElements: CloneableScrollbarElements
@@ -220,6 +221,9 @@ const runBlock = async () => {
   await assertScrollbarDirection(osInstanceB, false);
   await assertScrollbarDirection(osInstanceC, true);
 
+  // body element scrollbars acts always like ltr direction
+  await assertScrollbarDirection(osInstanceB, false);
+
   await resizeStageResizer();
 
   stageResizer!.removeAttribute('style');
@@ -227,10 +231,10 @@ const runBlock = async () => {
 
 directionRTLButton?.addEventListener('click', () => {
   if (directionRTL) {
-    stage!.style.direction = 'ltr';
+    document.body.style.direction = 'ltr';
     directionRTL = false;
   } else {
-    stage!.style.direction = 'rtl';
+    document.body.style.direction = 'rtl';
     directionRTL = true;
   }
 });
@@ -258,4 +262,5 @@ startButton?.addEventListener('click', async () => {
 assetScrollbarClickStopsPropagation(osInstanceA);
 assetScrollbarClickStopsPropagation(osInstanceB);
 assetScrollbarClickStopsPropagation(osInstanceC);
+assetScrollbarClickStopsPropagation(osInstanceBody);
 scrollInstances();

@@ -20,6 +20,13 @@ body {
   }
 }
 
+#bodyOverflow {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+}
+
 .resizeBtn {
   position: absolute;
   bottom: 0;
