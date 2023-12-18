@@ -254,9 +254,9 @@ startButton?.addEventListener('click', async () => {
 
   if (clickErrors.length > 0) {
     setTestResult(false);
+  } else {
+    setTestResult(true);
   }
-
-  setTestResult(true);
 });
 
 assetScrollbarClickStopsPropagation(osInstanceA);
