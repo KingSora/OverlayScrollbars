@@ -54,7 +54,7 @@ describe('OverlayScrollbarsComponent', () => {
     let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
     render(() => {
-      let div: HTMLDivElement;
+      let div: HTMLDivElement | undefined;
       const [params, setParams] = createStore<{
         options?: PartialOptions;
         events?: EventListeners;
@@ -72,7 +72,7 @@ describe('OverlayScrollbarsComponent', () => {
         }
       });
 
-      return () => (
+      return (
         <>
           <div ref={div} />
           <button
@@ -102,7 +102,7 @@ describe('OverlayScrollbarsComponent', () => {
     let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
     render(() => {
-      let div: HTMLDivElement;
+      let div: HTMLDivElement | undefined;
       const [params, setParams] = createSignal<{
         options?: PartialOptions;
         events?: EventListeners;
@@ -120,7 +120,7 @@ describe('OverlayScrollbarsComponent', () => {
         }
       });
 
-      return () => (
+      return (
         <>
           <div ref={div} />
           <button
@@ -150,7 +150,7 @@ describe('OverlayScrollbarsComponent', () => {
     let osInstance: OverlayScrollbars | null;
     const onUpdated = vitest.fn();
     render(() => {
-      let div: HTMLDivElement;
+      let div: HTMLDivElement | undefined;
       const [options, setOptions] = createSignal<PartialOptions | undefined>();
       const [events, setEvents] = createSignal<EventListeners | undefined>();
       const [initialize, instance] = createOverlayScrollbars({
@@ -169,7 +169,7 @@ describe('OverlayScrollbarsComponent', () => {
         }
       });
 
-      return () => (
+      return (
         <>
           <div ref={div} />
           <button

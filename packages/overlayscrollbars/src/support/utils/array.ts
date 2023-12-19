@@ -1,5 +1,5 @@
 import type { PlainObject } from '~/typings';
-import { isArrayLike, isString } from './types';
+import { isArray, isArrayLike, isString } from './types';
 
 type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
 
@@ -86,6 +86,13 @@ export const push = <T>(array: T[], items: T | ArrayLike<T>, arrayIsSingleItem?:
 export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => Array.from(arr || []);
 
 /**
+ * Creates an array if the passed value is not an array, or returns the value if it is.
+ * @param value The value.
+ * @returns An array which represents the passed value(s).
+ */
+export const createOrKeepArray = <T>(value: T | T[]): T[] => (isArray(value) ? value : [value]);
+
+/**
  * Check whether the passed array is empty.
  * @param array The array which shall be checked.
  */
@@ -96,7 +103,7 @@ export const isEmptyArray = (array: any[] | null | undefined): boolean => !!arra
  * @param array The array to be deduplicated.
  * @returns The deduplicated array.
  */
-export const cloneArray = <T extends any[]>(array: T): T => from(new Set(array)) as T;
+export const deduplicateArray = <T extends any[]>(array: T): T => from(new Set(array)) as T;
 
 /**
  * Calls all functions in the passed array/set of functions.

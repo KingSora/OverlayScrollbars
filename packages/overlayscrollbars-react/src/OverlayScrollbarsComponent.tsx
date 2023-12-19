@@ -1,4 +1,5 @@
-import { forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React, { forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import type { PartialOptions, EventListeners } from 'overlayscrollbars';
 import type { ComponentPropsWithoutRef, ElementRef, ForwardedRef } from 'react';

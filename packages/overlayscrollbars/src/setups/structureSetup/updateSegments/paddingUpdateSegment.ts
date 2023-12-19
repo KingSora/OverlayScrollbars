@@ -2,7 +2,6 @@ import {
   createCache,
   topRightBottomLeft,
   equalTRBL,
-  style,
   assignDeep,
   bind,
   strMarginBottom,
@@ -13,6 +12,7 @@ import {
   strPaddingRight,
   strPaddingTop,
   strWidth,
+  setStyles,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import type { StyleObject } from '~/typings';
@@ -73,8 +73,8 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
       };
 
       // if there is no padding element apply the style to the viewport element instead
-      style(_padding || _viewport, paddingStyle);
-      style(_viewport, viewportStyle);
+      setStyles(_padding || _viewport, paddingStyle);
+      setStyles(_viewport, viewportStyle);
 
       assignDeep(state, {
         _padding: padding,

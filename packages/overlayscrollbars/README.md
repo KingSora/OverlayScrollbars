@@ -721,6 +721,60 @@ const osInstance = OverlayScrollbars(document.body, {});
     // Gets the instance modules instance of the passed plugin.
     plugin<P extends InstancePlugin>(osPlugin: P): InferInstancePluginModuleInstance<P> | undefined;
   }
+
+  // Describes a OverlayScrollbars instances state.
+  interface State {
+    // Describes the current padding in pixel.
+    padding: TRBL;
+    // Whether the current padding is absolute.
+    paddingAbsolute: boolean;
+    // The client width (x) & height (y) of the viewport in pixel.
+    overflowEdge: XY<number>;
+    // The overflow amount in pixel.
+    overflowAmount: XY<number>;
+    // The css overflow style of the viewport.
+    overflowStyle: XY<OverflowStyle>;
+    // Whether the viewport has an overflow.
+    hasOverflow: XY<boolean>;
+    // Whether the direction is considered rtl.
+    directionRTL: boolean;
+    // Whether the instance is considered destroyed.
+    destroyed: boolean;
+  }
+
+  // Describes the elements of a OverlayScrollbars instance.
+  interface Elements {
+    // The element the instance was applied to.
+    target: HTMLElement;
+    // The host element. Its the root of all other elements.
+    host: HTMLElement;
+    /**
+     * The element which is responsible to apply correct paddings.
+     * Depending on the Initialization it can be the same as the viewport element.
+     */
+    padding: HTMLElement;
+    // The element which is responsible to do any scrolling.
+    viewport: HTMLElement;
+    /**
+     * The element which is responsible to hold the content.
+     * Depending on the Initialization it can be the same as the viewport element.
+     */
+    content: HTMLElement;
+    /**
+     * The element through which you can get the current `scrollLeft` or `scrollTop` offset.
+     * Depending on the target element it can be the same as the viewport element.
+     */
+    scrollOffsetElement: HTMLElement;
+    /**
+     * The element through which you can add `scroll` events.
+     * Depending on the target element it can be the same as the viewport element.
+     */
+    scrollEventElement: HTMLElement | Document;
+    // The horizontal scrollbar elements.
+    scrollbarHorizontal: CloneableScrollbarElements;
+    // The vertical scrollbar elements.
+    scrollbarVertical: CloneableScrollbarElements;
+  }
   ```
 </details>
 
@@ -804,6 +858,44 @@ OverlayScrollbars.plugin(SomePlugin);
 
     // Gets the environment.
     env(): Environment;
+  }
+
+  // Describes the OverlayScrollbars environment.
+  interface Environment {
+    // The native scrollbars size of the browser / system.
+    scrollbarsSize: XY<number>;
+    // Whether the native scrollbars are overlaid.
+    scrollbarsOverlaid: XY<boolean>;
+    // Whether the browser supports native scrollbars hiding.
+    scrollbarsHiding: boolean;
+    // The rtl scroll behavior of the browser.
+    rtlScrollBehavior: { n: boolean; i: boolean };
+    // Whether the browser supports the ScrollTimeline API.
+    scrollTimeline: boolean;
+    // The default Initialization to use if nothing else is specified.
+    staticDefaultInitialization: Initialization;
+    // The default Options to use if nothing else is specified.
+    staticDefaultOptions: Options;
+
+    // Returns the current default Initialization.
+    getDefaultInitialization(): Initialization;
+    // Returns the current default Options.
+    getDefaultOptions(): Options;
+
+    /**
+     * Sets a new default Initialization.
+     * If the new default Initialization is partially filled, its deeply merged with the current default Initialization.
+     * @param newDefaultInitialization The new default Initialization.
+     * @returns The current default Initialization.
+     */
+    setDefaultInitialization(newDefaultInitialization: PartialInitialization): Initialization;
+    /**
+     * Sets new default Options.
+     * If the new default Options are partially filled, they're deeply merged with the current default Options.
+     * @param newDefaultOptions The new default Options.
+     * @returns The current default options.
+     */
+    setDefaultOptions(newDefaultOptions: PartialOptions): Options;
   }
   ```
 </details>

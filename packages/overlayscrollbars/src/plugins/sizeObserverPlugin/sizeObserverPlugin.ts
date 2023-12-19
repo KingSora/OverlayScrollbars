@@ -1,6 +1,5 @@
 import {
   createDOM,
-  style,
   appendChildren,
   offsetSize,
   addEventListener,
@@ -13,6 +12,7 @@ import {
   scrollElementTo,
   strWidth,
   strHeight,
+  setStyles,
 } from '~/support';
 import {
   classNameSizeObserverListenerScroll,
@@ -84,7 +84,7 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
         addClass(listenerElement, classNameSizeObserverListenerScroll);
 
         // lets assume that the divs will never be that large and a constant value is enough
-        style(expandElementChild, {
+        setStyles(expandElementChild, {
           [strWidth]: scrollAmount,
           [strHeight]: scrollAmount,
         });

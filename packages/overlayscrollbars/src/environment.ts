@@ -1,7 +1,6 @@
 import {
   createDOM,
   addClass,
-  style,
   appendChildren,
   fractionalSize,
   clientSize,
@@ -21,6 +20,8 @@ import {
   strHidden,
   strOverflowX,
   strOverflowY,
+  getStyles,
+  setStyles,
 } from '~/support';
 import { classNameEnvironment, classNameScrollbarHidden } from '~/classnames';
 import { defaultOptions } from '~/options';
@@ -117,9 +118,9 @@ const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   const revertClass = addClass(testElm, classNameScrollbarHidden);
   try {
     result =
-      style(testElm, 'scrollbar-width' as StyleObjectKey) === 'none' ||
-      wnd.getComputedStyle(testElm, '::-webkit-scrollbar').getPropertyValue('display') === 'none';
-  } catch (ex) {}
+      getStyles(testElm, 'scrollbar-width' as StyleObjectKey) === 'none' ||
+      getStyles(testElm, 'display', '::-webkit-scrollbar') === 'none';
+  } catch {}
   revertClass();
   return result;
 };
@@ -128,7 +129,7 @@ const getRtlScrollBehavior = (
   parentElm: HTMLElement,
   childElm: HTMLElement
 ): { i: boolean; n: boolean } => {
-  style(parentElm, { [strOverflowX]: strHidden, [strOverflowY]: strHidden, direction: 'rtl' });
+  setStyles(parentElm, { [strOverflowX]: strHidden, [strOverflowY]: strHidden, direction: 'rtl' });
   scrollElementTo(parentElm, { x: 0 });
 
   const parentOffset = absoluteCoordinates(parentElm);

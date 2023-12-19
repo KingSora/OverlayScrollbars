@@ -1,6 +1,6 @@
-import { isArray, isBoolean, isFunction, isString } from './utils/types';
+import { isBoolean, isFunction, isString } from './utils/types';
 import { keys } from './utils/object';
-import { each, push, from, isEmptyArray, runEachAndClear } from './utils/array';
+import { each, push, from, isEmptyArray, runEachAndClear, createOrKeepArray } from './utils/array';
 import { bind } from './utils/function';
 
 export type EventListener<EventArgs extends Record<string, any[]>, N extends keyof EventArgs> = (
@@ -44,7 +44,7 @@ const manageListener = <EventArgs extends Record<string, any[]>, N extends keyof
   callback: (listener?: EventListener<EventArgs, N>) => void,
   listener?: EventListener<EventArgs, N> | EventListener<EventArgs, N>[]
 ) => {
-  each(isArray(listener) ? listener : [listener], callback);
+  each(createOrKeepArray(listener), callback);
 };
 
 export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(

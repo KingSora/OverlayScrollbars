@@ -1,6 +1,6 @@
-const { defineConfig, devices } = require('@playwright/test');
+const { devices } = require('@playwright/test');
 
-module.exports = defineConfig({
+module.exports = {
   testMatch: /.*\/test\/playwright\/.*\.test\.[jt]sx?/,
   timeout: 10 * 60 * 1500,
   navigationTimeout: 1000,
@@ -35,4 +35,4 @@ module.exports = defineConfig({
     },
     */
   ],
-});
+};

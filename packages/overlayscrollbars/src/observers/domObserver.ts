@@ -11,7 +11,7 @@ import {
   runEachAndClear,
   bind,
   isEmptyArray,
-  cloneArray,
+  deduplicateArray,
   inArray,
   concat,
 } from '~/support';
@@ -244,7 +244,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
 
       // adds / removes the new elements from the event content change
       updateEventContentChangeElements((selector: string) =>
-        cloneArray(totalChangedNodes).reduce<Node[]>((arr, node) => {
+        deduplicateArray(totalChangedNodes).reduce<Node[]>((arr, node) => {
           push(arr, find(selector, node));
           return is(node, selector) ? push(arr, node) : arr;
         }, [])
@@ -259,7 +259,7 @@ export const createDOMObserver = <ContentObserver extends boolean>(
 
       if (!isEmptyArray(targetChangedAttrs) || targetStyleChanged) {
         const args = [
-          cloneArray(targetChangedAttrs),
+          deduplicateArray(targetChangedAttrs),
           targetStyleChanged,
         ] satisfies Parameters<DOMTargetObserverCallback> & Parameters<DOMObserverCallback<false>>;
         !fromRecords && (callback as DOMTargetObserverCallback).apply(0, args);

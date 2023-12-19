@@ -104,8 +104,6 @@ export const createScrollbarsSetupEvents = (
           scrollbarOptions[isDragScroll ? 'dragScroll' : 'clickScroll'] &&
           (pointers || []).includes(pointerType);
 
-        attrClass(_host, dataAttributeHost, dataValueHostScrollbarPressed, true);
-
         if (continuePointerDown) {
           const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
           const getHandleRect = bind(getBoundingClientRect, _handle);
@@ -148,6 +146,9 @@ export const createScrollbarsSetupEvents = (
             }),
           ];
 
+          attrClass(_host, dataAttributeHost, dataValueHostScrollbarPressed, true);
+          pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);
+
           if (instantClickScroll) {
             moveHandleRelative(startOffset);
           } else if (!isDragScroll) {
@@ -167,8 +168,6 @@ export const createScrollbarsSetupEvents = (
                 )
               );
           }
-
-          pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);
         }
       });
     };

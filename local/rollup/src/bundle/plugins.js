@@ -90,11 +90,7 @@ module.exports = {
         setSpreadProperties: true,
         pureGetters: true,
       },
-      plugins: [
-        '@babel/plugin-transform-runtime',
-        ['@babel/plugin-proposal-class-properties', { loose: true }],
-        ['@babel/plugin-proposal-private-methods', { loose: true }],
-      ],
+      plugins: ['@babel/plugin-transform-runtime'],
       babelHelpers: 'runtime',
       shouldPrintComment: (comment) => /@__PURE__/.test(comment),
       caller: {

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { rollup } from 'rollup';
 import { webpack } from 'webpack';
 import { build } from 'esbuild';
-import { terser } from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
 // @ts-ignore
 import rollupConfig from '~/../rollup.config';
