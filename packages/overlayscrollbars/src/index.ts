@@ -1,8 +1,15 @@
 import './index.scss';
 
-export { OverlayScrollbars } from '~/overlayscrollbars';
+export {
+  OverlayScrollbars,
+  Elements,
+  State,
+  CloneableScrollbarElements,
+  ScrollbarElements,
+} from '~/overlayscrollbars';
 export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~/plugins';
 
+export type { Environment } from '~/environment';
 export type {
   Options,
   PartialOptions,
@@ -23,6 +30,8 @@ export type {
   InitializationTarget,
   InitializationTargetElement,
   InitializationTargetObject,
+  StaticInitialization,
+  DynamicInitialization,
   StaticInitializationElement,
   DynamicInitializationElement,
 } from '~/initialization';
