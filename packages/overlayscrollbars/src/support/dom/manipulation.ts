@@ -3,7 +3,8 @@ import { each, from } from '../utils/array';
 import { noop } from '../utils/noop';
 import { parent } from './traversal';
 
-type NodeCollection = ArrayLike<Node> | Node | false | null | undefined;
+type ManipulationTarget = Node | false | null | undefined;
+type NodeCollection = ArrayLike<Node> | ManipulationTarget;
 
 /**
  * Removes the given Nodes from their parent.
@@ -27,12 +28,12 @@ export const removeElements = (nodes: NodeCollection): void => {
  * @returns A function which removes the inserted nodes.
  */
 const before = (
-  parentElm: Node | false | null | undefined,
-  preferredAnchor: Node | false | null | undefined,
+  parentElm: ManipulationTarget,
+  preferredAnchor: ManipulationTarget,
   insertedElms: NodeCollection
 ): (() => void) => {
   if (insertedElms && parentElm) {
-    let anchor: Node | false | null | undefined = preferredAnchor;
+    let anchor: ManipulationTarget = preferredAnchor;
     let fragment: DocumentFragment | Node | null | undefined;
 
     if (isArrayLike(insertedElms)) {
@@ -70,7 +71,7 @@ const before = (
  * @param children The Nodes which shall be appended.
  * @returns A function which removes the inserted nodes.
  */
-export const appendChildren = (node: Node | false | null | undefined, children: NodeCollection) =>
+export const appendChildren = (node: ManipulationTarget, children: NodeCollection) =>
   before(node, null, children);
 
 /**
@@ -79,7 +80,7 @@ export const appendChildren = (node: Node | false | null | undefined, children: 
  * @param children The Nodes which shall be prepended.
  * @returns A function which removes the inserted nodes.
  */
-export const prependChildren = (node: Node | false | null | undefined, children: NodeCollection) =>
+export const prependChildren = (node: ManipulationTarget, children: NodeCollection) =>
   before(node, node && node.firstChild, children);
 
 /**
@@ -88,10 +89,8 @@ export const prependChildren = (node: Node | false | null | undefined, children:
  * @param insertedNodes The Nodes which shall be inserted.
  * @returns A function which removes the inserted nodes.
  */
-export const insertBefore = (
-  node: Node | false | null | undefined,
-  insertedNodes: NodeCollection
-) => before(parent(node), node, insertedNodes);
+export const insertBefore = (node: ManipulationTarget, insertedNodes: NodeCollection) =>
+  before(parent(node), node, insertedNodes);
 
 /**
  * Inserts the given Nodes after the given Node.
@@ -99,5 +98,5 @@ export const insertBefore = (
  * @param insertedNodes The Nodes which shall be inserted.
  * @returns A function which removes the inserted nodes.
  */
-export const insertAfter = (node: Node | false | null | undefined, insertedNodes: NodeCollection) =>
+export const insertAfter = (node: ManipulationTarget, insertedNodes: NodeCollection) =>
   before(parent(node), node && node.nextSibling, insertedNodes);

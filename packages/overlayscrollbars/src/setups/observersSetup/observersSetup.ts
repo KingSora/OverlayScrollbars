@@ -29,7 +29,6 @@ import {
   classNameScrollbar,
   dataAttributeHost,
   dataAttributeViewport,
-  dataValueHostOverflowVisible,
   dataValueHostUpdating,
   dataValueViewportArrange,
   dataValueViewportOverflowVisible,
@@ -107,27 +106,30 @@ export const createObserversSetup = (
       _initialValue: { w: 0, h: 0 },
     },
     () => {
-      const hasOver = _viewportHasClass(
-        dataValueViewportOverflowVisible,
-        dataValueHostOverflowVisible
-      );
-      const hasVpStyle = _viewportHasClass(dataValueViewportArrange, '');
+      const hasOver = _viewportHasClass(dataValueViewportOverflowVisible);
+      const hasVpStyle = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
       const scrollOffset = hasVpStyle && getElmentScroll(_viewport);
-      _viewportAddRemoveClass(dataValueViewportOverflowVisible, dataValueHostOverflowVisible);
-      _viewportAddRemoveClass(dataValueViewportArrange, '');
-      _viewportAddRemoveClass('', dataValueHostUpdating, true);
+
+      _viewportAddRemoveClass(dataValueViewportOverflowVisible);
+
+      if (_viewportIsTarget) {
+        _viewportAddRemoveClass(dataValueHostUpdating, true);
+      } else {
+        _viewportAddRemoveClass(dataValueViewportArrange);
+      }
 
       const contentScroll = scrollSize(_content);
       const viewportScroll = scrollSize(_viewport);
       const fractional = fractionalSize(_viewport);
 
-      _viewportAddRemoveClass(
-        dataValueViewportOverflowVisible,
-        dataValueHostOverflowVisible,
-        hasOver
-      );
-      _viewportAddRemoveClass(dataValueViewportArrange, '', hasVpStyle);
-      _viewportAddRemoveClass('', dataValueHostUpdating);
+      _viewportAddRemoveClass(dataValueViewportOverflowVisible, hasOver);
+
+      if (_viewportIsTarget) {
+        _viewportAddRemoveClass(dataValueHostUpdating);
+      } else {
+        _viewportAddRemoveClass(dataValueViewportArrange, hasVpStyle);
+      }
+
       scrollElementTo(_viewport, scrollOffset);
 
       return {

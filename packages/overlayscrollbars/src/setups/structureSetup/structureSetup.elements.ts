@@ -14,12 +14,13 @@ import {
   attr,
   keys,
   removeAttr,
-  attrClass,
   hasAttrClass,
   noop,
   addEventListener,
   bind,
   inArray,
+  addAttrClass,
+  addRemoveAttrClass,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -69,15 +70,8 @@ export interface StructureSetupElementsObj {
   _targetIsElm: boolean;
   _viewportIsTarget: boolean;
   _viewportIsContent: boolean;
-  _viewportHasClass: (
-    viewportAttributeClassName: string,
-    hostAttributeClassName: string
-  ) => boolean;
-  _viewportAddRemoveClass: (
-    viewportAttributeClassName: string,
-    hostAttributeClassName: string,
-    add?: boolean
-  ) => void;
+  _viewportHasClass: (value: string) => boolean;
+  _viewportAddRemoveClass: (value: string, add?: boolean) => void;
 }
 
 export const createStructureSetupElements = (
@@ -185,21 +179,17 @@ export const createStructureSetupElements = (
     _targetIsElm: targetIsElm,
     _viewportIsTarget: viewportIsTarget,
     _viewportIsContent: viewportIsContent,
-    _viewportHasClass: (viewportAttributeClassName: string, hostAttributeClassName: string) =>
+    _viewportHasClass: (value: string) =>
       hasAttrClass(
         viewportElement,
         viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
-        viewportIsTarget ? hostAttributeClassName : viewportAttributeClassName
+        value
       ),
-    _viewportAddRemoveClass: (
-      viewportAttributeClassName: string,
-      hostAttributeClassName: string,
-      add?: boolean
-    ) =>
-      attrClass(
+    _viewportAddRemoveClass: (value: string, add?: boolean) =>
+      addRemoveAttrClass(
         viewportElement,
         viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
-        viewportIsTarget ? hostAttributeClassName : viewportAttributeClassName,
+        value,
         add
       ),
   };
@@ -243,7 +233,7 @@ export const createStructureSetupElements = (
 
     const removeHtmlClass =
       isBody && !viewportIsTarget
-        ? addClass(parent(targetElement), classNameScrollbarHidden)
+        ? addClass(parent(targetElement) as HTMLElement, classNameScrollbarHidden)
         : noop;
     const unwrap = (elm: HTMLElement | false | null | undefined) => {
       appendChildren(parent(elm), contents(elm));
@@ -279,7 +269,7 @@ export const createStructureSetupElements = (
     });
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
-      attrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden, true);
+      addAttrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden);
       push(destroyFns, bind(removeAttr, _viewport, dataAttributeViewport));
     }
     if (_viewportArrange) {

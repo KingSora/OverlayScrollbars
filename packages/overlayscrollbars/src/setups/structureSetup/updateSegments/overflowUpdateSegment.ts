@@ -6,7 +6,6 @@ import {
   equalWH,
   clientSize,
   equalXY,
-  attrClass,
   noop,
   assignDeep,
   bind,
@@ -26,13 +25,13 @@ import {
   strOverflowY,
   setStyles,
   getStyles,
+  addRemoveAttrClass,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
   dataAttributeHost,
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
-  dataValueHostScrollbarHidden,
   dataValueHostOverflowVisible,
   dataValueViewportScrollbarHidden,
   dataValueViewportOverflowVisible,
@@ -375,11 +374,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     let preMeasureViewportOverflowState: ViewportOverflowState | undefined;
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarsHiding) {
-      _viewportAddRemoveClass(
-        dataValueViewportScrollbarHidden,
-        dataValueHostScrollbarHidden,
-        !showNativeOverlaidScrollbars
-      );
+      _viewportAddRemoveClass(dataValueViewportScrollbarHidden, !showNativeOverlaidScrollbars);
     }
 
     if (adjustFlexboxGlue) {
@@ -389,11 +384,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     if (adjustViewportArrange) {
       if (overflowVisible) {
-        _viewportAddRemoveClass(
-          dataValueViewportOverflowVisible,
-          dataValueHostOverflowVisible,
-          false
-        );
+        _viewportAddRemoveClass(dataValueViewportOverflowVisible, false);
       }
 
       const [redoViewportArrange, undoViewportArrangeOverflowState] = undoViewportArrange(
@@ -522,10 +513,15 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       }
     }
 
-    attrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
-    attrClass(_padding, dataAttributePadding, dataValuePaddingOverflowVisible, removeClipping);
+    addRemoveAttrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
+    addRemoveAttrClass(
+      _padding,
+      dataAttributePadding,
+      dataValuePaddingOverflowVisible,
+      removeClipping
+    );
     if (!_viewportIsTarget) {
-      attrClass(
+      addRemoveAttrClass(
         _viewport,
         dataAttributeViewport,
         dataValueViewportOverflowVisible,

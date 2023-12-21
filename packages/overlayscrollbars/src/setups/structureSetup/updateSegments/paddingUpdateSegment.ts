@@ -63,7 +63,7 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
         top: paddingRelative ? -padding.t : 0,
         right: paddingRelative ? (_directionIsRTL ? -padding.r : 'auto') : 0,
         left: paddingRelative ? (_directionIsRTL ? 'auto' : -padding.l) : 0,
-        [strWidth]: paddingRelative ? `calc(100% + ${paddingHorizontal}px)` : '',
+        [strWidth]: paddingRelative && `calc(100% + ${paddingHorizontal}px)`,
       };
       const viewportStyle: StyleObject = {
         [strPaddingTop]: paddingRelative ? padding.t : 0,
@@ -79,9 +79,7 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
       assignDeep(state, {
         _padding: padding,
         _paddingAbsolute: !paddingRelative,
-        _viewportPaddingStyle: _padding
-          ? viewportStyle
-          : assignDeep({}, paddingStyle, viewportStyle),
+        _viewportPaddingStyle: _padding ? viewportStyle : assignDeep(paddingStyle, viewportStyle),
       });
     }
 

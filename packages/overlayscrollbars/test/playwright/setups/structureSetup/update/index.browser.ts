@@ -107,7 +107,6 @@ const expectedOverflowVisibleBehavior = (
 
 // @ts-ignore
 const msie11 = !!window.MSInputMethodContext && !!document.documentMode;
-const ff = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
@@ -373,7 +372,7 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
 
     // ==== check scroll values:
 
-    if (ff && isFractionalPixelRatio() && viewportIsTarget) {
+    if (isFractionalPixelRatio() && viewportIsTarget) {
       should.ok(
         Math.abs(targetMetrics.scroll.width - comparisonMetrics.scroll.width) <= 1,
         `Scroll width equality. +-1 (${osInstance.state().overflowAmount.x})`

@@ -5,7 +5,6 @@ import {
   each,
   assignDeep,
   windowSize,
-  attrClass,
   wnd,
   mathAbs,
   mathRound,
@@ -20,6 +19,7 @@ import {
   strHeight,
   getStyles,
   setStyles,
+  addAttrClass,
 } from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
@@ -198,7 +198,11 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
             const prevStyle = getStyles(viewport, keys(finalPaddingStyle) as StyleObjectKey[]);
 
             // add class
-            attrClass(viewport, dataAttributeViewport, dataValueViewportArrange);
+            const removeArrangeAttrClass = addAttrClass(
+              viewport,
+              dataAttributeViewport,
+              dataValueViewportArrange
+            );
 
             if (!flexboxGlue) {
               finalPaddingStyle[strHeight] = '';
@@ -216,7 +220,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                 );
                 setStyles(viewport, prevStyle);
                 // remove class
-                attrClass(viewport, dataAttributeViewport, dataValueViewportArrange, true);
+                removeArrangeAttrClass();
               },
               finalViewportOverflowState,
             ];

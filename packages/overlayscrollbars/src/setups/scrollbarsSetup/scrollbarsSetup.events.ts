@@ -9,13 +9,13 @@ import {
   parent,
   closest,
   push,
-  attrClass,
   bind,
   mathRound,
   strWidth,
   strHeight,
   getElmentScroll,
   scrollElementTo,
+  addAttrClass,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import {
@@ -129,9 +129,14 @@ export const createScrollbarsSetupEvents = (
             runEachAndClear(offFns);
             pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
           };
+          const removeAttrClass = addAttrClass(
+            _host,
+            dataAttributeHost,
+            dataValueHostScrollbarPressed
+          );
 
           const offFns = [
-            bind(attrClass, _host, dataAttributeHost, dataValueHostScrollbarPressed),
+            removeAttrClass,
             addEventListener(_documentElm, releasePointerCaptureEvents, releasePointerCapture),
             addEventListener(_documentElm, 'selectstart', (event: Event) => preventDefault(event), {
               _passive: false,
@@ -146,7 +151,6 @@ export const createScrollbarsSetupEvents = (
             }),
           ];
 
-          attrClass(_host, dataAttributeHost, dataValueHostScrollbarPressed, true);
           pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);
 
           if (instantClickScroll) {

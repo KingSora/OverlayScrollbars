@@ -18,7 +18,7 @@ export const createTrinsicUpdateSegment: CreateStructureUpdateSegment =
 
     if (heightIntrinsicChanged) {
       setStyles(_content, {
-        [strHeight]: _heightIntrinsic ? '' : '100%',
+        [strHeight]: _heightIntrinsic && '100%',
       });
     }
   };
