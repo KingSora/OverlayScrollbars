@@ -1,5 +1,5 @@
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { eventObserver } from './events';
+import { eventObserver } from './events.ts';
 
 let osInstance: OverlayScrollbars | undefined;
 let contentHidden = false;
