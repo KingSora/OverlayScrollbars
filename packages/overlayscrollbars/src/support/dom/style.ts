@@ -1,5 +1,6 @@
 import type { PlainObject, StyleObject, StyleObjectKey, StyleObjectValue } from '~/typings';
 import type { XY } from './offset';
+import type { AttributeTarget } from './types';
 import { wnd } from '../utils/alias';
 import { each } from '../utils/array';
 import { isString, isNumber, isObject } from '../utils/types';
@@ -28,12 +29,12 @@ export const ratioToCssPercent = (ratio: number) =>
 
 export const numberToCssPx = (number: number) => `${validFiniteNumber(number)}px`;
 
-export function setStyles(elm: HTMLElement | false | null | undefined, styles: StyleObject): void {
+export function setStyles(elm: AttributeTarget, styles: StyleObject): void {
   elm &&
     each(styles, (rawValue: StyleObjectValue, name) => {
       try {
         const elmStyle = elm.style;
-        const value = isNumber(rawValue) ? numberToCssPx(rawValue) : rawValue + '';
+        const value = isNumber(rawValue) ? numberToCssPx(rawValue) : (rawValue || '') + '';
 
         if (customCssPropRegex.test(name)) {
           elmStyle.setProperty(name, value);
@@ -45,17 +46,17 @@ export function setStyles(elm: HTMLElement | false | null | undefined, styles: S
 }
 
 export function getStyles(
-  elm: HTMLElement | false | null | undefined,
+  elm: AttributeTarget,
   styles: Array<StyleObjectKey>,
   pseudoElm?: string | null | undefined
 ): Partial<Record<StyleObjectKey, string>>;
 export function getStyles(
-  elm: HTMLElement | false | null | undefined,
+  elm: AttributeTarget,
   styles: StyleObjectKey,
   pseudoElm?: string | null | undefined
 ): string;
 export function getStyles(
-  elm: HTMLElement | false | null | undefined,
+  elm: AttributeTarget,
   styles: Array<StyleObjectKey> | StyleObjectKey,
   pseudoElm?: string | null | undefined
 ): Partial<Record<StyleObjectKey, string>> | string {
@@ -74,7 +75,7 @@ export function getStyles(
   return getStylesResult;
 }
 
-export const getDirectionIsRTL = (elm: HTMLElement | false | null | undefined): boolean =>
+export const getDirectionIsRTL = (elm: AttributeTarget): boolean =>
   getStyles(elm, 'direction') === 'rtl';
 
 /**
@@ -84,7 +85,7 @@ export const getDirectionIsRTL = (elm: HTMLElement | false | null | undefined): 
  * @param propertySuffix The css property suffix. (e.g. "width")
  */
 export const topRightBottomLeft = (
-  elm?: HTMLElement | false | null | undefined,
+  elm?: AttributeTarget,
   propertyPrefix?: string,
   propertySuffix?: string
 ): TRBL => {

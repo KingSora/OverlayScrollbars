@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "dependencies": {
     "overlayscrollbars": "file:../../packages/overlayscrollbars/dist",
     "overlayscrollbars-solid": "file:../../packages/overlayscrollbars-solid/dist",
@@ -7,8 +8,8 @@
   },
   "devDependencies": {
     "typescript": "^5.0.2",
-    "vite": "^4.4.2",
-    "vite-plugin-solid": "^2.7.0"
+    "vite": "^5.0.10",
+    "vite-plugin-solid": "^2.8.0"
   },
   "scripts": {
     "start": "vite",

@@ -1,14 +1,14 @@
-import { from } from '../utils/array';
+import type { AttributeTarget } from './types';
 import { isUndefined } from '../utils/types';
+import { bind, from } from '../utils';
 
 type Attr = {
-  (elm: HTMLElement | false | null | undefined, attrName: string): string | null;
-  (elm: HTMLElement | false | null | undefined, attrName: string, value: string): void;
-  (elm: HTMLElement | false | null | undefined, attrName: string, value?: string):
-    | string
-    | null
-    | void;
+  (elm: AttributeTarget, attrName: string): string | null;
+  (elm: AttributeTarget, attrName: string, value: string): void;
+  (elm: AttributeTarget, attrName: string, value?: string): string | null | void;
 };
+
+export type DomTokens = string | false | null | undefined | void;
 
 /**
  * Gets or sets a attribute with the given attribute of the given element depending whether the value attribute is given.
@@ -18,7 +18,7 @@ type Attr = {
  * @param value The value of the attribute which shall be set.
  */
 export const attr = ((
-  elm: HTMLElement | false | null | undefined,
+  elm: AttributeTarget,
   attrName: string,
   value?: string
 ): string | null | void => {
@@ -28,37 +28,74 @@ export const attr = ((
   elm && elm.setAttribute(attrName, value);
 }) as Attr;
 
-const getValueSet = (elm: HTMLElement | false | null | undefined, attrName: string) =>
-  new Set((attr(elm, attrName) || '').split(' '));
-
 /**
  * Removes the given attribute from the given element.
  * @param elm The element of which the attribute shall be removed.
  * @param attrName The attribute name.
  */
-export const removeAttr = (elm: Element | false | null | undefined, attrName: string): void => {
+export const removeAttr = (elm: AttributeTarget, attrName: string): void => {
   elm && elm.removeAttribute(attrName);
 };
 
+export const domTokenListAttr = (elm: AttributeTarget, attrName: string) => {
+  const elmAttr = bind(attr, elm, attrName);
+  const getDomTokenListSet = (tokens: DomTokens) =>
+    new Set((tokens || '').split(' ').filter((empty) => !!empty));
+  const domTokenListOperation = (
+    initialSet: Set<string>,
+    operationTokens: DomTokens,
+    operation: 'add' | 'delete'
+  ) => {
+    const initialSetCopy = new Set(initialSet);
+    getDomTokenListSet(operationTokens).forEach((token) => {
+      initialSetCopy[operation](token);
+    });
+    return from(initialSetCopy).join(' ');
+  };
+  const initialSet = getDomTokenListSet(elmAttr());
+
+  return {
+    _remove: (removeTokens: DomTokens) =>
+      elmAttr(domTokenListOperation(initialSet, removeTokens, 'delete')),
+    _add: (addTokens: DomTokens) => elmAttr(domTokenListOperation(initialSet, addTokens, 'add')),
+    _has: (hasTokens: DomTokens) => {
+      const tokenSet = getDomTokenListSet(hasTokens);
+      return from(tokenSet).reduce(
+        (boolean, token) => boolean && initialSet.has(token),
+        tokenSet.size > 0
+      );
+    },
+  };
+};
+
 /**
- * Treats the given attribute like the "class" attribute and adds or removes the given value from it.
+ * Treats the given attribute like the "class" attribute and removes the given value from it.
  * @param elm The element.
- * @param attrName The attributeName to which the value shall be added or removed.
- * @param value The value which shall be added or removed.
- * @param add True if the value shall be added, false otherwise.
+ * @param attrName The attributeName to which the value shall be removed.
+ * @param value The value which shall be removed.
  */
-export const attrClass = (
-  elm: HTMLElement | false | null | undefined,
+export const removeAttrClass = (elm: AttributeTarget, attrName: string, value: string) => {
+  domTokenListAttr(elm, attrName)._remove(value);
+};
+
+/**
+ * Treats the given attribute like the "class" attribute and adds value to it.
+ * @param elm The element.
+ * @param attrName The attributeName to which the value shall be added.
+ * @param value The value which shall be added.
+ */
+export const addAttrClass = (elm: AttributeTarget, attrName: string, value: string) => {
+  domTokenListAttr(elm, attrName)._add(value);
+  return bind(removeAttrClass, elm, attrName, value);
+};
+
+export const addRemoveAttrClass = (
+  elm: AttributeTarget,
   attrName: string,
   value: string,
   add?: boolean
 ) => {
-  if (value) {
-    const currValuesSet = getValueSet(elm, attrName);
-    currValuesSet[add ? 'add' : 'delete'](value);
-    const newTokens = from(currValuesSet).join(' ').trim();
-    attr(elm, attrName, newTokens);
-  }
+  (add ? addAttrClass : removeAttrClass)(elm, attrName, value);
 };
 
 /**
@@ -68,8 +105,5 @@ export const attrClass = (
  * @param value The value.
  * @returns True if the given attribute has the value in it, false otherwise.
  */
-export const hasAttrClass = (
-  elm: HTMLElement | false | null | undefined,
-  attrName: string,
-  value: string
-) => getValueSet(elm, attrName).has(value);
+export const hasAttrClass = (elm: AttributeTarget, attrName: string, value: string): boolean =>
+  domTokenListAttr(elm, attrName)._has(value);

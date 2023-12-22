@@ -1,3 +1,3 @@
 import 'overlayscrollbars/overlayscrollbars.css';
-import './actions';
-import './bodyOverlayScrollbars';
+import './actions.ts';
+import './bodyOverlayScrollbars.ts';

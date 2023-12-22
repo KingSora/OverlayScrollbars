@@ -6,7 +6,6 @@ import {
   equalWH,
   clientSize,
   equalXY,
-  attrClass,
   noop,
   assignDeep,
   bind,
@@ -26,19 +25,20 @@ import {
   strOverflowY,
   setStyles,
   getStyles,
+  addRemoveAttrClass,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
   dataAttributeHost,
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
-  dataValueHostScrollbarHidden,
   dataValueHostOverflowVisible,
   dataValueViewportScrollbarHidden,
   dataValueViewportOverflowVisible,
   dataAttributeViewport,
   dataAttributePadding,
   dataValuePaddingOverflowVisible,
+  dataValueHostScrollbarHidden,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { WH, XY } from '~/support';
@@ -506,10 +506,15 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       }
     }
 
-    attrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
-    attrClass(_padding, dataAttributePadding, dataValuePaddingOverflowVisible, removeClipping);
+    addRemoveAttrClass(_host, dataAttributeHost, dataValueHostOverflowVisible, removeClipping);
+    addRemoveAttrClass(
+      _padding,
+      dataAttributePadding,
+      dataValuePaddingOverflowVisible,
+      removeClipping
+    );
     if (!_viewportIsTarget) {
-      attrClass(
+      addRemoveAttrClass(
         _viewport,
         dataAttributeViewport,
         dataValueViewportOverflowVisible,

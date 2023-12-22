@@ -8,6 +8,11 @@ const config = {
   compilerOptions: {
     enableSourcemap: true,
   },
+  kit: {
+    alias: {
+      '~/*': './src/*',
+    },
+  },
 };
 
 export default config;

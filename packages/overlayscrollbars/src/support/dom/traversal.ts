@@ -2,7 +2,7 @@ import { isBrowser } from '../compatibility/isBrowser';
 import { isElement } from '../utils/types';
 import { push, from } from '../utils/array';
 
-type InputElementType = Node | Element | Node | false | null | undefined;
+type InputElementType = Node | Element | false | null | undefined;
 type OutputElementType = Node | Element | false | null | undefined;
 
 const getElmPrototype = (isBrowser && Element.prototype) as Element; // only Element.prototype wont work on server

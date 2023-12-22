@@ -128,6 +128,7 @@ export const createObserversSetup = (
       );
       _viewportAddRemoveClass(dataValueViewportArrange, '', hasVpStyle);
       _viewportAddRemoveClass('', dataValueHostUpdating);
+
       scrollElementTo(_viewport, scrollOffset);
 
       return {

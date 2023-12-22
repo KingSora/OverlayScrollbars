@@ -20,10 +20,6 @@ describe('dom class names', () => {
     test('none', () => {
       addClass(testElm, '');
       addClass(testElm, ' ');
-      // @ts-ignore
-      addClass(testElm, null);
-      // @ts-ignore
-      addClass(testElm, 2);
       expect(testElm.classList.length).toBe(0);
     });
 
@@ -55,10 +51,6 @@ describe('dom class names', () => {
       addClass(testElm, 'test-class');
       removeClass(testElm, '');
       removeClass(testElm, ' ');
-      // @ts-ignore
-      removeClass(testElm, null);
-      // @ts-ignore
-      removeClass(testElm, 2);
       expect(testElm.classList.length).toBe(1);
     });
 

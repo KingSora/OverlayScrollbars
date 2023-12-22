@@ -13,12 +13,13 @@ import {
   attr,
   keys,
   removeAttr,
-  attrClass,
   hasAttrClass,
   noop,
   addEventListener,
   bind,
   inArray,
+  addAttrClass,
+  addRemoveAttrClass,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -182,7 +183,7 @@ export const createStructureSetupElements = (
       hostAttributeClassName: string,
       add?: boolean
     ) =>
-      attrClass(
+      addRemoveAttrClass(
         viewportElement,
         viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
         viewportIsTarget ? hostAttributeClassName : viewportAttributeClassName,
@@ -229,7 +230,7 @@ export const createStructureSetupElements = (
 
     const removeHtmlClass =
       isBody && !viewportIsTarget
-        ? addClass(parent(targetElement), classNameScrollbarHidden)
+        ? addClass(parent(targetElement) as HTMLElement, classNameScrollbarHidden)
         : noop;
     const unwrap = (elm: HTMLElement | false | null | undefined) => {
       appendChildren(parent(elm), contents(elm));
@@ -265,7 +266,7 @@ export const createStructureSetupElements = (
     });
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
-      attrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden, true);
+      addAttrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden);
       push(destroyFns, bind(removeAttr, _viewport, dataAttributeViewport));
     }
     if (setViewportFocus) {

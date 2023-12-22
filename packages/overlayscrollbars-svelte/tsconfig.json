@@ -10,10 +10,6 @@
     "sourceMap": true,
     "strict": true,
     "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./src/*"]
-    }
   },
   "include": ["**/*.ts", "**/*.d.ts"]
 }

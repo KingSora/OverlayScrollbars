@@ -2,8 +2,6 @@ import { isFunction, isHTMLElement, isNull, isUndefined } from '~/support';
 import { getEnvironment } from '~/environment';
 import type { DeepPartial } from '~/typings';
 
-type StaticInitialization = HTMLElement | false | null;
-type DynamicInitialization = HTMLElement | boolean | null;
 type FallbackStaticInitializtationElement<Args extends any[]> = Extract<
   StaticInitializationElement<Args>,
   (...args: Args) => any
@@ -16,6 +14,9 @@ type FallbackDynamicInitializtationElement<Args extends any[]> = Extract<
 > extends (...args: infer P) => any
   ? (...args: P) => HTMLElement
   : never;
+
+export type StaticInitialization = HTMLElement | false | null;
+export type DynamicInitialization = HTMLElement | boolean | null;
 
 /**
  * Static elements are elements which MUST be present in the final DOM.
