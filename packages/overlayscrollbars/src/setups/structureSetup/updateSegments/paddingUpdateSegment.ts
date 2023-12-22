@@ -79,7 +79,9 @@ export const createPaddingUpdateSegment: CreateStructureUpdateSegment = (
       assignDeep(state, {
         _padding: padding,
         _paddingAbsolute: !paddingRelative,
-        _viewportPaddingStyle: _padding ? viewportStyle : assignDeep(paddingStyle, viewportStyle),
+        _viewportPaddingStyle: _padding
+          ? viewportStyle
+          : assignDeep({}, paddingStyle, viewportStyle),
       });
     }
 

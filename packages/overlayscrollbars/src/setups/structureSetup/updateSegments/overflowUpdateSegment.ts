@@ -38,6 +38,7 @@ import {
   dataAttributeViewport,
   dataAttributePadding,
   dataValuePaddingOverflowVisible,
+  dataValueHostScrollbarHidden,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { WH, XY } from '~/support';
@@ -374,7 +375,11 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     let preMeasureViewportOverflowState: ViewportOverflowState | undefined;
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarsHiding) {
-      _viewportAddRemoveClass(dataValueViewportScrollbarHidden, !showNativeOverlaidScrollbars);
+      _viewportAddRemoveClass(
+        dataValueViewportScrollbarHidden,
+        dataValueHostScrollbarHidden,
+        !showNativeOverlaidScrollbars
+      );
     }
 
     if (adjustFlexboxGlue) {
@@ -384,7 +389,11 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     if (adjustViewportArrange) {
       if (overflowVisible) {
-        _viewportAddRemoveClass(dataValueViewportOverflowVisible, false);
+        _viewportAddRemoveClass(
+          dataValueViewportOverflowVisible,
+          dataValueHostOverflowVisible,
+          false
+        );
       }
 
       const [redoViewportArrange, undoViewportArrangeOverflowState] = undoViewportArrange(

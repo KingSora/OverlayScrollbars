@@ -1,10 +1,8 @@
 import { getEnvironment } from '~/environment';
 import {
-  addAttrClass,
   assignDeep,
   each,
   getElmentScroll,
-  noop,
   scrollElementTo,
   strHidden,
   strMarginBottom,
@@ -17,7 +15,7 @@ import {
   type TRBL,
   type XY,
 } from '~/support';
-import { dataAttributeHost, dataValueHostUpdating } from '~/classnames';
+import { dataValueHostUpdating } from '~/classnames';
 import type { StructureSetupElementsObj } from './structureSetup.elements';
 import type {
   ObserversSetupState,
@@ -104,7 +102,7 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       y: false,
     },
   };
-  const { _target, _viewport, _viewportIsTarget } = elements;
+  const { _target, _viewport, _viewportIsTarget, _viewportAddRemoveClass } = elements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _flexboxGlue } = getEnvironment();
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
@@ -121,15 +119,13 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       const updateHints: StructureSetupUpdateHints = {};
       const adjustScrollOffset = doViewportArrange || !_flexboxGlue;
       const scrollOffset = adjustScrollOffset && getElmentScroll(_viewport);
-      const removeAttrClass = _viewportIsTarget
-        ? addAttrClass(_viewport, dataAttributeHost, dataValueHostUpdating)
-        : noop;
+      _viewportAddRemoveClass('', dataValueHostUpdating, true);
 
       each(updateSegments, (updateSegment) => {
         assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
       });
 
-      removeAttrClass();
+      _viewportAddRemoveClass('', dataValueHostUpdating);
 
       scrollElementTo(_viewport, scrollOffset);
       !_viewportIsTarget && scrollElementTo(_target, 0);

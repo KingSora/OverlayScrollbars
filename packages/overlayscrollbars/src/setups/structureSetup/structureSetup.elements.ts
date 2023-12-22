@@ -70,8 +70,15 @@ export interface StructureSetupElementsObj {
   _targetIsElm: boolean;
   _viewportIsTarget: boolean;
   _viewportIsContent: boolean;
-  _viewportHasClass: (value: string) => boolean;
-  _viewportAddRemoveClass: (value: string, add?: boolean) => void;
+  _viewportHasClass: (
+    viewportAttributeClassName: string,
+    hostAttributeClassName: string
+  ) => boolean;
+  _viewportAddRemoveClass: (
+    viewportAttributeClassName: string,
+    hostAttributeClassName: string,
+    add?: boolean
+  ) => void;
 }
 
 export const createStructureSetupElements = (
@@ -179,17 +186,21 @@ export const createStructureSetupElements = (
     _targetIsElm: targetIsElm,
     _viewportIsTarget: viewportIsTarget,
     _viewportIsContent: viewportIsContent,
-    _viewportHasClass: (value: string) =>
+    _viewportHasClass: (viewportAttributeClassName: string, hostAttributeClassName: string) =>
       hasAttrClass(
         viewportElement,
         viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
-        value
+        viewportIsTarget ? hostAttributeClassName : viewportAttributeClassName
       ),
-    _viewportAddRemoveClass: (value: string, add?: boolean) =>
+    _viewportAddRemoveClass: (
+      viewportAttributeClassName: string,
+      hostAttributeClassName: string,
+      add?: boolean
+    ) =>
       addRemoveAttrClass(
         viewportElement,
         viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
-        value,
+        viewportIsTarget ? hostAttributeClassName : viewportAttributeClassName,
         add
       ),
   };
