@@ -421,22 +421,21 @@ const assertCorrectSetupElements = (
     checkStrategyDependendElements(host, hostInitialization, true, defaultHostInitStrategy, 'host');
   }
 
-  const className = 'clazz';
   const attrName = 'attr';
 
-  _viewportAddRemoveClass(className, attrName, true);
+  _viewportAddRemoveClass(attrName, true);
   if (_viewportIsTarget) {
-    expect(_viewportHasClass('', attrName)).toBe(true);
+    expect(_viewportHasClass(attrName)).toBe(true);
     expect(_host.getAttribute(dataAttributeHost)!.indexOf(attrName) >= 0).toBe(true);
   } else {
-    expect(_viewportHasClass(className, attrName)).toBe(true);
+    expect(_viewportHasClass(attrName)).toBe(true);
   }
-  _viewportAddRemoveClass(className, attrName);
+  _viewportAddRemoveClass(attrName);
   if (_viewportIsTarget) {
     expect(_host.getAttribute(dataAttributeHost)!.indexOf(attrName) >= 0).toBe(false);
-    expect(_viewportHasClass('', attrName)).toBe(false);
+    expect(_viewportHasClass(attrName)).toBe(false);
   } else {
-    expect(_viewportHasClass(className, attrName)).toBe(false);
+    expect(_viewportHasClass(attrName)).toBe(false);
   }
 
   return [elements, destroy];
