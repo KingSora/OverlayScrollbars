@@ -20,6 +20,7 @@ import {
   getStyles,
   setStyles,
   addAttrClass,
+  removeAttrClass,
 } from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import type { WH, UpdateCache, XY } from '~/support';
@@ -196,13 +197,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
             }
 
             const prevStyle = getStyles(viewport, keys(finalPaddingStyle) as StyleObjectKey[]);
-
-            // add class
-            const removeArrangeAttrClass = addAttrClass(
-              viewport,
-              dataAttributeViewport,
-              dataValueViewportArrange
-            );
+            removeAttrClass(viewport, dataAttributeViewport, dataValueViewportArrange);
 
             if (!flexboxGlue) {
               finalPaddingStyle[strHeight] = '';
@@ -219,8 +214,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                   prevStyle
                 );
                 setStyles(viewport, prevStyle);
-                // remove class
-                removeArrangeAttrClass();
+                addAttrClass(viewport, dataAttributeViewport, dataValueViewportArrange);
               },
               finalViewportOverflowState,
             ];
