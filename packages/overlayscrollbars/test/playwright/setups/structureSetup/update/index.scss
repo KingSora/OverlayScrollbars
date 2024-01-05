@@ -292,6 +292,15 @@ body {
   }
 }
 
+.intrinsicHack {
+  &.heightAuto,
+  &.envHeightAuto {
+    .percent {
+      height: auto;
+    }
+  }
+}
+
 // disable native scrollbar styling detection
 body.nsh {
   .os-environment-scrollbar-hidden {
