@@ -1,9 +1,27 @@
+html,
 body {
+  margin: 0;
+  padding: 0;
+}
+
+#controls {
+  position: fixed;
+  flex: none;
 }
 
 #content {
   background: rgba(255, 0, 0, 0.4);
-  height: 200vh;
-  width: 200vw;
+  height: 150vh;
+  width: 150vw;
   border: 2px solid blue;
+}
+
+body.nsh {
+  .os-environment-scrollbar-hidden {
+    scrollbar-width: auto !important;
+  }
+  .os-environment-scrollbar-hidden::-webkit-scrollbar,
+  .os-environment-scrollbar-hidden::-webkit-scrollbar-corner {
+    display: block !important;
+  }
 }

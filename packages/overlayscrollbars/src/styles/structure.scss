@@ -64,7 +64,7 @@
 [data-overlayscrollbars-initialize],
 [data-overlayscrollbars~='scrollbarHidden'],
 [data-overlayscrollbars-viewport~='scrollbarHidden'],
-.os-scrollbar-hidden.os-environment {
+.os-environment-scrollbar-hidden {
   scrollbar-width: none !important;
 }
 [data-overlayscrollbars-initialize]::-webkit-scrollbar,
@@ -73,8 +73,8 @@
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar-corner,
 [data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar,
 [data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar-corner,
-.os-scrollbar-hidden.os-environment::-webkit-scrollbar,
-.os-scrollbar-hidden.os-environment::-webkit-scrollbar-corner {
+.os-environment-scrollbar-hidden::-webkit-scrollbar,
+.os-environment-scrollbar-hidden::-webkit-scrollbar-corner {
   appearance: none !important;
   display: none !important;
   width: 0 !important;
@@ -94,14 +94,15 @@
  */
 
 html[data-overlayscrollbars],
-html.os-scrollbar-hidden,
-html.os-scrollbar-hidden > body {
+html[data-overlayscrollbars~='body'],
+html[data-overlayscrollbars~='body'] > body {
   box-sizing: border-box;
   margin: 0;
-  width: 100%;
-  height: 100%;
+  // using min-width & min-height instead of width & height to fix: https://github.com/KingSora/OverlayScrollbars/issues/601
+  min-width: 100%;
+  min-height: 100%;
 }
-html[data-overlayscrollbars] > body {
+html[data-overlayscrollbars~='viewport'] > body {
   overflow: visible;
 }
 

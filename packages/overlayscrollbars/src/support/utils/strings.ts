@@ -10,3 +10,4 @@ export const strOverflowY = 'overflowY';
 export const strWidth = 'width';
 export const strHeight = 'height';
 export const strHidden = 'hidden';
+export const strVisible = 'visible';

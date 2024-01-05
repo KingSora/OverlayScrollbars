@@ -856,7 +856,7 @@ describe('overlayscrollbars', () => {
     expect(typeof clickScroll).toBe('function');
     expect(typeof scrollbarHiding).toBe('object');
     expect(typeof scrollbarHiding._envWindowZoom).toBe('function');
-    expect(typeof scrollbarHiding._overflowUpdateSegment).toBe('function');
+    expect(typeof scrollbarHiding._viewportArrangement).toBe('function');
     expect(typeof sizeObserver).toBe('function');
     expect(typeof optionsValidation).toBe('function');
 

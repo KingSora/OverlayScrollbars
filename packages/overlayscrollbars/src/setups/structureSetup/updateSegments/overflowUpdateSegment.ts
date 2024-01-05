@@ -6,7 +6,6 @@ import {
   equalWH,
   clientSize,
   equalXY,
-  noop,
   assignDeep,
   bind,
   wnd,
@@ -15,9 +14,6 @@ import {
   strMarginBottom,
   strMarginLeft,
   strMarginRight,
-  strPaddingBottom,
-  strPaddingLeft,
-  strPaddingRight,
   strWidth,
   strHeight,
   strHidden,
@@ -26,6 +22,7 @@ import {
   setStyles,
   getStyles,
   addRemoveAttrClass,
+  noop,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -38,7 +35,6 @@ import {
   dataAttributeViewport,
   dataAttributePadding,
   dataValuePaddingOverflowVisible,
-  dataValueHostScrollbarHidden,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { WH, XY } from '~/support';
@@ -47,28 +43,16 @@ import type {
   ScrollbarsHidingPlugin,
   UndoArrangeViewport,
 } from '~/plugins/scrollbarsHidingPlugin';
-import type { StyleObject, OverflowStyle, StyleObjectKey } from '~/typings';
-import type { OverflowBehavior } from '~/options';
+import type { StyleObject, OverflowStyle } from '~/typings';
 import type { CreateStructureUpdateSegment } from '../structureSetup';
-
-export interface ViewportOverflowState {
-  _scrollbarsHideOffset: XY<number>;
-  _scrollbarsHideOffsetArrange: XY<boolean>;
-  _overflowScroll: XY<boolean>;
-  _overflowStyle: XY<OverflowStyle>;
-}
-
-export type GetViewportOverflowState = (
-  showNativeOverlaidScrollbars: boolean,
-  viewportStyleObj?: StyleObject
-) => ViewportOverflowState;
-
-export type HideNativeScrollbars = (
-  viewportOverflowState: ViewportOverflowState,
-  directionIsRTL: boolean,
-  viewportArrange: boolean,
-  viewportStyleObj: StyleObject
-) => void;
+import type { ViewportOverflowState } from '../structureSetup.utils';
+import {
+  getShowNativeOverlaidScrollbars,
+  getViewportOverflowState,
+  hideNativeScrollbars,
+  overflowIsVisible,
+  setViewportOverflowState,
+} from '../structureSetup.utils';
 
 /**
  * Lifecycle with the responsibility to set the correct overflow and scrollbar hiding styles of the viewport element.
@@ -76,12 +60,23 @@ export type HideNativeScrollbars = (
  * @returns
  */
 export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
-  { _host, _padding, _viewport, _viewportIsTarget, _viewportAddRemoveClass, _isBody, _windowElm },
+  structureSetupElements,
   state
 ) => {
+  const env = getEnvironment();
+  const {
+    _host,
+    _padding,
+    _viewport,
+    _viewportIsTarget,
+    _viewportAddRemoveClass,
+    _isBody,
+    _windowElm,
+  } = structureSetupElements;
+  const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } = env;
+  const viewportIsTargetBody = _isBody && _viewportIsTarget;
   const max0 = bind(mathMax, 0);
-  const strVisible = 'visible';
-  const overlaidScrollbarsHideOffset = 42;
+
   const whCacheOptions = {
     _equal: equalWH,
     _initialValue: { w: 0, h: 0 },
@@ -102,34 +97,17 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       h: amount.h > tollerance ? amount.h : 0,
     };
   };
-  const overflowIsVisible = (overflowBehavior: string) =>
-    overflowBehavior.indexOf(strVisible) === 0;
-
-  const { _nativeScrollbarsSize, _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } =
-    getEnvironment();
-  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
-    scrollbarsHidingPluginName
-  );
-  const doViewportArrange =
-    !_viewportIsTarget &&
-    !_nativeScrollbarsHiding &&
-    (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
-  const viewportIsTargetBody = _isBody && _viewportIsTarget;
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
     bind(fractionalSize, _viewport)
   );
-
   const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache<
     WH<number>
   >(whCacheOptions, bind(scrollSize, _viewport));
-
   const [updateOverflowAmountCache, getCurrentOverflowAmountCache] =
     createCache<WH<number>>(whCacheOptions);
-
   const [updateOverflowEdge, getCurrentOverflowEdgeCache] = createCache<WH<number>>(whCacheOptions);
-
   const [updateOverflowStyleCache] = createCache<XY<OverflowStyle>>(xyCacheOptions);
 
   /**
@@ -166,150 +144,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     }
   };
 
-  /**
-   * Gets the current overflow state of the viewport.
-   * @param showNativeOverlaidScrollbars Whether native overlaid scrollbars are shown instead of hidden.
-   * @param viewportStyleObj The viewport style object where the overflow scroll property can be read of, or undefined if shall be determined.
-   * @returns A object which contains informations about the current overflow state.
-   */
-  const getViewportOverflowState: GetViewportOverflowState = (
-    showNativeOverlaidScrollbars,
-    viewportStyleObj?
-  ) => {
-    const arrangeHideOffset =
-      !_nativeScrollbarsHiding && !showNativeOverlaidScrollbars ? overlaidScrollbarsHideOffset : 0;
-    const getStatePerAxis = (
-      styleKey: StyleObjectKey,
-      isOverlaid: boolean,
-      nativeScrollbarSize: number
-    ) => {
-      const overflowStyle = getStyles(_viewport, styleKey);
-      // can't do something like "viewportStyleObj && viewportStyleObj[styleKey] || overflowStyle" here!
-      const objectPrefferedOverflowStyle = viewportStyleObj
-        ? viewportStyleObj[styleKey]
-        : overflowStyle;
-      const overflowScroll = objectPrefferedOverflowStyle === 'scroll';
-      const nonScrollbarStylingHideOffset = isOverlaid ? arrangeHideOffset : nativeScrollbarSize;
-      const scrollbarsHideOffset =
-        overflowScroll && !_nativeScrollbarsHiding ? nonScrollbarStylingHideOffset : 0;
-      const scrollbarsHideOffsetArrange = isOverlaid && !!arrangeHideOffset;
-
-      return [overflowStyle, overflowScroll, scrollbarsHideOffset, scrollbarsHideOffsetArrange] as [
-        overflowStyle: OverflowStyle,
-        overflowScroll: boolean,
-        scrollbarsHideOffset: number,
-        scrollbarsHideOffsetArrange: boolean
-      ];
-    };
-
-    const [xOverflowStyle, xOverflowScroll, xScrollbarsHideOffset, xScrollbarsHideOffsetArrange] =
-      getStatePerAxis(strOverflowX, _nativeScrollbarsOverlaid.x, _nativeScrollbarsSize.x);
-    const [yOverflowStyle, yOverflowScroll, yScrollbarsHideOffset, yScrollbarsHideOffsetArrange] =
-      getStatePerAxis(strOverflowY, _nativeScrollbarsOverlaid.y, _nativeScrollbarsSize.y);
-
-    return {
-      _overflowStyle: {
-        x: xOverflowStyle,
-        y: yOverflowStyle,
-      },
-      _overflowScroll: {
-        x: xOverflowScroll,
-        y: yOverflowScroll,
-      },
-      _scrollbarsHideOffset: {
-        x: xScrollbarsHideOffset,
-        y: yScrollbarsHideOffset,
-      },
-      _scrollbarsHideOffsetArrange: {
-        x: xScrollbarsHideOffsetArrange,
-        y: yScrollbarsHideOffsetArrange,
-      },
-    };
-  };
-
-  /**
-   * Sets the overflow property of the viewport and calculates the a overflow state according to the new parameters.
-   * @param showNativeOverlaidScrollbars Whether to show natively overlaid scrollbars.
-   * @param overflowAmount The overflow amount.
-   * @param overflow The overflow behavior according to the options.
-   * @param viewportStyleObj The viewport style object to which the overflow style shall be applied.
-   * @returns A object which represents the newly set overflow state.
-   */
-  const setViewportOverflowState = (
-    showNativeOverlaidScrollbars: boolean,
-    hasOverflow: XY<boolean>,
-    overflowOption: XY<OverflowBehavior>,
-    viewportStyleObj: StyleObject
-  ): ViewportOverflowState => {
-    const setAxisOverflowStyle = (behavior: OverflowBehavior, hasOverflowAxis: boolean) => {
-      const overflowVisible = overflowIsVisible(behavior);
-      const overflowVisibleBehavior =
-        (hasOverflowAxis && overflowVisible && behavior.replace(`${strVisible}-`, '')) || '';
-      return [
-        hasOverflowAxis && !overflowVisible ? behavior : '',
-        overflowIsVisible(overflowVisibleBehavior) ? 'hidden' : overflowVisibleBehavior,
-      ];
-    };
-
-    const [overflowX, visibleBehaviorX] = setAxisOverflowStyle(overflowOption.x, hasOverflow.x);
-    const [overflowY, visibleBehaviorY] = setAxisOverflowStyle(overflowOption.y, hasOverflow.y);
-
-    viewportStyleObj[strOverflowX] = visibleBehaviorX && overflowY ? visibleBehaviorX : overflowX;
-    viewportStyleObj[strOverflowY] = visibleBehaviorY && overflowX ? visibleBehaviorY : overflowY;
-
-    return getViewportOverflowState(showNativeOverlaidScrollbars, viewportStyleObj);
-  };
-
-  /**
-   * Hides the native scrollbars according to the passed parameters.
-   * @param viewportOverflowState The viewport overflow state.
-   * @param directionIsRTL Whether the direction is RTL or not.
-   * @param viewportArrange Whether special styles related to the viewport arrange strategy shall be applied.
-   * @param viewportStyleObj The viewport style object to which the needed styles shall be applied.
-   */
-  const hideNativeScrollbars: HideNativeScrollbars = (
-    viewportOverflowState,
-    directionIsRTL,
-    viewportArrange,
-    viewportStyleObj
-  ) => {
-    const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
-    const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
-    const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
-    const { _viewportPaddingStyle: viewportPaddingStyle } = state;
-    const horizontalMarginKey: keyof StyleObject = directionIsRTL ? strMarginLeft : strMarginRight;
-    const viewportHorizontalPaddingKey: keyof StyleObject = directionIsRTL
-      ? strPaddingLeft
-      : strPaddingRight;
-    const horizontalMarginValue = viewportPaddingStyle[horizontalMarginKey] as number;
-    const verticalMarginValue = viewportPaddingStyle[strMarginBottom] as number;
-    const horizontalPaddingValue = viewportPaddingStyle[viewportHorizontalPaddingKey] as number;
-    const verticalPaddingValue = viewportPaddingStyle[strPaddingBottom] as number;
-
-    // horizontal
-    viewportStyleObj[strWidth] = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
-    viewportStyleObj[horizontalMarginKey] = -hideOffsetY + horizontalMarginValue;
-
-    // vertical
-    viewportStyleObj[strMarginBottom] = -hideOffsetX + verticalMarginValue;
-
-    // viewport arrange additional styles
-    if (viewportArrange) {
-      viewportStyleObj[viewportHorizontalPaddingKey] =
-        horizontalPaddingValue + (arrangeY ? hideOffsetY : 0);
-      viewportStyleObj[strPaddingBottom] = verticalPaddingValue + (arrangeX ? hideOffsetX : 0);
-    }
-  };
-
-  const [arrangeViewport, undoViewportArrange] = scrollbarsHidingPlugin
-    ? scrollbarsHidingPlugin._overflowUpdateSegment(
-        doViewportArrange,
-        _viewport,
-        state,
-        getViewportOverflowState,
-        hideNativeScrollbars
-      )
-    : [(() => doViewportArrange) as ArrangeViewport, (() => [noop]) as UndoArrangeViewport];
+  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
+    scrollbarsHidingPluginName
+  );
 
   return (
     { _checkOption, _observersUpdateHints, _observersState, _force },
@@ -324,15 +161,18 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _scrollbarSizeChanged,
     } = _observersUpdateHints || {};
     const { _heightIntrinsic, _directionIsRTL } = _observersState;
-    const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = _checkOption(
-      'showNativeOverlaidScrollbars'
-    );
+    const [arrangeViewport, undoViewportArrange] = scrollbarsHidingPlugin
+      ? scrollbarsHidingPlugin._viewportArrangement(
+          structureSetupElements,
+          state,
+          env,
+          _checkOption
+        )
+      : [(() => false) as ArrangeViewport, (() => [noop]) as UndoArrangeViewport];
+    const [showNativeOverlaidScrollbars, showNativeOverlaidScrollbarsChanged] =
+      getShowNativeOverlaidScrollbars(_checkOption, env);
     const [overflow, overflowChanged] = _checkOption('overflow');
 
-    const showNativeOverlaidScrollbars =
-      showNativeOverlaidScrollbarsOption &&
-      _nativeScrollbarsOverlaid.x &&
-      _nativeScrollbarsOverlaid.y;
     const adjustFlexboxGlue =
       !_viewportIsTarget &&
       (_sizeChanged ||
@@ -359,38 +199,34 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     let preMeasureViewportOverflowState: ViewportOverflowState | undefined;
 
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarsHiding) {
-      _viewportAddRemoveClass(
-        dataValueViewportScrollbarHidden,
-        dataValueHostScrollbarHidden,
-        !showNativeOverlaidScrollbars
-      );
+      _viewportAddRemoveClass(dataValueViewportScrollbarHidden, !showNativeOverlaidScrollbars);
     }
 
     if (adjustFlexboxGlue) {
-      preMeasureViewportOverflowState = getViewportOverflowState(showNativeOverlaidScrollbars);
+      preMeasureViewportOverflowState = getViewportOverflowState(
+        structureSetupElements,
+        env,
+        showNativeOverlaidScrollbars
+      );
       fixFlexboxGlue(preMeasureViewportOverflowState, _heightIntrinsic);
     }
 
     if (adjustViewportArrange) {
       if (overflowVisible) {
-        _viewportAddRemoveClass(
-          dataValueViewportOverflowVisible,
-          dataValueHostOverflowVisible,
-          false
-        );
+        _viewportAddRemoveClass(dataValueViewportOverflowVisible, false);
       }
 
       const [redoViewportArrange, undoViewportArrangeOverflowState] = undoViewportArrange(
-        showNativeOverlaidScrollbars,
-        _directionIsRTL,
+        _observersState,
         preMeasureViewportOverflowState
       );
+
       const [sizeFraction, sizeFractionChanged] = (sizeFractionCache = updateSizeFraction(_force));
       const [viewportScrollSize, viewportScrollSizeChanged] = (viewportScrollSizeCache =
         updateViewportScrollSizeCache(_force));
       const viewportClientSize = clientSize(_viewport);
-      let arrangedViewportScrollSize = viewportScrollSize;
-      let arrangedViewportClientSize = viewportClientSize;
+      const arrangedViewportScrollSize = viewportScrollSize;
+      const arrangedViewportClientSize = viewportClientSize;
 
       redoViewportArrange();
 
@@ -406,8 +242,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
           _directionIsRTL
         )
       ) {
-        arrangedViewportClientSize = clientSize(_viewport);
-        arrangedViewportScrollSize = scrollSize(_viewport);
+        // arrangedViewportClientSize = clientSize(_viewport);
+        // arrangedViewportScrollSize = scrollSize(_viewport);
       }
 
       const windowInnerSize = windowSize(_windowElm);
@@ -473,6 +309,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         [strOverflowY]: '',
       };
       const viewportOverflowState = setViewportOverflowState(
+        structureSetupElements,
+        env,
         showNativeOverlaidScrollbars,
         hasOverflow,
         overflow,
@@ -487,9 +325,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
       if (!_viewportIsTarget) {
         hideNativeScrollbars(
+          state,
           viewportOverflowState,
           _directionIsRTL,
-          viewportArranged,
+          !!viewportArranged,
           viewportStyle
         );
       }
@@ -523,7 +362,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     }
 
     const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
-      getViewportOverflowState(showNativeOverlaidScrollbars)._overflowStyle
+      getViewportOverflowState(structureSetupElements, env, showNativeOverlaidScrollbars)
+        ._overflowStyle
     );
 
     assignDeep(state, {

@@ -23,7 +23,7 @@ import {
   getStyles,
   setStyles,
 } from '~/support';
-import { classNameEnvironment, classNameScrollbarHidden } from '~/classnames';
+import { classNameEnvironment, classNameEnvironmentScrollbarHidden } from '~/classnames';
 import { defaultOptions } from '~/options';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { XY, EventListener } from '~/support';
@@ -115,7 +115,7 @@ const getNativeScrollbarSize = (
 
 const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
   let result = false;
-  const revertClass = addClass(testElm, classNameScrollbarHidden);
+  const revertClass = addClass(testElm, classNameEnvironmentScrollbarHidden);
   try {
     result =
       getStyles(testElm, 'scrollbar-width' as StyleObjectKey) === 'none' ||

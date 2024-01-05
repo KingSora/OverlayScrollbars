@@ -5,7 +5,6 @@ import {
   is,
   contents,
   insertAfter,
-  addClass,
   parent,
   removeElements,
   push,
@@ -14,7 +13,6 @@ import {
   keys,
   removeAttr,
   hasAttrClass,
-  noop,
   addEventListener,
   bind,
   inArray,
@@ -26,11 +24,11 @@ import {
   dataAttributeInitialize,
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
-  classNameScrollbarHidden,
   dataAttributeViewport,
   dataValueViewportScrollbarHidden,
   dataAttributePadding,
   dataAttributeContent,
+  dataValueHostHtmlBody,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import {
@@ -66,15 +64,8 @@ export interface StructureSetupElementsObj {
   _targetIsElm: boolean;
   _viewportIsTarget: boolean;
   _viewportIsContent: boolean;
-  _viewportHasClass: (
-    viewportAttributeClassName: string,
-    hostAttributeClassName: string
-  ) => boolean;
-  _viewportAddRemoveClass: (
-    viewportAttributeClassName: string,
-    hostAttributeClassName: string,
-    add?: boolean
-  ) => void;
+  _viewportHasClass: (viewportAttributeClassName: string) => boolean;
+  _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) => void;
 }
 
 export const createStructureSetupElements = (
@@ -151,6 +142,7 @@ export const createStructureSetupElements = (
   const activeElm = ownerDocument.activeElement;
   const setViewportFocus =
     !viewportIsTarget && docWnd.top === docWnd && activeElm === targetElement;
+
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: hostElement,
@@ -172,21 +164,17 @@ export const createStructureSetupElements = (
     _targetIsElm: targetIsElm,
     _viewportIsTarget: viewportIsTarget,
     _viewportIsContent: viewportIsContent,
-    _viewportHasClass: (viewportAttributeClassName: string, hostAttributeClassName: string) =>
+    _viewportHasClass: (viewportAttributeClassName: string) =>
       hasAttrClass(
         viewportElement,
         viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
-        viewportIsTarget ? hostAttributeClassName : viewportAttributeClassName
+        viewportAttributeClassName
       ),
-    _viewportAddRemoveClass: (
-      viewportAttributeClassName: string,
-      hostAttributeClassName: string,
-      add?: boolean
-    ) =>
+    _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) =>
       addRemoveAttrClass(
         viewportElement,
         viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
-        viewportIsTarget ? hostAttributeClassName : viewportAttributeClassName,
+        viewportAttributeClassName,
         add
       ),
   };
@@ -226,12 +214,9 @@ export const createStructureSetupElements = (
 
     if (!viewportIsTarget) {
       attr(_viewport, dataAttributeViewport, '');
+      isBody && addAttrClass(docElement, dataAttributeHost, dataValueHostHtmlBody);
     }
 
-    const removeHtmlClass =
-      isBody && !viewportIsTarget
-        ? addClass(parent(targetElement) as HTMLElement, classNameScrollbarHidden)
-        : noop;
     const unwrap = (elm: HTMLElement | false | null | undefined) => {
       appendChildren(parent(elm), contents(elm));
       removeElements(elm);
@@ -253,7 +238,6 @@ export const createStructureSetupElements = (
     appendChildren(_viewport, _content);
 
     push(destroyFns, () => {
-      removeHtmlClass();
       removeAttr(_padding, dataAttributePadding);
       removeAttr(_content, dataAttributeContent);
       removeAttr(_viewport, dataAttributeHostOverflowX);

@@ -294,11 +294,11 @@ body {
 
 // disable native scrollbar styling detection
 body.nsh {
-  .os-scrollbar-hidden.os-environment {
+  .os-environment-scrollbar-hidden {
     scrollbar-width: auto !important;
   }
-  .os-scrollbar-hidden.os-environment::-webkit-scrollbar,
-  .os-scrollbar-hidden.os-environment::-webkit-scrollbar-corner {
+  .os-environment-scrollbar-hidden::-webkit-scrollbar,
+  .os-environment-scrollbar-hidden::-webkit-scrollbar-corner {
     display: block !important;
   }
 }
@@ -309,7 +309,9 @@ body.fo {
   [data-overlayscrollbars-viewport]::-webkit-scrollbar,
   .os-environment::-webkit-scrollbar-corner,
   [data-overlayscrollbars-viewport]::-webkit-scrollbar-corner {
-    display: none !important;
+    // dont apply display none since the "native scrollbar hiding" check relies on it
+    // and it should be possible to run "fully overlaid scrollbars" tests with simulated "no native scrollbar hiding" applied
+    // display: none !important;
     width: 0px !important;
     height: 0px !important;
     visibility: hidden !important;

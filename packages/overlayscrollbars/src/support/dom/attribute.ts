@@ -40,7 +40,7 @@ export const removeAttr = (elm: AttributeTarget, attrName: string): void => {
 export const domTokenListAttr = (elm: AttributeTarget, attrName: string) => {
   const elmAttr = bind(attr, elm, attrName);
   const getDomTokenListSet = (tokens: DomTokens) =>
-    new Set((tokens || '').split(' ').filter((empty) => !!empty));
+    new Set((tokens || '').split(' ').filter((token) => !!token));
   const domTokenListOperation = (
     initialSet: Set<string>,
     operationTokens: DomTokens,

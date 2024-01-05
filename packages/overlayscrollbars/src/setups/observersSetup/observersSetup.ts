@@ -29,14 +29,16 @@ import {
   classNameScrollbar,
   dataAttributeHost,
   dataAttributeViewport,
-  dataValueHostOverflowVisible,
   dataValueHostUpdating,
   dataValueViewportArrange,
   dataValueViewportOverflowVisible,
 } from '~/classnames';
+import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
+import type { Options, OptionsCheckFn } from '~/options';
+import type { ScrollbarsHidingPlugin } from '~/plugins';
 import type { SizeObserverCallbackParams } from '~/observers';
 import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
-import type { Setup, SetupUpdateInfo } from '~/setups';
+import type { Setup, SetupUpdateInfo, StructureSetupState } from '~/setups';
 import type { CacheValues, WH } from '~/support';
 import type { PlainObject } from '~/typings';
 
@@ -67,6 +69,8 @@ export type ObserversSetup = Setup<
 
 export const createObserversSetup = (
   structureSetupElements: StructureSetupElementsObj,
+  structureSetupState: StructureSetupState,
+  getCurrentOption: OptionsCheckFn<Options>,
   onObserversUpdated: (updateHints: ObserversSetupUpdateHints) => void
 ): ObserversSetup => {
   let debounceTimeout: number | false | undefined;
@@ -99,7 +103,10 @@ export const createObserversSetup = (
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = structureSetupElements;
-  const { _addResizeListener } = getEnvironment();
+  const env = getEnvironment();
+  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
+    scrollbarsHidingPluginName
+  );
 
   const [updateContentSizeCache] = createCache<WH<number>>(
     {
@@ -107,27 +114,31 @@ export const createObserversSetup = (
       _initialValue: { w: 0, h: 0 },
     },
     () => {
-      const hasOver = _viewportHasClass(
-        dataValueViewportOverflowVisible,
-        dataValueHostOverflowVisible
-      );
-      const hasVpStyle = _viewportHasClass(dataValueViewportArrange, '');
-      const scrollOffset = hasVpStyle && getElmentScroll(_viewport);
-      _viewportAddRemoveClass(dataValueViewportOverflowVisible, dataValueHostOverflowVisible);
-      _viewportAddRemoveClass(dataValueViewportArrange, '');
-      _viewportAddRemoveClass('', dataValueHostUpdating, true);
+      const [, undoViewportArrange] = scrollbarsHidingPlugin
+        ? scrollbarsHidingPlugin._viewportArrangement(
+            structureSetupElements,
+            structureSetupState,
+            env,
+            getCurrentOption
+          )
+        : [];
+
+      const hasOver = _viewportHasClass(dataValueViewportOverflowVisible);
+      const isArranged = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
+      const scrollOffset = isArranged && getElmentScroll(_viewport);
+
+      _viewportAddRemoveClass(dataValueViewportOverflowVisible);
+      _viewportIsTarget && _viewportAddRemoveClass(dataValueHostUpdating, true);
+      const redoViewportArrange =
+        isArranged && undoViewportArrange && undoViewportArrange(state)[0];
 
       const contentScroll = scrollSize(_content);
       const viewportScroll = scrollSize(_viewport);
       const fractional = fractionalSize(_viewport);
 
-      _viewportAddRemoveClass(
-        dataValueViewportOverflowVisible,
-        dataValueHostOverflowVisible,
-        hasOver
-      );
-      _viewportAddRemoveClass(dataValueViewportArrange, '', hasVpStyle);
-      _viewportAddRemoveClass('', dataValueHostUpdating);
+      _viewportAddRemoveClass(dataValueViewportOverflowVisible, hasOver);
+      _viewportIsTarget && _viewportAddRemoveClass(dataValueHostUpdating);
+      redoViewportArrange && redoViewportArrange();
 
       scrollElementTo(_viewport, scrollOffset);
 
@@ -243,6 +254,7 @@ export const createObserversSetup = (
     return updateHints;
   };
 
+  const { _addResizeListener } = env;
   const [constructTrinsicObserver, updateTrinsicObserver] = _content
     ? createTrinsicObserver(_host, onTrinsicChanged)
     : [];
