@@ -151,6 +151,7 @@ export const createStructureSetupElements = (
   const activeElm = ownerDocument.activeElement;
   const setViewportFocus =
     !viewportIsTarget && docWnd.top === docWnd && activeElm === targetElement;
+
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: hostElement,

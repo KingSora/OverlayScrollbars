@@ -80,6 +80,7 @@ export const createSetups = (
   onUpdated: (updateInfo: SetupsUpdateInfo, updateHints: SetupsUpdateHints) => void,
   onScroll: (scrollEvent: Event) => void
 ): Setups => {
+  const getCurrentOption = createOptionCheck(options, {});
   const [
     structureSetupCreate,
     structureSetupUpdate,
@@ -89,6 +90,8 @@ export const createSetups = (
   ] = createStructureSetup(target);
   const [observersSetupCreate, observersSetupUpdate, observersSetupState] = createObserversSetup(
     structureSetupElements,
+    structureSetupState,
+    getCurrentOption,
     (observersUpdateHints) => {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       update({}, observersUpdateHints);
