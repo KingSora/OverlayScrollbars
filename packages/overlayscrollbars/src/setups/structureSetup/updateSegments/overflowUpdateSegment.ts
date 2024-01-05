@@ -253,10 +253,15 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     overflowOption: XY<OverflowBehavior>,
     viewportStyleObj: StyleObject
   ): ViewportOverflowState => {
+    const hasAnyOverflow = hasOverflow.x || hasOverflow.y;
+
     const setAxisOverflowStyle = (behavior: OverflowBehavior, hasOverflowAxis: boolean) => {
       const overflowVisible = overflowIsVisible(behavior);
+      const fallbackVisibilityBehavior = overflowVisible && hasAnyOverflow ? 'hidden' : '';
       const overflowVisibleBehavior =
-        (hasOverflowAxis && overflowVisible && behavior.replace(`${strVisible}-`, '')) || '';
+        (hasOverflowAxis && overflowVisible && behavior.replace(`${strVisible}-`, '')) ||
+        fallbackVisibilityBehavior;
+
       return [
         hasOverflowAxis && !overflowVisible ? behavior : '',
         overflowIsVisible(overflowVisibleBehavior) ? 'hidden' : overflowVisibleBehavior,
@@ -396,8 +401,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       const [viewportScrollSize, viewportScrollSizeChanged] = (viewportScrollSizeCache =
         updateViewportScrollSizeCache(_force));
       const viewportClientSize = clientSize(_viewport);
-      let arrangedViewportScrollSize = viewportScrollSize;
-      let arrangedViewportClientSize = viewportClientSize;
+      const arrangedViewportScrollSize = viewportScrollSize;
+      const arrangedViewportClientSize = viewportClientSize;
 
       redoViewportArrange();
 
@@ -413,8 +418,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
           _directionIsRTL
         )
       ) {
-        arrangedViewportClientSize = clientSize(_viewport);
-        arrangedViewportScrollSize = scrollSize(_viewport);
+        // arrangedViewportClientSize = clientSize(_viewport);
+        // arrangedViewportScrollSize = scrollSize(_viewport);
       }
 
       const windowInnerSize = windowSize(_windowElm);

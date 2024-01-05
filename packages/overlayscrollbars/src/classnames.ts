@@ -2,11 +2,9 @@ const dataAttributePrefix = `data-overlayscrollbars`;
 
 // environment
 export const classNameEnvironment = 'os-environment';
+export const classNameEnvironmentScrollbarHidden = `${classNameEnvironment}-scrollbar-hidden`;
 export const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
 export const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
-
-// misc
-export const classNameScrollbarHidden = `os-scrollbar-hidden`;
 
 // initialize
 export const dataAttributeInitialize = `${dataAttributePrefix}-initialize`;
@@ -19,6 +17,7 @@ export const dataValueHostOverflowVisible = 'overflowVisible';
 export const dataValueHostScrollbarHidden = 'scrollbarHidden';
 export const dataValueHostScrollbarPressed = 'scrollbarPressed';
 export const dataValueHostUpdating = 'updating';
+export const dataValueHostHtmlBody = 'body';
 
 // viewport
 export const dataAttributeViewport = `${dataAttributePrefix}-viewport`;

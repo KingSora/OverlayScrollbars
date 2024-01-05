@@ -5,7 +5,6 @@ import {
   is,
   contents,
   insertAfter,
-  addClass,
   parent,
   removeElements,
   push,
@@ -15,7 +14,6 @@ import {
   keys,
   removeAttr,
   hasAttrClass,
-  noop,
   addEventListener,
   bind,
   inArray,
@@ -27,11 +25,11 @@ import {
   dataAttributeInitialize,
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
-  classNameScrollbarHidden,
   dataAttributeViewport,
   dataValueViewportScrollbarHidden,
   dataAttributePadding,
   dataAttributeContent,
+  dataValueHostHtmlBody,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
@@ -229,12 +227,9 @@ export const createStructureSetupElements = (
 
     if (!viewportIsTarget) {
       attr(_viewport, dataAttributeViewport, '');
+      isBody && addAttrClass(docElement, dataAttributeHost, dataValueHostHtmlBody);
     }
 
-    const removeHtmlClass =
-      isBody && !viewportIsTarget
-        ? addClass(parent(targetElement) as HTMLElement, classNameScrollbarHidden)
-        : noop;
     const unwrap = (elm: HTMLElement | false | null | undefined) => {
       appendChildren(parent(elm), contents(elm));
       removeElements(elm);
@@ -256,7 +251,6 @@ export const createStructureSetupElements = (
     appendChildren(_viewport, _content);
 
     push(destroyFns, () => {
-      removeHtmlClass();
       removeAttr(_padding, dataAttributePadding);
       removeAttr(_content, dataAttributeContent);
       removeAttr(_viewport, dataAttributeHostOverflowX);

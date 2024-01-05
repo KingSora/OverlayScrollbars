@@ -89,7 +89,7 @@ const clearBody = () => {
 
 const getElements = (targetType: TargetType) => {
   const target = getTarget(targetType);
-  const host = document.querySelector(`[${dataAttributeHost}]`)!;
+  const host = document.querySelector(`[${dataAttributeHost}]:not([${dataAttributeHost}="body"])`)!;
   const padding = document.querySelector(`[${dataAttributePadding}]`)!;
   const viewport = document.querySelector(`[${dataAttributeViewport}]`)!;
   const content = document.querySelector(`[${dataAttributeContent}]`)!;
