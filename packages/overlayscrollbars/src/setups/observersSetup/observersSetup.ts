@@ -114,14 +114,15 @@ export const createObserversSetup = (
       _initialValue: { w: 0, h: 0 },
     },
     () => {
-      const [, undoViewportArrange] = scrollbarsHidingPlugin
-        ? scrollbarsHidingPlugin._viewportArrangement(
-            structureSetupElements,
-            structureSetupState,
-            env,
-            getCurrentOption
-          )
-        : [];
+      const _undoViewportArrange =
+        scrollbarsHidingPlugin &&
+        scrollbarsHidingPlugin._viewportArrangement(
+          structureSetupElements,
+          structureSetupState,
+          state,
+          env,
+          getCurrentOption
+        )._undoViewportArrange;
 
       const hasOver = _viewportHasClass(dataValueViewportOverflowVisible);
       const isArranged = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
@@ -129,8 +130,7 @@ export const createObserversSetup = (
 
       _viewportAddRemoveClass(dataValueViewportOverflowVisible);
       _viewportIsTarget && _viewportAddRemoveClass(dataValueHostUpdating, true);
-      const redoViewportArrange =
-        isArranged && undoViewportArrange && undoViewportArrange(state)[0];
+      const redoViewportArrange = isArranged && _undoViewportArrange && _undoViewportArrange()[0];
 
       const contentScroll = scrollSize(_content);
       const viewportScroll = scrollSize(_viewport);
