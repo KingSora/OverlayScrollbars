@@ -94,14 +94,15 @@
  * applied to body 
  */
 
-html[data-overlayscrollbars],
-html[data-overlayscrollbars~='body'],
-html[data-overlayscrollbars~='body'] > body {
+html[data-overlayscrollbars] {
   box-sizing: border-box;
   margin: 0;
-  // using min-width & min-height instead of width & height to fix: https://github.com/KingSora/OverlayScrollbars/issues/601
-  min-width: 100%;
-  min-height: 100%;
+  // not using width & height styles here to fix: https://github.com/KingSora/OverlayScrollbars/issues/601
+}
+html[data-overlayscrollbars~='body'],
+html[data-overlayscrollbars~='body'] > body {
+  width: 100%;
+  height: 100%;
 }
 html[data-overlayscrollbars~='viewport'] > body {
   overflow: visible;
