@@ -170,9 +170,8 @@ export const createSetups = (
 
   return [
     () => {
-      const { _target, _viewport, _documentElm, _isBody } = structureSetupElements;
-      const scrollingElement = _isBody ? _documentElm.documentElement : _target;
-      const initialScroll = getElmentScroll(scrollingElement);
+      const { _originalScrollOffsetElement, _viewport } = structureSetupElements;
+      const initialScroll = getElmentScroll(_originalScrollOffsetElement);
       const destroyFns = [observersSetupCreate(), structureSetupCreate(), scrollbarsSetupCreate()];
 
       scrollElementTo(_viewport, initialScroll);

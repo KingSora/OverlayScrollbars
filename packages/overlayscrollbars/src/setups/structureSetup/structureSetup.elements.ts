@@ -56,6 +56,7 @@ export interface StructureSetupElementsObj {
   _content: HTMLElement | false;
   _scrollOffsetElement: HTMLElement;
   _scrollEventElement: HTMLElement | Document;
+  _originalScrollOffsetElement: HTMLElement;
   // ctx ----
   _isTextarea: boolean;
   _isBody: boolean;
@@ -157,6 +158,7 @@ export const createStructureSetupElements = (
     _content: contentElement,
     _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
     _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
+    _originalScrollOffsetElement: isBody ? docElement : targetElement,
     _windowElm: docWnd,
     _documentElm: ownerDocument,
     _isTextarea: isTextarea,
