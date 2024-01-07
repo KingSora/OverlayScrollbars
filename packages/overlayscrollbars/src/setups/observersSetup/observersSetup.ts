@@ -23,7 +23,7 @@ import {
   domRectAppeared,
   concat,
 } from '~/support';
-import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
+import { createDOMObserver, createSizeObserver } from '~/observers';
 import { getEnvironment } from '~/environment';
 import {
   classNameScrollbar,
@@ -33,9 +33,13 @@ import {
   dataValueViewportArrange,
   dataValueViewportOverflowVisible,
 } from '~/classnames';
-import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
+import {
+  getStaticPluginModuleInstance,
+  scrollbarsHidingPluginName,
+  trinsicObserverPluginName,
+} from '~/plugins';
 import type { Options, OptionsCheckFn } from '~/options';
-import type { ScrollbarsHidingPlugin } from '~/plugins';
+import type { ScrollbarsHidingPlugin, TrinsicObserverPlugin } from '~/plugins';
 import type { SizeObserverCallbackParams } from '~/observers';
 import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
 import type { Setup, SetupUpdateInfo, StructureSetupState } from '~/setups';
@@ -107,6 +111,8 @@ export const createObserversSetup = (
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
   );
+  const trinsicObserverPlugin =
+    getStaticPluginModuleInstance<typeof TrinsicObserverPlugin>(trinsicObserverPluginName);
 
   const [updateContentSizeCache] = createCache<WH<number>>(
     {
@@ -256,7 +262,9 @@ export const createObserversSetup = (
 
   const { _flexboxGlue, _addResizeListener } = env;
   const [constructTrinsicObserver, updateTrinsicObserver] =
-    _content || !_flexboxGlue ? createTrinsicObserver(_host, onTrinsicChanged) : [];
+    (_content || !_flexboxGlue) && trinsicObserverPlugin
+      ? trinsicObserverPlugin(_host, onTrinsicChanged)
+      : [];
 
   const constructSizeObserver =
     !_viewportIsTarget &&

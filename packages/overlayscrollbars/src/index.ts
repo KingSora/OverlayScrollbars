@@ -7,7 +7,12 @@ export {
   CloneableScrollbarElements,
   ScrollbarElements,
 } from '~/overlayscrollbars';
-export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~/plugins';
+export {
+  ScrollbarsHidingPlugin,
+  SizeObserverPlugin,
+  ClickScrollPlugin,
+  TrinsicObserverPlugin,
+} from '~/plugins';
 
 export type { Environment } from '~/environment';
 export type {

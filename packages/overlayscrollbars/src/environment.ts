@@ -33,7 +33,8 @@ import {
   classNameEnvironmentScrollbarHidden,
 } from '~/classnames';
 import { defaultOptions } from '~/options';
-import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
+import { scrollbarsHidingPluginName } from '~/plugins/scrollbarsHidingPlugin';
+import { getStaticPluginModuleInstance } from '~/plugins/plugins';
 import type { XY, EventListener } from '~/support';
 import type { Options, PartialOptions } from '~/options';
 import type { ScrollbarsHidingPlugin } from '~/plugins';

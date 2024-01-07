@@ -25,7 +25,8 @@ import {
   classNameSizeObserverAppear,
   classNameSizeObserverListener,
 } from '~/classnames';
-import { getStaticPluginModuleInstance, sizeObserverPluginName } from '~/plugins';
+import { getStaticPluginModuleInstance } from '~/plugins/plugins';
+import { sizeObserverPluginName } from '~/plugins/sizeObserverPlugin';
 import type { CacheValues } from '~/support';
 import type { SizeObserverPlugin } from '~/plugins';
 
