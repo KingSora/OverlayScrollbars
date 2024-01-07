@@ -100,40 +100,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const [updateOverflowEdge, getCurrentOverflowEdgeCache] = createCache<WH<number>>(whCacheOptions);
   const [updateOverflowStyleCache] = createCache<XY<OverflowStyle>>(xyCacheOptions);
 
-  /**
-   * Applies a fixed height to the viewport so it can't overflow or underflow the host element.
-   * @param viewportOverflowState The current overflow state.
-   * @param heightIntrinsic Whether the host height is intrinsic or not.
-   */
-  const fixFlexboxGlue = (
-    viewportOverflowState: ViewportOverflowState,
-    heightIntrinsic: boolean
-  ) => {
-    setStyles(_viewport, {
-      [strHeight]: '',
-    });
-
-    if (heightIntrinsic) {
-      const { _paddingAbsolute, _padding: padding } = structureSetupState;
-      const { _overflowScroll } = viewportOverflowState;
-      const fSize = fractionalSize(_host);
-      const hostClientSize = clientSize(_host);
-
-      // padding subtraction is only needed if padding is absolute or if viewport is content-box
-      const isContentBox = getStyles(_viewport, 'boxSizing') === 'content-box';
-      const paddingVertical = _paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
-      const subtractXScrollbar = !(_nativeScrollbarsOverlaid.x && isContentBox);
-
-      setStyles(_viewport, {
-        [strHeight]:
-          hostClientSize.h +
-          fSize.h +
-          (_overflowScroll.x && subtractXScrollbar ? /* _scrollbarsHideOffset.x */ 0 : 0) -
-          paddingVertical,
-      });
-    }
-  };
-
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
   );
@@ -161,8 +127,48 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         _checkOption
       );
 
-    const { _arrangeViewport, _undoViewportArrange, _hideNativeScrollbars } =
-      scrollbarsHidingPluginViewportArrangement || {};
+    const {
+      _arrangeViewport,
+      _undoViewportArrange,
+      _hideNativeScrollbars,
+      _getViewportOverflowHideOffset,
+    } = scrollbarsHidingPluginViewportArrangement || {};
+
+    /**
+     * Applies a fixed height to the viewport so it can't overflow or underflow the host element.
+     * @param viewportOverflowState The current overflow state.
+     * @param heightIntrinsic Whether the host height is intrinsic or not.
+     */
+    const fixFlexboxGlue = (
+      viewportOverflowState: ViewportOverflowState,
+      heightIntrinsic: boolean
+    ) => {
+      setStyles(_viewport, {
+        [strHeight]: '',
+      });
+
+      if (heightIntrinsic) {
+        const { _paddingAbsolute, _padding: padding } = structureSetupState;
+        const { _overflowScroll } = viewportOverflowState;
+        const fSize = fractionalSize(_host);
+        const hostClientSize = clientSize(_host);
+
+        // padding subtraction is only needed if padding is absolute or if viewport is content-box
+        const isContentBox = getStyles(_viewport, 'boxSizing') === 'content-box';
+        const paddingVertical = _paddingAbsolute || isContentBox ? padding.b + padding.t : 0;
+        const subtractXScrollbar = !(_nativeScrollbarsOverlaid.x && isContentBox);
+
+        setStyles(_viewport, {
+          [strHeight]:
+            hostClientSize.h +
+            fSize.h +
+            (_overflowScroll.x && subtractXScrollbar && _getViewportOverflowHideOffset
+              ? _getViewportOverflowHideOffset(viewportOverflowState)._scrollbarsHideOffset.x
+              : 0) -
+            paddingVertical,
+        });
+      }
+    };
 
     const [showNativeOverlaidScrollbars, showNativeOverlaidScrollbarsChanged] =
       getShowNativeOverlaidScrollbars(_checkOption, env);

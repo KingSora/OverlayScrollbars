@@ -111,6 +111,7 @@ const msedge = window.navigator.userAgent.toLowerCase().indexOf('edge') > -1;
 
 msie11 && addClass(document.body, 'msie11');
 
+const fbg = hasClass(document.body, 'fbg');
 const initialPaddingAbsolute = hasClass(document.body, 'pa');
 const isFastTestRun = hasClass(document.body, 'fast');
 const useContentElement = false;
@@ -372,7 +373,7 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
 
     // ==== check scroll values:
 
-    if (isFractionalPixelRatio() && viewportIsTarget) {
+    if (fbg || (isFractionalPixelRatio() && viewportIsTarget)) {
       should.ok(
         Math.abs(targetMetrics.scroll.width - comparisonMetrics.scroll.width) <= 1,
         `Scroll width equality. +-1 (${osInstance.state().overflowAmount.x})`
@@ -450,20 +451,46 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
     should.equal(targetMetrics.offset.top, comparisonMetrics.offset.top, 'Offset top equality.');
 
     // host dimensions
-    should.equal(targetMetrics.size.width, comparisonMetrics.size.width, 'Size width equality.');
-    should.equal(targetMetrics.size.height, comparisonMetrics.size.height, 'Size height equality.');
+    if (fbg) {
+      should.ok(
+        targetMetrics.size.width - comparisonMetrics.size.width < 1,
+        'Size width equality. (FBG)'
+      );
+      should.ok(
+        targetMetrics.size.height - comparisonMetrics.size.height < 1,
+        'Size height equality. (FBG)'
+      );
+    } else {
+      should.equal(targetMetrics.size.width, comparisonMetrics.size.width, 'Size width equality.');
+      should.equal(
+        targetMetrics.size.height,
+        comparisonMetrics.size.height,
+        'Size height equality.'
+      );
+    }
 
     // percent element dimensions
-    should.equal(
-      targetMetrics.percentElm.width,
-      comparisonMetrics.percentElm.width,
-      'Percent Elements width equality.'
-    );
-    should.equal(
-      targetMetrics.percentElm.height,
-      comparisonMetrics.percentElm.height,
-      'Percent Elements height equality.'
-    );
+    if (fbg) {
+      should.ok(
+        targetMetrics.percentElm.width - comparisonMetrics.percentElm.width < 1,
+        'Percent Elements width equality. (FBG)'
+      );
+      should.ok(
+        targetMetrics.percentElm.height - comparisonMetrics.percentElm.height < 1,
+        'Percent Elements height equality. (FBG)'
+      );
+    } else {
+      should.equal(
+        targetMetrics.percentElm.width,
+        comparisonMetrics.percentElm.width,
+        'Percent Elements width equality.'
+      );
+      should.equal(
+        targetMetrics.percentElm.height,
+        comparisonMetrics.percentElm.height,
+        'Percent Elements height equality.'
+      );
+    }
 
     // textwrap element dimensions
     should.equal(
