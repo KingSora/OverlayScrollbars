@@ -174,15 +174,15 @@ export const hideNativeScrollbars = (
   const { _scrollbarsHideOffset, _scrollbarsHideOffsetArrange } = viewportOverflowState;
   const { x: arrangeX, y: arrangeY } = _scrollbarsHideOffsetArrange;
   const { x: hideOffsetX, y: hideOffsetY } = _scrollbarsHideOffset;
-  const { _viewportPaddingStyle: viewportPaddingStyle } = structureSetupState;
+  const { _viewportPaddingStyle } = structureSetupState;
   const horizontalMarginKey: keyof StyleObject = directionIsRTL ? strMarginLeft : strMarginRight;
   const viewportHorizontalPaddingKey: keyof StyleObject = directionIsRTL
     ? strPaddingLeft
     : strPaddingRight;
-  const horizontalMarginValue = viewportPaddingStyle[horizontalMarginKey] as number;
-  const verticalMarginValue = viewportPaddingStyle[strMarginBottom] as number;
-  const horizontalPaddingValue = viewportPaddingStyle[viewportHorizontalPaddingKey] as number;
-  const verticalPaddingValue = viewportPaddingStyle[strPaddingBottom] as number;
+  const horizontalMarginValue = _viewportPaddingStyle[horizontalMarginKey] as number;
+  const verticalMarginValue = _viewportPaddingStyle[strMarginBottom] as number;
+  const horizontalPaddingValue = _viewportPaddingStyle[viewportHorizontalPaddingKey] as number;
+  const verticalPaddingValue = _viewportPaddingStyle[strPaddingBottom] as number;
 
   // horizontal
   viewportStyleObj[strWidth] = `calc(100% + ${hideOffsetY + horizontalMarginValue * -1}px)`;
