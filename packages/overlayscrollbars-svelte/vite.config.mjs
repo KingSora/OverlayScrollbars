@@ -13,11 +13,27 @@ export default defineConfig({
     outDir: 'dist',
     lib: {
       entry: resolve(__dirname, './src/overlayscrollbars-svelte'),
-      formats: ['es', 'cjs'],
-      fileName: (format) => `overlayscrollbars-svelte.${format}.js`,
     },
     rollupOptions: {
       external: ['overlayscrollbars'],
+      output: [
+        {
+          format: 'es',
+          entryFileNames: 'overlayscrollbars-svelte.esm.js',
+        },
+        {
+          format: 'es',
+          entryFileNames: 'overlayscrollbars-svelte.mjs',
+        },
+        {
+          format: 'cjs',
+          entryFileNames: 'overlayscrollbars-svelte.cjs.js',
+        },
+        {
+          format: 'cjs',
+          entryFileNames: 'overlayscrollbars-svelte.cjs',
+        },
+      ],
       plugins: [
         rollupPluginCopy({ paths: ['README.md', 'CHANGELOG.md'] }),
         rollupPluginPackageJson({
@@ -45,9 +61,10 @@ export default defineConfig({
               bugs,
               repository,
               keywords,
-              main: 'overlayscrollbars-svelte.cjs.js',
-              module: 'overlayscrollbars-svelte.es.js',
+              main: 'overlayscrollbars-svelte.esm.js',
+              module: 'overlayscrollbars-svelte.esm.js',
               types: 'overlayscrollbars-svelte.d.ts',
+              svelte: './overlayscrollbars-svelte.js',
               exports: {
                 '.': {
                   svelte: {
@@ -68,7 +85,6 @@ export default defineConfig({
                   },
                 },
               },
-              svelte: './overlayscrollbars-svelte.js',
               peerDependencies,
               sideEffects: false,
             };
