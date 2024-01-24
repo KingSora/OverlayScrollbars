@@ -39,9 +39,18 @@ module.exports = createRollupConfig({
         types: 'types/overlayscrollbars.d.ts',
         exports: {
           '.': {
-            require: './overlayscrollbars.cjs',
-            import: './overlayscrollbars.mjs',
-            types: './types/overlayscrollbars.d.ts',
+            import: {
+              types: './types/overlayscrollbars.d.mts',
+              default: './overlayscrollbars.mjs',
+            },
+            require: {
+              types: './types/overlayscrollbars.d.cts',
+              default: './overlayscrollbars.cjs',
+            },
+            default: {
+              types: './types/overlayscrollbars.d.ts',
+              default: './overlayscrollbars.cjs.js',
+            },
           },
           './package.json': './package.json',
           './overlayscrollbars.css': './styles/overlayscrollbars.css',

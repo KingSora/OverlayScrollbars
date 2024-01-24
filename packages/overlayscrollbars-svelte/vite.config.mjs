@@ -50,9 +50,22 @@ export default defineConfig({
               types: 'overlayscrollbars-svelte.d.ts',
               exports: {
                 '.': {
-                  types: './overlayscrollbars-svelte.d.ts',
-                  svelte: './overlayscrollbars-svelte.js',
-                  default: './overlayscrollbars-svelte.js',
+                  svelte: {
+                    types: './overlayscrollbars-svelte.d.ts',
+                    default: './overlayscrollbars-svelte.js',
+                  },
+                  import: {
+                    types: './overlayscrollbars-svelte.d.mts',
+                    default: './overlayscrollbars-svelte.mjs',
+                  },
+                  require: {
+                    types: './overlayscrollbars-svelte.d.cts',
+                    default: './overlayscrollbars-svelte.cjs',
+                  },
+                  default: {
+                    types: './overlayscrollbars-svelte.d.ts',
+                    default: './overlayscrollbars-svelte.js',
+                  },
                 },
               },
               svelte: './overlayscrollbars-svelte.js',

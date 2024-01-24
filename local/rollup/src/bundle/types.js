@@ -3,13 +3,15 @@ const path = require('path');
 const rollupDts = require('rollup-plugin-dts');
 
 const { rollupTs } = require('./plugins');
+const tsFileEnding = '.ts';
+const tsDeclarationFileEnding = `.d${tsFileEnding}`;
 
 module.exports = (resolve, options) => {
   const { rollup, paths } = options;
   const { output: rollupOutput, input } = rollup;
   const { file } = rollupOutput;
   const { types: typesPath } = paths;
-  const dtsOutput = path.resolve(typesPath, `${file}.d.ts`);
+  const dtsOutput = path.resolve(typesPath, `${file}${tsDeclarationFileEnding}`);
 
   return [
     {
@@ -26,7 +28,10 @@ module.exports = (resolve, options) => {
       plugins: [rollupTs(input, true)],
     },
     {
-      input: path.join(typesPath, `${path.basename(input).replace('.ts', '.d.ts')}`),
+      input: path.join(
+        typesPath,
+        `${path.basename(input).replace(tsFileEnding, tsDeclarationFileEnding)}`
+      ),
       output: {
         file: dtsOutput,
       },
@@ -50,6 +55,17 @@ module.exports = (resolve, options) => {
               if (path.basename(fileOrDir) !== path.basename(dtsOutput)) {
                 fs.rmSync(path.join(typesPath, fileOrDir), { recursive: true });
               }
+            });
+            [
+              dtsOutput.replace(tsDeclarationFileEnding, '.d.mts'),
+              dtsOutput.replace(tsDeclarationFileEnding, '.d.cts'),
+            ].forEach((additionalTypesFile) => {
+              fs.writeFileSync(
+                additionalTypesFile,
+                `export * from './${path
+                  .basename(dtsOutput)
+                  .replace(tsDeclarationFileEnding, '.js')}';`
+              );
             });
           },
         },

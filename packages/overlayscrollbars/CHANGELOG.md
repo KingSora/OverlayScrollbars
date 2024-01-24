@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.4.7
+
+### Improvements
+
+- Adapt the `exports` field in the `package.json` for correct `commonjs` and `module` handling.
+- Additional types exports: `Elements`, `State`, `CloneableScrollbarElements`, `ScrollbarElements`, `StaticInitialization` and `DynamicInitialization`.
+- Remove obsolete styles when initializing `OverlayScrollbars` on the `body` element and the browser supports native scrollbar hiding. [#601](https://github.com/KingSora/OverlayScrollbars/issues/601)
+- Move code to the `ScrollbarsHidingPlugin` for better treeshaking. 
+
 ## 2.4.6
 
 ### Bug Fixes

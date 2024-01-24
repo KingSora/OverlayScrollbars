@@ -12,18 +12,36 @@ export default defineConfig({
     outDir: 'dist',
     lib: {
       entry: resolve(__dirname, 'src/overlayscrollbars-vue.ts'),
-      name: 'OverlayScrollbarsVue',
-      formats: ['es', 'cjs', 'umd'],
-      fileName: (format) => `overlayscrollbars-vue.${format}.js`,
     },
     rollupOptions: {
       external: ['vue', 'overlayscrollbars'],
-      output: {
-        globals: {
-          vue: 'Vue',
-          overlayscrollbars: 'OverlayScrollbarsGlobal',
+      output: [
+        {
+          format: 'es',
+          entryFileNames: 'overlayscrollbars-vue.esm.js',
         },
-      },
+        {
+          format: 'es',
+          entryFileNames: 'overlayscrollbars-vue.mjs',
+        },
+        {
+          format: 'cjs',
+          entryFileNames: 'overlayscrollbars-vue.cjs.js',
+        },
+        {
+          format: 'cjs',
+          entryFileNames: 'overlayscrollbars-vue.cjs',
+        },
+        {
+          format: 'umd',
+          name: 'OverlayScrollbarsVue',
+          globals: {
+            vue: 'Vue',
+            overlayscrollbars: 'OverlayScrollbarsGlobal',
+          },
+          entryFileNames: 'overlayscrollbars-vue.umd.js',
+        },
+      ],
       plugins: [
         rollupPluginCopy({ paths: ['README.md', 'CHANGELOG.md'] }),
         rollupPluginPackageJson({
@@ -49,14 +67,23 @@ export default defineConfig({
               bugs,
               repository,
               keywords,
-              main: 'overlayscrollbars-vue.umd.js',
-              module: 'overlayscrollbars-vue.es.js',
+              main: 'overlayscrollbars-vue.cjs.js',
+              module: 'overlayscrollbars-vue.esm.js',
               types: 'types/overlayscrollbars-vue.d.ts',
               exports: {
                 '.': {
-                  require: './overlayscrollbars-vue.cjs.js',
-                  import: './overlayscrollbars-vue.es.js',
-                  types: './types/overlayscrollbars-vue.d.ts',
+                  import: {
+                    types: './types/overlayscrollbars-vue.d.mts',
+                    default: './overlayscrollbars-vue.mjs',
+                  },
+                  require: {
+                    types: './types/overlayscrollbars-vue.d.cts',
+                    default: './overlayscrollbars-vue.cjs',
+                  },
+                  default: {
+                    types: './types/overlayscrollbars-vue.d.ts',
+                    default: './overlayscrollbars-vue.cjs.js',
+                  },
                 },
               },
               peerDependencies,

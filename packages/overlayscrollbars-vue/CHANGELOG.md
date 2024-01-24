@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.7
+
+### Improvements
+
+- Adapt the `exports` field in the `package.json` for correct `commonjs` and `module` handling. 
+
 ## 0.5.6
 
 ### Bug Fixes

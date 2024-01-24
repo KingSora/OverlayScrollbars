@@ -11,18 +11,35 @@ export default defineConfig({
     outDir: 'dist',
     lib: {
       entry: resolve(__dirname, 'src/overlayscrollbars-react.ts'),
-      name: 'OverlayScrollbarsReact',
-      formats: ['es', 'cjs', 'umd'],
-      fileName: (format) => `overlayscrollbars-react.${format}.js`,
     },
     rollupOptions: {
       external: ['react', 'react/jsx-runtime', 'overlayscrollbars'],
-      output: {
-        globals: {
-          react: 'React',
-          overlayscrollbars: 'OverlayScrollbarsGlobal',
+      output: [
+        {
+          format: 'es',
+          entryFileNames: 'overlayscrollbars-react.esm.js',
         },
-      },
+        {
+          format: 'es',
+          entryFileNames: 'overlayscrollbars-react.mjs',
+        },
+        {
+          format: 'cjs',
+          entryFileNames: 'overlayscrollbars-react.cjs.js',
+        },
+        {
+          format: 'cjs',
+          entryFileNames: 'overlayscrollbars-react.cjs',
+        },
+        {
+          format: 'umd',
+          name: 'OverlayScrollbarsReact',
+          globals: {
+            react: 'React',
+            overlayscrollbars: 'OverlayScrollbarsGlobal',
+          },
+        },
+      ],
       plugins: [
         rollupPluginCopy({ paths: ['README.md', 'CHANGELOG.md'] }),
         rollupPluginPackageJson({
@@ -48,14 +65,23 @@ export default defineConfig({
               bugs,
               repository,
               keywords,
-              main: 'overlayscrollbars-react.umd.js',
-              module: 'overlayscrollbars-react.es.js',
+              main: 'overlayscrollbars-react.cjs.js',
+              module: 'overlayscrollbars-react.esm.js',
               types: 'types/overlayscrollbars-react.d.ts',
               exports: {
                 '.': {
-                  require: './overlayscrollbars-react.cjs.js',
-                  import: './overlayscrollbars-react.es.js',
-                  types: './types/overlayscrollbars-react.d.ts',
+                  import: {
+                    types: './types/overlayscrollbars-react.d.mts',
+                    default: './overlayscrollbars-react.mjs',
+                  },
+                  require: {
+                    types: './types/overlayscrollbars-react.d.cts',
+                    default: './overlayscrollbars-react.cjs',
+                  },
+                  default: {
+                    types: './types/overlayscrollbars-react.d.ts',
+                    default: './overlayscrollbars-react.cjs.js',
+                  },
                 },
               },
               peerDependencies,

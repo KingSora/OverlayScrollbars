@@ -1,7 +1,7 @@
 {
   "name": "overlayscrollbars-svelte",
   "private": true,
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "OverlayScrollbars for Svelte.",
   "author": "Rene Haas | KingSora",
   "license": "MIT",
