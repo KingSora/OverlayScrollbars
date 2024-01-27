@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.5.0
+
 ### Breaking Changes
 
 - Although not a major release, I've decided to drop `IE11` support in this version. This change should be beneficial to the majority of users.
@@ -21,7 +23,7 @@
 
 ### Bug Fixes
 
-- If the pointer (mouse, pen etc.) is interacting with the scrollbar, the `autoHide` option will wait until the interacting is finished. [#597](https://github.com/KingSora/OverlayScrollbars/issues/597)
+- If the pointer (mouse, pen etc.) is interacting with the scrollbar, the `autoHide` option will wait until the interaction is finished. [#597](https://github.com/KingSora/OverlayScrollbars/issues/597)
 - `ScrollTimeline` animations are not canceled anymore when they are updated. Instead the animations keyframe effect is switched out preventing flickering. [#598](https://github.com/KingSora/OverlayScrollbars/issues/598)
 
 ## 2.4.5
