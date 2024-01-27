@@ -13,11 +13,27 @@ export default defineConfig({
     outDir: 'dist',
     lib: {
       entry: resolve(__dirname, './src/overlayscrollbars-svelte'),
-      formats: ['es', 'cjs'],
-      fileName: (format) => `overlayscrollbars-svelte.${format}.js`,
     },
     rollupOptions: {
       external: ['overlayscrollbars'],
+      output: [
+        {
+          format: 'es',
+          entryFileNames: 'overlayscrollbars-svelte.esm.js',
+        },
+        {
+          format: 'es',
+          entryFileNames: 'overlayscrollbars-svelte.mjs',
+        },
+        {
+          format: 'cjs',
+          entryFileNames: 'overlayscrollbars-svelte.cjs.js',
+        },
+        {
+          format: 'cjs',
+          entryFileNames: 'overlayscrollbars-svelte.cjs',
+        },
+      ],
       plugins: [
         rollupPluginCopy({ paths: ['README.md', 'CHANGELOG.md'] }),
         rollupPluginPackageJson({
@@ -45,17 +61,30 @@ export default defineConfig({
               bugs,
               repository,
               keywords,
-              main: 'overlayscrollbars-svelte.cjs.js',
-              module: 'overlayscrollbars-svelte.es.js',
+              main: 'overlayscrollbars-svelte.esm.js',
+              module: 'overlayscrollbars-svelte.esm.js',
               types: 'overlayscrollbars-svelte.d.ts',
+              svelte: './overlayscrollbars-svelte.js',
               exports: {
                 '.': {
-                  types: './overlayscrollbars-svelte.d.ts',
-                  svelte: './overlayscrollbars-svelte.js',
-                  default: './overlayscrollbars-svelte.js',
+                  svelte: {
+                    types: './overlayscrollbars-svelte.d.ts',
+                    default: './overlayscrollbars-svelte.js',
+                  },
+                  import: {
+                    types: './overlayscrollbars-svelte.d.mts',
+                    default: './overlayscrollbars-svelte.mjs',
+                  },
+                  require: {
+                    types: './overlayscrollbars-svelte.d.cts',
+                    default: './overlayscrollbars-svelte.cjs',
+                  },
+                  default: {
+                    types: './overlayscrollbars-svelte.d.ts',
+                    default: './overlayscrollbars-svelte.js',
+                  },
                 },
               },
-              svelte: './overlayscrollbars-svelte.js',
               peerDependencies,
               sideEffects: false,
             };

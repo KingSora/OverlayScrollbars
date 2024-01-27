@@ -1,15 +1,21 @@
 # Changelog
 
-## 2.5.0
-
 ### Breaking Changes
 
-Although not a major release, I've decided to drop `IE11` support in this version.
-This change should be beneficial to the majority of users.
+- Although not a major release, I've decided to drop `IE11` support in this version. This change should be beneficial to the majority of users.
+  - The size of the js bundle decreased by `~6%`.
+  - The size of the css bundle decreased by `~18%`.
+  - The fields `flexboxGlue` and `cssCustomProperties` are removed from the `Environment`. (returning object from `OverlayScrollbars.env()`)
 
-- The size of the js bundle decreased by `~6%`.
-- The size of the css bundle decreased by `~18%`.
-- The fields `flexboxGlue` and `cssCustomProperties` are removed from the `Environment`. (returning object from `OverlayScrollbars.env()`)
+
+## 2.4.7
+
+### Improvements
+
+- Adapt the `exports` field in the `package.json` for correct `commonjs` and `module` handling.
+- Additional types exports: `Elements`, `State`, `CloneableScrollbarElements`, `ScrollbarElements`, `StaticInitialization` and `DynamicInitialization`.
+- Remove obsolete styles when initializing `OverlayScrollbars` on the `body` element and the browser supports native scrollbar hiding. [#601](https://github.com/KingSora/OverlayScrollbars/issues/601)
+- Move code to the `ScrollbarsHidingPlugin` for better treeshaking. 
 
 ## 2.4.6
 
