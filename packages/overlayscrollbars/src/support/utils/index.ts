@@ -7,3 +7,4 @@ export * from './types';
 export * from './noop';
 export * from './alias';
 export * from './strings';
+export * from './math';

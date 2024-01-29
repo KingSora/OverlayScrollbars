@@ -1,5 +1,5 @@
 import { getStyles, strOverflowX, strOverflowY, strVisible } from '~/support';
-import type { InternalEnvironment } from '~/environment';
+import type { Env } from '~/environment';
 import type { XY } from '~/support';
 import type { Options, OptionsCheckFn, OverflowBehavior } from '~/options';
 import type { OverflowStyle, StyleObject, StyleObjectKey } from '~/typings';
@@ -10,10 +10,7 @@ export interface ViewportOverflowState {
   _overflowStyle: XY<OverflowStyle>;
 }
 
-export const getShowNativeOverlaidScrollbars = (
-  checkOption: OptionsCheckFn<Options>,
-  env: InternalEnvironment
-) => {
+export const getShowNativeOverlaidScrollbars = (checkOption: OptionsCheckFn<Options>, env: Env) => {
   const { _nativeScrollbarsOverlaid } = env;
   const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] = checkOption(
     'showNativeOverlaidScrollbars'

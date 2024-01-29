@@ -14,7 +14,7 @@ import {
   bind,
   noop,
   isArray,
-  getRTLCompatibleScrollPosition,
+  convertScrollPosition,
   scrollElementTo,
   domRectAppeared,
   concat,
@@ -109,7 +109,7 @@ export const createSizeObserver = (
       if (observeDirectionChange && doDirectionScroll) {
         const rtl = hasDirectionCache ? sizeChangedContext[0] : getDirectionIsRTL(sizeObserver);
         scrollElementTo(sizeObserver, {
-          x: getRTLCompatibleScrollPosition(scrollAmount, scrollAmount, rtl && rtlScrollBehavior),
+          x: convertScrollPosition(scrollAmount, scrollAmount, rtl && rtlScrollBehavior),
           y: scrollAmount,
         });
       }

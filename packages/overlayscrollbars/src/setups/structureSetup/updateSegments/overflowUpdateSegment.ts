@@ -1,6 +1,5 @@
 import {
   createCache,
-  attr,
   scrollSize,
   fractionalSize,
   equalWH,
@@ -18,6 +17,7 @@ import {
   setStyles,
   getStyles,
   addRemoveAttrClass,
+  setAttrs,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -314,8 +314,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       }
 
       if (_viewportIsTarget) {
-        attr(_host, dataAttributeHostOverflowX, viewportStyle[strOverflowX] as string);
-        attr(_host, dataAttributeHostOverflowY, viewportStyle[strOverflowY] as string);
+        setAttrs(_host, dataAttributeHostOverflowX, viewportStyle[strOverflowX] as string);
+        setAttrs(_host, dataAttributeHostOverflowY, viewportStyle[strOverflowY] as string);
       } else {
         setStyles(_viewport, viewportStyle);
       }

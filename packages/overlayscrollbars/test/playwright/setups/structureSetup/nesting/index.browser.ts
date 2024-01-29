@@ -3,7 +3,7 @@ import './index.scss';
 import should from 'should';
 import { timeout, setTestResult, waitForOrFailTest, resize } from '@~local/browser-testing';
 import { OverlayScrollbars } from '~/overlayscrollbars';
-import { addClass, each, isArray, removeAttr, getStyles, setStyles } from '~/support';
+import { addClass, each, isArray, removeAttrs, getStyles, setStyles } from '~/support';
 import { ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
 
 if (!window.ResizeObserver) {
@@ -150,7 +150,7 @@ const resizeBetween = async (betweenElm: HTMLElement) => {
     JSON.stringify(updateCountsAfter),
     `Resizing a between element shouldn't trigger any updates.`
   );
-  removeAttr(betweenElm, 'style');
+  removeAttrs(betweenElm, 'style');
 };
 
 const resizeResizer = async (resizeElm: HTMLElement) => {
@@ -169,7 +169,7 @@ const resizeResizer = async (resizeElm: HTMLElement) => {
     JSON.stringify(updateCountsAfter),
     `Non size changing mutations shouldn't trigger any updates.`
   );
-  removeAttr(resizeElm, 'style');
+  removeAttrs(resizeElm, 'style');
 };
 
 const overwriteScrollHeight = (elm: HTMLElement | HTMLElement[]) => {

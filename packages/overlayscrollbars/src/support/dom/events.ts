@@ -1,8 +1,8 @@
+import type { DomTokens } from './attribute';
 import { each, runEachAndClear } from '../utils/array';
 import { bind } from '../utils/function';
 import { keys } from '../utils';
-
-const splitEventNames = (eventNames: string) => eventNames.split(' ');
+import { getDomTokensArray } from './attribute';
 
 export interface EventListenerOptions {
   _capture?: boolean;
@@ -23,11 +23,11 @@ export type EventListenerMap = {
  */
 export const removeEventListener = <T extends Event = Event>(
   target: EventTarget,
-  eventNames: string,
+  eventNames: DomTokens,
   listener: (event: T) => any,
   capture?: boolean
 ): void => {
-  each(splitEventNames(eventNames), (eventName) => {
+  each(getDomTokensArray(eventNames), (eventName) => {
     target.removeEventListener(eventName, listener as EventListener, capture);
   });
 };
@@ -41,7 +41,7 @@ export const removeEventListener = <T extends Event = Event>(
  */
 export const addEventListener = <T extends Event = Event>(
   target: EventTarget,
-  eventNames: string,
+  eventNames: DomTokens,
   listener: (event: T) => any,
   options?: EventListenerOptions
 ): (() => void) => {
@@ -55,7 +55,7 @@ export const addEventListener = <T extends Event = Event>(
 
   return bind(
     runEachAndClear,
-    splitEventNames(eventNames).map((eventName) => {
+    getDomTokensArray(eventNames).map((eventName) => {
       const finalListener = (
         once
           ? (evt: T) => {

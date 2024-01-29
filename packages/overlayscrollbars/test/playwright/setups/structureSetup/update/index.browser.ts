@@ -19,7 +19,7 @@ import {
   getBoundingClientRect,
   parent,
   addClass,
-  removeAttr,
+  removeAttrs,
   contents,
   appendChildren,
   createDOM,
@@ -805,14 +805,14 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
     await setLargeOverflow(false, true);
     await setLargeOverflow(true, true);
 
-    removeAttr(targetResize, 'style');
-    removeAttr(comparisonResize, 'style');
-    removeAttr(targetPercent, 'style');
-    removeAttr(comparisonPercent, 'style');
-    removeAttr(targetTextwrap, 'style');
-    removeAttr(comparisonTextwrap, 'style');
-    removeAttr(targetEnd, 'style');
-    removeAttr(comparisonEnd, 'style');
+    removeAttrs(targetResize, 'style');
+    removeAttrs(comparisonResize, 'style');
+    removeAttrs(targetPercent, 'style');
+    removeAttrs(comparisonPercent, 'style');
+    removeAttrs(targetTextwrap, 'style');
+    removeAttrs(comparisonTextwrap, 'style');
+    removeAttrs(targetEnd, 'style');
+    removeAttrs(comparisonEnd, 'style');
   };
 
   const withSkippedItems = osOptions || isFastTestRun;

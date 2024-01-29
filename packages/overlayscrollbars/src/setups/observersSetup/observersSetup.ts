@@ -1,7 +1,6 @@
 import {
   ResizeObserverConstructor,
   assignDeep,
-  attr,
   closest,
   createCache,
   debounce,
@@ -15,13 +14,15 @@ import {
   isString,
   keys,
   liesBetween,
-  removeAttr,
+  removeAttrs,
   scrollSize,
   getElmentScroll,
   scrollElementTo,
   inArray,
   domRectAppeared,
   concat,
+  getAttr,
+  setAttrs,
 } from '~/support';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
 import { getEnvironment } from '~/environment';
@@ -171,11 +172,11 @@ export const createObserversSetup = (
   const updateViewportAttrsFromHost = (attributes?: string[]) => {
     each(attributes || viewportAttrsFromTarget, (attribute) => {
       if (inArray(viewportAttrsFromTarget, attribute)) {
-        const hostAttr = attr(_host, attribute);
+        const hostAttr = getAttr(_host, attribute);
         if (isString(hostAttr)) {
-          attr(_viewport, attribute, hostAttr);
+          setAttrs(_viewport, attribute, hostAttr);
         } else {
-          removeAttr(_viewport, attribute);
+          removeAttrs(_viewport, attribute);
         }
       }
     });

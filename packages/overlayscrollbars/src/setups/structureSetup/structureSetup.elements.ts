@@ -9,15 +9,16 @@ import {
   removeElements,
   push,
   runEachAndClear,
-  attr,
   keys,
-  removeAttr,
+  removeAttrs,
   hasAttrClass,
   addEventListener,
   bind,
   inArray,
   addAttrClass,
   addRemoveAttrClass,
+  setAttrs,
+  getAttr,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -190,12 +191,10 @@ export const createStructureSetupElements = (
   const destroyFns: (() => any)[] = [
     () => {
       // always remove dataAttributeHost & dataAttributeInitialize from host and from <html> element if target is body
-      removeAttr(_host, dataAttributeHost);
-      removeAttr(_host, dataAttributeInitialize);
-      removeAttr(_target, dataAttributeInitialize);
+      removeAttrs(_host, [dataAttributeHost, dataAttributeInitialize]);
+      removeAttrs(_target, dataAttributeInitialize);
       if (isBody) {
-        removeAttr(docElement, dataAttributeHost);
-        removeAttr(docElement, dataAttributeInitialize);
+        removeAttrs(docElement, [dataAttributeInitialize, dataAttributeHost]);
       }
     },
   ];
@@ -210,12 +209,12 @@ export const createStructureSetupElements = (
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
   const destroy = bind(runEachAndClear, destroyFns);
   const appendElements = () => {
-    attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
-    attr(_padding, dataAttributePadding, '');
-    attr(_content, dataAttributeContent, '');
+    setAttrs(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
+    setAttrs(_padding, dataAttributePadding, '');
+    setAttrs(_content, dataAttributeContent, '');
 
     if (!viewportIsTarget) {
-      attr(_viewport, dataAttributeViewport, '');
+      setAttrs(_viewport, dataAttributeViewport, '');
       isBody && addAttrClass(docElement, dataAttributeHost, dataValueHostHtmlBody);
     }
 
@@ -223,6 +222,14 @@ export const createStructureSetupElements = (
       appendChildren(parent(elm), contents(elm));
       removeElements(elm);
     };
+    const preventFocus = (event: Event) => {
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      event.preventDefault();
+    };
+    const removePreventFocusEvents = addEventListener(_target, 'focus focusout', preventFocus, {
+      _capture: true,
+    });
 
     // only insert host for textarea after target if it was generated
     if (isTextareaHostGenerated) {
@@ -238,13 +245,16 @@ export const createStructureSetupElements = (
     appendChildren(_host, _padding);
     appendChildren(_padding || _host, !viewportIsTarget && _viewport);
     appendChildren(_viewport, _content);
+    removePreventFocusEvents();
 
     push(destroyFns, () => {
-      removeAttr(_padding, dataAttributePadding);
-      removeAttr(_content, dataAttributeContent);
-      removeAttr(_viewport, dataAttributeHostOverflowX);
-      removeAttr(_viewport, dataAttributeHostOverflowY);
-      removeAttr(_viewport, dataAttributeViewport);
+      removeAttrs(_padding, dataAttributePadding);
+      removeAttrs(_content, dataAttributeContent);
+      removeAttrs(_viewport, [
+        dataAttributeHostOverflowX,
+        dataAttributeHostOverflowY,
+        dataAttributeViewport,
+      ]);
 
       elementIsGenerated(_content) && unwrap(_content);
       elementIsGenerated(_viewport) && unwrap(_viewport);
@@ -253,17 +263,19 @@ export const createStructureSetupElements = (
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
       addAttrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden);
-      push(destroyFns, bind(removeAttr, _viewport, dataAttributeViewport));
+      push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
     if (setViewportFocus) {
       const tabIndexStr = 'tabindex';
-      const ogTabindex = attr(_viewport, tabIndexStr);
+      const ogTabindex = getAttr(_viewport, tabIndexStr);
 
-      attr(_viewport, tabIndexStr, '-1');
+      setAttrs(_viewport, tabIndexStr, '-1');
       _viewport.focus();
 
       const revertViewportTabIndex = () =>
-        ogTabindex ? attr(_viewport, tabIndexStr, ogTabindex) : removeAttr(_viewport, tabIndexStr);
+        ogTabindex
+          ? setAttrs(_viewport, tabIndexStr, ogTabindex)
+          : removeAttrs(_viewport, tabIndexStr);
       const off = addEventListener(ownerDocument, 'pointerdown keydown', () => {
         revertViewportTabIndex();
         off();

@@ -1,6 +1,7 @@
 import './index.scss';
 
 export {
+  Environment,
   OverlayScrollbars,
   Elements,
   State,
@@ -9,7 +10,6 @@ export {
 } from '~/overlayscrollbars';
 export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~/plugins';
 
-export type { Environment } from '~/environment';
 export type {
   Options,
   PartialOptions,

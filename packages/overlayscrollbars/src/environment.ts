@@ -6,7 +6,7 @@ import {
   clientSize,
   absoluteCoordinates,
   offsetSize,
-  removeAttr,
+  removeAttrs,
   removeElements,
   assignDeep,
   createCache,
@@ -36,47 +36,7 @@ type EnvironmentEventArgs = {
   r: [scrollbarSizeChanged?: boolean];
 };
 
-/**
- * Describes the OverlayScrollbars environment.
- */
-export interface Environment {
-  /** The native scrollbars size of the browser / system. */
-  scrollbarsSize: XY<number>;
-  /** Whether the native scrollbars are overlaid. */
-  scrollbarsOverlaid: XY<boolean>;
-  /** Whether the browser supports native scrollbars hiding. */
-  scrollbarsHiding: boolean;
-  /** The rtl scroll behavior of the browser. */
-  rtlScrollBehavior: { n: boolean; i: boolean };
-  /** Whether the browser supports the ScrollTimeline API. */
-  scrollTimeline: boolean;
-  /** The default Initialization to use if nothing else is specified. */
-  staticDefaultInitialization: Initialization;
-  /** The default Options to use if nothing else is specified. */
-  staticDefaultOptions: Options;
-
-  /** Returns the current default Initialization. */
-  getDefaultInitialization(): Initialization;
-  /** Returns the current default Options. */
-  getDefaultOptions(): Options;
-
-  /**
-   * Sets a new default Initialization.
-   * If the new default Initialization is partially filled, its deeply merged with the current default Initialization.
-   * @param newDefaultInitialization The new default Initialization.
-   * @returns The current default Initialization.
-   */
-  setDefaultInitialization(newDefaultInitialization: PartialInitialization): Initialization;
-  /**
-   * Sets new default Options.
-   * If the new default Options are partially filled, they're deeply merged with the current default Options.
-   * @param newDefaultOptions The new default Options.
-   * @returns The current default options.
-   */
-  setDefaultOptions(newDefaultOptions: PartialOptions): Options;
-}
-
-export interface InternalEnvironment {
+export interface Env {
   readonly _nativeScrollbarsSize: XY;
   readonly _nativeScrollbarsOverlaid: XY<boolean>;
   readonly _nativeScrollbarsHiding: boolean;
@@ -91,70 +51,74 @@ export interface InternalEnvironment {
   _setDefaultOptions(newDefaultOptions: PartialOptions): Options;
 }
 
-let environmentInstance: InternalEnvironment;
+let environmentInstance: Env;
 
-const getNativeScrollbarSize = (
-  body: HTMLElement,
-  measureElm: HTMLElement,
-  measureElmChild: HTMLElement,
-  clear?: boolean
-): XY => {
-  appendChildren(body, measureElm);
+const createEnvironment = (): Env => {
+  const getNativeScrollbarSize = (
+    body: HTMLElement,
+    measureElm: HTMLElement,
+    measureElmChild: HTMLElement,
+    clear?: boolean
+  ): XY => {
+    appendChildren(body, measureElm);
 
-  const cSize = clientSize(measureElm);
-  const oSize = offsetSize(measureElm);
-  const fSize = fractionalSize(measureElmChild);
+    const cSize = clientSize(measureElm);
+    const oSize = offsetSize(measureElm);
+    const fSize = fractionalSize(measureElmChild);
 
-  clear && removeElements(measureElm);
+    clear && removeElements(measureElm);
 
-  return {
-    x: oSize.h - cSize.h + fSize.h,
-    y: oSize.w - cSize.w + fSize.w,
+    return {
+      x: oSize.h - cSize.h + fSize.h,
+      y: oSize.w - cSize.w + fSize.w,
+    };
   };
-};
 
-const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
-  let result = false;
-  const revertClass = addClass(testElm, classNameEnvironmentScrollbarHidden);
-  try {
-    result =
-      getStyles(testElm, 'scrollbar-width' as StyleObjectKey) === 'none' ||
-      getStyles(testElm, 'display', '::-webkit-scrollbar') === 'none';
-  } catch {}
-  revertClass();
-  return result;
-};
-
-const getRtlScrollBehavior = (
-  parentElm: HTMLElement,
-  childElm: HTMLElement
-): { i: boolean; n: boolean } => {
-  setStyles(parentElm, { [strOverflowX]: strHidden, [strOverflowY]: strHidden, direction: 'rtl' });
-  scrollElementTo(parentElm, { x: 0 });
-
-  const parentOffset = absoluteCoordinates(parentElm);
-  const childOffset = absoluteCoordinates(childElm);
-  scrollElementTo(parentElm, { x: -999 }); // https://github.com/KingSora/OverlayScrollbars/issues/187
-  const childOffsetAfterScroll = absoluteCoordinates(childElm);
-  return {
-    /**
-     * origin direction = determines if the zero scroll position is on the left or right side
-     * 'i' means 'invert' (i === true means that the axis must be inverted to be correct)
-     * true = on the left side
-     * false = on the right side
-     */
-    i: parentOffset.x === childOffset.x,
-    /**
-     * negative = determines if the maximum scroll is positive or negative
-     * 'n' means 'negate' (n === true means that the axis must be negated to be correct)
-     * true = negative
-     * false = positive
-     */
-    n: childOffset.x !== childOffsetAfterScroll.x,
+  const getNativeScrollbarsHiding = (testElm: HTMLElement): boolean => {
+    let result = false;
+    const revertClass = addClass(testElm, classNameEnvironmentScrollbarHidden);
+    try {
+      result =
+        getStyles(testElm, 'scrollbar-width' as StyleObjectKey) === 'none' ||
+        getStyles(testElm, 'display', '::-webkit-scrollbar') === 'none';
+    } catch {}
+    revertClass();
+    return result;
   };
-};
 
-const createEnvironment = (): InternalEnvironment => {
+  const getRtlScrollBehavior = (
+    parentElm: HTMLElement,
+    childElm: HTMLElement
+  ): { i: boolean; n: boolean } => {
+    setStyles(parentElm, {
+      [strOverflowX]: strHidden,
+      [strOverflowY]: strHidden,
+      direction: 'rtl',
+    });
+    scrollElementTo(parentElm, { x: 0 });
+
+    const parentOffset = absoluteCoordinates(parentElm);
+    const childOffset = absoluteCoordinates(childElm);
+    scrollElementTo(parentElm, { x: -999 }); // https://github.com/KingSora/OverlayScrollbars/issues/187
+    const childOffsetAfterScroll = absoluteCoordinates(childElm);
+    return {
+      /**
+       * origin direction = determines if the zero scroll position is on the left or right side
+       * 'i' means 'invert' (i === true means that the axis must be inverted to be correct)
+       * true = on the left side
+       * false = on the right side
+       */
+      i: parentOffset.x === childOffset.x,
+      /**
+       * negative = determines if the maximum scroll is positive or negative
+       * 'n' means 'negate' (n === true means that the axis must be negated to be correct)
+       * true = negative
+       * false = positive
+       */
+      n: childOffset.x !== childOffsetAfterScroll.x,
+    };
+  };
+
   const { body } = document;
   const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div></div>`);
   const envElm = envDOM[0] as HTMLElement;
@@ -201,7 +165,7 @@ const createEnvironment = (): InternalEnvironment => {
     staticDefaultInitialization
   );
 
-  const env: InternalEnvironment = {
+  const env: Env = {
     _nativeScrollbarsSize: nativeScrollbarsSize,
     _nativeScrollbarsOverlaid: nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding: nativeScrollbarsHiding,
@@ -219,7 +183,7 @@ const createEnvironment = (): InternalEnvironment => {
     _staticDefaultOptions: assignDeep({}, staticDefaultOptions),
   };
 
-  removeAttr(envElm, 'style');
+  removeAttrs(envElm, 'style');
   removeElements(envElm);
 
   // needed in case content has css viewport units
@@ -239,7 +203,7 @@ const createEnvironment = (): InternalEnvironment => {
   return env;
 };
 
-const getEnvironment = (): InternalEnvironment => {
+const getEnvironment = (): Env => {
   if (!environmentInstance) {
     environmentInstance = createEnvironment();
   }

@@ -3,41 +3,30 @@ import { isArray, isArrayLike, isString } from './types';
 
 type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
 
-/**
- * Iterates through a array or object
- * @param arrayLikeOrObject The array or object through which shall be iterated.
- * @param callback The function which is responsible for the iteration.
- * If the function returns true its treated like a "continue" statement.
- * If the function returns false its treated like a "break" statement.
- */
-export function each<T>(
-  array: Array<T> | ReadonlyArray<T>,
-  callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | unknown
-): Array<T> | ReadonlyArray<T>;
-export function each<T>(
-  array: Array<T> | ReadonlyArray<T> | false | null | undefined,
-  callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | unknown
-): Array<T> | ReadonlyArray<T> | false | null | undefined;
-export function each<T>(
-  arrayLikeObject: ArrayLike<T>,
-  callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown
-): ArrayLike<T>;
-export function each<T>(
-  arrayLikeObject: ArrayLike<T> | false | null | undefined,
-  callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown
-): ArrayLike<T> | false | null | undefined;
-export function each<T extends PlainObject>(
-  obj: T,
-  callback: (value: any, indexOrKey: string, source: T) => boolean | unknown
+export function each<T extends Array<unknown> | ReadonlyArray<unknown>>(
+  array: T,
+  callback: (
+    value: T extends Array<infer V> | ReadonlyArray<infer V> ? V : never,
+    index: number,
+    source: T
+  ) => boolean | unknown
+): T;
+export function each<T extends ArrayLike<unknown>>(
+  arrayLikeObject: T,
+  callback: (
+    value: T extends ArrayLike<infer V> ? V : never,
+    index: number,
+    source: T
+  ) => boolean | unknown
 ): T;
 export function each<T extends PlainObject>(
-  obj: T | false | null | undefined,
-  callback: (value: any, indexOrKey: string, source: T) => boolean | unknown
-): T | false | null | undefined;
+  obj: T,
+  callback: (value: any, key: string, source: T) => boolean | unknown
+): T;
 export function each(
-  source: Array<any> | ArrayLike<any> | ReadonlyArray<any> | PlainObject | false | null | undefined,
+  source: Array<unknown> | ArrayLike<unknown> | ReadonlyArray<unknown> | PlainObject,
   callback: (value: any, indexOrKey: any, source: any) => boolean | unknown
-): Array<any> | ArrayLike<any> | ReadonlyArray<any> | PlainObject | false | null | undefined {
+): Array<unknown> | ArrayLike<unknown> | ReadonlyArray<unknown> | Set<unknown> | PlainObject {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
       if (callback(source[i], i, source) === false) {

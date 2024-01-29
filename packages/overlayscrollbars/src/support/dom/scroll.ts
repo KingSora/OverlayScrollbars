@@ -1,43 +1,62 @@
-import type { Environment } from '~/environment';
+import type { Env } from '~/environment';
 import type { XY } from './offset';
-import { isNumber } from '../utils';
+import { capNumber, isNumber } from '../utils';
+
+export type RTLScrollBehavior = Env['_rtlScrollBehavior'] | false | null | undefined;
 
 /**
- * Transforms a normalized (>= 0) scroll position to a RTL compatilbe scroll position value.
- * @param normalizedScrollPosition The normalized scroll position value.
- * @param rtlScrollBehavior The RTL scroll behavior or `false` / `undefined` if the rtl scroll behavior doesn't apply.
- * @returns The input scroll position but transformed to a RTL compatible format.
+ * Transforms a normalized scroll position to a RTL compatilbe scroll position value or vice versa (depending on the input format).
+ * @param scrollPosition The scroll position value.
+ * @param overflowAmount The (normalized) overflow amount value.
+ * @param rtlScrollBehavior The RTL scroll behavior or `falsy` if the rtl scroll behavior doesn't apply.
+ * @returns The input scroll position, just converted.
+ * If the input `scrollPosition` is normalized the raw (RTL Compatible) format is returned.
+ * If the input `scrollPosition` is raw (RTL Compatible) the normalized format is returned.
  */
-export const getRTLCompatibleScrollPosition = (
-  normalizedScrollPosition: number,
-  normalizedScrollPositionMax: number,
-  rtlScrollBehavior?: Environment['rtlScrollBehavior'] | false
+export const convertScrollPosition = (
+  scrollPosition: number,
+  overflowAmount: number,
+  rtlScrollBehavior?: RTLScrollBehavior
 ) =>
   rtlScrollBehavior
     ? rtlScrollBehavior.n
-      ? -normalizedScrollPosition
+      ? -scrollPosition + 0 // +0 avoids negative zero (-0) as a result
       : rtlScrollBehavior.i
-      ? normalizedScrollPositionMax - normalizedScrollPosition
-      : normalizedScrollPosition
-    : normalizedScrollPosition;
+      ? overflowAmount - scrollPosition
+      : scrollPosition
+    : scrollPosition;
 
 /**
- * Gets the RTL compatilbe scroll boundaries from the normalized (>= 0) max scroll position.
- * @param normalizedScrollPositionMax The normalzed max scroll position value.
- * @param rtlScrollBehavior The RTL scroll behavior or `false` / `undefined` if the rtl scroll behavior doesn't apply.
- * @returns RTL compatible scroll boundaries. (min will scroll to start and max will scroll to end)
+ * Gets the raw (RTL compatilbe) scroll boundaries from the normalized overflow amount.
+ * @param overflowAmount The normalzed overflow amount value.
+ * @param rtlScrollBehavior The RTL scroll behavior or `falsy` if the rtl scroll behavior doesn't apply.
+ * @returns The raw (RTL compatible) scroll boundaries. (min value will scroll to start (0%) and max will scroll to end (100%))
  */
-export const getRTLCompatibleScrollBounds = (
-  normalizedScrollPositionMax: number,
-  rtlScrollBehavior?: Environment['rtlScrollBehavior'] | false
+export const getRawScrollBounds = (
+  overflowAmount: number,
+  rtlScrollBehavior?: RTLScrollBehavior
 ): [min: number, max: number] => [
-  rtlScrollBehavior ? (rtlScrollBehavior.i ? normalizedScrollPositionMax : 0) : 0,
-  getRTLCompatibleScrollPosition(
-    normalizedScrollPositionMax,
-    normalizedScrollPositionMax,
-    rtlScrollBehavior
-  ),
+  convertScrollPosition(0, overflowAmount, rtlScrollBehavior),
+  convertScrollPosition(overflowAmount, overflowAmount, rtlScrollBehavior),
 ];
+
+/**
+ * Gets the scroll ratio of the current raw (RTL compatilbe) scroll position.
+ * @param rawScrollPosition The raw (RTL compatible) scroll position.
+ * @param overflowAmount The normalized overflow amount.
+ * @param rtlScrollBehavior The RTL scroll behavior or `falsy` if the rtl scroll behavior doesn't apply.
+ * @returns The scroll ratio of the current scroll position 0..1.
+ */
+export const getRawScrollRatio = (
+  rawScrollPosition: number,
+  overflowAmount: number,
+  rtlScrollBehavior?: RTLScrollBehavior
+) =>
+  capNumber(
+    0,
+    1,
+    convertScrollPosition(rawScrollPosition, overflowAmount, rtlScrollBehavior) / overflowAmount
+  );
 
 /**
  * Scroll the passed element to the passed position.

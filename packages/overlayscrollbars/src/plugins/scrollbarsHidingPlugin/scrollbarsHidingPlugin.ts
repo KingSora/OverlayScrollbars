@@ -29,7 +29,7 @@ import type { ObserversSetupState } from '~/setups';
 import type { Options, OptionsCheckFn } from '~/options';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import type { ViewportOverflowState } from '~/setups/structureSetup/structureSetup.utils';
-import type { InternalEnvironment } from '~/environment';
+import type { Env } from '~/environment';
 import type { UpdateCache, WH, XY } from '~/support';
 import type { StyleObject, StyleObjectKey } from '~/typings';
 import type { StructureSetupState } from '~/setups/structureSetup';
@@ -44,7 +44,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
         structureSetupElements: StructureSetupElementsObj,
         structureSetupState: StructureSetupState,
         observersSetupState: ObserversSetupState,
-        env: InternalEnvironment,
+        env: Env,
         checkOptions: OptionsCheckFn<Options>
       ) => {
         const { _viewportIsTarget, _viewport } = structureSetupElements;
@@ -290,7 +290,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
         };
 
         return (
-          envInstance: InternalEnvironment,
+          envInstance: Env,
           updateNativeScrollbarSizeCache: UpdateCache<XY<number>>
         ): boolean | undefined => {
           const sizeNew = windowSize();

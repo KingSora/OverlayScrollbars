@@ -12,7 +12,7 @@ import { createStructureSetupElements } from '~/setups/structureSetup/structureS
 import { registerPluginModuleInstances, ScrollbarsHidingPlugin } from '~/plugins';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
-import type { InternalEnvironment } from '~/environment';
+import type { Env } from '~/environment';
 import type {
   Initialization,
   InitializationTarget,
@@ -110,7 +110,7 @@ const getElements = (targetType: TargetType) => {
 
 const assertCorrectDOMStructure = (
   targetType: TargetType,
-  env: InternalEnvironment,
+  env: Env,
   elements: StructureSetupElementsObj
 ) => {
   const { target, host, padding, viewport, content, children } = getElements(targetType);
@@ -201,7 +201,7 @@ const createStructureSetupElementsProxy = (
 const assertCorrectSetupElements = (
   targetType: TargetType,
   setupElementsProxy: StructureSetupElementsProxy,
-  environment: InternalEnvironment
+  environment: Env
 ): [StructureSetupElementsObj, () => void] => {
   const { input, elements, destroy } = setupElementsProxy;
   const {
@@ -449,7 +449,7 @@ const assertCorrectDestroy = (snapshot: string, destroy: () => void) => {
   expect(getSnapshot()).toBe(snapshot);
 };
 
-const env: InternalEnvironment = jest.requireActual('~/environment').getEnvironment();
+const env: Env = jest.requireActual('~/environment').getEnvironment();
 const envDefault = {
   name: 'default',
   env,

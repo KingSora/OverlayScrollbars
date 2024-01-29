@@ -262,13 +262,6 @@ describe('array utilities', () => {
         expect(testFunc).toBeCalledTimes(arrLikeObj.length - 1);
       });
     });
-
-    describe('each through nothing', () => {
-      test('returns input', () => {
-        expect(each(null, () => {})).toBe(null);
-        expect(each(undefined, () => {})).toBe(undefined);
-      });
-    });
   });
 
   describe('from', () => {

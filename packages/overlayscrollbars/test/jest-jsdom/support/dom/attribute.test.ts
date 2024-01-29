@@ -1,9 +1,10 @@
 import {
-  attr,
   addAttrClass,
   removeAttrClass,
   hasAttrClass,
-  removeAttr,
+  removeAttrs,
+  getAttr,
+  setAttrs,
 } from '~/support/dom/attribute';
 
 const testElm = document.body;
@@ -16,35 +17,39 @@ const removeAttribute = (name: string) => {
 };
 
 describe('dom attributes', () => {
-  describe('attr', () => {
-    test('get', () => {
-      const attrName = 'data-test-get';
+  test('getAttr', () => {
+    const attrName = 'data-test-get';
 
-      setAttribute(attrName, '123');
-      expect(attr(testElm, attrName)).toBe('123');
+    setAttribute(attrName, '123');
+    expect(getAttr(testElm, attrName)).toBe('123');
 
-      setAttribute(attrName, 'abc');
-      expect(attr(testElm, attrName)).toBe('abc');
+    setAttribute(attrName, 'abc');
+    expect(getAttr(testElm, attrName)).toBe('abc');
 
-      removeAttribute(attrName);
-    });
+    removeAttribute(attrName);
+  });
 
-    test('set', () => {
-      const attrName = 'data-test-set';
+  test('setAttrs', () => {
+    const attrName = 'data-test-set';
+    const attrName2 = 'data-test-set';
 
-      attr(testElm, attrName, '123');
-      expect(attr(testElm, attrName)).toBe('123');
+    setAttrs(testElm, attrName, '123');
+    expect(getAttr(testElm, attrName)).toBe('123');
 
-      attr(testElm, attrName, 'abc');
-      expect(attr(testElm, attrName)).toBe('abc');
+    setAttrs(testElm, attrName, 'abc');
+    expect(getAttr(testElm, attrName)).toBe('abc');
 
-      removeAttribute(attrName);
-    });
+    removeAttribute(attrName);
 
-    test('null', () => {
-      expect(attr(null, 'hi')).toBe(null);
-      expect(attr(null, 'hi', '123')).toBe(undefined);
-    });
+    setAttrs(testElm, `${attrName} ${attrName2}`, '123');
+    expect(getAttr(testElm, attrName)).toBe('123');
+    expect(getAttr(testElm, attrName2)).toBe('123');
+
+    setAttrs(testElm, `${attrName} ${attrName2}`, 'abc');
+    expect(getAttr(testElm, attrName)).toBe('abc');
+    expect(getAttr(testElm, attrName2)).toBe('abc');
+
+    removeAttribute(attrName);
   });
 
   describe('addAttrClass', () => {
@@ -106,18 +111,22 @@ describe('dom attributes', () => {
     });
   });
 
-  describe('remove attribute', () => {
-    test('normal', () => {
-      const attrName = 'data-test-remove';
+  test('remove attributes', () => {
+    const attrName = 'data-test-remove';
+    const attrName2 = 'data-test-remove2';
 
-      setAttribute(attrName, '123');
-      removeAttr(testElm, attrName);
+    setAttribute(attrName, '123');
+    setAttribute(attrName2, '123');
+    removeAttrs(testElm, attrName);
 
-      expect(attr(testElm, attrName)).toBeNull();
-    });
+    expect(getAttr(testElm, attrName)).toBeNull();
+    expect(getAttr(testElm, attrName2)).toBe('123');
 
-    test('null', () => {
-      expect(removeAttr(null, 'hi')).toBe(undefined);
-    });
+    setAttribute(attrName, '123');
+    setAttribute(attrName2, '123');
+    removeAttrs(testElm, `${attrName} ${attrName2}`);
+
+    expect(getAttr(testElm, attrName)).toBeNull();
+    expect(getAttr(testElm, attrName2)).toBeNull();
   });
 });
