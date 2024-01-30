@@ -79,6 +79,9 @@ describe('dom scroll', () => {
       expect(getRawScrollRatio(0, overflowAmount)).toBe(0);
       expect(getRawScrollRatio(100, overflowAmount)).toBe(1);
       expect(getRawScrollRatio(200, overflowAmount)).toBe(1);
+
+      // NaN = 0
+      expect(getRawScrollRatio(0, 0)).toBe(0);
     });
 
     test('inverted environment', () => {
@@ -94,6 +97,9 @@ describe('dom scroll', () => {
       expect(getRawScrollRatio(0, overflowAmount, rtlScrollBehavior)).toBe(1);
       expect(getRawScrollRatio(100, overflowAmount, rtlScrollBehavior)).toBe(0);
       expect(getRawScrollRatio(200, overflowAmount, rtlScrollBehavior)).toBe(0);
+
+      // NaN = 0
+      expect(getRawScrollRatio(0, 0)).toBe(0);
     });
 
     test('negated environment', () => {
@@ -109,6 +115,9 @@ describe('dom scroll', () => {
       expect(getRawScrollRatio(-100, overflowAmount, rtlScrollBehavior)).toBe(1);
       expect(getRawScrollRatio(0, overflowAmount, rtlScrollBehavior)).toBe(0);
       expect(getRawScrollRatio(100, overflowAmount, rtlScrollBehavior)).toBe(0);
+
+      // NaN = 0
+      expect(getRawScrollRatio(0, 0)).toBe(0);
     });
   });
 

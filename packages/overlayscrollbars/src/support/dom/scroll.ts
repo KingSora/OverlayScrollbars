@@ -55,7 +55,8 @@ export const getRawScrollRatio = (
   capNumber(
     0,
     1,
-    convertScrollPosition(rawScrollPosition, overflowAmount, rtlScrollBehavior) / overflowAmount
+    convertScrollPosition(rawScrollPosition, overflowAmount, rtlScrollBehavior) / overflowAmount ||
+      0
   );
 
 /**

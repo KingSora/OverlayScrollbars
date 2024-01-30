@@ -90,11 +90,6 @@ export const createObserversSetup = (
   const viewportAttrsFromTarget = ['tabindex'];
   const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
   const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
-
-  const state: ObserversSetupState = {
-    _heightIntrinsic: false,
-    _directionIsRTL: getDirectionIsRTL(structureSetupElements._host),
-  };
   const {
     _host,
     _viewport,
@@ -104,6 +99,11 @@ export const createObserversSetup = (
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = structureSetupElements;
+
+  const state: ObserversSetupState = {
+    _heightIntrinsic: false,
+    _directionIsRTL: getDirectionIsRTL(_host),
+  };
   const env = getEnvironment();
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
