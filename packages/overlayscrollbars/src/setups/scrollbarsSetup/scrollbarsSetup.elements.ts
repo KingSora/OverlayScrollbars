@@ -287,28 +287,37 @@ export const createScrollbarsSetupElements = (
     scrollbarStructures: ScrollbarStructure[],
     isHorizontal?: boolean
   ) => {
+    const { _overflowAmount } = structureSetupState;
+    const overflowAmount = isHorizontal ? _overflowAmount.x : _overflowAmount.y;
+    const getTransformValue = (
+      structure: ScrollbarStructure,
+      rawScrollPosition: number,
+      rtlScrollBehavior: RTLScrollBehavior
+    ) =>
+      getTrasformTranslateValue(
+        ratioToCssPercent(
+          getScrollbarHandleOffsetRatio(
+            structure,
+            getRawScrollRatio(rawScrollPosition, overflowAmount, rtlScrollBehavior),
+            isHorizontal,
+            rtlScrollBehavior
+          )
+        ),
+        isHorizontal
+      );
     if (scrollTimelineX && scrollTimelineY) {
       each(scrollbarStructures, (structure: ScrollbarStructure) => {
         const { _scrollbar, _handle } = structure;
         const rtlScrollBehavior =
           isHorizontal && getDirectionIsRTL(_scrollbar) && _rtlScrollBehavior;
+
         setElementAnimation(
           _handle,
           isHorizontal ? scrollTimelineX : scrollTimelineY,
           addDirectionRTLKeyframes(
             {
-              transform: getRawScrollBounds(1, rtlScrollBehavior).map((bound) =>
-                getTrasformTranslateValue(
-                  ratioToCssPercent(
-                    getScrollbarHandleOffsetRatio(
-                      structure,
-                      getRawScrollRatio(bound, 1, rtlScrollBehavior),
-                      isHorizontal,
-                      rtlScrollBehavior
-                    )
-                  ),
-                  isHorizontal
-                )
+              transform: getRawScrollBounds(overflowAmount, rtlScrollBehavior).map((bound) =>
+                getTransformValue(structure, bound, rtlScrollBehavior)
               ),
             },
             rtlScrollBehavior
@@ -316,27 +325,16 @@ export const createScrollbarsSetupElements = (
         );
       });
     } else {
-      const { _overflowAmount } = structureSetupState;
       const scroll = getElmentScroll(_scrollOffsetElement);
       scrollbarStyle(scrollbarStructures, (structure) => {
         const { _handle, _scrollbar } = structure;
-        const axis = isHorizontal ? 'x' : 'y';
-        const rtlScrollBehavior =
-          isHorizontal && getDirectionIsRTL(_scrollbar) && _rtlScrollBehavior;
-
         return [
           _handle,
           {
-            transform: getTrasformTranslateValue(
-              ratioToCssPercent(
-                getScrollbarHandleOffsetRatio(
-                  structure,
-                  getRawScrollRatio(scroll[axis], _overflowAmount[axis], rtlScrollBehavior),
-                  isHorizontal,
-                  rtlScrollBehavior
-                )
-              ),
-              isHorizontal
+            transform: getTransformValue(
+              structure,
+              isHorizontal ? scroll.x : scroll.y,
+              isHorizontal && getDirectionIsRTL(_scrollbar) && _rtlScrollBehavior
             ),
           },
         ];
