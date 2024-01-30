@@ -79,6 +79,7 @@ export const createObserversSetup = (
   let updateContentMutationObserver: (() => void) | undefined;
   let destroyContentMutationObserver: (() => void) | undefined;
   let prevContentRect: DOMRectReadOnly | undefined;
+  let prevDirectionIsRTL: boolean | undefined;
 
   const { _nativeScrollbarsHiding } = getEnvironment();
 
@@ -91,6 +92,7 @@ export const createObserversSetup = (
   const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
   const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
   const {
+    _target,
     _host,
     _viewport,
     _content,
@@ -102,7 +104,7 @@ export const createObserversSetup = (
 
   const state: ObserversSetupState = {
     _heightIntrinsic: false,
-    _directionIsRTL: getDirectionIsRTL(_host),
+    _directionIsRTL: getDirectionIsRTL(_target),
   };
   const env = getEnvironment();
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
@@ -169,6 +171,15 @@ export const createObserversSetup = (
     },
   });
 
+  const setDirectionWhenViewportIsTarget = (updateHints: ObserversSetupUpdateHints) => {
+    if (_viewportIsTarget) {
+      const newDirectionIsRTL = getDirectionIsRTL(_target);
+      assignDeep(updateHints, { _directionChanged: prevDirectionIsRTL !== newDirectionIsRTL });
+      assignDeep(state, { _directionIsRTL: newDirectionIsRTL });
+      prevDirectionIsRTL = newDirectionIsRTL;
+    }
+  };
+
   const updateViewportAttrsFromHost = (attributes?: string[]) => {
     each(attributes || viewportAttrsFromTarget, (attribute) => {
       if (inArray(viewportAttrsFromTarget, attribute)) {
@@ -187,7 +198,7 @@ export const createObserversSetup = (
     fromRecords?: true
   ): ObserversSetupUpdateHints => {
     const [heightIntrinsic, heightIntrinsicChanged] = heightIntrinsicCache;
-    const updateHints = {
+    const updateHints: ObserversSetupUpdateHints = {
       _heightIntrinsicChanged: heightIntrinsicChanged,
     };
 
@@ -212,14 +223,17 @@ export const createObserversSetup = (
         : onObserversUpdated;
 
     const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache || [];
-
-    _directionIsRTLCache && assignDeep(state, { _directionIsRTL: directionIsRTL });
-
-    updateFn({
+    const updateHints: ObserversSetupUpdateHints = {
       _sizeChanged: _sizeChanged || _appear,
       _appear,
       _directionChanged: directionIsRTLChanged,
-    });
+    };
+
+    setDirectionWhenViewportIsTarget(updateHints);
+
+    _directionIsRTLCache && assignDeep(state, { _directionIsRTL: directionIsRTL });
+
+    updateFn(updateHints);
   };
 
   const onContentMutation = (
@@ -227,9 +241,11 @@ export const createObserversSetup = (
     fromRecords?: true
   ): ObserversSetupUpdateHints => {
     const [, _contentMutation] = updateContentSizeCache();
-    const updateHints = {
+    const updateHints: ObserversSetupUpdateHints = {
       _contentMutation,
     };
+
+    setDirectionWhenViewportIsTarget(updateHints);
 
     // if contentChangedThroughEvent is true its already debounced
     const updateFn = contentChangedThroughEvent ? onObserversUpdated : onObserversUpdatedDebounced;
@@ -244,7 +260,11 @@ export const createObserversSetup = (
     targetStyleChanged: boolean,
     fromRecords?: true
   ): ObserversSetupUpdateHints => {
-    const updateHints = { _hostMutation: targetStyleChanged };
+    const updateHints: ObserversSetupUpdateHints = {
+      _hostMutation: targetStyleChanged,
+    };
+
+    setDirectionWhenViewportIsTarget(updateHints);
 
     if (targetStyleChanged && !fromRecords) {
       onObserversUpdatedDebounced(updateHints);
@@ -388,6 +408,8 @@ export const createObserversSetup = (
         contentUpdateResult &&
           assignDeep(updateHints, onContentMutation(contentUpdateResult[0], takeRecords));
       }
+
+      setDirectionWhenViewportIsTarget(updateHints);
 
       return updateHints;
     },

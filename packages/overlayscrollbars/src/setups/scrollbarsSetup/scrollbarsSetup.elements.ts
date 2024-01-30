@@ -376,32 +376,27 @@ export const createScrollbarsSetupElements = (
       if (scrollTimelineX && scrollTimelineY) {
         each(concat(verticalScrollbars, horizontalScrollbars), ({ _scrollbar }) => {
           if (doRefreshScrollbarOffset(_scrollbar)) {
-            const directionRTL = !!horizontalScrollbars.find(
-              ({ _scrollbar: horizontalScrollbar }) =>
-                horizontalScrollbar === _scrollbar && getDirectionIsRTL(horizontalScrollbar)
-            );
             const setScrollbarElementAnimation = (
               timeline: AnimationTimeline,
               overflowAmount: number,
               isHorizontal?: boolean
-            ) =>
+            ) => {
+              const rtlScrollBehavior =
+                isHorizontal && getDirectionIsRTL(_scrollbar) && _rtlScrollBehavior;
               setElementAnimation(
                 _scrollbar,
                 timeline,
                 addDirectionRTLKeyframes(
                   {
-                    transform: [
-                      getTrasformTranslateValue(numberToCssPx(0), isHorizontal),
-                      getTrasformTranslateValue(
-                        numberToCssPx(overflowAmount * (isHorizontal && directionRTL ? -1 : 1)),
-                        isHorizontal
-                      ),
-                    ],
+                    transform: getRawScrollBounds(overflowAmount, rtlScrollBehavior).map((bound) =>
+                      getTrasformTranslateValue(numberToCssPx(bound), isHorizontal)
+                    ),
                   },
-                  isHorizontal && directionRTL
+                  rtlScrollBehavior
                 ),
                 'add'
               );
+            };
 
             setScrollbarElementAnimation(scrollTimelineX, _overflowAmount.x, true);
             setScrollbarElementAnimation(scrollTimelineY, _overflowAmount.y);
