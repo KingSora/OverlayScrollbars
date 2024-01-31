@@ -370,7 +370,7 @@ export const createScrollbarsSetupElements = (
   const refreshScrollbarsScrollbarOffset = () => {
     if (_viewportIsTarget) {
       const { _overflowAmount } = structureSetupState;
-
+      const cushion = 0.5; // otherwise it sometimes happens that scrolling to 100% will cause the scrollbars to disappear
       if (scrollTimelineX && scrollTimelineY) {
         each(concat(verticalScrollbars, horizontalScrollbars), ({ _scrollbar }) => {
           if (doRefreshScrollbarOffset(_scrollbar)) {
@@ -386,8 +386,8 @@ export const createScrollbarsSetupElements = (
                 timeline,
                 addDirectionRTLKeyframes(
                   {
-                    transform: getRawScrollBounds(overflowAmount, rtlScrollBehavior).map((bound) =>
-                      getTrasformTranslateValue(numberToCssPx(bound), isHorizontal)
+                    transform: getRawScrollBounds(overflowAmount - cushion, rtlScrollBehavior).map(
+                      (bound) => getTrasformTranslateValue(numberToCssPx(bound), isHorizontal)
                     ),
                   },
                   rtlScrollBehavior

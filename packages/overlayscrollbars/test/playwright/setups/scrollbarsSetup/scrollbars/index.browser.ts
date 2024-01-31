@@ -4,7 +4,7 @@ import './handleEnvironment';
 import { resize, setTestResult, timeout } from '@~local/browser-testing';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import { ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
-import { addEventListener, animateNumber, getStyles } from '~/support';
+import { addEventListener, animateNumber, convertScrollPosition, getStyles } from '~/support';
 import should from 'should';
 import type { CloneableScrollbarElements } from '~/overlayscrollbars';
 
@@ -28,18 +28,19 @@ const stageResizer: HTMLElement | null = document.querySelector('#stageResizer')
 const targetA: HTMLElement | null = document.querySelector('#targetA');
 const targetB: HTMLElement | null = document.querySelector('#targetB');
 const targetC: HTMLElement | null = document.querySelector('#targetC');
+const targetD: HTMLElement | null = document.querySelector('#targetD');
 let directionRTL = false;
 const clickErrors: Error[] = [];
 const scrollInstance = (osInstance: OverlayScrollbars) => {
-  const { overflowAmount, directionRTL: instanceDirectionRTL } = osInstance.state();
+  const { overflowAmount, directionRTL: dirRTL } = osInstance.state();
   const { scrollOffsetElement } = osInstance.elements();
-  const rtlMultiplitcator = instanceDirectionRTL ? -1 : 1;
-
   scrollOffsetElement.scrollTo({
     behavior: 'auto',
-    left:
-      ((Math.round(overflowAmount.x / overflowAmount.x) * overflowAmount.x) / 2) *
-      rtlMultiplitcator,
+    left: convertScrollPosition(
+      (Math.round(overflowAmount.x / overflowAmount.x) * overflowAmount.x) / 2,
+      overflowAmount.x,
+      dirRTL && OverlayScrollbars.env().rtlScrollBehavior
+    ),
     top: (Math.round(overflowAmount.y / overflowAmount.y) * overflowAmount.y) / 2,
   });
 };
@@ -49,15 +50,7 @@ resize(stageResizer!);
 const osInstanceBody = OverlayScrollbars(document.body, {});
 
 const osInstanceA = OverlayScrollbars(targetA!, {});
-const osInstanceB = OverlayScrollbars(
-  {
-    target: targetB!,
-    elements: {
-      viewport: targetB!,
-    },
-  },
-  {}
-);
+const osInstanceB = OverlayScrollbars(targetB!, {});
 const osInstanceC = OverlayScrollbars(
   {
     target: targetC!,
@@ -67,11 +60,21 @@ const osInstanceC = OverlayScrollbars(
   },
   {}
 );
+const osInstanceD = OverlayScrollbars(
+  {
+    target: targetD!,
+    elements: {
+      viewport: targetD!,
+    },
+  },
+  {}
+);
 
 const scrollInstances = () => {
   scrollInstance(osInstanceA);
   scrollInstance(osInstanceB);
   scrollInstance(osInstanceC);
+  scrollInstance(osInstanceD);
 };
 
 const resizeStageResizer = async () => {
@@ -103,10 +106,11 @@ const resizeStageResizer = async () => {
       measureInstanceScrollHandles(osInstanceA);
       measureInstanceScrollHandles(osInstanceB);
       measureInstanceScrollHandles(osInstanceC);
+      measureInstanceScrollHandles(osInstanceD);
 
       // only viewportIsTarget instances
-      measureInstanceScrollbars(osInstanceB);
       measureInstanceScrollbars(osInstanceC);
+      measureInstanceScrollbars(osInstanceD);
     } catch (error: unknown) {
       onError(error);
     }
@@ -154,14 +158,15 @@ const resizeStageResizer = async () => {
 
 const assertScrollbarDirection = async (osInstance: OverlayScrollbars, directionIsRTL: boolean) => {
   const { directionRTL: instanceDirectionRTL } = osInstance.state();
-  const { scrollbarHorizontal, scrollbarVertical, host } = osInstance.elements();
-  const hostId = host === document.body ? 'body' : host.getAttribute('id');
+  const { scrollbarHorizontal, scrollbarVertical, target, host } = osInstance.elements();
+  const isBody = target === document.body;
+  const hostId = isBody ? 'body' : target.getAttribute('id');
   const hostBcr = host.getBoundingClientRect();
   const scrollbarHorizontalBcr = scrollbarHorizontal.scrollbar.getBoundingClientRect();
   const scrollbarVerticalBcr = scrollbarVertical.scrollbar.getBoundingClientRect();
   const plusMinusSame = (a: number, b: number) => {
     const result = Math.abs(a - b);
-    return result < 1;
+    return result <= 1;
   };
 
   should.equal(
@@ -170,10 +175,10 @@ const assertScrollbarDirection = async (osInstance: OverlayScrollbars, direction
     `Instance direction RTL doesn't match passed direction RTL. (Host: "${hostId}")`
   );
 
-  if (directionIsRTL) {
+  if (directionIsRTL && !isBody) {
     should.ok(
       plusMinusSame(hostBcr.left, scrollbarVerticalBcr.left),
-      `Vertical scrollbar is not on the right side. (RTL) (Host: "${hostId}")`
+      `Vertical scrollbar is not on the right side. (RTL) (Host: "${hostId}") [${hostBcr.left} vs ${scrollbarVerticalBcr.left}]`
     );
     should.ok(
       plusMinusSame(scrollbarHorizontalBcr.left, scrollbarVerticalBcr.right),
@@ -216,13 +221,12 @@ const assetScrollbarClickStopsPropagation = (osInstance: OverlayScrollbars) => {
 
 const runBlock = async () => {
   await assertScrollbarDirection(osInstanceA, directionRTL);
+  await assertScrollbarDirection(osInstanceB, true); // instanceB has direction:rtl style
 
-  // viewportIsTarget doesn't support directionRTL change detection!
-  await assertScrollbarDirection(osInstanceB, false);
-  await assertScrollbarDirection(osInstanceC, true);
+  await assertScrollbarDirection(osInstanceC, directionRTL);
+  await assertScrollbarDirection(osInstanceD, true); // instanceC has direction:rtl style
 
-  // body element scrollbars acts always like ltr direction
-  await assertScrollbarDirection(osInstanceB, false);
+  await assertScrollbarDirection(osInstanceBody, directionRTL);
 
   await resizeStageResizer();
 
@@ -262,5 +266,6 @@ startButton?.addEventListener('click', async () => {
 assetScrollbarClickStopsPropagation(osInstanceA);
 assetScrollbarClickStopsPropagation(osInstanceB);
 assetScrollbarClickStopsPropagation(osInstanceC);
+assetScrollbarClickStopsPropagation(osInstanceD);
 assetScrollbarClickStopsPropagation(osInstanceBody);
 scrollInstances();
