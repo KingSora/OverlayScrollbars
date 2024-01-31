@@ -11,7 +11,7 @@
 
 ### Improvements
 
-- Improvements to scroll related calculations scrollbar handle offsets, including RTL direction.
+- Streamlining of scroll related calculations, including RTL direction.
 - Focus and Blur event management when wrapping and unwrapping elements during initialization and destroy. [#605](https://github.com/KingSora/OverlayScrollbars/issues/605)
 
 ## 2.4.7
