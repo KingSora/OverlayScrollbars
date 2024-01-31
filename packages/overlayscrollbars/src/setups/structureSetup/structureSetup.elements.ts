@@ -9,16 +9,18 @@ import {
   removeElements,
   push,
   runEachAndClear,
-  insertBefore,
-  attr,
   keys,
-  removeAttr,
+  removeAttrs,
   hasAttrClass,
   addEventListener,
   bind,
   inArray,
   addAttrClass,
   addRemoveAttrClass,
+  setAttrs,
+  getAttr,
+  noop,
+  stopPropagation,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -32,13 +34,11 @@ import {
   dataValueHostHtmlBody,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
-import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
   resolveInitialization as generalResolveInitialization,
 } from '~/initialization';
-import type { ScrollbarsHidingPlugin } from '~/plugins';
 import type {
   InitializationTarget,
   InitializationTargetElement,
@@ -57,7 +57,6 @@ export interface StructureSetupElementsObj {
   _viewport: HTMLElement;
   _padding: HTMLElement | false;
   _content: HTMLElement | false;
-  _viewportArrange: HTMLStyleElement | false | null | undefined;
   _scrollOffsetElement: HTMLElement;
   _scrollEventElement: HTMLElement | Document;
   _originalScrollOffsetElement: HTMLElement;
@@ -78,11 +77,6 @@ export const createStructureSetupElements = (
 ): StructureSetupElements => {
   const env = getEnvironment();
   const { _getDefaultInitialization, _nativeScrollbarsHiding } = env;
-  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
-    scrollbarsHidingPluginName
-  );
-  const createUniqueViewportArrangeElement =
-    scrollbarsHidingPlugin && scrollbarsHidingPlugin._createUniqueViewportArrangeElement;
   const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
     host: defaultHostInitialization,
@@ -106,6 +100,12 @@ export const createStructureSetupElements = (
   const docElement = ownerDocument.documentElement;
   const isBody = targetElement === ownerDocument.body;
   const docWnd = ownerDocument.defaultView as Window;
+  const getFocusedElement = () => ownerDocument.activeElement;
+  const focusElm = (customActiveElm: Element | null) => {
+    if (customActiveElm && (customActiveElm as HTMLElement).focus) {
+      (customActiveElm as HTMLElement).focus();
+    }
+  };
   const staticInitializationElement = bind(generalStaticInitializationElement, [targetElement]);
   const dynamicInitializationElement = bind(generalDynamicInitializationElement, [targetElement]);
   const resolveInitialization = bind(generalResolveInitialization, [targetElement]);
@@ -149,9 +149,6 @@ export const createStructureSetupElements = (
     : (targetElement as HTMLElement);
   const hostElement = viewportIsTargetBody ? viewportElement : nonBodyHostElement;
   const contentElement = viewportIsContent ? viewportIsContentContent : possibleContentElement;
-  const activeElm = ownerDocument.activeElement;
-  const setViewportFocus =
-    !viewportIsTarget && docWnd.top === docWnd && activeElm === targetElement;
 
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
@@ -165,11 +162,6 @@ export const createStructureSetupElements = (
         paddingInitialization
       ),
     _content: contentElement,
-    _viewportArrange:
-      !viewportIsTarget &&
-      !_nativeScrollbarsHiding &&
-      createUniqueViewportArrangeElement &&
-      createUniqueViewportArrangeElement(env),
     _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
     _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
     _originalScrollOffsetElement: isBody ? docElement : targetElement,
@@ -200,16 +192,14 @@ export const createStructureSetupElements = (
   }, [] as Array<HTMLElement | false>);
   const elementIsGenerated = (elm: HTMLElement | false) =>
     elm ? inArray(generatedElements, elm) : null;
-  const { _target, _host, _padding, _viewport, _content, _viewportArrange } = evaluatedTargetObj;
+  const { _target, _host, _padding, _viewport, _content } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [
     () => {
       // always remove dataAttributeHost & dataAttributeInitialize from host and from <html> element if target is body
-      removeAttr(_host, dataAttributeHost);
-      removeAttr(_host, dataAttributeInitialize);
-      removeAttr(_target, dataAttributeInitialize);
+      removeAttrs(_host, [dataAttributeHost, dataAttributeInitialize]);
+      removeAttrs(_target, dataAttributeInitialize);
       if (isBody) {
-        removeAttr(docElement, dataAttributeHost);
-        removeAttr(docElement, dataAttributeInitialize);
+        removeAttrs(docElement, [dataAttributeInitialize, dataAttributeHost]);
       }
     },
   ];
@@ -224,19 +214,37 @@ export const createStructureSetupElements = (
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
   const destroy = bind(runEachAndClear, destroyFns);
   const appendElements = () => {
-    attr(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
-    attr(_padding, dataAttributePadding, '');
-    attr(_content, dataAttributeContent, '');
-
-    if (!viewportIsTarget) {
-      attr(_viewport, dataAttributeViewport, '');
-      isBody && addAttrClass(docElement, dataAttributeHost, dataValueHostHtmlBody);
-    }
-
+    const initActiveElm = getFocusedElement();
     const unwrap = (elm: HTMLElement | false | null | undefined) => {
       appendChildren(parent(elm), contents(elm));
       removeElements(elm);
     };
+    // wrapping / unwrapping will cause the focused element to blur, this should prevent those events to surface
+    const prepareWrapUnwrapFocus = (activeElement?: Element | null) =>
+      activeElement
+        ? addEventListener(
+            activeElement,
+            'focus blur',
+            (event) => {
+              stopPropagation(event);
+              event.stopImmediatePropagation();
+            },
+            {
+              _capture: true,
+              _passive: false,
+            }
+          )
+        : noop;
+
+    const undoInitWrapUndwrapFocus = prepareWrapUnwrapFocus(initActiveElm);
+    setAttrs(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
+    setAttrs(_padding, dataAttributePadding, '');
+    setAttrs(_content, dataAttributeContent, '');
+
+    if (!viewportIsTarget) {
+      setAttrs(_viewport, dataAttributeViewport, '');
+      isBody && addAttrClass(docElement, dataAttributeHost, dataValueHostHtmlBody);
+    }
 
     // only insert host for textarea after target if it was generated
     if (isTextareaHostGenerated) {
@@ -253,44 +261,53 @@ export const createStructureSetupElements = (
     appendChildren(_padding || _host, !viewportIsTarget && _viewport);
     appendChildren(_viewport, _content);
 
-    push(destroyFns, () => {
-      removeAttr(_padding, dataAttributePadding);
-      removeAttr(_content, dataAttributeContent);
-      removeAttr(_viewport, dataAttributeHostOverflowX);
-      removeAttr(_viewport, dataAttributeHostOverflowY);
-      removeAttr(_viewport, dataAttributeViewport);
+    push(destroyFns, [
+      undoInitWrapUndwrapFocus,
+      () => {
+        const destroyActiveElm = getFocusedElement();
+        const undoDestroyWrapUndwrapFocus = prepareWrapUnwrapFocus(destroyActiveElm);
+        removeAttrs(_padding, dataAttributePadding);
+        removeAttrs(_content, dataAttributeContent);
+        removeAttrs(_viewport, [
+          dataAttributeHostOverflowX,
+          dataAttributeHostOverflowY,
+          dataAttributeViewport,
+        ]);
 
-      elementIsGenerated(_content) && unwrap(_content);
-      elementIsGenerated(_viewport) && unwrap(_viewport);
-      elementIsGenerated(_padding) && unwrap(_padding);
-    });
+        elementIsGenerated(_content) && unwrap(_content);
+        elementIsGenerated(_viewport) && unwrap(_viewport);
+        elementIsGenerated(_padding) && unwrap(_padding);
+        focusElm(destroyActiveElm);
+        undoDestroyWrapUndwrapFocus();
+      },
+    ]);
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
       addAttrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden);
-      push(destroyFns, bind(removeAttr, _viewport, dataAttributeViewport));
+      push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
-    if (_viewportArrange) {
-      insertBefore(_viewport, _viewportArrange);
-      push(destroyFns, bind(removeElements, _viewportArrange));
-    }
-    if (setViewportFocus) {
+    if (!viewportIsTarget && docWnd.top === docWnd && initActiveElm === targetElement) {
       const tabIndexStr = 'tabindex';
-      const ogTabindex = attr(_viewport, tabIndexStr);
+      const ogTabindex = getAttr(_viewport, tabIndexStr);
 
-      attr(_viewport, tabIndexStr, '-1');
-      _viewport.focus();
+      setAttrs(_viewport, tabIndexStr, '-1');
+      focusElm(_viewport);
 
       const revertViewportTabIndex = () =>
-        ogTabindex ? attr(_viewport, tabIndexStr, ogTabindex) : removeAttr(_viewport, tabIndexStr);
+        ogTabindex
+          ? setAttrs(_viewport, tabIndexStr, ogTabindex)
+          : removeAttrs(_viewport, tabIndexStr);
       const off = addEventListener(ownerDocument, 'pointerdown keydown', () => {
         revertViewportTabIndex();
         off();
       });
 
       push(destroyFns, [revertViewportTabIndex, off]);
-    } else if (activeElm && (activeElm as HTMLElement).focus) {
-      (activeElm as HTMLElement).focus();
+    } else {
+      focusElm(initActiveElm);
     }
+
+    undoInitWrapUndwrapFocus();
 
     // @ts-ignore
     targetContents = 0;

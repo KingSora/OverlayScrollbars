@@ -39,7 +39,7 @@ export const addClass = (elm: AttributeTarget, className: DomTokens): (() => voi
  * @param classNameA ClassName A.
  * @param classNameB ClassName B.
  */
-export const diffClass = (classNameA: DomTokens, classNameB: DomTokens) => {
+export const diffClass = (classNameA: string, classNameB: string) => {
   const set = new Set<string>(classNameA ? classNameA.split(' ') : []);
 
   each(classNameB ? classNameB.split(' ') : [], (className) => {

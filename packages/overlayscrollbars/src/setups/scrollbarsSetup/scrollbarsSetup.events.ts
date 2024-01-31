@@ -65,9 +65,9 @@ export const createScrollbarsSetupEvents = (
     );
     const scrollByFn = !!_scrollOffsetElement.scrollBy;
 
-    const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY'; // for pointer event (can't use xy because of IE11)
+    const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY';
     const widthHeightKey = isHorizontal ? strWidth : strHeight;
-    const leftTopKey = isHorizontal ? 'left' : 'top'; // for BCR (can't use xy because of IE11)
+    const leftTopKey = isHorizontal ? 'left' : 'top';
     const whKey = isHorizontal ? 'w' : 'h';
     const xyKey = isHorizontal ? 'x' : 'y';
 

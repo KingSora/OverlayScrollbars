@@ -44,7 +44,6 @@ export const classNameSizeObserverListenerItemFinal = `${classNameSizeObserverLi
 export const classNameTrinsicObserver = 'os-trinsic-observer';
 
 // scrollbars
-export const classNameScrollbarNoCssCustomProps = 'os-no-css-vars';
 export const classNameScrollbarThemeNone = 'os-theme-none';
 export const classNameScrollbar = 'os-scrollbar';
 export const classNameScrollbarRtl = `${classNameScrollbar}-rtl`;

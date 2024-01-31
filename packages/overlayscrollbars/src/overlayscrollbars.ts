@@ -24,7 +24,6 @@ import {
   pluginModules,
   registerPluginModuleInstances,
 } from '~/plugins';
-import type { Environment } from '~/environment';
 import type { XY, TRBL } from '~/support';
 import type { Options, PartialOptions, ReadonlyOptions } from '~/options';
 import type {
@@ -36,7 +35,7 @@ import type {
   PluginModuleInstance,
   StaticPlugin,
 } from '~/plugins';
-import type { InitializationTarget } from '~/initialization';
+import type { Initialization, InitializationTarget, PartialInitialization } from '~/initialization';
 import type { OverflowStyle } from '~/typings';
 import type { EventListenerArgs, EventListener, EventListeners } from '~/eventListeners';
 import type {
@@ -46,6 +45,46 @@ import type {
 
 // Notes:
 // Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
+
+/**
+ * Describes the OverlayScrollbars environment.
+ */
+export interface Environment {
+  /** The native scrollbars size of the browser / system. */
+  scrollbarsSize: XY<number>;
+  /** Whether the native scrollbars are overlaid. */
+  scrollbarsOverlaid: XY<boolean>;
+  /** Whether the browser supports native scrollbars hiding. */
+  scrollbarsHiding: boolean;
+  /** The rtl scroll behavior of the browser. */
+  rtlScrollBehavior: { n: boolean; i: boolean };
+  /** Whether the browser supports the ScrollTimeline API. */
+  scrollTimeline: boolean;
+  /** The default Initialization to use if nothing else is specified. */
+  staticDefaultInitialization: Initialization;
+  /** The default Options to use if nothing else is specified. */
+  staticDefaultOptions: Options;
+
+  /** Returns the current default Initialization. */
+  getDefaultInitialization(): Initialization;
+  /** Returns the current default Options. */
+  getDefaultOptions(): Options;
+
+  /**
+   * Sets a new default Initialization.
+   * If the new default Initialization is partially filled, its deeply merged with the current default Initialization.
+   * @param newDefaultInitialization The new default Initialization.
+   * @returns The current default Initialization.
+   */
+  setDefaultInitialization(newDefaultInitialization: PartialInitialization): Initialization;
+  /**
+   * Sets new default Options.
+   * If the new default Options are partially filled, they're deeply merged with the current default Options.
+   * @param newDefaultOptions The new default Options.
+   * @returns The current default options.
+   */
+  setDefaultOptions(newDefaultOptions: PartialOptions): Options;
+}
 
 /**
  * The primary entry point to OverlayScrollbars.
@@ -502,8 +541,6 @@ OverlayScrollbars.env = () => {
     _nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding,
     _rtlScrollBehavior,
-    _flexboxGlue,
-    _cssCustomProperties,
     _scrollTimeline,
     _staticDefaultInitialization,
     _staticDefaultOptions,
@@ -519,8 +556,6 @@ OverlayScrollbars.env = () => {
       scrollbarsOverlaid: _nativeScrollbarsOverlaid,
       scrollbarsHiding: _nativeScrollbarsHiding,
       rtlScrollBehavior: _rtlScrollBehavior,
-      flexboxGlue: _flexboxGlue,
-      cssCustomProperties: _cssCustomProperties,
       scrollTimeline: _scrollTimeline,
       staticDefaultInitialization: _staticDefaultInitialization,
       staticDefaultOptions: _staticDefaultOptions,

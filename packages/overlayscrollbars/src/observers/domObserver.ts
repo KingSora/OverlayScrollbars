@@ -4,7 +4,6 @@ import {
   debounce,
   MutationObserverConstructor,
   addEventListener,
-  attr,
   is,
   find,
   push,
@@ -14,6 +13,7 @@ import {
   deduplicateArray,
   inArray,
   concat,
+  getAttr,
 } from '~/support';
 
 type DOMContentObserverCallback = (contentChangedThroughEvent: boolean) => any;
@@ -117,7 +117,7 @@ const createEventContentChange = (
           const isTargetChild = target.contains(elm);
 
           if (isTargetChild && eventNames) {
-            const removeListener = addEventListener(elm, eventNames.trim(), (event: Event) => {
+            const removeListener = addEventListener(elm, eventNames, (event: Event) => {
               if (destroyed) {
                 removeListener();
                 map.delete(elm);
@@ -204,9 +204,8 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         const targetIsMutationTarget = target === mutationTarget;
         const isAttrChange = isAttributesType && attributeName;
         // isAttrChange check needed, otherwise mutationTarget might not be a valid HTMLElement
-        const attributeValue = isAttrChange
-          ? attr(mutationTarget as HTMLElement, attributeName || '')
-          : null;
+        const attributeValue =
+          (isAttrChange && getAttr(mutationTarget as HTMLElement, attributeName || '')) || null;
         const attributeChanged = isAttrChange && oldValue !== attributeValue;
         const styleChangingAttrChanged =
           inArray(finalStyleChangingAttributes, attributeName) && attributeChanged;

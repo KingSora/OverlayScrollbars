@@ -61,9 +61,7 @@ $shrink-scale: 0.1;
   padding: inherit;
   border: inherit;
   margin: -$inflate-margin;
-  transform: scale(
-    math.div(1, $shrink-scale)
-  ); // scale(calc(1 / #{$shrink-scale})) not supported in ie11
+  transform: scale(calc(1 / #{$shrink-scale}));
 
   &.ltr {
     margin-right: -$inflate-margin * 2;

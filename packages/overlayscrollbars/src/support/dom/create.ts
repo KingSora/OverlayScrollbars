@@ -1,5 +1,5 @@
 import { each } from '../utils/array';
-import { attr } from './attribute';
+import { setAttrs } from './attribute';
 import { contents } from './traversal';
 import { removeElements } from './manipulation';
 
@@ -8,7 +8,7 @@ import { removeElements } from './manipulation';
  */
 export const createDiv = (classNames?: string): HTMLDivElement => {
   const div = document.createElement('div');
-  attr(div, 'class', classNames);
+  setAttrs(div, 'class', classNames);
   return div;
 };
 

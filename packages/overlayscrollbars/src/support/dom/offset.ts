@@ -20,8 +20,8 @@ export const absoluteCoordinates = (elm: AttributeTarget): Readonly<XY> => {
   const rect = elm && getBoundingClientRect(elm);
   return rect
     ? {
-        x: rect.left + wnd.pageYOffset, //IE11 compat
-        y: rect.top + wnd.pageXOffset, //IE11 compat
+        x: rect.left + wnd.scrollX,
+        y: rect.top + wnd.scrollY,
       }
     : zeroObj;
 };

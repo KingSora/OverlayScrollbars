@@ -1,6 +1,5 @@
 import {
   keys,
-  attr,
   noop,
   each,
   assignDeep,
@@ -15,12 +14,11 @@ import {
   strPaddingLeft,
   strPaddingRight,
   strPaddingTop,
-  strWidth,
-  strHeight,
   getStyles,
   setStyles,
   addAttrClass,
   removeAttrClass,
+  strWidth,
 } from '~/support';
 import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
 import {
@@ -31,52 +29,26 @@ import type { ObserversSetupState } from '~/setups';
 import type { Options, OptionsCheckFn } from '~/options';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import type { ViewportOverflowState } from '~/setups/structureSetup/structureSetup.utils';
-import type { InternalEnvironment } from '~/environment';
+import type { Env } from '~/environment';
 import type { UpdateCache, WH, XY } from '~/support';
 import type { StyleObject, StyleObjectKey } from '~/typings';
 import type { StructureSetupState } from '~/setups/structureSetup';
 import type { StaticPlugin } from '~/plugins';
-
-let contentArrangeCounter = 0;
 
 export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';
 
 export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
   [scrollbarsHidingPluginName]: {
     static: () => ({
-      _createUniqueViewportArrangeElement: (env: InternalEnvironment): false | HTMLStyleElement => {
-        const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _cssCustomProperties } = env;
-        const create =
-          !_cssCustomProperties &&
-          !_nativeScrollbarsHiding &&
-          (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
-        const result = create ? document.createElement('style') : false;
-
-        if (result) {
-          attr(
-            result,
-            'id',
-            `${dataAttributeViewport}-${dataValueViewportArrange}-${contentArrangeCounter}`
-          );
-          contentArrangeCounter++;
-        }
-
-        return result;
-      },
       _viewportArrangement: (
         structureSetupElements: StructureSetupElementsObj,
         structureSetupState: StructureSetupState,
         observersSetupState: ObserversSetupState,
-        env: InternalEnvironment,
+        env: Env,
         checkOptions: OptionsCheckFn<Options>
       ) => {
-        const { _viewportIsTarget, _viewport, _viewportArrange } = structureSetupElements;
-        const {
-          _nativeScrollbarsHiding,
-          _nativeScrollbarsOverlaid,
-          _flexboxGlue,
-          _nativeScrollbarsSize,
-        } = env;
+        const { _viewportIsTarget, _viewport } = structureSetupElements;
+        const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid, _nativeScrollbarsSize } = env;
         const doViewportArrange =
           !_viewportIsTarget &&
           !_nativeScrollbarsHiding &&
@@ -225,35 +197,10 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                   : '',
             };
 
-            // adjust content arrange / before element
-            if (_viewportArrange) {
-              const { sheet } = _viewportArrange;
-              if (sheet) {
-                const { cssRules } = sheet;
-                if (cssRules) {
-                  if (!cssRules.length) {
-                    sheet.insertRule(
-                      `#${attr(
-                        _viewportArrange,
-                        'id'
-                      )} + [${dataAttributeViewport}~='${dataValueViewportArrange}']::before {}`,
-                      0
-                    );
-                  }
-
-                  // @ts-ignore
-                  const ruleStyle = cssRules[0].style;
-
-                  ruleStyle[strWidth] = arrangeSize.w;
-                  ruleStyle[strHeight] = arrangeSize.h;
-                }
-              }
-            } else {
-              setStyles(_viewport, {
-                '--os-vaw': arrangeSize.w,
-                '--os-vah': arrangeSize.h,
-              });
-            }
+            setStyles(_viewport, {
+              '--os-vaw': arrangeSize.w,
+              '--os-vah': arrangeSize.h,
+            });
           }
 
           return doViewportArrange;
@@ -292,10 +239,6 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
 
             const prevStyle = getStyles(_viewport, keys(finalPaddingStyle) as StyleObjectKey[]);
             removeAttrClass(_viewport, dataAttributeViewport, dataValueViewportArrange);
-
-            if (!_flexboxGlue) {
-              finalPaddingStyle[strHeight] = '';
-            }
 
             setStyles(_viewport, finalPaddingStyle);
 
@@ -347,7 +290,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
         };
 
         return (
-          envInstance: InternalEnvironment,
+          envInstance: Env,
           updateNativeScrollbarSizeCache: UpdateCache<XY<number>>
         ): boolean | undefined => {
           const sizeNew = windowSize();

@@ -1,34 +1,8 @@
-import { isUndefined } from '../utils/types';
+import type { DomTokens } from './attribute';
 import { each, runEachAndClear } from '../utils/array';
 import { bind } from '../utils/function';
-import { wnd } from '../utils/alias';
-import { noop } from '../utils/noop';
 import { keys } from '../utils';
-
-let passiveEventsSupport: boolean | undefined;
-const passiveStr = 'passive';
-const supportPassiveEvents = (): boolean => {
-  // IE11 doesn't support passive events
-  if (isUndefined(passiveEventsSupport)) {
-    passiveEventsSupport = false;
-    try {
-      /* eslint-disable */
-      // @ts-ignore
-      wnd.addEventListener(
-        passiveStr,
-        noop,
-        Object.defineProperty({}, passiveStr, {
-          get() {
-            passiveEventsSupport = true;
-          },
-        })
-      );
-      /* eslint-enable */
-    } catch {}
-  }
-  return passiveEventsSupport;
-};
-const splitEventNames = (eventNames: string) => eventNames.split(' ');
+import { getDomTokensArray } from './attribute';
 
 export interface EventListenerOptions {
   _capture?: boolean;
@@ -49,11 +23,11 @@ export type EventListenerMap = {
  */
 export const removeEventListener = <T extends Event = Event>(
   target: EventTarget,
-  eventNames: string,
+  eventNames: DomTokens,
   listener: (event: T) => any,
   capture?: boolean
 ): void => {
-  each(splitEventNames(eventNames), (eventName) => {
+  each(getDomTokensArray(eventNames), (eventName) => {
     target.removeEventListener(eventName, listener as EventListener, capture);
   });
 };
@@ -67,24 +41,21 @@ export const removeEventListener = <T extends Event = Event>(
  */
 export const addEventListener = <T extends Event = Event>(
   target: EventTarget,
-  eventNames: string,
+  eventNames: DomTokens,
   listener: (event: T) => any,
   options?: EventListenerOptions
 ): (() => void) => {
-  const doSupportPassiveEvents = supportPassiveEvents();
-  const passive = (doSupportPassiveEvents && options && options._passive) ?? doSupportPassiveEvents;
+  const passive = (options && options._passive) ?? true;
   const capture = (options && options._capture) || false;
   const once = (options && options._once) || false;
-  const nativeOptions: AddEventListenerOptions | boolean = doSupportPassiveEvents
-    ? {
-        passive,
-        capture,
-      }
-    : capture;
+  const nativeOptions: AddEventListenerOptions = {
+    passive,
+    capture,
+  };
 
   return bind(
     runEachAndClear,
-    splitEventNames(eventNames).map((eventName) => {
+    getDomTokensArray(eventNames).map((eventName) => {
       const finalListener = (
         once
           ? (evt: T) => {

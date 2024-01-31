@@ -12,7 +12,7 @@ import { createStructureSetupElements } from '~/setups/structureSetup/structureS
 import { registerPluginModuleInstances, ScrollbarsHidingPlugin } from '~/plugins';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
-import type { InternalEnvironment } from '~/environment';
+import type { Env } from '~/environment';
 import type {
   Initialization,
   InitializationTarget,
@@ -110,7 +110,7 @@ const getElements = (targetType: TargetType) => {
 
 const assertCorrectDOMStructure = (
   targetType: TargetType,
-  env: InternalEnvironment,
+  env: Env,
   elements: StructureSetupElementsObj
 ) => {
   const { target, host, padding, viewport, content, children } = getElements(targetType);
@@ -201,7 +201,7 @@ const createStructureSetupElementsProxy = (
 const assertCorrectSetupElements = (
   targetType: TargetType,
   setupElementsProxy: StructureSetupElementsProxy,
-  environment: InternalEnvironment
+  environment: Env
 ): [StructureSetupElementsObj, () => void] => {
   const { input, elements, destroy } = setupElementsProxy;
   const {
@@ -268,7 +268,7 @@ const assertCorrectSetupElements = (
 
   expect(typeof destroy).toBe('function');
 
-  const { _nativeScrollbarsHiding, _cssCustomProperties, _getDefaultInitialization } = environment;
+  const { _getDefaultInitialization } = environment;
   const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
     host: defaultHostInitStrategy,
@@ -278,7 +278,6 @@ const assertCorrectSetupElements = (
   } = defaultInitElements;
   const inputIsElement = isHTMLElement(input);
   const inputAsObj = input as InitializationTargetObject;
-  const styleElm = document.querySelector('style');
   const checkStrategyDependendElements = (
     elm: Element | null,
     initialization:
@@ -348,12 +347,6 @@ const assertCorrectSetupElements = (
       }
     }
   };
-
-  if (_nativeScrollbarsHiding || _cssCustomProperties || _viewportIsTarget) {
-    expect(styleElm).toBeFalsy();
-  } else {
-    expect(styleElm).toBeTruthy();
-  }
 
   if (_viewportIsContent) {
     const { content: defaultContentInit } = defaultInitElements;
@@ -456,7 +449,7 @@ const assertCorrectDestroy = (snapshot: string, destroy: () => void) => {
   expect(getSnapshot()).toBe(snapshot);
 };
 
-const env: InternalEnvironment = jest.requireActual('~/environment').getEnvironment();
+const env: Env = jest.requireActual('~/environment').getEnvironment();
 const envDefault = {
   name: 'default',
   env,
@@ -466,13 +459,6 @@ const envNativeScrollbarStyling = {
   env: {
     ...env,
     _nativeScrollbarsHiding: true,
-  },
-};
-const envCssCustomProperties = {
-  name: 'custom css properties',
-  env: {
-    ...env,
-    _cssCustomProperties: true,
   },
 };
 const envInitStrategyMin = {
@@ -550,7 +536,6 @@ describe('structureSetup.elements', () => {
   [
     envDefault,
     envNativeScrollbarStyling,
-    envCssCustomProperties,
     envInitStrategyMin,
     envInitStrategyMax,
     envInitStrategyAssigned,

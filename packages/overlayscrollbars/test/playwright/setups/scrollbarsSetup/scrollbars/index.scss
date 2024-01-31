@@ -43,18 +43,25 @@ body {
 }
 
 #targetA {
-  width: 100%;
-  height: 50%;
+  width: 50%;
+  height: 100%;
   background: rgba(255, 0, 0, 0.3);
 }
 
 #targetB {
   width: 50%;
   height: 100%;
-  background: rgba(0, 255, 0, 0.3);
+  direction: rtl;
+  background: rgba(255, 0, 255, 0.3);
 }
 
 #targetC {
+  width: 50%;
+  height: 100%;
+  background: rgba(0, 255, 0, 0.3);
+}
+
+#targetD {
   width: 50%;
   height: 100%;
   direction: rtl;

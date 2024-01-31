@@ -6,14 +6,10 @@ import { addClass } from '~/support';
   const params = url.searchParams;
 
   /**
-   * fast: faster but not so accurate run
    * nsh: native scrollbar hiding
-   * po: partially overlaid
-   * fo: fully overlaid
    * vpt: viewport is target
-   * pa: padding absolute
    */
-  ['fast', 'nsh', 'po', 'fo', 'vpt', 'pa'].forEach((param) => {
+  ['nsh', 'vpt'].forEach((param) => {
     const paramValue = Boolean(params.get(param));
 
     if (paramValue) {

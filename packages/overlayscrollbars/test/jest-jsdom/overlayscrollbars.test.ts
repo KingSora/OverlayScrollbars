@@ -646,8 +646,6 @@ describe('overlayscrollbars', () => {
         scrollbarsHiding: false,
         rtlScrollBehavior: { i: true, n: false },
         scrollTimeline: false,
-        flexboxGlue: true,
-        cssCustomProperties: false,
         staticDefaultInitialization: expect.any(Object),
         staticDefaultOptions: expect.any(Object),
         getDefaultInitialization: expect.any(Function),
@@ -857,7 +855,6 @@ describe('overlayscrollbars', () => {
 
     expect(typeof clickScroll).toBe('function');
     expect(typeof scrollbarHiding).toBe('object');
-    expect(typeof scrollbarHiding._createUniqueViewportArrangeElement).toBe('function');
     expect(typeof scrollbarHiding._envWindowZoom).toBe('function');
     expect(typeof scrollbarHiding._viewportArrangement).toBe('function');
     expect(typeof sizeObserver).toBe('function');

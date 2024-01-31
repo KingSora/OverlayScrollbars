@@ -133,10 +133,6 @@ body {
   white-space: nowrap;
 }
 
-.fbg .textwrap {
-  display: none !important;
-}
-
 .end::before {
   content: '';
   position: absolute;
@@ -286,13 +282,13 @@ body {
   max-width: none;
 }
 
-// ie11 doesn't respect percentage max-width in display: inline-block elements, they can always expand to infinity
-.msie11 {
-  .column {
-    min-width: 900px;
-  }
-  .minMaxNone.widthAuto > .container {
-    max-width: 700px;
+.comparisonContent {
+  height: 100%;
+}
+
+.heightAuto {
+  .comparisonContent {
+    height: auto;
   }
 }
 
@@ -305,16 +301,6 @@ body {
   }
 }
 
-.comparisonContent {
-  height: 100%;
-}
-
-.heightAuto {
-  .comparisonContent {
-    height: auto;
-  }
-}
-
 // disable native scrollbar styling detection
 body.nsh {
   .os-environment-scrollbar-hidden {
@@ -323,20 +309,6 @@ body.nsh {
   .os-environment-scrollbar-hidden::-webkit-scrollbar,
   .os-environment-scrollbar-hidden::-webkit-scrollbar-corner {
     display: block !important;
-  }
-}
-
-// disable flexboxglue detection
-body.fbg {
-  .os-environment-flexbox-glue.os-environment {
-    display: block !important;
-  }
-}
-
-// disable css custom props detection
-body.ccp {
-  .os-environment {
-    z-index: 0 !important;
   }
 }
 

@@ -3,41 +3,30 @@ import { isArray, isArrayLike, isString } from './types';
 
 type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
 
-/**
- * Iterates through a array or object
- * @param arrayLikeOrObject The array or object through which shall be iterated.
- * @param callback The function which is responsible for the iteration.
- * If the function returns true its treated like a "continue" statement.
- * If the function returns false its treated like a "break" statement.
- */
-export function each<T>(
-  array: Array<T> | ReadonlyArray<T>,
-  callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | unknown
-): Array<T> | ReadonlyArray<T>;
-export function each<T>(
-  array: Array<T> | ReadonlyArray<T> | false | null | undefined,
-  callback: (value: T, indexOrKey: number, source: Array<T>) => boolean | unknown
-): Array<T> | ReadonlyArray<T> | false | null | undefined;
-export function each<T>(
-  arrayLikeObject: ArrayLike<T>,
-  callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown
-): ArrayLike<T>;
-export function each<T>(
-  arrayLikeObject: ArrayLike<T> | false | null | undefined,
-  callback: (value: T, indexOrKey: number, source: ArrayLike<T>) => boolean | unknown
-): ArrayLike<T> | false | null | undefined;
-export function each<T extends PlainObject>(
-  obj: T,
-  callback: (value: any, indexOrKey: string, source: T) => boolean | unknown
+export function each<T extends Array<unknown> | ReadonlyArray<unknown>>(
+  array: T,
+  callback: (
+    value: T extends Array<infer V> | ReadonlyArray<infer V> ? V : never,
+    index: number,
+    source: T
+  ) => boolean | unknown
+): T;
+export function each<T extends ArrayLike<unknown>>(
+  arrayLikeObject: T,
+  callback: (
+    value: T extends ArrayLike<infer V> ? V : never,
+    index: number,
+    source: T
+  ) => boolean | unknown
 ): T;
 export function each<T extends PlainObject>(
-  obj: T | false | null | undefined,
-  callback: (value: any, indexOrKey: string, source: T) => boolean | unknown
-): T | false | null | undefined;
+  obj: T,
+  callback: (value: any, key: string, source: T) => boolean | unknown
+): T;
 export function each(
-  source: Array<any> | ArrayLike<any> | ReadonlyArray<any> | PlainObject | false | null | undefined,
+  source: Array<unknown> | ArrayLike<unknown> | ReadonlyArray<unknown> | PlainObject,
   callback: (value: any, indexOrKey: any, source: any) => boolean | unknown
-): Array<any> | ArrayLike<any> | ReadonlyArray<any> | PlainObject | false | null | undefined {
+): Array<unknown> | ArrayLike<unknown> | ReadonlyArray<unknown> | Set<unknown> | PlainObject {
   if (isArrayLike(source)) {
     for (let i = 0; i < source.length; i++) {
       if (callback(source[i], i, source) === false) {
@@ -83,27 +72,7 @@ export const push = <T>(array: T[], items: T | ArrayLike<T>, arrayIsSingleItem?:
  * Creates a shallow-copied Array instance from an array-like or iterable object.
  * @param arr The object from which the array instance shall be created.
  */
-export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => {
-  // IE11 doesnt have support for Array.from
-  const original = Array.from;
-  const result: T[] = [];
-
-  if (original && arr) {
-    return original(arr);
-  }
-
-  if (arr instanceof Set) {
-    arr.forEach((value) => {
-      push(result, value);
-    });
-  } else {
-    each(arr, (elm) => {
-      push(result, elm);
-    });
-  }
-
-  return result;
-};
+export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => Array.from(arr || []);
 
 /**
  * Creates an array if the passed value is not an array, or returns the value if it is.

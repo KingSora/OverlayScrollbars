@@ -1,7 +1,6 @@
 import {
   ResizeObserverConstructor,
   assignDeep,
-  attr,
   closest,
   createCache,
   debounce,
@@ -15,13 +14,15 @@ import {
   isString,
   keys,
   liesBetween,
-  removeAttr,
+  removeAttrs,
   scrollSize,
   getElmentScroll,
   scrollElementTo,
   inArray,
   domRectAppeared,
   concat,
+  getAttr,
+  setAttrs,
 } from '~/support';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
 import { getEnvironment } from '~/environment';
@@ -78,6 +79,7 @@ export const createObserversSetup = (
   let updateContentMutationObserver: (() => void) | undefined;
   let destroyContentMutationObserver: (() => void) | undefined;
   let prevContentRect: DOMRectReadOnly | undefined;
+  let prevDirectionIsRTL: boolean | undefined;
 
   const { _nativeScrollbarsHiding } = getEnvironment();
 
@@ -89,12 +91,8 @@ export const createObserversSetup = (
   const viewportAttrsFromTarget = ['tabindex'];
   const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
   const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
-
-  const state: ObserversSetupState = {
-    _heightIntrinsic: false,
-    _directionIsRTL: getDirectionIsRTL(structureSetupElements._host),
-  };
   const {
+    _target,
     _host,
     _viewport,
     _content,
@@ -103,6 +101,11 @@ export const createObserversSetup = (
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = structureSetupElements;
+
+  const state: ObserversSetupState = {
+    _heightIntrinsic: false,
+    _directionIsRTL: getDirectionIsRTL(_target),
+  };
   const env = getEnvironment();
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
@@ -168,14 +171,23 @@ export const createObserversSetup = (
     },
   });
 
+  const setDirectionWhenViewportIsTarget = (updateHints: ObserversSetupUpdateHints) => {
+    if (_viewportIsTarget) {
+      const newDirectionIsRTL = getDirectionIsRTL(_target);
+      assignDeep(updateHints, { _directionChanged: prevDirectionIsRTL !== newDirectionIsRTL });
+      assignDeep(state, { _directionIsRTL: newDirectionIsRTL });
+      prevDirectionIsRTL = newDirectionIsRTL;
+    }
+  };
+
   const updateViewportAttrsFromHost = (attributes?: string[]) => {
     each(attributes || viewportAttrsFromTarget, (attribute) => {
       if (inArray(viewportAttrsFromTarget, attribute)) {
-        const hostAttr = attr(_host, attribute);
+        const hostAttr = getAttr(_host, attribute);
         if (isString(hostAttr)) {
-          attr(_viewport, attribute, hostAttr);
+          setAttrs(_viewport, attribute, hostAttr);
         } else {
-          removeAttr(_viewport, attribute);
+          removeAttrs(_viewport, attribute);
         }
       }
     });
@@ -186,7 +198,7 @@ export const createObserversSetup = (
     fromRecords?: true
   ): ObserversSetupUpdateHints => {
     const [heightIntrinsic, heightIntrinsicChanged] = heightIntrinsicCache;
-    const updateHints = {
+    const updateHints: ObserversSetupUpdateHints = {
       _heightIntrinsicChanged: heightIntrinsicChanged,
     };
 
@@ -211,14 +223,17 @@ export const createObserversSetup = (
         : onObserversUpdated;
 
     const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache || [];
-
-    _directionIsRTLCache && assignDeep(state, { _directionIsRTL: directionIsRTL });
-
-    updateFn({
+    const updateHints: ObserversSetupUpdateHints = {
       _sizeChanged: _sizeChanged || _appear,
       _appear,
       _directionChanged: directionIsRTLChanged,
-    });
+    };
+
+    setDirectionWhenViewportIsTarget(updateHints);
+
+    _directionIsRTLCache && assignDeep(state, { _directionIsRTL: directionIsRTL });
+
+    updateFn(updateHints);
   };
 
   const onContentMutation = (
@@ -226,9 +241,11 @@ export const createObserversSetup = (
     fromRecords?: true
   ): ObserversSetupUpdateHints => {
     const [, _contentMutation] = updateContentSizeCache();
-    const updateHints = {
+    const updateHints: ObserversSetupUpdateHints = {
       _contentMutation,
     };
+
+    setDirectionWhenViewportIsTarget(updateHints);
 
     // if contentChangedThroughEvent is true its already debounced
     const updateFn = contentChangedThroughEvent ? onObserversUpdated : onObserversUpdatedDebounced;
@@ -243,7 +260,11 @@ export const createObserversSetup = (
     targetStyleChanged: boolean,
     fromRecords?: true
   ): ObserversSetupUpdateHints => {
-    const updateHints = { _hostMutation: targetStyleChanged };
+    const updateHints: ObserversSetupUpdateHints = {
+      _hostMutation: targetStyleChanged,
+    };
+
+    setDirectionWhenViewportIsTarget(updateHints);
 
     if (targetStyleChanged && !fromRecords) {
       onObserversUpdatedDebounced(updateHints);
@@ -254,9 +275,10 @@ export const createObserversSetup = (
     return updateHints;
   };
 
-  const { _flexboxGlue, _addResizeListener } = env;
-  const [constructTrinsicObserver, updateTrinsicObserver] =
-    _content || !_flexboxGlue ? createTrinsicObserver(_host, onTrinsicChanged) : [];
+  const { _addResizeListener } = env;
+  const [constructTrinsicObserver, updateTrinsicObserver] = _content
+    ? createTrinsicObserver(_host, onTrinsicChanged)
+    : [];
 
   const constructSizeObserver =
     !_viewportIsTarget &&
@@ -386,6 +408,8 @@ export const createObserversSetup = (
         contentUpdateResult &&
           assignDeep(updateHints, onContentMutation(contentUpdateResult[0], takeRecords));
       }
+
+      setDirectionWhenViewportIsTarget(updateHints);
 
       return updateHints;
     },

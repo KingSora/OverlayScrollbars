@@ -345,23 +345,12 @@ describe('dom traversal', () => {
       }
     };
 
-    test('nested with native closest', () => {
+    test('nested with closest', () => {
       slotElm.innerHTML = createNestedTestDOM(3);
       genericTest(3);
     });
 
-    test('nested with polyfill closest', () => {
-      const original = Element.prototype.closest;
-      // @ts-ignore
-      Element.prototype.closest = undefined;
-
-      slotElm.innerHTML = createNestedTestDOM(3);
-      genericTest(3);
-
-      Element.prototype.closest = original;
-    });
-
-    test('special with polyfill closest', () => {
+    test('special with closest', () => {
       slotElm.innerHTML = createSpecialTestDOM();
       genericTest();
     });

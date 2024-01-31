@@ -1,10 +1,12 @@
-import { jsAPI } from './vendors';
+import { wnd } from '../utils/alias';
 
-export const MutationObserverConstructor = jsAPI<typeof MutationObserver>('MutationObserver');
+const getApi = <T>(name: string) =>
+  (typeof wnd[name as keyof typeof wnd] !== 'undefined'
+    ? wnd[name as keyof typeof wnd]
+    : undefined) as T;
+
+export const MutationObserverConstructor = getApi<typeof MutationObserver>('MutationObserver');
 export const IntersectionObserverConstructor =
-  jsAPI<typeof IntersectionObserver>('IntersectionObserver');
-export const ResizeObserverConstructor = jsAPI<typeof ResizeObserver>('ResizeObserver');
-export const scrollT = jsAPI<new (constructor: unknown) => AnimationTimeline>(
-  // @ts-ignore
-  'ScrollTimeline'
-);
+  getApi<typeof IntersectionObserver>('IntersectionObserver');
+export const ResizeObserverConstructor = getApi<typeof ResizeObserver>('ResizeObserver');
+export const scrollT = getApi<new (constructor: unknown) => AnimationTimeline>('ScrollTimeline');
