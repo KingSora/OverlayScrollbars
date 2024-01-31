@@ -19,6 +19,8 @@ import {
   addRemoveAttrClass,
   setAttrs,
   getAttr,
+  noop,
+  stopPropagation,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -98,6 +100,12 @@ export const createStructureSetupElements = (
   const docElement = ownerDocument.documentElement;
   const isBody = targetElement === ownerDocument.body;
   const docWnd = ownerDocument.defaultView as Window;
+  const getFocusedElement = () => ownerDocument.activeElement;
+  const focusElm = (customActiveElm: Element | null) => {
+    if (customActiveElm && (customActiveElm as HTMLElement).focus) {
+      (customActiveElm as HTMLElement).focus();
+    }
+  };
   const staticInitializationElement = bind(generalStaticInitializationElement, [targetElement]);
   const dynamicInitializationElement = bind(generalDynamicInitializationElement, [targetElement]);
   const resolveInitialization = bind(generalResolveInitialization, [targetElement]);
@@ -141,9 +149,6 @@ export const createStructureSetupElements = (
     : (targetElement as HTMLElement);
   const hostElement = viewportIsTargetBody ? viewportElement : nonBodyHostElement;
   const contentElement = viewportIsContent ? viewportIsContentContent : possibleContentElement;
-  const activeElm = ownerDocument.activeElement;
-  const setViewportFocus =
-    !viewportIsTarget && docWnd.top === docWnd && activeElm === targetElement;
 
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
@@ -209,6 +214,29 @@ export const createStructureSetupElements = (
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
   const destroy = bind(runEachAndClear, destroyFns);
   const appendElements = () => {
+    const initActiveElm = getFocusedElement();
+    const unwrap = (elm: HTMLElement | false | null | undefined) => {
+      appendChildren(parent(elm), contents(elm));
+      removeElements(elm);
+    };
+    // wrapping / unwrapping will cause the focused element to blur, this should prevent those events to surface
+    const prepareWrapUnwrapFocus = (activeElement?: Element | null) =>
+      activeElement
+        ? addEventListener(
+            activeElement,
+            'focus blur',
+            (event) => {
+              stopPropagation(event);
+              event.stopImmediatePropagation();
+            },
+            {
+              _capture: true,
+              _passive: false,
+            }
+          )
+        : noop;
+
+    const undoInitWrapUndwrapFocus = prepareWrapUnwrapFocus(initActiveElm);
     setAttrs(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
     setAttrs(_padding, dataAttributePadding, '');
     setAttrs(_content, dataAttributeContent, '');
@@ -217,19 +245,6 @@ export const createStructureSetupElements = (
       setAttrs(_viewport, dataAttributeViewport, '');
       isBody && addAttrClass(docElement, dataAttributeHost, dataValueHostHtmlBody);
     }
-
-    const unwrap = (elm: HTMLElement | false | null | undefined) => {
-      appendChildren(parent(elm), contents(elm));
-      removeElements(elm);
-    };
-    const preventFocus = (event: Event) => {
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-      event.preventDefault();
-    };
-    const removePreventFocusEvents = addEventListener(_target, 'focus focusout', preventFocus, {
-      _capture: true,
-    });
 
     // only insert host for textarea after target if it was generated
     if (isTextareaHostGenerated) {
@@ -245,32 +260,38 @@ export const createStructureSetupElements = (
     appendChildren(_host, _padding);
     appendChildren(_padding || _host, !viewportIsTarget && _viewport);
     appendChildren(_viewport, _content);
-    removePreventFocusEvents();
 
-    push(destroyFns, () => {
-      removeAttrs(_padding, dataAttributePadding);
-      removeAttrs(_content, dataAttributeContent);
-      removeAttrs(_viewport, [
-        dataAttributeHostOverflowX,
-        dataAttributeHostOverflowY,
-        dataAttributeViewport,
-      ]);
+    push(destroyFns, [
+      undoInitWrapUndwrapFocus,
+      () => {
+        const destroyActiveElm = getFocusedElement();
+        const undoDestroyWrapUndwrapFocus = prepareWrapUnwrapFocus(destroyActiveElm);
+        removeAttrs(_padding, dataAttributePadding);
+        removeAttrs(_content, dataAttributeContent);
+        removeAttrs(_viewport, [
+          dataAttributeHostOverflowX,
+          dataAttributeHostOverflowY,
+          dataAttributeViewport,
+        ]);
 
-      elementIsGenerated(_content) && unwrap(_content);
-      elementIsGenerated(_viewport) && unwrap(_viewport);
-      elementIsGenerated(_padding) && unwrap(_padding);
-    });
+        elementIsGenerated(_content) && unwrap(_content);
+        elementIsGenerated(_viewport) && unwrap(_viewport);
+        elementIsGenerated(_padding) && unwrap(_padding);
+        focusElm(destroyActiveElm);
+        undoDestroyWrapUndwrapFocus();
+      },
+    ]);
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
       addAttrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden);
       push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
-    if (setViewportFocus) {
+    if (!viewportIsTarget && docWnd.top === docWnd && initActiveElm === targetElement) {
       const tabIndexStr = 'tabindex';
       const ogTabindex = getAttr(_viewport, tabIndexStr);
 
       setAttrs(_viewport, tabIndexStr, '-1');
-      _viewport.focus();
+      focusElm(_viewport);
 
       const revertViewportTabIndex = () =>
         ogTabindex
@@ -282,9 +303,11 @@ export const createStructureSetupElements = (
       });
 
       push(destroyFns, [revertViewportTabIndex, off]);
-    } else if (activeElm && (activeElm as HTMLElement).focus) {
-      (activeElm as HTMLElement).focus();
+    } else {
+      focusElm(initActiveElm);
     }
+
+    undoInitWrapUndwrapFocus();
 
     // @ts-ignore
     targetContents = 0;

@@ -9,6 +9,10 @@
   - The size of the css bundle decreased by `~18%`.
   - The fields `flexboxGlue` and `cssCustomProperties` are removed from the `Environment`. (returning object from `OverlayScrollbars.env()`)
 
+### Improvements
+
+- Improvements to scroll related calculations scrollbar handle offsets, including RTL direction.
+- Focus and Blur event management when wrapping and unwrapping elements during initialization and destroy. [#605](https://github.com/KingSora/OverlayScrollbars/issues/605)
 
 ## 2.4.7
 
