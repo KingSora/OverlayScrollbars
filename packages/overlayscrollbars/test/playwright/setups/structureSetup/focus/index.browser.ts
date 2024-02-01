@@ -37,17 +37,17 @@ const incrementBlurEvents = () => {
 };
 const subscribeFocusEvents = (elm: HTMLElement) => {
   document.body.addEventListener('focusin', incrementFocusEvents);
-  document.body.addEventListener('focusout', incrementFocusEvents);
+  document.body.addEventListener('focusout', incrementBlurEvents);
   document.body.addEventListener('focus', incrementFocusEvents);
-  document.body.addEventListener('blur', incrementFocusEvents);
+  document.body.addEventListener('blur', incrementBlurEvents);
 
   elm.addEventListener('focus', incrementFocusEvents);
   elm.addEventListener('blur', incrementBlurEvents);
   return () => {
     document.body.removeEventListener('focusin', incrementFocusEvents);
-    document.body.removeEventListener('focusout', incrementFocusEvents);
+    document.body.removeEventListener('focusout', incrementBlurEvents);
     document.body.removeEventListener('focus', incrementFocusEvents);
-    document.body.removeEventListener('blur', incrementFocusEvents);
+    document.body.removeEventListener('blur', incrementBlurEvents);
 
     elm.removeEventListener('focus', incrementFocusEvents);
     elm.removeEventListener('blur', incrementBlurEvents);
