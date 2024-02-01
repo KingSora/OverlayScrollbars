@@ -29,18 +29,34 @@ const wrapperElm: HTMLDivElement | null = document.querySelector('#wrapper');
 const targetElm: HTMLDivElement | null = document.querySelector('#target');
 const inputElm: HTMLInputElement | null = document.querySelector('#input');
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
-
 const incrementFocusEvents = () => {
   focusEvents++;
 };
 const incrementBlurEvents = () => {
   focusEvents++;
 };
+const subsribeFocusEvents = (elm: HTMLElement) => {
+  document.body.addEventListener('focusin', incrementFocusEvents);
+  document.body.addEventListener('focusout', incrementFocusEvents);
+  document.body.addEventListener('focus', incrementFocusEvents);
+  document.body.addEventListener('blur', incrementFocusEvents);
+
+  elm.addEventListener('focus', incrementFocusEvents);
+  elm.addEventListener('blur', incrementBlurEvents);
+  return () => {
+    document.body.removeEventListener('focusin', incrementFocusEvents);
+    document.body.removeEventListener('focusout', incrementFocusEvents);
+    document.body.removeEventListener('focus', incrementFocusEvents);
+    document.body.removeEventListener('blur', incrementFocusEvents);
+
+    elm.removeEventListener('focus', incrementFocusEvents);
+    elm.removeEventListener('blur', incrementBlurEvents);
+  };
+};
 
 const testInputFocus = async () => {
   inputElm!.focus();
-  inputElm!.addEventListener('focus', incrementFocusEvents);
-  inputElm!.addEventListener('blur', incrementBlurEvents);
+  const removeFocusEvents = subsribeFocusEvents(inputElm!);
 
   await timeout(500);
 
@@ -71,15 +87,14 @@ const testInputFocus = async () => {
   should.equal(beforeDestroyBlurEvents, blurEvents, '0 additional Blur events after destroy.');
   should.ok(document.activeElement === inputElm, 'Input element is focused after destroy.');
 
-  inputElm!.removeEventListener('focus', incrementFocusEvents);
-  inputElm!.removeEventListener('blur', incrementBlurEvents);
+  removeFocusEvents();
 };
 
 const testViewportFocus = async () => {
   const body = document.body;
   (document.activeElement as HTMLElement | null)?.blur?.();
-  body!.addEventListener('focus', incrementFocusEvents);
-  body!.addEventListener('blur', incrementBlurEvents);
+
+  const removeFocusEvents = subsribeFocusEvents(body!);
 
   const beforeInitFocusEvents = focusEvents;
   const beforeInitBlurEvents = blurEvents;
@@ -107,8 +122,7 @@ const testViewportFocus = async () => {
   should.equal(beforeDestroyBlurEvents, blurEvents, '0 additional Blur events after destroy.');
   should.ok(document.activeElement === body, 'Body element is focused after destroy.');
 
-  body!.removeEventListener('focus', incrementFocusEvents);
-  body!.removeEventListener('blur', incrementBlurEvents);
+  removeFocusEvents();
 };
 
 startBtn?.addEventListener('click', async () => {

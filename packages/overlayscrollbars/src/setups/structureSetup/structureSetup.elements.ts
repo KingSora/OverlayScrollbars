@@ -224,7 +224,7 @@ export const createStructureSetupElements = (
       activeElement
         ? addEventListener(
             activeElement,
-            'focus blur',
+            'focusin focusout focus blur',
             (event) => {
               stopPropagation(event);
               event.stopImmediatePropagation();
