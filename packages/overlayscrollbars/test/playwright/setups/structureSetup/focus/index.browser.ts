@@ -35,7 +35,7 @@ const incrementFocusEvents = () => {
 const incrementBlurEvents = () => {
   focusEvents++;
 };
-const subsribeFocusEvents = (elm: HTMLElement) => {
+const subscribeFocusEvents = (elm: HTMLElement) => {
   document.body.addEventListener('focusin', incrementFocusEvents);
   document.body.addEventListener('focusout', incrementFocusEvents);
   document.body.addEventListener('focus', incrementFocusEvents);
@@ -56,7 +56,7 @@ const subsribeFocusEvents = (elm: HTMLElement) => {
 
 const testInputFocus = async () => {
   inputElm!.focus();
-  const removeFocusEvents = subsribeFocusEvents(inputElm!);
+  const removeFocusEvents = subscribeFocusEvents(inputElm!);
 
   await timeout(500);
 
@@ -94,7 +94,7 @@ const testViewportFocus = async () => {
   const body = document.body;
   (document.activeElement as HTMLElement | null)?.blur?.();
 
-  const removeFocusEvents = subsribeFocusEvents(body!);
+  const removeFocusEvents = subscribeFocusEvents(body!);
 
   const beforeInitFocusEvents = focusEvents;
   const beforeInitBlurEvents = blurEvents;
