@@ -1,0 +1,9 @@
+# Compiled output
+/dist
+
+# Node
+/node_modules
+
+# Miscellaneous
+/.coverage
+/.playwright

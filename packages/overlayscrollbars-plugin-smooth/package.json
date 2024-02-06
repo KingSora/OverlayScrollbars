@@ -1,0 +1,40 @@
+{
+  "name": "overlayscrollbars-plugin-smooth",
+  "private": true,
+  "version": "0.1.0",
+  "description": "OverlayScrollbars plugin for smoother scroll and scroll control with focus on accessibility.",
+  "author": "Rene Haas | KingSora",
+  "license": "MIT",
+  "homepage": "https://kingsora.github.io/OverlayScrollbars",
+  "bugs": "https://github.com/KingSora/OverlayScrollbars/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KingSora/OverlayScrollbars.git",
+    "directory": "packages/overlayscrollbars-plugin-smooth"
+  },
+  "keywords": [
+    "overlayscrollbars",
+    "plugin",
+    "smooth",
+    "scroll",
+    "inertia",
+    "momentum",
+    "wheel"
+  ],
+  "main": "./src/overlayscrollbars-plugin-smooth.ts",
+  "module": "./src/overlayscrollbars-plugin-smooth.ts",
+  "types": "./src/overlayscrollbars-plugin-smooth.ts",
+  "peerDependencies": {
+    "overlayscrollbars": "^2.4.0"
+  },
+  "devDependencies": {
+    "overlayscrollbars": "file:./../overlayscrollbars/dist"
+  },
+  "scripts": {
+    "build": "run-p build-js build-types",
+    "build-js": "vite build",
+    "build-types": "tsc --emitDeclarationOnly -p tsconfig.types.json",
+    "test": "vitest run --coverage"
+  },
+  "sideEffects": false
+}
