@@ -89,8 +89,7 @@ export const dampingScrollAnimation = (
     start(animationInfo, osInstance) {
       const { scroll } = animationInfo;
       destinationDirection = newXY0();
-      currScroll = { ...scroll };
-      destinationScroll = { ...scroll };
+      currScroll = destinationScroll = { ...scroll };
 
       updateAnimationInfo(animationInfo, osInstance);
     },

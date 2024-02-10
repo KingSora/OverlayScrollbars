@@ -10,10 +10,10 @@ export interface EasignScrollAnimationOptions {
   updateEasing: (percent: number) => number;
 }
 
-const now = () => performance.now() - 16;
+const now = () => performance.now() - 8;
 
 const defaultOptions: EasignScrollAnimationOptions = {
-  duration: (delta) => delta * 2,
+  duration: (delta) => delta * 1.76,
   startEasing: (x) => -(Math.cos(Math.PI * x) - 1) / 2,
   updateEasing: (x) => Math.sin((x * Math.PI) / 2),
 };
@@ -45,7 +45,7 @@ export const easingScrollAnimation = (
     startTime = {
       x: delta.x ? now() : startTime.x,
       y: delta.y ? now() : startTime.y,
-    }; // assume that between this and the next animation frame elapse 10ms
+    };
     startScroll = { ...currScroll };
     destinationScroll = {
       x: (destinationDirectionChanged.x ? currScroll.x : destinationScroll.x) + delta.x,
@@ -70,12 +70,8 @@ export const easingScrollAnimation = (
       easing = updateEasing;
     },
     frame(_, frameInfo, osInstance) {
-      const { currentTime, deltaTime } = frameInfo;
+      const { currentTime } = frameInfo;
       const { overflowAmount } = osInstance.state();
-
-      if (!deltaTime) {
-        return;
-      }
 
       const percent = {
         x:

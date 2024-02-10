@@ -157,12 +157,12 @@ export const OverlayScrollbarsPluginSmooth = {
           y: convertScrollPosition(scrollTop, overflowAmount.y),
         };
         const overscrollStart = {
-          x: delta.x < 0 && scroll.x <= 0,
-          y: delta.y < 0 && scroll.y <= 0,
+          x: delta.x < 0 && Math.floor(scroll.x) <= 0,
+          y: delta.y < 0 && Math.floor(scroll.y) <= 0,
         };
         const overscrollEnd = {
-          x: delta.x > 0 && scroll.x >= overflowAmount.x,
-          y: delta.y > 0 && scroll.y >= overflowAmount.y,
+          x: delta.x > 0 && Math.ceil(scroll.x) >= overflowAmount.x,
+          y: delta.y > 0 && Math.ceil(scroll.y) >= overflowAmount.y,
         };
         const overscroll = {
           x: overscrollStart.x || overscrollEnd.x,
