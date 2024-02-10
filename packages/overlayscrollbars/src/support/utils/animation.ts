@@ -1,4 +1,4 @@
-import { mathMax, rAF, cAF } from './alias';
+import { mathMax, rAF, cAF, mathMin } from './alias';
 import { isFunction } from './types';
 
 /**
@@ -34,7 +34,8 @@ export const animateNumber = (
     const stopAnimation = timeElapsed >= finalDuration;
     const percent = complete
       ? 1
-      : 1 - (mathMax(0, timeStart + finalDuration - timeNow) / finalDuration || 0);
+      : 1 - mathMin(1, mathMax(0, timeStart + finalDuration - timeNow) / finalDuration || 0);
+
     const progress =
       (to - from) *
         (isFunction(easing)

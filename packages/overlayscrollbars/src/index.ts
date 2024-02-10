@@ -3,6 +3,7 @@ import './index.scss';
 export {
   Environment,
   OverlayScrollbars,
+  OverlayScrollbarsStatic,
   Elements,
   State,
   CloneableScrollbarElements,

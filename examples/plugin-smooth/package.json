@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "overlayscrollbars": "file:../../packages/overlayscrollbars/dist",
+    "overlayscrollbars-plugin-smooth": "file:../../packages/overlayscrollbars-plugin-smooth/dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.2",
+    "vite": "^5.0.10"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build --base /OverlayScrollbars/example/overlayscrollbars",
+    "preview": "vite preview"
+  }
+}

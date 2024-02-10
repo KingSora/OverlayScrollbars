@@ -1,0 +1,31 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 50vw;
+  width: 50vw;
+  height: 100vw;
+  background: white;
+}
+
+.target {
+  width: 50vw;
+  height: 150vh;
+  border: 2px solid red;
+  overflow: scroll;
+}
+
+.content {
+  width: 3000%;
+  height: 3000%;
+  background: url('img.jpg');
+}
