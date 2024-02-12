@@ -81,6 +81,7 @@ export const dampingScrollAnimation = (
 
       let slowVelocity = true;
       let noDirection = true;
+      const precisionScroll = newXY0();
       perAxis((axis) => {
         const axisOverflowAmount = overflowAmount[axis];
         const axisDestinationScroll = destinationScroll[axis];
@@ -95,21 +96,20 @@ export const dampingScrollAnimation = (
             frameDeltaSeconds
           )
         );
+        const axisPrecisionScroll = withPrecision(axisNewScroll);
         const axisDistance = withPrecision(axisClampedDestinationScroll - axisNewScroll);
         const direction = Math.sign(axisDistance);
         const velocity = Math.abs(axisDistance) / frameDeltaSeconds;
 
         currentScroll[axis] = axisNewScroll;
+        precisionScroll[axis] = axisPrecisionScroll;
         slowVelocity = slowVelocity && velocity <= stopVelocity;
         noDirection = noDirection && !direction;
       });
 
       return {
         stop: slowVelocity || noDirection,
-        scroll: {
-          x: withPrecision(currentScroll.x),
-          y: withPrecision(currentScroll.y),
-        },
+        scroll: precisionScroll,
       };
     },
   };

@@ -111,6 +111,7 @@ export const easingScrollAnimation = (
 
       let finished = true;
       let viewportEdgeReached = true;
+      const precisionScroll = newXY0();
       perAxis((axis) => {
         const axisStartTime = startTime[axis];
         const axisDeltaDuration = deltaDuration[axis];
@@ -129,20 +130,18 @@ export const easingScrollAnimation = (
           )
         );
         const axisPrecisionScroll = withPrecision(axisNewScroll);
-        const axisReachedEdge =
-          axisPrecisionScroll <= 0 || axisPrecisionScroll >= axisOverflowAmount;
 
         currentScroll[axis] = axisNewScroll;
+        precisionScroll[axis] = axisPrecisionScroll;
         finished = finished && (currTime >= axisStartTime + axisDeltaDuration || axisPercent === 1);
-        viewportEdgeReached = viewportEdgeReached && axisReachedEdge;
+        viewportEdgeReached =
+          viewportEdgeReached &&
+          (axisPrecisionScroll <= 0 || axisPrecisionScroll >= axisOverflowAmount);
       });
 
       return {
         stop: finished || viewportEdgeReached,
-        scroll: {
-          x: withPrecision(currentScroll.x),
-          y: withPrecision(currentScroll.y),
-        },
+        scroll: precisionScroll,
       };
     },
   };
