@@ -1,105 +1,148 @@
+import type { OverlayScrollbars } from 'overlayscrollbars';
 import type { ScrollAnimation, ScrollAnimationInfo } from './scrollAnimation';
-import { newXY0 } from './utils';
-import { clamp, lerp } from './math';
+import { newXY0, clamp, lerp, perAxis, createWithPrecision } from './utils';
 
 export interface EasignScrollAnimationOptions {
-  /** A function which returns the scroll duration for both axis. */
-  duration: (delta: number) => number;
-  /** The easign function for the scroll animation. */
-  startEasing: (percent: number) => number;
-  updateEasing: (percent: number) => number;
+  /** The duration of the scroll animation. Can also be a function which receives the delta value as its argument. */
+  duration: number | ((delta: number) => number);
+  /** The easign function used when the destination scroll position changed since the beginning of the animation. */
+  easingOut: (percent: number) => number;
+  /**
+   * The easing function used as long as the destination scroll position is unchanged.
+   * When not defined the `easingOut` function is used instead.
+   */
+  easingInOut?: (percent: number) => number;
+  /** The fractional precision of the scroll position numbers. Can be Infinity. Negative precision is interpreted as Infinity. */
+  precision: number;
+  /** Whether scroll direction changes are applied instantly instead of animated. */
+  responsiveDirectionChange: boolean;
+  /**
+   * Whether the destination scroll position is always clamped to the viewport edges.
+   * Enabling this will cause the velocity to always drop near the viewport edges which causes the animation to feel smoother but less responsive near the edges.
+   */
+  clampToViewport: boolean;
 }
 
-const now = () => performance.now() - 8;
-
 const defaultOptions: EasignScrollAnimationOptions = {
-  duration: (delta) => delta * 1.76,
-  startEasing: (x) => -(Math.cos(Math.PI * x) - 1) / 2,
-  updateEasing: (x) => Math.sin((x * Math.PI) / 2),
+  duration: 222,
+  // easeInOutSine
+  easingInOut: (x) => -(Math.cos(Math.PI * x) - 1) / 2,
+  // easeOutSine
+  easingOut: (x) => Math.sin((x * Math.PI) / 2),
+  precision: 0,
+  responsiveDirectionChange: true,
+  clampToViewport: false,
 };
 
 export const easingScrollAnimation = (
   options?: Partial<EasignScrollAnimationOptions>
 ): ScrollAnimation => {
-  const { duration, startEasing, updateEasing } = Object.assign({}, defaultOptions, options);
+  const {
+    duration,
+    easingInOut,
+    easingOut,
+    precision,
+    responsiveDirectionChange,
+    clampToViewport,
+  } = Object.assign({}, defaultOptions, options);
 
-  let startTime = newXY0();
-  let deltaDuration = newXY0();
-  let startScroll = newXY0();
-  let destinationScroll = newXY0();
-  let currScroll = newXY0();
-  let destinationDirection = newXY0();
-  let easing = updateEasing;
+  const withPrecision = createWithPrecision(precision);
+  const getDuration = (delta: number) =>
+    typeof duration === 'function' ? duration(delta) : duration;
 
-  const updateAnimationInfo = ({ delta }: Readonly<ScrollAnimationInfo>) => {
-    const newDestinationDirection = {
-      x: Math.sign(delta.x),
-      y: Math.sign(delta.y),
-    };
-    const destinationDirectionChanged = {
-      x: destinationDirection.x !== newDestinationDirection.x,
-      y: destinationDirection.y !== newDestinationDirection.y,
-    };
+  let currTime = 0;
+  let easing = easingOut;
 
-    destinationDirection = newDestinationDirection;
-    startTime = {
-      x: delta.x ? now() : startTime.x,
-      y: delta.y ? now() : startTime.y,
-    };
-    startScroll = { ...currScroll };
-    destinationScroll = {
-      x: (destinationDirectionChanged.x ? currScroll.x : destinationScroll.x) + delta.x,
-      y: (destinationDirectionChanged.y ? currScroll.y : destinationScroll.y) + delta.y,
-    };
-    deltaDuration = {
-      x: Math.abs(duration(delta.x)),
-      y: Math.abs(duration(delta.y)),
-    };
+  const startTime = newXY0();
+  const deltaDuration = newXY0();
+  const startScroll = newXY0();
+  const destinationScroll = newXY0();
+  const currentScroll = newXY0();
+  const destinationDirection = newXY0();
+
+  const updateAnimationInfo = (
+    { delta }: Readonly<ScrollAnimationInfo>,
+    osInstance: OverlayScrollbars
+  ) => {
+    const { overflowAmount } = osInstance.state();
+    perAxis((axis) => {
+      const axisDelta = delta[axis];
+      const axisNewDestinationDirection = Math.sign(axisDelta);
+      const axisDestinationDirectionChanged =
+        destinationDirection[axis] !== axisNewDestinationDirection;
+
+      destinationDirection[axis] = axisNewDestinationDirection;
+      startTime[axis] = axisDelta ? currTime : startTime[axis];
+      startScroll[axis] = currentScroll[axis];
+      destinationScroll[axis] =
+        (axisDestinationDirectionChanged
+          ? clamp(
+              0,
+              overflowAmount[axis],
+              responsiveDirectionChange ? currentScroll[axis] : destinationScroll[axis]
+            )
+          : destinationScroll[axis]) + axisDelta;
+      deltaDuration[axis] = getDuration(axisDelta);
+    });
   };
 
   return {
-    start(animationInfo) {
-      startTime = newXY0();
-      startScroll = currScroll = destinationScroll = { ...animationInfo.scroll };
+    start(animationInfo, osInstance) {
+      perAxis((axis) => {
+        currTime = startTime[axis] = 0;
+        startScroll[axis] =
+          currentScroll[axis] =
+          destinationScroll[axis] =
+            animationInfo.getScroll()[axis];
+      });
 
-      updateAnimationInfo(animationInfo);
-      easing = startEasing;
+      updateAnimationInfo(animationInfo, osInstance);
+      easing = easingInOut || easingOut;
     },
-    update(animationInfo) {
-      updateAnimationInfo(animationInfo);
-      easing = updateEasing;
+    update(animationInfo, osInstance) {
+      updateAnimationInfo(animationInfo, osInstance);
+      easing = easingOut;
     },
     frame(_, frameInfo, osInstance) {
-      const { currentTime } = frameInfo;
+      const { deltaTime } = frameInfo;
       const { overflowAmount } = osInstance.state();
 
-      const percent = {
-        x:
-          1 -
-          Math.min(
-            1,
-            Math.max(0, startTime.x + deltaDuration.x - currentTime) / deltaDuration.x || 0
-          ),
-        y:
-          1 -
-          Math.min(
-            1,
-            Math.max(0, startTime.y + deltaDuration.y - currentTime) / deltaDuration.y || 0
-          ),
-      };
+      currTime += deltaTime;
 
-      currScroll = {
-        x: clamp(0, overflowAmount.x, lerp(startScroll.x, destinationScroll.x, easing(percent.x))),
-        y: clamp(0, overflowAmount.y, lerp(startScroll.y, destinationScroll.y, easing(percent.y))),
-      };
+      let finished = true;
+      let viewportEdgeReached = true;
+      perAxis((axis) => {
+        const axisStartTime = startTime[axis];
+        const axisDeltaDuration = deltaDuration[axis];
+        const axisDestinationScroll = destinationScroll[axis];
+        const axisOverflowAmount = overflowAmount[axis];
+        const axisClampedDestinationScroll = clamp(0, axisOverflowAmount, axisDestinationScroll);
 
-      const stopX = currentTime >= startTime.x + deltaDuration.x && percent.x === 1;
-      const stopY = currentTime >= startTime.y + deltaDuration.y && percent.y === 1;
-      const stop = stopX && stopY;
+        const axisPercent = clamp(0, 1, (currTime - axisStartTime) / axisDeltaDuration || 0);
+        const axisNewScroll = clamp(
+          0,
+          axisOverflowAmount,
+          lerp(
+            startScroll[axis],
+            clampToViewport ? axisClampedDestinationScroll : axisDestinationScroll,
+            easing(axisPercent)
+          )
+        );
+        const axisPrecisionScroll = withPrecision(axisNewScroll);
+        const axisReachedEdge =
+          axisPrecisionScroll <= 0 || axisPrecisionScroll >= axisOverflowAmount;
+
+        currentScroll[axis] = axisNewScroll;
+        finished = finished && (currTime >= axisStartTime + axisDeltaDuration || axisPercent === 1);
+        viewportEdgeReached = viewportEdgeReached && axisReachedEdge;
+      });
 
       return {
-        stop,
-        scroll: currScroll,
+        stop: finished || viewportEdgeReached,
+        scroll: {
+          x: withPrecision(currentScroll.x),
+          y: withPrecision(currentScroll.y),
+        },
       };
     },
   };

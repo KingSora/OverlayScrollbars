@@ -1,7 +1,6 @@
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import type { ScrollAnimation, ScrollAnimationInfo } from './scrollAnimation';
-import { newXY0 } from './utils';
-import { clamp, damp, roundWithPrecision } from './math';
+import { newXY0, clamp, damp, perAxis, createWithPrecision } from './utils';
 
 export interface DampingScrollAnimationOptions {
   /**
@@ -10,158 +9,106 @@ export interface DampingScrollAnimationOptions {
    * 1 = is infinite damping, the destination scroll offset is never reached.
    */
   damping: number;
-  /** The fractional precision of the numbers. */
+  /** When the scroll velocity (in pixel / second) is smaller or equal to the `stopVelocity` the animation will stop even before the destination scroll position is reached. */
+  stopVelocity: number;
+  /** The fractional precision of the scroll position numbers. Can be Infinity. Negative precision is interpreted as Infinity. */
   precision: number;
   /** Whether scroll direction changes are applied instantly instead of animated. */
   responsiveDirectionChange: boolean;
   /**
-   * Whether the max. velocity is limited by the viewport edges.
-   * Enabling this will cause the velocity to always drop near the viewport edges
-   * which causes the animation to feel smoother but less responsive near the edges.
+   * Whether the destination scroll position is always clamped to the viewport edges.
+   * Enabling this will cause the velocity to always drop near the viewport edges which causes the animation to feel smoother but less responsive near the edges.
    */
-  viewportLimitsVelocity: boolean;
-  /** When the scroll velocity (in pixel / second) is smaller or equal to the `stopVelocity` the animation will stop even before the destination scroll position is reached. */
-  stopVelocity: number;
+  clampToViewport: boolean;
 }
 
 const defaultOptions: DampingScrollAnimationOptions = {
-  damping: 0.042,
+  damping: 0.033,
+  stopVelocity: 1,
   precision: 0,
   responsiveDirectionChange: true,
-  viewportLimitsVelocity: false,
-  stopVelocity: 1,
+  clampToViewport: false,
 };
 
 export const dampingScrollAnimation = (
   options?: Partial<DampingScrollAnimationOptions>
 ): ScrollAnimation => {
-  const { damping, responsiveDirectionChange, viewportLimitsVelocity, stopVelocity, precision } =
+  const { damping, responsiveDirectionChange, clampToViewport, stopVelocity, precision } =
     Object.assign({}, defaultOptions, options);
 
-  const precisionNumber = precision < 0 || !isFinite(precision) ? -1 : Math.pow(10, precision);
-  const withPrecision = (value: number) =>
-    precisionNumber < 0 ? value : roundWithPrecision(value, precisionNumber);
+  const withPrecision = createWithPrecision(precision);
 
-  let currScroll = newXY0();
-  let destinationDirection = newXY0();
-  let destinationScroll = newXY0();
+  const currentScroll = newXY0();
+  const destinationDirection = newXY0();
+  const destinationScroll = newXY0();
 
-  const updateAnimationInfo = (
-    { delta, scroll }: Readonly<ScrollAnimationInfo>,
-    osInstance: OverlayScrollbars
-  ) => {
+  const update = ({ delta }: Readonly<ScrollAnimationInfo>, osInstance: OverlayScrollbars) => {
     const { overflowAmount } = osInstance.state();
-    const newDestinationDirection = {
-      x: Math.sign(delta.x),
-      y: Math.sign(delta.y),
-    };
-    const destinationDirectionChanged = {
-      x: destinationDirection.x !== newDestinationDirection.x,
-      y: destinationDirection.y !== newDestinationDirection.y,
-    };
 
-    if (destinationDirectionChanged.x) {
-      destinationScroll.x = clamp(0, overflowAmount.x, destinationScroll.x);
+    perAxis((axis) => {
+      const axisDelta = delta[axis];
+      const axisNewDestinationDirection = Math.sign(axisDelta);
+      const axisDestinationDirectionChanged =
+        destinationDirection[axis] !== axisNewDestinationDirection;
 
-      if (responsiveDirectionChange) {
-        destinationScroll.x = currScroll.x = scroll.x;
-      }
-    }
-
-    if (destinationDirectionChanged.y) {
-      destinationScroll.y = clamp(0, overflowAmount.y, destinationScroll.y);
-
-      if (responsiveDirectionChange) {
-        destinationScroll.y = currScroll.y = scroll.y;
-      }
-    }
-
-    const newTargetScroll = {
-      x: destinationScroll.x + delta.x,
-      y: destinationScroll.y + delta.y,
-    };
-
-    destinationScroll = newTargetScroll;
-    destinationDirection = newDestinationDirection;
+      destinationScroll[axis] =
+        (axisDestinationDirectionChanged
+          ? clamp(
+              0,
+              overflowAmount[axis],
+              responsiveDirectionChange ? currentScroll[axis] : destinationScroll[axis]
+            )
+          : destinationScroll[axis]) + axisDelta;
+      destinationDirection[axis] = axisNewDestinationDirection;
+    });
   };
 
   return {
     start(animationInfo, osInstance) {
-      const { scroll } = animationInfo;
-      destinationDirection = newXY0();
-      currScroll = destinationScroll = { ...scroll };
+      const { getScroll } = animationInfo;
+      perAxis((axis) => {
+        destinationDirection[axis] = 0;
+        currentScroll[axis] = destinationScroll[axis] = getScroll()[axis];
+      });
 
-      updateAnimationInfo(animationInfo, osInstance);
+      update(animationInfo, osInstance);
     },
-    update: updateAnimationInfo,
+    update,
     frame(_, frameInfo, osInstance) {
       const { deltaTime } = frameInfo;
-
-      if (!deltaTime) {
-        return;
-      }
-
       const frameDeltaSeconds = deltaTime / 1000;
       const { overflowAmount } = osInstance.state();
-      const clampedDestinationScroll = {
-        x: clamp(0, overflowAmount.x, destinationScroll.x),
-        y: clamp(0, overflowAmount.y, destinationScroll.y),
-      };
 
-      const dampedScroll = {
-        x: damp(
-          currScroll.x,
-          viewportLimitsVelocity ? clampedDestinationScroll.x : destinationScroll.x,
-          damping,
-          frameDeltaSeconds
-        ),
-        y: damp(
-          currScroll.y,
-          viewportLimitsVelocity ? clampedDestinationScroll.y : destinationScroll.y,
-          damping,
-          frameDeltaSeconds
-        ),
-      };
-      const dampedScrollDirection = {
-        x: Math.sign(dampedScroll.x - currScroll.x),
-        y: Math.sign(dampedScroll.y - currScroll.y),
-      };
-      const newScroll = {
-        x: clamp(
-          dampedScrollDirection.x < 0 ? clampedDestinationScroll.x : 0,
-          dampedScrollDirection.x > 0 ? clampedDestinationScroll.x : overflowAmount.x,
-          dampedScroll.x
-        ),
-        y: clamp(
-          dampedScrollDirection.y < 0 ? clampedDestinationScroll.y : 0,
-          dampedScrollDirection.y > 0 ? clampedDestinationScroll.y : overflowAmount.y,
-          dampedScroll.y
-        ),
-      };
-      const newDistance = {
-        x: withPrecision(clampedDestinationScroll.x - newScroll.x),
-        y: withPrecision(clampedDestinationScroll.y - newScroll.y),
-      };
-      const newCurrDirection = {
-        x: Math.sign(newDistance.x),
-        y: Math.sign(newDistance.y),
-      };
-      const velocity = {
-        x: Math.abs(newDistance.x) / frameDeltaSeconds,
-        y: Math.abs(newDistance.y) / frameDeltaSeconds,
-      };
+      let slowVelocity = true;
+      let noDirection = true;
+      perAxis((axis) => {
+        const axisOverflowAmount = overflowAmount[axis];
+        const axisDestinationScroll = destinationScroll[axis];
+        const axisClampedDestinationScroll = clamp(0, axisOverflowAmount, axisDestinationScroll);
+        const axisNewScroll = clamp(
+          0,
+          axisOverflowAmount,
+          damp(
+            currentScroll[axis],
+            clampToViewport ? axisClampedDestinationScroll : axisDestinationScroll,
+            damping,
+            frameDeltaSeconds
+          )
+        );
+        const axisDistance = withPrecision(axisClampedDestinationScroll - axisNewScroll);
+        const direction = Math.sign(axisDistance);
+        const velocity = Math.abs(axisDistance) / frameDeltaSeconds;
 
-      const slowVelocity = velocity.x <= stopVelocity && velocity.y <= stopVelocity;
-      const noDirection = !newCurrDirection.x && !newCurrDirection.y;
-      const stop = slowVelocity || noDirection;
-
-      currScroll = newScroll;
+        currentScroll[axis] = axisNewScroll;
+        slowVelocity = slowVelocity && velocity <= stopVelocity;
+        noDirection = noDirection && !direction;
+      });
 
       return {
-        stop,
+        stop: slowVelocity || noDirection,
         scroll: {
-          x: withPrecision(newScroll.x),
-          y: withPrecision(newScroll.y),
+          x: withPrecision(currentScroll.x),
+          y: withPrecision(currentScroll.y),
         },
       };
     },

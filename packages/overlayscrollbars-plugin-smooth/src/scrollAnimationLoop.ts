@@ -18,6 +18,7 @@ export const createScrollAnimationLoop = (osInstance: OverlayScrollbars): Scroll
   let animationFrameId: ReturnType<typeof requestAnimationFrame> | undefined;
   let scrollAnimationInfo: ScrollAnimationInfo | undefined;
   let options: OverlayScrollbarsPluginSmoothOptions | undefined;
+  let averageDeltaTime = 1000 / 60; // assume 60fps
   const frameInfo: ScrollAnimationFrameInfo = {
     currentTime: 0,
     deltaTime: 0,
@@ -76,7 +77,7 @@ export const createScrollAnimationLoop = (osInstance: OverlayScrollbars): Scroll
           const { startTime, previousTime } = frameInfo;
 
           frameInfo.currentTime = currFrameTime;
-          frameInfo.deltaTime = currFrameTime - (previousTime || currFrameTime);
+          frameInfo.deltaTime = previousTime ? currFrameTime - previousTime : averageDeltaTime;
 
           if (!startTime) {
             frameInfo.startTime = currFrameTime;
@@ -94,10 +95,12 @@ export const createScrollAnimationLoop = (osInstance: OverlayScrollbars): Scroll
 
           frameInfo.previousTime = currFrameTime;
           animationFrameId = requestAnimationFrame(scrollAnimationLoopFrame);
+
+          averageDeltaTime = (averageDeltaTime + frameInfo.deltaTime) / 2;
         };
 
-        animationFrameId = requestAnimationFrame(scrollAnimationLoopFrame);
         start && start(animationInfo, osInstance);
+        animationFrameId = requestAnimationFrame(scrollAnimationLoopFrame);
       } else {
         update && update(animationInfo, osInstance);
       }

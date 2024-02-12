@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { hi } from '~/overlayscrollbars-plugin-smooth';
+import { hi } from '~/index';
 
 describe('OverlayScrollbarsPluginSmooth', () => {
   test('default', () => {

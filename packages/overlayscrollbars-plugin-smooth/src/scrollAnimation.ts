@@ -22,8 +22,8 @@ export interface ScrollAnimationFrameResult {
 export interface ScrollAnimationInfo {
   /** The wheel delta values in pixel. */
   delta: XY<number>;
-  /** The current scroll values in pixel. */
-  scroll: XY<number>;
+  /** Function to get the current scroll values in pixel. Should be used sparingly because of possible browser reflow. */
+  getScroll: () => XY<number>;
 }
 
 export interface ScrollAnimation {

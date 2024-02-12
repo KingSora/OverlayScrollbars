@@ -11,7 +11,7 @@ export default defineConfig({
     sourcemap: true,
     outDir: 'dist',
     lib: {
-      entry: resolve(__dirname, `src/${fileName}.ts`),
+      entry: resolve(__dirname, `src/index.ts`),
     },
     rollupOptions: {
       external: ['overlayscrollbars'],
