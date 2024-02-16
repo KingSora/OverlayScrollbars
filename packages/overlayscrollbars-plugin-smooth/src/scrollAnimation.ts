@@ -16,7 +16,7 @@ export interface ScrollAnimationFrameResult {
   /** Whether to stop the animation. */
   stop?: boolean;
   /** The new scroll values in pixel. */
-  scroll?: XY<number | false | null | undefined> | false | null | undefined;
+  scroll?: Partial<XY<number | false | null>> | false | null;
 }
 
 export interface ScrollAnimationInfo {

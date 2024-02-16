@@ -1,16 +1,15 @@
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import type { ScrollAnimation, ScrollAnimationInfo } from './scrollAnimation';
+import type { XY } from './utils';
 import { newXY0, clamp, damp, perAxis, createWithPrecision } from './utils';
 
 export interface DampingScrollAnimationOptions {
   /**
    * Damping rate between 0..1. (The proportion of scroll distance remaining after one second.)
-   * 0 = is no damping, the destination scroll offset is reached instantly.
-   * 1 = is infinite damping, the destination scroll offset is never reached.
+   * 0 = no damping, the destination scroll offset is reached instantly.
+   * 1 = infinite damping, the destination scroll offset is never reached.
    */
   damping: number;
-  /** When the scroll velocity (in pixel / second) is smaller or equal to the `stopVelocity` the animation will stop even before the destination scroll position is reached. */
-  stopVelocity: number;
   /** The fractional precision of the scroll position numbers. Can be Infinity. Negative precision is interpreted as Infinity. */
   precision: number;
   /** Whether scroll direction changes are applied instantly instead of animated. */
@@ -20,14 +19,16 @@ export interface DampingScrollAnimationOptions {
    * Enabling this will cause the velocity to always drop near the viewport edges which causes the animation to feel smoother but less responsive near the edges.
    */
   clampToViewport: boolean;
+  /** When the scroll velocity (in pixel / second) is smaller or equal to the `stopVelocity` the animation will stop even before the destination scroll position is reached. */
+  stopVelocity: number;
 }
 
 const defaultOptions: DampingScrollAnimationOptions = {
-  damping: 0.033,
-  stopVelocity: 1,
+  damping: 0.0033,
   precision: 0,
   responsiveDirectionChange: true,
   clampToViewport: false,
+  stopVelocity: 1,
 };
 
 export const dampingScrollAnimation = (
@@ -72,16 +73,22 @@ export const dampingScrollAnimation = (
       });
 
       update(animationInfo, osInstance);
+
+      /*
+      const velocity = damp(0, Math.abs(animationInfo.delta.y), damping, 0.016) / 0.016;
+      const duration = (Math.log(1 / velocity) / Math.log(damping)) * 1000;
+
+      console.log('predicted duration', duration);
+      */
     },
     update,
     frame(_, frameInfo, osInstance) {
       const { deltaTime } = frameInfo;
       const frameDeltaSeconds = deltaTime / 1000;
       const { overflowAmount } = osInstance.state();
+      const appliedScroll: Partial<XY<number>> = {};
 
-      let slowVelocity = true;
-      let noDirection = true;
-      const precisionScroll = newXY0();
+      let stop = true;
       perAxis((axis) => {
         const axisOverflowAmount = overflowAmount[axis];
         const axisDestinationScroll = destinationScroll[axis];
@@ -96,20 +103,19 @@ export const dampingScrollAnimation = (
             frameDeltaSeconds
           )
         );
-        const axisPrecisionScroll = withPrecision(axisNewScroll);
+        const axisAppliedScroll = withPrecision(axisNewScroll);
         const axisDistance = withPrecision(axisClampedDestinationScroll - axisNewScroll);
         const direction = Math.sign(axisDistance);
         const velocity = Math.abs(axisDistance) / frameDeltaSeconds;
 
         currentScroll[axis] = axisNewScroll;
-        precisionScroll[axis] = axisPrecisionScroll;
-        slowVelocity = slowVelocity && velocity <= stopVelocity;
-        noDirection = noDirection && !direction;
+        appliedScroll[axis] = axisAppliedScroll;
+        stop = stop && (velocity <= stopVelocity || !direction);
       });
 
       return {
-        stop: slowVelocity || noDirection,
-        scroll: precisionScroll,
+        stop,
+        scroll: appliedScroll,
       };
     },
   };

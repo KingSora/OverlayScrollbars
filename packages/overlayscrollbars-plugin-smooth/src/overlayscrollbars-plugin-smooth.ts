@@ -15,7 +15,7 @@ import {
   perAxis,
 } from './utils';
 import { createScrollAnimationLoop } from './scrollAnimationLoop';
-import { dampingScrollAnimation } from './dampingScrollAnimation';
+import { springScrollAnimation } from './springScrollAnimation';
 
 export interface OverlayScrollbarsPluginSmoothOptions {
   /** The scroll animation. */
@@ -86,7 +86,7 @@ export interface OverlayScrollbarsPluginSmoothInstance {
 }
 
 const defaultOptions: OverlayScrollbarsPluginSmoothOptions = {
-  scrollAnimation: dampingScrollAnimation(),
+  scrollAnimation: springScrollAnimation(),
   scrollChaining: true,
   alterWheelDelta: (wheelDelta) => wheelDelta,
   applyScroll: ({ target, scroll }) => {

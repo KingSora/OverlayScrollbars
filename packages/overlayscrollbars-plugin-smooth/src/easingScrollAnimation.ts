@@ -1,17 +1,18 @@
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import type { ScrollAnimation, ScrollAnimationInfo } from './scrollAnimation';
-import { newXY0, clamp, lerp, perAxis, createWithPrecision } from './utils';
+import type { XY } from './utils';
+import { newXY0, clamp, lerp, perAxis, createWithPrecision, getScrollOvershoot } from './utils';
 
 export interface EasignScrollAnimationOptions {
-  /** The duration of the scroll animation. Can also be a function which receives the delta value as its argument. */
-  duration: number | ((delta: number) => number);
+  /** The duration of the scroll animation in milliseconds. Can also be a function which receives the scrolled delta value as its argument. */
+  duration: number | ((scrollDelta: number) => number);
   /** The easign function used when the destination scroll position changed since the beginning of the animation. */
-  easingOut: (percent: number) => number;
+  easingOut: EasingFn;
   /**
    * The easing function used as long as the destination scroll position is unchanged.
    * When not defined the `easingOut` function is used instead.
    */
-  easingInOut?: (percent: number) => number;
+  easingInOut?: EasingFn;
   /** The fractional precision of the scroll position numbers. Can be Infinity. Negative precision is interpreted as Infinity. */
   precision: number;
   /** Whether scroll direction changes are applied instantly instead of animated. */
@@ -22,6 +23,16 @@ export interface EasignScrollAnimationOptions {
    */
   clampToViewport: boolean;
 }
+
+/**
+ * An Easign function.
+ * @param percent The percent (0..1) of the animation.
+ * @param duration The duration of the animation.
+ * @param from The start value of the animation.
+ * @param to The end value of the animation.
+ * @returns The "eased" percent (0..1) of the animation
+ */
+export type EasingFn = (percent: number, duration: number, from: number, to: number) => number;
 
 const defaultOptions: EasignScrollAnimationOptions = {
   duration: 222,
@@ -38,7 +49,7 @@ export const easingScrollAnimation = (
   options?: Partial<EasignScrollAnimationOptions>
 ): ScrollAnimation => {
   const {
-    duration,
+    duration: durationOption,
     easingInOut,
     easingOut,
     precision,
@@ -48,17 +59,18 @@ export const easingScrollAnimation = (
 
   const withPrecision = createWithPrecision(precision);
   const getDuration = (delta: number) =>
-    typeof duration === 'function' ? duration(delta) : duration;
+    typeof durationOption === 'function' ? durationOption(delta) : durationOption;
 
   let currTime = 0;
   let easing = easingOut;
 
   const startTime = newXY0();
-  const deltaDuration = newXY0();
   const startScroll = newXY0();
   const destinationScroll = newXY0();
   const currentScroll = newXY0();
   const destinationDirection = newXY0();
+  const duration = newXY0();
+  const overshoot = newXY0() as XY<number | boolean>;
 
   const updateAnimationInfo = (
     { delta }: Readonly<ScrollAnimationInfo>,
@@ -82,14 +94,15 @@ export const easingScrollAnimation = (
               responsiveDirectionChange ? currentScroll[axis] : destinationScroll[axis]
             )
           : destinationScroll[axis]) + axisDelta;
-      deltaDuration[axis] = getDuration(axisDelta);
+      overshoot[axis] = axisDelta ? 0 : overshoot[axis];
+      duration[axis] = axisDelta ? getDuration(axisDelta) : 0;
     });
   };
 
   return {
     start(animationInfo, osInstance) {
       perAxis((axis) => {
-        currTime = startTime[axis] = 0;
+        currTime = overshoot[axis] = startTime[axis] = 0;
         startScroll[axis] =
           currentScroll[axis] =
           destinationScroll[axis] =
@@ -106,42 +119,49 @@ export const easingScrollAnimation = (
     frame(_, frameInfo, osInstance) {
       const { deltaTime } = frameInfo;
       const { overflowAmount } = osInstance.state();
+      const appliedScroll: Partial<XY<number>> = {};
 
       currTime += deltaTime;
 
-      let finished = true;
-      let viewportEdgeReached = true;
-      const precisionScroll = newXY0();
+      let stop = true;
       perAxis((axis) => {
+        // can only happen if one axis is overshooting and the other isn't
+        if (overshoot[axis]) {
+          return;
+        }
+
         const axisStartTime = startTime[axis];
-        const axisDeltaDuration = deltaDuration[axis];
+        const axisDeltaDuration = duration[axis];
         const axisDestinationScroll = destinationScroll[axis];
         const axisOverflowAmount = overflowAmount[axis];
         const axisClampedDestinationScroll = clamp(0, axisOverflowAmount, axisDestinationScroll);
 
-        const axisPercent = clamp(0, 1, (currTime - axisStartTime) / axisDeltaDuration || 0);
-        const axisNewScroll = clamp(
-          0,
-          axisOverflowAmount,
-          lerp(
-            startScroll[axis],
-            clampToViewport ? axisClampedDestinationScroll : axisDestinationScroll,
-            easing(axisPercent)
-          )
+        const axisFrom = startScroll[axis];
+        const axisTo = clampToViewport ? axisClampedDestinationScroll : axisDestinationScroll;
+        const axisPercent =
+          axisFrom === axisTo || !axisDeltaDuration
+            ? 1
+            : clamp(0, 1, (currTime - axisStartTime) / axisDeltaDuration || 0);
+        const axisNewScroll = lerp(
+          axisFrom,
+          axisTo,
+          easing(axisPercent, axisDeltaDuration, axisFrom, axisTo)
         );
-        const axisPrecisionScroll = withPrecision(axisNewScroll);
+        const axisAppliedScroll = withPrecision(clamp(0, axisOverflowAmount, axisNewScroll));
+        const axisOvershoot = getScrollOvershoot(axisNewScroll, axisOverflowAmount);
 
+        overshoot[axis] = axisOvershoot;
         currentScroll[axis] = axisNewScroll;
-        precisionScroll[axis] = axisPrecisionScroll;
-        finished = finished && (currTime >= axisStartTime + axisDeltaDuration || axisPercent === 1);
-        viewportEdgeReached =
-          viewportEdgeReached &&
-          (axisPrecisionScroll <= 0 || axisPrecisionScroll >= axisOverflowAmount);
+        appliedScroll[axis] = axisAppliedScroll;
+
+        stop =
+          stop &&
+          (currTime >= axisStartTime + axisDeltaDuration || axisPercent === 1 || axisOvershoot);
       });
 
       return {
-        stop: finished || viewportEdgeReached,
-        scroll: precisionScroll,
+        stop,
+        scroll: appliedScroll,
       };
     },
   };
