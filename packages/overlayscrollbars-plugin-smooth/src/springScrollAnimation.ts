@@ -1,7 +1,6 @@
-import type { OverlayScrollbars } from 'overlayscrollbars';
-import type { ScrollAnimation, ScrollAnimationInfo } from './scrollAnimation';
+import type { ScrollAnimation } from './scrollAnimation';
 import type { XY } from './utils';
-import { newXY0, clamp, perAxis, createWithPrecision, getScrollOvershoot } from './utils';
+import { newXY0, clamp, perAxis } from './utils';
 
 export interface SpringScrollAnimationOptions {
   /**
@@ -19,15 +18,6 @@ export interface SpringScrollAnimationOptions {
    * With `1` the animation will oscillate forever and the destination scroll position is never reached.
    */
   bounce: number;
-  /** The fractional precision of the scroll position numbers. Can be Infinity. Negative precision is interpreted as Infinity. */
-  precision: number;
-  /** Whether scroll direction changes are applied instantly instead of animated. */
-  responsiveDirectionChange: boolean;
-  /**
-   * Whether the destination scroll position is always clamped to the viewport edges.
-   * Enabling this will cause the velocity to always drop near the viewport edges which causes the animation to feel smoother but less responsive near the edges.
-   */
-  clampToViewport: boolean;
   /** When the scroll velocity (in pixel / second) is smaller than the `stopVelocity` the animation will stop even before the destination scroll position is reached. */
   stopVelocity: number;
 }
@@ -35,9 +25,6 @@ export interface SpringScrollAnimationOptions {
 const defaultOptions: SpringScrollAnimationOptions = {
   duration: 333,
   bounce: -1,
-  precision: 0,
-  responsiveDirectionChange: true,
-  clampToViewport: false,
   stopVelocity: 1,
 };
 
@@ -49,13 +36,8 @@ export const springScrollAnimation = (
   const {
     duration: durationOption,
     bounce,
-    responsiveDirectionChange,
-    clampToViewport,
     stopVelocity,
-    precision,
   } = Object.assign({}, defaultOptions, options);
-
-  const withPrecision = createWithPrecision(precision);
 
   const dampingRatio = 1 - clamp(-1, 1, bounce);
   // const damping = dampingRatio * 2 * Math.sqrt(stiffness);
@@ -63,74 +45,38 @@ export const springScrollAnimation = (
   let springFrequency = 0;
   let dampedSpringFrequency = 0;
 
-  const currentScroll = newXY0();
   const velocity = newXY0();
-  const destinationDirection = newXY0();
-  const destinationScroll = newXY0();
-  const overshoot = newXY0() as XY<number | boolean>;
-
-  const update = ({ delta }: Readonly<ScrollAnimationInfo>, osInstance: OverlayScrollbars) => {
-    const { overflowAmount } = osInstance.state();
-
-    perAxis((axis) => {
-      const axisDelta = delta[axis];
-      const axisNewDestinationDirection = Math.sign(axisDelta);
-      const axisDestinationDirectionChanged =
-        destinationDirection[axis] !== axisNewDestinationDirection;
-
-      destinationScroll[axis] =
-        (axisDestinationDirectionChanged
-          ? clamp(
-              0,
-              overflowAmount[axis],
-              responsiveDirectionChange ? currentScroll[axis] : destinationScroll[axis]
-            )
-          : destinationScroll[axis]) + axisDelta;
-      destinationDirection[axis] = axisNewDestinationDirection;
-      overshoot[axis] = axisDelta ? 0 : overshoot[axis];
-      springFrequency = Math.sqrt(
-        Math.pow((2 * Math.PI) / Math.abs((durationOption || 1) / 1000), 2)
-      );
-      dampedSpringFrequency =
-        dampingRatio < 1
-          ? springFrequency * Math.sqrt(1 - dampingRatio * dampingRatio)
-          : springFrequency * Math.sqrt(dampingRatio * dampingRatio - 1);
-    });
+  const update = () => {
+    springFrequency = Math.sqrt(
+      Math.pow((2 * Math.PI) / Math.abs((durationOption || 1) / 1000), 2)
+    );
+    dampedSpringFrequency =
+      dampingRatio < 1
+        ? springFrequency * Math.sqrt(1 - dampingRatio * dampingRatio)
+        : springFrequency * Math.sqrt(dampingRatio * dampingRatio - 1);
   };
 
   return {
-    start(animationInfo, osInstance) {
-      const { getScroll } = animationInfo;
+    start() {
       perAxis((axis) => {
-        overshoot[axis] = velocity[axis] = destinationDirection[axis] = 0;
-        currentScroll[axis] = destinationScroll[axis] = getScroll()[axis];
+        velocity[axis] = 0;
       });
 
-      update(animationInfo, osInstance);
+      update();
     },
     update,
-    frame(_, frameInfo, osInstance) {
+    frame({ currentScroll, destinationScroll, destinationScrollClamped, precision }, frameInfo) {
       const { deltaTime } = frameInfo;
-      const { overflowAmount } = osInstance.state();
       const deltaSeconds = deltaTime / 1000;
       const appliedScroll: Partial<XY<number>> = {};
+      const stop: Partial<XY<boolean>> = {};
 
-      let stop = true;
       perAxis((axis) => {
-        // can only happen if one axis is overshooting and the other isn't
-        if (overshoot[axis]) {
-          return;
-        }
-
         const axisVelocity = velocity[axis];
-        const axisOverflowAmount = overflowAmount[axis];
         const axisCurrentScroll = currentScroll[axis];
         const axisDestinationScroll = destinationScroll[axis];
-        const axisClampedDestinationScroll = clamp(0, axisOverflowAmount, axisDestinationScroll);
-        const axisFinalDestinationScroll = clampToViewport
-          ? axisClampedDestinationScroll
-          : axisDestinationScroll;
-        const axisDistance = axisCurrentScroll - axisFinalDestinationScroll;
+        const axisDestinationScrollClamped = destinationScrollClamped[axis];
+        const axisDistance = axisCurrentScroll - axisDestinationScroll;
 
         let axisNewDistance = 0;
         let axisNewVelocity = 0;
@@ -173,19 +119,12 @@ export const springScrollAnimation = (
           axisNewVelocity = c1 * r1 * dampingExp1 + c2 * r2 * dampingExp2;
         }
 
-        const axisNewScroll = axisNewDistance + axisFinalDestinationScroll;
-        const axisAppliedScroll = withPrecision(clamp(0, axisOverflowAmount, axisNewScroll));
-        const axisOvershoot = getScrollOvershoot(axisNewScroll, axisOverflowAmount);
+        const axisNewScroll = axisNewDistance + axisDestinationScroll;
 
-        overshoot[axis] = axisOvershoot;
-        velocity[axis] = axisOvershoot ? 0 : axisNewVelocity;
-        currentScroll[axis] = axisNewScroll;
-        appliedScroll[axis] = axisAppliedScroll;
-
-        stop =
-          stop &&
-          withPrecision(Math.abs(axisClampedDestinationScroll - axisNewScroll)) <
-            stopDistanceEpsilon &&
+        velocity[axis] = axisNewVelocity;
+        appliedScroll[axis] = axisNewScroll;
+        stop[axis] =
+          precision(Math.abs(axisDestinationScrollClamped - axisNewScroll)) < stopDistanceEpsilon &&
           Math.abs(velocity[axis]) < stopVelocity;
       });
 

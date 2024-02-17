@@ -1,5 +1,6 @@
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import type { XY } from './utils';
+import type { ScrollAnimationLoopInfo } from './scrollAnimationLoop';
 
 export interface ScrollAnimationFrameInfo {
   /** The scroll animations start (first frame) time in ms. */
@@ -14,16 +15,28 @@ export interface ScrollAnimationFrameInfo {
 
 export interface ScrollAnimationFrameResult {
   /** Whether to stop the animation. */
-  stop?: boolean;
+  stop?: Partial<XY<boolean>>;
   /** The new scroll values in pixel. */
   scroll?: Partial<XY<number | false | null>> | false | null;
 }
 
-export interface ScrollAnimationInfo {
-  /** The wheel delta values in pixel. */
-  delta: XY<number>;
-  /** Function to get the current scroll values in pixel. Should be used sparingly because of possible browser reflow. */
-  getScroll: () => XY<number>;
+export interface ScrollAnimationInfo extends ScrollAnimationLoopInfo {
+  /** The current scroll position with max. precision. */
+  currentScroll: Readonly<XY<number>>;
+  /** The scroll position on the last update with max. precision. */
+  updateScroll: Readonly<XY<number>>;
+  /** The destination scroll position with max. precision. */
+  destinationScroll: Readonly<XY<number>>;
+  /** The destination scroll position clamped to the viewports bounds with max. precision. */
+  destinationScrollClamped: Readonly<XY<number>>;
+  /** The direction. [-1, 0, +1] */
+  direction: Readonly<XY<number>>;
+  /** Whether the direction changed. */
+  directionChanged: Readonly<XY<boolean>>;
+  /** Whether the currentScroll overshoots the min. / max. scroll boundaries of the viewport. */
+  overshoot: Readonly<XY<boolean>>;
+  /** A function which applies the precision from the options to the passed number and returns it. */
+  precision: (value: number) => number;
 }
 
 export interface ScrollAnimation {

@@ -16,12 +16,23 @@ import {
 } from './utils';
 import { createScrollAnimationLoop } from './scrollAnimationLoop';
 import { springScrollAnimation } from './springScrollAnimation';
+import { easingScrollAnimation } from './easingScrollAnimation';
+import { dampingScrollAnimation } from './dampingScrollAnimation';
 
 export interface OverlayScrollbarsPluginSmoothOptions {
   /** The scroll animation. */
   scrollAnimation: ScrollAnimation;
   /** Whether scroll chaining is enabled. */
   scrollChaining: boolean;
+  /** Whether scroll direction changes are applied instantly instead of animated. */
+  responsiveDirectionChange: boolean;
+  /**
+   * Whether the destination scroll position is always clamped to the viewport edges.
+   * Enabling this will cause the velocity to always drop near the viewport edges which causes the animation to feel smoother but less responsive near the edges.
+   */
+  clampToViewport: boolean;
+  /** The fractional precision of the scroll position numbers. Can be Infinity. Negative precision is interpreted as Infinity. */
+  precision: number;
   /**
    * A function which allows it to change the calculated wheel delta.
    * @param wheelDelta The "original" wheel delta for the horizontal (X) and vertical (Y) axis in pixels.
@@ -88,6 +99,9 @@ export interface OverlayScrollbarsPluginSmoothInstance {
 const defaultOptions: OverlayScrollbarsPluginSmoothOptions = {
   scrollAnimation: springScrollAnimation(),
   scrollChaining: true,
+  responsiveDirectionChange: true,
+  clampToViewport: false,
+  precision: 0,
   alterWheelDelta: (wheelDelta) => wheelDelta,
   applyScroll: ({ target, scroll }) => {
     if (isNumber(scroll.x)) {
@@ -231,6 +245,8 @@ export const OverlayScrollbarsPluginSmooth = {
         scrollOffsetElement.addEventListener('mousedown', mouseMiddleButtonDown);
         scrollbarHorizontal.scrollbar.addEventListener('mousedown', scrollbarMouseDown);
         scrollbarVertical.scrollbar.addEventListener('mousedown', scrollbarMouseDown);
+        scrollbarVertical.scrollbar.addEventListener('mousedown', scrollbarMouseDown);
+        window.addEventListener('blur', scrollbarMouseDown);
 
         initialized = true;
       };
@@ -240,6 +256,7 @@ export const OverlayScrollbarsPluginSmooth = {
         scrollOffsetElement.removeEventListener('mousedown', mouseMiddleButtonDown);
         scrollbarHorizontal.scrollbar.removeEventListener('mousedown', scrollbarMouseDown);
         scrollbarVertical.scrollbar.removeEventListener('mousedown', scrollbarMouseDown);
+        window.removeEventListener('blur', scrollbarMouseDown);
 
         initialized = false;
       };

@@ -20,6 +20,9 @@ const osInstance = (window.osInstance = OverlayScrollbars(
           onOverscroll(overscrollInfo) {
             console.log(overscrollInfo);
           },
+          onAnimationStop() {
+            console.log('stop');
+          },
         });
     },
   }

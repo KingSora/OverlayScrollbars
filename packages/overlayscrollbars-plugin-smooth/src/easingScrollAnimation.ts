@@ -1,7 +1,6 @@
-import type { OverlayScrollbars } from 'overlayscrollbars';
 import type { ScrollAnimation, ScrollAnimationInfo } from './scrollAnimation';
 import type { XY } from './utils';
-import { newXY0, clamp, lerp, perAxis, createWithPrecision, getScrollOvershoot } from './utils';
+import { newXY0, clamp, lerp, perAxis } from './utils';
 
 export interface EasignScrollAnimationOptions {
   /** The duration of the scroll animation in milliseconds. Can also be a function which receives the scrolled delta value as its argument. */
@@ -13,15 +12,6 @@ export interface EasignScrollAnimationOptions {
    * When not defined the `easingOut` function is used instead.
    */
   easingInOut?: EasingFn;
-  /** The fractional precision of the scroll position numbers. Can be Infinity. Negative precision is interpreted as Infinity. */
-  precision: number;
-  /** Whether scroll direction changes are applied instantly instead of animated. */
-  responsiveDirectionChange: boolean;
-  /**
-   * Whether the destination scroll position is always clamped to the viewport edges.
-   * Enabling this will cause the velocity to always drop near the viewport edges which causes the animation to feel smoother but less responsive near the edges.
-   */
-  clampToViewport: boolean;
 }
 
 /**
@@ -40,9 +30,6 @@ const defaultOptions: EasignScrollAnimationOptions = {
   easingInOut: (x) => -(Math.cos(Math.PI * x) - 1) / 2,
   // easeOutSine
   easingOut: (x) => Math.sin((x * Math.PI) / 2),
-  precision: 0,
-  responsiveDirectionChange: true,
-  clampToViewport: false,
 };
 
 export const easingScrollAnimation = (
@@ -52,12 +39,8 @@ export const easingScrollAnimation = (
     duration: durationOption,
     easingInOut,
     easingOut,
-    precision,
-    responsiveDirectionChange,
-    clampToViewport,
   } = Object.assign({}, defaultOptions, options);
 
-  const withPrecision = createWithPrecision(precision);
   const getDuration = (delta: number) =>
     typeof durationOption === 'function' ? durationOption(delta) : durationOption;
 
@@ -65,79 +48,43 @@ export const easingScrollAnimation = (
   let easing = easingOut;
 
   const startTime = newXY0();
-  const startScroll = newXY0();
-  const destinationScroll = newXY0();
-  const currentScroll = newXY0();
-  const destinationDirection = newXY0();
   const duration = newXY0();
-  const overshoot = newXY0() as XY<number | boolean>;
 
-  const updateAnimationInfo = (
-    { delta }: Readonly<ScrollAnimationInfo>,
-    osInstance: OverlayScrollbars
-  ) => {
-    const { overflowAmount } = osInstance.state();
+  const updateAnimationInfo = ({ delta }: Readonly<ScrollAnimationInfo>) => {
     perAxis((axis) => {
       const axisDelta = delta[axis];
-      const axisNewDestinationDirection = Math.sign(axisDelta);
-      const axisDestinationDirectionChanged =
-        destinationDirection[axis] !== axisNewDestinationDirection;
-
-      destinationDirection[axis] = axisNewDestinationDirection;
       startTime[axis] = axisDelta ? currTime : startTime[axis];
-      startScroll[axis] = currentScroll[axis];
-      destinationScroll[axis] =
-        (axisDestinationDirectionChanged
-          ? clamp(
-              0,
-              overflowAmount[axis],
-              responsiveDirectionChange ? currentScroll[axis] : destinationScroll[axis]
-            )
-          : destinationScroll[axis]) + axisDelta;
-      overshoot[axis] = axisDelta ? 0 : overshoot[axis];
       duration[axis] = axisDelta ? getDuration(axisDelta) : 0;
     });
   };
 
   return {
-    start(animationInfo, osInstance) {
+    start(info) {
       perAxis((axis) => {
-        currTime = overshoot[axis] = startTime[axis] = 0;
-        startScroll[axis] =
-          currentScroll[axis] =
-          destinationScroll[axis] =
-            animationInfo.getScroll()[axis];
+        currTime = startTime[axis] = 0;
       });
 
-      updateAnimationInfo(animationInfo, osInstance);
+      updateAnimationInfo(info);
       easing = easingInOut || easingOut;
     },
-    update(animationInfo, osInstance) {
-      updateAnimationInfo(animationInfo, osInstance);
+    update(info) {
+      updateAnimationInfo(info);
       easing = easingOut;
     },
-    frame(_, frameInfo, osInstance) {
+    frame({ updateScroll, destinationScroll }, frameInfo) {
       const { deltaTime } = frameInfo;
-      const { overflowAmount } = osInstance.state();
       const appliedScroll: Partial<XY<number>> = {};
+      const stop: Partial<XY<boolean>> = {};
 
       currTime += deltaTime;
 
-      let stop = true;
       perAxis((axis) => {
-        // can only happen if one axis is overshooting and the other isn't
-        if (overshoot[axis]) {
-          return;
-        }
-
         const axisStartTime = startTime[axis];
         const axisDeltaDuration = duration[axis];
         const axisDestinationScroll = destinationScroll[axis];
-        const axisOverflowAmount = overflowAmount[axis];
-        const axisClampedDestinationScroll = clamp(0, axisOverflowAmount, axisDestinationScroll);
+        const axisFrom = updateScroll[axis];
+        const axisTo = axisDestinationScroll;
 
-        const axisFrom = startScroll[axis];
-        const axisTo = clampToViewport ? axisClampedDestinationScroll : axisDestinationScroll;
         const axisPercent =
           axisFrom === axisTo || !axisDeltaDuration
             ? 1
@@ -147,16 +94,9 @@ export const easingScrollAnimation = (
           axisTo,
           easing(axisPercent, axisDeltaDuration, axisFrom, axisTo)
         );
-        const axisAppliedScroll = withPrecision(clamp(0, axisOverflowAmount, axisNewScroll));
-        const axisOvershoot = getScrollOvershoot(axisNewScroll, axisOverflowAmount);
 
-        overshoot[axis] = axisOvershoot;
-        currentScroll[axis] = axisNewScroll;
-        appliedScroll[axis] = axisAppliedScroll;
-
-        stop =
-          stop &&
-          (currTime >= axisStartTime + axisDeltaDuration || axisPercent === 1 || axisOvershoot);
+        appliedScroll[axis] = axisNewScroll;
+        stop[axis] = currTime >= axisStartTime + axisDeltaDuration || axisPercent === 1;
       });
 
       return {

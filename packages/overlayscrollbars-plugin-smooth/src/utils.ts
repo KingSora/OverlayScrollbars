@@ -71,7 +71,7 @@ export const getOverscrollInfo = (
   };
 };
 
-export const createWithPrecision = (precision: number) => {
+export const createPrecisionFn = (precision: number) => {
   const precisionNumber = precision < 0 || !isFinite(precision) ? -1 : Math.pow(10, precision);
   return (value: number) =>
     precisionNumber < 0 ? value : Math.round(value * precisionNumber) / precisionNumber;
