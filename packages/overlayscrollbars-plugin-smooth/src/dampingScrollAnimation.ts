@@ -32,8 +32,8 @@ export const dampingScrollAnimation = (
       const { deltaTime } = frameInfo;
       const frameDeltaSeconds = deltaTime / 1000;
       const { overflowAmount } = osInstance.state();
-      const appliedScroll: Partial<XY<number>> = {};
       const stop: Partial<XY<boolean>> = {};
+      const scroll: Partial<XY<number>> = {};
 
       perAxis((axis) => {
         const axisOverflowAmount = overflowAmount[axis];
@@ -48,13 +48,13 @@ export const dampingScrollAnimation = (
         const direction = Math.sign(axisDistance);
         const velocity = Math.abs(axisDistance) / frameDeltaSeconds;
 
-        appliedScroll[axis] = axisNewScroll;
+        scroll[axis] = axisNewScroll;
         stop[axis] = velocity <= stopVelocity || !direction;
       });
 
       return {
         stop,
-        scroll: appliedScroll,
+        scroll,
       };
     },
   };

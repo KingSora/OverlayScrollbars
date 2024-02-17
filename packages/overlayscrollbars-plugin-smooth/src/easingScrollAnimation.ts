@@ -73,8 +73,8 @@ export const easingScrollAnimation = (
     },
     frame({ updateScroll, destinationScroll }, frameInfo) {
       const { deltaTime } = frameInfo;
-      const appliedScroll: Partial<XY<number>> = {};
       const stop: Partial<XY<boolean>> = {};
+      const scroll: Partial<XY<number>> = {};
 
       currTime += deltaTime;
 
@@ -95,13 +95,13 @@ export const easingScrollAnimation = (
           easing(axisPercent, axisDeltaDuration, axisFrom, axisTo)
         );
 
-        appliedScroll[axis] = axisNewScroll;
+        scroll[axis] = axisNewScroll;
         stop[axis] = currTime >= axisStartTime + axisDeltaDuration || axisPercent === 1;
       });
 
       return {
         stop,
-        scroll: appliedScroll,
+        scroll,
       };
     },
   };

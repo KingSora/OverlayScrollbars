@@ -31,7 +31,11 @@ export interface OverlayScrollbarsPluginSmoothOptions {
    * Enabling this will cause the velocity to always drop near the viewport edges which causes the animation to feel smoother but less responsive near the edges.
    */
   clampToViewport: boolean;
-  /** The fractional precision of the scroll position numbers. Can be Infinity. Negative precision is interpreted as Infinity. */
+  /**
+   * The fractional precision of the scroll position numbers.
+   * Lower precision is better for performance because this can also affect the scroll animation stop timing.
+   * Can be Infinity. Negative precision is interpreted as Infinity.
+   */
   precision: number;
   /**
    * A function which allows it to change the calculated wheel delta.

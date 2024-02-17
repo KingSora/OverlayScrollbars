@@ -68,8 +68,8 @@ export const springScrollAnimation = (
     frame({ currentScroll, destinationScroll, destinationScrollClamped, precision }, frameInfo) {
       const { deltaTime } = frameInfo;
       const deltaSeconds = deltaTime / 1000;
-      const appliedScroll: Partial<XY<number>> = {};
       const stop: Partial<XY<boolean>> = {};
+      const scroll: Partial<XY<number>> = {};
 
       perAxis((axis) => {
         const axisVelocity = velocity[axis];
@@ -122,7 +122,7 @@ export const springScrollAnimation = (
         const axisNewScroll = axisNewDistance + axisDestinationScroll;
 
         velocity[axis] = axisNewVelocity;
-        appliedScroll[axis] = axisNewScroll;
+        scroll[axis] = axisNewScroll;
         stop[axis] =
           precision(Math.abs(axisDestinationScrollClamped - axisNewScroll)) < stopDistanceEpsilon &&
           Math.abs(velocity[axis]) < stopVelocity;
@@ -130,7 +130,7 @@ export const springScrollAnimation = (
 
       return {
         stop,
-        scroll: appliedScroll,
+        scroll,
       };
     },
   };
