@@ -33,6 +33,8 @@ export interface ScrollAnimationInfo extends ScrollAnimationLoopInfo {
   direction: Readonly<XY<number>>;
   /** Whether the direction changed. */
   directionChanged: Readonly<XY<boolean>>;
+  /** Whether the currentScroll overshoots the min. / max. scroll boundaries of the viewport. */
+  overshoot: Readonly<XY<boolean>>;
   /** A function which applies the precision from the options to the passed number and returns it. */
   precision: (value: number) => number;
 }

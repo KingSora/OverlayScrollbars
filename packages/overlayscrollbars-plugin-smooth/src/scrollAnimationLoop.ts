@@ -140,6 +140,7 @@ export const createScrollAnimationLoop = (osInstance: OverlayScrollbars): Scroll
         destinationScrollClamped,
         direction,
         directionChanged,
+        overshoot,
         precision,
       };
 
