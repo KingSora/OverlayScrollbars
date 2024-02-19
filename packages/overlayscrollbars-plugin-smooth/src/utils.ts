@@ -1,10 +1,22 @@
+import { OverlayScrollbars } from 'overlayscrollbars';
 import type { Environment } from 'overlayscrollbars';
-import type { OverscrollInfo } from './overlayscrollbars-plugin-smooth';
+import type { AxisOverscrollInfo } from './overlayscrollbars-plugin-smooth';
 
-export interface XY<T> {
-  x: T;
-  y: T;
+export type Axis =
+  // The horizontal axis.
+  | 'x'
+  // the vertical axis.
+  | 'y';
+
+export type XY<T> = Record<Axis, T>;
+
+export interface AxisInfo {
+  /** The related axis. */
+  axis: Axis;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export const noop = () => {};
 
 export const isNumber = (obj: any): obj is number => typeof obj === 'number';
 
@@ -44,31 +56,30 @@ export const getWheelDeltaPixelValue = (
 export const perAxis = (callback: (axis: keyof XY<unknown>) => void): void =>
   (['x', 'y'] as Array<keyof XY<unknown>>).forEach(callback);
 
-export const getOverscrollInfo = (
-  delta: XY<number>,
-  overflowAmount: XY<number>,
-  getScroll: () => XY<number>
-): OverscrollInfo => {
-  const scroll = getScroll();
-  const overscrollStart = newXYfalse();
-  const overscrollEnd = newXYfalse();
-  const overscroll = newXYfalse();
-
-  perAxis((axis) => {
-    const axisDelta = delta[axis];
-    const axisScroll = scroll[axis];
-    const axisOverScrollStart = (overscrollStart[axis] =
-      axisDelta < 0 && Math.floor(axisScroll) <= 0);
-    const axisOverScrollEnd = (overscrollEnd[axis] =
-      axisDelta > 0 && Math.ceil(axisScroll) >= overflowAmount[axis] - 1); // -1 because of possible rounding errors
-    overscroll[axis] = axisOverScrollStart || axisOverScrollEnd;
-  });
+export const getAxisOverscrollInfo = (
+  axis: Axis,
+  delta: number,
+  overflowAmount: number,
+  getScroll: () => number
+): AxisOverscrollInfo => {
+  const axisDelta = delta;
+  const axisScroll = getScroll();
+  const start = axisDelta < 0 && Math.floor(axisScroll) <= 0;
+  const end = axisDelta > 0 && Math.ceil(axisScroll) >= overflowAmount - 1; // -1 because of possible rounding errors
+  const overscroll = start || end;
 
   return {
-    overscrollStart,
-    overscrollEnd,
+    axis,
+    start,
+    end,
     overscroll,
   };
+};
+
+export const getRTLScrollBehavior = (axis: Axis, osInstance: OverlayScrollbars) => {
+  const { directionRTL } = osInstance.state();
+  const { rtlScrollBehavior } = OverlayScrollbars.env();
+  return axis === 'x' && directionRTL && rtlScrollBehavior;
 };
 
 export const createPrecisionFn = (precision: number) => {

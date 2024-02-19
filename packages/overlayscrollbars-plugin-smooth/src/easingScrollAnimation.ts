@@ -1,6 +1,5 @@
-import type { ScrollAnimation, ScrollAnimationInfo } from './scrollAnimation';
-import type { XY } from './utils';
-import { newXY0, clamp, lerp, perAxis } from './utils';
+import type { ScrollAnimation } from './scrollAnimation';
+import { newXY0, clamp, lerp } from './utils';
 
 export interface EasignScrollAnimationOptions {
   /** The duration of the scroll animation in milliseconds. Can also be a function which receives the scrolled delta value as its argument. */
@@ -44,60 +43,31 @@ export const easingScrollAnimation = (
   const getDuration = (delta: number) =>
     typeof durationOption === 'function' ? durationOption(delta) : durationOption;
 
-  let currTime = 0;
-  let easing = easingOut;
-
-  const startTime = newXY0();
+  const easing = {
+    x: easingOut,
+    y: easingOut,
+  };
   const duration = newXY0();
 
-  const updateAnimationInfo = ({ delta }: Readonly<ScrollAnimationInfo>) => {
-    perAxis((axis) => {
-      const axisDelta = delta[axis];
-      startTime[axis] = axisDelta ? currTime : startTime[axis];
-      duration[axis] = axisDelta ? getDuration(axisDelta) : 0;
-    });
-  };
-
   return {
-    start(info) {
-      perAxis((axis) => {
-        currTime = startTime[axis] = 0;
-      });
-
-      updateAnimationInfo(info);
-      easing = easingInOut || easingOut;
+    update({ axis, delta, start }) {
+      duration[axis] = delta ? getDuration(delta) : 0;
+      easing[axis] = start ? easingInOut || easingOut : easingOut;
     },
-    update(info) {
-      updateAnimationInfo(info);
-      easing = easingOut;
-    },
-    frame({ updateScroll, destinationScroll }, frameInfo) {
-      const { deltaTime } = frameInfo;
-      const stop: Partial<XY<boolean>> = {};
-      const scroll: Partial<XY<number>> = {};
+    frame({ axis, updateScroll, destinationScroll }, { updateTime, currentTime }) {
+      const currentDuration = duration[axis];
+      const elapsedTimeSinceUpdate = currentTime - updateTime;
+      const percent =
+        updateScroll === destinationScroll || !currentDuration
+          ? 1
+          : clamp(0, 1, elapsedTimeSinceUpdate / currentDuration || 0);
+      const scroll = lerp(
+        updateScroll,
+        destinationScroll,
+        easing[axis](percent, currentDuration, updateScroll, destinationScroll)
+      );
 
-      currTime += deltaTime;
-
-      perAxis((axis) => {
-        const axisStartTime = startTime[axis];
-        const axisDeltaDuration = duration[axis];
-        const axisDestinationScroll = destinationScroll[axis];
-        const axisFrom = updateScroll[axis];
-        const axisTo = axisDestinationScroll;
-
-        const axisPercent =
-          axisFrom === axisTo || !axisDeltaDuration
-            ? 1
-            : clamp(0, 1, (currTime - axisStartTime) / axisDeltaDuration || 0);
-        const axisNewScroll = lerp(
-          axisFrom,
-          axisTo,
-          easing(axisPercent, axisDeltaDuration, axisFrom, axisTo)
-        );
-
-        scroll[axis] = axisNewScroll;
-        stop[axis] = currTime >= axisStartTime + axisDeltaDuration || axisPercent === 1;
-      });
+      const stop = elapsedTimeSinceUpdate >= updateTime + currentDuration || percent === 1;
 
       return {
         stop,

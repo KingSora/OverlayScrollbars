@@ -1,18 +1,21 @@
-import { OverlayScrollbars, type InstancePlugin } from 'overlayscrollbars';
+import type { InstancePlugin } from 'overlayscrollbars';
 import type {
+  AxisScrollAnimationState,
   ScrollAnimation,
   ScrollAnimationFrameInfo,
   ScrollAnimationFrameResult,
 } from './scrollAnimation';
-import type { XY } from './utils';
+import type { AxisInfo, XY } from './utils';
+import type { AxisScrollAnimationLoop } from './scrollAnimationLoop';
 import {
   convertScrollPosition,
   getElementsLineSize,
   getWheelDeltaPixelValue,
   isNumber,
-  clamp,
-  getOverscrollInfo,
+  getAxisOverscrollInfo,
   perAxis,
+  noop,
+  getRTLScrollBehavior,
 } from './utils';
 import { createScrollAnimationLoop } from './scrollAnimationLoop';
 import { springScrollAnimation } from './springScrollAnimation';
@@ -39,42 +42,55 @@ export interface OverlayScrollbarsPluginSmoothOptions {
   precision: number;
   /**
    * A function which allows it to change the calculated wheel delta.
-   * @param wheelDelta The "original" wheel delta for the horizontal (X) and vertical (Y) axis in pixels.
-   * @param event The wheel event from which the wheel delta was calculated from.
+   * @param wheelDeltaInfo The wheel delta info.
    * @returns The altered wheel delta.
    */
-  alterWheelDelta: (wheelDelta: XY<number>, event: WheelEvent) => XY<number>;
+  alterWheelDelta: (wheelDeltaInfo: AxisWheelDeltaInfo) => number;
   /** Function which applies the scroll value. */
-  applyScroll: (applyScrollInfo: ApplyScrollInfo) => void;
+  applyScroll: (applyScrollInfo: AxisApplyScrollInfo) => void;
   /** Callback when overscroll occurs. */
-  onOverscroll?: (overscrollInfo: OverscrollInfo) => void;
+  onOverscroll: (overscrollInfo: AxisOverscrollInfo) => void;
   /** Callback when the scroll animation loop starts. */
-  onAnimationStart?: (frameInfo: ScrollAnimationFrameInfo) => void;
+  onAnimationStart: (animationInfo: AxisAnimationInfo) => void;
   /** Callback when the scroll animation loop stops. */
-  onAnimationStop?: (frameInfo: ScrollAnimationFrameInfo) => void;
+  onAnimationStop: (animationInfo: AxisAnimationInfo) => void;
   /** Callback when the scroll animation loop was canceled. */
-  onAnimationCancel?: (frameInfo: ScrollAnimationFrameInfo) => void;
+  onAnimationCancel: (animationInfo: AxisAnimationInfo) => void;
   /** Callback when the scroll animation loop finished a frame. */
-  onAnimationFrame?: (
-    frameInfo: ScrollAnimationFrameInfo,
-    frameResult?: ScrollAnimationFrameResult
-  ) => void;
+  onAnimationFrame: (frameInfo: AxisAnimationFrameInfo) => void;
 }
 
-export interface ApplyScrollInfo {
-  /** The scroll positions to apply. If a scroll position equals `false` there was no change to the scroll position. */
-  scroll: XY<number | false>;
+export interface AxisWheelDeltaInfo extends AxisInfo {
+  delta: number;
+  event: WheelEvent;
+}
+
+export interface AxisApplyScrollInfo extends AxisInfo {
+  /** The scroll position to apply. If a scroll position equals `false` there was no change to the scroll position. */
+  scroll: number | false;
   /** The element to which the scroll positions should be applied to. */
   target: HTMLElement;
 }
 
-export interface OverscrollInfo {
+export interface AxisOverscrollInfo extends AxisInfo {
   /** Whether there is any overscroll. */
-  overscroll: XY<boolean>;
-  /** Whether there a "start" overscroll. */
-  overscrollStart: XY<boolean>;
-  /** Whether there a "end" overscroll. */
-  overscrollEnd: XY<boolean>;
+  overscroll: boolean;
+  /** Whether there is a "start" overscroll. */
+  start: boolean;
+  /** Whether there is a "end" overscroll. */
+  end: boolean;
+}
+
+export interface AxisAnimationInfo extends AxisInfo {
+  /** The state of the animation. */
+  state: AxisScrollAnimationState;
+  /** The frame info. */
+  frameInfo: ScrollAnimationFrameInfo;
+}
+
+export interface AxisAnimationFrameInfo extends AxisAnimationInfo {
+  /** The frame result. */
+  frameResult: ScrollAnimationFrameResult;
 }
 
 export interface OverlayScrollbarsPluginSmoothInstance {
@@ -106,15 +122,17 @@ const defaultOptions: OverlayScrollbarsPluginSmoothOptions = {
   responsiveDirectionChange: true,
   clampToViewport: false,
   precision: 0,
-  alterWheelDelta: (wheelDelta) => wheelDelta,
-  applyScroll: ({ target, scroll }) => {
-    if (isNumber(scroll.x)) {
-      target.scrollLeft = scroll.x;
-    }
-    if (isNumber(scroll.y)) {
-      target.scrollTop = scroll.y;
+  alterWheelDelta: ({ delta }) => delta,
+  applyScroll: ({ axis, scroll, target }) => {
+    if (isNumber(scroll)) {
+      target[axis === 'x' ? 'scrollLeft' : 'scrollTop'] = scroll;
     }
   },
+  onOverscroll: noop,
+  onAnimationStart: noop,
+  onAnimationStop: noop,
+  onAnimationCancel: noop,
+  onAnimationFrame: noop,
 };
 
 export const OverlayScrollbarsPluginSmooth = {
@@ -124,8 +142,21 @@ export const OverlayScrollbarsPluginSmooth = {
       const currentOptions: Readonly<OverlayScrollbarsPluginSmoothOptions> = defaultOptions;
       const { scrollOffsetElement, scrollEventElement, scrollbarHorizontal, scrollbarVertical } =
         osInstance.elements();
-      const { rtlScrollBehavior: envRtlScrollBehavior } = OverlayScrollbars.env();
-      const scrollAnimationLoop = createScrollAnimationLoop(osInstance);
+      const animationLoop: XY<AxisScrollAnimationLoop> = {
+        x: createScrollAnimationLoop('x', currentOptions, osInstance),
+        y: createScrollAnimationLoop('y', currentOptions, osInstance),
+      };
+      const scrollbarMouseDown: XY<() => void> = {
+        x: () => {
+          animationLoop.x.cancel();
+        },
+        y: () => {
+          animationLoop.y.cancel();
+        },
+      };
+      const cancelAnimationLoops = () => {
+        perAxis((axis) => animationLoop[axis].cancel());
+      };
 
       const wheel = (evt: WheelEvent) => {
         const { ctrlKey, deltaX: rawDeltaX, deltaY: rawDeltaY, deltaMode } = evt;
@@ -135,104 +166,72 @@ export const OverlayScrollbarsPluginSmooth = {
           return;
         }
 
-        const { scrollChaining, alterWheelDelta, applyScroll, onOverscroll, onAnimationFrame } =
-          currentOptions;
-        const { overflowEdge, overflowAmount, overflowStyle, hasOverflow, directionRTL } =
-          osInstance.state();
-        const { scrollLeft, scrollTop } = scrollOffsetElement;
-        const rtlScrollBehavior = directionRTL && envRtlScrollBehavior;
+        const { scrollChaining, alterWheelDelta, onOverscroll } = currentOptions;
+        const { overflowEdge, overflowAmount, overflowStyle, hasOverflow } = osInstance.state();
 
         if (!hasOverflow.x && !hasOverflow.y) {
           return;
         }
 
-        const originalWheelDelta = {
-          x: rawDeltaX,
-          y: rawDeltaY,
-        };
         perAxis((axis) => {
+          const axisOverflowAmount = overflowAmount[axis];
+          const isHorizontal = axis === 'x';
           const canHaveScrollDelta = hasOverflow[axis] && overflowStyle[axis] === 'scroll';
-          originalWheelDelta[axis] = canHaveScrollDelta
-            ? getWheelDeltaPixelValue(originalWheelDelta[axis], deltaMode, overflowEdge[axis], () =>
-                getElementsLineSize(scrollOffsetElement)
-              )
+          const delta = canHaveScrollDelta
+            ? alterWheelDelta({
+                axis,
+                event: evt,
+                delta: getWheelDeltaPixelValue(
+                  isHorizontal ? rawDeltaX : rawDeltaY,
+                  deltaMode,
+                  overflowEdge[axis],
+                  () => getElementsLineSize(scrollOffsetElement)
+                ),
+              })
             : 0;
-        });
-        const delta = alterWheelDelta(originalWheelDelta, evt);
 
-        if (!delta.x && !delta.y) {
-          return;
-        }
+          if (!delta) {
+            return;
+          }
 
-        // get scroll lazily to not cause browser reflow when its not necessary
-        const getScroll = () => ({
-          x: convertScrollPosition(scrollLeft, overflowAmount.x, directionRTL && rtlScrollBehavior),
-          y: convertScrollPosition(scrollTop, overflowAmount.y),
-        });
-        const animationLoopRunning = scrollAnimationLoop.isRunning();
-        const overScrollInfo =
-          !animationLoopRunning && getOverscrollInfo(delta, overflowAmount, getScroll);
-        const anyOverscroll =
-          overScrollInfo && (overScrollInfo.overscroll.x || overScrollInfo.overscroll.y);
+          // get scroll lazily to not cause browser reflow when its not necessary
+          const getScroll = () =>
+            convertScrollPosition(
+              isHorizontal ? scrollOffsetElement.scrollLeft : scrollOffsetElement.scrollTop,
+              axisOverflowAmount,
+              getRTLScrollBehavior(axis, osInstance)
+            );
 
-        // if animation is running or no scroll chaining always prevent default
-        if (animationLoopRunning || !scrollChaining) {
-          evt.preventDefault();
-        }
-        // otherwise only prevent default if there is no overscroll
-        else if (!anyOverscroll) {
-          evt.preventDefault();
-        }
+          const animationLoopRunning = animationLoop[axis].isRunning();
+          const overScrollInfo =
+            !animationLoopRunning &&
+            getAxisOverscrollInfo(axis, delta, axisOverflowAmount, getScroll);
 
-        if (anyOverscroll) {
-          onOverscroll && onOverscroll(overScrollInfo);
-        }
-        // only update the animation loop if there is no overscroll
-        else {
-          scrollAnimationLoop.update(
-            {
-              ...currentOptions,
-              onAnimationFrame(frameInfo, frameResult) {
-                const { scroll: resultScroll } = frameResult || {};
+          // if animation is running or no scroll chaining or no overscroll prevent default
+          if (
+            animationLoopRunning ||
+            !scrollChaining ||
+            (overScrollInfo && !overScrollInfo.overscroll)
+          ) {
+            evt.preventDefault();
+          }
 
-                if (resultScroll) {
-                  applyScroll({
-                    scroll: {
-                      x:
-                        isNumber(resultScroll.x) &&
-                        convertScrollPosition(
-                          clamp(0, overflowAmount.x, resultScroll.x),
-                          overflowAmount.x,
-                          rtlScrollBehavior
-                        ),
-                      y:
-                        isNumber(resultScroll.y) &&
-                        convertScrollPosition(
-                          clamp(0, overflowAmount.y, resultScroll.y),
-                          overflowAmount.y
-                        ),
-                    },
-                    target: scrollOffsetElement,
-                  });
-                }
-
-                onAnimationFrame && onAnimationFrame(frameInfo, frameResult);
-              },
-            },
-            {
+          if (overScrollInfo && overScrollInfo.overscroll) {
+            onOverscroll(overScrollInfo);
+          }
+          // only update the animation loop if there is no overscroll
+          else {
+            animationLoop[axis].update({
               delta,
               getScroll,
-            }
-          );
-        }
-      };
-      const scrollbarMouseDown = () => {
-        scrollAnimationLoop.cancel();
+            });
+          }
+        });
       };
       const mouseMiddleButtonDown = (evt: MouseEvent) => {
         const { button } = evt;
         if (button === 1) {
-          scrollbarMouseDown();
+          cancelAnimationLoops();
         }
       };
 
@@ -247,10 +246,9 @@ export const OverlayScrollbarsPluginSmooth = {
           passive: false,
         });
         scrollOffsetElement.addEventListener('mousedown', mouseMiddleButtonDown);
-        scrollbarHorizontal.scrollbar.addEventListener('mousedown', scrollbarMouseDown);
-        scrollbarVertical.scrollbar.addEventListener('mousedown', scrollbarMouseDown);
-        scrollbarVertical.scrollbar.addEventListener('mousedown', scrollbarMouseDown);
-        window.addEventListener('blur', scrollbarMouseDown);
+        scrollbarHorizontal.scrollbar.addEventListener('mousedown', scrollbarMouseDown.x);
+        scrollbarVertical.scrollbar.addEventListener('mousedown', scrollbarMouseDown.y);
+        window.addEventListener('blur', cancelAnimationLoops);
 
         initialized = true;
       };
@@ -258,9 +256,9 @@ export const OverlayScrollbarsPluginSmooth = {
       const destroy = () => {
         (scrollEventElement as HTMLElement).removeEventListener('wheel', wheel);
         scrollOffsetElement.removeEventListener('mousedown', mouseMiddleButtonDown);
-        scrollbarHorizontal.scrollbar.removeEventListener('mousedown', scrollbarMouseDown);
-        scrollbarVertical.scrollbar.removeEventListener('mousedown', scrollbarMouseDown);
-        window.removeEventListener('blur', scrollbarMouseDown);
+        scrollbarHorizontal.scrollbar.removeEventListener('mousedown', scrollbarMouseDown.x);
+        scrollbarVertical.scrollbar.removeEventListener('mousedown', scrollbarMouseDown.y);
+        window.removeEventListener('blur', cancelAnimationLoops);
 
         initialized = false;
       };

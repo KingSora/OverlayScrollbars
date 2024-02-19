@@ -1,111 +1,137 @@
 import type { OverlayScrollbars } from 'overlayscrollbars';
-import type { ScrollAnimationFrameInfo } from './scrollAnimation';
+import type { ScrollAnimationFrameResult } from './scrollAnimation';
 import type { OverlayScrollbarsPluginSmoothOptions } from './overlayscrollbars-plugin-smooth';
-import type { XY } from './utils';
+import type { Axis } from './utils';
 import {
   clamp,
+  convertScrollPosition,
   createPrecisionFn,
+  getRTLScrollBehavior,
   getScrollOvershoot,
   isNumber,
-  newXY0,
-  newXYfalse,
-  perAxis,
 } from './utils';
 
-export interface ScrollAnimationLoop {
+export interface AxisScrollAnimationLoop {
   /** Function which returns whether the scroll animation loop is running. */
   isRunning(): boolean;
   /** Starts / Updates the scroll animation loop. */
-  update(
-    options: Readonly<OverlayScrollbarsPluginSmoothOptions>,
-    info: Readonly<ScrollAnimationLoopInfo>
-  ): void;
+  update(info: Readonly<AxisScrollAnimationLoopUpdateInfo>): void;
   /** Cancels (stops) the scroll animation loop. */
   cancel(): void;
 }
 
-export interface ScrollAnimationLoopInfo {
-  /** The wheel delta values in pixel. */
-  delta: Readonly<XY<number>>;
-  /** Function to get the current scroll values in pixel. Should be used sparingly because of possible browser reflow. */
-  getScroll: () => XY<number>;
+export interface AxisScrollAnimationLoopUpdateInfo {
+  /** The wheel delta in pixel. */
+  delta: number;
+  /** Function to get the current scroll value in pixel. Should be used sparingly because of possible browser reflow. */
+  getScroll: () => number;
 }
 
-export const createScrollAnimationLoop = (osInstance: OverlayScrollbars): ScrollAnimationLoop => {
+export const createScrollAnimationLoop = (
+  axis: Axis,
+  options: Readonly<OverlayScrollbarsPluginSmoothOptions>,
+  osInstance: OverlayScrollbars
+): AxisScrollAnimationLoop => {
   let animationFrameId: ReturnType<typeof requestAnimationFrame> | undefined;
-  let options: OverlayScrollbarsPluginSmoothOptions | undefined;
   let averageDeltaTime = 1000 / 60; // assume 60fps
-  const currentScroll = newXY0();
-  const updateScroll = newXY0();
-  const destinationScroll = newXY0();
-  const destinationScrollClamped = newXY0();
-  const direction = newXY0();
-  const directionChanged = newXYfalse();
-  const overshoot = newXYfalse();
-  const frameInfo: ScrollAnimationFrameInfo = {
-    currentTime: 0,
-    deltaTime: 0,
-    startTime: 0,
+  let currentScroll = 0;
+  let updateScroll = 0;
+  let overflowAmount = 0;
+  let destinationScroll = 0;
+  let destinationScrollClamped = 0;
+  let direction = 0;
+  let directionChanged = false;
+  let currentTime = 0;
+  let deltaTime = 0;
+  let updateTime = 0;
+  let previousTime: number | undefined;
+  let precision = (v: number) => v;
+
+  const { scrollOffsetElement } = osInstance.elements();
+
+  const getFrameInfo = (frameTime?: number) => {
+    if (frameTime) {
+      currentTime = frameTime;
+      deltaTime = previousTime ? frameTime - previousTime : averageDeltaTime;
+      updateTime = updateTime || currentTime;
+    }
+
+    return {
+      currentTime,
+      deltaTime,
+      updateTime,
+      previousTime,
+    };
+  };
+
+  const getScrollAnimationState = (
+    updateLoopInfo?: Readonly<AxisScrollAnimationLoopUpdateInfo>,
+    reset?: boolean
+  ) => {
+    if (updateLoopInfo) {
+      const { clampToViewport, responsiveDirectionChange, precision: precisionOption } = options;
+      const { delta, getScroll } = updateLoopInfo;
+
+      if (reset) {
+        currentScroll = updateScroll = destinationScroll = destinationScrollClamped = getScroll();
+        direction = overflowAmount = currentTime = updateTime = deltaTime = 0;
+        directionChanged = false;
+        previousTime = undefined;
+      }
+
+      const newDirection = Math.sign(delta);
+      const newDirectionChanged = direction !== newDirection;
+      const newOverflowAmount = osInstance.state().overflowAmount[axis];
+      const rawDestinationScroll =
+        (newDirectionChanged
+          ? clamp(
+              0,
+              newOverflowAmount,
+              responsiveDirectionChange ? currentScroll : destinationScroll
+            )
+          : destinationScroll) + delta;
+      const newDestinationScrollClamped = clamp(0, newOverflowAmount, rawDestinationScroll);
+
+      destinationScroll = clampToViewport ? newDestinationScrollClamped : rawDestinationScroll;
+      destinationScrollClamped = newDestinationScrollClamped;
+      overflowAmount = newOverflowAmount;
+      direction = newDirection;
+      directionChanged = newDirectionChanged;
+      precision = createPrecisionFn(precisionOption);
+
+      updateScroll = currentScroll;
+      updateTime = currentTime;
+    }
+
+    return {
+      axis,
+      currentScroll,
+      updateScroll,
+      destinationScroll,
+      destinationScrollClamped,
+      overflowAmount,
+      direction,
+      directionChanged,
+      precision,
+      osInstance,
+    };
   };
 
   const isRunning = () => typeof animationFrameId === 'number';
 
   const stopAnimationLoop = (canceled?: boolean) => {
-    const { scrollAnimation, onAnimationCancel: onAnimationCanceled } = options || {};
+    const { onAnimationCancel } = options;
     if (isRunning()) {
-      canceled && scrollAnimation && onAnimationCanceled && onAnimationCanceled(frameInfo);
+      canceled &&
+        onAnimationCancel &&
+        onAnimationCancel({
+          axis,
+          state: getScrollAnimationState(),
+          frameInfo: getFrameInfo(),
+        });
       cancelAnimationFrame(animationFrameId!);
+      animationFrameId = undefined;
     }
-
-    frameInfo.startTime = frameInfo.currentTime = frameInfo.deltaTime = 0;
-    frameInfo.previousTime = animationFrameId = options = undefined;
-  };
-
-  const updateMembers = (
-    ops: Readonly<OverlayScrollbarsPluginSmoothOptions>,
-    loopInfo: ScrollAnimationLoopInfo,
-    reset?: boolean
-  ) => {
-    const { clampToViewport, responsiveDirectionChange } = ops;
-    const { delta, getScroll } = loopInfo;
-    const { overflowAmount } = osInstance.state();
-
-    perAxis((axis) => {
-      if (reset) {
-        currentScroll[axis] =
-          updateScroll[axis] =
-          destinationScroll[axis] =
-          destinationScrollClamped[axis] =
-            getScroll()[axis];
-        direction[axis] = 0;
-        directionChanged[axis] = overshoot[axis] = false;
-      }
-
-      const axisDelta = delta[axis];
-      const axisCurrentScroll = currentScroll[axis];
-      const axisOvershoot = overshoot[axis];
-      const axisOverflowAmount = overflowAmount[axis];
-      const axisDirection = Math.sign(axisDelta);
-      const axisDirectionChanged = direction[axis] !== axisDirection;
-      const axisRawDestinationScroll =
-        (axisDirectionChanged || axisOvershoot
-          ? clamp(
-              0,
-              axisOverflowAmount,
-              responsiveDirectionChange ? axisCurrentScroll : destinationScroll[axis]
-            )
-          : destinationScroll[axis]) + axisDelta;
-      const axisClampedDestinationScroll = clamp(0, axisOverflowAmount, axisRawDestinationScroll);
-
-      updateScroll[axis] = axisCurrentScroll;
-      destinationScroll[axis] = clampToViewport
-        ? axisClampedDestinationScroll
-        : axisRawDestinationScroll;
-      destinationScrollClamped[axis] = axisClampedDestinationScroll;
-      direction[axis] = axisDirection;
-      directionChanged[axis] = axisDirectionChanged;
-      overshoot[axis] = axisDelta ? false : axisOvershoot;
-    });
   };
 
   const osDestroyed = () => {
@@ -119,94 +145,86 @@ export const createScrollAnimationLoop = (osInstance: OverlayScrollbars): Scroll
   };
 
   return {
-    update(ops, info) {
+    update(loopUpdateInfo) {
       if (osDestroyed()) {
         return;
       }
 
-      // if the scroll animation changes while a scroll animation is running, cancel the old scroll animation
-      if (options && options.scrollAnimation !== ops.scrollAnimation) {
-        stopAnimationLoop(true);
-      }
+      const { scrollAnimation } = options;
+      const { update, frame } = scrollAnimation;
+      const start = !isRunning();
+      const animationUpdateInfo = { ...loopUpdateInfo, start, axis };
 
-      const { scrollAnimation, precision: precisionOption } = ops;
-      const { start, update, frame } = scrollAnimation;
-      const precision = createPrecisionFn(precisionOption);
-      const scrollAnimationInfo = {
-        ...info,
-        currentScroll,
-        updateScroll,
-        destinationScroll,
-        destinationScrollClamped,
-        direction,
-        directionChanged,
-        overshoot,
-        precision,
-      };
+      const updateState = getScrollAnimationState(loopUpdateInfo, start);
+      update && update(animationUpdateInfo, updateState);
 
-      if (!isRunning()) {
-        const scrollAnimationLoopFrame: FrameRequestCallback = (currFrameTime) => {
-          if (osDestroyed() || !options || !scrollAnimationInfo) {
+      if (start) {
+        const scrollAnimationLoopFrame: FrameRequestCallback = (frameTime) => {
+          if (osDestroyed() || !options) {
             stopAnimationLoop();
             return;
           }
 
-          const { onAnimationStart, onAnimationStop, onAnimationFrame } = options || {};
-          const { startTime, previousTime } = frameInfo;
+          const { onAnimationStart, onAnimationStop, onAnimationFrame, applyScroll } =
+            options || {};
 
-          frameInfo.currentTime = currFrameTime;
-          frameInfo.deltaTime = previousTime ? currFrameTime - previousTime : averageDeltaTime;
+          const isStart = !previousTime;
+          const frameInfo = getFrameInfo(frameTime);
+          const state = getScrollAnimationState();
 
-          if (!startTime) {
-            frameInfo.startTime = currFrameTime;
-            onAnimationStart && onAnimationStart(frameInfo);
-          }
-
-          const frameResult = frame(scrollAnimationInfo, frameInfo, osInstance);
-          const { scroll: resultScroll, stop: resultStop } = frameResult || {};
-          const { overflowAmount } = osInstance.state();
-
-          if (resultScroll) {
-            perAxis((axis) => {
-              const axisOverflowAmount = overflowAmount[axis];
-              const axisResultScroll = resultScroll[axis];
-
-              if (isNumber(axisResultScroll)) {
-                const axisResultScrollClamped = clamp(0, axisOverflowAmount, axisResultScroll);
-                const axisOvershoot = getScrollOvershoot(axisResultScroll, axisOverflowAmount);
-
-                overshoot[axis] = axisOvershoot;
-                currentScroll[axis] = axisResultScrollClamped;
-                resultScroll[axis] = precision(axisResultScrollClamped);
-
-                if (resultStop && axisOvershoot) {
-                  resultStop[axis] = true;
-                }
-              }
+          isStart &&
+            onAnimationStart({
+              axis,
+              state,
+              frameInfo,
             });
-          }
-          onAnimationFrame && onAnimationFrame(frameInfo, frameResult || undefined);
 
-          if (resultStop && resultStop.x && resultStop.y) {
-            onAnimationStop && onAnimationStop(frameInfo);
+          const frameResult = frame(state, frameInfo);
+
+          const { scroll: rawResultScroll, stop: rawResultStop } = frameResult || {};
+
+          const finalResult: ScrollAnimationFrameResult = {
+            ...frameResult,
+          };
+
+          if (isNumber(rawResultScroll)) {
+            // clamp the resulting scroll and set it as current scroll
+            currentScroll = clamp(0, overflowAmount, rawResultScroll);
+            // force precision on the resulting scroll
+            finalResult.scroll = precision(currentScroll);
+            // force stop on overshoot
+            finalResult.stop = rawResultStop || getScrollOvershoot(rawResultScroll, overflowAmount);
+          }
+
+          const { scroll, stop } = finalResult;
+
+          onAnimationFrame({ axis, state, frameInfo, frameResult: finalResult });
+
+          applyScroll({
+            axis,
+            scroll:
+              isNumber(scroll) &&
+              convertScrollPosition(
+                clamp(0, overflowAmount, scroll),
+                overflowAmount,
+                getRTLScrollBehavior(axis, osInstance)
+              ),
+            target: scrollOffsetElement,
+          });
+
+          if (stop) {
+            onAnimationStop({ axis, state, frameInfo });
             stopAnimationLoop();
             return;
           }
 
-          frameInfo.previousTime = currFrameTime;
+          previousTime = frameTime;
+          averageDeltaTime = (averageDeltaTime + deltaTime) / 2;
           animationFrameId = requestAnimationFrame(scrollAnimationLoopFrame);
-          averageDeltaTime = (averageDeltaTime + frameInfo.deltaTime) / 2;
         };
 
-        updateMembers(ops, info, true);
-        start && start(scrollAnimationInfo, osInstance);
         animationFrameId = requestAnimationFrame(scrollAnimationLoopFrame);
-      } else {
-        updateMembers(ops, info);
-        update && update(scrollAnimationInfo, osInstance);
       }
-
-      options = ops as any;
     },
     cancel: () => {
       if (osDestroyed()) {

@@ -1,6 +1,5 @@
 import type { ScrollAnimation } from './scrollAnimation';
-import type { XY } from './utils';
-import { clamp, damp, perAxis } from './utils';
+import { damp } from './utils';
 
 export interface DampingScrollAnimationOptions {
   /**
@@ -21,39 +20,21 @@ const defaultOptions: DampingScrollAnimationOptions = {
 export const dampingScrollAnimation = (
   options?: Partial<DampingScrollAnimationOptions>
 ): ScrollAnimation => {
-  const { damping, stopVelocity } = Object.assign({}, defaultOptions, options);
+  const { damping, stopVelocity } = { ...defaultOptions, ...options };
 
   return {
     frame(
       { currentScroll, destinationScroll, destinationScrollClamped, precision },
-      frameInfo,
-      osInstance
+      { deltaTime }
     ) {
-      const { deltaTime } = frameInfo;
-      const frameDeltaSeconds = deltaTime / 1000;
-      const { overflowAmount } = osInstance.state();
-      const stop: Partial<XY<boolean>> = {};
-      const scroll: Partial<XY<number>> = {};
-
-      perAxis((axis) => {
-        const axisOverflowAmount = overflowAmount[axis];
-        const axisDestinationScroll = destinationScroll[axis];
-        const axisDestinationScrollClamped = destinationScrollClamped[axis];
-        const axisNewScroll = clamp(
-          0,
-          axisOverflowAmount,
-          damp(currentScroll[axis], axisDestinationScroll, damping, frameDeltaSeconds)
-        );
-        const axisDistance = precision(axisDestinationScrollClamped - axisNewScroll);
-        const direction = Math.sign(axisDistance);
-        const velocity = Math.abs(axisDistance) / frameDeltaSeconds;
-
-        scroll[axis] = axisNewScroll;
-        stop[axis] = velocity <= stopVelocity || !direction;
-      });
+      const deltaSeconds = deltaTime / 1000;
+      const scroll = damp(currentScroll, destinationScroll, damping, deltaSeconds);
+      const axisDistance = precision(destinationScrollClamped - scroll);
+      const direction = Math.sign(axisDistance);
+      const velocity = Math.abs(axisDistance) / deltaSeconds;
 
       return {
-        stop,
+        stop: velocity <= stopVelocity || !direction,
         scroll,
       };
     },

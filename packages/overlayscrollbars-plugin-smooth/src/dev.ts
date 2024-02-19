@@ -13,15 +13,15 @@ const osInstance = (window.osInstance = OverlayScrollbars(
   targetElm,
   {},
   {
-    initialized: (osInstance) => {
-      const pluginInstance = osInstance.plugin(OverlayScrollbarsPluginSmooth);
+    initialized: (instance) => {
+      const pluginInstance = instance.plugin(OverlayScrollbarsPluginSmooth);
       pluginInstance &&
         pluginInstance.initialize({
           onOverscroll(overscrollInfo) {
             console.log(overscrollInfo);
           },
-          onAnimationStop() {
-            console.log('stop');
+          onAnimationStop(animationInfo) {
+            console.log(animationInfo, 'stop');
           },
         });
     },

@@ -1,6 +1,5 @@
 import type { ScrollAnimation } from './scrollAnimation';
-import type { XY } from './utils';
-import { newXY0, clamp, perAxis, isNumber } from './utils';
+import { clamp, isNumber, newXY0 } from './utils';
 
 export interface SpringScrollAnimationOptions {
   /** The spring properties which describe the animation. */
@@ -48,7 +47,7 @@ export interface DurationSpring {
 const defaultOptions: SpringScrollAnimationOptions = {
   spring: {
     perceivedDuration: 333,
-    bounce: 0.9,
+    bounce: -1,
   },
   stopVelocity: 1,
 };
@@ -75,12 +74,7 @@ const getPhysicalSpring = (spring: PhysicalSpring | DurationSpring): PhysicalSpr
 export const springScrollAnimation = (
   options?: Partial<SpringScrollAnimationOptions>
 ): ScrollAnimation => {
-  const { spring, stopVelocity } = Object.assign({}, defaultOptions, options);
-
-  if (!spring) {
-    throw new Error();
-  }
-
+  const { spring, stopVelocity } = { ...defaultOptions, ...options };
   const { mass, damping, stiffness } = getPhysicalSpring(spring);
 
   const dampingRatio = damping / (2 * Math.sqrt(stiffness * mass));
@@ -92,71 +86,65 @@ export const springScrollAnimation = (
   const velocity = newXY0();
 
   return {
-    start() {
-      perAxis((axis) => {
+    update({ axis, start }) {
+      if (start) {
         velocity[axis] = 0;
-      });
+      }
     },
-    frame({ currentScroll, destinationScroll, destinationScrollClamped, precision }, frameInfo) {
-      const { deltaTime } = frameInfo;
+    frame(
+      { axis, currentScroll, destinationScroll, destinationScrollClamped, precision },
+      { deltaTime }
+    ) {
+      const currentVelocity = velocity[axis];
       const deltaSeconds = deltaTime / 1000;
-      const stop: Partial<XY<boolean>> = {};
-      const scroll: Partial<XY<number>> = {};
+      const distance = currentScroll - destinationScroll;
 
-      perAxis((axis) => {
-        const axisVelocity = velocity[axis];
-        const axisCurrentScroll = currentScroll[axis];
-        const axisDestinationScroll = destinationScroll[axis];
-        const axisDestinationScrollClamped = destinationScrollClamped[axis];
-        const axisDistance = axisCurrentScroll - axisDestinationScroll;
+      const expDelta = Math.exp(-lambda * deltaSeconds);
+      const natFreqDampedDelta = natFreqDamped * deltaSeconds;
 
-        let axisNewDistance = 0;
-        let axisNewVelocity = 0;
+      let newDistance = 0;
+      let newVelocity = 0;
 
-        const expDelta = Math.exp(-lambda * deltaSeconds);
-        const natFreqDampedDelta = natFreqDamped * deltaSeconds;
+      // Critically damped
+      if (dampingRatio === 1) {
+        const c1 = distance;
+        const c2 = currentVelocity + lambda * distance;
 
-        // Critically damped
-        if (dampingRatio === 1) {
-          const c1 = axisDistance;
-          const c2 = axisVelocity + lambda * axisDistance;
+        newDistance = expDelta * (c1 + c2 * deltaSeconds);
+        newVelocity = (c1 + c2 * deltaSeconds) * expDelta * -lambda + c2 * expDelta;
+      }
+      // Underdamped
+      else if (dampingRatio < 1) {
+        const c1 = distance;
+        const c2 = (currentVelocity + lambda * distance) / natFreqDamped;
+        const sin = Math.sin(natFreqDampedDelta);
+        const cos = Math.cos(natFreqDampedDelta);
 
-          axisNewDistance = expDelta * (c1 + c2 * deltaSeconds);
-          axisNewVelocity = (c1 + c2 * deltaSeconds) * expDelta * -lambda + c2 * expDelta;
-        }
-        // Underdamped
-        else if (dampingRatio < 1) {
-          const c1 = axisDistance;
-          const c2 = (axisVelocity + lambda * axisDistance) / natFreqDamped;
-          const sin = Math.sin(natFreqDampedDelta);
-          const cos = Math.cos(natFreqDampedDelta);
+        newDistance = expDelta * (c1 * cos + c2 * sin);
+        newVelocity =
+          newDistance * natFreqCoeff +
+          expDelta * (-natFreqDamped * c1 * sin + natFreqDamped * c2 * cos);
+      }
+      // Overdamped
+      else {
+        const c1 = (currentVelocity + distance * (lambda + natFreqDamped)) / (2 * natFreqDamped);
+        const c2 = distance - c1;
+        const ex1 = Math.exp(natFreqDampedDelta);
+        const ex2 = Math.exp(-natFreqDampedDelta);
 
-          axisNewDistance = expDelta * (c1 * cos + c2 * sin);
-          axisNewVelocity =
-            axisNewDistance * natFreqCoeff +
-            expDelta * (-natFreqDamped * c1 * sin + natFreqDamped * c2 * cos);
-        }
-        // Overdamped
-        else {
-          const c1 = (axisVelocity + axisDistance * (lambda + natFreqDamped)) / (2 * natFreqDamped);
-          const c2 = axisDistance - c1;
-          const ex1 = Math.exp(natFreqDampedDelta);
-          const ex2 = Math.exp(-natFreqDampedDelta);
+        newDistance = expDelta * (c1 * ex1 + c2 * ex2);
+        newVelocity =
+          expDelta *
+          (c1 * (natFreqCoeff + natFreqDamped) * ex1 + c2 * (natFreqCoeff - natFreqDamped) * ex2);
+      }
 
-          axisNewDistance = expDelta * (c1 * ex1 + c2 * ex2);
-          axisNewVelocity =
-            expDelta *
-            (c1 * (natFreqCoeff + natFreqDamped) * ex1 + c2 * (natFreqCoeff - natFreqDamped) * ex2);
-        }
+      const axisNewScroll = newDistance + destinationScroll;
+      const scroll = axisNewScroll;
+      const stop =
+        precision(Math.abs(destinationScrollClamped - axisNewScroll)) < stopDistanceEpsilon &&
+        Math.abs(newVelocity) < stopVelocity;
 
-        const axisNewScroll = axisNewDistance + axisDestinationScroll;
-
-        velocity[axis] = axisNewVelocity;
-        scroll[axis] = axisNewScroll;
-        stop[axis] =
-          precision(Math.abs(axisDestinationScrollClamped - axisNewScroll)) < stopDistanceEpsilon &&
-          Math.abs(velocity[axis]) < stopVelocity;
-      });
+      velocity[axis] = newVelocity;
 
       return {
         stop,
