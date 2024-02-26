@@ -1,96 +1,56 @@
-import type { InstancePlugin } from 'overlayscrollbars';
-import type {
-  AxisScrollAnimationState,
-  ScrollAnimation,
-  ScrollAnimationFrameInfo,
-  ScrollAnimationFrameResult,
-} from './scrollAnimation';
+import { type InstancePlugin } from 'overlayscrollbars';
 import type { AxisInfo, XY } from './utils';
-import type { AxisScrollAnimationLoop } from './scrollAnimationLoop';
-import {
-  convertScrollPosition,
-  getElementsLineSize,
-  getWheelDeltaPixelValue,
-  isNumber,
-  getAxisOverscrollInfo,
-  perAxis,
-  noop,
-  getRTLScrollBehavior,
-} from './utils';
-import { createScrollAnimationLoop } from './scrollAnimationLoop';
-import { springScrollAnimation } from './springScrollAnimation';
-import { easingScrollAnimation } from './easingScrollAnimation';
-import { dampingScrollAnimation } from './dampingScrollAnimation';
+import type {
+  ScrollAnimationLoop,
+  ScrollAnimationLoopUpdateInfo,
+} from './scrollAnimationLoop/scrollAnimationLoop';
+import type { UpdateScrollAnimationLoopsFromEventInfo } from './scrollAnimationLoop/updateScrollAnimationLoopsFromEvent';
+import { getElementsLineSize, getWheelDeltaPixelValue, isNumber, perAxis, noop } from './utils';
+import { createScrollAnimationLoop } from './scrollAnimationLoop/scrollAnimationLoop';
+import { springScrollAnimation } from './scrollAnimations/springScrollAnimation';
+import { easingScrollAnimation } from './scrollAnimations/easingScrollAnimation';
+import { dampingScrollAnimation } from './scrollAnimations/dampingScrollAnimation';
+import { createVelocitySampler } from './velocity-tracker';
+import { updateScrollAnimationLoopsFromEvent } from './scrollAnimationLoop/updateScrollAnimationLoopsFromEvent';
+import { getOverflowInfo } from './overflowInfo';
 
-export interface OverlayScrollbarsPluginSmoothOptions {
-  /** The scroll animation. */
-  scrollAnimation: ScrollAnimation;
-  /** Whether scroll chaining is enabled. */
-  scrollChaining: boolean;
-  /** Whether scroll direction changes are applied instantly instead of animated. */
-  responsiveDirectionChange: boolean;
-  /**
-   * Whether the destination scroll position is always clamped to the viewport edges.
-   * Enabling this will cause the velocity to always drop near the viewport edges which causes the animation to feel smoother but less responsive near the edges.
-   */
-  clampToViewport: boolean;
-  /**
-   * The fractional precision of the scroll position numbers.
-   * Lower precision is better for performance because this can also affect the scroll animation stop timing.
-   * Can be Infinity. Negative precision is interpreted as Infinity.
-   */
-  precision: number;
+export interface OverlayScrollbarsPluginSmoothOptions
+  extends Pick<
+      ScrollAnimationLoopUpdateInfo,
+      | 'scrollAnimation'
+      | 'responsiveDirectionChange'
+      | 'clampToViewport'
+      | 'precision'
+      | 'onAnimationStart'
+      | 'onAnimationStop'
+      | 'onAnimationFrame'
+    >,
+    Pick<
+      UpdateScrollAnimationLoopsFromEventInfo,
+      'scrollChaining' | 'onOverscroll' | 'applyScroll'
+    > {
   /**
    * A function which allows it to change the calculated wheel delta.
    * @param wheelDeltaInfo The wheel delta info.
    * @returns The altered wheel delta.
    */
-  alterWheelDelta: (wheelDeltaInfo: AxisWheelDeltaInfo) => number;
-  /** Function which applies the scroll value. */
-  applyScroll: (applyScrollInfo: AxisApplyScrollInfo) => void;
-  /** Callback when overscroll occurs. */
-  onOverscroll: (overscrollInfo: AxisOverscrollInfo) => void;
-  /** Callback when the scroll animation loop starts. */
-  onAnimationStart: (animationInfo: AxisAnimationInfo) => void;
-  /** Callback when the scroll animation loop stops. */
-  onAnimationStop: (animationInfo: AxisAnimationInfo) => void;
-  /** Callback when the scroll animation loop was canceled. */
-  onAnimationCancel: (animationInfo: AxisAnimationInfo) => void;
-  /** Callback when the scroll animation loop finished a frame. */
-  onAnimationFrame: (frameInfo: AxisAnimationFrameInfo) => void;
+  alterWheelDelta: (wheelDeltaInfo: WheelDeltaInfo) => number;
+  /**
+   * A function which allows it to change the calculated touch delta.
+   * @param touchDeltaInfo The touch delta info.
+   * @returns The altered touch delta.
+   */
+  alterTouchDelta: (touchDeltaInfo: TouchDeltaInfo) => number;
 }
 
-export interface AxisWheelDeltaInfo extends AxisInfo {
+export interface WheelDeltaInfo extends AxisInfo {
   delta: number;
   event: WheelEvent;
 }
 
-export interface AxisApplyScrollInfo extends AxisInfo {
-  /** The scroll position to apply. If a scroll position equals `false` there was no change to the scroll position. */
-  scroll: number | false;
-  /** The element to which the scroll positions should be applied to. */
-  target: HTMLElement;
-}
-
-export interface AxisOverscrollInfo extends AxisInfo {
-  /** Whether there is any overscroll. */
-  overscroll: boolean;
-  /** Whether there is a "start" overscroll. */
-  start: boolean;
-  /** Whether there is a "end" overscroll. */
-  end: boolean;
-}
-
-export interface AxisAnimationInfo extends AxisInfo {
-  /** The state of the animation. */
-  state: AxisScrollAnimationState;
-  /** The frame info. */
-  frameInfo: ScrollAnimationFrameInfo;
-}
-
-export interface AxisAnimationFrameInfo extends AxisAnimationInfo {
-  /** The frame result. */
-  frameResult: ScrollAnimationFrameResult;
+export interface TouchDeltaInfo extends AxisInfo {
+  delta: number;
+  event: TouchEvent;
 }
 
 export interface OverlayScrollbarsPluginSmoothInstance {
@@ -117,12 +77,13 @@ export interface OverlayScrollbarsPluginSmoothInstance {
 }
 
 const defaultOptions: OverlayScrollbarsPluginSmoothOptions = {
-  scrollAnimation: springScrollAnimation(),
+  scrollAnimation: dampingScrollAnimation(),
   scrollChaining: true,
   responsiveDirectionChange: true,
   clampToViewport: false,
   precision: 0,
   alterWheelDelta: ({ delta }) => delta,
+  alterTouchDelta: ({ delta }) => delta,
   applyScroll: ({ axis, scroll, target }) => {
     if (isNumber(scroll)) {
       target[axis === 'x' ? 'scrollLeft' : 'scrollTop'] = scroll;
@@ -131,7 +92,6 @@ const defaultOptions: OverlayScrollbarsPluginSmoothOptions = {
   onOverscroll: noop,
   onAnimationStart: noop,
   onAnimationStop: noop,
-  onAnimationCancel: noop,
   onAnimationFrame: noop,
 };
 
@@ -140,94 +100,60 @@ export const OverlayScrollbarsPluginSmooth = {
     instance(osInstance, event): OverlayScrollbarsPluginSmoothInstance {
       let initialized = false;
       const currentOptions: Readonly<OverlayScrollbarsPluginSmoothOptions> = defaultOptions;
-      const { scrollOffsetElement, scrollEventElement, scrollbarHorizontal, scrollbarVertical } =
-        osInstance.elements();
-      const animationLoop: XY<AxisScrollAnimationLoop> = {
-        x: createScrollAnimationLoop('x', currentOptions, osInstance),
-        y: createScrollAnimationLoop('y', currentOptions, osInstance),
+      const { scrollOffsetElement, scrollEventElement } = osInstance.elements();
+      const wheelScrollAnimationLoop: XY<ScrollAnimationLoop> = {
+        x: createScrollAnimationLoop('x'),
+        y: createScrollAnimationLoop('y'),
       };
-      const scrollbarMouseDown: XY<() => void> = {
-        x: () => {
-          animationLoop.x.cancel();
-        },
-        y: () => {
-          animationLoop.y.cancel();
-        },
+      const touchMoveScrollAnimationLoop: XY<ScrollAnimationLoop> = {
+        x: createScrollAnimationLoop('x'),
+        y: createScrollAnimationLoop('y'),
       };
-      const cancelAnimationLoops = () => {
-        perAxis((axis) => animationLoop[axis].cancel());
+      const touchFlingScrollAnimationLoop: XY<ScrollAnimationLoop> = {
+        x: createScrollAnimationLoop('x'),
+        y: createScrollAnimationLoop('y'),
       };
 
       const wheel = (evt: WheelEvent) => {
-        const { ctrlKey, deltaX: rawDeltaX, deltaY: rawDeltaY, deltaMode } = evt;
+        const { ctrlKey, altKey, shiftKey, deltaX: rawDeltaX, deltaY: rawDeltaY, deltaMode } = evt;
+        const { alterWheelDelta } = currentOptions;
+        const overflowInfo = getOverflowInfo(osInstance);
 
-        // zoom event
-        if (ctrlKey) {
+        // zoom event or other hotkey
+        if (ctrlKey || altKey) {
           return;
         }
 
-        const { scrollChaining, alterWheelDelta, onOverscroll } = currentOptions;
-        const { overflowEdge, overflowAmount, overflowStyle, hasOverflow } = osInstance.state();
-
-        if (!hasOverflow.x && !hasOverflow.y) {
-          return;
-        }
+        const delta = {
+          x: shiftKey ? rawDeltaY : rawDeltaX,
+          y: shiftKey ? 0 : rawDeltaY,
+        };
 
         perAxis((axis) => {
-          const axisOverflowAmount = overflowAmount[axis];
-          const isHorizontal = axis === 'x';
-          const canHaveScrollDelta = hasOverflow[axis] && overflowStyle[axis] === 'scroll';
-          const delta = canHaveScrollDelta
-            ? alterWheelDelta({
-                axis,
-                event: evt,
-                delta: getWheelDeltaPixelValue(
-                  isHorizontal ? rawDeltaX : rawDeltaY,
-                  deltaMode,
-                  overflowEdge[axis],
-                  () => getElementsLineSize(scrollOffsetElement)
-                ),
-              })
-            : 0;
+          delta[axis] = alterWheelDelta({
+            axis,
+            event: evt,
+            delta: getWheelDeltaPixelValue(
+              delta[axis],
+              deltaMode,
+              overflowInfo.overflowEdge[axis],
+              () => getElementsLineSize(scrollOffsetElement)
+            ),
+          });
+        });
 
-          if (!delta) {
-            return;
-          }
-
-          // get scroll lazily to not cause browser reflow when its not necessary
-          const getScroll = () =>
-            convertScrollPosition(
-              isHorizontal ? scrollOffsetElement.scrollLeft : scrollOffsetElement.scrollTop,
-              axisOverflowAmount,
-              getRTLScrollBehavior(axis, osInstance)
-            );
-
-          const animationLoopRunning = animationLoop[axis].isRunning();
-          const overScrollInfo =
-            !animationLoopRunning &&
-            getAxisOverscrollInfo(axis, delta, axisOverflowAmount, getScroll);
-
-          // if animation is running or no scroll chaining or no overscroll prevent default
-          if (
-            animationLoopRunning ||
-            !scrollChaining ||
-            (overScrollInfo && !overScrollInfo.overscroll)
-          ) {
-            evt.preventDefault();
-          }
-
-          if (overScrollInfo && overScrollInfo.overscroll) {
-            onOverscroll(overScrollInfo);
-          }
-          // only update the animation loop if there is no overscroll
-          else {
-            animationLoop[axis].update({
-              delta,
-              getScroll,
-            });
-          }
+        updateScrollAnimationLoopsFromEvent(evt, {
+          delta,
+          scrollAnimationLoops: wheelScrollAnimationLoop,
+          overflowInfo,
+          ...currentOptions,
         });
       };
+
+      const cancelAnimationLoops = () => {
+        perAxis((axis) => wheelScrollAnimationLoop[axis].cancel());
+      };
+
       const mouseMiddleButtonDown = (evt: MouseEvent) => {
         const { button } = evt;
         if (button === 1) {
@@ -246,8 +172,176 @@ export const OverlayScrollbarsPluginSmooth = {
           passive: false,
         });
         scrollOffsetElement.addEventListener('mousedown', mouseMiddleButtonDown);
-        scrollbarHorizontal.scrollbar.addEventListener('mousedown', scrollbarMouseDown.x);
-        scrollbarVertical.scrollbar.addEventListener('mousedown', scrollbarMouseDown.y);
+
+        const vTracker = createVelocitySampler();
+        const scrollStartDistance = 8;
+        const currTouch = {
+          x: 0,
+          y: 0,
+        };
+        let isScrolling = false;
+
+        scrollOffsetElement.addEventListener(
+          'touchstart',
+          (e) => {
+            const { touches, cancelable, timeStamp } = e;
+            const [touch] = touches;
+
+            currTouch.x = touch.pageX;
+            currTouch.y = touch.pageY;
+
+            wheelScrollAnimationLoop.x.cancel();
+            wheelScrollAnimationLoop.y.cancel();
+            touchMoveScrollAnimationLoop.x.cancel();
+            touchMoveScrollAnimationLoop.y.cancel();
+            touchFlingScrollAnimationLoop.x.cancel();
+            touchFlingScrollAnimationLoop.y.cancel();
+
+            vTracker.addSample({
+              _position: currTouch,
+              _timestamp: timeStamp,
+            });
+
+            if (isScrolling && cancelable) {
+              e.preventDefault();
+            }
+          },
+          {
+            passive: false,
+          }
+        );
+
+        scrollOffsetElement.addEventListener(
+          'touchmove',
+          (e) => {
+            const { alterTouchDelta } = currentOptions;
+            const overflowInfo = getOverflowInfo(osInstance);
+
+            // todo: distinguish pinch from scroll
+            // todo: stacking fling
+
+            const [touch] = e.touches;
+
+            const newTouch = {
+              x: touch.pageX,
+              y: touch.pageY,
+            };
+            const touchDelta = {
+              x: newTouch.x - currTouch.x,
+              y: newTouch.y - currTouch.y,
+            };
+            const delta = {
+              x: -touchDelta.x,
+              y: -touchDelta.y,
+            };
+
+            perAxis((axis) => {
+              delta[axis] = alterTouchDelta({
+                axis,
+                event: e,
+                delta: delta[axis],
+              });
+            });
+
+            wheelScrollAnimationLoop.x.cancel();
+            wheelScrollAnimationLoop.y.cancel();
+            touchFlingScrollAnimationLoop.x.cancel();
+            touchFlingScrollAnimationLoop.y.cancel();
+
+            const appliedDelta = updateScrollAnimationLoopsFromEvent(e, {
+              delta,
+              scrollAnimationLoops: touchMoveScrollAnimationLoop,
+              overflowInfo,
+              ...currentOptions,
+              responsiveDirectionChange: false,
+            });
+
+            // displacement wasn't big enough, touch could've also been a tap
+            if (
+              !isScrolling &&
+              Math.abs(appliedDelta.x) < scrollStartDistance &&
+              Math.abs(appliedDelta.y) < scrollStartDistance
+            ) {
+              touchMoveScrollAnimationLoop.x.cancel();
+              touchMoveScrollAnimationLoop.y.cancel();
+              return;
+            }
+
+            isScrolling = true;
+
+            currTouch.x = newTouch.x;
+            currTouch.y = newTouch.y;
+
+            vTracker.addSample({
+              _position: newTouch,
+              _timestamp: e.timeStamp,
+            });
+          },
+          {
+            passive: false,
+          }
+        );
+
+        scrollOffsetElement.addEventListener(
+          'touchend',
+          (e) => {
+            if (!isScrolling) {
+              return;
+            }
+
+            const overflowInfo = getOverflowInfo(osInstance);
+            const [touch] = e.changedTouches;
+
+            vTracker.addSample({
+              _position: {
+                x: touch.pageX,
+                y: touch.pageY,
+              },
+              _timestamp: e.timeStamp,
+            });
+
+            const veloc = vTracker.getVelocity();
+            const damping = 0.01;
+
+            const decelerationRate = 1 - damping;
+            const dCoeff = 1000 * Math.log(decelerationRate);
+
+            const delta = {
+              x: veloc.x / dCoeff,
+              y: veloc.y / dCoeff,
+            };
+
+            touchMoveScrollAnimationLoop.x.cancel();
+            touchMoveScrollAnimationLoop.y.cancel();
+
+            const appliedDelta = updateScrollAnimationLoopsFromEvent(e, {
+              delta,
+              scrollAnimationLoops: touchFlingScrollAnimationLoop,
+              overflowInfo,
+              ...currentOptions,
+              onAnimationStop(animationInfo) {
+                isScrolling = false;
+                currentOptions.onAnimationStop(animationInfo);
+              },
+            });
+
+            if (!appliedDelta.x && !appliedDelta.y) {
+              isScrolling = false;
+            }
+
+            e.preventDefault();
+          },
+          {
+            passive: false,
+          }
+        );
+        scrollOffsetElement.addEventListener('pointercancel', () => {
+          touchFlingScrollAnimationLoop.x.cancel();
+          touchFlingScrollAnimationLoop.y.cancel();
+          touchMoveScrollAnimationLoop.x.cancel();
+          touchMoveScrollAnimationLoop.y.cancel();
+          isScrolling = false;
+        });
         window.addEventListener('blur', cancelAnimationLoops);
 
         initialized = true;
@@ -256,8 +350,6 @@ export const OverlayScrollbarsPluginSmooth = {
       const destroy = () => {
         (scrollEventElement as HTMLElement).removeEventListener('wheel', wheel);
         scrollOffsetElement.removeEventListener('mousedown', mouseMiddleButtonDown);
-        scrollbarHorizontal.scrollbar.removeEventListener('mousedown', scrollbarMouseDown.x);
-        scrollbarVertical.scrollbar.removeEventListener('mousedown', scrollbarMouseDown.y);
         window.removeEventListener('blur', cancelAnimationLoops);
 
         initialized = false;

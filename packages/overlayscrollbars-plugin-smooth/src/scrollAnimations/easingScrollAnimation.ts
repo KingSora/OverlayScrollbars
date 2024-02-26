@@ -1,5 +1,5 @@
 import type { ScrollAnimation } from './scrollAnimation';
-import { newXY0, clamp, lerp } from './utils';
+import { newXY0, clamp, lerp } from '../utils';
 
 export interface EasignScrollAnimationOptions {
   /** The duration of the scroll animation in milliseconds. Can also be a function which receives the scrolled delta value as its argument. */

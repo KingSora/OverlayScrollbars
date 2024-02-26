@@ -1,5 +1,5 @@
-import type { ScrollAnimation } from './scrollAnimation';
-import { damp } from './utils';
+import type { ScrollAnimation } from '../scrollAnimations/scrollAnimation';
+import { damp } from '../utils';
 
 export interface DampingScrollAnimationOptions {
   /**

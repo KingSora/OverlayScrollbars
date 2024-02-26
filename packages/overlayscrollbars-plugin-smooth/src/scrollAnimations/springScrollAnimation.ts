@@ -1,5 +1,5 @@
 import type { ScrollAnimation } from './scrollAnimation';
-import { clamp, isNumber, newXY0 } from './utils';
+import { clamp, isNumber, newXY0 } from '../utils';
 
 export interface SpringScrollAnimationOptions {
   /** The spring properties which describe the animation. */

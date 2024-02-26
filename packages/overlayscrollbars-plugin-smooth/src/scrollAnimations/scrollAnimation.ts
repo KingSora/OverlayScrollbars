@@ -1,6 +1,5 @@
-import type { OverlayScrollbars } from 'overlayscrollbars';
-import type { AxisInfo } from './utils';
-import type { AxisScrollAnimationLoopUpdateInfo } from './scrollAnimationLoop';
+import type { AxisInfo } from '../utils';
+import type { ScrollAnimationLoopUpdateInfo } from '../scrollAnimationLoop/scrollAnimationLoop';
 
 export interface ScrollAnimationFrameInfo {
   /** The scroll animations current time in ms. */
@@ -20,12 +19,12 @@ export interface ScrollAnimationFrameResult {
   scroll?: number;
 }
 
-export interface AxisScrollAnimationUpdateInfo extends AxisScrollAnimationLoopUpdateInfo, AxisInfo {
+export interface ScrollAnimationUpdateInfo extends ScrollAnimationLoopUpdateInfo, AxisInfo {
   /** Whether the animation starts with this update. */
   start: boolean;
 }
 
-export interface AxisScrollAnimationState extends AxisInfo {
+export interface ScrollAnimationState extends AxisInfo {
   /** The current scroll position with max. precision. */
   currentScroll: number;
   /** The scroll position on the last update including start with max. precision. */
@@ -42,8 +41,6 @@ export interface AxisScrollAnimationState extends AxisInfo {
   directionChanged: boolean;
   /** A function which applies the precision from the options to the passed number and returns it. */
   precision: (value: number) => number;
-  /** The OverlayScrollbars instance. */
-  osInstance: OverlayScrollbars;
 }
 
 export interface ScrollAnimation {
@@ -53,8 +50,8 @@ export interface ScrollAnimation {
    * @param state The updated animation state.
    */
   update?: (
-    updateInfo: Readonly<AxisScrollAnimationUpdateInfo>,
-    state: Readonly<AxisScrollAnimationState>
+    updateInfo: Readonly<ScrollAnimationUpdateInfo>,
+    state: Readonly<ScrollAnimationState>
   ) => void;
   /**
    * Function which is called every frame of the animation.
@@ -63,7 +60,7 @@ export interface ScrollAnimation {
    * @returns The frame result.
    */
   frame(
-    state: Readonly<AxisScrollAnimationState>,
+    state: Readonly<ScrollAnimationState>,
     frameInfo: Readonly<ScrollAnimationFrameInfo>
   ): Readonly<ScrollAnimationFrameResult> | false | null | undefined | void;
 }

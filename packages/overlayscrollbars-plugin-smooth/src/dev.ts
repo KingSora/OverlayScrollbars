@@ -74,4 +74,4 @@ const drawCanvas = () => {
   requestAnimationFrame(render);
 };
 
-drawCanvas();
+// drawCanvas();

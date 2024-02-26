@@ -1,6 +1,4 @@
-import { OverlayScrollbars } from 'overlayscrollbars';
 import type { Environment } from 'overlayscrollbars';
-import type { AxisOverscrollInfo } from './overlayscrollbars-plugin-smooth';
 
 export type Axis =
   // The horizontal axis.
@@ -55,32 +53,6 @@ export const getWheelDeltaPixelValue = (
 
 export const perAxis = (callback: (axis: keyof XY<unknown>) => void): void =>
   (['x', 'y'] as Array<keyof XY<unknown>>).forEach(callback);
-
-export const getAxisOverscrollInfo = (
-  axis: Axis,
-  delta: number,
-  overflowAmount: number,
-  getScroll: () => number
-): AxisOverscrollInfo => {
-  const axisDelta = delta;
-  const axisScroll = getScroll();
-  const start = axisDelta < 0 && Math.floor(axisScroll) <= 0;
-  const end = axisDelta > 0 && Math.ceil(axisScroll) >= overflowAmount - 1; // -1 because of possible rounding errors
-  const overscroll = start || end;
-
-  return {
-    axis,
-    start,
-    end,
-    overscroll,
-  };
-};
-
-export const getRTLScrollBehavior = (axis: Axis, osInstance: OverlayScrollbars) => {
-  const { directionRTL } = osInstance.state();
-  const { rtlScrollBehavior } = OverlayScrollbars.env();
-  return axis === 'x' && directionRTL && rtlScrollBehavior;
-};
 
 export const createPrecisionFn = (precision: number) => {
   const precisionNumber = precision < 0 || !isFinite(precision) ? -1 : Math.pow(10, precision);
