@@ -29,6 +29,10 @@ export interface ScrollAnimationState extends AxisInfo {
   currentScroll: number;
   /** The scroll position on the last update including start with max. precision. */
   updateScroll: number;
+  /** The delta between the current scroll and the destination scroll. */
+  scrollDelta: number;
+  /** The delta between the current scroll and the clamped destination scroll. */
+  scrollDeltaClamped: number;
   /** The destination scroll position with max. precision. */
   destinationScroll: number;
   /** The destination scroll position clamped to the viewports bounds with max. precision. */

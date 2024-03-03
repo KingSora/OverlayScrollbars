@@ -5,7 +5,7 @@ import type {
   ScrollAnimationFrameResult,
 } from '../scrollAnimations/scrollAnimation';
 import type { Axis, AxisInfo } from '../utils';
-import { clamp, createPrecisionFn, getScrollOvershoot, isNumber, noop } from '../utils';
+import { clamp, createPrecisionFn, isNumber, noop } from '../utils';
 
 export interface ScrollAnimationLoop {
   /** Function which returns whether the scroll animation loop is running. */
@@ -14,6 +14,8 @@ export interface ScrollAnimationLoop {
   update(info: Readonly<ScrollAnimationLoopUpdateInfo>): void;
   /** Cancels (stops) the scroll animation loop. */
   cancel(): void;
+  /** The current state of the animation loop. */
+  state(): ScrollAnimationState;
 }
 
 export interface ScrollAnimationLoopUpdateInfo {
@@ -82,9 +84,11 @@ export interface AnimationFrameInfo extends AnimationInfo {
 }
 
 export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
-  let animationFrameId: ReturnType<typeof requestAnimationFrame> | undefined;
   let averageDeltaTime = 1000 / 60; // assume 60fps
+  let animationFrameId: ReturnType<typeof requestAnimationFrame> | undefined;
   let currentScroll = 0;
+  let scrollDelta = 0;
+  let scrollDeltaClamped = 0;
   let updateScroll = 0;
   let overflowAmount = 0;
   let destinationScroll = 0;
@@ -118,10 +122,24 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
     };
   };
 
+  const resetScrollAnimationState = (scroll: number) => {
+    currentScroll = updateScroll = destinationScroll = destinationScrollClamped = scroll;
+    direction =
+      scrollDelta =
+      scrollDeltaClamped =
+      overflowAmount =
+      currentTime =
+      updateTime =
+      deltaTime =
+        0;
+    directionChanged = false;
+    animationFrameId = previousTime = undefined;
+  };
+
   const getScrollAnimationState = (
     info?: Readonly<ScrollAnimationLoopUpdateInfo>,
     reset?: boolean
-  ) => {
+  ): ScrollAnimationState => {
     if (info) {
       const {
         delta,
@@ -137,14 +155,10 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
         getScroll,
       } = info;
 
-      if (reset) {
-        currentScroll = updateScroll = destinationScroll = destinationScrollClamped = getScroll();
-        direction = overflowAmount = currentTime = updateTime = deltaTime = 0;
-        directionChanged = false;
-        animationFrameId = previousTime = undefined;
-      }
+      reset && resetScrollAnimationState(getScroll());
 
-      const newDirection = delta ? Math.sign(delta) : direction; // without delta continue with the current direction
+      const finiteNonNaNDelta = isFinite(delta) && !isNaN(delta) ? delta : 0;
+      const newDirection = finiteNonNaNDelta ? Math.sign(finiteNonNaNDelta) : direction; // without delta continue with the current direction
       const newDirectionChanged = direction !== newDirection;
       const rawDestinationScroll =
         (newDirectionChanged
@@ -153,7 +167,7 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
               newOverflowAmount,
               responsiveDirectionChange ? currentScroll : destinationScroll
             )
-          : destinationScroll) + delta;
+          : destinationScroll) + finiteNonNaNDelta;
       const newDestinationScrollClamped = clamp(0, newOverflowAmount, rawDestinationScroll);
 
       destinationScroll = clampToViewport ? newDestinationScrollClamped : rawDestinationScroll;
@@ -168,6 +182,8 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
       onAnimationStop = newOnAnimationStop;
       onAnimationFrame = newOnAnimationFrame;
 
+      scrollDelta = destinationScroll - currentScroll;
+      scrollDeltaClamped = destinationScrollClamped - currentScroll;
       updateScroll = currentScroll;
       updateTime = currentTime;
     }
@@ -175,6 +191,8 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
     return {
       axis,
       currentScroll,
+      scrollDelta,
+      scrollDeltaClamped,
       updateScroll,
       destinationScroll,
       destinationScrollClamped,
@@ -198,6 +216,7 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
       cancelAnimationFrame(animationFrameId!);
       animationFrameId = undefined;
     }
+    resetScrollAnimationState(0);
   };
 
   return {
@@ -226,17 +245,22 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
             ? frame(state, frameInfo)
             : { stop: true, scroll: destinationScroll };
           const { scroll: rawResultScroll, stop: rawResultStop } = rawFrameResult || {};
+
           const frameResult: ScrollAnimationFrameResult = {
             ...rawFrameResult,
           };
 
           if (isNumber(rawResultScroll)) {
+            const overscroll = rawResultScroll < 0 || rawResultScroll > overflowAmount;
+
             // clamp the resulting scroll and set it as current scroll
             currentScroll = clamp(0, overflowAmount, rawResultScroll);
+            scrollDelta = destinationScroll - currentScroll;
+            scrollDeltaClamped = destinationScrollClamped - currentScroll;
             // force precision on the resulting scroll
             frameResult.scroll = precision(currentScroll);
             // force stop on overshoot
-            frameResult.stop = rawResultStop || getScrollOvershoot(rawResultScroll, overflowAmount);
+            frameResult.stop = rawResultStop || overscroll;
           }
 
           const { scroll, stop } = frameResult;
@@ -262,5 +286,6 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
       stopAnimationLoop(true);
     },
     isRunning,
+    state: () => getScrollAnimationState(),
   };
 };

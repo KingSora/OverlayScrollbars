@@ -31,7 +31,7 @@
     "overlayscrollbars": "file:./../overlayscrollbars/dist"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "run-p build-js build-types",
     "build-js": "vite build",
     "build-types": "tsc --emitDeclarationOnly -p tsconfig.types.json",

@@ -3,14 +3,13 @@ import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsPluginSmooth } from '.';
 import type { XY } from './utils';
 
-const targetElm = document.querySelector<HTMLElement>('.target')!;
 const canvas = document.querySelector<HTMLCanvasElement>('canvas')!;
 
 OverlayScrollbars.plugin(OverlayScrollbarsPluginSmooth);
 
 // @ts-ignore
-const osInstance = (window.osInstance = OverlayScrollbars(
-  targetElm,
+const osInstanceA = (window.osInstance = OverlayScrollbars(
+  document.querySelector<HTMLElement>('#a')!,
   {},
   {
     initialized: (instance) => {
@@ -18,17 +17,20 @@ const osInstance = (window.osInstance = OverlayScrollbars(
       pluginInstance &&
         pluginInstance.initialize({
           onOverscroll(overscrollInfo) {
-            console.log(overscrollInfo);
+            // console.log(overscrollInfo);
           },
           onAnimationStop(animationInfo) {
-            console.log(animationInfo, 'stop');
+            // console.log(animationInfo, 'stop');
           },
         });
     },
   }
 ));
+// @ts-ignore
+const osInstanceB = OverlayScrollbars(document.querySelector<HTMLElement>('#b')!, {});
 
 const drawCanvas = () => {
+  canvas.style.display = 'block';
   const dpr = window.devicePixelRatio;
   const size = { x: 1000, y: 4000 };
   const points: XY<number>[] = [];
@@ -52,7 +54,7 @@ const drawCanvas = () => {
       points.shift();
     }
 
-    points.push({ x: 0, y: osInstance.elements().scrollOffsetElement.scrollTop });
+    points.push({ x: 0, y: osInstanceA.elements().scrollOffsetElement.scrollTop });
 
     ctx.clearRect(0, 0, size.x, size.y);
 

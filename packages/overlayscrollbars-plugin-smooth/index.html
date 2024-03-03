@@ -6,9 +6,12 @@
     <link rel="stylesheet" href="style.css" />
     <title>OverlayScrollbars Plugin Smooth</title>
   </head>
-  <body>
-    <div class="target">
-      <canvas></canvas>
+  <body style="display: flex">
+    <div class="target" id="a">
+      <canvas style="display: none"></canvas>
+      <div class="content"></div>
+    </div>
+    <div class="target" id="b">
       <div class="content"></div>
     </div>
     <script>

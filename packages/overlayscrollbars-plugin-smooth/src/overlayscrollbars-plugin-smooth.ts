@@ -5,14 +5,24 @@ import type {
   ScrollAnimationLoopUpdateInfo,
 } from './scrollAnimationLoop/scrollAnimationLoop';
 import type { UpdateScrollAnimationLoopsFromEventInfo } from './scrollAnimationLoop/updateScrollAnimationLoopsFromEvent';
-import { getElementsLineSize, getWheelDeltaPixelValue, isNumber, perAxis, noop } from './utils';
+import type { VelocityEstimate } from './velocity-sampler';
+import type { Fling } from './fling';
+import {
+  getElementsLineSize,
+  getWheelDeltaPixelValue,
+  isNumber,
+  perAxis,
+  noop,
+  newXY0,
+} from './utils';
 import { createScrollAnimationLoop } from './scrollAnimationLoop/scrollAnimationLoop';
 import { springScrollAnimation } from './scrollAnimations/springScrollAnimation';
 import { easingScrollAnimation } from './scrollAnimations/easingScrollAnimation';
 import { dampingScrollAnimation } from './scrollAnimations/dampingScrollAnimation';
-import { createVelocitySampler } from './velocity-tracker';
+import { createSampleFromTouchEvent, createVelocitySampler } from './velocity-sampler';
 import { updateScrollAnimationLoopsFromEvent } from './scrollAnimationLoop/updateScrollAnimationLoopsFromEvent';
 import { getOverflowInfo } from './overflowInfo';
+import { createFling } from './fling';
 
 export interface OverlayScrollbarsPluginSmoothOptions
   extends Pick<
@@ -77,7 +87,7 @@ export interface OverlayScrollbarsPluginSmoothInstance {
 }
 
 const defaultOptions: OverlayScrollbarsPluginSmoothOptions = {
-  scrollAnimation: dampingScrollAnimation(),
+  scrollAnimation: springScrollAnimation(),
   scrollChaining: true,
   responsiveDirectionChange: true,
   clampToViewport: false,
@@ -173,22 +183,30 @@ export const OverlayScrollbarsPluginSmooth = {
         });
         scrollOffsetElement.addEventListener('mousedown', mouseMiddleButtonDown);
 
-        const vTracker = createVelocitySampler();
-        const scrollStartDistance = 8;
-        const currTouch = {
-          x: 0,
-          y: 0,
-        };
+        const velocitySampler = createVelocitySampler();
+        const scrollStartDistance = 16;
+        let lastTouchPosition = newXY0();
+        let lastTouchDelta = newXY0();
         let isScrolling = false;
+        let lastFling: Fling | null = null;
+
+        const touchMoveScrollAnimation = springScrollAnimation({
+          spring: { perceivedDuration: 333, bounce: 0 },
+        });
+        const flingScrollAnimation = springScrollAnimation({
+          spring: { perceivedDuration: 777, bounce: -1 },
+        });
 
         scrollOffsetElement.addEventListener(
           'touchstart',
           (e) => {
-            const { touches, cancelable, timeStamp } = e;
+            const { touches, cancelable } = e;
             const [touch] = touches;
 
-            currTouch.x = touch.pageX;
-            currTouch.y = touch.pageY;
+            lastTouchPosition = lastTouchDelta = {
+              x: touch.pageX,
+              y: touch.pageY,
+            };
 
             wheelScrollAnimationLoop.x.cancel();
             wheelScrollAnimationLoop.y.cancel();
@@ -197,10 +215,7 @@ export const OverlayScrollbarsPluginSmooth = {
             touchFlingScrollAnimationLoop.x.cancel();
             touchFlingScrollAnimationLoop.y.cancel();
 
-            vTracker.addSample({
-              _position: currTouch,
-              _timestamp: timeStamp,
-            });
+            velocitySampler.addSample(createSampleFromTouchEvent(e));
 
             if (isScrolling && cancelable) {
               e.preventDefault();
@@ -220,19 +235,19 @@ export const OverlayScrollbarsPluginSmooth = {
             // todo: distinguish pinch from scroll
             // todo: stacking fling
 
-            const [touch] = e.touches;
+            const [touch] = e.changedTouches;
 
-            const newTouch = {
+            const newTouchPosition = {
               x: touch.pageX,
               y: touch.pageY,
             };
-            const touchDelta = {
-              x: newTouch.x - currTouch.x,
-              y: newTouch.y - currTouch.y,
+            const touchPositionDelta = {
+              x: newTouchPosition.x - lastTouchPosition.x,
+              y: newTouchPosition.y - lastTouchPosition.y,
             };
             const delta = {
-              x: -touchDelta.x,
-              y: -touchDelta.y,
+              x: -touchPositionDelta.x,
+              y: -touchPositionDelta.y,
             };
 
             perAxis((axis) => {
@@ -243,16 +258,12 @@ export const OverlayScrollbarsPluginSmooth = {
               });
             });
 
-            wheelScrollAnimationLoop.x.cancel();
-            wheelScrollAnimationLoop.y.cancel();
-            touchFlingScrollAnimationLoop.x.cancel();
-            touchFlingScrollAnimationLoop.y.cancel();
-
             const appliedDelta = updateScrollAnimationLoopsFromEvent(e, {
               delta,
               scrollAnimationLoops: touchMoveScrollAnimationLoop,
               overflowInfo,
               ...currentOptions,
+              scrollAnimation: touchMoveScrollAnimation,
               responsiveDirectionChange: false,
             });
 
@@ -268,14 +279,10 @@ export const OverlayScrollbarsPluginSmooth = {
             }
 
             isScrolling = true;
+            lastTouchPosition = newTouchPosition;
+            lastTouchDelta = appliedDelta;
 
-            currTouch.x = newTouch.x;
-            currTouch.y = newTouch.y;
-
-            vTracker.addSample({
-              _position: newTouch,
-              _timestamp: e.timeStamp,
-            });
+            velocitySampler.addSample(createSampleFromTouchEvent(e));
           },
           {
             passive: false,
@@ -289,44 +296,58 @@ export const OverlayScrollbarsPluginSmooth = {
               return;
             }
 
+            const { timeStamp } = e;
             const overflowInfo = getOverflowInfo(osInstance);
-            const [touch] = e.changedTouches;
 
-            vTracker.addSample({
-              _position: {
-                x: touch.pageX,
-                y: touch.pageY,
-              },
-              _timestamp: e.timeStamp,
-            });
+            // always add last sample here, event if the position data is similar to the last move event to get the correct timestamp data
+            velocitySampler.addSample(createSampleFromTouchEvent(e));
 
-            const veloc = vTracker.getVelocity();
-            const damping = 0.01;
+            const velocityEstimate = velocitySampler.getVelocityEstimate();
 
-            const decelerationRate = 1 - damping;
-            const dCoeff = 1000 * Math.log(decelerationRate);
+            if (!velocityEstimate) {
+              return;
+            }
 
-            const delta = {
-              x: veloc.x / dCoeff,
-              y: veloc.y / dCoeff,
-            };
-
-            touchMoveScrollAnimationLoop.x.cancel();
-            touchMoveScrollAnimationLoop.y.cancel();
+            const fling = createFling(velocityEstimate, timeStamp, lastFling);
+            const xMoveLoop = touchMoveScrollAnimationLoop.x.state();
+            const yMoveLoop = touchMoveScrollAnimationLoop.y.state();
 
             const appliedDelta = updateScrollAnimationLoopsFromEvent(e, {
-              delta,
+              delta: {
+                x: xMoveLoop.scrollDelta + fling.delta.x,
+                y: yMoveLoop.scrollDelta + fling.delta.y,
+              },
               scrollAnimationLoops: touchFlingScrollAnimationLoop,
               overflowInfo,
               ...currentOptions,
+              scrollAnimation: flingScrollAnimation,
               onAnimationStop(animationInfo) {
                 isScrolling = false;
                 currentOptions.onAnimationStop(animationInfo);
               },
             });
 
+            perAxis((axis) => {
+              const axisLastTouchDelta = lastTouchDelta[axis];
+              const axisAppliedDelta = appliedDelta[axis];
+
+              // fling goes in different direction
+              if (Math.sign(axisLastTouchDelta) !== Math.sign(axisAppliedDelta)) {
+                touchFlingScrollAnimationLoop[axis].cancel();
+                return;
+              }
+
+              // fling animation takes over move animation
+              if (axisAppliedDelta) {
+                touchMoveScrollAnimationLoop[axis].cancel();
+              }
+            });
+
             if (!appliedDelta.x && !appliedDelta.y) {
               isScrolling = false;
+              lastFling = null;
+            } else {
+              lastFling = fling;
             }
 
             e.preventDefault();

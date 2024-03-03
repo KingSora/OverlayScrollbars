@@ -60,9 +60,6 @@ export const createPrecisionFn = (precision: number) => {
     precisionNumber < 0 ? value : Math.round(value * precisionNumber) / precisionNumber;
 };
 
-export const getScrollOvershoot = (scroll: number, overflowAmount: number) =>
-  scroll < 0 || scroll > overflowAmount;
-
 /**
  * Transforms a normalized scroll position to a RTL compatilbe scroll position value or vice versa (depending on the input format).
  * @param scrollPosition The scroll position value.
