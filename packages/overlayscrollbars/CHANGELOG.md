@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.0
+
+### Improvements
+
+- Add `focusin` and `focusout` to the focus and blur event management when wrapping and unwrapping elements. [#605](https://github.com/KingSora/OverlayScrollbars/issues/605)
+- The `scrollbar.visibility` option was unintuitive to use for adjusting visibility per axis. Its now only applied when the axis overflow behavior is `'scroll'` or `'visible-scroll'`. [#611](https://github.com/KingSora/OverlayScrollbars/issues/611)
+
 ## 2.5.0
 
 ### Breaking Changes
