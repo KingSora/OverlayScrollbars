@@ -15,8 +15,10 @@ export interface ScrollAnimationFrameInfo {
 export interface ScrollAnimationFrameResult {
   /** Whether to stop the animation. */
   stop?: boolean;
-  /** The new scroll values in pixel. */
+  /** The new scroll position in pixel. */
   scroll?: number;
+  /** The new scroll velocity in pixel / seconds. */
+  velocity?: number;
 }
 
 export interface ScrollAnimationUpdateInfo extends ScrollAnimationLoopUpdateInfo, AxisInfo {
@@ -25,18 +27,16 @@ export interface ScrollAnimationUpdateInfo extends ScrollAnimationLoopUpdateInfo
 }
 
 export interface ScrollAnimationState extends AxisInfo {
-  /** The current scroll position with max. precision. */
-  currentScroll: number;
+  /** The current scroll position in pixel (with max. precision). */
+  scroll: number;
+  /** The current scroll velocity in pixel / seconds. */
+  velocity: number;
   /** The scroll position on the last update including start with max. precision. */
   updateScroll: number;
   /** The delta between the current scroll and the destination scroll. */
   scrollDelta: number;
-  /** The delta between the current scroll and the clamped destination scroll. */
-  scrollDeltaClamped: number;
   /** The destination scroll position with max. precision. */
   destinationScroll: number;
-  /** The destination scroll position clamped to the viewports bounds with max. precision. */
-  destinationScrollClamped: number;
   /** The overflow amount. */
   overflowAmount: number;
   /** The direction. [-1, 0, +1] */

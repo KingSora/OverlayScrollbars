@@ -86,13 +86,12 @@ export interface AnimationFrameInfo extends AnimationInfo {
 export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
   let averageDeltaTime = 1000 / 60; // assume 60fps
   let animationFrameId: ReturnType<typeof requestAnimationFrame> | undefined;
-  let currentScroll = 0;
+  let scroll = 0;
+  let velocity = 0;
   let scrollDelta = 0;
-  let scrollDeltaClamped = 0;
   let updateScroll = 0;
   let overflowAmount = 0;
   let destinationScroll = 0;
-  let destinationScrollClamped = 0;
   let direction = 0;
   let directionChanged = false;
   let currentTime = 0;
@@ -122,16 +121,9 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
     };
   };
 
-  const resetScrollAnimationState = (scroll: number) => {
-    currentScroll = updateScroll = destinationScroll = destinationScrollClamped = scroll;
-    direction =
-      scrollDelta =
-      scrollDeltaClamped =
-      overflowAmount =
-      currentTime =
-      updateTime =
-      deltaTime =
-        0;
+  const resetScrollAnimationState = (scrollPosition: number) => {
+    scroll = updateScroll = destinationScroll = scrollPosition;
+    velocity = direction = scrollDelta = overflowAmount = currentTime = updateTime = deltaTime = 0;
     directionChanged = false;
     animationFrameId = previousTime = undefined;
   };
@@ -162,16 +154,11 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
       const newDirectionChanged = direction !== newDirection;
       const rawDestinationScroll =
         (newDirectionChanged
-          ? clamp(
-              0,
-              newOverflowAmount,
-              responsiveDirectionChange ? currentScroll : destinationScroll
-            )
+          ? clamp(0, newOverflowAmount, responsiveDirectionChange ? scroll : destinationScroll)
           : destinationScroll) + finiteNonNaNDelta;
       const newDestinationScrollClamped = clamp(0, newOverflowAmount, rawDestinationScroll);
 
       destinationScroll = clampToViewport ? newDestinationScrollClamped : rawDestinationScroll;
-      destinationScrollClamped = newDestinationScrollClamped;
       overflowAmount = newOverflowAmount;
       direction = newDirection;
       directionChanged = newDirectionChanged;
@@ -182,20 +169,18 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
       onAnimationStop = newOnAnimationStop;
       onAnimationFrame = newOnAnimationFrame;
 
-      scrollDelta = destinationScroll - currentScroll;
-      scrollDeltaClamped = destinationScrollClamped - currentScroll;
-      updateScroll = currentScroll;
+      scrollDelta = destinationScroll - scroll;
+      updateScroll = scroll;
       updateTime = currentTime;
     }
 
     return {
       axis,
-      currentScroll,
+      scroll,
+      velocity,
       scrollDelta,
-      scrollDeltaClamped,
       updateScroll,
       destinationScroll,
-      destinationScrollClamped,
       overflowAmount,
       direction,
       directionChanged,
@@ -244,7 +229,11 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
           const rawFrameResult = frame
             ? frame(state, frameInfo)
             : { stop: true, scroll: destinationScroll };
-          const { scroll: rawResultScroll, stop: rawResultStop } = rawFrameResult || {};
+          const {
+            scroll: rawResultScroll,
+            velocity: rawResultVelocity,
+            stop: rawResultStop,
+          } = rawFrameResult || {};
 
           const frameResult: ScrollAnimationFrameResult = {
             ...rawFrameResult,
@@ -254,21 +243,23 @@ export const createScrollAnimationLoop = (axis: Axis): ScrollAnimationLoop => {
             const overscroll = rawResultScroll < 0 || rawResultScroll > overflowAmount;
 
             // clamp the resulting scroll and set it as current scroll
-            currentScroll = clamp(0, overflowAmount, rawResultScroll);
-            scrollDelta = destinationScroll - currentScroll;
-            scrollDeltaClamped = destinationScrollClamped - currentScroll;
+            scroll = clamp(0, overflowAmount, rawResultScroll);
+            scrollDelta = destinationScroll - scroll;
+
             // force precision on the resulting scroll
-            frameResult.scroll = precision(currentScroll);
+            frameResult.scroll = precision(scroll);
             // force stop on overshoot
             frameResult.stop = rawResultStop || overscroll;
           }
 
-          const { scroll, stop } = frameResult;
+          if (isNumber(rawResultVelocity)) {
+            velocity = rawResultVelocity;
+          }
 
           onAnimationFrame({ axis, state, frameInfo, frameResult });
-          applyScroll(scroll);
+          applyScroll(frameResult.scroll);
 
-          if (stop) {
+          if (frameResult.stop) {
             onAnimationStop({ axis, state, frameInfo });
             stopAnimationLoop();
             return;

@@ -1,11 +1,15 @@
+import { springSimulation } from '~/simulations/springSimulation';
 import type { ScrollAnimation } from './scrollAnimation';
-import { clamp, isNumber, newXY0 } from '../utils';
+import { clamp, isNumber } from '../utils';
+import { stopDistanceEpsilon, stopVelocityEpsilon } from './constants';
 
 export interface SpringScrollAnimationOptions {
   /** The spring properties which describe the animation. */
   spring: DurationSpring | PhysicalSpring;
-  /** When the scroll velocity (in pixel / second) is smaller than the `stopVelocity` the animation will stop even before the destination scroll position is reached. */
+  /** When the scroll velocity (in pixel / seconds) is smaller than the `stopVelocity` the animation will stop even before the destination scroll position is reached. */
   stopVelocity: number;
+  /** When the distance to the destination scroll position is smaller than the `stopDistance` the animation will stop even before the destination scroll position is reached. */
+  stopDistance: number;
 }
 
 export interface PhysicalSpring {
@@ -50,9 +54,8 @@ const defaultOptions: SpringScrollAnimationOptions = {
     bounce: -1,
   },
   stopVelocity: 1,
+  stopDistance: 1,
 };
-
-const stopDistanceEpsilon = 0.00001; // for the case that precision is Infinite
 
 const getPhysicalSpring = (spring: PhysicalSpring | DurationSpring): PhysicalSpring => {
   if (isNumber((spring as DurationSpring).bounce)) {
@@ -74,81 +77,29 @@ const getPhysicalSpring = (spring: PhysicalSpring | DurationSpring): PhysicalSpr
 export const springScrollAnimation = (
   options?: Partial<SpringScrollAnimationOptions>
 ): ScrollAnimation => {
-  const { spring, stopVelocity } = { ...defaultOptions, ...options };
+  const { spring, stopVelocity, stopDistance } = { ...defaultOptions, ...options };
   const { mass, damping, stiffness } = getPhysicalSpring(spring);
-
-  const dampingRatio = damping / (2 * Math.sqrt(stiffness * mass));
-  const lambda = damping / mass / 2;
-  const natFreq = Math.sqrt(stiffness / mass);
-  const natFreqDamped = natFreq * Math.sqrt(Math.abs(1 - dampingRatio * dampingRatio));
-  const natFreqCoeff = -natFreq * dampingRatio;
-
-  const velocity = newXY0();
+  const simulation = springSimulation({
+    _mass: mass,
+    _stiffness: stiffness,
+    _damping: damping,
+  });
 
   return {
-    update({ axis, start }) {
-      if (start) {
-        velocity[axis] = 0;
-      }
-    },
-    frame(
-      { axis, currentScroll, destinationScroll, destinationScrollClamped, precision },
-      { deltaTime }
-    ) {
-      const currentVelocity = velocity[axis];
-      const deltaSeconds = deltaTime / 1000;
-      const distance = currentScroll - destinationScroll;
-
-      const expDelta = Math.exp(-lambda * deltaSeconds);
-      const natFreqDampedDelta = natFreqDamped * deltaSeconds;
-
-      let newDistance = 0;
-      let newVelocity = 0;
-
-      // Critically damped
-      if (dampingRatio === 1) {
-        const c1 = distance;
-        const c2 = currentVelocity + lambda * distance;
-
-        newDistance = expDelta * (c1 + c2 * deltaSeconds);
-        newVelocity = (c1 + c2 * deltaSeconds) * expDelta * -lambda + c2 * expDelta;
-      }
-      // Underdamped
-      else if (dampingRatio < 1) {
-        const c1 = distance;
-        const c2 = (currentVelocity + lambda * distance) / natFreqDamped;
-        const sin = Math.sin(natFreqDampedDelta);
-        const cos = Math.cos(natFreqDampedDelta);
-
-        newDistance = expDelta * (c1 * cos + c2 * sin);
-        newVelocity =
-          newDistance * natFreqCoeff +
-          expDelta * (-natFreqDamped * c1 * sin + natFreqDamped * c2 * cos);
-      }
-      // Overdamped
-      else {
-        const c1 = (currentVelocity + distance * (lambda + natFreqDamped)) / (2 * natFreqDamped);
-        const c2 = distance - c1;
-        const ex1 = Math.exp(natFreqDampedDelta);
-        const ex2 = Math.exp(-natFreqDampedDelta);
-
-        newDistance = expDelta * (c1 * ex1 + c2 * ex2);
-        newVelocity =
-          expDelta *
-          (c1 * (natFreqCoeff + natFreqDamped) * ex1 + c2 * (natFreqCoeff - natFreqDamped) * ex2);
-      }
-
-      const axisNewScroll = newDistance + destinationScroll;
-      const scroll = axisNewScroll;
-      const stop =
-        precision(Math.abs(destinationScrollClamped - axisNewScroll)) < stopDistanceEpsilon &&
-        Math.abs(newVelocity) < stopVelocity;
-
-      velocity[axis] = newVelocity;
+    frame({ scroll, velocity, destinationScroll }, { deltaTime }) {
+      const { _displacement, _velocity } = simulation.simulate(
+        destinationScroll - scroll,
+        velocity,
+        deltaTime / 1000
+      );
+      const newScroll = scroll + _displacement;
 
       return {
-        stop,
-        scroll,
+        stop:
+          Math.abs(_velocity) < Math.max(stopVelocityEpsilon, stopVelocity) &&
+          Math.abs(destinationScroll - newScroll) < Math.max(stopDistanceEpsilon, stopDistance),
+        scroll: newScroll,
+        velocity: _velocity,
       };
     },
   };

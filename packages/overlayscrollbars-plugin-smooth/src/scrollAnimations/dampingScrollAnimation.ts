@@ -1,5 +1,6 @@
+import { dampingSimulation } from '~/simulations/dampingSimulation';
 import type { ScrollAnimation } from '../scrollAnimations/scrollAnimation';
-import { damp } from '../utils';
+import { stopDistanceEpsilon, stopVelocityEpsilon } from './constants';
 
 export interface DampingScrollAnimationOptions {
   /**
@@ -8,34 +9,48 @@ export interface DampingScrollAnimationOptions {
    * 1 = infinite damping, the destination scroll offset is never reached.
    */
   damping: number;
-  /** When the scroll velocity (in pixel / second) is smaller or equal to the `stopVelocity` the animation will stop even before the destination scroll position is reached. */
+  /** When the scroll velocity (in pixel / seconds) is smaller than the `stopVelocity` the animation will stop even before the destination scroll position is reached. */
   stopVelocity: number;
+  /** When the distance to the destination scroll position is smaller than the `stopDistance` the animation will stop even before the destination scroll position is reached. */
+  stopDistance: number;
 }
 
 const defaultOptions: DampingScrollAnimationOptions = {
   damping: 0.0033,
   stopVelocity: 1,
+  stopDistance: 0,
 };
 
 export const dampingScrollAnimation = (
   options?: Partial<DampingScrollAnimationOptions>
 ): ScrollAnimation => {
-  const { damping, stopVelocity } = { ...defaultOptions, ...options };
+  const { damping, stopVelocity, stopDistance } = { ...defaultOptions, ...options };
+
+  const simulation = dampingSimulation({ _damping: damping });
 
   return {
-    frame(
-      { currentScroll, destinationScroll, destinationScrollClamped, precision },
-      { deltaTime }
-    ) {
-      const deltaSeconds = deltaTime / 1000;
-      const scroll = damp(currentScroll, destinationScroll, damping, deltaSeconds);
-      const axisDistance = precision(destinationScrollClamped - scroll);
-      const direction = Math.sign(axisDistance);
-      const velocity = Math.abs(axisDistance) / deltaSeconds;
+    /*
+    update(updateInfo) {
+      const velocity = updateInfo.delta * Math.log(damping);
+      const duration = (Math.log(stopVelocity / Math.abs(velocity)) / Math.log(damping)) * 1000;
+
+      console.log({ vel: velocity, duration });
+    },
+*/
+    frame({ scroll, destinationScroll }, { deltaTime }) {
+      const { _displacement, _velocity } = simulation.simulate(
+        destinationScroll - scroll,
+        0,
+        deltaTime / 1000
+      );
+      const newScroll = scroll + _displacement;
 
       return {
-        stop: velocity <= stopVelocity || !direction,
-        scroll,
+        stop:
+          Math.abs(_velocity) < Math.max(stopVelocityEpsilon, stopVelocity) ||
+          Math.abs(destinationScroll - newScroll) < Math.max(stopDistanceEpsilon, stopDistance),
+        scroll: newScroll,
+        velocity: _velocity,
       };
     },
   };
