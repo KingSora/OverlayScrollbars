@@ -21,10 +21,16 @@ export const Root = ({ children }: { children: ReactNode }) => {
     const ua = new UAParser();
     const { type } = ua.getDevice();
     const cancelDevices = ['console', 'mobile', 'tablet', 'smarttv'];
+    const scrollbarWidthSupported = !!window
+      .getComputedStyle(document.body)
+      .getPropertyValue('scrollbar-width');
 
     initialize({
       target: document.body,
-      cancel: { nativeScrollbarsOverlaid: !!type && cancelDevices.includes(type) },
+      cancel: {
+        nativeScrollbarsOverlaid:
+          !scrollbarWidthSupported && !!type && cancelDevices.includes(type),
+      },
     });
   }, [initialize]);
 

@@ -5,7 +5,6 @@ import { Link } from '~/components/Link';
 import { Icon } from '~/components/Icon';
 import IndexMdx from '~/components/index.mdx';
 import { PageContainer } from '~/components/PageContainer';
-import { GoogleAd } from '~/components/google-ad';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
@@ -96,18 +95,42 @@ const IndexPage = () => {
               'inline-flex  items-center gap-6 py-6 opacity-60 [filter:brightness(0.8)_sepia(1)_saturate(1.44)_hue-rotate(175deg)]'
             )}
           >
-            <div
-              className="h-11 px-3 flex-grow flex-shrink-0"
-              style={{ filter: 'brightness(0.35)' }}
+            <a
+              className="h-11 px-3 py-1 flex-none"
+              target="_blank"
+              href="https://github.com/KingSora/OverlayScrollbars/issues/150#issuecomment-619298317"
             >
-              <img className="h-full" src="/OverlayScrollbars/img/spotify-logo.svg" alt="" />
-            </div>
-            <div className="h-11 px-3 py-1.5 flex-grow flex-shrink-0">
+              <img
+                className="h-full"
+                src="/OverlayScrollbars/img/spotify-logo.svg"
+                alt=""
+                style={{ filter: 'brightness(0.35)' }}
+              />
+            </a>
+            <a
+              className="h-11 px-3 flex-none"
+              target="_blank"
+              href="https://github.com/JetBrains/intellij-community/blob/ee35416f381ed33f976d7b9322a5ee6156e7fa2f/platform/platform-api/src/com/intellij/ui/jcef/JBCefScrollbarsHelper.java#L28-L52"
+            >
+              <img className="h-full" src="/OverlayScrollbars/img/intellij-idea-logo.svg" alt="" />
+            </a>
+            <a
+              className="h-11 px-3 py-1.5 flex-none"
+              target="_blank"
+              href="https://github.com/storybookjs/storybook/blob/32d2fafa8d1d2e197e885349f2c01f5422bde5b4/code/ui/components/package.json#L66-L67"
+            >
               <img className="h-full" src="/OverlayScrollbars/img/storybook-logo.svg" alt="" />
-            </div>
-            <div className="h-11 p-3 flex-grow flex-shrink-0">
+            </a>
+            <a
+              className="h-11 p-3 flex-none"
+              target="_blank"
+              href="https://github.com/ColorlibHQ/AdminLTE/blob/3113ac5efed25971ccd0972f5eeff3c364f218dc/src/html/components/_scripts.astro#L6-L7"
+            >
               <img className="h-full" src="/OverlayScrollbars/img/adminlte-logo.png" alt="" />
-            </div>
+            </a>
+            <a className="h-11 flex-none" target="_blank" href="https://scramble.cloud/#credits">
+              <img className="h-full" src="/OverlayScrollbars/img/scramble-logo.svg" alt="" />
+            </a>
           </div>
         </div>
       </OverlayScrollbarsComponent>
@@ -174,14 +197,9 @@ const IndexPage = () => {
           Examples
         </Link>
       </nav>
-
-      <GoogleAd className="my-6" adSlotId="7030767653" format={{ height: 100, width: 800 }} />
-
       <main className="prose prose-primary mx-auto pb-12">
         <IndexMdx />
       </main>
-
-      <GoogleAd className="my-6" adSlotId="3179152550" format={{ height: 100, width: 800 }} />
     </PageContainer>
   );
 };

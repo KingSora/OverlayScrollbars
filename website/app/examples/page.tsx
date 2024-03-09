@@ -1,6 +1,5 @@
 import { Link } from '~/components/Link';
 import { PageContainer } from '~/components/PageContainer';
-import { GoogleAd } from '~/components/google-ad';
 import type { Metadata } from 'next';
 
 interface Example {
@@ -115,11 +114,6 @@ const ExamplesPage = () => {
             ]
           )}
         </div>
-        <GoogleAd
-          adSlotId="4341025139"
-          format={{ height: 100, width: 800 }}
-          className="w-full min-w-0"
-        />
       </main>
     </PageContainer>
   );
