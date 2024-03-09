@@ -42,8 +42,10 @@ const renderExample = (logo: string, framework: string, examples: Example[]) => 
 const ExamplesPage = () => {
   return (
     <PageContainer className="h-full">
-      <main className="h-full grid items-center justify-items-center py-5">
-        <Link href="/">Documentation</Link>
+      <main className="h-full grid items-center justify-items-center py-5 grid-rows-[auto_1fr]">
+        <Link href="/" className="p-4">
+          Documentation
+        </Link>
         <div className="w-full grid gap-6 grid-cols-fit-56 py-6">
           {renderExample('/OverlayScrollbars/icon/javascript.svg', 'JavaScript', [
             { name: 'Demo App', url: '/OverlayScrollbars/example/overlayscrollbars' },
