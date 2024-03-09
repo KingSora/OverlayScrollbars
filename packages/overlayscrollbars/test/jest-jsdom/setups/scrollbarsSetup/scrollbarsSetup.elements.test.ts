@@ -87,7 +87,8 @@ const assertCorrectDOMStructure = (
     expect(_track.classList.length).toBe(1);
     expect(_handle.classList.length).toBe(1);
     if (isMainStructure) {
-      expect(domScrollbar.classList.contains(classNameScrollbarTransitionless)).toBe(true);
+      // transitionless class should not be present (was present pre v2.6.0 though)
+      expect(domScrollbar.classList.contains(classNameScrollbarTransitionless)).toBe(false);
     }
 
     // structure
@@ -332,25 +333,5 @@ describe('scrollbarsSetup.elements', () => {
 
     testStyle(elements._horizontal);
     testStyle(elements._vertical);
-  });
-
-  test('removes transitionless class', () => {
-    const target = getTarget();
-    const [elements] = createStructureSetupElementsProxy(target);
-    const testHasTransitionlessClass = (
-      setupElement: ScrollbarsSetupElement,
-      expected: boolean
-    ) => {
-      const { _scrollbar } = setupElement._scrollbarStructures[0];
-      expect(_scrollbar.classList.contains(classNameScrollbarTransitionless)).toBe(expected);
-    };
-
-    testHasTransitionlessClass(elements._horizontal, true);
-    testHasTransitionlessClass(elements._vertical, true);
-
-    jest.runAllTimers();
-
-    testHasTransitionlessClass(elements._horizontal, false);
-    testHasTransitionlessClass(elements._vertical, false);
   });
 });
