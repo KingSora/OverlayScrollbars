@@ -6,7 +6,7 @@ import { Icon } from '~/components/Icon';
 import IndexMdx from '~/components/index.mdx';
 import { PageContainer } from '~/components/PageContainer';
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
 export const metadata: Metadata = {
   title: 'OverlayScrollbars',
@@ -55,7 +55,25 @@ const separator = (children: ReactNode) => (
   </div>
 );
 
-const usedByBaseClassName = 'h-11 flex-none rounded-sm px-3';
+const renderUsageEntry = (
+  href: string,
+  logoProps: ComponentPropsWithoutRef<'img'>,
+  className?: string
+) => (
+  <a
+    className={classnames('h-11 flex-none rounded-sm px-3 group', className)}
+    target="_blank"
+    href={href}
+  >
+    <img
+      className={classnames(
+        'h-full transition-all group-hover:scale-110 group-focus:scale-110',
+        logoProps?.className
+      )}
+      {...logoProps}
+    />
+  </a>
+);
 
 const IndexPage = () => {
   return (
@@ -94,49 +112,45 @@ const IndexPage = () => {
         <div className="flex justify-center">
           <div
             className={classnames(
-              'inline-flex items-center gap-6 py-6 opacity-60 [filter:brightness(0.8)_sepia(1)_saturate(1.44)_hue-rotate(175deg)]'
+              'inline-flex items-center gap-6 px-1 py-6 opacity-60 [filter:brightness(0.8)_sepia(1)_saturate(1.44)_hue-rotate(175deg)]'
             )}
           >
-            <a
-              className={classnames(usedByBaseClassName, 'py-1')}
-              target="_blank"
-              href="https://github.com/KingSora/OverlayScrollbars/issues/150#issuecomment-619298317"
-            >
-              <img
-                className="h-full"
-                src="/OverlayScrollbars/img/spotify-logo.svg"
-                alt=""
-                style={{ filter: 'brightness(0.35)' }}
-              />
-            </a>
-            <a
-              className={classnames(usedByBaseClassName)}
-              target="_blank"
-              href="https://github.com/JetBrains/intellij-community/blob/ee35416f381ed33f976d7b9322a5ee6156e7fa2f/platform/platform-api/src/com/intellij/ui/jcef/JBCefScrollbarsHelper.java#L28-L52"
-            >
-              <img className="h-full" src="/OverlayScrollbars/img/intellij-idea-logo.svg" alt="" />
-            </a>
-            <a
-              className={classnames(usedByBaseClassName, 'py-1.5')}
-              target="_blank"
-              href="https://github.com/storybookjs/storybook/blob/32d2fafa8d1d2e197e885349f2c01f5422bde5b4/code/ui/components/package.json#L66-L67"
-            >
-              <img className="h-full" src="/OverlayScrollbars/img/storybook-logo.svg" alt="" />
-            </a>
-            <a
-              className={classnames(usedByBaseClassName, 'py-3')}
-              target="_blank"
-              href="https://github.com/ColorlibHQ/AdminLTE/blob/3113ac5efed25971ccd0972f5eeff3c364f218dc/src/html/components/_scripts.astro#L6-L7"
-            >
-              <img className="h-full" src="/OverlayScrollbars/img/adminlte-logo.png" alt="" />
-            </a>
-            <a
-              className={classnames(usedByBaseClassName)}
-              target="_blank"
-              href="https://scramble.cloud/#credits"
-            >
-              <img className="h-full" src="/OverlayScrollbars/img/scramble-logo.svg" alt="" />
-            </a>
+            {renderUsageEntry(
+              'https://github.com/KingSora/OverlayScrollbars/issues/150#issuecomment-619298317',
+              {
+                src: '/OverlayScrollbars/img/spotify-logo.svg',
+                alt: 'Spotify',
+                style: { filter: 'brightness(0.35)' },
+              },
+              'py-1'
+            )}
+            {renderUsageEntry(
+              'https://github.com/JetBrains/intellij-community/blob/ee35416f381ed33f976d7b9322a5ee6156e7fa2f/platform/platform-api/src/com/intellij/ui/jcef/JBCefScrollbarsHelper.java#L41-L50',
+              {
+                src: '/OverlayScrollbars/img/intellij-idea-logo.svg',
+                alt: 'IntelliJ IDEA',
+              }
+            )}
+            {renderUsageEntry(
+              'https://github.com/storybookjs/storybook/blob/32d2fafa8d1d2e197e885349f2c01f5422bde5b4/code/ui/components/package.json#L66-L67',
+              {
+                src: '/OverlayScrollbars/img/storybook-logo.svg',
+                alt: 'Storybook',
+              },
+              'py-1.5'
+            )}
+            {renderUsageEntry(
+              'https://github.com/ColorlibHQ/AdminLTE/blob/3113ac5efed25971ccd0972f5eeff3c364f218dc/src/html/components/_scripts.astro#L6-L7',
+              {
+                src: '/OverlayScrollbars/img/adminlte-logo.png',
+                alt: 'Admin LTE',
+              },
+              'py-3'
+            )}
+            {renderUsageEntry('https://scramble.cloud/#credits', {
+              src: '/OverlayScrollbars/img/scramble-logo.svg',
+              alt: 'Scramble.cloud',
+            })}
           </div>
         </div>
       </OverlayScrollbarsComponent>
