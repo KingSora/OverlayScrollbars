@@ -55,6 +55,8 @@ const separator = (children: ReactNode) => (
   </div>
 );
 
+const usedByBaseClassName = 'h-11 flex-none rounded-sm px-3';
+
 const IndexPage = () => {
   return (
     <PageContainer>
@@ -92,11 +94,11 @@ const IndexPage = () => {
         <div className="flex justify-center">
           <div
             className={classnames(
-              'inline-flex  items-center gap-6 py-6 opacity-60 [filter:brightness(0.8)_sepia(1)_saturate(1.44)_hue-rotate(175deg)]'
+              'inline-flex items-center gap-6 py-6 opacity-60 [filter:brightness(0.8)_sepia(1)_saturate(1.44)_hue-rotate(175deg)]'
             )}
           >
             <a
-              className="h-11 px-3 py-1 flex-none"
+              className={classnames(usedByBaseClassName, 'py-1')}
               target="_blank"
               href="https://github.com/KingSora/OverlayScrollbars/issues/150#issuecomment-619298317"
             >
@@ -108,27 +110,31 @@ const IndexPage = () => {
               />
             </a>
             <a
-              className="h-11 px-3 flex-none"
+              className={classnames(usedByBaseClassName)}
               target="_blank"
               href="https://github.com/JetBrains/intellij-community/blob/ee35416f381ed33f976d7b9322a5ee6156e7fa2f/platform/platform-api/src/com/intellij/ui/jcef/JBCefScrollbarsHelper.java#L28-L52"
             >
               <img className="h-full" src="/OverlayScrollbars/img/intellij-idea-logo.svg" alt="" />
             </a>
             <a
-              className="h-11 px-3 py-1.5 flex-none"
+              className={classnames(usedByBaseClassName, 'py-1.5')}
               target="_blank"
               href="https://github.com/storybookjs/storybook/blob/32d2fafa8d1d2e197e885349f2c01f5422bde5b4/code/ui/components/package.json#L66-L67"
             >
               <img className="h-full" src="/OverlayScrollbars/img/storybook-logo.svg" alt="" />
             </a>
             <a
-              className="h-11 p-3 flex-none"
+              className={classnames(usedByBaseClassName, 'py-3')}
               target="_blank"
               href="https://github.com/ColorlibHQ/AdminLTE/blob/3113ac5efed25971ccd0972f5eeff3c364f218dc/src/html/components/_scripts.astro#L6-L7"
             >
               <img className="h-full" src="/OverlayScrollbars/img/adminlte-logo.png" alt="" />
             </a>
-            <a className="h-11 flex-none" target="_blank" href="https://scramble.cloud/#credits">
+            <a
+              className={classnames(usedByBaseClassName)}
+              target="_blank"
+              href="https://scramble.cloud/#credits"
+            >
               <img className="h-full" src="/OverlayScrollbars/img/scramble-logo.svg" alt="" />
             </a>
           </div>
