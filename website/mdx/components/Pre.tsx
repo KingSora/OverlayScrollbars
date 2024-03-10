@@ -1,8 +1,8 @@
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import { OverlayScrollbarsClientComponent } from '~/components/OverlayScrollbarsClientComponent';
 import type { ComponentProps } from 'react';
 
 export const Pre = ({ children }: ComponentProps<'pre'>) => (
-  <OverlayScrollbarsComponent
+  <OverlayScrollbarsClientComponent
     defer
     element="pre"
     options={{
@@ -11,5 +11,5 @@ export const Pre = ({ children }: ComponentProps<'pre'>) => (
     }}
   >
     {children}
-  </OverlayScrollbarsComponent>
+  </OverlayScrollbarsClientComponent>
 );

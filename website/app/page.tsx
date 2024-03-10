@@ -1,10 +1,9 @@
-'use client';
 import classnames from 'classnames';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { Link } from '~/components/Link';
 import { Icon } from '~/components/Icon';
-import IndexMdx from '~/components/index.mdx';
+import README from '~/mdx/README.mdx';
 import { PageContainer } from '~/components/PageContainer';
+import { OverlayScrollbarsClientComponent } from '~/components/OverlayScrollbarsClientComponent';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
 const githubLink = 'https://github.com/KingSora/OverlayScrollbars';
@@ -12,8 +11,8 @@ const githubLink = 'https://github.com/KingSora/OverlayScrollbars';
 const separator = (children: ReactNode) => (
   <div className="my-6 text-center font-semiBold text-sm uppercase relative">
     <span className="p-3 bg-slate-50">
-      {children}
-      <div className="absolute block top-1/2 left-1/2 w-full xs:w-[80%] border-t-[1px] border-slate-300 -translate-x-1/2 -translate-y-1/2 -z-10" />
+      <span>{children}</span>
+      <span className="absolute block top-1/2 left-1/2 w-full xs:w-[80%] border-t-[1px] border-slate-300 -translate-x-1/2 -translate-y-1/2 -z-10" />
     </span>
   </div>
 );
@@ -71,7 +70,7 @@ const IndexPage = () => {
       </p>
 
       {separator('used by')}
-      <OverlayScrollbarsComponent defer>
+      <OverlayScrollbarsClientComponent defer>
         <div className="flex justify-center">
           <div
             className={classnames(
@@ -116,7 +115,7 @@ const IndexPage = () => {
             })}
           </div>
         </div>
-      </OverlayScrollbarsComponent>
+      </OverlayScrollbarsClientComponent>
       {separator(
         <a href={githubLink} target="_blank" className="inline-block leading-[0] rounded-full">
           <Icon
@@ -181,7 +180,7 @@ const IndexPage = () => {
         </Link>
       </nav>
       <main className="prose prose-primary mx-auto pb-12">
-        <IndexMdx />
+        <README />
       </main>
     </PageContainer>
   );
