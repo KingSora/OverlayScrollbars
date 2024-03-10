@@ -20,6 +20,7 @@ export default defineConfig({
     vueJsx(),
   ],
   resolve: {
+    preserveSymlinks: true,
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
