@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.1
+
+### Bug Fixes
+
+- Fully remove lingering IE11 compatibility code which previously set caused `height` styles to be overwritten.
+
 ## 2.6.0
 
 ### Improvements
