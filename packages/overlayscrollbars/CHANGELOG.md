@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-- Fully remove lingering IE11 compatibility code which previously set caused `height` styles to be overwritten.
+- Fully remove lingering IE11 compatibility code which overwrote previously set `height` styles.
 
 ## 2.6.0
 
