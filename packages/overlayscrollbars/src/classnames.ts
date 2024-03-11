@@ -3,8 +3,6 @@ const dataAttributePrefix = `data-overlayscrollbars`;
 // environment
 export const classNameEnvironment = 'os-environment';
 export const classNameEnvironmentScrollbarHidden = `${classNameEnvironment}-scrollbar-hidden`;
-export const classNameEnvironmentFlexboxGlue = `${classNameEnvironment}-flexbox-glue`;
-export const classNameEnvironmentFlexboxGlueMax = `${classNameEnvironmentFlexboxGlue}-max`;
 
 // initialize
 export const dataAttributeInitialize = `${dataAttributePrefix}-initialize`;
