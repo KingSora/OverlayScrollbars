@@ -6,14 +6,12 @@ import {
   each,
   getTrasformTranslateValue,
   isBoolean,
-  isEmptyArray,
   parent,
   push,
   removeClass,
   removeElements,
   runEachAndClear,
   scrollT,
-  setT,
   bind,
   getElmentScroll,
   inArray,
@@ -36,7 +34,6 @@ import {
   classNameScrollbarVertical,
   classNameScrollbarTrack,
   classNameScrollbarHandle,
-  classNameScrollbarTransitionless,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { dynamicInitializationElement as generalDynamicInitializationElement } from '~/initialization';
@@ -442,11 +439,7 @@ export const createScrollbarsSetupElements = (
     const scrollbarClassName = isHorizontal
       ? classNameScrollbarHorizontal
       : classNameScrollbarVertical;
-    const arrToPush = isHorizontal ? horizontalScrollbars : verticalScrollbars;
-    const transitionlessClass = isEmptyArray(arrToPush) ? classNameScrollbarTransitionless : '';
-    const scrollbar = createDiv(
-      `${classNameScrollbar} ${scrollbarClassName} ${transitionlessClass}`
-    );
+    const scrollbar = createDiv(`${classNameScrollbar} ${scrollbarClassName}`);
     const track = createDiv(classNameScrollbarTrack);
     const handle = createDiv(classNameScrollbarHandle);
     const result = {
@@ -455,7 +448,7 @@ export const createScrollbarsSetupElements = (
       _handle: handle,
     };
 
-    push(arrToPush, result);
+    push(isHorizontal ? horizontalScrollbars : verticalScrollbars, result);
     push(destroyFns, [
       appendChildren(scrollbar, track),
       appendChildren(track, handle),
@@ -476,10 +469,6 @@ export const createScrollbarsSetupElements = (
   const appendElements = () => {
     appendChildren(evaluatedScrollbarSlot, horizontalScrollbars[0]._scrollbar);
     appendChildren(evaluatedScrollbarSlot, verticalScrollbars[0]._scrollbar);
-
-    setT(() => {
-      scrollbarsAddRemoveClass(classNameScrollbarTransitionless);
-    }, 300);
 
     return bind(runEachAndClear, destroyFns);
   };

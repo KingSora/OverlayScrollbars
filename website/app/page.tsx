@@ -1,59 +1,40 @@
-'use client';
 import classnames from 'classnames';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { Link } from '~/components/Link';
 import { Icon } from '~/components/Icon';
-import IndexMdx from '~/components/index.mdx';
+import README from '~/mdx/README.mdx';
 import { PageContainer } from '~/components/PageContainer';
-import { GoogleAd } from '~/components/google-ad';
-import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
-
-export const metadata: Metadata = {
-  title: 'OverlayScrollbars',
-  description:
-    'A javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.',
-  themeColor: '#36befd',
-  keywords: [
-    'OverlayScrollbars',
-    'Overlay',
-    'Scroll',
-    'Bar',
-    'Custom',
-    'Scrollbar',
-    'React',
-    'Vue',
-    'Angular',
-    'Solid',
-    'Solidjs',
-    'Svelte',
-    'JavaScript',
-    'TypeScript',
-    'Plugin',
-    'Library',
-  ],
-  authors: [
-    { name: 'Rene Haas', url: 'https://github.com/KingSora' },
-    { name: 'KingSora', url: 'https://github.com/KingSora' },
-  ],
-  creator: 'Rene Haas',
-  publisher: 'Rene Haas',
-  twitter: {
-    title: 'OverlayScrollbars',
-    description:
-      'A javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.',
-  },
-};
+import { OverlayScrollbarsClientComponent } from '~/components/OverlayScrollbarsClientComponent';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
 const githubLink = 'https://github.com/KingSora/OverlayScrollbars';
 
 const separator = (children: ReactNode) => (
   <div className="my-6 text-center font-semiBold text-sm uppercase relative">
     <span className="p-3 bg-slate-50">
-      {children}
-      <div className="absolute block top-1/2 left-1/2 w-full xs:w-[80%] border-t-[1px] border-slate-300 -translate-x-1/2 -translate-y-1/2 -z-10" />
+      <span>{children}</span>
+      <span className="absolute block top-1/2 left-1/2 w-full xs:w-[80%] border-t-[1px] border-slate-300 -translate-x-1/2 -translate-y-1/2 -z-10" />
     </span>
   </div>
+);
+
+const renderUsageEntry = (
+  href: string,
+  logoProps: ComponentPropsWithoutRef<'img'>,
+  className?: string
+) => (
+  <a
+    className={classnames('h-11 flex-none rounded-sm px-3 group', className)}
+    target="_blank"
+    href={href}
+  >
+    <img
+      className={classnames(
+        'h-full transition-all group-hover:scale-110 group-focus:scale-110',
+        logoProps?.className
+      )}
+      {...logoProps}
+    />
+  </a>
 );
 
 const IndexPage = () => {
@@ -89,28 +70,52 @@ const IndexPage = () => {
       </p>
 
       {separator('used by')}
-      <OverlayScrollbarsComponent defer>
+      <OverlayScrollbarsClientComponent defer>
         <div className="flex justify-center">
           <div
             className={classnames(
-              'inline-flex  items-center gap-6 py-6 opacity-60 [filter:brightness(0.8)_sepia(1)_saturate(1.44)_hue-rotate(175deg)]'
+              'inline-flex items-center gap-6 px-1 py-6 opacity-60 [filter:brightness(0.8)_sepia(1)_saturate(1.44)_hue-rotate(175deg)]'
             )}
           >
-            <div
-              className="h-11 px-3 flex-grow flex-shrink-0"
-              style={{ filter: 'brightness(0.35)' }}
-            >
-              <img className="h-full" src="/OverlayScrollbars/img/spotify-logo.svg" alt="" />
-            </div>
-            <div className="h-11 px-3 py-1.5 flex-grow flex-shrink-0">
-              <img className="h-full" src="/OverlayScrollbars/img/storybook-logo.svg" alt="" />
-            </div>
-            <div className="h-11 p-3 flex-grow flex-shrink-0">
-              <img className="h-full" src="/OverlayScrollbars/img/adminlte-logo.png" alt="" />
-            </div>
+            {renderUsageEntry(
+              'https://github.com/KingSora/OverlayScrollbars/issues/150#issuecomment-658658186',
+              {
+                src: '/OverlayScrollbars/img/spotify-logo.svg',
+                alt: 'Spotify',
+                style: { filter: 'brightness(0.35)' },
+              },
+              'py-1'
+            )}
+            {renderUsageEntry(
+              'https://github.com/JetBrains/intellij-community/blob/ee35416f381ed33f976d7b9322a5ee6156e7fa2f/platform/platform-api/src/com/intellij/ui/jcef/JBCefScrollbarsHelper.java#L41-L50',
+              {
+                src: '/OverlayScrollbars/img/intellij-idea-logo.svg',
+                alt: 'IntelliJ IDEA',
+              }
+            )}
+            {renderUsageEntry(
+              'https://github.com/storybookjs/storybook/blob/32d2fafa8d1d2e197e885349f2c01f5422bde5b4/code/ui/components/package.json#L66-L67',
+              {
+                src: '/OverlayScrollbars/img/storybook-logo.svg',
+                alt: 'Storybook',
+              },
+              'py-1.5'
+            )}
+            {renderUsageEntry(
+              'https://github.com/ColorlibHQ/AdminLTE/blob/3113ac5efed25971ccd0972f5eeff3c364f218dc/src/html/components/_scripts.astro#L6-L7',
+              {
+                src: '/OverlayScrollbars/img/adminlte-logo.png',
+                alt: 'Admin LTE',
+              },
+              'py-3'
+            )}
+            {renderUsageEntry('https://scramble.cloud/#credits', {
+              src: '/OverlayScrollbars/img/scramble-logo.svg',
+              alt: 'Scramble.cloud',
+            })}
           </div>
         </div>
-      </OverlayScrollbarsComponent>
+      </OverlayScrollbarsClientComponent>
       {separator(
         <a href={githubLink} target="_blank" className="inline-block leading-[0] rounded-full">
           <Icon
@@ -174,14 +179,9 @@ const IndexPage = () => {
           Examples
         </Link>
       </nav>
-
-      <GoogleAd className="my-6" adSlotId="7030767653" format={{ height: 100, width: 800 }} />
-
       <main className="prose prose-primary mx-auto pb-12">
-        <IndexMdx />
+        <README />
       </main>
-
-      <GoogleAd className="my-6" adSlotId="3179152550" format={{ height: 100, width: 800 }} />
     </PageContainer>
   );
 };

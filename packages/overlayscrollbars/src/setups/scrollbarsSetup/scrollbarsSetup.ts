@@ -11,7 +11,7 @@ import {
   classNameScrollbarRtl,
   classNameScrollbarAutoHide,
 } from '~/classnames';
-import { type ReadonlyOptions } from '~/options';
+import type { OverflowBehavior, ReadonlyOptions } from '~/options';
 import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup.elements';
 import type {
   ObserversSetupState,
@@ -156,7 +156,7 @@ export const createScrollbarsSetup = (
       const { _directionChanged, _appear } = _observersUpdateHints || {};
       const { _directionIsRTL } = observersSetupState;
       const { _nativeScrollbarsOverlaid } = getEnvironment();
-      const { _overflowAmount, _overflowStyle, _hasOverflow } = structureSetupState;
+      const { _overflowStyle, _hasOverflow } = structureSetupState;
       const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
         _checkOption('showNativeOverlaidScrollbars');
       const [theme, themeChanged] = _checkOption('scrollbars.theme');
@@ -166,20 +166,28 @@ export const createScrollbarsSetup = (
       const [autoHideDelay] = _checkOption('scrollbars.autoHideDelay');
       const [dragScroll, dragScrollChanged] = _checkOption('scrollbars.dragScroll');
       const [clickScroll, clickScrollChanged] = _checkOption('scrollbars.clickScroll');
+      const [overflow, overflowChanged] = _checkOption('overflow');
       const trulyAppeared = _appear && !_force;
       const hasOverflow = _hasOverflow.x || _hasOverflow.y;
       const updateScrollbars =
         _overflowEdgeChanged || _overflowAmountChanged || _directionChanged || _force;
-      const updateVisibility = _overflowStyleChanged || visibilityChanged;
+      const updateVisibility = _overflowStyleChanged || visibilityChanged || overflowChanged;
       const showNativeOverlaidScrollbars =
         showNativeOverlaidScrollbarsOption &&
         _nativeScrollbarsOverlaid.x &&
         _nativeScrollbarsOverlaid.y;
 
-      const setScrollbarVisibility = (overflowStyle: OverflowStyle, isHorizontal: boolean) => {
+      const setScrollbarVisibility = (
+        overflowBehavior: OverflowBehavior,
+        overflowStyle: OverflowStyle,
+        isHorizontal: boolean
+      ) => {
         const isVisible =
-          visibility === 'visible' || (visibility === 'auto' && overflowStyle === 'scroll');
+          overflowBehavior.includes('scroll') &&
+          (visibility === 'visible' || (visibility === 'auto' && overflowStyle === 'scroll'));
+
         _scrollbarsAddRemoveClass(classNameScrollbarVisible, isVisible, isHorizontal);
+
         return isVisible;
       };
 
@@ -235,8 +243,8 @@ export const createScrollbarsSetup = (
       }
 
       if (updateVisibility) {
-        const xVisible = setScrollbarVisibility(_overflowStyle.x, true);
-        const yVisible = setScrollbarVisibility(_overflowStyle.y, false);
+        const xVisible = setScrollbarVisibility(overflow.x, _overflowStyle.x, true);
+        const yVisible = setScrollbarVisibility(overflow.y, _overflowStyle.y, false);
         const hasCorner = xVisible && yVisible;
 
         _scrollbarsAddRemoveClass(classNameScrollbarCornerless, !hasCorner);
@@ -248,8 +256,8 @@ export const createScrollbarsSetup = (
         _refreshScrollbarsHandleOffset();
         _refreshScrollbarsScrollbarOffset();
 
-        _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.x, true);
-        _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_overflowAmount.y, false);
+        _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_hasOverflow.x, true);
+        _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_hasOverflow.y, false);
         _scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL && !_isBody);
       }
     },

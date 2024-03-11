@@ -72,6 +72,9 @@ body > .os-scrollbar {
 }
 .os-scrollbar-unusable .os-scrollbar-handle {
   opacity: 0 !important;
+  // dont do any transitions anymore when unusable
+  // especially no opacity and visibility transitions to prevent full size handles remaining visible for the duration of the transition
+  transition: none !important;
 }
 .os-scrollbar-horizontal .os-scrollbar-handle {
   bottom: 0;

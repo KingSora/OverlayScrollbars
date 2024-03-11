@@ -1,6 +1,5 @@
 import { Link } from '~/components/Link';
 import { PageContainer } from '~/components/PageContainer';
-import { GoogleAd } from '~/components/google-ad';
 import type { Metadata } from 'next';
 
 interface Example {
@@ -43,8 +42,10 @@ const renderExample = (logo: string, framework: string, examples: Example[]) => 
 const ExamplesPage = () => {
   return (
     <PageContainer className="h-full">
-      <main className="h-full grid items-center justify-items-center py-5">
-        <Link href="/">Documentation</Link>
+      <main className="h-full grid items-center justify-items-center py-5 grid-rows-[auto_1fr]">
+        <Link href="/" className="p-4">
+          Documentation
+        </Link>
         <div className="w-full grid gap-6 grid-cols-fit-56 py-6">
           {renderExample('/OverlayScrollbars/icon/javascript.svg', 'JavaScript', [
             { name: 'Demo App', url: '/OverlayScrollbars/example/overlayscrollbars' },
@@ -115,11 +116,6 @@ const ExamplesPage = () => {
             ]
           )}
         </div>
-        <GoogleAd
-          adSlotId="4341025139"
-          format={{ height: 100, width: 800 }}
-          className="w-full min-w-0"
-        />
       </main>
     </PageContainer>
   );

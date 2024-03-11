@@ -4,12 +4,12 @@
   "dependencies": {
     "overlayscrollbars": "file:../../packages/overlayscrollbars/dist",
     "overlayscrollbars-solid": "file:../../packages/overlayscrollbars-solid/dist",
-    "solid-js": "^1.7.11"
+    "solid-js": "^1.8.15"
   },
   "devDependencies": {
     "typescript": "^5.0.2",
     "vite": "^5.0.10",
-    "vite-plugin-solid": "^2.8.0"
+    "vite-plugin-solid": "^2.10.1"
   },
   "scripts": {
     "start": "vite",

@@ -7,7 +7,6 @@ const withMDX = mdx({
   extension: /\.mdx?$/,
   options: {
     remarkPlugins: [remarkGfm],
-
     rehypePlugins: [
       rehypeSlug,
       [
@@ -17,7 +16,6 @@ const withMDX = mdx({
         },
       ],
     ],
-    providerImportSource: '@mdx-js/react',
   },
 });
 

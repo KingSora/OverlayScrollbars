@@ -4,7 +4,7 @@
   "dependencies": {
     "overlayscrollbars": "file:../../packages/overlayscrollbars/dist",
     "overlayscrollbars-vue": "file:../../packages/overlayscrollbars-vue/dist",
-    "vue": "^3.2.38"
+    "vue": "^3.4.21"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",
