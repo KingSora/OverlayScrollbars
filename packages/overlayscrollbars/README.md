@@ -1246,6 +1246,17 @@ viewport.scrollTo({ top: 0 }); // set scroll offset
 
 </details>
 
+## Feature comparison to `v1`
+
+- The `scroll` function is missing. Planned as a `plugin`. (WIP)
+- Initialization to the `textarea` element isn't supported yet. Planned as a `plugin`. (WIP) 
+
+## Future Plans
+
+ - Provide plugin based support for missing features. (treeshakeable)
+ - Frequent updates in terms of bug-fixes and enhancements. (always use latest browser features)
+ - Improve tests. (unit & browser tests)
+
 ## Used by
 
 - [Spotify](https://github.com/KingSora/OverlayScrollbars/issues/150#issuecomment-619298317)
@@ -1253,11 +1264,6 @@ viewport.scrollTo({ top: 0 }); // set scroll offset
 - [Storybook](https://github.com/storybookjs/storybook/blob/32d2fafa8d1d2e197e885349f2c01f5422bde5b4/code/ui/components/package.json#L66-L67)
 - [Admin LTE](https://github.com/ColorlibHQ/AdminLTE/blob/3113ac5efed25971ccd0972f5eeff3c364f218dc/src/html/components/_scripts.astro#L6-L7)
 - and many more...
-
-## Feature comparison to `v1`
-
-- The `scroll` function is missing. Planned as a `plugin`. (WIP)
-- Initialization to the `textarea` element isn't supported yet. Planned as a `plugin`. (WIP) 
 
 ## Sponsors
 <table>
@@ -1274,12 +1280,6 @@ viewport.scrollTo({ top: 0 }); // set scroll offset
     </tr>
   </tbody>
 </table>
-
-## Future Plans
-
- - Provide plugin based support for missing features. (treeshakeable)
- - Frequent updates in terms of bug-fixes and enhancements. (always use latest browser features)
- - Improve tests. (unit & browser tests)
 
 ## License
 
