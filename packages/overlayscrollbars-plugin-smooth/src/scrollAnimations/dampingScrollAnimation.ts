@@ -1,4 +1,5 @@
 import { dampingSimulation } from '~/simulations/dampingSimulation';
+import { springSimulation } from '~/simulations/springSimulation';
 import type { ScrollAnimation } from '../scrollAnimations/scrollAnimation';
 import { stopDistanceEpsilon, stopVelocityEpsilon } from './constants';
 
@@ -27,7 +28,7 @@ export const dampingScrollAnimation = (
   const { damping, stopVelocity, stopDistance } = { ...defaultOptions, ...options };
 
   const simulation = dampingSimulation({ _damping: damping });
-
+  const smoothTime = 0.5;
   return {
     /*
     update(updateInfo) {
@@ -37,10 +38,43 @@ export const dampingScrollAnimation = (
       console.log({ vel: velocity, duration });
     },
 */
-    frame({ scroll, destinationScroll }, { deltaTime }) {
+    frame({ scroll, destinationScroll, velocity }, { deltaTime }) {
+      deltaTime = deltaTime / 1000;
+      const dampingLog = Math.log(damping);
+      const springDamping = -dampingLog * 2;
+      const springStiffness = dampingLog * dampingLog;
+
+      const spring = springSimulation({
+        _mass: 1,
+        _stiffness: springStiffness,
+        _damping: springDamping,
+      });
+
+      const lambda = -dampingLog;
+      const exp = Math.exp(-lambda * deltaTime);
+
+      const displacement = destinationScroll - scroll;
+
+      const c1 = -displacement;
+      const c2 = 0; // velocity + lambda * -displacement; // 0
+
+      const newDisplacement2 = displacement + exp * (c1 + c2 * deltaTime);
+      const newVelcity2 = (c1 + c2 * deltaTime) * exp * -lambda + c2 * exp;
+
+      const res = simulation.simulate(displacement, velocity, deltaTime);
+      const { _displacement, _velocity } = spring.simulate(displacement, velocity, deltaTime);
+
+      // console.log(_velocity, newVelcity2);
+
+      return {
+        scroll: scroll + _displacement,
+        velocity: _velocity,
+      };
+
+      /*
       const { _displacement, _velocity } = simulation.simulate(
         destinationScroll - scroll,
-        0,
+        velocity,
         deltaTime / 1000
       );
       const newScroll = scroll + _displacement;
@@ -52,6 +86,7 @@ export const dampingScrollAnimation = (
         scroll: newScroll,
         velocity: _velocity,
       };
+      */
     },
   };
 };

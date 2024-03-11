@@ -87,7 +87,7 @@ export interface OverlayScrollbarsPluginSmoothInstance {
 }
 
 const defaultOptions: OverlayScrollbarsPluginSmoothOptions = {
-  scrollAnimation: springScrollAnimation(),
+  scrollAnimation: dampingScrollAnimation(),
   scrollChaining: true,
   responsiveDirectionChange: true,
   clampToViewport: false,

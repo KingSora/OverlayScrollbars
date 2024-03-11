@@ -30,6 +30,7 @@ const osInstanceA = (window.osInstance = OverlayScrollbars(
 const osInstanceB = OverlayScrollbars(document.querySelector<HTMLElement>('#b')!, {});
 
 const drawCanvas = () => {
+  osInstanceB.elements().host.style.display = 'none';
   canvas.style.display = 'block';
   const dpr = window.devicePixelRatio;
   const size = { x: 1000, y: 4000 };
@@ -76,4 +77,4 @@ const drawCanvas = () => {
   requestAnimationFrame(render);
 };
 
-// drawCanvas();
+drawCanvas();
