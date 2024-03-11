@@ -78,7 +78,7 @@ const IndexPage = () => {
             )}
           >
             {renderUsageEntry(
-              'https://github.com/KingSora/OverlayScrollbars/issues/150#issuecomment-619298317',
+              'https://github.com/KingSora/OverlayScrollbars/issues/150#issuecomment-658658186',
               {
                 src: '/OverlayScrollbars/img/spotify-logo.svg',
                 alt: 'Spotify',
