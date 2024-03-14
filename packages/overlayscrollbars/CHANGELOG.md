@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- If a non generated `elements.viewport` element is provided during initialization its scroll position will be taken as the initial scroll position instead of the scroll position of the `target` element.
+
 ## 2.6.1
 
 ### Bug Fixes
