@@ -115,15 +115,13 @@ const assertCorrectDOMStructure = (
   elements: StructureSetupElementsObj
 ) => {
   const { target, host, padding, viewport, content, children } = getElements(targetType);
-  const { _getDefaultInitialization } = env;
-  const { _viewportIsTarget, _viewportIsContent, _viewport, _content, _isBody } = elements;
+  const { _viewportIsTarget, _viewport, _content, _isBody } = elements;
 
   expect(children).toBeDefined();
   expect((_content || _viewport).contains(children)).toBe(true);
 
   if (_viewportIsTarget) {
     expect(host.getAttribute(dataAttributeHost)).toBe('viewport');
-    expect(_viewportIsContent).toBe(false);
 
     if (_isBody) {
       expect(target.parentElement).toBe(host);
@@ -164,19 +162,6 @@ const assertCorrectDOMStructure = (
       expect(contentElm.innerHTML).toContain(dynamicContent);
     }
   }
-
-  if (_viewportIsContent) {
-    const { _target } = elements;
-    const { elements: defaultInitElements } = _getDefaultInitialization();
-    const { content: defaultContentInit } = defaultInitElements;
-    const resolvedDefaultContentInit = resolveInitialization([_target], defaultContentInit);
-
-    if (resolvedDefaultContentInit) {
-      expect(children!.parentElement).toBe(_content || _viewport);
-    } else {
-      expect(children!.parentElement).toBe(_viewport);
-    }
-  }
 };
 
 const createStructureSetupElementsProxy = (
@@ -212,7 +197,6 @@ const assertCorrectSetupElements = (
     _viewport,
     _content,
     _viewportIsTarget,
-    _viewportIsContent,
     _originalScrollOffsetElement,
     _viewportHasClass,
     _viewportAddRemoveClass,
@@ -294,72 +278,45 @@ const assertCorrectSetupElements = (
   ) => {
     const resolvedInitialization = resolveInitialization([target], initialization);
     const resolvedDefaultInitialization = resolveInitialization([target], defaultInitialization);
-    if (resolvedInitialization) {
-      if (!_viewportIsTarget && !_viewportIsContent) {
-        expect(elm).toBeTruthy();
-      }
-      if (_viewportIsContent) {
-        if (kind === 'content') {
+
+    if (resolvedInitialization === false) {
+      expect(elm).toBeFalsy();
+    }
+    if (resolvedInitialization === undefined) {
+      if (isStaticInitialization) {
+        defaultInitialization = defaultInitialization as StructureStaticInitializationElement;
+        if (_viewportIsTarget) {
+          if (kind === 'host') {
+            expect(elm).toBeTruthy();
+          } else {
+            expect(elm).toBeFalsy();
+          }
+        } else if (resolvedDefaultInitialization && !isTextarea) {
+          expect(resolvedDefaultInitialization).toBe(elm);
+        } else {
+          expect(elm).toBeTruthy();
+        }
+      } else {
+        defaultInitialization = defaultInitialization as StructureDynamicInitializationElement;
+        const resultIsBoolean = typeof resolvedDefaultInitialization === 'boolean';
+        if (_viewportIsTarget) {
+          if (kind === 'host') {
+            expect(elm).toBeTruthy();
+          } else {
+            expect(elm).toBeFalsy();
+          }
+        } else if (resultIsBoolean) {
           if (resolvedDefaultInitialization) {
             expect(elm).toBeTruthy();
           } else {
             expect(elm).toBeFalsy();
           }
-        } else {
-          expect(elm).toBeTruthy();
-        }
-      }
-    } else {
-      if (resolvedInitialization === false) {
-        expect(elm).toBeFalsy();
-      }
-      if (resolvedInitialization === undefined) {
-        if (isStaticInitialization) {
-          defaultInitialization = defaultInitialization as StructureStaticInitializationElement;
-          if (_viewportIsTarget) {
-            if (kind === 'host') {
-              expect(elm).toBeTruthy();
-            } else {
-              expect(elm).toBeFalsy();
-            }
-          } else if (resolvedDefaultInitialization && !isTextarea) {
-            expect(resolvedDefaultInitialization).toBe(elm);
-          } else {
-            expect(elm).toBeTruthy();
-          }
-        } else {
-          defaultInitialization = defaultInitialization as StructureDynamicInitializationElement;
-          const resultIsBoolean = typeof resolvedDefaultInitialization === 'boolean';
-          if (_viewportIsTarget) {
-            if (kind === 'host') {
-              expect(elm).toBeTruthy();
-            } else {
-              expect(elm).toBeFalsy();
-            }
-          } else if (resultIsBoolean) {
-            if (resolvedDefaultInitialization) {
-              expect(elm).toBeTruthy();
-            } else {
-              expect(elm).toBeFalsy();
-            }
-          } else if (resolvedDefaultInitialization) {
-            expect(elm).toBe(resolvedDefaultInitialization);
-          }
+        } else if (resolvedDefaultInitialization) {
+          expect(elm).toBe(resolvedDefaultInitialization);
         }
       }
     }
   };
-
-  if (_viewportIsContent) {
-    const { content: defaultContentInit } = defaultInitElements;
-    const resolvedDefaultContentInit = resolveInitialization([_target], defaultContentInit);
-
-    if (resolvedDefaultContentInit) {
-      expect(_content).toBeTruthy();
-    } else {
-      expect(_content).toBeFalsy();
-    }
-  }
 
   if (inputIsElement) {
     checkStrategyDependendElements(
@@ -430,21 +387,10 @@ const assertCorrectSetupElements = (
     } else {
       const resolvedViewport = resolveInitialization([target], viewportInitialization);
 
-      if (_viewportIsContent) {
-        const { content: defaultContentInit } = defaultInitElements;
-        const resolvedDefaultContent = resolveInitialization([_target], defaultContentInit);
-
-        if (resolvedDefaultContent) {
-          expect(_originalScrollOffsetElement).toBe(target);
-        } else {
-          expect(_originalScrollOffsetElement).toBe(resolvedViewport);
-        }
+      if (isHTMLElement(resolvedViewport)) {
+        expect(_originalScrollOffsetElement).toBe(resolvedViewport);
       } else {
-        if (isHTMLElement(resolvedViewport)) {
-          expect(_originalScrollOffsetElement).toBe(resolvedViewport);
-        } else {
-          expect(_originalScrollOffsetElement).toBe(target);
-        }
+        expect(_originalScrollOffsetElement).toBe(target);
       }
     }
   }
@@ -1276,25 +1222,7 @@ describe('structureSetup.elements', () => {
                   }),
                   currEnv
                 );
-                if (!elements._viewportIsTarget) {
-                  expect(elements._viewportIsContent).toBe(true);
-                }
-                if (elements._viewportIsContent) {
-                  expect(getElements(targetType).children!.parentElement).toBe(
-                    document.querySelector(`#viewportOrContent`)
-                  );
-                  const defaultContentFn = currEnv._getDefaultInitialization().elements.content;
-                  const defaultContentElm =
-                    typeof defaultContentFn === 'function'
-                      ? defaultContentFn(getTarget(targetType))
-                      : defaultContentFn;
-
-                  if (defaultContentElm) {
-                    expect(elements._content).toBeTruthy();
-                  } else {
-                    expect(elements._content).toBeFalsy();
-                  }
-                }
+                expect(elements._content).toBeFalsy();
                 assertCorrectDOMStructure(targetType, currEnv, elements);
                 assertCorrectDestroy(snapshot, destroy);
               });
@@ -1399,7 +1327,6 @@ describe('structureSetup.elements', () => {
                     }),
                     currEnv
                   );
-                  expect(elements._viewportIsContent).toBe(false);
                   expect(elements._viewportIsTarget).toBe(true);
                   expect(elements._host).toBe(
                     elements._isBody ? elements._target.parentElement : elements._target
