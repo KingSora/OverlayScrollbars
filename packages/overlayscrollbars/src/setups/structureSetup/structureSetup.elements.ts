@@ -36,7 +36,6 @@ import { getEnvironment } from '~/environment';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
-  resolveInitialization as generalResolveInitialization,
 } from '~/initialization';
 import type {
   InitializationTarget,
@@ -66,7 +65,6 @@ export interface StructureSetupElementsObj {
   _documentElm: Document;
   _targetIsElm: boolean;
   _viewportIsTarget: boolean;
-  _viewportIsContent: boolean;
   _viewportHasClass: (viewportAttributeClassName: string) => boolean;
   _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) => void;
 }
@@ -107,7 +105,6 @@ export const createStructureSetupElements = (
   };
   const staticInitializationElement = bind(generalStaticInitializationElement, [targetElement]);
   const dynamicInitializationElement = bind(generalDynamicInitializationElement, [targetElement]);
-  const resolveInitialization = bind(generalResolveInitialization, [targetElement]);
   const createNewDiv = bind(createDiv, '');
   const generateViewportElement = bind(
     staticInitializationElement,
@@ -124,30 +121,18 @@ export const createStructureSetupElements = (
   const viewportIsTargetBody = viewportIsTarget && isBody;
   const possibleContentElement = !viewportIsTarget && generateContentElement(contentInitialization);
   // edge case if passed viewportElement is contentElement:
-  // check the default contentElement
-  // if truthy (so the element would be present in the DOM) the passed element is the final content element and the viewport element is generated
-  // if falsy (so the element wouldn't be present in the DOM) the passed element is the final viewport element and the content element is omitted
+  // viewport element has higher priority and content element will not be generated
+  // will act the same way as initialization: `{ elements: { viewport, content: false } }`
   const viewportIsContent = !viewportIsTarget && possibleViewportElement === possibleContentElement;
-  const defaultContentElementPresent =
-    viewportIsContent && !!resolveInitialization(defaultContentInitialization);
-  const viewportIsContentViewport = defaultContentElementPresent
-    ? generateViewportElement()
-    : possibleViewportElement;
-  const viewportIsContentContent = defaultContentElementPresent
-    ? possibleContentElement
-    : generateContentElement();
-  const nonBodyViewportElement = viewportIsContent
-    ? viewportIsContentViewport
-    : possibleViewportElement;
-  const viewportElement = viewportIsTargetBody ? docElement : nonBodyViewportElement;
+  const viewportElement = viewportIsTargetBody ? docElement : possibleViewportElement;
   const nonBodyHostElement = isTextarea
     ? staticInitializationElement(createNewDiv, defaultHostInitialization, hostInitialization)
     : (targetElement as HTMLElement);
   const hostElement = viewportIsTargetBody ? viewportElement : nonBodyHostElement;
-  const contentElement = viewportIsContent ? viewportIsContentContent : possibleContentElement;
   const paddingElement =
     !viewportIsTarget &&
     dynamicInitializationElement(createNewDiv, defaultPaddingInitialization, paddingInitialization);
+  const contentElement = !viewportIsContent && possibleContentElement;
   const generatedElements = [contentElement, viewportElement, paddingElement, hostElement].map(
     (elm) => isHTMLElement(elm) && !parent(elm) && elm
   );
@@ -171,7 +156,6 @@ export const createStructureSetupElements = (
     _isBody: isBody,
     _targetIsElm: targetIsElm,
     _viewportIsTarget: viewportIsTarget,
-    _viewportIsContent: viewportIsContent,
     _viewportHasClass: (viewportAttributeClassName: string) =>
       hasAttrClass(
         viewportElement,
