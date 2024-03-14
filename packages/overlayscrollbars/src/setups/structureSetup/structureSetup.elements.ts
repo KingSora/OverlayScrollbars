@@ -9,7 +9,6 @@ import {
   removeElements,
   push,
   runEachAndClear,
-  keys,
   removeAttrs,
   hasAttrClass,
   addEventListener,
@@ -128,20 +127,17 @@ export const createStructureSetupElements = (
   // check the default contentElement
   // if truthy (so the element would be present in the DOM) the passed element is the final content element and the viewport element is generated
   // if falsy (so the element wouldn't be present in the DOM) the passed element is the final viewport element and the content element is omitted
-  const viewportIsContent =
-    !viewportIsTarget &&
-    isHTMLElement(possibleViewportElement) &&
-    possibleViewportElement === possibleContentElement;
+  const viewportIsContent = !viewportIsTarget && possibleViewportElement === possibleContentElement;
   const defaultContentElementPresent =
     viewportIsContent && !!resolveInitialization(defaultContentInitialization);
-  const viewportIstContentViewport = defaultContentElementPresent
+  const viewportIsContentViewport = defaultContentElementPresent
     ? generateViewportElement()
     : possibleViewportElement;
   const viewportIsContentContent = defaultContentElementPresent
     ? possibleContentElement
     : generateContentElement();
   const nonBodyViewportElement = viewportIsContent
-    ? viewportIstContentViewport
+    ? viewportIsContentViewport
     : possibleViewportElement;
   const viewportElement = viewportIsTargetBody ? docElement : nonBodyViewportElement;
   const nonBodyHostElement = isTextarea
@@ -149,22 +145,26 @@ export const createStructureSetupElements = (
     : (targetElement as HTMLElement);
   const hostElement = viewportIsTargetBody ? viewportElement : nonBodyHostElement;
   const contentElement = viewportIsContent ? viewportIsContentContent : possibleContentElement;
+  const paddingElement =
+    !viewportIsTarget &&
+    dynamicInitializationElement(createNewDiv, defaultPaddingInitialization, paddingInitialization);
+  const generatedElements = [contentElement, viewportElement, paddingElement, hostElement].map(
+    (elm) => isHTMLElement(elm) && !parent(elm) && elm
+  );
+  const elementIsGenerated = (elm: HTMLElement | false) => elm && inArray(generatedElements, elm);
+  const originalNonBodyScrollOffsetElement = elementIsGenerated(viewportElement)
+    ? targetElement
+    : viewportElement;
 
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
     _host: hostElement,
     _viewport: viewportElement,
-    _padding:
-      !viewportIsTarget &&
-      dynamicInitializationElement(
-        createNewDiv,
-        defaultPaddingInitialization,
-        paddingInitialization
-      ),
+    _padding: paddingElement,
     _content: contentElement,
     _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
     _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
-    _originalScrollOffsetElement: isBody ? docElement : targetElement,
+    _originalScrollOffsetElement: isBody ? docElement : originalNonBodyScrollOffsetElement,
     _windowElm: docWnd,
     _documentElm: ownerDocument,
     _isTextarea: isTextarea,
@@ -186,12 +186,6 @@ export const createStructureSetupElements = (
         add
       ),
   };
-  const generatedElements = keys(evaluatedTargetObj).reduce((arr, key) => {
-    const value = evaluatedTargetObj[key as keyof StructureSetupElementsObj];
-    return push(arr, value && isHTMLElement(value) && !parent(value) ? value : false);
-  }, [] as Array<HTMLElement | false>);
-  const elementIsGenerated = (elm: HTMLElement | false) =>
-    elm ? inArray(generatedElements, elm) : null;
   const { _target, _host, _padding, _viewport, _content } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [
     () => {
@@ -208,7 +202,7 @@ export const createStructureSetupElements = (
     ? _target
     : contents(
         [_content, _viewport, _padding, _host, _target].find(
-          (elm) => elementIsGenerated(elm) === false
+          (elm) => elm && !elementIsGenerated(elm)
         )
       );
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;

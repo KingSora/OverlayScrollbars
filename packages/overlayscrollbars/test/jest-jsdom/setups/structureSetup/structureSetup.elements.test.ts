@@ -83,6 +83,7 @@ const fillBody = (
 
   return getSnapshot();
 };
+
 const clearBody = () => {
   document.body.innerHTML = '';
 };
@@ -212,6 +213,7 @@ const assertCorrectSetupElements = (
     _content,
     _viewportIsTarget,
     _viewportIsContent,
+    _originalScrollOffsetElement,
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = elements;
@@ -382,6 +384,13 @@ const assertCorrectSetupElements = (
       'viewport'
     );
     checkStrategyDependendElements(host, undefined, true, defaultHostInitStrategy, 'host');
+
+    // check for correct original scroll offset element
+    if (isBody) {
+      expect(_originalScrollOffsetElement).toBe(_documentElm.documentElement);
+    } else {
+      expect(_originalScrollOffsetElement).toBe(target);
+    }
   } else {
     const { elements: inputElements } = inputAsObj;
     const {
@@ -412,6 +421,32 @@ const assertCorrectSetupElements = (
       'viewport'
     );
     checkStrategyDependendElements(host, hostInitialization, true, defaultHostInitStrategy, 'host');
+
+    // check for correct original scroll offset element
+    if (isBody) {
+      expect(_originalScrollOffsetElement).toBe(_documentElm.documentElement);
+    } else if (_viewportIsTarget || !viewportInitialization) {
+      expect(_originalScrollOffsetElement).toBe(target);
+    } else {
+      const resolvedViewport = resolveInitialization([target], viewportInitialization);
+
+      if (_viewportIsContent) {
+        const { content: defaultContentInit } = defaultInitElements;
+        const resolvedDefaultContent = resolveInitialization([_target], defaultContentInit);
+
+        if (resolvedDefaultContent) {
+          expect(_originalScrollOffsetElement).toBe(target);
+        } else {
+          expect(_originalScrollOffsetElement).toBe(resolvedViewport);
+        }
+      } else {
+        if (isHTMLElement(resolvedViewport)) {
+          expect(_originalScrollOffsetElement).toBe(resolvedViewport);
+        } else {
+          expect(_originalScrollOffsetElement).toBe(target);
+        }
+      }
+    }
   }
 
   const attrName = 'attr';
