@@ -5,6 +5,7 @@
 ### Improvements
 
 - If a non generated `elements.viewport` element is provided during initialization its scroll position will be taken as the initial scroll position instead of the scroll position of the `target` element.
+- When interacting with the scrollbars itself the `scrollbars.autoHideDelay` will now apply when the scrollbars would be auto hidden when the interaction ends.
 
 ## 2.6.1
 

@@ -51,23 +51,58 @@ export const createScrollbarsSetup = (
 ): ScrollbarsSetup => {
   let autoHideIsMove: boolean | undefined;
   let autoHideIsLeave: boolean | undefined;
-  let autoHideNotNever: boolean | undefined;
-  let mouseInHost: boolean | undefined;
+  let autoHideIsNever: boolean | undefined;
   let prevTheme: string | null | undefined;
   let instanceAutoHideSuspendScrollDestroyFn = noop;
   let instanceAutoHideDelay = 0;
 
-  const [requestMouseMoveAnimationFrame, cancelMouseMoveAnimationFrame] = selfClearTimeout();
+  const getAutoHideIsScrollOrMove = () => !autoHideIsNever && !autoHideIsLeave;
+
+  // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
+  const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
+
   const [requestScrollAnimationFrame, cancelScrollAnimationFrame] = selfClearTimeout();
-  const [scrollTimeout, clearScrollTimeout] = selfClearTimeout(100);
-  const [auotHideMoveTimeout, clearAutoHideTimeout] = selfClearTimeout(100);
+  const [autoHideInstantInteractionTimeout, clearAutoHideInstantInteractionTimeout] =
+    selfClearTimeout(100);
   const [autoHideSuspendTimeout, clearAutoHideSuspendTimeout] = selfClearTimeout(100);
-  const [auotHideTimeout, clearAutoTimeout] = selfClearTimeout(() => instanceAutoHideDelay);
+  const [auotHideTimeout, clearAutoHideTimeout] = selfClearTimeout(() => instanceAutoHideDelay);
+  const createManageAutoHideFn =
+    (scrollbarsAddRemoveClass: ScrollbarsSetupElementsObj['_scrollbarsAddRemoveClass']) =>
+    (removeAutoHide: boolean, delayless?: boolean) => {
+      clearAutoHideTimeout();
+      if (removeAutoHide) {
+        scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden);
+      } else {
+        const hide = bind(scrollbarsAddRemoveClass, classNameScrollbarAutoHideHidden, true);
+        if (instanceAutoHideDelay > 0 && !delayless) {
+          auotHideTimeout(hide);
+        } else {
+          hide();
+        }
+      }
+    };
+  const manageAutoHideInstantInteraction = (
+    autoHideFn: ReturnType<typeof createManageAutoHideFn>
+  ) => {
+    autoHideFn(true);
+    autoHideInstantInteractionTimeout(() => {
+      autoHideFn(false);
+    });
+  };
+
   const [elements, appendElements] = createScrollbarsSetupElements(
     target,
     structureSetupElements,
     structureSetupState,
-    createScrollbarsSetupEvents(options, structureSetupElements, structureSetupState)
+    createScrollbarsSetupEvents(
+      options,
+      structureSetupElements,
+      structureSetupState,
+      (event, scrollbarsAddRemoveClass) =>
+        isHoverablePointerType(event) &&
+        getAutoHideIsScrollOrMove() &&
+        manageAutoHideInstantInteraction(createManageAutoHideFn(scrollbarsAddRemoveClass))
+    )
   );
   const { _host, _scrollEventElement, _isBody } = structureSetupElements;
   const {
@@ -80,66 +115,37 @@ export const createScrollbarsSetup = (
     _scrollbarsAddRemoveClass(classNameScrollbarAutoHide, add, true);
     _scrollbarsAddRemoveClass(classNameScrollbarAutoHide, add, false);
   };
-  const manageScrollbarsAutoHide = (removeAutoHide: boolean, delayless?: boolean) => {
-    clearAutoTimeout();
-    if (removeAutoHide) {
-      _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden);
-    } else {
-      const hide = bind(_scrollbarsAddRemoveClass, classNameScrollbarAutoHideHidden, true);
-      if (instanceAutoHideDelay > 0 && !delayless) {
-        auotHideTimeout(hide);
-      } else {
-        hide();
-      }
-    }
-  };
-
-  // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
-  const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
-
+  const manageScrollbarsAutoHide = createManageAutoHideFn(_scrollbarsAddRemoveClass);
   const onHostMouseEnter = (event: PointerEvent) => {
     if (isHoverablePointerType(event)) {
-      mouseInHost = autoHideIsLeave;
-      mouseInHost && manageScrollbarsAutoHide(true);
+      autoHideIsLeave && manageScrollbarsAutoHide(true);
     }
   };
 
   const destroyFns: (() => void)[] = [
-    clearScrollTimeout,
-    clearAutoTimeout,
     clearAutoHideTimeout,
+    clearAutoHideInstantInteractionTimeout,
     clearAutoHideSuspendTimeout,
     cancelScrollAnimationFrame,
-    cancelMouseMoveAnimationFrame,
     () => instanceAutoHideSuspendScrollDestroyFn(),
 
     addEventListener(_host, 'pointerover', onHostMouseEnter, { _once: true }),
     addEventListener(_host, 'pointerenter', onHostMouseEnter),
     addEventListener(_host, 'pointerleave', (event: PointerEvent) => {
       if (isHoverablePointerType(event)) {
-        mouseInHost = false;
         autoHideIsLeave && manageScrollbarsAutoHide(false);
       }
     }),
     addEventListener(_host, 'pointermove', (event: PointerEvent) => {
       isHoverablePointerType(event) &&
         autoHideIsMove &&
-        requestMouseMoveAnimationFrame(() => {
-          clearScrollTimeout();
-          manageScrollbarsAutoHide(true);
-          auotHideMoveTimeout(() => {
-            autoHideIsMove && manageScrollbarsAutoHide(false);
-          });
-        });
+        manageAutoHideInstantInteraction(manageScrollbarsAutoHide);
     }),
     addEventListener(_scrollEventElement, 'scroll', (event) => {
       requestScrollAnimationFrame(() => {
         _refreshScrollbarsHandleOffset();
 
-        autoHideNotNever && manageScrollbarsAutoHide(true);
-        scrollTimeout(() => {
-          autoHideNotNever && !mouseInHost && manageScrollbarsAutoHide(false);
-        });
+        getAutoHideIsScrollOrMove() && manageAutoHideInstantInteraction(manageScrollbarsAutoHide);
       });
 
       onScroll(event);
@@ -230,8 +236,8 @@ export const createScrollbarsSetup = (
       if (autoHideChanged) {
         autoHideIsMove = autoHide === 'move';
         autoHideIsLeave = autoHide === 'leave';
-        autoHideNotNever = autoHide !== 'never';
-        manageScrollbarsAutoHide(!autoHideNotNever, true);
+        autoHideIsNever = autoHide === 'never';
+        manageScrollbarsAutoHide(autoHideIsNever, true);
       }
 
       if (dragScrollChanged) {
