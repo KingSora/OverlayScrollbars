@@ -1,8 +1,9 @@
 import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlayscrollbars';
+import type { Component } from 'vue';
 
 export interface OverlayScrollbarsComponentProps {
   /** Tag of the root element. */
-  element?: string;
+  element?: string | Component;
   /** OverlayScrollbars options. */
   options?: PartialOptions | false | null;
   /** OverlayScrollbars events. */

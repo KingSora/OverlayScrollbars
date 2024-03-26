@@ -8,13 +8,13 @@ import {
   createSignal,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { JSX, ParentProps, ComponentProps, Ref } from 'solid-js';
+import type { JSX, ParentProps, ComponentProps, Ref, ValidComponent } from 'solid-js';
 import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlayscrollbars';
 import { createOverlayScrollbars } from './createOverlayScrollbars';
 
-type InferGeneric<T> = T extends JSX.HTMLAttributes<infer G> ? G : never;
+type InferGenericElement<T> = T extends keyof JSX.HTMLAttributes<infer G> ? G : HTMLElement;
 
-export type OverlayScrollbarsComponentProps<T extends keyof JSX.IntrinsicElements = 'div'> = Omit<
+export type OverlayScrollbarsComponentProps<T extends ValidComponent = 'div'> = Omit<
   ComponentProps<T>,
   'ref'
 > &
@@ -28,17 +28,17 @@ export type OverlayScrollbarsComponentProps<T extends keyof JSX.IntrinsicElement
     /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
     defer?: boolean | IdleRequestOptions;
     /** OverlayScrollbarsComponent ref. */
-    ref?: Exclude<Ref<OverlayScrollbarsComponentRef>, OverlayScrollbarsComponentRef>;
+    ref?: Ref<OverlayScrollbarsComponentRef<T>>;
   }>;
 
-export interface OverlayScrollbarsComponentRef<T extends keyof JSX.IntrinsicElements = 'div'> {
+export interface OverlayScrollbarsComponentRef<T extends ValidComponent = 'div'> {
   /** Returns the OverlayScrollbars instance or null if not initialized. */
   osInstance(): OverlayScrollbars | null;
   /** Returns the root element. */
-  getElement(): InferGeneric<JSX.IntrinsicElements[T]> | null;
+  getElement(): InferGenericElement<T> | null;
 }
 
-export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements = 'div'>(
+export const OverlayScrollbarsComponent = <T extends ValidComponent = 'div'>(
   props: OverlayScrollbarsComponentProps<T>
 ) => {
   const [finalProps, other] = splitProps(
@@ -69,12 +69,18 @@ export const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements
   });
 
   createRenderEffect(() => {
-    finalProps.ref?.({
+    const ref = {
       osInstance: instance,
       getElement: () =>
         /* c8 ignore next */
         elementRef() || null,
-    });
+    };
+
+    if (typeof finalProps.ref === 'function') {
+      finalProps.ref(ref);
+    } else {
+      finalProps.ref = ref;
+    }
   });
 
   return (

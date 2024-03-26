@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.8
+
+### Improvements
+
+- Improve the type definitions with the usage of the `Component` type.
+
 ## 0.5.7
 
 ### Improvements

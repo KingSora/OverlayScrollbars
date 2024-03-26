@@ -1,7 +1,7 @@
 {
   "name": "overlayscrollbars-react",
   "private": true,
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "OverlayScrollbars for React.",
   "author": "Rene Haas | KingSora",
   "license": "MIT",

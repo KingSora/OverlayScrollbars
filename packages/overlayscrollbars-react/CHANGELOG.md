@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.5
+
+### Improvements
+
+- Improve the type definitions with the usage of the `ElementType` type instead of the `JSX` namespace of the `@types/react` package in order to improve compatibility to older react versions. 
+
 ## 0.5.4
 
 ### Improvements

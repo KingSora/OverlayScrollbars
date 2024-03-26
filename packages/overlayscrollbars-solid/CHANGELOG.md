@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.4
+
+### Improvements
+
+- Improve the type definitions with the usage of the `ValidComponent` type.
+
 ## 0.5.3
 
 ### Improvements

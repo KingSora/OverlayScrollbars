@@ -28,7 +28,7 @@ const emitEvents: EmitEventsMap = {
 };
 const props = defineProps({
   element: {
-    type: String as PropType<Required<OverlayScrollbarsComponentProps>['element']>,
+    type: [String, Object] as PropType<Required<OverlayScrollbarsComponentProps>['element']>,
     default: 'div',
   },
   options: { type: Object as PropType<OverlayScrollbarsComponentProps['options']> },

@@ -2,10 +2,16 @@
 import React, { forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import type { PartialOptions, EventListeners } from 'overlayscrollbars';
-import type { ComponentPropsWithoutRef, ElementRef, ForwardedRef } from 'react';
+import type {
+  ComponentPropsWithoutRef,
+  ElementRef,
+  ElementType,
+  ForwardedRef,
+  ReactElement,
+} from 'react';
 import { useOverlayScrollbars } from './useOverlayScrollbars';
 
-type OverlayScrollbarsComponentBaseProps<T extends keyof JSX.IntrinsicElements> =
+type OverlayScrollbarsComponentBaseProps<T extends ElementType = 'div'> =
   ComponentPropsWithoutRef<T> & {
     /** Tag of the root element. */
     element?: T;
@@ -17,22 +23,22 @@ type OverlayScrollbarsComponentBaseProps<T extends keyof JSX.IntrinsicElements> 
     defer?: boolean | IdleRequestOptions;
   };
 
-export type OverlayScrollbarsComponentProps<T extends keyof JSX.IntrinsicElements = 'div'> =
+export type OverlayScrollbarsComponentProps<T extends ElementType = 'div'> =
   OverlayScrollbarsComponentBaseProps<T> & {
     ref?: ForwardedRef<OverlayScrollbarsComponentRef<T>>;
   };
 
-export interface OverlayScrollbarsComponentRef<T extends keyof JSX.IntrinsicElements = 'div'> {
+export interface OverlayScrollbarsComponentRef<T extends ElementType = 'div'> {
   /** Returns the OverlayScrollbars instance or null if not initialized. */
   osInstance(): OverlayScrollbars | null;
   /** Returns the root element. */
   getElement(): ElementRef<T> | null;
 }
 
-const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
+const OverlayScrollbarsComponent = <T extends ElementType = 'div'>(
   props: OverlayScrollbarsComponentBaseProps<T>,
   ref: ForwardedRef<OverlayScrollbarsComponentRef<T>>
-) => {
+): ReactElement | null => {
   const { element = 'div', options, events, defer, children, ...other } = props;
   const Tag = element;
   const elementRef = useRef<ElementRef<T>>(null);
@@ -76,7 +82,7 @@ const OverlayScrollbarsComponent = <T extends keyof JSX.IntrinsicElements>(
 };
 
 const OverlayScrollbarsComponentForwardedRef = forwardRef(OverlayScrollbarsComponent) as <
-  T extends keyof JSX.IntrinsicElements
+  T extends ElementType = 'div'
 >(
   props: OverlayScrollbarsComponentProps<T>
 ) => ReturnType<typeof OverlayScrollbarsComponent>;
