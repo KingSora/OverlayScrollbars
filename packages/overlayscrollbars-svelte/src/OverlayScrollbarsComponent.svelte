@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, afterUpdate, createEventDispatcher, onDestroy } from 'svelte';
+  import { afterUpdate, createEventDispatcher, onDestroy } from 'svelte';
   import { OverlayScrollbars } from 'overlayscrollbars';
   import { createDefer } from './createDefer';
   import type { EventListeners, EventListenerArgs } from 'overlayscrollbars';
@@ -24,15 +24,28 @@
 
   const initialize = () => {
     const init = () => {
+      const target = elementRef;
+
+      if (!target) {
+        return;
+      }
+
       instance?.destroy();
       instance = OverlayScrollbars(
-        {
-          target: elementRef!,
-          elements: {
-            viewport: slotRef,
-            content: slotRef,
-          },
-        },
+        element === 'body'
+          ? {
+              target,
+              cancel: {
+                body: null,
+              },
+            }
+          : {
+              target,
+              elements: {
+                viewport: slotRef,
+                content: slotRef,
+              },
+            },
         options || {},
         combinedEvents || {}
       );
@@ -116,7 +129,11 @@
   bind:this={elementRef}
   {...$$restProps}
 >
-  <div data-overlayscrollbars-contents="" bind:this={slotRef}>
+  {#if element === 'body'}
     <slot />
-  </div>
+  {:else}
+    <div data-overlayscrollbars-contents="" bind:this={slotRef}>
+      <slot />
+    </div>
+  {/if}
 </svelte:element>

@@ -1,11 +1,8 @@
-import { isBrowser } from '../compatibility/isBrowser';
 import { isElement } from '../utils/types';
 import { push, from } from '../utils/array';
 
 type InputElementType = Node | Element | false | null | undefined;
 type OutputElementType = Node | Element | false | null | undefined;
-
-const getElmPrototype = (isBrowser && Element.prototype) as Element; // only Element.prototype wont work on server
 
 /**
  * Find all elements with the passed selector, outgoing (and including) the passed element or the document if no element was provided.
@@ -37,15 +34,12 @@ const findFirst = (selector: string, elm?: InputElementType): OutputElementType 
  */
 const is = (elm: InputElementType, selector: string): boolean => {
   if (isElement(elm)) {
-    /* istanbul ignore next */
-    // eslint-disable-next-line
-    const fn: (...args: any) => boolean =
-      // @ts-ignore
-      getElmPrototype.matches || getElmPrototype.msMatchesSelector;
-    return fn.call(elm, selector);
+    return elm.matches(selector);
   }
   return false;
 };
+
+const isBodyElement = (elm: InputElementType) => is(elm, 'body'); // don't do targetElement === ownerDocument.body in case initialization happens in memory
 
 /**
  * Returns the children (no text-nodes or comments) of the passed element which are matching the passed selector. An empty array is returned if the passed element is null.
@@ -110,4 +104,4 @@ const liesBetween = (
     : false;
 };
 
-export { find, findFirst, is, children, contents, parent, liesBetween, closest };
+export { find, findFirst, is, isBodyElement, children, contents, parent, liesBetween, closest };

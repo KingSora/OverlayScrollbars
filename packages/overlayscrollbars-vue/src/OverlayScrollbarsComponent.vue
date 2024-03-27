@@ -56,20 +56,33 @@ const exposed: OverlayScrollbarsComponentRef = {
 defineExpose(exposed);
 
 watchPostEffect((onCleanup) => {
-  const { value: elm } = elementRef;
-  const { value: slotElm } = slotRef;
+  const { value: target } = elementRef;
+  const { value: contentsElm } = slotRef;
 
-  if (elm && slotElm) {
-    initialize({
-      target: elm,
-      elements: {
-        viewport: slotElm,
-        content: slotElm,
-      },
-    });
-
-    onCleanup(() => osInstance()?.destroy());
+  /* c8 ignore start */
+  if (!target) {
+    return;
   }
+  /* c8 ignore end */
+
+  initialize(
+    element.value === 'body'
+      ? {
+          target,
+          cancel: {
+            body: null,
+          },
+        }
+      : {
+          target,
+          elements: {
+            viewport: contentsElm,
+            content: contentsElm,
+          },
+        }
+  );
+
+  onCleanup(() => osInstance()?.destroy());
 });
 
 watch(
@@ -98,7 +111,8 @@ watch(
 
 <template>
   <component data-overlayscrollbars-initialize="" :is="element" ref="elementRef">
-    <div data-overlayscrollbars-contents="" ref="slotRef">
+    <slot v-if="element === 'body'"></slot>
+    <div v-else data-overlayscrollbars-contents="" ref="slotRef">
       <slot></slot>
     </div>
   </component>

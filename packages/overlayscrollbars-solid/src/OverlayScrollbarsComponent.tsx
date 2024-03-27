@@ -51,6 +51,7 @@ export const OverlayScrollbarsComponent = <T extends ValidComponent = 'div'>(
 
   createEffect(() => {
     const target = elementRef();
+    const contentsElement = childrenRef();
 
     /* c8 ignore start */
     if (!target) {
@@ -58,25 +59,22 @@ export const OverlayScrollbarsComponent = <T extends ValidComponent = 'div'>(
     }
     /* c8 ignore end */
 
-    if (finalProps.element === 'body') {
-      initialize({
-        target,
-        cancel: {
-          body: null,
-        },
-      });
-    } else {
-      const contentsElement = childrenRef();
-      if (contentsElement) {
-        initialize({
-          target,
-          elements: {
-            viewport: contentsElement,
-            content: contentsElement,
-          },
-        });
-      }
-    }
+    initialize(
+      finalProps.element === 'body'
+        ? {
+            target,
+            cancel: {
+              body: null,
+            },
+          }
+        : {
+            target,
+            elements: {
+              viewport: contentsElement,
+              content: contentsElement,
+            },
+          }
+    );
 
     onCleanup(() => {
       instance()?.destroy();

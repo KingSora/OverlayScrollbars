@@ -22,6 +22,7 @@ import {
   strOverflowY,
   getStyles,
   setStyles,
+  isBodyElement,
 } from '~/support';
 import { classNameEnvironment, classNameEnvironmentScrollbarHidden } from '~/classnames';
 import { defaultOptions } from '~/options';
@@ -141,8 +142,7 @@ const createEnvironment = (): Env => {
     elements: {
       host: null,
       padding: !nativeScrollbarsHiding,
-      viewport: (target) =>
-        nativeScrollbarsHiding && target === target.ownerDocument.body && target,
+      viewport: (target) => nativeScrollbarsHiding && isBodyElement(target) && target,
       content: false,
     },
     scrollbars: {

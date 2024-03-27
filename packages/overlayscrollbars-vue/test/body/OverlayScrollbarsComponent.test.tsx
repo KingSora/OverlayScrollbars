@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect, vi } from 'vitest';
-import { render, cleanup } from 'solid-testing-library';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-solid';
+import { render, cleanup } from '@testing-library/vue';
+import { OverlayScrollbarsComponent } from '~/overlayscrollbars-vue';
 
 const getComputedStyleOriginal = window.getComputedStyle;
 vi.stubGlobal(
@@ -29,17 +29,18 @@ describe('OverlayScrollbarsComponent', () => {
     const htmlElement = document.documentElement;
     document.body.remove();
 
-    const { unmount } = render(
-      () => (
-        <OverlayScrollbarsComponent element="body">
-          <section id="body" />
-        </OverlayScrollbarsComponent>
-      ),
-      {
-        baseElement: htmlElement,
-        container: htmlElement,
-      }
-    );
+    const { debug, unmount } = render(OverlayScrollbarsComponent, {
+      props: {
+        element: 'body',
+      },
+      slots: {
+        default: '<section id="body"></section>',
+      },
+      baseElement: htmlElement,
+      container: htmlElement,
+    });
+
+    debug();
 
     expect(htmlElement).toHaveAttribute('data-overlayscrollbars');
     expect(htmlElement.querySelector('body')).toHaveAttribute('data-overlayscrollbars-initialize');

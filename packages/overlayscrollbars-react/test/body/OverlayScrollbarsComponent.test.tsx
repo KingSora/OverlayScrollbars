@@ -36,6 +36,8 @@ describe('OverlayScrollbarsComponent', () => {
 
   test('body', () => {
     const htmlElement = document.documentElement;
+    document.body.remove();
+
     const { unmount } = render(
       <OverlayScrollbarsComponent element="body">
         <section id="body" />
@@ -43,10 +45,6 @@ describe('OverlayScrollbarsComponent', () => {
       {
         baseElement: htmlElement,
         container: htmlElement,
-        wrapper: ({ children }) => {
-          document.body.remove();
-          return children;
-        },
       }
     );
 

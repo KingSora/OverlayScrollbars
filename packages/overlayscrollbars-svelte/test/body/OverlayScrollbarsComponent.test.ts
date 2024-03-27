@@ -1,6 +1,6 @@
-import { describe, test, afterEach, expect, vi } from 'vitest';
-import { render, cleanup } from 'solid-testing-library';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-solid';
+import { describe, test, expect, afterEach, vi } from 'vitest';
+import { cleanup, render } from '@testing-library/svelte';
+import Test from './Test.svelte';
 
 const getComputedStyleOriginal = window.getComputedStyle;
 vi.stubGlobal(
@@ -30,13 +30,15 @@ describe('OverlayScrollbarsComponent', () => {
     document.body.remove();
 
     const { unmount } = render(
-      () => (
-        <OverlayScrollbarsComponent element="body">
-          <section id="body" />
-        </OverlayScrollbarsComponent>
-      ),
+      Test,
       {
-        baseElement: htmlElement,
+        // @ts-ignore
+        target: htmlElement,
+        props: {
+          element: 'body',
+        },
+      },
+      {
         container: htmlElement,
       }
     );

@@ -20,6 +20,7 @@ import {
   getAttr,
   noop,
   stopPropagation,
+  isBodyElement,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -92,10 +93,10 @@ export const createStructureSetupElements = (
   } = initElements || {};
 
   const targetElement = targetIsElm ? target : targetStructureInitialization.target;
+  const isBody = isBodyElement(targetElement);
   const isTextarea = is(targetElement, 'textarea');
   const ownerDocument = targetElement.ownerDocument;
   const docElement = ownerDocument.documentElement;
-  const isBody = targetElement === ownerDocument.body;
   const docWnd = ownerDocument.defaultView as Window;
   const getFocusedElement = () => ownerDocument.activeElement;
   const focusElm = (customActiveElm: Element | null) => {
