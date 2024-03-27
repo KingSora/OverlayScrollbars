@@ -47,16 +47,35 @@ const OverlayScrollbarsComponent = <T extends ElementType = 'div'>(
 
   useEffect(() => {
     const { current: elm } = elementRef;
-    const { current: childrenElm } = childrenRef;
-    if (elm && childrenElm) {
+
+    /* c8 ignore start */
+    if (!elm) {
+      return;
+    }
+    /* c8 ignore end */
+
+    const target = elm as unknown as HTMLElement;
+
+    if (element === 'body') {
       initialize({
-        target: elm as any,
-        elements: {
-          viewport: childrenElm,
-          content: childrenElm,
+        target,
+        cancel: {
+          body: null,
         },
       });
+    } else {
+      const { current: contentsElm } = childrenRef;
+      if (contentsElm) {
+        initialize({
+          target,
+          elements: {
+            viewport: contentsElm,
+            content: contentsElm,
+          },
+        });
+      }
     }
+
     return () => osInstance()?.destroy();
   }, [initialize, element]);
 
@@ -74,9 +93,13 @@ const OverlayScrollbarsComponent = <T extends ElementType = 'div'>(
   return (
     // @ts-ignore
     <Tag data-overlayscrollbars-initialize="" ref={elementRef} {...other}>
-      <div data-overlayscrollbars-contents="" ref={childrenRef}>
-        {children}
-      </div>
+      {element === 'body' ? (
+        children
+      ) : (
+        <div data-overlayscrollbars-contents="" ref={childrenRef}>
+          {children}
+        </div>
+      )}
     </Tag>
   );
 };

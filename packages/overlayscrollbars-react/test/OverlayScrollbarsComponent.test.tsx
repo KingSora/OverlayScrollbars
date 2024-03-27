@@ -7,6 +7,26 @@ import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
 import type { RefObject } from 'react';
 import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-react';
 
+const getComputedStyleOriginal = window.getComputedStyle;
+vi.stubGlobal(
+  'getComputedStyle',
+  vi.fn(function (...args: Parameters<typeof getComputedStyleOriginal>) {
+    const result: CSSStyleDeclaration = getComputedStyleOriginal.apply(
+      // @ts-ignore
+      this,
+      args
+    );
+    const getPropertyValueOriginal = result.getPropertyValue;
+    result.getPropertyValue = function (prop: string) {
+      if (prop === 'scrollbar-width' || prop === 'scrollbarWidth') {
+        return 'none';
+      }
+      return getPropertyValueOriginal.call(this, prop);
+    };
+    return result;
+  })
+);
+
 vi.useFakeTimers({
   toFake: [
     'requestAnimationFrame',
@@ -308,5 +328,34 @@ describe('OverlayScrollbarsComponent', () => {
 
     expect(osInstance()).toBeDefined();
     expect(OverlayScrollbars.valid(osInstance())).toBe(false);
+  });
+
+  test('body', () => {
+    const html = document.documentElement.innerHTML;
+    const body = document.body;
+
+    const { container, unmount } = render(
+      <OverlayScrollbarsComponent element="body">
+        <section id="body" />
+      </OverlayScrollbarsComponent>,
+      {
+        baseElement: document.documentElement,
+        container: document.documentElement,
+      }
+    );
+
+    expect(container).toBeInTheDocument();
+    expect(container).toHaveAttribute('data-overlayscrollbars');
+    expect(container.tagName).toBe('HTML');
+    expect(container.firstElementChild!.tagName).toBe('BODY');
+    expect(container.firstElementChild).toHaveAttribute('data-overlayscrollbars-initialize');
+    expect(container.firstElementChild).not.toBeEmptyDOMElement();
+    expect(container.firstElementChild!.firstElementChild!.tagName).toBe('SECTION');
+    expect(container.firstElementChild!.firstElementChild).toHaveAttribute('id', 'body');
+
+    unmount();
+
+    document.documentElement.innerHTML = html;
+    window.document.body = body;
   });
 });
