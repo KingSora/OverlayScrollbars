@@ -331,7 +331,8 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('body', () => {
-    const html = document.documentElement.innerHTML;
+    const htmlElement = document.documentElement;
+    const html = htmlElement.innerHTML;
     const body = document.body;
 
     const { container, unmount } = render(
@@ -339,8 +340,8 @@ describe('OverlayScrollbarsComponent', () => {
         <section id="body" />
       </OverlayScrollbarsComponent>,
       {
-        baseElement: document.documentElement,
-        container: document.documentElement,
+        baseElement: htmlElement,
+        container: htmlElement,
       }
     );
 
@@ -355,7 +356,7 @@ describe('OverlayScrollbarsComponent', () => {
 
     unmount();
 
-    document.documentElement.innerHTML = html;
+    htmlElement.innerHTML = html;
     window.document.body = body;
   });
 });
