@@ -8,7 +8,8 @@
     "./jest": "./src/jest.js",
     "./jest-babel": "./src/jest.babel.js",
     "./full-coverage": "./src/full-coverage.js",
-    "./vitest": "./src/vitest.mjs"
+    "./vitest": "./src/vitest.mjs",
+    "./vitest.new-jsdom.env": "./src/vitest.new-jsdom.env.mjs"
   },
   "version": "0.0.0"
 }

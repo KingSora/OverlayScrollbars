@@ -13,6 +13,7 @@ export default defineConfig({
     include,
     coverage: {
       reportsDirectory: './.coverage/unit',
+      exclude: ['**/*.env.*'],
     },
     poolOptions: {
       threads: {

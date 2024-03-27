@@ -50,22 +50,37 @@ export const OverlayScrollbarsComponent = <T extends ValidComponent = 'div'>(
   const [initialize, instance] = createOverlayScrollbars(finalProps);
 
   createEffect(() => {
-    const currElement = elementRef();
-    const currChildrenElement = childrenRef();
+    const target = elementRef();
 
-    if (currElement && currChildrenElement) {
+    /* c8 ignore start */
+    if (!target) {
+      return;
+    }
+    /* c8 ignore end */
+
+    if (finalProps.element === 'body') {
       initialize({
-        target: currElement,
-        elements: {
-          viewport: currChildrenElement,
-          content: currChildrenElement,
+        target,
+        cancel: {
+          body: null,
         },
       });
-
-      onCleanup(() => {
-        instance()?.destroy();
-      });
+    } else {
+      const contentsElement = childrenRef();
+      if (contentsElement) {
+        initialize({
+          target,
+          elements: {
+            viewport: contentsElement,
+            content: contentsElement,
+          },
+        });
+      }
     }
+
+    onCleanup(() => {
+      instance()?.destroy();
+    });
   });
 
   createRenderEffect(() => {
@@ -90,9 +105,13 @@ export const OverlayScrollbarsComponent = <T extends ValidComponent = 'div'>(
       ref={setElementRef}
       {...other}
     >
-      <div data-overlayscrollbars-contents="" ref={setChildrenRef}>
-        {children(() => finalProps.children)()}
-      </div>
+      {finalProps.element === 'body' ? (
+        children(() => finalProps.children)()
+      ) : (
+        <div data-overlayscrollbars-contents="" ref={setChildrenRef}>
+          {children(() => finalProps.children)()}
+        </div>
+      )}
     </Dynamic>
   );
 };

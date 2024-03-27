@@ -2,7 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
 	"name": "Node.js & TypeScript",
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:16-bullseye"
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:20-bullseye"
 	// "postCreateCommand": "npm i && npm run build:os"
 
 	// Features to add to the dev container. More info: https://containers.dev/features.

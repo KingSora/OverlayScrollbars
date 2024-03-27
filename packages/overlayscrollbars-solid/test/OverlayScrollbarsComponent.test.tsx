@@ -70,9 +70,6 @@ const createTestComponent =
     );
   };
 
-/**
- * rerender doesn't exist... so I am faking it with custom event...
- */
 describe('OverlayScrollbarsComponent', () => {
   afterEach(() => cleanup());
 
