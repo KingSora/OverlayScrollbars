@@ -32,14 +32,14 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
  - Simple, powerful and well documented API
  - High browser compatibility - **Firefox 59+**, **Chrome 55+**, **Opera 42+**, **Edge 15+** and **Safari 10+**
  - **Fully Accessible** - Native scroll behavior is completely preserved
- - Can be run on the server - **SSR**, **SSG** and **ISR** support
+ - Can be run on the server (`Node`, `Deno` and `Bun`) - **SSR**, **SSG** and **ISR** support
  - Tested on various devices - **Mobile**, **Desktop** and **Tablet**
  - Tested with various (and mixed) inputs - **Mouse**, **Touch** and **Pen**
  - **Treeshaking** - bundle only what you really need 
  - Automatic update detection - **no polling**
  - Usage of latest browser features - best **performance** in new browsers
  - Bidirectional - LTR or RTL direction support
- - Supports usage on the `body` element
+ - Supports the `body` element
  - Supports all **virtual scrolling** libraries
  - Simple and effective scrollbar styling
  - Highly customizable
