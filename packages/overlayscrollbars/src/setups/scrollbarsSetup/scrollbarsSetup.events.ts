@@ -45,10 +45,7 @@ export const createScrollbarsSetupEvents = (
   options: ReadonlyOptions,
   structureSetupElements: StructureSetupElementsObj,
   structureSetupState: StructureSetupState,
-  scrollbarHandlePointerInteraction: (
-    event: PointerEvent,
-    scrollbarsAddRemoveClass: ScrollbarsSetupElementsObj['_scrollbarsAddRemoveClass']
-  ) => void
+  scrollbarHandlePointerInteraction: (event: PointerEvent) => void
 ): ScrollbarsSetupEvents => {
   const { _host, _scrollOffsetElement, _documentElm } = structureSetupElements;
 
@@ -215,9 +212,7 @@ export const createScrollbarsSetupEvents = (
         },
         { _passive: false, _capture: true }
       ),
-      addEventListener(_handle, 'pointermove pointerleave', (event: PointerEvent) => {
-        scrollbarHandlePointerInteraction(event, scrollbarsAddRemoveClass);
-      }),
+      addEventListener(_handle, 'pointermove pointerleave', scrollbarHandlePointerInteraction),
       addEventListener(_handle, 'transitionstart', (event: TransitionEvent) => {
         if (isAffectingTransition(event)) {
           const animateHandleOffset = () => {

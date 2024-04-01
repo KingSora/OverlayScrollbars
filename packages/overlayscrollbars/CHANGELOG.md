@@ -5,7 +5,7 @@
 ### Improvements
 
 - Improvements for running in `deno` and `bun`.
-- Initialization as the `body` element is now detected as such when the tag name of the target element is `"body"`. Before this detection was done with `target === target.ownerDocument.body` which would not work when creating a new body element in memory.
+- Initialization as the `body` element is now detected as such when the tag name of the target element is `"body"`. Previously this detection was done with `target === target.ownerDocument.body` which would not work when creating a new body element in memory.
 - If a non generated `elements.viewport` element is provided during initialization its scroll position will be taken as the initial scroll position instead of the scroll position of the `target` element.
 - When interacting with the scrollbars itself the `scrollbars.autoHideDelay` will now apply when the scrollbars would be auto hidden when the interaction ends.
 

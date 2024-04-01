@@ -66,30 +66,6 @@ export const createScrollbarsSetup = (
     selfClearTimeout(100);
   const [autoHideSuspendTimeout, clearAutoHideSuspendTimeout] = selfClearTimeout(100);
   const [auotHideTimeout, clearAutoHideTimeout] = selfClearTimeout(() => instanceAutoHideDelay);
-  const createManageAutoHideFn =
-    (scrollbarsAddRemoveClass: ScrollbarsSetupElementsObj['_scrollbarsAddRemoveClass']) =>
-    (removeAutoHide: boolean, delayless?: boolean) => {
-      clearAutoHideTimeout();
-      if (removeAutoHide) {
-        scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden);
-      } else {
-        const hide = bind(scrollbarsAddRemoveClass, classNameScrollbarAutoHideHidden, true);
-        if (instanceAutoHideDelay > 0 && !delayless) {
-          auotHideTimeout(hide);
-        } else {
-          hide();
-        }
-      }
-    };
-  const manageAutoHideInstantInteraction = (
-    autoHideFn: ReturnType<typeof createManageAutoHideFn>
-  ) => {
-    autoHideFn(true);
-    autoHideInstantInteractionTimeout(() => {
-      autoHideFn(false);
-    });
-  };
-
   const [elements, appendElements] = createScrollbarsSetupElements(
     target,
     structureSetupElements,
@@ -98,10 +74,11 @@ export const createScrollbarsSetup = (
       options,
       structureSetupElements,
       structureSetupState,
-      (event, scrollbarsAddRemoveClass) =>
+      (event) =>
         isHoverablePointerType(event) &&
         getAutoHideIsScrollOrMove() &&
-        manageAutoHideInstantInteraction(createManageAutoHideFn(scrollbarsAddRemoveClass))
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        manageScrollbarsAutoHideInstantInteraction()
     )
   );
   const { _host, _scrollEventElement, _isBody } = structureSetupElements;
@@ -111,17 +88,34 @@ export const createScrollbarsSetup = (
     _refreshScrollbarsHandleOffset,
     _refreshScrollbarsScrollbarOffset,
   } = elements;
+  const manageScrollbarsAutoHide = (removeAutoHide: boolean, delayless?: boolean) => {
+    clearAutoHideTimeout();
+    if (removeAutoHide) {
+      _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden);
+    } else {
+      const hide = bind(_scrollbarsAddRemoveClass, classNameScrollbarAutoHideHidden, true);
+      if (instanceAutoHideDelay > 0 && !delayless) {
+        auotHideTimeout(hide);
+      } else {
+        hide();
+      }
+    }
+  };
+  const manageScrollbarsAutoHideInstantInteraction = () => {
+    manageScrollbarsAutoHide(true);
+    autoHideInstantInteractionTimeout(() => {
+      manageScrollbarsAutoHide(false);
+    });
+  };
   const manageAutoHideSuspension = (add: boolean) => {
     _scrollbarsAddRemoveClass(classNameScrollbarAutoHide, add, true);
     _scrollbarsAddRemoveClass(classNameScrollbarAutoHide, add, false);
   };
-  const manageScrollbarsAutoHide = createManageAutoHideFn(_scrollbarsAddRemoveClass);
   const onHostMouseEnter = (event: PointerEvent) => {
     if (isHoverablePointerType(event)) {
       autoHideIsLeave && manageScrollbarsAutoHide(true);
     }
   };
-
   const destroyFns: (() => void)[] = [
     clearAutoHideTimeout,
     clearAutoHideInstantInteractionTimeout,
@@ -139,13 +133,13 @@ export const createScrollbarsSetup = (
     addEventListener(_host, 'pointermove', (event: PointerEvent) => {
       isHoverablePointerType(event) &&
         autoHideIsMove &&
-        manageAutoHideInstantInteraction(manageScrollbarsAutoHide);
+        manageScrollbarsAutoHideInstantInteraction();
     }),
     addEventListener(_scrollEventElement, 'scroll', (event) => {
       requestScrollAnimationFrame(() => {
         _refreshScrollbarsHandleOffset();
 
-        getAutoHideIsScrollOrMove() && manageAutoHideInstantInteraction(manageScrollbarsAutoHide);
+        getAutoHideIsScrollOrMove() && manageScrollbarsAutoHideInstantInteraction();
       });
 
       onScroll(event);
