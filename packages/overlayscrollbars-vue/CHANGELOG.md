@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.9
+
+### Improvements
+
+- The `OverlayScrollbarsComponent` now properly supports `'body'` as its element tag.
+
 ## 0.5.8
 
 ### Improvements
