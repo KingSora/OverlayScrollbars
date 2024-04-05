@@ -1,1 +1,1 @@
-export type AttributeTarget = HTMLElement | false | null | undefined;
+export type HTMLElementTarget = HTMLElement | false | null | undefined;

@@ -1,6 +1,6 @@
 import type { PlainObject, StyleObject, StyleObjectKey, StyleObjectValue } from '~/typings';
 import type { XY } from './offset';
-import type { AttributeTarget } from './types';
+import type { HTMLElementTarget } from './types';
 import { wnd } from '../utils/alias';
 import { each } from '../utils/array';
 import { isString, isNumber, isObject } from '../utils/types';
@@ -29,7 +29,7 @@ export const ratioToCssPercent = (ratio: number) =>
 
 export const numberToCssPx = (number: number) => `${validFiniteNumber(number)}px`;
 
-export function setStyles(elm: AttributeTarget, styles: StyleObject): void {
+export function setStyles(elm: HTMLElementTarget, styles: StyleObject): void {
   elm &&
     each(styles, (rawValue: StyleObjectValue, name) => {
       try {
@@ -46,17 +46,17 @@ export function setStyles(elm: AttributeTarget, styles: StyleObject): void {
 }
 
 export function getStyles(
-  elm: AttributeTarget,
+  elm: HTMLElementTarget,
   styles: Array<StyleObjectKey>,
   pseudoElm?: string | null | undefined
 ): Partial<Record<StyleObjectKey, string>>;
 export function getStyles(
-  elm: AttributeTarget,
+  elm: HTMLElementTarget,
   styles: StyleObjectKey,
   pseudoElm?: string | null | undefined
 ): string;
 export function getStyles(
-  elm: AttributeTarget,
+  elm: HTMLElementTarget,
   styles: Array<StyleObjectKey> | StyleObjectKey,
   pseudoElm?: string | null | undefined
 ): Partial<Record<StyleObjectKey, string>> | string {
@@ -75,7 +75,7 @@ export function getStyles(
   return getStylesResult;
 }
 
-export const getDirectionIsRTL = (elm: AttributeTarget): boolean =>
+export const getDirectionIsRTL = (elm: HTMLElementTarget): boolean =>
   getStyles(elm, 'direction') === 'rtl';
 
 /**
@@ -85,7 +85,7 @@ export const getDirectionIsRTL = (elm: AttributeTarget): boolean =>
  * @param propertySuffix The css property suffix. (e.g. "width")
  */
 export const topRightBottomLeft = (
-  elm?: AttributeTarget,
+  elm?: HTMLElementTarget,
   propertyPrefix?: string,
   propertySuffix?: string
 ): TRBL => {

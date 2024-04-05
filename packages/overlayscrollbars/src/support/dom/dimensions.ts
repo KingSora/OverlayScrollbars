@@ -1,4 +1,4 @@
-import type { AttributeTarget } from './types';
+import type { HTMLElementTarget } from './types';
 import { getStyles } from './style';
 import { mathRound, wnd } from '../utils/alias';
 import { bind } from '../utils/function';
@@ -38,7 +38,7 @@ export const windowSize = (customWnd?: Window): Readonly<WH> =>
  * @param elm The element of which the scroll- width and height shall be returned.
  */
 export const offsetSize = bind(getElmWidthHeightProperty<HTMLElement>, 'offset') satisfies (
-  elm: AttributeTarget
+  elm: HTMLElementTarget
 ) => Readonly<WH>;
 
 /**
@@ -46,7 +46,7 @@ export const offsetSize = bind(getElmWidthHeightProperty<HTMLElement>, 'offset')
  * @param elm The element of which the client- width and height shall be returned.
  */
 export const clientSize = bind(getElmWidthHeightProperty<HTMLElement>, 'client') satisfies (
-  elm: AttributeTarget
+  elm: HTMLElementTarget
 ) => Readonly<WH>;
 
 /**
@@ -54,14 +54,14 @@ export const clientSize = bind(getElmWidthHeightProperty<HTMLElement>, 'client')
  * @param elm The element of which the client- width and height shall be returned.
  */
 export const scrollSize = bind(getElmWidthHeightProperty<HTMLElement>, 'scroll') satisfies (
-  elm: AttributeTarget
+  elm: HTMLElementTarget
 ) => Readonly<WH>;
 
 /**
  * Returns the fractional- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the fractional- width and height shall be returned.
  */
-export const fractionalSize = (elm: AttributeTarget): Readonly<WH> => {
+export const fractionalSize = (elm: HTMLElementTarget): Readonly<WH> => {
   const cssWidth = parseFloat(getStyles(elm, strWidth)) || 0;
   const cssHeight = parseFloat(getStyles(elm, strHeight)) || 0;
   return {
@@ -80,7 +80,8 @@ export const getBoundingClientRect = (elm: HTMLElement): DOMRect => elm.getBound
  * Determines whether the passed element has any dimensions.
  * @param elm The element.
  */
-export const hasDimensions = (elm: AttributeTarget): boolean => !!elm && elementHasDimensions(elm);
+export const hasDimensions = (elm: HTMLElementTarget): boolean =>
+  !!elm && elementHasDimensions(elm);
 
 /**
  * Determines whether the passed DOM Rect has any dimensions.

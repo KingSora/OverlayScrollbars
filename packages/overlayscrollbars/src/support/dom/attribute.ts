@@ -1,5 +1,7 @@
-import type { AttributeTarget } from './types';
+import type { HTMLElementTarget } from './types';
 import { bind, each, from, isArray } from '../utils';
+
+export type AttributeElementTarget = HTMLElementTarget | Element;
 
 export type DomTokens = string | string[] | false | null | undefined | void;
 
@@ -12,8 +14,17 @@ export const getDomTokensArray = (tokens: DomTokens) =>
  * @param attrName The attribute name which shall be get.
  * @returns The attribute value or `null` when the attribute is not set or `false` if the element is undefined.
  */
-export const getAttr = (elm: AttributeTarget, attrName: string) =>
+export const getAttr = (elm: AttributeElementTarget, attrName: string) =>
   elm && elm.getAttribute(attrName);
+
+/**
+ * Returns whether the given attribute exists on the given element.
+ * @param elm The element.
+ * @param attrName The attribute.
+ * @returns A Truthy value indicates a present attrubte.
+ */
+export const hasAttr = (elm: AttributeElementTarget, attrName: string) =>
+  elm && elm.hasAttribute(attrName);
 
 /**
  * Sets the given attributes to the given element.
@@ -21,7 +32,7 @@ export const getAttr = (elm: AttributeTarget, attrName: string) =>
  * @param attrName The attribute names separated by a space.
  */
 export const setAttrs = (
-  elm: AttributeTarget,
+  elm: AttributeElementTarget,
   attrNames: string | string[],
   value: string | false | null | undefined
 ) => {
@@ -35,11 +46,11 @@ export const setAttrs = (
  * @param elm The element of which the attribute shall be removed.
  * @param attrName The attribute names separated by a space.
  */
-export const removeAttrs = (elm: AttributeTarget, attrNames: string | string[]): void => {
+export const removeAttrs = (elm: AttributeElementTarget, attrNames: string | string[]): void => {
   each(getDomTokensArray(attrNames), (attrName) => elm && elm.removeAttribute(attrName));
 };
 
-export const domTokenListAttr = (elm: AttributeTarget, attrName: string) => {
+export const domTokenListAttr = (elm: AttributeElementTarget, attrName: string) => {
   const initialArr = getDomTokensArray(getAttr(elm, attrName));
   const setElmAttr = bind(setAttrs, elm, attrName);
   const domTokenListOperation = (operationTokens: DomTokens, operation: 'add' | 'delete') => {
@@ -67,7 +78,11 @@ export const domTokenListAttr = (elm: AttributeTarget, attrName: string) => {
  * @param attrName The attributeName to which the value shall be removed.
  * @param value The value which shall be removed.
  */
-export const removeAttrClass = (elm: AttributeTarget, attrName: string, value: DomTokens) => {
+export const removeAttrClass = (
+  elm: AttributeElementTarget,
+  attrName: string,
+  value: DomTokens
+) => {
   domTokenListAttr(elm, attrName)._remove(value);
 };
 
@@ -77,13 +92,13 @@ export const removeAttrClass = (elm: AttributeTarget, attrName: string, value: D
  * @param attrName The attributeName to which the value shall be added.
  * @param value The value which shall be added.
  */
-export const addAttrClass = (elm: AttributeTarget, attrName: string, value: DomTokens) => {
+export const addAttrClass = (elm: AttributeElementTarget, attrName: string, value: DomTokens) => {
   domTokenListAttr(elm, attrName)._add(value);
   return bind(removeAttrClass, elm, attrName, value);
 };
 
 export const addRemoveAttrClass = (
-  elm: AttributeTarget,
+  elm: AttributeElementTarget,
   attrName: string,
   value: DomTokens,
   add?: boolean
@@ -98,5 +113,8 @@ export const addRemoveAttrClass = (
  * @param value The value.
  * @returns True if the given attribute has the value in it, false otherwise.
  */
-export const hasAttrClass = (elm: AttributeTarget, attrName: string, value: DomTokens): boolean =>
-  domTokenListAttr(elm, attrName)._has(value);
+export const hasAttrClass = (
+  elm: AttributeElementTarget,
+  attrName: string,
+  value: DomTokens
+): boolean => domTokenListAttr(elm, attrName)._has(value);

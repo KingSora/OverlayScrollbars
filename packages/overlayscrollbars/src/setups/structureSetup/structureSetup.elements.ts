@@ -21,6 +21,7 @@ import {
   noop,
   stopPropagation,
   isBodyElement,
+  getFocusedElement,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -98,7 +99,6 @@ export const createStructureSetupElements = (
   const ownerDocument = targetElement.ownerDocument;
   const docElement = ownerDocument.documentElement;
   const docWnd = ownerDocument.defaultView as Window;
-  const getFocusedElement = () => ownerDocument.activeElement;
   const focusElm = (customActiveElm: Element | null) => {
     if (customActiveElm && (customActiveElm as HTMLElement).focus) {
       (customActiveElm as HTMLElement).focus();
@@ -214,7 +214,8 @@ export const createStructureSetupElements = (
             }
           )
         : noop;
-
+    const tabIndexStr = 'tabindex';
+    const ogTabindex = getAttr(_viewport, tabIndexStr);
     const undoInitWrapUndwrapFocus = prepareWrapUnwrapFocus(initActiveElm);
     setAttrs(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
     setAttrs(_padding, dataAttributePadding, '');
@@ -222,6 +223,7 @@ export const createStructureSetupElements = (
 
     if (!viewportIsTarget) {
       setAttrs(_viewport, dataAttributeViewport, '');
+      setAttrs(_viewport, tabIndexStr, '-1');
       isBody && addAttrClass(docElement, dataAttributeHost, dataValueHostHtmlBody);
     }
 
@@ -242,6 +244,11 @@ export const createStructureSetupElements = (
 
     push(destroyFns, [
       undoInitWrapUndwrapFocus,
+      !viewportIsTarget &&
+        (() =>
+          ogTabindex
+            ? setAttrs(_viewport, tabIndexStr, ogTabindex)
+            : removeAttrs(_viewport, tabIndexStr)),
       () => {
         const destroyActiveElm = getFocusedElement();
         const undoDestroyWrapUndwrapFocus = prepareWrapUnwrapFocus(destroyActiveElm);
@@ -265,27 +272,12 @@ export const createStructureSetupElements = (
       addAttrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden);
       push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
-    if (!viewportIsTarget && docWnd.top === docWnd && initActiveElm === targetElement) {
-      const tabIndexStr = 'tabindex';
-      const ogTabindex = getAttr(_viewport, tabIndexStr);
 
-      setAttrs(_viewport, tabIndexStr, '-1');
-      focusElm(_viewport);
-
-      const revertViewportTabIndex = () =>
-        ogTabindex
-          ? setAttrs(_viewport, tabIndexStr, ogTabindex)
-          : removeAttrs(_viewport, tabIndexStr);
-      const off = addEventListener(ownerDocument, 'pointerdown keydown', () => {
-        revertViewportTabIndex();
-        off();
-      });
-
-      push(destroyFns, [revertViewportTabIndex, off]);
-    } else {
-      focusElm(initActiveElm);
-    }
-
+    focusElm(
+      !viewportIsTarget && docWnd.top === docWnd && initActiveElm === targetElement
+        ? _viewport
+        : initActiveElm
+    );
     undoInitWrapUndwrapFocus();
 
     // @ts-ignore

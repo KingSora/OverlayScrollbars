@@ -1,4 +1,4 @@
-import type { AttributeTarget } from './types';
+import type { HTMLElementTarget } from './types';
 import { getBoundingClientRect } from './dimensions';
 import { wnd } from '../utils/alias';
 
@@ -16,7 +16,7 @@ const zeroObj: XY = {
  * Returns the offset- left and top coordinates of the passed element relative to the document. If the element is null the top and left values are 0.
  * @param elm The element of which the offset- top and left coordinates shall be returned.
  */
-export const absoluteCoordinates = (elm: AttributeTarget): Readonly<XY> => {
+export const absoluteCoordinates = (elm: HTMLElementTarget): Readonly<XY> => {
   const rect = elm && getBoundingClientRect(elm);
   return rect
     ? {
@@ -30,7 +30,7 @@ export const absoluteCoordinates = (elm: AttributeTarget): Readonly<XY> => {
  * Returns the offset- left and top coordinates of the passed element. If the element is null the top and left values are 0.
  * @param elm The element of which the offset- top and left coordinates shall be returned.
  */
-export const offsetCoordinates = (elm: AttributeTarget): Readonly<XY> =>
+export const offsetCoordinates = (elm: HTMLElementTarget): Readonly<XY> =>
   elm
     ? {
         x: elm.offsetLeft,

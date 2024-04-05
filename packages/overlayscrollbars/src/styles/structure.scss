@@ -135,6 +135,11 @@ html[data-overlayscrollbars~='viewport'] > body {
 [data-overlayscrollbars-viewport] {
   --os-vaw: 0;
   --os-vah: 0;
+  outline: none;
+
+  &:focus {
+    outline: none;
+  }
 
   &[data-overlayscrollbars-viewport~='arrange']::before {
     content: '';

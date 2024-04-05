@@ -80,6 +80,12 @@ const closest = (elm: InputElementType, selector: string): OutputElementType =>
   isElement(elm) && elm.closest(selector);
 
 /**
+ * Gets the focused element of the passed or default document.
+ * @returns The focused element of the passed document.
+ */
+const getFocusedElement = (doc?: Document) => (doc || document).activeElement;
+
+/**
  * Determines whether the given element lies between two selectors in the DOM.
  * @param elm The element.
  * @param highBoundarySelector The high boundary selector.
@@ -104,4 +110,15 @@ const liesBetween = (
     : false;
 };
 
-export { find, findFirst, is, isBodyElement, children, contents, parent, liesBetween, closest };
+export {
+  find,
+  findFirst,
+  is,
+  isBodyElement,
+  children,
+  contents,
+  parent,
+  liesBetween,
+  closest,
+  getFocusedElement,
+};

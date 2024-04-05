@@ -49,14 +49,13 @@ export const createScrollbarsSetup = (
   structureSetupElements: StructureSetupElementsObj,
   onScroll: (event: Event) => void
 ): ScrollbarsSetup => {
+  let mouseInHost: boolean | undefined;
   let autoHideIsMove: boolean | undefined;
   let autoHideIsLeave: boolean | undefined;
   let autoHideIsNever: boolean | undefined;
   let prevTheme: string | null | undefined;
   let instanceAutoHideSuspendScrollDestroyFn = noop;
   let instanceAutoHideDelay = 0;
-
-  const getAutoHideIsScrollOrMove = () => !autoHideIsNever && !autoHideIsLeave;
 
   // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
   const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
@@ -76,7 +75,6 @@ export const createScrollbarsSetup = (
       structureSetupState,
       (event) =>
         isHoverablePointerType(event) &&
-        getAutoHideIsScrollOrMove() &&
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         manageScrollbarsAutoHideInstantInteraction()
     )
@@ -102,10 +100,12 @@ export const createScrollbarsSetup = (
     }
   };
   const manageScrollbarsAutoHideInstantInteraction = () => {
-    manageScrollbarsAutoHide(true);
-    autoHideInstantInteractionTimeout(() => {
-      manageScrollbarsAutoHide(false);
-    });
+    if (autoHideIsLeave ? !mouseInHost : !autoHideIsNever) {
+      manageScrollbarsAutoHide(true);
+      autoHideInstantInteractionTimeout(() => {
+        manageScrollbarsAutoHide(false);
+      });
+    }
   };
   const manageAutoHideSuspension = (add: boolean) => {
     _scrollbarsAddRemoveClass(classNameScrollbarAutoHide, add, true);
@@ -113,6 +113,7 @@ export const createScrollbarsSetup = (
   };
   const onHostMouseEnter = (event: PointerEvent) => {
     if (isHoverablePointerType(event)) {
+      mouseInHost = autoHideIsLeave;
       autoHideIsLeave && manageScrollbarsAutoHide(true);
     }
   };
@@ -127,6 +128,7 @@ export const createScrollbarsSetup = (
     addEventListener(_host, 'pointerenter', onHostMouseEnter),
     addEventListener(_host, 'pointerleave', (event: PointerEvent) => {
       if (isHoverablePointerType(event)) {
+        mouseInHost = false;
         autoHideIsLeave && manageScrollbarsAutoHide(false);
       }
     }),
@@ -138,8 +140,7 @@ export const createScrollbarsSetup = (
     addEventListener(_scrollEventElement, 'scroll', (event) => {
       requestScrollAnimationFrame(() => {
         _refreshScrollbarsHandleOffset();
-
-        getAutoHideIsScrollOrMove() && manageScrollbarsAutoHideInstantInteraction();
+        manageScrollbarsAutoHideInstantInteraction();
       });
 
       onScroll(event);

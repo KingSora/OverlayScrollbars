@@ -1,7 +1,7 @@
 import type { PlainObject } from '~/typings';
 import { isArray, isArrayLike, isString } from './types';
 
-type RunEachItem = ((...args: any) => any | any[]) | null | undefined;
+type RunEachItem = ((...args: any) => any | any[]) | false | null | undefined;
 
 export function each<T extends Array<unknown> | ReadonlyArray<unknown>>(
   array: T,

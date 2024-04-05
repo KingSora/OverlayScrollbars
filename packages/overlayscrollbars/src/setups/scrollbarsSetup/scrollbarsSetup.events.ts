@@ -16,6 +16,9 @@ import {
   getElmentScroll,
   scrollElementTo,
   addAttrClass,
+  getFocusedElement,
+  setT,
+  hasAttr,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import {
@@ -23,6 +26,7 @@ import {
   classNameScrollbarInteraction,
   classNameScrollbarWheel,
   dataAttributeHost,
+  dataAttributeViewport,
   dataValueHostScrollbarPressed,
 } from '~/classnames';
 import type { ClickScrollPlugin } from '~/plugins';
@@ -47,7 +51,8 @@ export const createScrollbarsSetupEvents = (
   structureSetupState: StructureSetupState,
   scrollbarHandlePointerInteraction: (event: PointerEvent) => void
 ): ScrollbarsSetupEvents => {
-  const { _host, _scrollOffsetElement, _documentElm } = structureSetupElements;
+  const { _host, _viewport, _viewportIsTarget, _scrollOffsetElement, _documentElm } =
+    structureSetupElements;
 
   return (
     scrollbarStructure,
@@ -180,12 +185,28 @@ export const createScrollbarsSetupEvents = (
     let wheelScrollBy = true;
 
     return bind(runEachAndClear, [
+      addEventListener(_handle, 'pointermove pointerleave', scrollbarHandlePointerInteraction),
       addEventListener(_scrollbar, 'pointerenter', () => {
         scrollbarsAddRemoveClass(classNameScrollbarInteraction, true);
       }),
       addEventListener(_scrollbar, 'pointerleave pointercancel', () => {
         scrollbarsAddRemoveClass(classNameScrollbarInteraction, false);
       }),
+      // focus viewport when clicking on a scrollbar
+      !_viewportIsTarget &&
+        addEventListener(_scrollbar, 'mousedown', () => {
+          const focusedElement = getFocusedElement();
+          if (
+            hasAttr(focusedElement, dataAttributeViewport) ||
+            hasAttr(focusedElement, dataAttributeHost) ||
+            focusedElement === document.body
+          ) {
+            setT(() => {
+              _viewport.focus();
+            }, 25);
+          }
+        }),
+      // propagate wheel events to viewport when mouse is over scrollbar
       addEventListener(
         _scrollbar,
         'wheel',
@@ -212,7 +233,7 @@ export const createScrollbarsSetupEvents = (
         },
         { _passive: false, _capture: true }
       ),
-      addEventListener(_handle, 'pointermove pointerleave', scrollbarHandlePointerInteraction),
+      // when the handle has a size transition, update the handle offset each frame for the time of the transition
       addEventListener(_handle, 'transitionstart', (event: TransitionEvent) => {
         if (isAffectingTransition(event)) {
           const animateHandleOffset = () => {

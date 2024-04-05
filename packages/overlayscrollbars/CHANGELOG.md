@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.7.1
+
+### Improvements
+
+- When interacting with a scrollbar the `viewport` element gets focused under certain conditions. (Like e.g. the previously focused element is not and interactive element.)
+- General accessibility focus improvements.
+
+
 ## 2.7.0
 
 ### Improvements
