@@ -6,6 +6,8 @@ import { OverlayScrollbars } from '~/overlayscrollbars';
 import { addClass, each, isArray, removeAttrs, getStyles, setStyles } from '~/support';
 import { ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
 
+console.log(OverlayScrollbars.env());
+
 if (!window.ResizeObserver) {
   OverlayScrollbars.plugin(SizeObserverPlugin);
 }

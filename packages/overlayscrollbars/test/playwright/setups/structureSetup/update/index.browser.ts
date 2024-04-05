@@ -35,6 +35,8 @@ import type { WH } from '~/support';
 import type { Options } from '~/options';
 import type { DeepPartial } from '~/typings';
 
+console.log(OverlayScrollbars.env());
+
 OverlayScrollbars.plugin(ClickScrollPlugin);
 
 if (!window.ResizeObserver) {

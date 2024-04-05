@@ -6,6 +6,8 @@ import { ScrollbarsHidingPlugin } from '~/plugins';
 import { setTestResult, timeout } from '@~local/browser-testing';
 import should from 'should';
 
+console.log(OverlayScrollbars.env());
+
 if (!OverlayScrollbars.env().scrollbarsHiding) {
   OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 }
