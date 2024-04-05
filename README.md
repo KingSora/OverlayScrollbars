@@ -107,8 +107,6 @@ The examples in this documentation will use the `import` syntax instead of the `
 
 ## Initialization
 
-> __Note__: During initialization its expected that the <b>CSS file is loaded and parsed</b> by the browser.
-
 You can initialize either directly with an `Element` or with an `Object` where you have more control over the initialization process. 
 
 ```js

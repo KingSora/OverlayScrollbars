@@ -5,8 +5,7 @@
 ### Improvements
 
 - When interacting with a scrollbar the `viewport` element gets focused under certain conditions. (Like e.g. the previously focused element is not and interactive element.)
-- General accessibility focus improvements.
-
+- Move the environment styles from the stylesheet into javascript to remove the requirement of loaded styles for correct functionality.
 
 ## 2.7.0
 

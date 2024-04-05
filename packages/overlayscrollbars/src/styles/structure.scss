@@ -1,70 +1,11 @@
 /**
- * environment setup 
- */
-
-.os-environment {
-  scroll-behavior: auto !important;
-  position: fixed;
-  opacity: 0;
-  visibility: hidden;
-  overflow: scroll;
-  height: 200px;
-  width: 200px;
-  z-index: -1;
-
-  div {
-    width: 200%;
-    height: 200%;
-    margin: 10px 0;
-  }
-
-  &.os-environment-flexbox-glue {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    height: auto;
-    width: auto;
-    min-height: 200px;
-    min-width: 200px;
-
-    div {
-      flex: auto;
-      width: auto;
-      height: auto;
-      max-height: 100%;
-      max-width: 100%;
-      margin: 0;
-    }
-  }
-
-  &.os-environment-flexbox-glue-max {
-    max-height: 200px;
-
-    div {
-      overflow: visible;
-
-      &::before {
-        content: '';
-        display: block;
-        height: 999px;
-        width: 999px;
-      }
-    }
-  }
-}
-
-/**
  * hide native scrollbars
+ * changes to this styles need to be reflected in the environment styles to correctly detect scrollbar hiding
  */
 
-.os-environment,
-[data-overlayscrollbars-viewport] {
-  -ms-overflow-style: scrollbar !important;
-}
 [data-overlayscrollbars-initialize],
 [data-overlayscrollbars~='scrollbarHidden'],
-[data-overlayscrollbars-viewport~='scrollbarHidden'],
-.os-environment-scrollbar-hidden {
+[data-overlayscrollbars-viewport~='scrollbarHidden'] {
   scrollbar-width: none !important;
 }
 [data-overlayscrollbars-initialize]::-webkit-scrollbar,
@@ -72,9 +13,7 @@
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar-corner,
 [data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar,
-[data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar-corner,
-.os-environment-scrollbar-hidden::-webkit-scrollbar,
-.os-environment-scrollbar-hidden::-webkit-scrollbar-corner {
+[data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar-corner {
   appearance: none !important;
   display: none !important;
   width: 0 !important;
