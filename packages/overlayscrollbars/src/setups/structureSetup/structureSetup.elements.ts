@@ -244,11 +244,6 @@ export const createStructureSetupElements = (
 
     push(destroyFns, [
       undoInitWrapUndwrapFocus,
-      !viewportIsTarget &&
-        (() =>
-          ogTabindex
-            ? setAttrs(_viewport, tabIndexStr, ogTabindex)
-            : removeAttrs(_viewport, tabIndexStr)),
       () => {
         const destroyActiveElm = getFocusedElement();
         const undoDestroyWrapUndwrapFocus = prepareWrapUnwrapFocus(destroyActiveElm);
@@ -259,6 +254,9 @@ export const createStructureSetupElements = (
           dataAttributeHostOverflowY,
           dataAttributeViewport,
         ]);
+        ogTabindex
+          ? setAttrs(_viewport, tabIndexStr, ogTabindex)
+          : removeAttrs(_viewport, tabIndexStr);
 
         elementIsGenerated(_content) && unwrap(_content);
         elementIsGenerated(_viewport) && unwrap(_viewport);
@@ -273,6 +271,7 @@ export const createStructureSetupElements = (
       push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
 
+    // focus viewport if previously focused element was target, otherwise focus previously focused element
     focusElm(
       !viewportIsTarget && docWnd.top === docWnd && initActiveElm === targetElement
         ? _viewport
