@@ -56,12 +56,13 @@ let environmentInstance: Env;
 
 const createEnvironment = (): Env => {
   const getNativeScrollbarSize = (
-    body: HTMLElement,
     measureElm: HTMLElement,
     measureElmChild: HTMLElement,
     clear?: boolean
   ): XY => {
-    appendChildren(body, measureElm);
+    // fix weird safari issue where getComputedStyle returns all empty styles by appending twice
+    appendChildren(document.body, measureElm);
+    appendChildren(document.body, measureElm);
 
     const cSize = clientSize(measureElm);
     const oSize = offsetSize(measureElm);
@@ -120,7 +121,6 @@ const createEnvironment = (): Env => {
     };
   };
 
-  const { body } = document;
   // changes to this styles need to be reflected in the "hide native scrollbars" section of the structure styles
   const envStyle = `.${classNameEnvironment}{scroll-behavior:auto!important;position:fixed;opacity:0;visibility:hidden;overflow:scroll;height:200px;width:200px;z-index:-1}.${classNameEnvironment} div{width:200%;height:200%;margin:10px 0}.${classNameEnvironmentScrollbarHidden}{scrollbar-width:none!important}.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar,.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar-corner{appearance:none!important;display:none!important;width:0!important;height:0!important}`;
   const envDOM = createDOM(
@@ -131,10 +131,10 @@ const createEnvironment = (): Env => {
   const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventArgs>();
   const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache(
     {
-      _initialValue: getNativeScrollbarSize(body, envElm, envChildElm),
+      _initialValue: getNativeScrollbarSize(envElm, envChildElm),
       _equal: equalXY,
     },
-    bind(getNativeScrollbarSize, body, envElm, envChildElm, true)
+    bind(getNativeScrollbarSize, envElm, envChildElm, true)
   );
   const [nativeScrollbarsSize] = getNativeScrollbarSizeCache();
   const nativeScrollbarsHiding = getNativeScrollbarsHiding(envElm);
