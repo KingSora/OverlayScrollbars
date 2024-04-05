@@ -223,7 +223,7 @@ export const createStructureSetupElements = (
 
     if (!viewportIsTarget) {
       setAttrs(_viewport, dataAttributeViewport, '');
-      setAttrs(_viewport, tabIndexStr, '-1');
+      setAttrs(_viewport, tabIndexStr, ogTabindex || '-1');
       isBody && addAttrClass(docElement, dataAttributeHost, dataValueHostHtmlBody);
     }
 

@@ -1349,29 +1349,62 @@ describe('structureSetup.elements', () => {
   });
 
   describe('focus', () => {
-    describe('shift tabindex to viewport', () => {
-      test('with pointerdown on body', () => {
-        const { elements } = createStructureSetupElementsProxy(document.body);
+    describe('tabindex', () => {
+      test('body', () => {
+        const { elements } = createStructureSetupElementsProxy({
+          target: document.body,
+          elements: {
+            viewport: false,
+          },
+          cancel: {
+            body: false,
+          },
+        });
+        expect(elements._target.getAttribute('tabindex')).toBe(null);
         expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
         expect(document.activeElement).toBe(elements._viewport);
-
-        elements._documentElm.dispatchEvent(new Event('pointerdown'));
-
-        expect(elements._viewport.getAttribute('tabindex')).toBe(null);
       });
 
-      test('with keydown on element', () => {
+      test('body viewportIsTarget', () => {
+        const { elements } = createStructureSetupElementsProxy({
+          target: document.body,
+          elements: {
+            viewport: document.body,
+          },
+          cancel: {
+            body: false,
+          },
+        });
+        expect(elements._target.getAttribute('tabindex')).toBe(null);
+        expect(elements._viewport.getAttribute('tabindex')).toBe(null);
+        expect(document.activeElement).toBe(elements._target);
+      });
+
+      test('element', () => {
         document.body.innerHTML = '<div tabindex="123"></div>';
         const target = document.body.firstElementChild as HTMLElement;
         target.focus();
 
-        const { elements } = createStructureSetupElementsProxy(target, { tabindex: true });
+        const { elements } = createStructureSetupElementsProxy(target);
         expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
+        expect(elements._host.getAttribute('tabindex')).toBe('123');
         expect(document.activeElement).toBe(elements._viewport);
+      });
 
-        elements._documentElm.dispatchEvent(new Event('keydown'));
+      test('element viewportIsTarget', () => {
+        document.body.innerHTML = '<div tabindex="123"></div>';
+        const target = document.body.firstElementChild as HTMLElement;
+        target.focus();
 
+        const { elements } = createStructureSetupElementsProxy({
+          target,
+          elements: {
+            viewport: target,
+          },
+        });
         expect(elements._viewport.getAttribute('tabindex')).toBe('123');
+        expect(elements._host.getAttribute('tabindex')).toBe('123');
+        expect(document.activeElement).toBe(elements._viewport);
       });
     });
 
