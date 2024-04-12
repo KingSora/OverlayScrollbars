@@ -249,7 +249,7 @@ const assertCorrectSetupElements = (
 
   expect(_isTextarea).toBe(isTextarea);
   expect(_isBody).toBe(isBody);
-  expect(_windowElm).toBe(document.defaultView);
+  expect(_windowElm()).toBe(document.defaultView);
   expect(_documentElm).toBe(document);
 
   expect(typeof destroy).toBe('function');

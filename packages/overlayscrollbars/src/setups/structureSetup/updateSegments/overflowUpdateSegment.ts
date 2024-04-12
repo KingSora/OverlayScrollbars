@@ -57,8 +57,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _padding,
     _viewport,
     _viewportIsTarget,
-    _viewportAddRemoveClass,
     _isBody,
+    _viewportAddRemoveClass,
     _windowElm,
   } = structureSetupElements;
   const { _nativeScrollbarsHiding } = env;
@@ -177,7 +177,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         // arrangedViewportScrollSize = scrollSize(_viewport);
       }
 
-      const windowInnerSize = windowSize(_windowElm);
+      const windowInnerSize = windowSize(_windowElm());
       const overflowAmountScrollSize = {
         w: max0(mathMax(viewportScrollSize.w, arrangedViewportScrollSize.w) + sizeFraction.w),
         h: max0(mathMax(viewportScrollSize.h, arrangedViewportScrollSize.h) + sizeFraction.h),

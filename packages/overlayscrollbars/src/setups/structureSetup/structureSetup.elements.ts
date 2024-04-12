@@ -22,6 +22,7 @@ import {
   stopPropagation,
   isBodyElement,
   getFocusedElement,
+  wnd,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -63,10 +64,10 @@ export interface StructureSetupElementsObj {
   // ctx ----
   _isTextarea: boolean;
   _isBody: boolean;
-  _windowElm: Window;
   _documentElm: Document;
   _targetIsElm: boolean;
   _viewportIsTarget: boolean;
+  _windowElm: () => Window;
   _viewportHasClass: (viewportAttributeClassName: string) => boolean;
   _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) => void;
 }
@@ -98,7 +99,7 @@ export const createStructureSetupElements = (
   const isTextarea = is(targetElement, 'textarea');
   const ownerDocument = targetElement.ownerDocument;
   const docElement = ownerDocument.documentElement;
-  const docWnd = ownerDocument.defaultView as Window;
+  const getDocumentWindow = () => ownerDocument.defaultView || wnd;
   const focusElm = (customActiveElm: Element | null) => {
     if (customActiveElm && (customActiveElm as HTMLElement).focus) {
       (customActiveElm as HTMLElement).focus();
@@ -151,12 +152,12 @@ export const createStructureSetupElements = (
     _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
     _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
     _originalScrollOffsetElement: isBody ? docElement : originalNonBodyScrollOffsetElement,
-    _windowElm: docWnd,
     _documentElm: ownerDocument,
     _isTextarea: isTextarea,
     _isBody: isBody,
     _targetIsElm: targetIsElm,
     _viewportIsTarget: viewportIsTarget,
+    _windowElm: getDocumentWindow,
     _viewportHasClass: (viewportAttributeClassName: string) =>
       hasAttrClass(
         viewportElement,
@@ -193,6 +194,7 @@ export const createStructureSetupElements = (
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
   const destroy = bind(runEachAndClear, destroyFns);
   const appendElements = () => {
+    const docWnd = getDocumentWindow();
     const initActiveElm = getFocusedElement();
     const unwrap = (elm: HTMLElement | false | null | undefined) => {
       appendChildren(parent(elm), contents(elm));
@@ -273,7 +275,9 @@ export const createStructureSetupElements = (
 
     // focus viewport if previously focused element was target, otherwise focus previously focused element
     focusElm(
-      !viewportIsTarget && docWnd.top === docWnd && initActiveElm === targetElement
+      !viewportIsTarget &&
+        initActiveElm === targetElement &&
+        (!docWnd || (docWnd && docWnd.top === docWnd))
         ? _viewport
         : initActiveElm
     );
