@@ -275,9 +275,7 @@ export const createStructureSetupElements = (
 
     // focus viewport if previously focused element was target, otherwise focus previously focused element
     focusElm(
-      !viewportIsTarget &&
-        initActiveElm === targetElement &&
-        (!docWnd || (docWnd && docWnd.top === docWnd))
+      !viewportIsTarget && initActiveElm === targetElement && docWnd.top === docWnd
         ? _viewport
         : initActiveElm
     );
