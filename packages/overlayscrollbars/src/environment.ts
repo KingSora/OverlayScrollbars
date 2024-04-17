@@ -60,7 +60,7 @@ const createEnvironment = (): Env => {
     measureElmChild: HTMLElement,
     clear?: boolean
   ): XY => {
-    // double appending fixes safari issue: https://bugs.webkit.org/show_bug.cgi?id=272277
+    // fix weird safari issue where getComputedStyle returns all empty styles by appending twice
     appendChildren(document.body, measureElm);
     appendChildren(document.body, measureElm);
 
@@ -121,8 +121,11 @@ const createEnvironment = (): Env => {
     };
   };
 
-  // style tag fixes safari issue: https://bugs.webkit.org/show_bug.cgi?id=272277
-  const envDOM = createDOM(`<div class="${classNameEnvironment}"><div></div><style></style></div>`);
+  // changes to this styles need to be reflected in the "hide native scrollbars" section of the structure styles
+  const envStyle = `.${classNameEnvironment}{scroll-behavior:auto!important;position:fixed;opacity:0;visibility:hidden;overflow:scroll;height:200px;width:200px;z-index:-1}.${classNameEnvironment} div{width:200%;height:200%;margin:10px 0}.${classNameEnvironmentScrollbarHidden}{scrollbar-width:none!important}.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar,.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar-corner{appearance:none!important;display:none!important;width:0!important;height:0!important}`;
+  const envDOM = createDOM(
+    `<div class="${classNameEnvironment}"><div></div><style>${envStyle}</style></div>`
+  );
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
   const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventArgs>();
