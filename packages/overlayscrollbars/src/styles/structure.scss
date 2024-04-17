@@ -1,13 +1,32 @@
+.os-environment {
+  scroll-behavior: auto !important;
+  position: fixed;
+  opacity: 0;
+  visibility: hidden;
+  overflow: scroll;
+  height: 200px;
+  width: 200px;
+  z-index: -1;
+}
+.os-environment div {
+  width: 200%;
+  height: 200%;
+  margin: 10px 0;
+}
+
 /**
  * hide native scrollbars
- * changes to this styles need to be reflected in the environment styles to correctly detect scrollbar hiding
  */
 
+.os-environment-scrollbar-hidden,
 [data-overlayscrollbars-initialize],
 [data-overlayscrollbars~='scrollbarHidden'],
 [data-overlayscrollbars-viewport~='scrollbarHidden'] {
   scrollbar-width: none !important;
 }
+
+.os-environment-scrollbar-hidden::-webkit-scrollbar,
+.os-environment-scrollbar-hidden::-webkit-scrollbar-corner,
 [data-overlayscrollbars-initialize]::-webkit-scrollbar,
 [data-overlayscrollbars-initialize]::-webkit-scrollbar-corner,
 [data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar,

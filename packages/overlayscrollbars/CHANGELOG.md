@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.7.2
+
+### Bug Fixes
+
+- Handle case where `document.defaultView` is `null`. [#627](https://github.com/KingSora/OverlayScrollbars/issues/627)
+
+### Improvements
+
+- Revert moving the environment styles from the stylesheet into javascript due to a better solution of the problem.
+
 ## 2.7.1
 
 ### Improvements
