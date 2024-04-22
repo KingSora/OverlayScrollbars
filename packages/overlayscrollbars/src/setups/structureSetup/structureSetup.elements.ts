@@ -273,11 +273,12 @@ export const createStructureSetupElements = (
       push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
 
-    // focus viewport if previously focused element was target
-    if (!viewportIsTarget && initActiveElm === targetElement && docWnd.top === docWnd) {
-      focusElm(_viewport);
-    }
-
+    // focus viewport if previously focused element was target, otherwise focus previously focused element
+    focusElm(
+      !viewportIsTarget && initActiveElm === targetElement && docWnd.top === docWnd
+        ? _viewport
+        : initActiveElm
+    );
     undoInitWrapUndwrapFocus();
 
     // @ts-ignore
