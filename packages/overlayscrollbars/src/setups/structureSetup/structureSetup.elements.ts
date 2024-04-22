@@ -102,7 +102,7 @@ export const createStructureSetupElements = (
   const getDocumentWindow = () => ownerDocument.defaultView || wnd;
   const focusElm = (customActiveElm: Element | null) => {
     if (customActiveElm && (customActiveElm as HTMLElement).focus) {
-      (customActiveElm as HTMLElement).focus();
+      (customActiveElm as HTMLElement).focus({ preventScroll: true });
     }
   };
   const staticInitializationElement = bind(generalStaticInitializationElement, [targetElement]);
@@ -273,12 +273,11 @@ export const createStructureSetupElements = (
       push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
 
-    // focus viewport if previously focused element was target, otherwise focus previously focused element
-    focusElm(
-      !viewportIsTarget && initActiveElm === targetElement && docWnd.top === docWnd
-        ? _viewport
-        : initActiveElm
-    );
+    // focus viewport if previously focused element was target
+    if (!viewportIsTarget && initActiveElm === targetElement && docWnd.top === docWnd) {
+      focusElm(_viewport);
+    }
+
     undoInitWrapUndwrapFocus();
 
     // @ts-ignore

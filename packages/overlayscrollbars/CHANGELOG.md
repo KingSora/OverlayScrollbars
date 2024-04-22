@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.7.3
+
+### Improvements
+
+- Use `{ preventScroll: true }` when focusing viewport to prevent unwanted scrolling. [#629](https://github.com/KingSora/OverlayScrollbars/issues/629)
+- Make the scrollbars hidden when `@media print` applies.
+
 ## 2.7.2
 
 ### Bug Fixes

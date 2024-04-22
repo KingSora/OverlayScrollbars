@@ -202,7 +202,7 @@ export const createScrollbarsSetupEvents = (
             focusedElement === document.body
           ) {
             setT(() => {
-              _viewport.focus();
+              _viewport.focus({ preventScroll: true });
             }, 25);
           }
         }),

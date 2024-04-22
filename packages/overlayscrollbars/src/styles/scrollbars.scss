@@ -96,3 +96,9 @@ body > .os-scrollbar {
   top: 0;
   bottom: 0;
 }
+
+@media print {
+  .os-scrollbar {
+    display: none;
+  }
+}
