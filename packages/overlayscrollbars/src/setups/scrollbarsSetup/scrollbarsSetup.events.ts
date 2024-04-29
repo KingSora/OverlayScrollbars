@@ -81,7 +81,7 @@ export const createScrollbarsSetupEvents = (
       event.propertyName.indexOf(widthHeightKey) > -1;
 
     const createInteractiveScrollEvents = () => {
-      const releasePointerCaptureEvents = 'pointerup pointerleave pointercancel lostpointercapture';
+      const releasePointerCaptureEvents = 'pointerup pointercancel lostpointercapture';
 
       const createRelativeHandleMove =
         (mouseDownScroll: number, invertedScale: number) => (deltaMovement: number) => {
