@@ -125,7 +125,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       getShowNativeOverlaidScrollbars(_checkOption, env);
     const [overflow, overflowChanged] = _checkOption('overflow');
 
-    const adjustViewportArrange =
+    const viewportChanged =
       _sizeChanged ||
       _paddingStyleChanged ||
       _contentMutation ||
@@ -147,35 +147,23 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _viewportAddRemoveClass(dataValueViewportScrollbarHidden, !showNativeOverlaidScrollbars);
     }
 
-    if (adjustViewportArrange) {
+    if (viewportChanged) {
       if (overflowVisible) {
         _viewportAddRemoveClass(dataValueViewportOverflowVisible, false);
       }
 
-      const [redoViewportArrange, undoViewportArrangeOverflowState] = _undoViewportArrange
+      const [redoViewportArrange] = _undoViewportArrange
         ? _undoViewportArrange(preMeasureViewportOverflowState)
         : [];
 
-      const [sizeFraction, sizeFractionChanged] = (sizeFractionCache = updateSizeFraction(_force));
-      const [viewportScrollSize, viewportScrollSizeChanged] = (viewportScrollSizeCache =
+      const [sizeFraction] = (sizeFractionCache = updateSizeFraction(_force));
+      const [viewportScrollSize] = (viewportScrollSizeCache =
         updateViewportScrollSizeCache(_force));
       const viewportClientSize = clientSize(_viewport);
       const arrangedViewportScrollSize = viewportScrollSize;
       const arrangedViewportClientSize = viewportClientSize;
 
       redoViewportArrange && redoViewportArrange();
-
-      // if re measure is required (only required if content arrange strategy is used)
-      if (
-        (viewportScrollSizeChanged || sizeFractionChanged || showNativeOverlaidScrollbarsChanged) &&
-        undoViewportArrangeOverflowState &&
-        !showNativeOverlaidScrollbars &&
-        _arrangeViewport &&
-        _arrangeViewport(undoViewportArrangeOverflowState, viewportScrollSize, sizeFraction)
-      ) {
-        // arrangedViewportClientSize = clientSize(_viewport);
-        // arrangedViewportScrollSize = scrollSize(_viewport);
-      }
 
       const windowInnerSize = windowSize(_windowElm());
       const overflowAmountScrollSize = {
@@ -227,7 +215,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       overflowAmountChanged ||
       overflowChanged ||
       showNativeOverlaidScrollbarsChanged ||
-      adjustViewportArrange;
+      viewportChanged;
 
     if (adjustViewportStyle) {
       const viewportStyle: StyleObject = {};

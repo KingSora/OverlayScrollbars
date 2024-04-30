@@ -321,17 +321,23 @@ body.fo {
     // dont apply display none since the "native scrollbar hiding" check relies on it
     // and it should be possible to run "fully overlaid scrollbars" tests with simulated "no native scrollbar hiding" applied
     // display: none !important;
+    display: block !important;
     width: 0px !important;
     height: 0px !important;
     visibility: hidden !important;
     background: transparent !important;
   }
 
-  .os-environment,
+  /*
+   * chrome now also supports scrollbar-width, dont apply it since the "native scrollbar hiding" check relies on it
+   * the above webkit-scrollbar style should apply anyway
+   * firefox has fully overlaid scrollbars per default now
+   .os-environment,
   [data-overlayscrollbars-viewport] {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
   }
+  */
 }
 
 // partially overlaid (chrome only)
