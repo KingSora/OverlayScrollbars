@@ -215,28 +215,27 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       overflowChanged ||
       showNativeOverlaidScrollbarsChanged ||
       viewportChanged;
+    const viewportStyle: StyleObject = {};
+    const viewportOverflowState = adjustViewportStyle
+      ? setViewportOverflowState(structureSetupElements, hasOverflow, overflow, viewportStyle)
+      : getViewportOverflowState(structureSetupElements);
+    const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
+      viewportOverflowState._overflowStyle
+    );
 
     if (adjustViewportStyle) {
-      const viewportStyle: StyleObject = {};
-      const viewportOverflowState = setViewportOverflowState(
-        structureSetupElements,
-        hasOverflow,
-        overflow,
-        viewportStyle
-      );
-
-      _hideNativeScrollbars &&
+      if (_hideNativeScrollbars && _arrangeViewport) {
         _hideNativeScrollbars(
           viewportOverflowState,
           _observersState,
-          !!_arrangeViewport &&
-            _arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction),
+          _arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction),
           viewportStyle
         );
+      }
 
       if (_viewportIsTarget) {
-        setAttrs(_host, dataAttributeHostOverflowX, viewportStyle[strOverflowX] as string);
-        setAttrs(_host, dataAttributeHostOverflowY, viewportStyle[strOverflowY] as string);
+        setAttrs(_host, dataAttributeHostOverflowX, viewportStyle[strOverflowX]);
+        setAttrs(_host, dataAttributeHostOverflowY, viewportStyle[strOverflowY]);
       } else {
         setStyles(_viewport, viewportStyle);
       }
@@ -253,10 +252,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     if (!_viewportIsTarget) {
       _viewportAddRemoveClass(dataValueViewportOverflowVisible, overflowVisible);
     }
-
-    const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
-      getViewportOverflowState(structureSetupElements)._overflowStyle
-    );
 
     assignDeep(structureSetupState, {
       _overflowStyle: overflowStyle,

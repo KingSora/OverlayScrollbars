@@ -107,11 +107,17 @@ html[data-overlayscrollbars~='viewport'] > body {
 [data-overlayscrollbars-viewport~='overflowVisible'] {
   overflow: visible;
 }
+[data-overlayscrollbars-overflow-x='visible'] {
+  overflow-x: visible;
+}
 [data-overlayscrollbars-overflow-x='hidden'] {
   overflow-x: hidden;
 }
 [data-overlayscrollbars-overflow-x='scroll'] {
   overflow-x: scroll;
+}
+[data-overlayscrollbars-overflow-y='visible'] {
+  overflow-y: visible;
 }
 [data-overlayscrollbars-overflow-y='hidden'] {
   overflow-y: hidden;

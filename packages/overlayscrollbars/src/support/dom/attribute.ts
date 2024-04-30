@@ -34,10 +34,10 @@ export const hasAttr = (elm: AttributeElementTarget, attrName: string) =>
 export const setAttrs = (
   elm: AttributeElementTarget,
   attrNames: string | string[],
-  value: string | false | null | undefined
+  value: string | number | false | null | undefined
 ) => {
   each(getDomTokensArray(attrNames), (attrName) => {
-    elm && elm.setAttribute(attrName, value || '');
+    elm && elm.setAttribute(attrName, String(value || ''));
   });
 };
 
