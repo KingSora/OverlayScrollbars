@@ -25,7 +25,6 @@ import {
   dataValueHostOverflowVisible,
   dataValueViewportScrollbarHidden,
   dataValueViewportOverflowVisible,
-  dataAttributeViewport,
   dataAttributePadding,
   dataValuePaddingOverflowVisible,
 } from '~/classnames';
@@ -250,13 +249,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       dataValuePaddingOverflowVisible,
       removeClipping
     );
+
     if (!_viewportIsTarget) {
-      addRemoveAttrClass(
-        _viewport,
-        dataAttributeViewport,
-        dataValueViewportOverflowVisible,
-        overflowVisible
-      );
+      _viewportAddRemoveClass(dataValueViewportOverflowVisible, overflowVisible);
     }
 
     const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
