@@ -516,7 +516,7 @@ describe('overlayscrollbars', () => {
       const stateObj = {
         overflowEdge: { x: 0, y: 0 },
         overflowAmount: { x: 0, y: 0 },
-        overflowStyle: { x: '', y: '' },
+        overflowStyle: { x: 'hidden', y: 'hidden' },
         hasOverflow: { x: false, y: false },
         padding: { t: 0, r: 0, b: 0, l: 0 },
         paddingAbsolute: false,
