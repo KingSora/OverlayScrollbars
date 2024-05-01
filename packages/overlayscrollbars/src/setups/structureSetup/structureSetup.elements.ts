@@ -30,7 +30,7 @@ import {
   dataAttributeHostOverflowX,
   dataAttributeHostOverflowY,
   dataAttributeViewport,
-  dataValueViewportScrollbarHidden,
+  dataValueScrollbarHidden,
   dataAttributePadding,
   dataAttributeContent,
   dataValueHostHtmlBody,
@@ -269,7 +269,7 @@ export const createStructureSetupElements = (
     ]);
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
-      addAttrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden);
+      addAttrClass(_viewport, dataAttributeViewport, dataValueScrollbarHidden);
       push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
 

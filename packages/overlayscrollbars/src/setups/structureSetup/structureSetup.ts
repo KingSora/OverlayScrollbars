@@ -17,7 +17,7 @@ import {
   type TRBL,
   type XY,
 } from '~/support';
-import { dataAttributeHost, dataValueHostUpdating } from '~/classnames';
+import { dataAttributeHost, dataValueMeasuring } from '~/classnames';
 import type { StructureSetupElementsObj } from './structureSetup.elements';
 import type {
   ObserversSetupState,
@@ -123,7 +123,7 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       const scrollOffset = adjustScrollOffset && getElmentScroll(_viewport);
 
       const removeAttrClass = _viewportIsTarget
-        ? addAttrClass(_viewport, dataAttributeHost, dataValueHostUpdating)
+        ? addAttrClass(_viewport, dataAttributeHost, dataValueMeasuring)
         : noop;
 
       each(updateSegments, (updateSegment) => {

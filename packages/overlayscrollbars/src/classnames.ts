@@ -7,25 +7,24 @@ export const classNameEnvironmentScrollbarHidden = `${classNameEnvironment}-scro
 // initialize
 export const dataAttributeInitialize = `${dataAttributePrefix}-initialize`;
 
+// shared
+export const dataValueScrollbarHidden = 'scrollbarHidden';
+export const dataValueOverflowVisible = 'overflowVisible';
+export const dataValueMeasuring = 'measuring';
+
 // host
 export const dataAttributeHost = dataAttributePrefix;
 export const dataAttributeHostOverflowX = `${dataAttributeHost}-overflow-x`;
 export const dataAttributeHostOverflowY = `${dataAttributeHost}-overflow-y`;
-export const dataValueHostOverflowVisible = 'overflowVisible';
-export const dataValueHostScrollbarHidden = 'scrollbarHidden';
 export const dataValueHostScrollbarPressed = 'scrollbarPressed';
-export const dataValueHostUpdating = 'updating';
 export const dataValueHostHtmlBody = 'body';
 
 // viewport
 export const dataAttributeViewport = `${dataAttributePrefix}-viewport`;
 export const dataValueViewportArrange = 'arrange';
-export const dataValueViewportScrollbarHidden = 'scrollbarHidden';
-export const dataValueViewportOverflowVisible = dataValueHostOverflowVisible;
 
 // padding
 export const dataAttributePadding = `${dataAttributePrefix}-padding`;
-export const dataValuePaddingOverflowVisible = dataValueViewportOverflowVisible;
 
 // content
 export const dataAttributeContent = `${dataAttributePrefix}-content`;

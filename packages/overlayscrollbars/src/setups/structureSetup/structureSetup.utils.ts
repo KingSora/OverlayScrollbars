@@ -1,4 +1,4 @@
-import { getStyles, strOverflowX, strOverflowY, strVisible } from '~/support';
+import { getStyles, strHidden, strOverflowX, strOverflowY, strVisible } from '~/support';
 import type { Env } from '~/environment';
 import type { XY } from '~/support';
 import type { Options, OptionsCheckFn, OverflowBehavior } from '~/options';
@@ -35,16 +35,13 @@ export const overflowIsVisible = (overflowBehavior: string) =>
  */
 export const getViewportOverflowState = (
   structureSetupElements: StructureSetupElementsObj,
-  viewportStyleObj?: StyleObject
+  viewportStyleObj?: StyleObject | false | null | undefined
 ): ViewportOverflowState => {
   const { _viewport } = structureSetupElements;
   const getStatePerAxis = (styleKey: StyleObjectKey) => {
-    const overflowStyle = getStyles(_viewport, styleKey);
-    // can't do something like "viewportStyleObj && viewportStyleObj[styleKey] || overflowStyle" here!
-    const objectPrefferedOverflowStyle = viewportStyleObj
-      ? viewportStyleObj[styleKey]
-      : overflowStyle;
-    const overflowScroll = objectPrefferedOverflowStyle === 'scroll';
+    const viewportStyleObjStyle = viewportStyleObj && viewportStyleObj[styleKey];
+    const overflowStyle = viewportStyleObjStyle || getStyles(_viewport, styleKey);
+    const overflowScroll = overflowStyle === 'scroll';
 
     return [overflowStyle, overflowScroll] as [
       overflowStyle: OverflowStyle,
@@ -81,26 +78,60 @@ export const setViewportOverflowState = (
   overflowOption: XY<OverflowBehavior>,
   viewportStyleObj: StyleObject
 ): ViewportOverflowState => {
-  const hasAnyOverflow = hasOverflow.x || hasOverflow.y;
+  const setAxisOverflowStyle = (
+    axisBehavior: OverflowBehavior,
+    axisHasOverflow: boolean,
+    perpendicularBehavior: OverflowBehavior,
+    perpendicularOverflow: boolean
+  ) => {
+    // convert behavior to style:
+    // 'visible'        -> 'hidden'
+    // 'hidden'         -> 'hidden'
+    // 'scroll'         -> 'scroll'
+    // 'visible-hidden' -> 'hidden'
+    // 'visible-scroll' -> 'scroll'
+    const behaviorStyle =
+      axisBehavior === 'visible' ? strHidden : axisBehavior.replace(`${strVisible}-`, '');
+    const axisOverflowVisible = overflowIsVisible(axisBehavior);
+    const perpendicularOverflowVisible = overflowIsVisible(perpendicularBehavior);
 
-  const setAxisOverflowStyle = (behavior: OverflowBehavior, hasOverflowAxis: boolean) => {
-    const overflowVisible = overflowIsVisible(behavior);
-    const fallbackVisibilityBehavior = overflowVisible && hasAnyOverflow ? 'hidden' : '';
-    const overflowVisibleBehavior =
-      (hasOverflowAxis && overflowVisible && behavior.replace(`${strVisible}-`, '')) ||
-      fallbackVisibilityBehavior;
+    // if no axis has overflow set 'hidden'
+    if (!axisHasOverflow && !perpendicularOverflow) {
+      return strHidden;
+    }
 
-    return [
-      hasOverflowAxis && !overflowVisible ? behavior : '',
-      overflowIsVisible(overflowVisibleBehavior) ? 'hidden' : overflowVisibleBehavior,
-    ];
+    // if both axis have a visible behavior ('visible', 'visible-hidden', 'visible-scroll') set 'visible'
+    if (axisOverflowVisible && perpendicularOverflowVisible) {
+      return strVisible;
+    }
+
+    // this this axis has a visible behavior
+    if (axisOverflowVisible) {
+      const nonPerpendicularOverflow = axisHasOverflow ? strVisible : strHidden;
+      return axisHasOverflow && perpendicularOverflow
+        ? behaviorStyle // if both axis have an overflow set ('hidden' or 'scroll')
+        : nonPerpendicularOverflow; // if only this axis has an overflow set 'visible', if no axis has an overflow set 'hidden'
+    }
+
+    const nonOverflow =
+      perpendicularOverflowVisible && perpendicularOverflow ? strVisible : strHidden;
+    return axisHasOverflow
+      ? behaviorStyle // if this axis has an overflow
+      : nonOverflow; // if the perp. axis has a visible behavior and has an overflow set 'visible', otherwise set 'hidden'
   };
 
-  const [overflowX, visibleBehaviorX] = setAxisOverflowStyle(overflowOption.x, hasOverflow.x);
-  const [overflowY, visibleBehaviorY] = setAxisOverflowStyle(overflowOption.y, hasOverflow.y);
-
-  viewportStyleObj[strOverflowX] = visibleBehaviorX && overflowY ? visibleBehaviorX : overflowX;
-  viewportStyleObj[strOverflowY] = visibleBehaviorY && overflowX ? visibleBehaviorY : overflowY;
+  viewportStyleObj[strOverflowX] = setAxisOverflowStyle(
+    overflowOption.x,
+    hasOverflow.x,
+    overflowOption.y,
+    hasOverflow.y
+  );
+  viewportStyleObj[strOverflowY] = setAxisOverflowStyle(
+    overflowOption.y,
+    hasOverflow.y,
+    overflowOption.x,
+    hasOverflow.x
+  );
 
   return getViewportOverflowState(structureSetupElements, viewportStyleObj);
 };

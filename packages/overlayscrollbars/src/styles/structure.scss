@@ -102,9 +102,12 @@ html[data-overlayscrollbars~='viewport'] > body {
   position: relative;
   overflow: hidden;
 }
+[data-overlayscrollbars~='measuring'],
+[data-overlayscrollbars-viewport~='measuring'] {
+  overflow: hidden !important;
+}
 [data-overlayscrollbars~='overflowVisible'],
-[data-overlayscrollbars-padding~='overflowVisible'],
-[data-overlayscrollbars-viewport~='overflowVisible'] {
+[data-overlayscrollbars-padding~='overflowVisible'] {
   overflow: visible;
 }
 [data-overlayscrollbars-overflow-x='visible'] {

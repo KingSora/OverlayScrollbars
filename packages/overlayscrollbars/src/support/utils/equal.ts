@@ -38,7 +38,8 @@ export const equal = <T extends PlainObject>(
  * @param a Object a.
  * @param b Object b.
  */
-export const equalWH = <T>(a?: WH<T>, b?: WH<T>) => equal<WH<T>>(a, b, ['w', 'h']);
+export const equalWH = <T>(a?: Partial<WH<T>>, b?: Partial<WH<T>>) =>
+  equal<Partial<WH<T>>>(a, b, ['w', 'h']);
 
 /**
  * Compares object a with object b and returns true if both have the same property values, false otherwise.
@@ -46,7 +47,8 @@ export const equalWH = <T>(a?: WH<T>, b?: WH<T>) => equal<WH<T>>(a, b, ['w', 'h'
  * @param a Object a.
  * @param b Object b.
  */
-export const equalXY = <T>(a?: XY<T>, b?: XY<T>) => equal<XY<T>>(a, b, ['x', 'y']);
+export const equalXY = <T>(a?: Partial<XY<T>>, b?: Partial<XY<T>>) =>
+  equal<Partial<XY<T>>>(a, b, ['x', 'y']);
 
 /**
  * Compares object a with object b and returns true if both have the same property values, false otherwise.
