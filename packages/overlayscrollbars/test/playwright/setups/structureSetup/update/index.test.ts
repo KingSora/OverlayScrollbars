@@ -34,7 +34,6 @@ const createTests = (fast?: boolean) => {
 
         test.describe(`${withText} native scrollbar styling`, () => {
           test.beforeEach(async ({ page }) => {
-            await setFast(page);
             await setTargetIsVp(page);
             await nsh(page);
           });
@@ -44,6 +43,7 @@ const createTests = (fast?: boolean) => {
           });
 
           test('with fully overlaid scrollbars', async ({ page }) => {
+            await setFast(page);
             await page.click('#fo');
 
             await expectSuccess(page);
@@ -55,6 +55,7 @@ const createTests = (fast?: boolean) => {
               "firefox can't simulate partially overlaid scrollbars, boost speed by omitting webkit"
             );
 
+            await setFast(page);
             await page.click('#po');
 
             await expectSuccess(page);

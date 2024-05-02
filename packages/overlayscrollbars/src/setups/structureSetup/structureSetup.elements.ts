@@ -215,7 +215,7 @@ export const createStructureSetupElements = (
 
     if (!viewportIsTarget) {
       setAttrs(_viewport, tabIndexStr, ogTabindex || '-1');
-      isBody && addAttrClass(docElement, dataAttributeHtmlBody, '');
+      isBody && setAttrs(docElement, dataAttributeHtmlBody, '');
     }
 
     // only insert host for textarea after target if it was generated
@@ -241,6 +241,7 @@ export const createStructureSetupElements = (
         removeAttrs(_padding, dataAttributePadding);
         removeAttrs(_content, dataAttributeContent);
         removeAttrs(_viewport, dataAttributeViewport);
+        isBody && removeAttrs(docElement, dataAttributeHtmlBody);
         ogTabindex
           ? setAttrs(_viewport, tabIndexStr, ogTabindex)
           : removeAttrs(_viewport, tabIndexStr);
