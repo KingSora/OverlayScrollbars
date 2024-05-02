@@ -4,7 +4,9 @@ import type { Page } from '@playwright/test';
 
 playwrightRollup();
 
-const createTests = (fast?: boolean) => {
+test.describe.configure({ mode: 'parallel' });
+
+test.describe('StructureSetup.update', () => {
   [false, true].forEach((viewportIsTarget) => {
     const isOrIsNot = viewportIsTarget ? 'is' : 'is not';
     const setTargetIsVp = async (page: Page) => {
@@ -13,9 +15,7 @@ const createTests = (fast?: boolean) => {
       }
     };
     const setFast = async (page: Page) => {
-      if (fast || viewportIsTarget) {
-        await page.click('#fast');
-      }
+      await page.click('#fast');
     };
 
     test.describe(`target ${isOrIsNot} viewport`, () => {
@@ -42,38 +42,30 @@ const createTests = (fast?: boolean) => {
             await expectSuccess(page);
           });
 
-          test('with fully overlaid scrollbars', async ({ page }) => {
-            await setFast(page);
-            await page.click('#fo');
+          test.describe(`fast`, () => {
+            test.beforeEach(async ({ page }) => {
+              await setFast(page);
+            });
 
-            await expectSuccess(page);
-          });
+            test('with fully overlaid scrollbars', async ({ page }) => {
+              await page.click('#fo');
 
-          test('with partially overlaid scrollbars', async ({ page, browserName }) => {
-            test.skip(
-              browserName === 'firefox' || browserName === 'webkit',
-              "firefox can't simulate partially overlaid scrollbars, boost speed by omitting webkit"
-            );
+              await expectSuccess(page);
+            });
 
-            await setFast(page);
-            await page.click('#po');
+            test('with partially overlaid scrollbars', async ({ page, browserName }) => {
+              test.skip(
+                browserName === 'firefox' || browserName === 'webkit',
+                "firefox can't simulate partially overlaid scrollbars, boost speed by omitting webkit"
+              );
 
-            await expectSuccess(page);
+              await page.click('#po');
+
+              await expectSuccess(page);
+            });
           });
         });
       });
     });
-  });
-};
-
-test.describe.configure({ mode: 'parallel' });
-
-test.describe('StructureSetup.update', () => {
-  test.describe('default', () => {
-    createTests(true);
-  });
-
-  test.describe('@special', () => {
-    createTests();
   });
 });
