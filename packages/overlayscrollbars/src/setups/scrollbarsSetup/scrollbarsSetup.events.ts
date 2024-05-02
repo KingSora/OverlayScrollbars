@@ -27,7 +27,7 @@ import {
   classNameScrollbarWheel,
   dataAttributeHost,
   dataAttributeViewport,
-  dataValueHostScrollbarPressed,
+  dataValueViewportScrollbarPressed,
 } from '~/classnames';
 import type { ClickScrollPlugin } from '~/plugins';
 import type { ReadonlyOptions } from '~/options';
@@ -138,7 +138,7 @@ export const createScrollbarsSetupEvents = (
           const removeAttrClass = addAttrClass(
             _host,
             dataAttributeHost,
-            dataValueHostScrollbarPressed
+            dataValueViewportScrollbarPressed
           );
 
           const offFns = [

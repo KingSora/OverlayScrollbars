@@ -55,7 +55,9 @@ export const domTokenListAttr = (elm: AttributeElementTarget, attrName: string) 
   const setElmAttr = bind(setAttrs, elm, attrName);
   const domTokenListOperation = (operationTokens: DomTokens, operation: 'add' | 'delete') => {
     const initialArrSet = new Set(initialArr);
-    each(getDomTokensArray(operationTokens), (token) => initialArrSet[operation](token));
+    each(getDomTokensArray(operationTokens), (token) => {
+      initialArrSet[operation](token);
+    });
     return from(initialArrSet).join(' ');
   };
 

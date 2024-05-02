@@ -85,6 +85,16 @@ const fillBody = (
 };
 
 const clearBody = () => {
+  const htmlElement = document.documentElement;
+  const bodyElement = document.body;
+
+  const removeAllAttrs = (element: HTMLElement) => {
+    Object.values(element.attributes).forEach(({ name }) => element.removeAttribute(name));
+  };
+
+  removeAllAttrs(htmlElement);
+  removeAllAttrs(bodyElement);
+
   document.body.innerHTML = '';
 };
 
@@ -121,7 +131,8 @@ const assertCorrectDOMStructure = (
   expect((_content || _viewport).contains(children)).toBe(true);
 
   if (_viewportIsTarget) {
-    expect(host.getAttribute(dataAttributeHost)).toBe('viewport');
+    expect(host.hasAttribute(dataAttributeHost)).toBe(true);
+    expect(host.hasAttribute(dataAttributeViewport)).toBe(true);
 
     if (_isBody) {
       expect(target.parentElement).toBe(host);
@@ -131,13 +142,15 @@ const assertCorrectDOMStructure = (
 
     expect(host).toBeTruthy();
     expect(padding).toBeFalsy();
-    expect(viewport).toBeFalsy();
+    expect(viewport).toBe(host);
     expect(content).toBeFalsy();
   } else {
-    expect(host.getAttribute(dataAttributeHost)).toBe('host');
+    expect(host.hasAttribute(dataAttributeHost)).toBe(true);
+    expect(host.hasAttribute(dataAttributeViewport)).toBe(false);
 
     expect(host).toBeTruthy();
     expect(viewport).toBeTruthy();
+
     expect(viewport.parentElement).toBe(padding || host);
 
     if (content) {
@@ -286,7 +299,7 @@ const assertCorrectSetupElements = (
       if (isStaticInitialization) {
         defaultInitialization = defaultInitialization as StructureStaticInitializationElement;
         if (_viewportIsTarget) {
-          if (kind === 'host') {
+          if (kind === 'host' || kind === 'viewport') {
             expect(elm).toBeTruthy();
           } else {
             expect(elm).toBeFalsy();
@@ -300,7 +313,7 @@ const assertCorrectSetupElements = (
         defaultInitialization = defaultInitialization as StructureDynamicInitializationElement;
         const resultIsBoolean = typeof resolvedDefaultInitialization === 'boolean';
         if (_viewportIsTarget) {
-          if (kind === 'host') {
+          if (kind === 'host' || kind === 'viewport') {
             expect(elm).toBeTruthy();
           } else {
             expect(elm).toBeFalsy();
@@ -398,20 +411,14 @@ const assertCorrectSetupElements = (
   const attrName = 'attr';
 
   _viewportAddRemoveClass(attrName, true);
-  if (_viewportIsTarget) {
-    expect(_viewportHasClass(attrName)).toBe(true);
-    expect(_host.getAttribute(dataAttributeHost)!.indexOf(attrName) >= 0).toBe(true);
-  } else {
-    expect(_viewportHasClass(attrName)).toBe(true);
-  }
-  _viewportAddRemoveClass(attrName);
-  if (_viewportIsTarget) {
-    expect(_host.getAttribute(dataAttributeHost)!.indexOf(attrName) >= 0).toBe(false);
-    expect(_viewportHasClass(attrName)).toBe(false);
-  } else {
-    expect(_viewportHasClass(attrName)).toBe(false);
-  }
+  expect(_viewportHasClass(attrName)).toBe(true);
+  expect(_host.getAttribute(dataAttributeHost)!.includes(attrName)).toBe(false);
+  expect(_viewport.getAttribute(dataAttributeViewport)!.includes(attrName)).toBe(true);
 
+  _viewportAddRemoveClass(attrName);
+  expect(_viewportHasClass(attrName)).toBe(false);
+  expect(_host.getAttribute(dataAttributeHost)!.includes(attrName)).toBe(false);
+  expect(_viewport.getAttribute(dataAttributeViewport)!.includes(attrName)).toBe(false);
   return [elements, destroy];
 };
 

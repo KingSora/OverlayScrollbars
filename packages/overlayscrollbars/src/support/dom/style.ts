@@ -29,8 +29,12 @@ export const ratioToCssPercent = (ratio: number) =>
 
 export const numberToCssPx = (number: number) => `${validFiniteNumber(number)}px`;
 
-export function setStyles(elm: HTMLElementTarget, styles: StyleObject): void {
+export function setStyles(
+  elm: HTMLElementTarget,
+  styles: StyleObject | false | null | undefined
+): void {
   elm &&
+    styles &&
     each(styles, (rawValue: StyleObjectValue, name) => {
       try {
         const elmStyle = elm.style;

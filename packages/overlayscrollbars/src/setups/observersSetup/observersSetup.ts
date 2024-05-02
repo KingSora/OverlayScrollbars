@@ -30,7 +30,7 @@ import {
   classNameScrollbar,
   dataAttributeHost,
   dataAttributeViewport,
-  dataValueMeasuring,
+  dataValueViewportMeasuring,
   dataValueViewportArrange,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
@@ -129,14 +129,14 @@ export const createObserversSetup = (
       const isArranged = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
       const scrollOffset = isArranged && getElmentScroll(_viewport);
 
-      _viewportAddRemoveClass(dataValueMeasuring, true);
+      _viewportAddRemoveClass(dataValueViewportMeasuring, true);
       const redoViewportArrange = isArranged && _undoViewportArrange && _undoViewportArrange()[0];
 
       const contentScroll = scrollSize(_content);
       const viewportScroll = scrollSize(_viewport);
       const fractional = fractionalSize(_viewport);
 
-      _viewportAddRemoveClass(dataValueMeasuring);
+      _viewportAddRemoveClass(dataValueViewportMeasuring);
       redoViewportArrange && redoViewportArrange();
 
       scrollElementTo(_viewport, scrollOffset);

@@ -1,3 +1,5 @@
+import { strOverflowX, strOverflowY } from './support';
+
 const dataAttributePrefix = `data-overlayscrollbars`;
 
 // environment
@@ -8,20 +10,22 @@ export const classNameEnvironmentScrollbarHidden = `${classNameEnvironment}-scro
 export const dataAttributeInitialize = `${dataAttributePrefix}-initialize`;
 
 // shared
-export const dataValueScrollbarHidden = 'scrollbarHidden';
-export const dataValueOverflowVisible = 'overflowVisible';
-export const dataValueMeasuring = 'measuring';
+export const dataValueNoClipping = 'noClipping';
+
+// body
+export const dataAttributeHtmlBody = `${dataAttributePrefix}-body`;
 
 // host
 export const dataAttributeHost = dataAttributePrefix;
-export const dataAttributeHostOverflowX = `${dataAttributeHost}-overflow-x`;
-export const dataAttributeHostOverflowY = `${dataAttributeHost}-overflow-y`;
-export const dataValueHostScrollbarPressed = 'scrollbarPressed';
-export const dataValueHostHtmlBody = 'body';
 
 // viewport
 export const dataAttributeViewport = `${dataAttributePrefix}-viewport`;
+export const dataValueViewportOverflowXPrefix = strOverflowX;
+export const dataValueViewportOverflowYPrefix = strOverflowY;
 export const dataValueViewportArrange = 'arrange';
+export const dataValueViewportMeasuring = 'measuring';
+export const dataValueViewportScrollbarHidden = 'scrollbarHidden';
+export const dataValueViewportScrollbarPressed = 'scrollbarPressed';
 
 // padding
 export const dataAttributePadding = `${dataAttributePrefix}-padding`;

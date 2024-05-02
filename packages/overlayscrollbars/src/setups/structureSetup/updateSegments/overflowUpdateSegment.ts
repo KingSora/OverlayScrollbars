@@ -10,33 +10,35 @@ import {
   wnd,
   mathMax,
   windowSize,
-  strOverflowX,
-  strOverflowY,
-  setStyles,
   addRemoveAttrClass,
-  setAttrs,
+  capitalizeFirstLetter,
+  setStyles,
+  strVisible,
+  strHidden,
+  each,
+  keys,
+  strScroll,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
   dataAttributeHost,
-  dataAttributeHostOverflowX,
-  dataAttributeHostOverflowY,
-  dataValueOverflowVisible,
-  dataValueScrollbarHidden,
+  dataValueNoClipping,
+  dataValueViewportScrollbarHidden,
   dataAttributePadding,
-  dataValueMeasuring,
+  dataValueViewportMeasuring,
+  dataValueViewportOverflowXPrefix,
+  dataValueViewportOverflowYPrefix,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { WH, XY } from '~/support';
 import type { ScrollbarsHidingPlugin } from '~/plugins/scrollbarsHidingPlugin';
-import type { StyleObject, OverflowStyle } from '~/typings';
+import type { OverflowStyle } from '~/typings';
 import type { CreateStructureUpdateSegment } from '../structureSetup';
 import type { ViewportOverflowState } from '../structureSetup.utils';
 import {
+  createViewportOverflowState,
   getShowNativeOverlaidScrollbars,
-  getViewportOverflowState,
   overflowIsVisible,
-  setViewportOverflowState,
 } from '../structureSetup.utils';
 
 /**
@@ -98,6 +100,32 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     scrollbarsHidingPluginName
   );
 
+  const createViewportOverflowStyleClassName = (
+    overflowStyle: OverflowStyle,
+    isHorizontal?: boolean
+  ) => {
+    const prefix = isHorizontal
+      ? dataValueViewportOverflowXPrefix
+      : dataValueViewportOverflowYPrefix;
+    return `${prefix}${capitalizeFirstLetter(overflowStyle)}`;
+  };
+
+  const setViewportOverflow = (viewportOverflowState: ViewportOverflowState) => {
+    const { _overflowStyle } = viewportOverflowState;
+
+    each(keys(_overflowStyle) as Array<keyof typeof _overflowStyle>, (axis) => {
+      const isHorizontal = axis === 'x';
+      const allOverflowStyleClassNames = (
+        [strVisible, strHidden, strScroll] as OverflowStyle[]
+      ).map((style) => createViewportOverflowStyleClassName(style, isHorizontal));
+      _viewportAddRemoveClass(allOverflowStyleClassNames.join(' '));
+      _viewportAddRemoveClass(
+        createViewportOverflowStyleClassName(_overflowStyle[axis], isHorizontal),
+        true
+      );
+    });
+  };
+
   return (
     { _checkOption, _observersUpdateHints, _observersState, _force },
     { _paddingStyleChanged }
@@ -122,7 +150,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const [overflow, overflowChanged] = _checkOption('overflow');
     const overflowXVisible = overflowIsVisible(overflow.x);
     const overflowYVisible = overflowIsVisible(overflow.y);
-    const overflowVisible = overflowXVisible || overflowYVisible;
 
     const viewportChanged =
       _sizeChanged ||
@@ -137,20 +164,14 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     let overflowAmuntCache = getCurrentOverflowAmountCache(_force);
     let overflowEdgeCache = getCurrentOverflowEdgeCache(_force);
 
-    let preMeasureViewportOverflowState: ViewportOverflowState | undefined;
-
     if (showNativeOverlaidScrollbarsChanged && _nativeScrollbarsHiding) {
-      _viewportAddRemoveClass(dataValueScrollbarHidden, !showNativeOverlaidScrollbars);
+      _viewportAddRemoveClass(dataValueViewportScrollbarHidden, !showNativeOverlaidScrollbars);
     }
 
     if (viewportChanged) {
-      if (overflowVisible) {
-        _viewportAddRemoveClass(dataValueMeasuring, true);
-      }
+      _viewportAddRemoveClass(dataValueViewportMeasuring, true);
 
-      const [redoViewportArrange] = _undoViewportArrange
-        ? _undoViewportArrange(preMeasureViewportOverflowState)
-        : [];
+      const [redoViewportArrange] = _undoViewportArrange ? _undoViewportArrange() : [];
 
       const [sizeFraction] = (sizeFractionCache = updateSizeFraction(_force));
       const [viewportScrollSize] = (viewportScrollSizeCache =
@@ -158,6 +179,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       const viewportClientSize = clientSize(_viewport);
       const arrangedViewportScrollSize = viewportScrollSize;
       const arrangedViewportClientSize = viewportClientSize;
+
+      _viewportAddRemoveClass(dataValueViewportMeasuring);
 
       redoViewportArrange && redoViewportArrange();
 
@@ -187,8 +210,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         getOverflowAmount(overflowAmountScrollSize, overflowAmountClientSize),
         _force
       );
-
-      _viewportAddRemoveClass(dataValueMeasuring);
     }
 
     const [overflowEdge, overflowEdgeChanged] = overflowEdgeCache;
@@ -214,37 +235,30 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       overflowChanged ||
       showNativeOverlaidScrollbarsChanged ||
       viewportChanged;
-    const viewportStyle: StyleObject = {};
-    const viewportOverflowState =
-      adjustViewportStyle &&
-      setViewportOverflowState(structureSetupElements, hasOverflow, overflow, viewportStyle);
-
-    if (viewportOverflowState && _hideNativeScrollbars && _arrangeViewport) {
-      _hideNativeScrollbars(
-        viewportOverflowState,
-        _observersState,
-        _arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction),
-        viewportStyle
-      );
-    }
+    const viewportOverflowState = createViewportOverflowState(hasOverflow, overflow);
+    const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
+      viewportOverflowState._overflowStyle
+    );
 
     if (adjustViewportStyle) {
-      if (_viewportIsTarget) {
-        setAttrs(_host, dataAttributeHostOverflowX, viewportStyle[strOverflowX]);
-        setAttrs(_host, dataAttributeHostOverflowY, viewportStyle[strOverflowY]);
-      } else {
-        setStyles(_viewport, viewportStyle);
+      setViewportOverflow(viewportOverflowState);
+
+      if (_hideNativeScrollbars && _arrangeViewport) {
+        setStyles(
+          _viewport,
+          _hideNativeScrollbars(
+            viewportOverflowState,
+            _observersState,
+            _arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction)
+          )
+        );
       }
     }
 
     if (!_viewportIsTarget) {
-      addRemoveAttrClass(_host, dataAttributeHost, dataValueOverflowVisible, removeClipping);
-      addRemoveAttrClass(_padding, dataAttributePadding, dataValueOverflowVisible, removeClipping);
+      addRemoveAttrClass(_host, dataAttributeHost, dataValueNoClipping, removeClipping);
+      addRemoveAttrClass(_padding, dataAttributePadding, dataValueNoClipping, removeClipping);
     }
-
-    const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
-      getViewportOverflowState(structureSetupElements, viewportStyle)._overflowStyle
-    );
 
     assignDeep(structureSetupState, {
       _overflowStyle: overflowStyle,

@@ -4,14 +4,11 @@
  */
 
 [data-overlayscrollbars-initialize],
-[data-overlayscrollbars~='scrollbarHidden'],
 [data-overlayscrollbars-viewport~='scrollbarHidden'] {
   scrollbar-width: none !important;
 }
 [data-overlayscrollbars-initialize]::-webkit-scrollbar,
 [data-overlayscrollbars-initialize]::-webkit-scrollbar-corner,
-[data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar,
-[data-overlayscrollbars~='scrollbarHidden']::-webkit-scrollbar-corner,
 [data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar,
 [data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar-corner {
   appearance: none !important;
@@ -31,25 +28,28 @@
 /**
  * applied to body 
  */
-
-html[data-overlayscrollbars] {
-  box-sizing: border-box;
-  margin: 0;
-  // not using width & height styles here to fix: https://github.com/KingSora/OverlayScrollbars/issues/601
+html[data-overlayscrollbars-body] {
+  overflow: hidden;
 }
-html[data-overlayscrollbars~='body'],
-html[data-overlayscrollbars~='body'] > body {
+html[data-overlayscrollbars-body],
+html[data-overlayscrollbars-body] > body {
   width: 100%;
   height: 100%;
+  margin: 0;
 }
-html[data-overlayscrollbars~='viewport'] > body {
+html[data-overlayscrollbars-body] > body {
   overflow: visible;
+  margin: 0;
 }
 
 /**
  * structure setup 
  */
-[data-overlayscrollbars~='host'],
+[data-overlayscrollbars] {
+  position: relative;
+}
+
+[data-overlayscrollbars]:not([data-overlayscrollbars-viewport]),
 [data-overlayscrollbars-padding] {
   display: flex;
   align-items: stretch !important;
@@ -58,7 +58,7 @@ html[data-overlayscrollbars~='viewport'] > body {
 }
 
 [data-overlayscrollbars-padding],
-[data-overlayscrollbars-viewport] {
+[data-overlayscrollbars-viewport]:not([data-overlayscrollbars]) {
   box-sizing: inherit;
   position: relative; // needed for correct padding styles
   flex: auto !important;
@@ -72,12 +72,14 @@ html[data-overlayscrollbars~='viewport'] > body {
 }
 
 [data-overlayscrollbars-viewport] {
-  --os-vaw: 0;
-  --os-vah: 0;
-  outline: none;
-
-  &:focus {
+  &:not([data-overlayscrollbars]) {
+    --os-vaw: 0;
+    --os-vah: 0;
     outline: none;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   &[data-overlayscrollbars-viewport~='arrange']::before {
@@ -92,45 +94,44 @@ html[data-overlayscrollbars~='viewport'] > body {
   }
 }
 
+[data-overlayscrollbars],
 [data-overlayscrollbars-padding],
 [data-overlayscrollbars-viewport] {
   overflow: hidden;
 }
 
-[data-overlayscrollbars~='host'],
-[data-overlayscrollbars~='viewport'] {
-  position: relative;
+[data-overlayscrollbars-viewport~='measuring'] {
   overflow: hidden;
 }
-[data-overlayscrollbars~='measuring'],
-[data-overlayscrollbars-viewport~='measuring'] {
-  overflow: hidden !important;
-}
-[data-overlayscrollbars~='overflowVisible'],
-[data-overlayscrollbars-padding~='overflowVisible'] {
+[data-overlayscrollbars~='noClipping'],
+[data-overlayscrollbars-padding~='noClipping'] {
   overflow: visible;
 }
-[data-overlayscrollbars-overflow-x='visible'] {
+
+[data-overlayscrollbars-viewport~='overflowXVisible']:not(
+    [data-overlayscrollbars-viewport~='measuring']
+  ) {
   overflow-x: visible;
 }
-[data-overlayscrollbars-overflow-x='hidden'] {
+[data-overlayscrollbars-viewport~='overflowXHidden'] {
   overflow-x: hidden;
 }
-[data-overlayscrollbars-overflow-x='scroll'] {
+[data-overlayscrollbars-viewport~='overflowXScroll'] {
   overflow-x: scroll;
 }
-[data-overlayscrollbars-overflow-y='visible'] {
+[data-overlayscrollbars-viewport~='overflowYVisible']:not(
+    [data-overlayscrollbars-viewport~='measuring']
+  ) {
   overflow-y: visible;
 }
-[data-overlayscrollbars-overflow-y='hidden'] {
+[data-overlayscrollbars-viewport~='overflowYHidden'] {
   overflow-y: hidden;
 }
-[data-overlayscrollbars-overflow-y='scroll'] {
+[data-overlayscrollbars-viewport~='overflowYScroll'] {
   overflow-y: scroll;
 }
 
-[data-overlayscrollbars~='scrollbarPressed'],
-[data-overlayscrollbars~='scrollbarPressed'] [data-overlayscrollbars-viewport] {
+[data-overlayscrollbars-viewport~='scrollbarPressed'] {
   scroll-behavior: auto !important;
 }
 

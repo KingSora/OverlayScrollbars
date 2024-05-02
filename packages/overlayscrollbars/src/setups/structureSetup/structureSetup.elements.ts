@@ -27,13 +27,11 @@ import {
 import {
   dataAttributeHost,
   dataAttributeInitialize,
-  dataAttributeHostOverflowX,
-  dataAttributeHostOverflowY,
   dataAttributeViewport,
-  dataValueScrollbarHidden,
+  dataValueViewportScrollbarHidden,
   dataAttributePadding,
   dataAttributeContent,
-  dataValueHostHtmlBody,
+  dataAttributeHtmlBody,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import {
@@ -159,18 +157,9 @@ export const createStructureSetupElements = (
     _viewportIsTarget: viewportIsTarget,
     _windowElm: getDocumentWindow,
     _viewportHasClass: (viewportAttributeClassName: string) =>
-      hasAttrClass(
-        viewportElement,
-        viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
-        viewportAttributeClassName
-      ),
+      hasAttrClass(viewportElement, dataAttributeViewport, viewportAttributeClassName),
     _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) =>
-      addRemoveAttrClass(
-        viewportElement,
-        viewportIsTarget ? dataAttributeHost : dataAttributeViewport,
-        viewportAttributeClassName,
-        add
-      ),
+      addRemoveAttrClass(viewportElement, dataAttributeViewport, viewportAttributeClassName, add),
   };
   const { _target, _host, _padding, _viewport, _content } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [
@@ -219,14 +208,14 @@ export const createStructureSetupElements = (
     const tabIndexStr = 'tabindex';
     const ogTabindex = getAttr(_viewport, tabIndexStr);
     const undoInitWrapUndwrapFocus = prepareWrapUnwrapFocus(initActiveElm);
-    setAttrs(_host, dataAttributeHost, viewportIsTarget ? 'viewport' : 'host');
+    setAttrs(_host, dataAttributeHost, '');
     setAttrs(_padding, dataAttributePadding, '');
+    setAttrs(_viewport, dataAttributeViewport, '');
     setAttrs(_content, dataAttributeContent, '');
 
     if (!viewportIsTarget) {
-      setAttrs(_viewport, dataAttributeViewport, '');
       setAttrs(_viewport, tabIndexStr, ogTabindex || '-1');
-      isBody && addAttrClass(docElement, dataAttributeHost, dataValueHostHtmlBody);
+      isBody && addAttrClass(docElement, dataAttributeHtmlBody, '');
     }
 
     // only insert host for textarea after target if it was generated
@@ -251,11 +240,7 @@ export const createStructureSetupElements = (
         const undoDestroyWrapUndwrapFocus = prepareWrapUnwrapFocus(destroyActiveElm);
         removeAttrs(_padding, dataAttributePadding);
         removeAttrs(_content, dataAttributeContent);
-        removeAttrs(_viewport, [
-          dataAttributeHostOverflowX,
-          dataAttributeHostOverflowY,
-          dataAttributeViewport,
-        ]);
+        removeAttrs(_viewport, dataAttributeViewport);
         ogTabindex
           ? setAttrs(_viewport, tabIndexStr, ogTabindex)
           : removeAttrs(_viewport, tabIndexStr);
@@ -269,7 +254,7 @@ export const createStructureSetupElements = (
     ]);
 
     if (_nativeScrollbarsHiding && !viewportIsTarget) {
-      addAttrClass(_viewport, dataAttributeViewport, dataValueScrollbarHidden);
+      addAttrClass(_viewport, dataAttributeViewport, dataValueViewportScrollbarHidden);
       push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
 

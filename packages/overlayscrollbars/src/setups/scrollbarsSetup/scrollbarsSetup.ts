@@ -1,4 +1,13 @@
-import { bind, noop, addEventListener, push, runEachAndClear, selfClearTimeout } from '~/support';
+import {
+  bind,
+  noop,
+  addEventListener,
+  push,
+  runEachAndClear,
+  selfClearTimeout,
+  strScroll,
+  strVisible,
+} from '~/support';
 import { getEnvironment } from '~/environment';
 import {
   classNameScrollbarThemeNone,
@@ -184,8 +193,8 @@ export const createScrollbarsSetup = (
         isHorizontal: boolean
       ) => {
         const isVisible =
-          overflowBehavior.includes('scroll') &&
-          (visibility === 'visible' || (visibility === 'auto' && overflowStyle === 'scroll'));
+          overflowBehavior.includes(strScroll) &&
+          (visibility === strVisible || (visibility === 'auto' && overflowStyle === strScroll));
 
         _scrollbarsAddRemoveClass(classNameScrollbarVisible, isVisible, isHorizontal);
 
