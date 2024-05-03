@@ -8,5 +8,8 @@ export default defineConfig({
   resolve: {
     preserveSymlinks: true,
   },
+  optimizeDeps: {
+    noDiscovery: true,
+  },
   plugins: [solidPlugin()],
 });

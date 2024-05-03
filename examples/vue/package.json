@@ -12,7 +12,7 @@
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "@vue/tsconfig": "^0.5.1",
     "typescript": "^5.0.2",
-    "vite": "^5.0.10",
+    "vite": "^5.2.11",
     "vue-tsc": "^1.8.25"
   },
   "scripts": {
