@@ -4,7 +4,6 @@ import {
   addEventListener,
   preventDefault,
   runEachAndClear,
-  stopPropagation,
   selfClearTimeout,
   parent,
   closest,
@@ -19,6 +18,7 @@ import {
   getFocusedElement,
   setT,
   hasAttr,
+  stopAndPrevent,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import {
@@ -249,13 +249,16 @@ export const createScrollbarsSetupEvents = (
           refreshHandleOffsetTransition();
         }
       }),
-      // rootClickStopPropagationEvent
+      // solved problem of interaction causing click events
       addEventListener(
         _scrollbar,
-        'mousedown',
-        bind(addEventListener, _documentElm, 'click', stopPropagation, {
+        'pointerdown',
+        // stopPropagation for stopping event propagation
+        // preventDefault to prevent the pointer to cause any actions (e.g. releasing mouse button over an <a> tag causes an navigation)
+        bind(addEventListener, _documentElm, 'click', stopAndPrevent, {
           _once: true,
           _capture: true,
+          _passive: false,
         }),
         { _capture: true }
       ),
