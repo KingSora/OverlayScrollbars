@@ -206,6 +206,29 @@ const assetScrollbarClickStopsPropagation = (osInstance: OverlayScrollbars) => {
     const { scrollbar, track, handle } = scrollbarElements;
     return element === scrollbar || element === track || element === handle;
   };
+  addEventListener(
+    document,
+    'click',
+    (e) => {
+      if (
+        !isScrollbarElement(e.target, scrollbarHorizontal) &&
+        !isScrollbarElement(e.target, scrollbarVertical)
+      ) {
+        return;
+      }
+
+      setTimeout(() => {
+        if (!e.defaultPrevented) {
+          const error = new Error(`Host received unprevented click. (Host: "${hostId}")`);
+          clickErrors.push(error);
+          throw error;
+        }
+      }, 100);
+    },
+    {
+      _capture: true,
+    }
+  );
   addEventListener(host, 'click', (e) => {
     if (
       !isScrollbarElement(e.target, scrollbarHorizontal) &&
@@ -255,6 +278,8 @@ startButton?.addEventListener('click', async () => {
   await timeout(1000);
 
   await runBlock();
+
+  await timeout(1000);
 
   if (clickErrors.length > 0) {
     setTestResult(false);

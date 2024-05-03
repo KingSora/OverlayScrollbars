@@ -253,7 +253,7 @@ export const createScrollbarsSetupEvents = (
       addEventListener(
         _scrollbar,
         'pointerdown',
-        // stopPropagation for stopping event propagation
+        // stopPropagation for stopping event propagation (causing click listeners to be invoked)
         // preventDefault to prevent the pointer to cause any actions (e.g. releasing mouse button over an <a> tag causes an navigation)
         bind(addEventListener, _documentElm, 'click', stopAndPrevent, {
           _once: true,
