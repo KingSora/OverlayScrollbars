@@ -5,6 +5,7 @@ import {
   removeAttrs,
   getAttr,
   setAttrs,
+  hasAttr,
 } from '~/support/dom/attribute';
 
 const testElm = document.body;
@@ -52,23 +53,45 @@ describe('dom attributes', () => {
     removeAttribute(attrName);
   });
 
+  test('hasAttr', () => {
+    const attrName = 'data-test-get';
+
+    setAttribute(attrName, '123');
+    expect(hasAttr(testElm, attrName)).toBe(true);
+
+    removeAttrs(testElm, attrName);
+    expect(hasAttr(testElm, attrName)).toBe(false);
+
+    removeAttribute(attrName);
+  });
+
   describe('addAttrClass', () => {
     test('add', () => {
       const attrName = 'data-test-attrClass-add';
 
-      addAttrClass(testElm, attrName, '000');
+      const remove = addAttrClass(testElm, attrName, '000');
       expect(getAttribute(attrName)).toBe('000');
 
+      remove();
+      expect(getAttribute(attrName)).toBe('');
+
       setAttribute(attrName, '123');
-      addAttrClass(testElm, attrName, '456');
+      const remove1 = addAttrClass(testElm, attrName, '456');
       expect(getAttribute(attrName)).toBe('123 456');
 
-      addAttrClass(testElm, attrName, '789');
-      addAttrClass(testElm, attrName, '789');
+      const remove2 = addAttrClass(testElm, attrName, '789');
+      const remove3 = addAttrClass(testElm, attrName, '789');
       expect(getAttribute(attrName)).toBe('123 456 789');
 
-      addAttrClass(testElm, attrName, '');
+      const remove4 = addAttrClass(testElm, attrName, '');
       expect(getAttribute(attrName)).toBe('123 456 789');
+
+      remove1();
+      remove2();
+      remove3();
+      remove4();
+
+      expect(getAttribute(attrName)).toBe('123');
 
       removeAttribute(attrName);
     });
@@ -77,16 +100,27 @@ describe('dom attributes', () => {
       const attrName = 'data-test-attrClass-remove';
 
       setAttribute(attrName, '123');
-      removeAttrClass(testElm, attrName, '456');
+      const add = removeAttrClass(testElm, attrName, '456');
       expect(getAttribute(attrName)).toBe('123');
 
-      removeAttrClass(testElm, attrName, '123');
+      add();
+      expect(getAttribute(attrName)).toBe('123 456');
+
+      setAttribute(attrName, '123');
+
+      const add1 = removeAttrClass(testElm, attrName, '123');
       expect(getAttribute(attrName)).toBe('');
-      removeAttrClass(testElm, attrName, '123');
+      const add2 = removeAttrClass(testElm, attrName, '123');
       expect(getAttribute(attrName)).toBe('');
 
-      removeAttrClass(testElm, attrName, '');
+      const add3 = removeAttrClass(testElm, attrName, '');
       expect(getAttribute(attrName)).toBe('');
+
+      add1();
+      add2();
+      add3();
+
+      expect(getAttribute(attrName)).toBe('123');
 
       removeAttribute(attrName);
     });

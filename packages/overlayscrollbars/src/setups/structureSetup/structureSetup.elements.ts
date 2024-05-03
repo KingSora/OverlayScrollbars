@@ -67,7 +67,7 @@ export interface StructureSetupElementsObj {
   _viewportIsTarget: boolean;
   _windowElm: () => Window;
   _viewportHasClass: (viewportAttributeClassName: string) => boolean;
-  _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) => void;
+  _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) => () => void;
 }
 
 export const createStructureSetupElements = (

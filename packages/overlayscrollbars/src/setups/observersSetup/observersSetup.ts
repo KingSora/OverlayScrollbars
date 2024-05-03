@@ -129,14 +129,14 @@ export const createObserversSetup = (
       const isArranged = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
       const scrollOffset = isArranged && getElmentScroll(_viewport);
 
-      _viewportAddRemoveClass(dataValueViewportMeasuring, true);
+      const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
       const redoViewportArrange = isArranged && _undoViewportArrange && _undoViewportArrange()[0];
 
       const contentScroll = scrollSize(_content);
       const viewportScroll = scrollSize(_viewport);
       const fractional = fractionalSize(_viewport);
 
-      _viewportAddRemoveClass(dataValueViewportMeasuring);
+      revertMeasuring();
       redoViewportArrange && redoViewportArrange();
 
       scrollElementTo(_viewport, scrollOffset);

@@ -162,8 +162,7 @@ describe('environment', () => {
 
   describe('addResizeListener', () => {
     const createMockScrollbarsHidingPlugin = (
-      original: typeof ScrollbarsHidingPlugin,
-      zoomFn: jest.Func
+      original: typeof ScrollbarsHidingPlugin
     ): typeof ScrollbarsHidingPlugin => {
       return {
         __osScrollbarsHidingPlugin: {
@@ -171,7 +170,6 @@ describe('environment', () => {
             const originalResult = original.__osScrollbarsHidingPlugin.static(...args);
             return {
               ...originalResult,
-              _envWindowZoom: () => zoomFn,
             };
           },
         },
@@ -189,14 +187,12 @@ describe('environment', () => {
       window.dispatchEvent(new Event('resize'));
 
       expect(listener).toHaveBeenCalledTimes(1);
-      expect(listener).toHaveBeenCalledWith(expect.any(Boolean));
     });
 
     test('with scrollbarsHidingPlugin registered before environment was created', async () => {
       const { registerPluginModuleInstances } = await import('~/plugins');
-      const zoomFn = jest.fn();
       registerPluginModuleInstances(
-        createMockScrollbarsHidingPlugin(ScrollbarsHidingPlugin, zoomFn),
+        createMockScrollbarsHidingPlugin(ScrollbarsHidingPlugin),
         OverlayScrollbars
       );
 
@@ -205,36 +201,29 @@ describe('environment', () => {
 
       _addResizeListener(listener);
       expect(listener).not.toHaveBeenCalled();
-      expect(zoomFn).not.toHaveBeenCalled();
 
       window.dispatchEvent(new Event('resize'));
 
-      expect(zoomFn).toHaveBeenCalledTimes(1);
       expect(listener).toHaveBeenCalledTimes(1);
-      expect(listener).toHaveBeenCalledWith(expect.any(Boolean));
     });
 
     test('with scrollbarsHidingPlugin registered after environment was created', async () => {
       const { _addResizeListener } = getEnv();
-      const zoomFn = jest.fn();
       const listener = jest.fn();
 
       _addResizeListener(listener);
 
       const { registerPluginModuleInstances } = await import('~/plugins');
       registerPluginModuleInstances(
-        createMockScrollbarsHidingPlugin(ScrollbarsHidingPlugin, zoomFn),
+        createMockScrollbarsHidingPlugin(ScrollbarsHidingPlugin),
         OverlayScrollbars
       );
 
       expect(listener).not.toHaveBeenCalled();
-      expect(zoomFn).not.toHaveBeenCalled();
 
       window.dispatchEvent(new Event('resize'));
 
-      expect(zoomFn).toHaveBeenCalledTimes(1);
       expect(listener).toHaveBeenCalledTimes(1);
-      expect(listener).toHaveBeenCalledWith(expect.any(Boolean));
     });
   });
 });

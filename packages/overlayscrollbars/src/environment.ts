@@ -15,7 +15,6 @@ import {
   scrollT,
   bind,
   wnd,
-  noop,
   scrollElementTo,
   strHidden,
   strOverflowX,
@@ -23,13 +22,12 @@ import {
   getStyles,
   setStyles,
   isBodyElement,
+  isFunction,
 } from '~/support';
 import { classNameEnvironment, classNameEnvironmentScrollbarHidden } from '~/classnames';
 import { defaultOptions } from '~/options';
-import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { XY, EventListener } from '~/support';
 import type { Options, PartialOptions } from '~/options';
-import type { ScrollbarsHidingPlugin } from '~/plugins';
 import type { Initialization, PartialInitialization } from '~/initialization';
 import type { StyleObjectKey } from './typings';
 
@@ -192,17 +190,31 @@ const createEnvironment = (): Env => {
 
   // needed in case content has css viewport units
   wnd.addEventListener('resize', () => {
-    let scrollbarSizeChanged;
-    if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
-      const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
-        scrollbarsHidingPluginName
-      );
-      const zoomFn = scrollbarsHidingPlugin ? scrollbarsHidingPlugin._envWindowZoom() : noop;
-      scrollbarSizeChanged = !!zoomFn(env, updateNativeScrollbarSizeCache);
-    }
-
-    triggerEvent('r', [scrollbarSizeChanged]);
+    triggerEvent('r', []);
   });
+
+  if (
+    isFunction(wnd.matchMedia) &&
+    !nativeScrollbarsHiding &&
+    (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)
+  ) {
+    const updatePixelRatio = (callback: () => void) => {
+      const media = wnd.matchMedia(`(resolution: ${wnd.devicePixelRatio}dppx)`);
+      const listener = () => {
+        media.removeEventListener('change', listener);
+        callback();
+        updatePixelRatio(callback);
+      };
+      media.addEventListener('change', listener);
+    };
+    updatePixelRatio(() => {
+      const [updatedNativeScrollbarSize, nativeScrollbarSizeChanged] =
+        updateNativeScrollbarSizeCache();
+
+      assignDeep(env._nativeScrollbarsSize, updatedNativeScrollbarSize); // keep the object and just re-assign!
+      triggerEvent('r', [nativeScrollbarSizeChanged]);
+    });
+  }
 
   return env;
 };

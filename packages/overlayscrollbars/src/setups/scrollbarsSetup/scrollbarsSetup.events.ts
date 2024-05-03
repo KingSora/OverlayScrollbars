@@ -14,7 +14,6 @@ import {
   strHeight,
   getElmentScroll,
   scrollElementTo,
-  addAttrClass,
   getFocusedElement,
   setT,
   hasAttr,
@@ -51,8 +50,14 @@ export const createScrollbarsSetupEvents = (
   structureSetupState: StructureSetupState,
   scrollbarHandlePointerInteraction: (event: PointerEvent) => void
 ): ScrollbarsSetupEvents => {
-  const { _host, _viewport, _viewportIsTarget, _scrollOffsetElement, _documentElm } =
-    structureSetupElements;
+  const {
+    _host,
+    _viewport,
+    _viewportIsTarget,
+    _scrollOffsetElement,
+    _documentElm,
+    _viewportAddRemoveClass,
+  } = structureSetupElements;
 
   return (
     scrollbarStructure,
@@ -135,14 +140,9 @@ export const createScrollbarsSetupEvents = (
             runEachAndClear(offFns);
             pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
           };
-          const removeAttrClass = addAttrClass(
-            _host,
-            dataAttributeHost,
-            dataValueViewportScrollbarPressed
-          );
 
           const offFns = [
-            removeAttrClass,
+            _viewportAddRemoveClass(dataValueViewportScrollbarPressed, true),
             addEventListener(_documentElm, releasePointerCaptureEvents, releasePointerCapture),
             addEventListener(_documentElm, 'selectstart', (event: Event) => preventDefault(event), {
               _passive: false,

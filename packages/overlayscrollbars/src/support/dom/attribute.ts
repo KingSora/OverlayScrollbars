@@ -84,8 +84,10 @@ export const removeAttrClass = (
   elm: AttributeElementTarget,
   attrName: string,
   value: DomTokens
-) => {
+): (() => void) => {
   domTokenListAttr(elm, attrName)._remove(value);
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  return bind(addAttrClass, elm, attrName, value);
 };
 
 /**
@@ -94,7 +96,11 @@ export const removeAttrClass = (
  * @param attrName The attributeName to which the value shall be added.
  * @param value The value which shall be added.
  */
-export const addAttrClass = (elm: AttributeElementTarget, attrName: string, value: DomTokens) => {
+export const addAttrClass = (
+  elm: AttributeElementTarget,
+  attrName: string,
+  value: DomTokens
+): (() => void) => {
   domTokenListAttr(elm, attrName)._add(value);
   return bind(removeAttrClass, elm, attrName, value);
 };
@@ -104,9 +110,7 @@ export const addRemoveAttrClass = (
   attrName: string,
   value: DomTokens,
   add?: boolean
-) => {
-  (add ? addAttrClass : removeAttrClass)(elm, attrName, value);
-};
+) => (add ? addAttrClass : removeAttrClass)(elm, attrName, value);
 
 /**
  * Treats the given attribute like the "class" attribute and checks if the given value is in it.

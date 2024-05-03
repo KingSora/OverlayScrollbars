@@ -3,10 +3,6 @@ import {
   noop,
   each,
   assignDeep,
-  windowSize,
-  wnd,
-  mathAbs,
-  mathRound,
   strMarginBottom,
   strMarginLeft,
   strMarginRight,
@@ -16,7 +12,6 @@ import {
   strPaddingTop,
   getStyles,
   setStyles,
-  addAttrClass,
   removeAttrClass,
   strWidth,
   strOverflowY,
@@ -30,7 +25,7 @@ import type { Options, OptionsCheckFn } from '~/options';
 import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
 import type { ViewportOverflowState } from '~/setups/structureSetup/structureSetup.utils';
 import type { Env } from '~/environment';
-import type { UpdateCache, WH, XY } from '~/support';
+import type { WH } from '~/support';
 import type { OverflowStyle, StyleObject, StyleObjectKey } from '~/typings';
 import type { StructureSetupState } from '~/setups/structureSetup';
 import type { StaticPlugin } from '~/plugins';
@@ -271,7 +266,11 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
             }
 
             const prevStyle = getStyles(_viewport, keys(finalPaddingStyle) as StyleObjectKey[]);
-            removeAttrClass(_viewport, dataAttributeViewport, dataValueViewportArrange);
+            const addArrange = removeAttrClass(
+              _viewport,
+              dataAttributeViewport,
+              dataValueViewportArrange
+            );
 
             setStyles(_viewport, finalPaddingStyle);
 
@@ -289,7 +288,7 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
                     )
                   )
                 );
-                addAttrClass(_viewport, dataAttributeViewport, dataValueViewportArrange);
+                addArrange();
               },
               finalViewportOverflowState,
             ] as const;
@@ -302,71 +301,6 @@ export const ScrollbarsHidingPlugin = /* @__PURE__ */ (() => ({
           _arrangeViewport,
           _undoViewportArrange,
           _hideNativeScrollbars,
-        };
-      },
-      _envWindowZoom: () => {
-        let size = { w: 0, h: 0 };
-        let dpr = 0;
-        const getWindowDPR = (): number => {
-          const screen = wnd.screen;
-          // eslint-disable-next-line
-          // @ts-ignore
-          const dDPI = screen.deviceXDPI || 0;
-          // eslint-disable-next-line
-          // @ts-ignore
-          const sDPI = screen.logicalXDPI || 1;
-          return wnd.devicePixelRatio || dDPI / sDPI;
-        };
-        const diffBiggerThanOne = (valOne: number, valTwo: number): boolean => {
-          const absValOne = mathAbs(valOne);
-          const absValTwo = mathAbs(valTwo);
-          return !(
-            absValOne === absValTwo ||
-            absValOne + 1 === absValTwo ||
-            absValOne - 1 === absValTwo
-          );
-        };
-
-        return (
-          envInstance: Env,
-          updateNativeScrollbarSizeCache: UpdateCache<XY<number>>
-        ): boolean | undefined => {
-          const sizeNew = windowSize();
-          const deltaSize = {
-            w: sizeNew.w - size.w,
-            h: sizeNew.h - size.h,
-          };
-
-          if (deltaSize.w === 0 && deltaSize.h === 0) {
-            return;
-          }
-
-          const deltaAbsSize = {
-            w: mathAbs(deltaSize.w),
-            h: mathAbs(deltaSize.h),
-          };
-          const deltaAbsRatio = {
-            w: mathAbs(mathRound(sizeNew.w / (size.w / 100.0))),
-            h: mathAbs(mathRound(sizeNew.h / (size.h / 100.0))),
-          };
-          const dprNew = getWindowDPR();
-          const deltaIsBigger = deltaAbsSize.w > 2 && deltaAbsSize.h > 2;
-          const difference = !diffBiggerThanOne(deltaAbsRatio.w, deltaAbsRatio.h);
-          const dprChanged = dprNew !== dpr && dprNew > 0;
-          const isZoom = deltaIsBigger && difference && dprChanged;
-          let scrollbarSizeChanged;
-          let scrollbarSize;
-
-          if (isZoom) {
-            [scrollbarSize, scrollbarSizeChanged] = updateNativeScrollbarSizeCache();
-
-            assignDeep(envInstance._nativeScrollbarsSize, scrollbarSize); // keep the object same!
-          }
-
-          size = sizeNew;
-          dpr = dprNew;
-
-          return scrollbarSizeChanged;
         };
       },
     }),
