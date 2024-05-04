@@ -23,6 +23,7 @@ import {
   setStyles,
   isBodyElement,
   isFunction,
+  addEventListener,
 } from '~/support';
 import { classNameEnvironment, classNameEnvironmentScrollbarHidden } from '~/classnames';
 import { defaultOptions } from '~/options';
@@ -189,7 +190,7 @@ const createEnvironment = (): Env => {
   removeElements(envElm);
 
   // needed in case content has css viewport units
-  wnd.addEventListener('resize', () => {
+  addEventListener(wnd, 'resize', () => {
     triggerEvent('r', []);
   });
 
@@ -198,14 +199,19 @@ const createEnvironment = (): Env => {
     !nativeScrollbarsHiding &&
     (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)
   ) {
-    const addZoomListener = (callback: () => void) => {
+    const addZoomListener = (onZoom: () => void) => {
       const media = wnd.matchMedia(`(resolution: ${wnd.devicePixelRatio}dppx)`);
-      const listener = () => {
-        media.removeEventListener('change', listener);
-        callback();
-        addZoomListener(callback);
-      };
-      media.addEventListener('change', listener);
+      addEventListener(
+        media,
+        'change',
+        () => {
+          onZoom();
+          addZoomListener(onZoom);
+        },
+        {
+          _once: true,
+        }
+      );
     };
     addZoomListener(() => {
       const [updatedNativeScrollbarSize, nativeScrollbarSizeChanged] =
