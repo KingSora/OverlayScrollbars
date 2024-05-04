@@ -198,16 +198,16 @@ const createEnvironment = (): Env => {
     !nativeScrollbarsHiding &&
     (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)
   ) {
-    const updatePixelRatio = (callback: () => void) => {
+    const addZoomListener = (callback: () => void) => {
       const media = wnd.matchMedia(`(resolution: ${wnd.devicePixelRatio}dppx)`);
       const listener = () => {
         media.removeEventListener('change', listener);
         callback();
-        updatePixelRatio(callback);
+        addZoomListener(callback);
       };
       media.addEventListener('change', listener);
     };
-    updatePixelRatio(() => {
+    addZoomListener(() => {
       const [updatedNativeScrollbarSize, nativeScrollbarSizeChanged] =
         updateNativeScrollbarSizeCache();
 
