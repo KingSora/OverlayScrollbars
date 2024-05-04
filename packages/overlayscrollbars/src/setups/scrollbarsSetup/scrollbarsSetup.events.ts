@@ -192,7 +192,7 @@ export const createScrollbarsSetupEvents = (
       addEventListener(_scrollbar, 'pointerleave pointercancel', () => {
         scrollbarsAddRemoveClass(classNameScrollbarInteraction, false);
       }),
-      // focus viewport when clicking on a scrollbar
+      // focus viewport when clicking on a scrollbar (mouse only)
       !_viewportIsTarget &&
         addEventListener(_scrollbar, 'mousedown', () => {
           const focusedElement = getFocusedElement();
@@ -249,7 +249,7 @@ export const createScrollbarsSetupEvents = (
           refreshHandleOffsetTransition();
         }
       }),
-      // solved problem of interaction causing click events
+      // solve problem of interaction causing click events
       addEventListener(
         _scrollbar,
         'pointerdown',
