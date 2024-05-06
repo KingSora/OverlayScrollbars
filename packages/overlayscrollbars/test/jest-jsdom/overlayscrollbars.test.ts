@@ -522,6 +522,16 @@ describe('overlayscrollbars', () => {
         paddingAbsolute: false,
         directionRTL: false,
         destroyed: false,
+        scrollCoordinates: {
+          start: {
+            x: 0,
+            y: 0,
+          },
+          end: {
+            x: 0,
+            y: 0,
+          },
+        },
       };
 
       expect(state).not.toBe(osInstance.state());
