@@ -1,10 +1,8 @@
 import { getEnvironment } from '~/environment';
 import {
-  addAttrClass,
   assignDeep,
   each,
-  getElmentScroll,
-  noop,
+  getElementScroll,
   scrollElementTo,
   strHidden,
   strMarginBottom,
@@ -17,7 +15,7 @@ import {
   type TRBL,
   type XY,
 } from '~/support';
-import { dataAttributeHost, dataValueViewportMeasuring } from '~/classnames';
+import { dataValueViewportMeasuring } from '~/classnames';
 import type { StructureSetupElementsObj } from './structureSetup.elements';
 import type {
   ObserversSetupState,
@@ -104,7 +102,7 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       y: false,
     },
   };
-  const { _target, _viewport, _viewportIsTarget } = elements;
+  const { _target, _scrollOffsetElement, _viewportIsTarget, _viewportAddRemoveClass } = elements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } = getEnvironment();
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
@@ -120,20 +118,16 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     (updateInfo) => {
       const updateHints: StructureSetupUpdateHints = {};
       const adjustScrollOffset = doViewportArrange;
-      const scrollOffset = adjustScrollOffset && getElmentScroll(_viewport);
-
-      const removeAttrClass = _viewportIsTarget
-        ? addAttrClass(_viewport, dataAttributeHost, dataValueViewportMeasuring)
-        : noop;
+      const scrollOffset = adjustScrollOffset && getElementScroll(_scrollOffsetElement);
+      const removeMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
 
       each(updateSegments, (updateSegment) => {
         assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
       });
 
-      removeAttrClass();
-
-      scrollElementTo(_viewport, scrollOffset);
+      scrollElementTo(_scrollOffsetElement, scrollOffset);
       !_viewportIsTarget && scrollElementTo(_target, 0);
+      removeMeasuring();
 
       return updateHints;
     },

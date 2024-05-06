@@ -14,7 +14,7 @@ import {
 } from '@~local/browser-testing';
 import {
   assignDeep,
-  clientSize,
+  getClientSize,
   from,
   getBoundingClientRect,
   parent,
@@ -656,7 +656,7 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
   const contentBox = (elm: HTMLElement | null): WH<number> => {
     if (elm) {
       const computedStyle = window.getComputedStyle(elm);
-      const size = clientSize(elm);
+      const size = getClientSize(elm);
       return {
         w:
           size.w - (parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight)),

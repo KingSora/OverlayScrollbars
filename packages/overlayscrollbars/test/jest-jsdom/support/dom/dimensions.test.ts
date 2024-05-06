@@ -1,11 +1,11 @@
 import { isNumber, isPlainObject } from '~/support/utils/types';
 import { createDiv } from '~/support/dom/create';
 import {
-  windowSize,
-  offsetSize,
-  clientSize,
-  scrollSize,
-  fractionalSize,
+  getWindowSize,
+  getOffsetSize,
+  getClientSize,
+  getScrollSize,
+  getFractionalSize,
   getBoundingClientRect,
   hasDimensions,
   domRectHasDimensions,
@@ -13,72 +13,72 @@ import {
 } from '~/support/dom/dimensions';
 
 describe('dom dimensions', () => {
-  describe('offsetSize', () => {
+  describe('getOffsetSize', () => {
     test('DOM element', () => {
-      const result = offsetSize(document.body);
+      const result = getOffsetSize(document.body);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.w)).toBe(true);
       expect(isNumber(result.h)).toBe(true);
     });
 
     test('null', () => {
-      const result = offsetSize(null);
+      const result = getOffsetSize(null);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.w)).toBe(true);
       expect(isNumber(result.h)).toBe(true);
     });
   });
 
-  describe('clientSize', () => {
+  describe('getClientSize', () => {
     test('DOM element', () => {
-      const result = clientSize(document.body);
+      const result = getClientSize(document.body);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.w)).toBe(true);
       expect(isNumber(result.h)).toBe(true);
     });
 
     test('null', () => {
-      const result = clientSize(null);
+      const result = getClientSize(null);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.w)).toBe(true);
       expect(isNumber(result.h)).toBe(true);
     });
   });
 
-  describe('scrollSize', () => {
+  describe('getScrollSize', () => {
     test('DOM element', () => {
-      const result = scrollSize(document.body);
+      const result = getScrollSize(document.body);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.w)).toBe(true);
       expect(isNumber(result.h)).toBe(true);
     });
 
     test('null', () => {
-      const result = scrollSize(null);
+      const result = getScrollSize(null);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.w)).toBe(true);
       expect(isNumber(result.h)).toBe(true);
     });
   });
 
-  describe('fractionalSize', () => {
+  describe('getFractionalSize', () => {
     test('DOM element', () => {
-      const result = fractionalSize(document.body);
+      const result = getFractionalSize(document.body);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.w)).toBe(true);
       expect(isNumber(result.h)).toBe(true);
     });
 
     test('null', () => {
-      const result = fractionalSize(null);
+      const result = getFractionalSize(null);
       expect(isPlainObject(result)).toBe(true);
       expect(isNumber(result.w)).toBe(true);
       expect(isNumber(result.h)).toBe(true);
     });
   });
 
-  test('windowSize', () => {
-    const result = windowSize();
+  test('getWindowSize', () => {
+    const result = getWindowSize();
     expect(isPlainObject(result)).toBe(true);
     expect(isNumber(result.w)).toBe(true);
     expect(isNumber(result.h)).toBe(true);

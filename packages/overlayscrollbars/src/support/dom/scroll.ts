@@ -66,7 +66,7 @@ export const getRawScrollRatio = (
  */
 export const scrollElementTo = (
   elm: HTMLElement,
-  position: Partial<XY> | number | false | null | undefined
+  position: Partial<XY<number | false | null | undefined>> | number | false | null | undefined
 ): void => {
   const { x, y } = isNumber(position) ? { x: position, y: position } : position || {};
   isNumber(x) && (elm.scrollLeft = x);
@@ -78,7 +78,7 @@ export const scrollElementTo = (
  * @param elm The element to be scrolled.
  * @param position The scroll position.
  */
-export const getElmentScroll = (elm: HTMLElement): Readonly<XY> => ({
+export const getElementScroll = (elm: HTMLElement): Readonly<XY> => ({
   x: elm.scrollLeft,
   y: elm.scrollTop,
 });

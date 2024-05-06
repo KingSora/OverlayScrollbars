@@ -10,7 +10,7 @@ import {
   setTestResult,
   waitForOrFailTest,
 } from '@~local/browser-testing';
-import { offsetSize } from '~/support';
+import { getOffsetSize } from '~/support';
 import { createTrinsicObserver } from '~/observers';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import { SizeObserverPlugin } from '~/plugins';
@@ -68,14 +68,14 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
   await iterateSelect<IterateSelect>(select, {
     beforeEach() {
       const currHeightIterations = heightIterations;
-      const currHeightIntrinsic = offsetSize(checkElm as HTMLElement).h === 0;
+      const currHeightIntrinsic = getOffsetSize(checkElm as HTMLElement).h === 0;
       return {
         currHeightIterations,
         currHeightIntrinsic,
       };
     },
     async check({ currHeightIterations, currHeightIntrinsic }) {
-      const newHeightIntrinsic = offsetSize(checkElm as HTMLElement).h === 0;
+      const newHeightIntrinsic = getOffsetSize(checkElm as HTMLElement).h === 0;
       const trinsicHeightChanged = newHeightIntrinsic !== currHeightIntrinsic;
 
       await waitForOrFailTest(() => {

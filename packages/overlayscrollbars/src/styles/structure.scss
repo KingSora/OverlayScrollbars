@@ -55,6 +55,7 @@ html[data-overlayscrollbars-body] > body {
   align-items: stretch !important;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
+  scroll-behavior: auto !important;
 }
 
 [data-overlayscrollbars-padding],
@@ -102,6 +103,7 @@ html[data-overlayscrollbars-body] > body {
 
 [data-overlayscrollbars-viewport~='measuring'] {
   overflow: hidden;
+  scroll-behavior: auto !important;
 }
 [data-overlayscrollbars~='noClipping'],
 [data-overlayscrollbars-padding~='noClipping'] {
@@ -129,6 +131,12 @@ html[data-overlayscrollbars-body] > body {
 }
 [data-overlayscrollbars-viewport~='overflowYScroll'] {
   overflow-y: scroll;
+}
+[data-overlayscrollbars-viewport~='overflowVisible'] {
+  overflow: visible !important;
+}
+[data-overlayscrollbars-viewport~='overflowHidden'] {
+  overflow: hidden !important;
 }
 
 [data-overlayscrollbars-viewport~='scrollbarPressed'] {

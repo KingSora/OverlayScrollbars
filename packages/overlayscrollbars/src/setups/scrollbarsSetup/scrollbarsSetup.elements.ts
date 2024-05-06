@@ -13,7 +13,7 @@ import {
   runEachAndClear,
   scrollT,
   bind,
-  getElmentScroll,
+  getElementScroll,
   inArray,
   strWidth,
   strHeight,
@@ -322,7 +322,7 @@ export const createScrollbarsSetupElements = (
         );
       });
     } else {
-      const scroll = getElmentScroll(_scrollOffsetElement);
+      const scroll = getElementScroll(_scrollOffsetElement);
       scrollbarStyle(scrollbarStructures, (structure) => {
         const { _handle, _scrollbar } = structure;
         return [
@@ -400,7 +400,7 @@ export const createScrollbarsSetupElements = (
           }
         });
       } else {
-        const scroll = getElmentScroll(_scrollOffsetElement);
+        const scroll = getElementScroll(_scrollOffsetElement);
         const styleScrollbarPosition = (structure: ScrollbarStructure) => {
           const { _scrollbar } = structure;
           const elm = doRefreshScrollbarOffset(_scrollbar) && _scrollbar;

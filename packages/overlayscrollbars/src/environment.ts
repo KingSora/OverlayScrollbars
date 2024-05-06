@@ -2,10 +2,10 @@ import {
   createDOM,
   addClass,
   appendChildren,
-  fractionalSize,
-  clientSize,
+  getFractionalSize,
+  getClientSize,
   absoluteCoordinates,
-  offsetSize,
+  getOffsetSize,
   removeAttrs,
   removeElements,
   assignDeep,
@@ -63,9 +63,9 @@ const createEnvironment = (): Env => {
     appendChildren(document.body, measureElm);
     appendChildren(document.body, measureElm);
 
-    const cSize = clientSize(measureElm);
-    const oSize = offsetSize(measureElm);
-    const fSize = fractionalSize(measureElmChild);
+    const cSize = getClientSize(measureElm);
+    const oSize = getOffsetSize(measureElm);
+    const fSize = getFractionalSize(measureElmChild);
 
     clear && removeElements(measureElm);
 

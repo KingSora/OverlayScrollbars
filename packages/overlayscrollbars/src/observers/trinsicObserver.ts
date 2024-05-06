@@ -1,6 +1,6 @@
 import {
   createDiv,
-  offsetSize,
+  getOffsetSize,
   runEachAndClear,
   createCache,
   push,
@@ -71,7 +71,7 @@ export const createTrinsicObserver = (
         });
       } else {
         const onSizeChanged = () => {
-          const newSize = offsetSize(trinsicObserver);
+          const newSize = getOffsetSize(trinsicObserver);
           triggerOnTrinsicChangedCallback(newSize);
         };
         push(destroyFns, createSizeObserver(trinsicObserver, onSizeChanged)());

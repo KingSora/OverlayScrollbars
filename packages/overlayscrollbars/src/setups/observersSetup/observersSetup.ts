@@ -7,7 +7,7 @@ import {
   getDirectionIsRTL,
   each,
   equalWH,
-  fractionalSize,
+  getFractionalSize,
   isArray,
   isFunction,
   isNumber,
@@ -15,8 +15,8 @@ import {
   keys,
   liesBetween,
   removeAttrs,
-  scrollSize,
-  getElmentScroll,
+  getScrollSize,
+  getElementScroll,
   scrollElementTo,
   inArray,
   domRectAppeared,
@@ -94,6 +94,7 @@ export const createObserversSetup = (
     _target,
     _host,
     _viewport,
+    _scrollOffsetElement,
     _content,
     _isTextarea,
     _viewportIsTarget,
@@ -127,19 +128,19 @@ export const createObserversSetup = (
         )._undoViewportArrange;
 
       const isArranged = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
-      const scrollOffset = isArranged && getElmentScroll(_viewport);
+      const scrollOffset = isArranged && getElementScroll(_scrollOffsetElement);
 
       const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
       const redoViewportArrange = isArranged && _undoViewportArrange && _undoViewportArrange()[0];
 
-      const contentScroll = scrollSize(_content);
-      const viewportScroll = scrollSize(_viewport);
-      const fractional = fractionalSize(_viewport);
+      const contentScroll = getScrollSize(_content);
+      const viewportScroll = getScrollSize(_viewport);
+      const fractional = getFractionalSize(_viewport);
 
-      revertMeasuring();
       redoViewportArrange && redoViewportArrange();
 
-      scrollElementTo(_viewport, scrollOffset);
+      scrollElementTo(_scrollOffsetElement, scrollOffset);
+      revertMeasuring();
 
       return {
         w: viewportScroll.w + contentScroll.w + fractional.w,

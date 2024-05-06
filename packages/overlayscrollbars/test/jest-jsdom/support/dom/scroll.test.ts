@@ -2,7 +2,7 @@ import {
   convertScrollPosition,
   getRawScrollBounds,
   scrollElementTo,
-  getElmentScroll,
+  getElementScroll,
   getRawScrollRatio,
 } from '~/support/dom/scroll';
 
@@ -156,7 +156,7 @@ describe('dom scroll', () => {
     });
   });
 
-  describe('getElmentScroll', () => {
+  describe('getElementScroll', () => {
     beforeEach(() => {
       document.body.scrollLeft = 0;
       document.body.scrollTop = 0;
@@ -167,7 +167,7 @@ describe('dom scroll', () => {
         x: 222,
       });
 
-      expect(getElmentScroll(document.body)).toEqual({ x: 222, y: 0 });
+      expect(getElementScroll(document.body)).toEqual({ x: 222, y: 0 });
     });
 
     test('y', () => {
@@ -175,7 +175,7 @@ describe('dom scroll', () => {
         y: 333,
       });
 
-      expect(getElmentScroll(document.body)).toEqual({ x: 0, y: 333 });
+      expect(getElementScroll(document.body)).toEqual({ x: 0, y: 333 });
     });
 
     test('xy', () => {
@@ -184,7 +184,7 @@ describe('dom scroll', () => {
         y: 333,
       });
 
-      expect(getElmentScroll(document.body)).toEqual({ x: 222, y: 333 });
+      expect(getElementScroll(document.body)).toEqual({ x: 222, y: 333 });
     });
   });
 });

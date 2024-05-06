@@ -1,15 +1,15 @@
 import {
   createCache,
-  scrollSize,
-  fractionalSize,
+  getScrollSize,
+  getFractionalSize,
   equalWH,
-  clientSize,
+  getClientSize,
   equalXY,
   assignDeep,
   bind,
   wnd,
   mathMax,
-  windowSize,
+  getWindowSize,
   addRemoveAttrClass,
   capitalizeFirstLetter,
   setStyles,
@@ -18,6 +18,8 @@ import {
   each,
   keys,
   strScroll,
+  scrollElementTo,
+  getElementScroll,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -25,9 +27,10 @@ import {
   dataValueNoClipping,
   dataValueViewportScrollbarHidden,
   dataAttributePadding,
-  dataValueViewportMeasuring,
   dataValueViewportOverflowXPrefix,
   dataValueViewportOverflowYPrefix,
+  dataValueViewportOverflowVisible,
+  dataValueViewportOverflowHidden,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { WH, XY } from '~/support';
@@ -56,6 +59,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _padding,
     _viewport,
     _viewportIsTarget,
+    _scrollOffsetElement,
     _isBody,
     _viewportAddRemoveClass,
     _windowElm,
@@ -68,7 +72,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _equal: equalWH,
     _initialValue: { w: 0, h: 0 },
   };
-  const getOverflowAmount = (viewportScrollSize: WH<number>, viewportClientSize: WH<number>) => {
+  const getOverflowAmount = (
+    viewportScrollSize: WH<number>,
+    viewportClientSize: WH<number>
+  ): WH<number> => {
     const tollerance = wnd.devicePixelRatio % 1 !== 0 ? 1 : 0;
     const amount = {
       w: max0(viewportScrollSize.w - viewportClientSize.w),
@@ -80,14 +87,50 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       h: amount.h > tollerance ? amount.h : 0,
     };
   };
+  const getOverflowCoordinates = (overflowAmount: WH<number>) => {
+    const removeVisible = _viewportAddRemoveClass(dataValueViewportOverflowVisible, true);
+
+    scrollElementTo(_scrollOffsetElement, {
+      x: 0,
+      y: 0,
+    });
+    removeVisible();
+
+    const removeHidden = _viewportAddRemoveClass(dataValueViewportOverflowHidden, true);
+    const start = getElementScroll(_scrollOffsetElement);
+
+    scrollElementTo(_scrollOffsetElement, {
+      x: overflowAmount.w,
+      y: overflowAmount.h,
+    });
+
+    const tmp = getElementScroll(_scrollOffsetElement);
+    scrollElementTo(_scrollOffsetElement, {
+      x: tmp.x === start.x && -overflowAmount.w,
+      y: tmp.y === start.y && -overflowAmount.h,
+    });
+
+    const end = getElementScroll(_scrollOffsetElement);
+    removeHidden();
+
+    console.log({
+      start,
+      end,
+    });
+
+    return {
+      start,
+      end,
+    };
+  };
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
-    bind(fractionalSize, _viewport)
+    bind(getFractionalSize, _viewport)
   );
   const [updateViewportScrollSizeCache, getCurrentViewportScrollSizeCache] = createCache<
     WH<number>
-  >(whCacheOptions, bind(scrollSize, _viewport));
+  >(whCacheOptions, bind(getScrollSize, _viewport));
   const [updateOverflowAmountCache, getCurrentOverflowAmountCache] =
     createCache<WH<number>>(whCacheOptions);
   const [updateOverflowEdge, getCurrentOverflowEdgeCache] = createCache<WH<number>>(whCacheOptions);
@@ -169,22 +212,18 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     }
 
     if (viewportChanged) {
-      _viewportAddRemoveClass(dataValueViewportMeasuring, true);
-
       const [redoViewportArrange] = _undoViewportArrange ? _undoViewportArrange() : [];
 
       const [sizeFraction] = (sizeFractionCache = updateSizeFraction(_force));
       const [viewportScrollSize] = (viewportScrollSizeCache =
         updateViewportScrollSizeCache(_force));
-      const viewportClientSize = clientSize(_viewport);
+      const viewportClientSize = getClientSize(_viewport);
       const arrangedViewportScrollSize = viewportScrollSize;
       const arrangedViewportClientSize = viewportClientSize;
 
-      _viewportAddRemoveClass(dataValueViewportMeasuring);
-
       redoViewportArrange && redoViewportArrange();
 
-      const windowInnerSize = windowSize(_windowElm());
+      const windowInnerSize = getWindowSize(_windowElm());
       const overflowAmountScrollSize = {
         w: max0(mathMax(viewportScrollSize.w, arrangedViewportScrollSize.w) + sizeFraction.w),
         h: max0(mathMax(viewportScrollSize.h, arrangedViewportScrollSize.h) + sizeFraction.h),
@@ -210,6 +249,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         getOverflowAmount(overflowAmountScrollSize, overflowAmountClientSize),
         _force
       );
+
+      getOverflowCoordinates(overflowAmuntCache[0]);
     }
 
     const [overflowEdge, overflowEdgeChanged] = overflowEdgeCache;

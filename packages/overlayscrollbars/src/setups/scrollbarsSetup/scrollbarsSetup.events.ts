@@ -1,6 +1,6 @@
 import {
   getBoundingClientRect,
-  offsetSize,
+  getOffsetSize,
   addEventListener,
   preventDefault,
   runEachAndClear,
@@ -12,7 +12,7 @@ import {
   mathRound,
   strWidth,
   strHeight,
-  getElmentScroll,
+  getElementScroll,
   scrollElementTo,
   getFocusedElement,
   setT,
@@ -91,7 +91,7 @@ export const createScrollbarsSetupEvents = (
       const createRelativeHandleMove =
         (mouseDownScroll: number, invertedScale: number) => (deltaMovement: number) => {
           const { _overflowAmount } = structureSetupState;
-          const handleTrackDiff = offsetSize(_track)[whKey] - offsetSize(_handle)[whKey];
+          const handleTrackDiff = getOffsetSize(_track)[whKey] - getOffsetSize(_handle)[whKey];
           const scrollDeltaPercent = (invertedScale * deltaMovement) / handleTrackDiff;
           const scrollDelta = scrollDeltaPercent * _overflowAmount[xyKey];
 
@@ -123,9 +123,9 @@ export const createScrollbarsSetupEvents = (
             (handleRect || getHandleRect())[leftTopKey] - (trackRect || getTrackRect())[leftTopKey];
           const axisScale =
             mathRound(getBoundingClientRect(_scrollOffsetElement)[widthHeightKey]) /
-              offsetSize(_scrollOffsetElement)[whKey] || 1;
+              getOffsetSize(_scrollOffsetElement)[whKey] || 1;
           const moveHandleRelative = createRelativeHandleMove(
-            getElmentScroll(_scrollOffsetElement)[xyKey] || 0,
+            getElementScroll(_scrollOffsetElement)[xyKey] || 0,
             1 / axisScale
           );
           const pointerDownOffset = pointerDownEvent[clientXYKey];

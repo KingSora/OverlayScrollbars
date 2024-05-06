@@ -10,7 +10,7 @@ import {
   setTestResult,
   waitForOrFailTest,
 } from '@~local/browser-testing';
-import { getStyles, hasDimensions, offsetSize } from '~/support';
+import { getStyles, hasDimensions, getOffsetSize } from '~/support';
 import { SizeObserverPlugin } from '~/plugins';
 import { createSizeObserver } from '~/observers';
 import { OverlayScrollbars } from '~/overlayscrollbars';
@@ -96,7 +96,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       const currSizeIterations = sizeIterations;
       const currDirectionIterations = directionIterations;
       const currAppearIterations = appearIterations;
-      const currOffsetSize = offsetSize(targetElm as HTMLElement);
+      const currOffsetSize = getOffsetSize(targetElm as HTMLElement);
       const currContentSize = contentBox(targetElm as HTMLElement);
       const currDir = getStyles(targetElm as HTMLElement, 'direction');
       const currBoxSizing = getStyles(targetElm as HTMLElement, 'boxSizing');
@@ -123,7 +123,7 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
       currBoxSizing,
       currHasDimensions,
     }) {
-      const newOffsetSize = offsetSize(targetElm as HTMLElement);
+      const newOffsetSize = getOffsetSize(targetElm as HTMLElement);
       const newContentSize = contentBox(targetElm as HTMLElement);
       const newDir = getStyles(targetElm as HTMLElement, 'direction');
       const newBoxSizing = getStyles(targetElm as HTMLElement, 'boxSizing');

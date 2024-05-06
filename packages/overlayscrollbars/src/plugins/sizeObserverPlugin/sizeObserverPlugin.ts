@@ -1,7 +1,7 @@
 import {
   createDOM,
   appendChildren,
-  offsetSize,
+  getOffsetSize,
   addEventListener,
   addClass,
   equalWH,
@@ -42,7 +42,7 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
         const expandElement = observerElementChildrenRoot.firstChild as HTMLElement;
         const expandElementChild = expandElement?.firstChild as HTMLElement;
 
-        let cacheSize = offsetSize(observerElementChildrenRoot);
+        let cacheSize = getOffsetSize(observerElementChildrenRoot);
         let currSize = cacheSize;
         let isDirty = false;
         let rAFId: number;
@@ -59,7 +59,7 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
           }
         };
         const onScroll = (scrollEvent?: Event | false) => {
-          currSize = offsetSize(observerElementChildrenRoot);
+          currSize = getOffsetSize(observerElementChildrenRoot);
           isDirty = !scrollEvent || !equalWH(currSize, cacheSize);
 
           if (scrollEvent) {

@@ -30,14 +30,14 @@ const getElmWidthHeightProperty = <E extends HTMLElement | Window>(
 /**
  * Returns the window inner- width and height.
  */
-export const windowSize = (customWnd?: Window): Readonly<WH> =>
+export const getWindowSize = (customWnd?: Window): Readonly<WH> =>
   getElmWidthHeightProperty('inner', customWnd || wnd);
 
 /**
  * Returns the scroll- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the scroll- width and height shall be returned.
  */
-export const offsetSize = bind(getElmWidthHeightProperty<HTMLElement>, 'offset') satisfies (
+export const getOffsetSize = bind(getElmWidthHeightProperty<HTMLElement>, 'offset') satisfies (
   elm: HTMLElementTarget
 ) => Readonly<WH>;
 
@@ -45,7 +45,7 @@ export const offsetSize = bind(getElmWidthHeightProperty<HTMLElement>, 'offset')
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const clientSize = bind(getElmWidthHeightProperty<HTMLElement>, 'client') satisfies (
+export const getClientSize = bind(getElmWidthHeightProperty<HTMLElement>, 'client') satisfies (
   elm: HTMLElementTarget
 ) => Readonly<WH>;
 
@@ -53,7 +53,7 @@ export const clientSize = bind(getElmWidthHeightProperty<HTMLElement>, 'client')
  * Returns the client- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the client- width and height shall be returned.
  */
-export const scrollSize = bind(getElmWidthHeightProperty<HTMLElement>, 'scroll') satisfies (
+export const getScrollSize = bind(getElmWidthHeightProperty<HTMLElement>, 'scroll') satisfies (
   elm: HTMLElementTarget
 ) => Readonly<WH>;
 
@@ -61,7 +61,7 @@ export const scrollSize = bind(getElmWidthHeightProperty<HTMLElement>, 'scroll')
  * Returns the fractional- width and height of the passed element. If the element is null the width and height values are 0.
  * @param elm The element of which the fractional- width and height shall be returned.
  */
-export const fractionalSize = (elm: HTMLElementTarget): Readonly<WH> => {
+export const getFractionalSize = (elm: HTMLElementTarget): Readonly<WH> => {
   const cssWidth = parseFloat(getStyles(elm, strWidth)) || 0;
   const cssHeight = parseFloat(getStyles(elm, strHeight)) || 0;
   return {
