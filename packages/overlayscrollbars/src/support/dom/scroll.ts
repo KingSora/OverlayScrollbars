@@ -1,8 +1,16 @@
 import type { Env } from '~/environment';
 import type { XY } from './offset';
-import { capNumber, isNumber } from '../utils';
+import type { WH } from './dimensions';
+import { capNumber, isNumber, mathAbs, mathSign } from '../utils';
 
 export type RTLScrollBehavior = Env['_rtlScrollBehavior'] | false | null | undefined;
+
+export interface ScrollCoordinates {
+  /** The start (origin) scroll coordinates for each axis. */
+  _start: XY<number>;
+  /** The end scroll coordinates for each axis. */
+  _end: XY<number>;
+}
 
 /**
  * Transforms a normalized scroll position to a RTL compatilbe scroll position value or vice versa (depending on the input format).
@@ -82,3 +90,43 @@ export const getElementScroll = (elm: HTMLElement): Readonly<XY> => ({
   x: elm.scrollLeft,
   y: elm.scrollTop,
 });
+
+export const getZeroScrollCoordinates = (): ScrollCoordinates => ({
+  _start: { x: 0, y: 0 },
+  _end: { x: 0, y: 0 },
+});
+
+export const sanatizeScrollCoordinates = (
+  rawScrollCoordinates: ScrollCoordinates,
+  overflowAmount: WH<number>
+) => {
+  const { _start, _end } = rawScrollCoordinates;
+  const { w, h } = overflowAmount;
+  const sanitizeAxis = (start: number, end: number, amount: number) => {
+    let newStart = mathSign(start) * amount;
+    let newEnd = mathSign(end) * amount;
+
+    if (newStart === newEnd) {
+      const startAbs = mathAbs(start);
+      const endAbs = mathAbs(end);
+
+      newEnd = startAbs > endAbs ? 0 : newEnd;
+      newStart = startAbs < endAbs ? 0 : newStart;
+    }
+    return [newStart + 0, newEnd + 0] as const; // "+ 0" prevents "-0" to be in the result
+  };
+
+  const [startX, endX] = sanitizeAxis(_start.x, _end.x, w);
+  const [startY, endY] = sanitizeAxis(_start.y, _end.y, h);
+
+  return {
+    _start: {
+      x: startX,
+      y: startY,
+    },
+    _end: {
+      x: endX,
+      y: endY,
+    },
+  };
+};

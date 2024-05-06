@@ -173,12 +173,12 @@ export const createSetups = (
     () => {
       const { _originalScrollOffsetElement, _scrollOffsetElement, _viewportAddRemoveClass } =
         structureSetupElements;
-      const removeMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
+      const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
       const initialScroll = getElementScroll(_originalScrollOffsetElement);
       const destroyFns = [observersSetupCreate(), structureSetupCreate(), scrollbarsSetupCreate()];
 
       scrollElementTo(_scrollOffsetElement, initialScroll);
-      removeMeasuring();
+      revertMeasuring();
 
       return bind(runEachAndClear, destroyFns);
     },

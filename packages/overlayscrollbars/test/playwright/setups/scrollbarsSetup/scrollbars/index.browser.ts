@@ -3,9 +3,11 @@ import './index.scss';
 import './handleEnvironment';
 import { resize, setTestResult, timeout } from '@~local/browser-testing';
 import { OverlayScrollbars } from '~/overlayscrollbars';
-import { ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
+import { ClickScrollPlugin, ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
 import { addEventListener, animateNumber, convertScrollPosition, getStyles } from '~/support';
 import should from 'should';
+import type { InstancePlugin } from '~/plugins';
+import type { PartialOptions } from '~/options';
 import type { CloneableScrollbarElements } from '~/overlayscrollbars';
 
 if (!window.ResizeObserver) {
@@ -15,6 +17,24 @@ if (!OverlayScrollbars.env().scrollbarsHiding) {
   OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 }
 
+const scrollPointsPlugin: InstancePlugin = {
+  ['scrollPoints']: {
+    instance(osInstance) {
+      const { scrollbarHorizontal, scrollbarVertical } = osInstance.elements();
+      const scrollPointHorizontal = document.createElement('div');
+      const scrollPointVertical = document.createElement('div');
+
+      scrollPointHorizontal.classList.add('scrollPointHorizontal');
+      scrollPointVertical.classList.add('scrollPointVertical');
+
+      scrollbarHorizontal.scrollbar.append(scrollPointHorizontal);
+      scrollbarVertical.scrollbar.append(scrollPointVertical);
+    },
+  },
+};
+
+OverlayScrollbars.plugin([ClickScrollPlugin, scrollPointsPlugin]);
+
 // @ts-ignore
 window.OverlayScrollbars = OverlayScrollbars;
 
@@ -22,6 +42,11 @@ OverlayScrollbars.env().setDefaultInitialization({
   cancel: { nativeScrollbarsOverlaid: false },
 });
 
+const options: PartialOptions = {
+  scrollbars: {
+    clickScroll: true,
+  },
+};
 const startButton: HTMLElement | null = document.querySelector('#start');
 const directionRTLButton: HTMLElement | null = document.querySelector('#directionRTL');
 const stageResizer: HTMLElement | null = document.querySelector('#stageResizer');
@@ -47,10 +72,10 @@ const scrollInstance = (osInstance: OverlayScrollbars) => {
 
 resize(stageResizer!);
 
-const osInstanceBody = OverlayScrollbars(document.body, {});
+const osInstanceBody = OverlayScrollbars(document.body, options);
 
-const osInstanceA = OverlayScrollbars(targetA!, {});
-const osInstanceB = OverlayScrollbars(targetB!, {});
+const osInstanceA = OverlayScrollbars(targetA!, options);
+const osInstanceB = OverlayScrollbars(targetB!, options);
 const osInstanceC = OverlayScrollbars(
   {
     target: targetC!,
@@ -58,7 +83,7 @@ const osInstanceC = OverlayScrollbars(
       viewport: targetC!,
     },
   },
-  {}
+  options
 );
 const osInstanceD = OverlayScrollbars(
   {
@@ -67,7 +92,7 @@ const osInstanceD = OverlayScrollbars(
       viewport: targetD!,
     },
   },
-  {}
+  options
 );
 
 const scrollInstances = () => {

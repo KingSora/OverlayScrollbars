@@ -19,6 +19,9 @@ body {
     background: lightgoldenrodyellow;
   }
 }
+#stageResizer {
+  padding-right: 20px;
+}
 
 #bodyOverflow {
   position: absolute;
@@ -38,32 +41,32 @@ body {
 
 .row {
   display: flex;
-  width: 100%;
-  height: 50%;
+  inline-size: 100%;
+  block-size: 50%;
 }
 
 #targetA {
-  width: 50%;
-  height: 100%;
+  inline-size: 50%;
+  block-size: 100%;
   background: rgba(255, 0, 0, 0.3);
 }
 
 #targetB {
-  width: 50%;
-  height: 100%;
+  inline-size: 50%;
+  block-size: 100%;
   direction: rtl;
   background: rgba(255, 0, 255, 0.3);
 }
 
 #targetC {
-  width: 50%;
-  height: 100%;
+  inline-size: 50%;
+  block-size: 100%;
   background: rgba(0, 255, 0, 0.3);
 }
 
 #targetD {
-  width: 50%;
-  height: 100%;
+  inline-size: 50%;
+  block-size: 100%;
   direction: rtl;
   background: rgba(0, 0, 255, 0.3);
 }
@@ -72,4 +75,28 @@ body {
   width: 5000px;
   height: 5000px;
   border: 4px solid black;
+}
+
+.scrollPointHorizontal {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  background: red;
+  inline-size: 6px;
+  block-size: 6px;
+  inset-block-start: 0;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.scrollPointVertical {
+  position: absolute;
+  inset-block-end: 0;
+  inset-block-start: auto;
+  background: red;
+  inline-size: 6px;
+  block-size: 6px;
+  inset-inline-start: 0;
+  z-index: 999;
+  pointer-events: none;
 }

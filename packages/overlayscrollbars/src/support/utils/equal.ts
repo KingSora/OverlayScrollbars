@@ -15,7 +15,7 @@ import { strHeight, strWidth } from './strings';
 export const equal = <T extends PlainObject>(
   a: T | undefined,
   b: T | undefined,
-  props: Array<keyof T>,
+  props: Array<keyof T> | ReadonlyArray<keyof T>,
   propMutation?: ((value: any) => any) | null | false
 ): boolean => {
   if (a && b) {

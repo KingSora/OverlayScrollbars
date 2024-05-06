@@ -20,6 +20,10 @@ import {
   strScroll,
   scrollElementTo,
   getElementScroll,
+  sanatizeScrollCoordinates,
+  getStyles,
+  equal,
+  getZeroScrollCoordinates,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -33,7 +37,7 @@ import {
   dataValueViewportOverflowHidden,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
-import type { WH, XY } from '~/support';
+import type { ScrollCoordinates, WH, XY } from '~/support';
 import type { ScrollbarsHidingPlugin } from '~/plugins/scrollbarsHidingPlugin';
 import type { OverflowStyle } from '~/typings';
 import type { CreateStructureUpdateSegment } from '../structureSetup';
@@ -43,6 +47,12 @@ import {
   getShowNativeOverlaidScrollbars,
   overflowIsVisible,
 } from '../structureSetup.utils';
+
+interface FlowDirectionStyles {
+  direction?: string;
+  flexDirection?: string;
+  writingMode?: string;
+}
 
 /**
  * Lifecycle with the responsibility to set the correct overflow and scrollbar hiding styles of the viewport element.
@@ -67,6 +77,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const { _nativeScrollbarsHiding } = env;
   const viewportIsTargetBody = _isBody && _viewportIsTarget;
   const max0 = bind(mathMax, 0);
+  const flowDirectionStyleArr = ['direction', 'flexDirection', 'writingMode'] as const;
 
   const whCacheOptions = {
     _equal: equalWH,
@@ -87,7 +98,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       h: amount.h > tollerance ? amount.h : 0,
     };
   };
-  const getOverflowCoordinates = (overflowAmount: WH<number>) => {
+  const measureScrollCoordinates = (overflowAmount: WH<number>): ScrollCoordinates => {
+    const originalScrollOffset = getElementScroll(_scrollOffsetElement);
     const removeVisible = _viewportAddRemoveClass(dataValueViewportOverflowVisible, true);
 
     scrollElementTo(_scrollOffsetElement, {
@@ -97,7 +109,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     removeVisible();
 
     const removeHidden = _viewportAddRemoveClass(dataValueViewportOverflowHidden, true);
-    const start = getElementScroll(_scrollOffsetElement);
+    const _start = getElementScroll(_scrollOffsetElement);
 
     scrollElementTo(_scrollOffsetElement, {
       x: overflowAmount.w,
@@ -106,23 +118,20 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     const tmp = getElementScroll(_scrollOffsetElement);
     scrollElementTo(_scrollOffsetElement, {
-      x: tmp.x === start.x && -overflowAmount.w,
-      y: tmp.y === start.y && -overflowAmount.h,
+      x: tmp.x === _start.x && -overflowAmount.w,
+      y: tmp.y === _start.y && -overflowAmount.h,
     });
 
-    const end = getElementScroll(_scrollOffsetElement);
+    const _end = getElementScroll(_scrollOffsetElement);
     removeHidden();
-
-    console.log({
-      start,
-      end,
-    });
+    scrollElementTo(_scrollOffsetElement, originalScrollOffset);
 
     return {
-      start,
-      end,
+      _start,
+      _end,
     };
   };
+  const getFlowDirectionStyles = () => getStyles(_viewport, flowDirectionStyleArr);
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
@@ -138,6 +147,18 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _equal: equalXY,
     _initialValue: {},
   });
+  const [updateFlowDirectionStyles] = createCache<FlowDirectionStyles>({
+    _equal: (currVal, newValu) => equal(currVal, newValu, flowDirectionStyleArr),
+    _initialValue: getFlowDirectionStyles(),
+  });
+  const [updateMeasuredScrollCoordinates, getCurrentMeasuredScrollCoordinates] =
+    createCache<ScrollCoordinates>({
+      _equal: (currVal, newVal) =>
+        equalXY(currVal._start, newVal._start) && equalXY(currVal._end, newVal._end),
+      _initialValue: getZeroScrollCoordinates(),
+    });
+
+  getStyles(_viewport, ['flexDirection', 'writingMode']);
 
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
@@ -249,8 +270,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         getOverflowAmount(overflowAmountScrollSize, overflowAmountClientSize),
         _force
       );
-
-      getOverflowCoordinates(overflowAmuntCache[0]);
     }
 
     const [overflowEdge, overflowEdgeChanged] = overflowEdgeCache;
@@ -280,6 +299,15 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
       viewportOverflowState._overflowStyle
     );
+    const [, flowDirectionStylesChanged] = updateFlowDirectionStyles(
+      getFlowDirectionStyles(),
+      _force
+    );
+    const adjustMeasuredScrollCoordinates =
+      _directionChanged || overflowStyleChanged || flowDirectionStylesChanged;
+    const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
+      ? updateMeasuredScrollCoordinates(measureScrollCoordinates(overflowAmount), _force)
+      : getCurrentMeasuredScrollCoordinates();
 
     if (adjustViewportStyle) {
       setViewportOverflow(viewportOverflowState);
@@ -312,12 +340,14 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         y: overflowAmount.h,
       },
       _hasOverflow: hasOverflow,
+      _scrollCoordinates: sanatizeScrollCoordinates(scrollCoordinates, overflowAmount),
     });
 
     return {
       _overflowStyleChanged: overflowStyleChanged,
       _overflowEdgeChanged: overflowEdgeChanged,
       _overflowAmountChanged: overflowAmountChanged,
+      _scrollCoordinatesChanged: scrollCoordinatesChanged || overflowAmountChanged,
     };
   };
 };

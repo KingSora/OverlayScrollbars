@@ -7,6 +7,7 @@ export const mathRound = Math.round;
 export const mathFloor = Math.floor;
 export const mathCeil = Math.ceil;
 export const mathAbs = Math.abs;
+export const mathSign = Math.sign;
 export const cAF = wnd.cancelAnimationFrame;
 export const rAF = wnd.requestAnimationFrame;
 export const setT = wnd.setTimeout;

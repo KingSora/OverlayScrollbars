@@ -26,6 +26,8 @@ export interface OnUpdatedEventListenerArgs {
     overflowAmountChanged: boolean;
     /** Whether the overflow style changed. */
     overflowStyleChanged: boolean;
+    /** Whether the scroll coordinates changed. */
+    scrollCoordinatesChanged: boolean;
     /** Whether an host mutation took place. */
     hostMutation: boolean;
     /** Whether an content mutation took place. */

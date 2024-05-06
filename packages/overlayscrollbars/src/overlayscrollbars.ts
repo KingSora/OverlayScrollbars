@@ -156,6 +156,13 @@ export interface State {
   overflowStyle: XY<OverflowStyle>;
   /** Whether the viewport has an overflow. */
   hasOverflow: XY<boolean>;
+  /** The scroll coordinates of the viewport. */
+  scrollCoordinates: {
+    /** The start (origin) scroll coordinates for each axis. */
+    start: XY<number>;
+    /** The end scroll coordinates for each axis. */
+    end: XY<number>;
+  };
   /** Whether the direction is considered rtl. */
   directionRTL: boolean;
   /** Whether the instance is considered destroyed. */
@@ -346,8 +353,12 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
             _appear,
           } = _observersUpdateHints;
 
-          const { _overflowEdgeChanged, _overflowAmountChanged, _overflowStyleChanged } =
-            _structureUpdateHints;
+          const {
+            _overflowEdgeChanged,
+            _overflowAmountChanged,
+            _overflowStyleChanged,
+            _scrollCoordinatesChanged,
+          } = _structureUpdateHints;
 
           triggerEvent('updated', [
             // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -360,6 +371,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
                 overflowEdgeChanged: !!_overflowEdgeChanged,
                 overflowAmountChanged: !!_overflowAmountChanged,
                 overflowStyleChanged: !!_overflowStyleChanged,
+                scrollCoordinatesChanged: !!_scrollCoordinatesChanged,
                 contentMutation: !!_contentMutation,
                 hostMutation: !!_hostMutation,
                 appear: !!_appear,
@@ -414,6 +426,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           _hasOverflow,
           _padding,
           _paddingAbsolute,
+          _scrollCoordinates,
         } = _structureSetupState;
         return assignDeep(
           {},
@@ -422,6 +435,10 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
             overflowAmount: _overflowAmount,
             overflowStyle: _overflowStyle,
             hasOverflow: _hasOverflow,
+            scrollCoordinates: {
+              start: _scrollCoordinates._start,
+              end: _scrollCoordinates._end,
+            },
             padding: _padding,
             paddingAbsolute: _paddingAbsolute,
             directionRTL: _directionIsRTL,

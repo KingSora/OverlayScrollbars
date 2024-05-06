@@ -3,6 +3,7 @@ import {
   assignDeep,
   each,
   getElementScroll,
+  getZeroScrollCoordinates,
   scrollElementTo,
   strHidden,
   strMarginBottom,
@@ -16,6 +17,7 @@ import {
   type XY,
 } from '~/support';
 import { dataValueViewportMeasuring } from '~/classnames';
+import type { ScrollCoordinates } from '~/support';
 import type { StructureSetupElementsObj } from './structureSetup.elements';
 import type {
   ObserversSetupState,
@@ -40,6 +42,7 @@ export interface StructureSetupState {
   _overflowAmount: XY<number>;
   _overflowStyle: XY<OverflowStyle>;
   _hasOverflow: XY<boolean>;
+  _scrollCoordinates: ScrollCoordinates;
 }
 
 export interface StructureSetupUpdateInfo extends SetupUpdateInfo {
@@ -52,6 +55,7 @@ export type StructureSetupUpdateHints = {
   _overflowAmountChanged?: boolean;
   _overflowStyleChanged?: boolean;
   _paddingStyleChanged?: boolean;
+  _scrollCoordinatesChanged?: boolean;
 };
 
 export type StructureSetup = [
@@ -101,6 +105,7 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       x: false,
       y: false,
     },
+    _scrollCoordinates: getZeroScrollCoordinates(),
   };
   const { _target, _scrollOffsetElement, _viewportIsTarget, _viewportAddRemoveClass } = elements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } = getEnvironment();
@@ -118,8 +123,8 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     (updateInfo) => {
       const updateHints: StructureSetupUpdateHints = {};
       const adjustScrollOffset = doViewportArrange;
+      const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
       const scrollOffset = adjustScrollOffset && getElementScroll(_scrollOffsetElement);
-      const removeMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
 
       each(updateSegments, (updateSegment) => {
         assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
@@ -127,7 +132,7 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
 
       scrollElementTo(_scrollOffsetElement, scrollOffset);
       !_viewportIsTarget && scrollElementTo(_target, 0);
-      removeMeasuring();
+      revertMeasuring();
 
       return updateHints;
     },

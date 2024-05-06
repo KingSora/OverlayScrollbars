@@ -2,7 +2,7 @@ import type { PlainObject, StyleObject, StyleObjectKey, StyleObjectValue } from 
 import type { XY } from './offset';
 import type { HTMLElementTarget } from './types';
 import { wnd } from '../utils/alias';
-import { each } from '../utils/array';
+import { each, from } from '../utils/array';
 import { isString, isNumber, isObject } from '../utils/types';
 
 export interface TRBL {
@@ -51,7 +51,7 @@ export function setStyles(
 
 export function getStyles(
   elm: HTMLElementTarget,
-  styles: Array<StyleObjectKey>,
+  styles: Array<StyleObjectKey> | ReadonlyArray<StyleObjectKey>,
   pseudoElm?: string | null | undefined
 ): Partial<Record<StyleObjectKey, string>>;
 export function getStyles(
@@ -61,7 +61,7 @@ export function getStyles(
 ): string;
 export function getStyles(
   elm: HTMLElementTarget,
-  styles: Array<StyleObjectKey> | StyleObjectKey,
+  styles: Array<StyleObjectKey> | ReadonlyArray<StyleObjectKey> | StyleObjectKey,
   pseudoElm?: string | null | undefined
 ): Partial<Record<StyleObjectKey, string>> | string {
   const getSingleStyle = isString(styles);
@@ -71,7 +71,7 @@ export function getStyles(
     const computedStyle = wnd.getComputedStyle(elm, pseudoElm) || elm.style;
     getStylesResult = getSingleStyle
       ? getCSSVal(computedStyle, styles)
-      : styles.reduce((result, key) => {
+      : from(styles).reduce((result, key) => {
           result[key] = getCSSVal(computedStyle, key);
           return result;
         }, getStylesResult as PlainObject);
