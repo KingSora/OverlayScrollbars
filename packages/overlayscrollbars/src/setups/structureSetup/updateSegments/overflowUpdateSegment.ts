@@ -33,8 +33,7 @@ import {
   dataAttributePadding,
   dataValueViewportOverflowXPrefix,
   dataValueViewportOverflowYPrefix,
-  dataValueViewportOverflowVisible,
-  dataValueViewportOverflowHidden,
+  dataValueViewportNoContent,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { ScrollCoordinates, WH, XY } from '~/support';
@@ -49,6 +48,7 @@ import {
 } from '../structureSetup.utils';
 
 interface FlowDirectionStyles {
+  display?: string;
   direction?: string;
   flexDirection?: string;
   writingMode?: string;
@@ -77,7 +77,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const { _nativeScrollbarsHiding } = env;
   const viewportIsTargetBody = _isBody && _viewportIsTarget;
   const max0 = bind(mathMax, 0);
-  const flowDirectionStyleArr = ['direction', 'flexDirection', 'writingMode'] as const;
+  const flowDirectionStyleArr = ['display', 'direction', 'flexDirection', 'writingMode'] as const;
 
   const whCacheOptions = {
     _equal: equalWH,
@@ -100,17 +100,15 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   };
   const measureScrollCoordinates = (overflowAmount: WH<number>): ScrollCoordinates => {
     const originalScrollOffset = getElementScroll(_scrollOffsetElement);
-    const removeVisible = _viewportAddRemoveClass(dataValueViewportOverflowVisible, true);
+    const removeNoContent = _viewportAddRemoveClass(dataValueViewportNoContent, true);
 
     scrollElementTo(_scrollOffsetElement, {
       x: 0,
       y: 0,
     });
-    removeVisible();
+    removeNoContent();
 
-    const removeHidden = _viewportAddRemoveClass(dataValueViewportOverflowHidden, true);
     const _start = getElementScroll(_scrollOffsetElement);
-
     scrollElementTo(_scrollOffsetElement, {
       x: overflowAmount.w,
       y: overflowAmount.h,
@@ -118,12 +116,12 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     const tmp = getElementScroll(_scrollOffsetElement);
     scrollElementTo(_scrollOffsetElement, {
-      x: tmp.x === _start.x && -overflowAmount.w,
-      y: tmp.y === _start.y && -overflowAmount.h,
+      // if tmp is very close start there porbably wasn't any scroll happening so scroll again in different direction
+      x: tmp.x - _start.x < 1 && -overflowAmount.w,
+      y: tmp.y - _start.y < 1 && -overflowAmount.h,
     });
 
     const _end = getElementScroll(_scrollOffsetElement);
-    removeHidden();
     scrollElementTo(_scrollOffsetElement, originalScrollOffset);
 
     return {
@@ -157,8 +155,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         equalXY(currVal._start, newVal._start) && equalXY(currVal._end, newVal._end),
       _initialValue: getZeroScrollCoordinates(),
     });
-
-  getStyles(_viewport, ['flexDirection', 'writingMode']);
 
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
@@ -303,8 +299,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       getFlowDirectionStyles(),
       _force
     );
-    const adjustMeasuredScrollCoordinates =
-      _directionChanged || overflowStyleChanged || flowDirectionStylesChanged;
+    const adjustMeasuredScrollCoordinates = _directionChanged || flowDirectionStylesChanged;
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
       ? updateMeasuredScrollCoordinates(measureScrollCoordinates(overflowAmount), _force)
       : getCurrentMeasuredScrollCoordinates();

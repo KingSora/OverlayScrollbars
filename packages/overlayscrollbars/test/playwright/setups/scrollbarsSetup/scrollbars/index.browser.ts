@@ -4,7 +4,7 @@ import './handleEnvironment';
 import { resize, setTestResult, timeout } from '@~local/browser-testing';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import { ClickScrollPlugin, ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
-import { addEventListener, animateNumber, convertScrollPosition, getStyles } from '~/support';
+import { addEventListener, animateNumber, getScrollPercentPosition, getStyles } from '~/support';
 import should from 'should';
 import type { InstancePlugin } from '~/plugins';
 import type { PartialOptions } from '~/options';
@@ -21,14 +21,22 @@ const scrollPointsPlugin: InstancePlugin = {
   ['scrollPoints']: {
     instance(osInstance) {
       const { scrollbarHorizontal, scrollbarVertical } = osInstance.elements();
-      const scrollPointHorizontal = document.createElement('div');
-      const scrollPointVertical = document.createElement('div');
+      const scrollPointHorizontalStart = document.createElement('div');
+      const scrollPointHorizontalEnd = document.createElement('div');
+      const scrollPointVerticalStart = document.createElement('div');
+      const scrollPointVerticalEnd = document.createElement('div');
 
-      scrollPointHorizontal.classList.add('scrollPointHorizontal');
-      scrollPointVertical.classList.add('scrollPointVertical');
+      scrollPointHorizontalStart.classList.add('scrollPoint', 'start');
+      scrollPointHorizontalEnd.classList.add('scrollPoint', 'end');
 
-      scrollbarHorizontal.scrollbar.append(scrollPointHorizontal);
-      scrollbarVertical.scrollbar.append(scrollPointVertical);
+      scrollPointVerticalStart.classList.add('scrollPoint', 'start');
+      scrollPointVerticalEnd.classList.add('scrollPoint', 'end');
+
+      scrollbarHorizontal.track.append(scrollPointHorizontalStart);
+      scrollbarHorizontal.track.append(scrollPointHorizontalEnd);
+
+      scrollbarVertical.track.append(scrollPointVerticalStart);
+      scrollbarVertical.track.append(scrollPointVerticalEnd);
     },
   },
 };
@@ -49,34 +57,46 @@ const options: PartialOptions = {
 };
 const startButton: HTMLElement | null = document.querySelector('#start');
 const directionRTLButton: HTMLElement | null = document.querySelector('#directionRTL');
+const flexReverseButton: HTMLElement | null = document.querySelector('#flexReverse');
 const stageResizer: HTMLElement | null = document.querySelector('#stageResizer');
 const targetA: HTMLElement | null = document.querySelector('#targetA');
 const targetB: HTMLElement | null = document.querySelector('#targetB');
 const targetC: HTMLElement | null = document.querySelector('#targetC');
 const targetD: HTMLElement | null = document.querySelector('#targetD');
 let directionRTL = false;
+let flexReverse = false;
 const clickErrors: Error[] = [];
 const scrollInstance = (osInstance: OverlayScrollbars) => {
-  const { overflowAmount, directionRTL: dirRTL } = osInstance.state();
+  const { scrollCoordinates } = osInstance.state();
   const { scrollOffsetElement } = osInstance.elements();
+  const { x, y } = getScrollPercentPosition(
+    {
+      _start: scrollCoordinates.start,
+      _end: scrollCoordinates.end,
+    },
+    {
+      x: 0.5,
+      y: 0.5,
+    }
+  );
   scrollOffsetElement.scrollTo({
-    behavior: 'auto',
-    left: convertScrollPosition(
-      (Math.round(overflowAmount.x / overflowAmount.x) * overflowAmount.x) / 2,
-      overflowAmount.x,
-      dirRTL && OverlayScrollbars.env().rtlScrollBehavior
-    ),
-    top: (Math.round(overflowAmount.y / overflowAmount.y) * overflowAmount.y) / 2,
+    behavior: 'instant',
+    left: x,
+    top: y,
   });
 };
 
 resize(stageResizer!);
 
-const osInstanceBody = OverlayScrollbars(document.body, options);
+// @ts-ignore
+const osInstanceBody = (window.osBody = OverlayScrollbars(document.body, options));
 
-const osInstanceA = OverlayScrollbars(targetA!, options);
-const osInstanceB = OverlayScrollbars(targetB!, options);
-const osInstanceC = OverlayScrollbars(
+// @ts-ignore
+const osInstanceA = (window.osA = OverlayScrollbars(targetA!, options));
+// @ts-ignore
+const osInstanceB = (window.osB = OverlayScrollbars(targetB!, options));
+// @ts-ignore
+const osInstanceC = (window.osC = OverlayScrollbars(
   {
     target: targetC!,
     elements: {
@@ -84,8 +104,9 @@ const osInstanceC = OverlayScrollbars(
     },
   },
   options
-);
-const osInstanceD = OverlayScrollbars(
+));
+// @ts-ignore
+const osInstanceD = (window.osD = OverlayScrollbars(
   {
     target: targetD!,
     elements: {
@@ -93,13 +114,16 @@ const osInstanceD = OverlayScrollbars(
     },
   },
   options
-);
+));
 
-const scrollInstances = () => {
+const scrollInstances = async () => {
+  scrollInstance(osInstanceBody);
   scrollInstance(osInstanceA);
   scrollInstance(osInstanceB);
   scrollInstance(osInstanceC);
   scrollInstance(osInstanceD);
+
+  await timeout(100);
 };
 
 const resizeStageResizer = async () => {
@@ -186,7 +210,7 @@ const assertScrollbarDirection = async (osInstance: OverlayScrollbars, direction
   const { scrollbarHorizontal, scrollbarVertical, target, host } = osInstance.elements();
   const isBody = target === document.body;
   const hostId = isBody ? 'body' : target.getAttribute('id');
-  const hostBcr = host.getBoundingClientRect();
+  const hostBcr = isBody ? { left: 0, right: window.innerWidth } : host.getBoundingClientRect();
   const scrollbarHorizontalBcr = scrollbarHorizontal.scrollbar.getBoundingClientRect();
   const scrollbarVerticalBcr = scrollbarVertical.scrollbar.getBoundingClientRect();
   const plusMinusSame = (a: number, b: number) => {
@@ -203,7 +227,7 @@ const assertScrollbarDirection = async (osInstance: OverlayScrollbars, direction
   if (directionIsRTL && !isBody) {
     should.ok(
       plusMinusSame(hostBcr.left, scrollbarVerticalBcr.left),
-      `Vertical scrollbar is not on the right side. (RTL) (Host: "${hostId}") [${hostBcr.left} vs ${scrollbarVerticalBcr.left}]`
+      `Vertical scrollbar is not on the right side. (RTL) (Host: "${hostId}")`
     );
     should.ok(
       plusMinusSame(scrollbarHorizontalBcr.left, scrollbarVerticalBcr.right),
@@ -283,28 +307,47 @@ const runBlock = async () => {
 
 directionRTLButton?.addEventListener('click', () => {
   if (directionRTL) {
-    document.body.style.direction = 'ltr';
+    document.documentElement.style.direction = 'ltr';
     directionRTL = false;
   } else {
-    document.body.style.direction = 'rtl';
+    document.documentElement.style.direction = 'rtl';
     directionRTL = true;
   }
+});
+
+flexReverseButton?.addEventListener('click', () => {
+  if (flexReverse) {
+    document.body.classList.remove('flexReverse');
+    flexReverse = false;
+  } else {
+    document.body.classList.add('flexReverse');
+    flexReverse = true;
+  }
+
+  osInstanceA.update();
+  osInstanceB.update();
+  osInstanceC.update();
+  osInstanceD.update();
+
+  scrollInstances();
 });
 
 startButton?.addEventListener('click', async () => {
   setTestResult(null);
 
+  await scrollInstances();
+
+  // first block (ltr)
   await runBlock();
 
+  // second block (rtl)
   directionRTLButton!.click();
   stageResizer!.removeAttribute('style');
   await timeout(100);
-  scrollInstances();
-  await timeout(1000);
-
+  await scrollInstances();
   await runBlock();
 
-  await timeout(1000);
+  await timeout(500);
 
   if (clickErrors.length > 0) {
     setTestResult(false);

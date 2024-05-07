@@ -35,39 +35,6 @@ export const convertScrollPosition = (
     : scrollPosition;
 
 /**
- * Gets the raw (RTL compatilbe) scroll boundaries from the normalized overflow amount.
- * @param overflowAmount The normalzed overflow amount value.
- * @param rtlScrollBehavior The RTL scroll behavior or `falsy` if the rtl scroll behavior doesn't apply.
- * @returns The raw (RTL compatible) scroll boundaries. (min value will scroll to start (0%) and max will scroll to end (100%))
- */
-export const getRawScrollBounds = (
-  overflowAmount: number,
-  rtlScrollBehavior?: RTLScrollBehavior
-): [min: number, max: number] => [
-  convertScrollPosition(0, overflowAmount, rtlScrollBehavior),
-  convertScrollPosition(overflowAmount, overflowAmount, rtlScrollBehavior),
-];
-
-/**
- * Gets the scroll ratio of the current raw (RTL compatilbe) scroll position.
- * @param rawScrollPosition The raw (RTL compatible) scroll position.
- * @param overflowAmount The normalized overflow amount.
- * @param rtlScrollBehavior The RTL scroll behavior or `falsy` if the rtl scroll behavior doesn't apply.
- * @returns The scroll ratio of the current scroll position 0..1.
- */
-export const getRawScrollRatio = (
-  rawScrollPosition: number,
-  overflowAmount: number,
-  rtlScrollBehavior?: RTLScrollBehavior
-) =>
-  capNumber(
-    0,
-    1,
-    convertScrollPosition(rawScrollPosition, overflowAmount, rtlScrollBehavior) / overflowAmount ||
-      0
-  );
-
-/**
  * Scroll the passed element to the passed position.
  * @param elm The element to be scrolled.
  * @param position The scroll position.
@@ -91,11 +58,22 @@ export const getElementScroll = (elm: HTMLElement): Readonly<XY> => ({
   y: elm.scrollTop,
 });
 
+/**
+ * Scroll Coordinates which are 0.
+ */
 export const getZeroScrollCoordinates = (): ScrollCoordinates => ({
   _start: { x: 0, y: 0 },
   _end: { x: 0, y: 0 },
 });
 
+/**
+ * Sanatizes raw scroll coordinates.
+ * The passed `overflowAmount` is used as the "max" value for each axis if the sign of the raw max value is not `0`.
+ * Makes sure that each axis has `0` either in the start or end coordinates.
+ * @param rawScrollCoordinates The raw scroll coordinates.
+ * @param overflowAmount The overflow amount.
+ * @returns
+ */
 export const sanatizeScrollCoordinates = (
   rawScrollCoordinates: ScrollCoordinates,
   overflowAmount: WH<number>
@@ -128,5 +106,53 @@ export const sanatizeScrollCoordinates = (
       x: endX,
       y: endY,
     },
+  };
+};
+
+/**
+ *
+ * @param scrollCoordinates
+ */
+export const isDefaultScrollCoordinates = ({ _start, _end }: ScrollCoordinates): XY<boolean> => {
+  const getAxis = (start: number, end: number) => start === 0 && start <= end;
+
+  return {
+    x: getAxis(_start.x, _end.x),
+    y: getAxis(_start.y, _end.y),
+  };
+};
+
+/**
+ * Gets the current scroll percent between 0..1 for each axis.
+ * @param scrollCoordinates The scroll coordinates.
+ * @param currentScroll The current scroll position of the element.
+ */
+export const getScrollPercent = (
+  { _start, _end }: ScrollCoordinates,
+  currentScroll: XY<number>
+) => {
+  const getAxis = (start: number, end: number, current: number) =>
+    capNumber(0, 1, (start - current) / (start - end));
+
+  return {
+    x: getAxis(_start.x, _end.x, currentScroll.x),
+    y: getAxis(_start.y, _end.y, currentScroll.y),
+  };
+};
+
+/**
+ * Gets the scroll position of the given percent.
+ * @param scrollCoordinates The scroll coordinates.
+ * @param percent The percentage of the scroll.
+ */
+export const getScrollPercentPosition = (
+  { _start, _end }: ScrollCoordinates,
+  percent: XY<number>
+) => {
+  const getAxis = (start: number, end: number, p: number) => start + (end - start) * p;
+
+  return {
+    x: getAxis(_start.x, _end.x, percent.x),
+    y: getAxis(_start.y, _end.y, percent.y),
   };
 };

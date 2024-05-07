@@ -1,9 +1,7 @@
 import {
   convertScrollPosition,
-  getRawScrollBounds,
   scrollElementTo,
   getElementScroll,
-  getRawScrollRatio,
   sanatizeScrollCoordinates,
 } from '~/support/dom/scroll';
 
@@ -43,82 +41,6 @@ describe('dom scroll', () => {
       expect(convertScrollPosition(0, overflowAmount, rtlScrollBehavior)).toBe(0);
       expect(convertScrollPosition(-50, overflowAmount, rtlScrollBehavior)).toBe(50);
       expect(convertScrollPosition(-100, overflowAmount, rtlScrollBehavior)).toBe(100);
-    });
-  });
-
-  describe('getRawScrollBounds', () => {
-    test('normal environment', () => {
-      expect(getRawScrollBounds(50)).toEqual([0, 50]);
-      expect(getRawScrollBounds(100)).toEqual([0, 100]);
-    });
-
-    test('inverted environment', () => {
-      const rtlScrollBehavior = { i: true, n: false };
-      expect(getRawScrollBounds(50, rtlScrollBehavior)).toEqual([50, 0]);
-      expect(getRawScrollBounds(100, rtlScrollBehavior)).toEqual([100, 0]);
-    });
-
-    test('negated environment', () => {
-      const rtlScrollBehavior = { i: false, n: true };
-      expect(getRawScrollBounds(50, rtlScrollBehavior)).toEqual([0, -50]);
-      expect(getRawScrollBounds(100, rtlScrollBehavior)).toEqual([0, -100]);
-    });
-  });
-
-  describe('getRawScrollRatio', () => {
-    const overflowAmount = 100;
-
-    test('normal environment', () => {
-      const [min, max] = getRawScrollBounds(overflowAmount);
-
-      expect(getRawScrollRatio(min, overflowAmount)).toBe(0);
-      expect(getRawScrollRatio(max, overflowAmount)).toBe(1);
-
-      expect(getRawScrollRatio(30, overflowAmount)).toBe(0.3);
-      expect(getRawScrollRatio(80, overflowAmount)).toBe(0.8);
-      expect(getRawScrollRatio(-100, overflowAmount)).toBe(0);
-      expect(getRawScrollRatio(0, overflowAmount)).toBe(0);
-      expect(getRawScrollRatio(100, overflowAmount)).toBe(1);
-      expect(getRawScrollRatio(200, overflowAmount)).toBe(1);
-
-      // NaN = 0
-      expect(getRawScrollRatio(0, 0)).toBe(0);
-    });
-
-    test('inverted environment', () => {
-      const rtlScrollBehavior = { i: true, n: false };
-      const [min, max] = getRawScrollBounds(overflowAmount, rtlScrollBehavior);
-
-      expect(getRawScrollRatio(min, overflowAmount, rtlScrollBehavior)).toBe(0);
-      expect(getRawScrollRatio(max, overflowAmount, rtlScrollBehavior)).toBe(1);
-
-      expect(getRawScrollRatio(30, overflowAmount, rtlScrollBehavior)).toBe(0.7);
-      expect(getRawScrollRatio(80, overflowAmount, rtlScrollBehavior)).toBe(0.2);
-      expect(getRawScrollRatio(-100, overflowAmount, rtlScrollBehavior)).toBe(1);
-      expect(getRawScrollRatio(0, overflowAmount, rtlScrollBehavior)).toBe(1);
-      expect(getRawScrollRatio(100, overflowAmount, rtlScrollBehavior)).toBe(0);
-      expect(getRawScrollRatio(200, overflowAmount, rtlScrollBehavior)).toBe(0);
-
-      // NaN = 0
-      expect(getRawScrollRatio(0, 0)).toBe(0);
-    });
-
-    test('negated environment', () => {
-      const rtlScrollBehavior = { i: false, n: true };
-      const [min, max] = getRawScrollBounds(overflowAmount, rtlScrollBehavior);
-
-      expect(getRawScrollRatio(min, overflowAmount, rtlScrollBehavior)).toBe(0);
-      expect(getRawScrollRatio(max, overflowAmount, rtlScrollBehavior)).toBe(1);
-
-      expect(getRawScrollRatio(-30, overflowAmount, rtlScrollBehavior)).toBe(0.3);
-      expect(getRawScrollRatio(-80, overflowAmount, rtlScrollBehavior)).toBe(0.8);
-      expect(getRawScrollRatio(-200, overflowAmount, rtlScrollBehavior)).toBe(1);
-      expect(getRawScrollRatio(-100, overflowAmount, rtlScrollBehavior)).toBe(1);
-      expect(getRawScrollRatio(0, overflowAmount, rtlScrollBehavior)).toBe(0);
-      expect(getRawScrollRatio(100, overflowAmount, rtlScrollBehavior)).toBe(0);
-
-      // NaN = 0
-      expect(getRawScrollRatio(0, 0)).toBe(0);
     });
   });
 

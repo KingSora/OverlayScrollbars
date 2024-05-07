@@ -125,7 +125,7 @@ export const createScrollbarsSetupEvents = (
             mathRound(getBoundingClientRect(_scrollOffsetElement)[widthHeightKey]) /
               getOffsetSize(_scrollOffsetElement)[whKey] || 1;
           const moveHandleRelative = createRelativeHandleMove(
-            getElementScroll(_scrollOffsetElement)[xyKey] || 0,
+            getElementScroll(_scrollOffsetElement)[xyKey],
             1 / axisScale
           );
           const pointerDownOffset = pointerDownEvent[clientXYKey];

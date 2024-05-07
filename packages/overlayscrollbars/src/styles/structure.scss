@@ -104,6 +104,7 @@ html[data-overlayscrollbars-body] > body {
 [data-overlayscrollbars-viewport~='measuring'] {
   overflow: hidden;
   scroll-behavior: auto !important;
+  overflow-anchor: none !important;
 }
 [data-overlayscrollbars~='noClipping'],
 [data-overlayscrollbars-padding~='noClipping'] {
@@ -132,11 +133,23 @@ html[data-overlayscrollbars-body] > body {
 [data-overlayscrollbars-viewport~='overflowYScroll'] {
   overflow-y: scroll;
 }
-[data-overlayscrollbars-viewport~='overflowVisible'] {
-  overflow: visible !important;
+
+// use :not(#osFakeId) to increase specificity
+[data-overlayscrollbars-viewport~='noContent']:not(#osFakeId) {
+  font-size: 0 !important;
+  line-height: 0 !important;
 }
-[data-overlayscrollbars-viewport~='overflowHidden'] {
+[data-overlayscrollbars-viewport~='noContent']:not(#osFakeId) > * {
+  display: none !important;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
   overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border-width: 0 !important;
 }
 
 [data-overlayscrollbars-viewport~='scrollbarPressed'] {

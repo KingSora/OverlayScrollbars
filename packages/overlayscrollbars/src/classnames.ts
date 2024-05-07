@@ -22,12 +22,11 @@ export const dataAttributeHost = dataAttributePrefix;
 export const dataAttributeViewport = `${dataAttributePrefix}-viewport`;
 export const dataValueViewportOverflowXPrefix = strOverflowX;
 export const dataValueViewportOverflowYPrefix = strOverflowY;
-export const dataValueViewportOverflowVisible = 'overflowVisible';
-export const dataValueViewportOverflowHidden = 'overflowHidden';
 export const dataValueViewportArrange = 'arrange';
 export const dataValueViewportMeasuring = 'measuring';
 export const dataValueViewportScrollbarHidden = 'scrollbarHidden';
 export const dataValueViewportScrollbarPressed = 'scrollbarPressed';
+export const dataValueViewportNoContent = 'noContent';
 
 // padding
 export const dataAttributePadding = `${dataAttributePrefix}-padding`;

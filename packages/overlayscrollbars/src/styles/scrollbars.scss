@@ -16,7 +16,6 @@ body > .os-scrollbar {
 }
 .os-scrollbar-track {
   position: relative;
-  direction: ltr !important;
   padding: 0 !important;
   border: none !important;
 }
@@ -78,10 +77,13 @@ body > .os-scrollbar {
 }
 .os-scrollbar-horizontal .os-scrollbar-handle {
   bottom: 0;
+  left: 0;
 }
 .os-scrollbar-vertical .os-scrollbar-handle {
+  top: 0;
   right: 0;
 }
+.os-scrollbar-rtl.os-scrollbar-horizontal .os-scrollbar-handle,
 .os-scrollbar-rtl.os-scrollbar-vertical .os-scrollbar-handle {
   right: auto;
   left: 0;
