@@ -4,7 +4,12 @@ import './handleEnvironment';
 import { resize, setTestResult, timeout } from '@~local/browser-testing';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import { ClickScrollPlugin, ScrollbarsHidingPlugin, SizeObserverPlugin } from '~/plugins';
-import { addEventListener, animateNumber, getScrollPercentPosition, getStyles } from '~/support';
+import {
+  addEventListener,
+  animateNumber,
+  getScrollCoordinatesPosition,
+  getStyles,
+} from '~/support';
 import should from 'should';
 import type { InstancePlugin } from '~/plugins';
 import type { PartialOptions } from '~/options';
@@ -69,7 +74,7 @@ const clickErrors: Error[] = [];
 const scrollInstance = (osInstance: OverlayScrollbars) => {
   const { scrollCoordinates } = osInstance.state();
   const { scrollOffsetElement } = osInstance.elements();
-  const { x, y } = getScrollPercentPosition(
+  const { x, y } = getScrollCoordinatesPosition(
     {
       _start: scrollCoordinates.start,
       _end: scrollCoordinates.end,

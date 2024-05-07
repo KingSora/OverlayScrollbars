@@ -1,4 +1,11 @@
-import { scrollElementTo, getElementScroll, sanatizeScrollCoordinates } from '~/support/dom/scroll';
+import {
+  scrollElementTo,
+  getElementScroll,
+  sanatizeScrollCoordinates,
+  isDefaultDirectionScrollCoordinates,
+  getScrollCoordinatesPercent,
+  getScrollCoordinatesPosition,
+} from '~/support/dom/scroll';
 
 describe('dom scroll', () => {
   describe('scrollElementTo', () => {
@@ -222,5 +229,176 @@ describe('dom scroll', () => {
       expect(endGreater._start).toEqual({ x: 0, y: 0 });
       expect(endGreater._end).toEqual({ x: -999, y: 999 });
     });
+  });
+
+  test('isDefaultDirectionScrollCoordinates', () => {
+    const zero = isDefaultDirectionScrollCoordinates({
+      _start: { x: 0, y: 0 },
+      _end: { x: 0, y: 0 },
+    });
+    expect(zero.x).toBe(true);
+    expect(zero.y).toBe(true);
+
+    const a = isDefaultDirectionScrollCoordinates({
+      _start: { x: 0, y: 0 },
+      _end: { x: 100, y: 100 },
+    });
+    expect(a.x).toBe(true);
+    expect(a.y).toBe(true);
+
+    const b = isDefaultDirectionScrollCoordinates({
+      _start: { x: 0, y: 0 },
+      _end: { x: -100, y: -100 },
+    });
+    expect(b.x).toBe(false);
+    expect(b.y).toBe(false);
+
+    const c = isDefaultDirectionScrollCoordinates({
+      _start: { x: 100, y: 100 },
+      _end: { x: 0, y: 0 },
+    });
+    expect(c.x).toBe(false);
+    expect(c.y).toBe(false);
+
+    const d = isDefaultDirectionScrollCoordinates({
+      _start: { x: -100, y: -100 },
+      _end: { x: 0, y: 0 },
+    });
+    expect(d.x).toBe(false);
+    expect(d.y).toBe(false);
+  });
+
+  test('getScrollCoordinatesPercent', () => {
+    const zero = getScrollCoordinatesPercent(
+      {
+        _start: { x: 0, y: 0 },
+        _end: { x: 0, y: 0 },
+      },
+      {
+        x: 0,
+        y: 0,
+      }
+    );
+    expect(zero.x).toBe(0);
+    expect(zero.y).toBe(0);
+
+    const a = getScrollCoordinatesPercent(
+      {
+        _start: { x: 0, y: 0 },
+        _end: { x: 100, y: 100 },
+      },
+      {
+        x: 30,
+        y: 30,
+      }
+    );
+    expect(a.x).toBe(0.3);
+    expect(a.y).toBe(0.3);
+
+    const b = getScrollCoordinatesPercent(
+      {
+        _start: { x: 0, y: 0 },
+        _end: { x: -100, y: -100 },
+      },
+      {
+        x: -30,
+        y: -30,
+      }
+    );
+    expect(b.x).toBe(0.3);
+    expect(b.y).toBe(0.3);
+
+    const c = getScrollCoordinatesPercent(
+      {
+        _start: { x: 100, y: 100 },
+        _end: { x: 0, y: 0 },
+      },
+      {
+        x: 70,
+        y: 70,
+      }
+    );
+    expect(c.x).toBe(0.3);
+    expect(c.y).toBe(0.3);
+
+    const d = getScrollCoordinatesPercent(
+      {
+        _start: { x: -100, y: -100 },
+        _end: { x: 0, y: 0 },
+      },
+      {
+        x: -70,
+        y: -70,
+      }
+    );
+    expect(d.x).toBe(0.3);
+    expect(d.y).toBe(0.3);
+  });
+
+  test('getScrollCoordinatesPosition', () => {
+    const zero = getScrollCoordinatesPosition(
+      {
+        _start: { x: 0, y: 0 },
+        _end: { x: 0, y: 0 },
+      },
+      {
+        x: 0,
+        y: 0,
+      }
+    );
+    expect(zero.x).toBe(0);
+    expect(zero.y).toBe(0);
+
+    const a = getScrollCoordinatesPosition(
+      {
+        _start: { x: 0, y: 0 },
+        _end: { x: 100, y: 100 },
+      },
+      {
+        x: 0.3,
+        y: 0.3,
+      }
+    );
+    expect(a.x).toBe(30);
+    expect(a.y).toBe(30);
+
+    const b = getScrollCoordinatesPosition(
+      {
+        _start: { x: 0, y: 0 },
+        _end: { x: -100, y: -100 },
+      },
+      {
+        x: 0.3,
+        y: 0.3,
+      }
+    );
+    expect(b.x).toBe(-30);
+    expect(b.y).toBe(-30);
+
+    const c = getScrollCoordinatesPosition(
+      {
+        _start: { x: 100, y: 100 },
+        _end: { x: 0, y: 0 },
+      },
+      {
+        x: 0.3,
+        y: 0.3,
+      }
+    );
+    expect(c.x).toBe(70);
+    expect(c.y).toBe(70);
+
+    const d = getScrollCoordinatesPosition(
+      {
+        _start: { x: -100, y: -100 },
+        _end: { x: 0, y: 0 },
+      },
+      {
+        x: 0.3,
+        y: 0.3,
+      }
+    );
+    expect(d.x).toBe(-70);
+    expect(d.y).toBe(-70);
   });
 });

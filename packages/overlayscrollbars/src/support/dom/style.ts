@@ -79,9 +79,6 @@ export function getStyles(
   return getStylesResult;
 }
 
-export const getDirectionIsRTL = (elm: HTMLElementTarget): boolean =>
-  getStyles(elm, 'direction') === 'rtl';
-
 /**
  * Returns the top right bottom left values of the passed css property.
  * @param elm The element of which the values shall be returned.

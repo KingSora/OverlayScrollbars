@@ -4,7 +4,6 @@ import {
   getStyles,
   setStyles,
   topRightBottomLeft,
-  getDirectionIsRTL,
   getTrasformTranslateValue,
 } from '~/support/dom/style';
 
@@ -122,20 +121,6 @@ describe('dom style', () => {
         expect(result.b).toBe(0);
         expect(result.l).toBe(0);
       });
-    });
-  });
-
-  describe('directionIsRTL', () => {
-    test('normal', () => {
-      document.body.setAttribute('style', 'direction: rtl');
-      expect(getDirectionIsRTL(document.body)).toBe(true);
-
-      document.body.setAttribute('style', 'direction: ltr');
-      expect(getDirectionIsRTL(document.body)).toBe(false);
-    });
-
-    test('null', () => {
-      expect(getDirectionIsRTL(null)).toBe(false);
     });
   });
 

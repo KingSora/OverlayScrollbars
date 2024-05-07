@@ -85,10 +85,16 @@ export const sanatizeScrollCoordinates = (
 };
 
 /**
- *
- * @param scrollCoordinates
+ * Returns whether the passed scroll coordinates represent the browsers default scroll direction.
+ * For the default scroll direction the following must be true:
+ * 1. Start value is `0`.
+ * 2. End value <= Start value.
+ * @param scrollCoordinates The scroll coordinates.
  */
-export const isDefaultScrollCoordinates = ({ _start, _end }: ScrollCoordinates): XY<boolean> => {
+export const isDefaultDirectionScrollCoordinates = ({
+  _start,
+  _end,
+}: ScrollCoordinates): XY<boolean> => {
   const getAxis = (start: number, end: number) => start === 0 && start <= end;
 
   return {
@@ -102,12 +108,12 @@ export const isDefaultScrollCoordinates = ({ _start, _end }: ScrollCoordinates):
  * @param scrollCoordinates The scroll coordinates.
  * @param currentScroll The current scroll position of the element.
  */
-export const getScrollPercent = (
+export const getScrollCoordinatesPercent = (
   { _start, _end }: ScrollCoordinates,
   currentScroll: XY<number>
 ) => {
   const getAxis = (start: number, end: number, current: number) =>
-    capNumber(0, 1, (start - current) / (start - end));
+    capNumber(0, 1, (start - current) / (start - end) || 0);
 
   return {
     x: getAxis(_start.x, _end.x, currentScroll.x),
@@ -120,7 +126,7 @@ export const getScrollPercent = (
  * @param scrollCoordinates The scroll coordinates.
  * @param percent The percentage of the scroll.
  */
-export const getScrollPercentPosition = (
+export const getScrollCoordinatesPosition = (
   { _start, _end }: ScrollCoordinates,
   percent: XY<number>
 ) => {

@@ -4,7 +4,6 @@ import {
   closest,
   createCache,
   debounce,
-  getDirectionIsRTL,
   each,
   equalWH,
   getFractionalSize,
@@ -23,6 +22,7 @@ import {
   concat,
   getAttr,
   setAttrs,
+  getStyles,
 } from '~/support';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
 import { getEnvironment } from '~/environment';
@@ -101,6 +101,8 @@ export const createObserversSetup = (
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = structureSetupElements;
+
+  const getDirectionIsRTL = (elm: HTMLElement): boolean => getStyles(elm, 'direction') === 'rtl';
 
   const state: ObserversSetupState = {
     _heightIntrinsic: false,

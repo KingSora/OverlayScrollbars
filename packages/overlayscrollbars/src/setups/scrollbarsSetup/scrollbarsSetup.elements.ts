@@ -24,8 +24,8 @@ import {
   createOrKeepArray,
   getBoundingClientRect,
   capNumber,
-  getScrollPercent,
-  isDefaultScrollCoordinates,
+  getScrollCoordinatesPercent,
+  isDefaultDirectionScrollCoordinates,
 } from '~/support';
 import {
   classNameScrollbar,
@@ -36,6 +36,7 @@ import {
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import { dynamicInitializationElement as generalDynamicInitializationElement } from '~/initialization';
+import type { XY } from '~/support';
 import type {
   InitializationTarget,
   InitializationTargetElement,
@@ -104,14 +105,16 @@ export const createScrollbarsSetupElements = (
   const { scrollbars: scrollbarsInit } = (_targetIsElm ? {} : target) as InitializationTargetObject;
   const { slot: initScrollbarsSlot } = scrollbarsInit || {};
   const elementAnimations = new Map<HTMLElement, PotentialAnimation[]>();
-  const initScrollTimeline = (axis: 'x' | 'y') =>
+  const initScrollTimeline = (axis: keyof XY<unknown>) =>
     scrollT &&
     new scrollT({
       source: _scrollOffsetElement,
       axis,
     });
-  const scrollTimelineX = initScrollTimeline('x');
-  const scrollTimelineY = initScrollTimeline('y');
+  const scrollTimeline = {
+    x: initScrollTimeline('x'),
+    y: initScrollTimeline('y'),
+  };
   const evaluatedScrollbarSlot = generalDynamicInitializationElement<
     [InitializationTargetElement, HTMLElement, HTMLElement]
   >(
@@ -272,27 +275,29 @@ export const createScrollbarsSetupElements = (
   ) => {
     const { _scrollCoordinates } = structureSetupState;
     const xyKey = isHorizontal ? 'x' : 'y';
-    const scrollCoordsDefault = isDefaultScrollCoordinates(_scrollCoordinates)[xyKey];
-    const getTransformValue = (scrollbarStructure: ScrollbarStructure, scrollPercent: number) =>
+    const axisScrollTimeline = scrollTimeline[xyKey];
+    const axisIsDefaultDirectionScroll =
+      isDefaultDirectionScrollCoordinates(_scrollCoordinates)[xyKey];
+    const getAxisTransformValue = (scrollbarStructure: ScrollbarStructure, scrollPercent: number) =>
       getTrasformTranslateValue(
         ratioToCssPercent(
           getScrollbarHandleOffsetRatio(
             scrollbarStructure,
-            scrollCoordsDefault ? scrollPercent : 1 - scrollPercent,
+            axisIsDefaultDirectionScroll ? scrollPercent : 1 - scrollPercent,
             isHorizontal
           )
         ),
         isHorizontal
       );
 
-    if (scrollTimelineX && scrollTimelineY) {
+    if (axisScrollTimeline) {
       each(scrollbarStructures, (structure: ScrollbarStructure) => {
         const { _handle } = structure;
         setElementAnimation(
           _handle,
-          isHorizontal ? scrollTimelineX : scrollTimelineY,
+          axisScrollTimeline,
           addDirectionRTLKeyframes({
-            transform: [0, 1].map((percent) => getTransformValue(structure, percent)),
+            transform: [0, 1].map((percent) => getAxisTransformValue(structure, percent)),
           })
         );
       });
@@ -300,9 +305,11 @@ export const createScrollbarsSetupElements = (
       scrollbarStyle(scrollbarStructures, (structure) => [
         structure._handle,
         {
-          transform: getTransformValue(
+          transform: getAxisTransformValue(
             structure,
-            getScrollPercent(_scrollCoordinates, getElementScroll(_scrollOffsetElement))[xyKey]
+            getScrollCoordinatesPercent(_scrollCoordinates, getElementScroll(_scrollOffsetElement))[
+              xyKey
+            ]
           ),
         },
       ]);
@@ -337,48 +344,35 @@ export const createScrollbarsSetupElements = (
   const refreshScrollbarsScrollbarOffset = () => {
     if (_viewportIsTarget) {
       const { _overflowAmount, _scrollCoordinates } = structureSetupState;
-      const isDefaultCoordinates = isDefaultScrollCoordinates(_scrollCoordinates);
+      const isDefaultDirectionScroll = isDefaultDirectionScrollCoordinates(_scrollCoordinates);
       const cushion = 0.5; // otherwise it sometimes happens that scrolling to 100% will cause the scrollbars to disappear
-      if (scrollTimelineX && scrollTimelineY) {
+
+      if (scrollTimeline.x && scrollTimeline.y) {
         each(concat(verticalScrollbars, horizontalScrollbars), ({ _scrollbar }) => {
           if (doRefreshScrollbarOffset(_scrollbar)) {
-            const setScrollbarElementAnimation = (
-              axisTimeline: AnimationTimeline,
-              axisOverflowAmount: number,
-              axisIsDefaultCoordinates: boolean,
-              isHorizontal?: boolean
-            ) =>
+            const setScrollbarElementAnimation = (axis: keyof XY<unknown>) =>
               setElementAnimation(
                 _scrollbar,
-                axisTimeline,
+                scrollTimeline[axis],
                 addDirectionRTLKeyframes({
-                  transform: [0, axisIsDefaultCoordinates ? 1 : -1].map((percent) =>
+                  transform: [0, isDefaultDirectionScroll[axis] ? 1 : -1].map((percent) =>
                     getTrasformTranslateValue(
-                      numberToCssPx(percent * (axisOverflowAmount - cushion)),
-                      isHorizontal
+                      numberToCssPx(percent * (_overflowAmount[axis] - cushion)),
+                      axis === 'x'
                     )
                   ),
                 }),
                 'add'
               );
 
-            setScrollbarElementAnimation(
-              scrollTimelineX,
-              _overflowAmount.x,
-              isDefaultCoordinates.x,
-              true
-            );
-            setScrollbarElementAnimation(
-              scrollTimelineY,
-              _overflowAmount.y,
-              isDefaultCoordinates.y
-            );
+            setScrollbarElementAnimation('x');
+            setScrollbarElementAnimation('y');
           } else {
             cancelElementAnimations(_scrollbar);
           }
         });
       } else {
-        const scrollPercent = getScrollPercent(
+        const scrollPercent = getScrollCoordinatesPercent(
           _scrollCoordinates,
           getElementScroll(_scrollOffsetElement)
         );
@@ -398,8 +392,16 @@ export const createScrollbarsSetupElements = (
             elm,
             elm && {
               transform: getTrasformTranslateValue({
-                x: getTranslateValue(scrollPercent.x, _overflowAmount.x, isDefaultCoordinates.x),
-                y: getTranslateValue(scrollPercent.y, _overflowAmount.y, isDefaultCoordinates.y),
+                x: getTranslateValue(
+                  scrollPercent.x,
+                  _overflowAmount.x,
+                  isDefaultDirectionScroll.x
+                ),
+                y: getTranslateValue(
+                  scrollPercent.y,
+                  _overflowAmount.y,
+                  isDefaultDirectionScroll.y
+                ),
               }),
             },
           ] as [HTMLElement | false, StyleObject | false];
@@ -457,13 +459,13 @@ export const createScrollbarsSetupElements = (
       _refreshScrollbarsScrollbarOffset: refreshScrollbarsScrollbarOffset,
       _scrollbarsAddRemoveClass: scrollbarsAddRemoveClass,
       _horizontal: {
-        _scrollTimeline: scrollTimelineX,
+        _scrollTimeline: scrollTimeline.x,
         _scrollbarStructures: horizontalScrollbars,
         _clone: generateHorizontalScrollbarStructure,
         _style: bind(scrollbarStyle, horizontalScrollbars),
       },
       _vertical: {
-        _scrollTimeline: scrollTimelineY,
+        _scrollTimeline: scrollTimeline.y,
         _scrollbarStructures: verticalScrollbars,
         _clone: generateVerticalScrollbarStructure,
         _style: bind(scrollbarStyle, verticalScrollbars),
