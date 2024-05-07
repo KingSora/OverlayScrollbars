@@ -190,7 +190,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     { _checkOption, _observersUpdateHints, _observersState, _force },
     { _paddingStyleChanged }
   ) => {
-    const { _sizeChanged, _contentMutation, _directionChanged, _scrollbarSizeChanged } =
+    const { _sizeChanged, _contentMutation, _appear, _directionChanged, _scrollbarSizeChanged } =
       _observersUpdateHints || {};
     const scrollbarsHidingPluginViewportArrangement =
       scrollbarsHidingPlugin &&
@@ -299,7 +299,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       getFlowDirectionStyles(),
       _force
     );
-    const adjustMeasuredScrollCoordinates = _directionChanged || flowDirectionStylesChanged;
+    const adjustMeasuredScrollCoordinates =
+      _directionChanged || _appear || flowDirectionStylesChanged || _force;
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
       ? updateMeasuredScrollCoordinates(measureScrollCoordinates(overflowAmount), _force)
       : getCurrentMeasuredScrollCoordinates();
