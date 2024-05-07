@@ -46,7 +46,8 @@ export function each(
  * @param item The item.
  * @returns Whether the item is in the array.
  */
-export const inArray = <T = any>(arr: T[], item: T): boolean => arr.indexOf(item) >= 0;
+export const inArray = <T = any>(arr: T[] | readonly T[], item: T): boolean =>
+  arr.indexOf(item) >= 0;
 
 /**
  * Concats two arrays and returns an new array without modifying any of the passed arrays.

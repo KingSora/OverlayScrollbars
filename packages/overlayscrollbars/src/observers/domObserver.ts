@@ -41,7 +41,7 @@ interface DOMTargetObserverOptions extends DOMObserverOptionsBase {
    * Marks certain attributes as style changing, should be a subset of the _attributes prop.
    * Used to set the "targetStyleChanged" param in the DOMTargetObserverCallback.
    */
-  _styleChangingAttributes?: string[];
+  _styleChangingAttributes?: string[] | readonly string[];
 }
 
 type ContentChangeArrayItem = [selector?: string, eventNames?: string] | null | undefined;

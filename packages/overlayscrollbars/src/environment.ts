@@ -4,7 +4,6 @@ import {
   appendChildren,
   getFractionalSize,
   getClientSize,
-  absoluteCoordinates,
   getOffsetSize,
   removeAttrs,
   removeElements,
@@ -15,12 +14,7 @@ import {
   scrollT,
   bind,
   wnd,
-  scrollElementTo,
-  strHidden,
-  strOverflowX,
-  strOverflowY,
   getStyles,
-  setStyles,
   isBodyElement,
   isFunction,
   addEventListener,
@@ -40,7 +34,6 @@ export interface Env {
   readonly _nativeScrollbarsSize: XY;
   readonly _nativeScrollbarsOverlaid: XY<boolean>;
   readonly _nativeScrollbarsHiding: boolean;
-  readonly _rtlScrollBehavior: { n: boolean; i: boolean };
   readonly _scrollTimeline: boolean;
   readonly _staticDefaultInitialization: Initialization;
   readonly _staticDefaultOptions: Options;
@@ -85,39 +78,6 @@ const createEnvironment = (): Env => {
     } catch {}
     revertClass();
     return result;
-  };
-
-  const getRtlScrollBehavior = (
-    parentElm: HTMLElement,
-    childElm: HTMLElement
-  ): { i: boolean; n: boolean } => {
-    setStyles(parentElm, {
-      [strOverflowX]: strHidden,
-      [strOverflowY]: strHidden,
-      direction: 'rtl',
-    });
-    scrollElementTo(parentElm, { x: 0 });
-
-    const parentOffset = absoluteCoordinates(parentElm);
-    const childOffset = absoluteCoordinates(childElm);
-    scrollElementTo(parentElm, { x: -999 }); // https://github.com/KingSora/OverlayScrollbars/issues/187
-    const childOffsetAfterScroll = absoluteCoordinates(childElm);
-    return {
-      /**
-       * origin direction = determines if the zero scroll position is on the left or right side
-       * 'i' means 'invert' (i === true means that the axis must be inverted to be correct)
-       * true = on the left side
-       * false = on the right side
-       */
-      i: parentOffset.x === childOffset.x,
-      /**
-       * negative = determines if the maximum scroll is positive or negative
-       * 'n' means 'negate' (n === true means that the axis must be negated to be correct)
-       * true = negative
-       * false = positive
-       */
-      n: childOffset.x !== childOffsetAfterScroll.x,
-    };
   };
 
   // changes to this styles need to be reflected in the "hide native scrollbars" section of the structure styles
@@ -173,7 +133,6 @@ const createEnvironment = (): Env => {
     _nativeScrollbarsOverlaid: nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding: nativeScrollbarsHiding,
     _scrollTimeline: !!scrollT,
-    _rtlScrollBehavior: getRtlScrollBehavior(envElm, envChildElm),
     _addResizeListener: bind(addEvent, 'r'),
     _getDefaultInitialization: getDefaultInitialization,
     _setDefaultInitialization: (newInitializationStrategy) =>

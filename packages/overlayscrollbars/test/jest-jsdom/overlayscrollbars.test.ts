@@ -654,7 +654,6 @@ describe('overlayscrollbars', () => {
         scrollbarsSize: { x: 0, y: 0 },
         scrollbarsOverlaid: { x: true, y: true },
         scrollbarsHiding: false,
-        rtlScrollBehavior: { i: true, n: false },
         scrollTimeline: false,
         staticDefaultInitialization: expect.any(Object),
         staticDefaultOptions: expect.any(Object),

@@ -1,9 +1,6 @@
-import type { Env } from '~/environment';
 import type { XY } from './offset';
 import type { WH } from './dimensions';
 import { capNumber, isNumber, mathAbs, mathSign } from '../utils';
-
-export type RTLScrollBehavior = Env['_rtlScrollBehavior'] | false | null | undefined;
 
 export interface ScrollCoordinates {
   /** The start (origin) scroll coordinates for each axis. */
@@ -11,28 +8,6 @@ export interface ScrollCoordinates {
   /** The end scroll coordinates for each axis. */
   _end: XY<number>;
 }
-
-/**
- * Transforms a normalized scroll position to a RTL compatilbe scroll position value or vice versa (depending on the input format).
- * @param scrollPosition The scroll position value.
- * @param overflowAmount The (normalized) overflow amount value.
- * @param rtlScrollBehavior The RTL scroll behavior or `falsy` if the rtl scroll behavior doesn't apply.
- * @returns The input scroll position, just converted.
- * If the input `scrollPosition` is normalized the raw (RTL Compatible) format is returned.
- * If the input `scrollPosition` is raw (RTL Compatible) the normalized format is returned.
- */
-export const convertScrollPosition = (
-  scrollPosition: number,
-  overflowAmount: number,
-  rtlScrollBehavior?: RTLScrollBehavior
-) =>
-  rtlScrollBehavior
-    ? rtlScrollBehavior.n
-      ? -scrollPosition + 0 // +0 avoids negative zero (-0) as a result
-      : rtlScrollBehavior.i
-      ? overflowAmount - scrollPosition
-      : scrollPosition
-    : scrollPosition;
 
 /**
  * Scroll the passed element to the passed position.

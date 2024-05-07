@@ -87,9 +87,9 @@ export const createObserversSetup = (
   // TODO: observer textarea attrs if textarea
 
   const viewportSelector = `[${dataAttributeViewport}]`;
-  const viewportAttrsFromTarget = ['tabindex'];
-  const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'];
-  const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'];
+  const viewportAttrsFromTarget = ['tabindex'] as const;
+  const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'] as const;
+  const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'] as const;
   const {
     _target,
     _host,
@@ -168,13 +168,11 @@ export const createObserversSetup = (
     },
   });
 
-  const setDirectionWhenViewportIsTarget = (updateHints: ObserversSetupUpdateHints) => {
-    if (_viewportIsTarget) {
-      const newDirectionIsRTL = getDirectionIsRTL(_target);
-      assignDeep(updateHints, { _directionChanged: prevDirectionIsRTL !== newDirectionIsRTL });
-      assignDeep(state, { _directionIsRTL: newDirectionIsRTL });
-      prevDirectionIsRTL = newDirectionIsRTL;
-    }
+  const setDirection = (updateHints: ObserversSetupUpdateHints) => {
+    const newDirectionIsRTL = getDirectionIsRTL(_target);
+    assignDeep(updateHints, { _directionChanged: prevDirectionIsRTL !== newDirectionIsRTL });
+    assignDeep(state, { _directionIsRTL: newDirectionIsRTL });
+    prevDirectionIsRTL = newDirectionIsRTL;
   };
 
   const updateViewportAttrsFromHost = (attributes?: string[]) => {
@@ -205,12 +203,8 @@ export const createObserversSetup = (
     return updateHints;
   };
 
-  const onSizeChanged = ({
-    _sizeChanged,
-    _directionIsRTLCache,
-    _appear,
-  }: SizeObserverCallbackParams) => {
-    const exclusiveSizeChange = _sizeChanged && !_appear && !_directionIsRTLCache;
+  const onSizeChanged = ({ _sizeChanged, _appear }: SizeObserverCallbackParams) => {
+    const exclusiveSizeChange = _sizeChanged && !_appear;
     const updateFn =
       // use debounceed update:
       // if native scrollbars hiding is supported
@@ -219,16 +213,12 @@ export const createObserversSetup = (
         ? onObserversUpdatedDebounced
         : onObserversUpdated;
 
-    const [directionIsRTL, directionIsRTLChanged] = _directionIsRTLCache || [];
     const updateHints: ObserversSetupUpdateHints = {
       _sizeChanged: _sizeChanged || _appear,
       _appear,
-      _directionChanged: directionIsRTLChanged,
     };
 
-    setDirectionWhenViewportIsTarget(updateHints);
-
-    _directionIsRTLCache && assignDeep(state, { _directionIsRTL: directionIsRTL });
+    setDirection(updateHints);
 
     updateFn(updateHints);
   };
@@ -242,7 +232,7 @@ export const createObserversSetup = (
       _contentMutation,
     };
 
-    setDirectionWhenViewportIsTarget(updateHints);
+    setDirection(updateHints);
 
     // if contentChangedThroughEvent is true its already debounced
     const updateFn = contentChangedThroughEvent ? onObserversUpdated : onObserversUpdatedDebounced;
@@ -261,7 +251,7 @@ export const createObserversSetup = (
       _hostMutation: targetStyleChanged,
     };
 
-    setDirectionWhenViewportIsTarget(updateHints);
+    setDirection(updateHints);
 
     if (targetStyleChanged && !fromRecords) {
       onObserversUpdatedDebounced(updateHints);
@@ -281,7 +271,6 @@ export const createObserversSetup = (
     !_viewportIsTarget &&
     createSizeObserver(_host, onSizeChanged, {
       _appear: true,
-      _direction: true,
     });
 
   const [constructHostMutationObserver, updateHostMutationObserver] = createDOMObserver(
@@ -406,7 +395,7 @@ export const createObserversSetup = (
           assignDeep(updateHints, onContentMutation(contentUpdateResult[0], takeRecords));
       }
 
-      setDirectionWhenViewportIsTarget(updateHints);
+      setDirection(updateHints);
 
       return updateHints;
     },

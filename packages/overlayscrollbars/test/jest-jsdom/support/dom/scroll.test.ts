@@ -1,49 +1,6 @@
-import {
-  convertScrollPosition,
-  scrollElementTo,
-  getElementScroll,
-  sanatizeScrollCoordinates,
-} from '~/support/dom/scroll';
+import { scrollElementTo, getElementScroll, sanatizeScrollCoordinates } from '~/support/dom/scroll';
 
 describe('dom scroll', () => {
-  describe('convertScrollPosition', () => {
-    const overflowAmount = 100;
-
-    test('normal environment', () => {
-      expect(convertScrollPosition(0, overflowAmount)).toBe(0);
-      expect(convertScrollPosition(50, overflowAmount)).toBe(50);
-      expect(convertScrollPosition(100, overflowAmount)).toBe(100);
-    });
-
-    test('inverted environment', () => {
-      const rtlScrollBehavior = { i: true, n: false };
-
-      /** normalized to raw */
-      expect(convertScrollPosition(0, overflowAmount, rtlScrollBehavior)).toBe(100);
-      expect(convertScrollPosition(50, overflowAmount, rtlScrollBehavior)).toBe(50);
-      expect(convertScrollPosition(100, overflowAmount, rtlScrollBehavior)).toBe(0);
-
-      /** raw to normalized */
-      expect(convertScrollPosition(100, overflowAmount, rtlScrollBehavior)).toBe(0);
-      expect(convertScrollPosition(50, overflowAmount, rtlScrollBehavior)).toBe(50);
-      expect(convertScrollPosition(0, overflowAmount, rtlScrollBehavior)).toBe(100);
-    });
-
-    test('negated environment', () => {
-      const rtlScrollBehavior = { i: false, n: true };
-
-      /** normalized to raw */
-      expect(convertScrollPosition(0, overflowAmount, rtlScrollBehavior)).toBe(0);
-      expect(convertScrollPosition(50, overflowAmount, rtlScrollBehavior)).toBe(-50);
-      expect(convertScrollPosition(100, overflowAmount, rtlScrollBehavior)).toBe(-100);
-
-      /** raw to normalized */
-      expect(convertScrollPosition(0, overflowAmount, rtlScrollBehavior)).toBe(0);
-      expect(convertScrollPosition(-50, overflowAmount, rtlScrollBehavior)).toBe(50);
-      expect(convertScrollPosition(-100, overflowAmount, rtlScrollBehavior)).toBe(100);
-    });
-  });
-
   describe('scrollElementTo', () => {
     beforeEach(() => {
       document.body.scrollLeft = 0;

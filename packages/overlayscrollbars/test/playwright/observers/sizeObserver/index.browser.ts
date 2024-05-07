@@ -22,7 +22,6 @@ if (!window.ResizeObserver) {
 let updates = 0;
 let sizeIterations = 0;
 let appearIterations = 0;
-let directionIterations = 0;
 const contentBox = (elm: HTMLElement | null): WH<number> => {
   if (elm) {
     const computedStyle = window.getComputedStyle(elm);
@@ -46,20 +45,15 @@ const paddingSelect: HTMLSelectElement | null = document.querySelector('#padding
 const borderSelect: HTMLSelectElement | null = document.querySelector('#border');
 const boxSizingSelect: HTMLSelectElement | null = document.querySelector('#boxSizing');
 const displaySelect: HTMLSelectElement | null = document.querySelector('#display');
-const directionSelect: HTMLSelectElement | null = document.querySelector('#direction');
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
 const resizesSlot: HTMLButtonElement | null = document.querySelector('#resizes');
 const preInitChildren = targetElm?.children.length;
 
 const constructSizeObserver = createSizeObserver(
   targetElm as HTMLElement,
-  ({ _directionIsRTLCache, _sizeChanged, _appear }) => {
+  ({ _sizeChanged, _appear }) => {
     if (_sizeChanged) {
       sizeIterations += 1;
-    }
-
-    if (_directionIsRTLCache) {
-      directionIterations += 1;
     }
 
     if (_appear) {
@@ -70,11 +64,11 @@ const constructSizeObserver = createSizeObserver(
 
     requestAnimationFrame(() => {
       if (resizesSlot) {
-        resizesSlot.textContent = `${updates}, (size=${sizeIterations}, dir=${directionIterations}, appear=${appearIterations})`;
+        resizesSlot.textContent = `${updates}, (size=${sizeIterations}, appear=${appearIterations})`;
       }
     });
   },
-  { _direction: true, _appear: true }
+  { _appear: true }
 );
 const destroySizeObserver = constructSizeObserver();
 
@@ -82,11 +76,9 @@ const selectCallback = generateClassChangeSelectCallback(targetElm as HTMLElemen
 const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) => {
   interface IterateSelect {
     currSizeIterations: number;
-    currDirectionIterations: number;
     currAppearIterations: number;
     currOffsetSize: WH<number>;
     currContentSize: WH<number>;
-    currDir: string;
     currBoxSizing: string;
     currHasDimensions: boolean;
   }
@@ -94,44 +86,36 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
   await iterateSelect<IterateSelect>(select, {
     beforeEach() {
       const currSizeIterations = sizeIterations;
-      const currDirectionIterations = directionIterations;
       const currAppearIterations = appearIterations;
       const currOffsetSize = getOffsetSize(targetElm as HTMLElement);
       const currContentSize = contentBox(targetElm as HTMLElement);
-      const currDir = getStyles(targetElm as HTMLElement, 'direction');
       const currBoxSizing = getStyles(targetElm as HTMLElement, 'boxSizing');
       const currHasDimensions = hasDimensions(targetElm as HTMLElement);
 
       return {
         currSizeIterations,
-        currDirectionIterations,
         currAppearIterations,
         currOffsetSize,
         currContentSize,
-        currDir,
         currBoxSizing,
         currHasDimensions,
       };
     },
     async check({
       currSizeIterations,
-      currDirectionIterations,
       currAppearIterations,
       currOffsetSize,
       currContentSize,
-      currDir,
       currBoxSizing,
       currHasDimensions,
     }) {
       const newOffsetSize = getOffsetSize(targetElm as HTMLElement);
       const newContentSize = contentBox(targetElm as HTMLElement);
-      const newDir = getStyles(targetElm as HTMLElement, 'direction');
       const newBoxSizing = getStyles(targetElm as HTMLElement, 'boxSizing');
       const offsetSizeChanged =
         currOffsetSize.w !== newOffsetSize.w || currOffsetSize.h !== newOffsetSize.h;
       const contentSizeChanged =
         currContentSize.w !== newContentSize.w || currContentSize.h !== newContentSize.h;
-      const dirChanged = currDir !== newDir;
       const boxSizingChanged = currBoxSizing !== newBoxSizing;
       const dimensions = hasDimensions(targetElm as HTMLElement);
       const observerElm = targetElm?.firstElementChild as HTMLElement;
@@ -149,24 +133,6 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
           observerElm.getBoundingClientRect().bottom <= targetElm.getBoundingClientRect().bottom,
           'Generated observer element inst overflowing target element. (height)'
         );
-      }
-
-      if (dirChanged) {
-        await waitForOrFailTest(() => {
-          // const expectedCacheValue = newDir === 'rtl';
-          should.equal(
-            directionIterations,
-            currDirectionIterations + 1,
-            'Direction change was detected correctly.'
-          );
-          /*
-          should.equal(
-            sizeObserver._getCurrentCacheValues()._directionIsRTL[0],
-            expectedCacheValue,
-            'Direction cache value is correct.'
-          );
-          */
-        });
       }
 
       if (boxSizingChanged) {
@@ -213,7 +179,6 @@ paddingSelect?.addEventListener('change', selectCallback);
 borderSelect?.addEventListener('change', selectCallback);
 boxSizingSelect?.addEventListener('change', selectCallback);
 displaySelect?.addEventListener('change', selectCallback);
-directionSelect?.addEventListener('change', selectCallback);
 
 selectCallback(heightSelect);
 selectCallback(widthSelect);
@@ -221,7 +186,6 @@ selectCallback(paddingSelect);
 selectCallback(borderSelect);
 selectCallback(boxSizingSelect);
 selectCallback(displaySelect);
-selectCallback(directionSelect);
 
 const iteratePadding = async (afterEach?: () => any) => {
   await iterate(paddingSelect, afterEach);
@@ -241,9 +205,6 @@ const iterateBoxSizing = async (afterEach?: () => any) => {
 const iterateDisplay = async (afterEach?: () => any) => {
   await iterate(displaySelect, afterEach);
 };
-const iterateDirection = async (afterEach?: () => any) => {
-  await iterate(directionSelect, afterEach);
-};
 const cleanBoxSizingChange = async () => {
   selectOption(heightSelect as HTMLSelectElement, 'heightAuto');
   selectOption(widthSelect as HTMLSelectElement, 'widthAuto');
@@ -252,45 +213,35 @@ const cleanBoxSizingChange = async () => {
 
   await timeout(250);
 
-  await iterateDirection(async () => {
-    await iterateBoxSizing();
-  });
+  await iterateBoxSizing();
 
   selectOption(heightSelect as HTMLSelectElement, 'height200');
   selectOption(widthSelect as HTMLSelectElement, 'width200');
 
   await timeout(250);
 
-  await iterateDirection(async () => {
-    await iterateBoxSizing();
-  });
+  await iterateBoxSizing();
 
   selectOption(heightSelect as HTMLSelectElement, 'heightHundred');
   selectOption(widthSelect as HTMLSelectElement, 'widthHundred');
 
   await timeout(250);
 
-  await iterateDirection(async () => {
-    await iterateBoxSizing();
-  });
+  await iterateBoxSizing();
 };
 const start = async () => {
   setTestResult(null);
 
-  console.log('init direction changes:', directionIterations);
   console.log('init size changes:', sizeIterations);
-  should.ok(directionIterations > 0, 'Initial direction observations are fired.');
   should.ok(sizeIterations > 0, 'Initial size observations are fired.');
   should.ok(appearIterations > 0, 'Initial appear observations are fired.');
 
   targetElm?.removeAttribute('style');
   await iterateDisplay();
-  await iterateDirection();
   await iterateBoxSizing(async () => {
     await iterateHeight(async () => {
       await iterateWidth(async () => {
         await iterateBorder(async () => {
-          await iterateDirection();
           await iteratePadding();
         });
       });

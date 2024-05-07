@@ -56,8 +56,6 @@ export interface Environment {
   scrollbarsOverlaid: XY<boolean>;
   /** Whether the browser supports native scrollbars hiding. */
   scrollbarsHiding: boolean;
-  /** The rtl scroll behavior of the browser. */
-  rtlScrollBehavior: { n: boolean; i: boolean };
   /** Whether the browser supports the ScrollTimeline API. */
   scrollTimeline: boolean;
   /** The default Initialization to use if nothing else is specified. */
@@ -557,7 +555,6 @@ OverlayScrollbars.env = () => {
     _nativeScrollbarsSize,
     _nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding,
-    _rtlScrollBehavior,
     _scrollTimeline,
     _staticDefaultInitialization,
     _staticDefaultOptions,
@@ -572,7 +569,6 @@ OverlayScrollbars.env = () => {
       scrollbarsSize: _nativeScrollbarsSize,
       scrollbarsOverlaid: _nativeScrollbarsOverlaid,
       scrollbarsHiding: _nativeScrollbarsHiding,
-      rtlScrollBehavior: _rtlScrollBehavior,
       scrollTimeline: _scrollTimeline,
       staticDefaultInitialization: _staticDefaultInitialization,
       staticDefaultOptions: _staticDefaultOptions,
