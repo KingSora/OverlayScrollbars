@@ -7,6 +7,8 @@ import { ClickScrollPlugin, ScrollbarsHidingPlugin, SizeObserverPlugin } from '~
 import {
   addEventListener,
   animateNumber,
+  getElementScroll,
+  getScrollCoordinatesPercent,
   getScrollCoordinatesPosition,
   getStyles,
 } from '~/support';
@@ -129,6 +131,43 @@ const scrollInstances = async () => {
   scrollInstance(osInstanceD);
 
   await timeout(100);
+
+  // dont check body as overflow is too small for accurate values
+  [osInstanceBody, osInstanceA, osInstanceB, osInstanceC, osInstanceD].forEach((osInstance) => {
+    const { scrollOffsetElement } = osInstance.elements();
+    const { scrollCoordinates } = osInstance.state();
+    const { x, y } = getScrollCoordinatesPercent(
+      {
+        _start: scrollCoordinates.start,
+        _end: scrollCoordinates.end,
+      },
+      getElementScroll(scrollOffsetElement)
+    );
+    const { target } = osInstance.elements();
+    const isBody = target === document.body;
+    const hostId = isBody ? 'body' : target.getAttribute('id')!;
+    const tollerance = isBody ? 0.1 : 0.001;
+
+    // body has to small overflow for accurate measuring...
+    if (!isBody) {
+      should.ok(
+        Math.abs(0.5 - x) < tollerance,
+        `ScrollX didnt result in correct scroll coordinates. ${x} "${hostId}"`
+      );
+      should.ok(
+        Math.abs(0.5 - y) < tollerance,
+        `ScrollY didnt result in correct scroll coordinates. ${y} "${hostId}"`
+      );
+    }
+  });
+};
+
+const updateInstances = () => {
+  osInstanceBody.update();
+  osInstanceA.update();
+  osInstanceB.update();
+  osInstanceC.update();
+  osInstanceD.update();
 };
 
 const resizeStageResizer = async () => {
@@ -296,6 +335,15 @@ const assetScrollbarClickStopsPropagation = (osInstance: OverlayScrollbars) => {
   });
 };
 
+const assertScrollCoordinates = (osInstance: OverlayScrollbars) => {
+  const { target } = osInstance.elements();
+  const { end } = osInstance.state().scrollCoordinates;
+  const hostId = target === document.body ? 'body' : target.getAttribute('id');
+
+  should(end.x).not.equal(0, `Scroll Coordinate EndX is incorrect for "${hostId}".`);
+  should(end.y).not.equal(0, `Scroll Coordinate EndY is incorrect for "${hostId}".`);
+};
+
 const runBlock = async () => {
   await assertScrollbarDirection(osInstanceA, directionRTL);
   await assertScrollbarDirection(osInstanceB, true); // instanceB has direction:rtl style
@@ -308,6 +356,24 @@ const runBlock = async () => {
   await resizeStageResizer();
 
   stageResizer!.removeAttribute('style');
+};
+
+const runScrollCoordinates = () => {
+  [osInstanceBody, osInstanceA, osInstanceB, osInstanceC, osInstanceD].forEach(
+    assertScrollCoordinates
+  );
+};
+
+const runScrollCoordinatesAfterHidden = async () => {
+  updateInstances();
+  document.documentElement.style.display = 'none';
+  updateInstances();
+  document.documentElement.style.display = '';
+  osInstanceBody.update(); // body has no appear detection because viewport is target
+
+  await timeout(500);
+
+  runScrollCoordinates();
 };
 
 directionRTLButton?.addEventListener('click', () => {
@@ -329,11 +395,7 @@ flexReverseButton?.addEventListener('click', () => {
     flexReverse = true;
   }
 
-  osInstanceA.update();
-  osInstanceB.update();
-  osInstanceC.update();
-  osInstanceD.update();
-
+  updateInstances();
   scrollInstances();
 });
 
@@ -341,6 +403,8 @@ startButton?.addEventListener('click', async () => {
   setTestResult(null);
 
   await scrollInstances();
+
+  runScrollCoordinates();
 
   // first block (ltr)
   await runBlock();
@@ -353,6 +417,9 @@ startButton?.addEventListener('click', async () => {
   await runBlock();
 
   await timeout(500);
+
+  await runScrollCoordinatesAfterHidden();
+  await scrollInstances();
 
   if (clickErrors.length > 0) {
     setTestResult(false);

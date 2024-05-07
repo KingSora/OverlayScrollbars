@@ -130,8 +130,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _end,
     };
   };
-  const getFlowDirectionStyles = () =>
-    assignDeep({}, hasDimensions(_viewport) ? getStyles(_viewport, flowDirectionStyleArr) : {});
+  const getFlowDirectionStyles = (vpHasDimensions: boolean) =>
+    assignDeep({}, vpHasDimensions ? getStyles(_viewport, flowDirectionStyleArr) : {});
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
@@ -149,7 +149,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   });
   const [updateFlowDirectionStyles] = createCache<FlowDirectionStyles>({
     _equal: (currVal, newValu) => equal(currVal, newValu, flowDirectionStyleArr),
-    _initialValue: getFlowDirectionStyles(),
+    _initialValue: {},
   });
   const [updateMeasuredScrollCoordinates, getCurrentMeasuredScrollCoordinates] =
     createCache<ScrollCoordinates>({
@@ -297,12 +297,13 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
       viewportOverflowState._overflowStyle
     );
+    const vpHasDimensions = hasDimensions(_viewport);
     const [, flowDirectionStylesChanged] = updateFlowDirectionStyles(
-      getFlowDirectionStyles(),
+      getFlowDirectionStyles(vpHasDimensions),
       _force
     );
     const adjustMeasuredScrollCoordinates =
-      _directionChanged || flowDirectionStylesChanged || _force;
+      vpHasDimensions && (_directionChanged || flowDirectionStylesChanged || _force);
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
       ? updateMeasuredScrollCoordinates(measureScrollCoordinates(overflowAmount), _force)
       : getCurrentMeasuredScrollCoordinates();
