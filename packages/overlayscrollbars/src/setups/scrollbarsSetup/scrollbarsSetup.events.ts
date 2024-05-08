@@ -18,6 +18,7 @@ import {
   setT,
   hasAttr,
   stopAndPrevent,
+  isFunction,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import {
@@ -28,6 +29,7 @@ import {
   dataAttributeViewport,
   dataValueViewportScrollbarPressed,
 } from '~/classnames';
+import type { XY } from '~/support';
 import type { ClickScrollPlugin } from '~/plugins';
 import type { ReadonlyOptions } from '~/options';
 import type { StructureSetupState } from '~/setups';
@@ -50,43 +52,47 @@ export const createScrollbarsSetupEvents = (
   structureSetupState: StructureSetupState,
   scrollbarHandlePointerInteraction: (event: PointerEvent) => void
 ): ScrollbarsSetupEvents => {
-  const {
-    _host,
-    _viewport,
-    _viewportIsTarget,
-    _scrollOffsetElement,
-    _documentElm,
-    _viewportAddRemoveClass,
-  } = structureSetupElements;
-
   return (
     scrollbarStructure,
     scrollbarsAddRemoveClass,
     refreshScrollbarStructuresHandleOffset,
     isHorizontal
   ) => {
+    const {
+      _host,
+      _viewport,
+      _viewportIsTarget,
+      _scrollOffsetElement,
+      _documentElm,
+      _viewportAddRemoveClass,
+    } = structureSetupElements;
     const { _scrollbar, _track, _handle } = scrollbarStructure;
     const [wheelTimeout, clearWheelTimeout] = selfClearTimeout(333);
-    const [requestHandleTransitionAnimationFrame, cancelHandleTransitionTimeout] =
+    const [scrollSnapScrollTransitionTimeout, clearScrollSnapScrollTransitionTimeout] =
+      selfClearTimeout(444);
+    const [requestHandleTransitionAnimationFrame, clearHandleTransitionTimeout] =
       selfClearTimeout();
     const refreshHandleOffsetTransition = bind(
       refreshScrollbarStructuresHandleOffset,
       [scrollbarStructure],
       isHorizontal
     );
-    const scrollByFn = !!_scrollOffsetElement.scrollBy;
-
-    const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY';
+    const scrollOffsetElementScrollBy = (coordinates: XY<number>) => {
+      isFunction(_scrollOffsetElement.scrollBy) &&
+        _scrollOffsetElement.scrollBy({
+          behavior: 'smooth',
+          left: coordinates.x,
+          top: coordinates.y,
+        });
+    };
     const widthHeightKey = isHorizontal ? strWidth : strHeight;
-    const leftTopKey = isHorizontal ? 'left' : 'top';
-    const whKey = isHorizontal ? 'w' : 'h';
-    const xyKey = isHorizontal ? 'x' : 'y';
-
-    const isAffectingTransition = (event: TransitionEvent) =>
-      event.propertyName.indexOf(widthHeightKey) > -1;
 
     const createInteractiveScrollEvents = () => {
       const releasePointerCaptureEvents = 'pointerup pointercancel lostpointercapture';
+      const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY';
+      const leftTopKey = isHorizontal ? 'left' : 'top';
+      const whKey = isHorizontal ? 'w' : 'h';
+      const xyKey = isHorizontal ? 'x' : 'y';
 
       const createRelativeHandleMove =
         (mouseDownScroll: number, invertedScale: number) => (deltaMovement: number) => {
@@ -116,6 +122,8 @@ export const createScrollbarsSetupEvents = (
           (pointers || []).includes(pointerType);
 
         if (continuePointerDown) {
+          clearScrollSnapScrollTransitionTimeout();
+
           const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
           const getHandleRect = bind(getBoundingClientRect, _handle);
           const getTrackRect = bind(getBoundingClientRect, _track);
@@ -140,9 +148,27 @@ export const createScrollbarsSetupEvents = (
             runEachAndClear(offFns);
             pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
           };
+          const addScrollbarPressedClass = () =>
+            _viewportAddRemoveClass(dataValueViewportScrollbarPressed, true);
+          const removeScrollbarPressedClass = addScrollbarPressedClass();
 
           const offFns = [
-            _viewportAddRemoveClass(dataValueViewportScrollbarPressed, true),
+            () => {
+              const withoutSnapScrollOffset = getElementScroll(_scrollOffsetElement);
+              removeScrollbarPressedClass();
+              const withSnapScrollOffset = getElementScroll(_scrollOffsetElement);
+              const snapScrollDiff = {
+                x: withSnapScrollOffset.x - withoutSnapScrollOffset.x,
+                y: withSnapScrollOffset.y - withoutSnapScrollOffset.y,
+              };
+
+              if (snapScrollDiff.x || snapScrollDiff.y) {
+                addScrollbarPressedClass();
+                scrollElementTo(_scrollOffsetElement, withoutSnapScrollOffset);
+                scrollOffsetElementScrollBy(snapScrollDiff);
+                scrollSnapScrollTransitionTimeout(removeScrollbarPressedClass);
+              }
+            },
             addEventListener(_documentElm, releasePointerCaptureEvents, releasePointerCapture),
             addEventListener(_documentElm, 'selectstart', (event: Event) => preventDefault(event), {
               _passive: false,
@@ -183,6 +209,8 @@ export const createScrollbarsSetupEvents = (
     };
 
     let wheelScrollBy = true;
+    const isAffectingTransition = (event: TransitionEvent) =>
+      event.propertyName.indexOf(widthHeightKey) > -1;
 
     return bind(runEachAndClear, [
       addEventListener(_handle, 'pointermove pointerleave', scrollbarHandlePointerInteraction),
@@ -214,11 +242,10 @@ export const createScrollbarsSetupEvents = (
           const { deltaX, deltaY, deltaMode } = wheelEvent;
 
           // the first wheel event is swallowed, simulate scroll to compensate for it
-          if (scrollByFn && wheelScrollBy && deltaMode === 0 && parent(_scrollbar) === _host) {
-            _scrollOffsetElement.scrollBy({
-              left: deltaX,
-              top: deltaY,
-              behavior: 'smooth',
+          if (wheelScrollBy && deltaMode === 0 && parent(_scrollbar) === _host) {
+            scrollOffsetElementScrollBy({
+              x: deltaX,
+              y: deltaY,
             });
           }
 
@@ -245,7 +272,7 @@ export const createScrollbarsSetupEvents = (
       }),
       addEventListener(_handle, 'transitionend transitioncancel', (event: TransitionEvent) => {
         if (isAffectingTransition(event)) {
-          cancelHandleTransitionTimeout();
+          clearHandleTransitionTimeout();
           refreshHandleOffsetTransition();
         }
       }),
@@ -264,7 +291,8 @@ export const createScrollbarsSetupEvents = (
       ),
       createInteractiveScrollEvents(),
       clearWheelTimeout,
-      cancelHandleTransitionTimeout,
+      clearScrollSnapScrollTransitionTimeout,
+      clearHandleTransitionTimeout,
     ]);
   };
 };

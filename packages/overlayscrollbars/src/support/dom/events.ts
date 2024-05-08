@@ -11,7 +11,7 @@ export interface EventListenerOptions {
 }
 
 export type EventListenerMap = {
-  [eventNames: string]: (event: Event) => any;
+  [eventNames: string]: ((event: any) => any) | false | null | undefined;
 };
 
 /**
@@ -42,7 +42,7 @@ export const removeEventListener = <T extends Event = Event>(
 export const addEventListener = <T extends Event = Event>(
   target: EventTarget,
   eventNames: DomTokens,
-  listener: (event: T) => any,
+  listener: ((event: T) => any) | false | null | undefined,
   options?: EventListenerOptions
 ): (() => void) => {
   const passive = (options && options._passive) ?? true;
@@ -60,7 +60,7 @@ export const addEventListener = <T extends Event = Event>(
         once
           ? (evt: T) => {
               removeEventListener(target, eventName, finalListener, capture);
-              listener(evt);
+              listener && listener(evt);
             }
           : listener
       ) as EventListener;

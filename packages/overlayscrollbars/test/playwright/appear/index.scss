@@ -61,13 +61,3 @@ body {
     display: block;
   }
 }
-
-body.nsh {
-  .os-environment-scrollbar-hidden {
-    scrollbar-width: auto !important;
-  }
-  .os-environment-scrollbar-hidden::-webkit-scrollbar,
-  .os-environment-scrollbar-hidden::-webkit-scrollbar-corner {
-    display: block !important;
-  }
-}

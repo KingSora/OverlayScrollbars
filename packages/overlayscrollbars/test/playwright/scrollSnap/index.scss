@@ -1,0 +1,70 @@
+body {
+  display: flex;
+  flex-direction: column;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+#target {
+  width: 20vw;
+  height: 20vw;
+  padding: 10vw;
+}
+ul {
+  scroll-snap-type: both mandatory;
+  overscroll-behavior: contain contain;
+}
+ul {
+  display: grid;
+  gap: 3.25vw;
+  box-sizing: border-box;
+  border: 1px solid;
+  grid-template-columns: repeat(5, 1fr);
+  background: conic-gradient(
+    at bottom left,
+    red 0deg,
+    yellow 15deg,
+    green 30deg,
+    blue 45deg,
+    purple 60deg,
+    magenta 75deg
+  );
+  background-attachment: local;
+  margin: auto;
+}
+li {
+  scroll-snap-align: center center;
+  height: 12.5vw;
+  width: 12.5vw;
+  outline: 3px inset;
+  list-style-type: none;
+  background: white;
+  font-family: monospace;
+  font-size: 3rem;
+  line-height: 12vw;
+  text-align: center;
+  counter-increment: items 1;
+}
+li::after {
+  content: counter(items);
+}
+input {
+  vertical-align: bottom;
+}
+p {
+  font-family: monospace;
+}
