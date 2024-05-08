@@ -19,10 +19,19 @@ body {
   }
 }
 
-#target {
-  width: 20vw;
-  height: 20vw;
-  padding: 10vw;
+#wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+#targetRTL {
+  direction: rtl;
+}
+
+.target {
+  width: 350px;
+  height: 350px;
+  padding: 100px;
 }
 ul {
   scroll-snap-type: both mandatory;
@@ -30,7 +39,7 @@ ul {
 }
 ul {
   display: grid;
-  gap: 3.25vw;
+  gap: 60px;
   box-sizing: border-box;
   border: 1px solid;
   grid-template-columns: repeat(5, 1fr);
@@ -48,14 +57,14 @@ ul {
 }
 li {
   scroll-snap-align: center center;
-  height: 12.5vw;
-  width: 12.5vw;
+  height: 210px;
+  width: 210px;
   outline: 3px inset;
   list-style-type: none;
   background: white;
   font-family: monospace;
   font-size: 3rem;
-  line-height: 12vw;
+  line-height: 210px;
   text-align: center;
   counter-increment: items 1;
 }
