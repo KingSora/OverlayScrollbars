@@ -18,7 +18,7 @@
 }
 
 /**
- * elements wont suddenly crop after initialization is done
+ * elements wont suddenly clip after initialization is done
  */
 
 [data-overlayscrollbars-initialize]:not([data-overlayscrollbars]):not(html):not(body) {
@@ -98,47 +98,48 @@ html[data-overlayscrollbars-body] > body {
 [data-overlayscrollbars],
 [data-overlayscrollbars-padding],
 [data-overlayscrollbars-viewport] {
-  overflow: hidden;
+  overflow: hidden !important;
+}
+
+[data-overlayscrollbars~='noClipping'],
+[data-overlayscrollbars-padding~='noClipping'] {
+  overflow: visible !important;
 }
 
 [data-overlayscrollbars-viewport~='measuring'] {
-  overflow: hidden;
+  overflow: hidden !important;
   scroll-behavior: auto !important;
   overflow-anchor: none !important;
-}
-[data-overlayscrollbars~='noClipping'],
-[data-overlayscrollbars-padding~='noClipping'] {
-  overflow: visible;
 }
 
 [data-overlayscrollbars-viewport~='overflowXVisible']:not(
     [data-overlayscrollbars-viewport~='measuring']
   ) {
-  overflow-x: visible;
+  overflow-x: visible !important;
 }
 [data-overlayscrollbars-viewport~='overflowXHidden'] {
-  overflow-x: hidden;
+  overflow-x: hidden !important;
 }
 [data-overlayscrollbars-viewport~='overflowXScroll'] {
-  overflow-x: scroll;
+  overflow-x: scroll !important;
 }
 [data-overlayscrollbars-viewport~='overflowYVisible']:not(
     [data-overlayscrollbars-viewport~='measuring']
   ) {
-  overflow-y: visible;
+  overflow-y: visible !important;
 }
 [data-overlayscrollbars-viewport~='overflowYHidden'] {
-  overflow-y: hidden;
+  overflow-y: hidden !important;
 }
 [data-overlayscrollbars-viewport~='overflowYScroll'] {
-  overflow-y: scroll;
+  overflow-y: scroll !important;
 }
 
-// use :not(#osFakeId) to increase specificity
-[data-overlayscrollbars-viewport~='noContent']:not(#osFakeId) {
+[data-overlayscrollbars-viewport~='noContent'] {
   font-size: 0 !important;
   line-height: 0 !important;
 }
+// use `:not(#osFakeId)` to increase specificity
 [data-overlayscrollbars-viewport~='noContent']:not(#osFakeId) > * {
   display: none !important;
   position: absolute !important;
@@ -164,7 +165,7 @@ html[data-overlayscrollbars-body] > body {
 /**
  * Display contents to bridge any flickering during deferred initialization.
  */
-[data-overlayscrollbars-contents]:not([data-overlayscrollbars-padding]):not(
+[data-overlayscrollbars-contents]:not(#osFakeId):not([data-overlayscrollbars-padding]):not(
     [data-overlayscrollbars-viewport]
   ):not([data-overlayscrollbars-content]) {
   display: contents;

@@ -368,10 +368,9 @@ const runScrollCoordinatesAfterHidden = async () => {
   updateInstances();
   document.documentElement.style.display = 'none';
   updateInstances();
+  await timeout(100);
   document.documentElement.style.display = '';
-  osInstanceBody.update(); // body has no appear detection because viewport is target
-
-  await timeout(500);
+  await timeout(100);
 
   runScrollCoordinates();
 };
