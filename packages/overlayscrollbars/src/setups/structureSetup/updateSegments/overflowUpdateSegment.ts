@@ -324,10 +324,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       }
     }
 
-    if (!_viewportIsTarget) {
-      addRemoveAttrClass(_host, dataAttributeHost, dataValueNoClipping, removeClipping);
-      addRemoveAttrClass(_padding, dataAttributePadding, dataValueNoClipping, removeClipping);
-    }
+    addRemoveAttrClass(_host, dataAttributeHost, dataValueNoClipping, removeClipping);
+    addRemoveAttrClass(_padding, dataAttributePadding, dataValueNoClipping, removeClipping);
 
     assignDeep(structureSetupState, {
       _overflowStyle: overflowStyle,

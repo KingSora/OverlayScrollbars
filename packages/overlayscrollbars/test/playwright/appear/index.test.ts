@@ -4,8 +4,12 @@ import { test } from '@playwright/test';
 playwrightRollup();
 
 test.describe('appear', () => {
-  test('appear', async ({ page }) => {
-    await page.click('#nsh');
+  test('default', async ({ page }) => {
+    await expectSuccess(page);
+  });
+
+  test('with autoHideSuspend', async ({ page }) => {
+    await page.click('#autoHideSuspend');
     await expectSuccess(page);
   });
 });

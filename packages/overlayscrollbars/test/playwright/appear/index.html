@@ -1,8 +1,15 @@
 <div id="controls">
   <button id="appear">Appear</button>
   <button id="hideWrapper">Hide Wrapper</button>
+  <button id="autoHideSuspend">autoHideSuspend</button>
   <button id="start">start</button>
-  <div>Appears: <span>TargetA=<span id="targetAAppearCount">0</span> <span>TargetB=<span id="targetBAppearCount">0</span></span></div>
+  <div>
+    Appears:
+    <span>TargetA=<span id="targetAAppearCount">0</span></span>
+    <span>TargetB=<span id="targetBAppearCount">0</span></span>
+    <span>TargetC=<span id="targetCAppearCount">0</span></span>
+    <span>TargetD=<span id="targetDAppearCount">0</span></span>
+  </div>
 </div>
 <div id="stage">
   <div id="wrapper" class="element">
@@ -11,6 +18,14 @@
         <div class="content"></div>
       </div>
       <div id="targetB" class="target">
+        <div class="content"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div id="targetC" class="target appear">
+        <div class="content"></div>
+      </div>
+      <div id="targetD" class="target appear">
         <div class="content"></div>
       </div>
     </div>

@@ -21,7 +21,7 @@ body {
 
 .row {
   width: 100%;
-  height: 100%;
+  height: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,6 +45,18 @@ body {
 }
 #targetB {
   background: rgba(0, 0, 255, 0.25);
+  &.appear {
+    display: block;
+  }
+}
+#targetC {
+  background: rgba(0, 255, 0, 0.25);
+  &.appear {
+    display: flex;
+  }
+}
+#targetD {
+  background: rgba(255, 0, 255, 0.25);
   &.appear {
     display: block;
   }

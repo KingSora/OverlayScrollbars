@@ -1,5 +1,6 @@
 import '~/index.scss';
 import './index.scss';
+import './handleEnvironment';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import { ScrollbarsHidingPlugin } from '~/plugins';
 import { setTestResult, timeout, waitForOrFailTest } from '@~local/browser-testing';
@@ -16,22 +17,36 @@ const hideWrapperBtn = document.querySelector<HTMLButtonElement>('#hideWrapper')
 const wrapperElement = document.querySelector<HTMLElement>('#wrapper')!;
 const targetAElement = document.querySelector<HTMLElement>('#targetA')!;
 const targetBElement = document.querySelector<HTMLElement>('#targetB')!;
+const targetCElement = document.querySelector<HTMLElement>('#targetC')!;
+const targetDElement = document.querySelector<HTMLElement>('#targetD')!;
 const targetAAppearCountSlot = document.querySelector<HTMLElement>('#targetAAppearCount')!;
 const targetBAppearCountSlot = document.querySelector<HTMLElement>('#targetBAppearCount')!;
+const targetCAppearCountSlot = document.querySelector<HTMLElement>('#targetCAppearCount')!;
+const targetDAppearCountSlot = document.querySelector<HTMLElement>('#targetDAppearCount')!;
+const autoHideSuspend = document.body.classList.contains('autoHideSuspend');
 let targetAAppearCount = 0;
 let targetBAppearCount = 0;
+let targetCAppearCount = 0;
+let targetDAppearCount = 0;
 let appeared = false;
 let wrapperHidden = false;
 
 const updateAppearCounts = () => {
   targetAAppearCountSlot.textContent = String(targetAAppearCount);
   targetBAppearCountSlot.textContent = String(targetBAppearCount);
+  targetCAppearCountSlot.textContent = String(targetCAppearCount);
+  targetDAppearCountSlot.textContent = String(targetDAppearCount);
 };
 
 // @ts-ignore
 const osInstanceA = (window.osA = OverlayScrollbars(
   targetAElement,
-  {},
+  {
+    scrollbars: {
+      autoHide: 'scroll',
+      autoHideSuspend,
+    },
+  },
   {
     updated: (_, { updateHints }) => {
       const { appear } = updateHints;
@@ -50,7 +65,12 @@ const osInstanceB = (window.osB = OverlayScrollbars(
       viewport: targetBElement,
     },
   },
-  {},
+  {
+    scrollbars: {
+      autoHide: 'move',
+      autoHideSuspend,
+    },
+  },
   {
     updated: (_, { updateHints }) => {
       const { appear } = updateHints;
@@ -61,6 +81,89 @@ const osInstanceB = (window.osB = OverlayScrollbars(
     },
   }
 ));
+// @ts-ignore
+const osInstanceC = (window.osC = OverlayScrollbars(
+  targetCElement,
+  {
+    scrollbars: {
+      autoHide: 'leave',
+      autoHideSuspend,
+    },
+  },
+  {
+    updated: (_, { updateHints }) => {
+      const { appear } = updateHints;
+      if (appear) {
+        targetCAppearCount++;
+        updateAppearCounts();
+      }
+    },
+  }
+));
+// @ts-ignore
+const osInstanceD = (window.osD = OverlayScrollbars(
+  {
+    target: targetDElement,
+    elements: {
+      viewport: targetDElement,
+    },
+  },
+  {
+    scrollbars: {
+      autoHide: 'never',
+      autoHideSuspend,
+    },
+  },
+  {
+    updated: (_, { updateHints }) => {
+      const { appear } = updateHints;
+      if (appear) {
+        targetDAppearCount++;
+        updateAppearCounts();
+      }
+    },
+  }
+));
+
+const assertScrollbarVisibility = async (
+  osInstance: OverlayScrollbars,
+  visible: boolean,
+  message: string
+) => {
+  await timeout(3000);
+
+  const { host, scrollbarHorizontal, scrollbarVertical } = osInstance.elements();
+  const hostId = host.id;
+
+  const hStyles = getStyles(scrollbarHorizontal.scrollbar, ['visibility', 'opacity']);
+  const vStyles = getStyles(scrollbarVertical.scrollbar, ['visibility', 'opacity']);
+
+  if (visible) {
+    should(hStyles.visibility).equal(
+      'visible',
+      `ScrollbarX visibility is visible. (${hostId}) [${message}]`
+    );
+    should(vStyles.visibility).equal(
+      'visible',
+      `ScrollbarY visibility is visible. (${hostId}) [${message}]`
+    );
+
+    should(hStyles.opacity).equal('1', `ScrollbarX opacity is 1. (${hostId}) [${message}]`);
+    should(vStyles.opacity).equal('1', `ScrollbarY opacity is 1. (${hostId}) [${message}]`);
+  } else {
+    should(hStyles.visibility).equal(
+      'hidden',
+      `ScrollbarX visibility is hidden. (${hostId}) [${message}]`
+    );
+    should(vStyles.visibility).equal(
+      'hidden',
+      `ScrollbarY visibility is hidden. (${hostId}) [${message}]`
+    );
+
+    should(hStyles.opacity).equal('0', `ScrollbarX opacity is 0. (${hostId}) [${message}]`);
+    should(vStyles.opacity).equal('0', `ScrollbarY opacity is 0. (${hostId}) [${message}]`);
+  }
+};
 
 const appear = async () => {
   targetAElement.classList.add('appear');
@@ -203,6 +306,8 @@ const runHideWrapper = async () => {
 
   const appearCountABefore = targetAAppearCount;
   const appearCountBBefore = targetBAppearCount;
+  const appearCountCBefore = targetCAppearCount;
+  const appearCountDBefore = targetDAppearCount;
 
   hideWrapper();
   await timeout(100);
@@ -218,18 +323,70 @@ const runHideWrapper = async () => {
       appearCountBBefore === targetBAppearCount - 1,
       'Appear count must change +1 on wrapper show. (TargetB)'
     );
+    should.ok(
+      appearCountCBefore === targetCAppearCount - 1,
+      'Appear count must change +1 on wrapper show. (TargetC)'
+    );
+    should.ok(
+      appearCountDBefore === targetDAppearCount - 1,
+      'Appear count must change +1 on wrapper show. (TargetD)'
+    );
   });
 
   checkInstanceState(osInstanceA);
   checkInstanceState(osInstanceB);
+  checkInstanceState(osInstanceC);
+  checkInstanceState(osInstanceD);
 
   await timeout(100);
+
+  const msg = 'AutoHideSuspend works correctly on appear.';
+  await Promise.all([
+    assertScrollbarVisibility(osInstanceA, autoHideSuspend, msg),
+    assertScrollbarVisibility(osInstanceB, autoHideSuspend, msg),
+    assertScrollbarVisibility(osInstanceC, autoHideSuspend, msg),
+    assertScrollbarVisibility(osInstanceD, true, msg),
+  ]);
+
+  if (autoHideSuspend) {
+    const msg2 = 'AutoHideSuspend works correctly after interaction.';
+    [osInstanceA, osInstanceB, osInstanceC, osInstanceD].forEach((osInstance) => {
+      osInstance.elements().scrollOffsetElement.scrollLeft = 9999;
+      osInstance.elements().scrollOffsetElement.scrollTop = 9999;
+    });
+
+    await Promise.all([
+      assertScrollbarVisibility(osInstanceA, false, msg2),
+      assertScrollbarVisibility(osInstanceB, false, msg2),
+      assertScrollbarVisibility(osInstanceC, false, msg2),
+      assertScrollbarVisibility(osInstanceD, true, msg2),
+    ]);
+  }
+};
+
+const runAppeared = async () => {
+  should(getStyles(targetCElement, ['display']).display).not.equal('none', `Target C is visible.`);
+  should(getStyles(targetDElement, ['display']).display).not.equal('none', `Target D is visible.`);
+
+  should(targetCAppearCount).equal(1, `Appear count is 1 after initialization. (Target C)`);
+  should(targetDAppearCount).equal(1, `Appear count is 1 after initialization. (Target D)`);
+
+  checkInstanceState(osInstanceC);
+  checkInstanceState(osInstanceD);
+
+  const msg = 'AutoHideSuspned works correctly on initialization';
+
+  await Promise.all([
+    assertScrollbarVisibility(osInstanceC, autoHideSuspend, msg),
+    assertScrollbarVisibility(osInstanceD, true, msg),
+  ]);
 };
 
 startBtn.addEventListener('click', async () => {
   setTestResult(null);
 
   try {
+    await runAppeared();
     await runAppear(0);
 
     disappear();
