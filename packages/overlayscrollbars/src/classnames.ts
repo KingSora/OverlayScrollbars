@@ -17,6 +17,7 @@ export const dataAttributeHtmlBody = `${dataAttributePrefix}-body`;
 
 // host
 export const dataAttributeHost = dataAttributePrefix;
+export const dataValueHostIsHost = 'host';
 
 // viewport
 export const dataAttributeViewport = `${dataAttributePrefix}-viewport`;

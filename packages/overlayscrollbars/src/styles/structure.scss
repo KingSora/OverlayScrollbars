@@ -49,7 +49,7 @@ html[data-overlayscrollbars-body] > body {
   position: relative;
 }
 
-[data-overlayscrollbars]:not([data-overlayscrollbars-viewport]),
+[data-overlayscrollbars~='host'], // `~="host"` is only needed because `[data-overlayscrollbars]:not([data-overlayscrollbars-viewport])` specificity is too high
 [data-overlayscrollbars-padding] {
   display: flex;
   align-items: stretch !important;
@@ -154,6 +154,7 @@ html[data-overlayscrollbars-body] > body {
 
 [data-overlayscrollbars-viewport~='scrollbarPressed'] {
   scroll-behavior: auto !important;
+  // scroll-snap-type: none !important;
 }
 
 [data-overlayscrollbars-content] {

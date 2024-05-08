@@ -72,9 +72,7 @@ export const createSizeObserver = (
           sizeChangedContext.contentRect
         );
         const hasDimensions = domRectHasDimensions(currRContentRect);
-        const appeared = domRectAppeared(currRContentRect, prevContentRect);
-        const firstCall = !prevContentRect;
-        appear = firstCall || appeared;
+        appear = domRectAppeared(currRContentRect, prevContentRect);
         skip = !appear && !hasDimensions; // skip if display is none or when window resize
       }
       // else if it triggered with appear from polyfill

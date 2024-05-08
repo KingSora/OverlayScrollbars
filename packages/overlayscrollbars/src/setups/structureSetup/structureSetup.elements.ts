@@ -32,6 +32,7 @@ import {
   dataAttributePadding,
   dataAttributeContent,
   dataAttributeHtmlBody,
+  dataValueHostIsHost,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import {
@@ -208,7 +209,7 @@ export const createStructureSetupElements = (
     const tabIndexStr = 'tabindex';
     const ogTabindex = getAttr(_viewport, tabIndexStr);
     const undoInitWrapUndwrapFocus = prepareWrapUnwrapFocus(initActiveElm);
-    setAttrs(_host, dataAttributeHost, '');
+    setAttrs(_host, dataAttributeHost, viewportIsTarget ? '' : dataValueHostIsHost);
     setAttrs(_padding, dataAttributePadding, '');
     setAttrs(_viewport, dataAttributeViewport, '');
     setAttrs(_content, dataAttributeContent, '');

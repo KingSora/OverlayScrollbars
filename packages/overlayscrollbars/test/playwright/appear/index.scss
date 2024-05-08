@@ -1,0 +1,61 @@
+body {
+  display: flex;
+  flex-direction: column;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+.row {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.target {
+  width: 50%;
+  height: 100%;
+  display: none;
+}
+.content {
+  width: 300%;
+  height: 300%;
+}
+
+#targetA {
+  background: rgba(255, 0, 0, 0.25);
+  &.appear {
+    display: flex;
+  }
+}
+#targetB {
+  background: rgba(0, 0, 255, 0.25);
+  &.appear {
+    display: block;
+  }
+}
+
+body.nsh {
+  .os-environment-scrollbar-hidden {
+    scrollbar-width: auto !important;
+  }
+  .os-environment-scrollbar-hidden::-webkit-scrollbar,
+  .os-environment-scrollbar-hidden::-webkit-scrollbar-corner {
+    display: block !important;
+  }
+}

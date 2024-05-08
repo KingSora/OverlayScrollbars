@@ -99,7 +99,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       h: amount.h > tollerance ? amount.h : 0,
     };
   };
-  const measureScrollCoordinates = (overflowAmount: WH<number>): ScrollCoordinates => {
+  const measureScrollCoordinates = (): ScrollCoordinates => {
     const originalScrollOffset = getElementScroll(_scrollOffsetElement);
     const removeNoContent = _viewportAddRemoveClass(dataValueViewportNoContent, true);
 
@@ -110,16 +110,17 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     removeNoContent();
 
     const _start = getElementScroll(_scrollOffsetElement);
+    const scrollSize = getScrollSize(_scrollOffsetElement);
     scrollElementTo(_scrollOffsetElement, {
-      x: overflowAmount.w,
-      y: overflowAmount.h,
+      x: scrollSize.w,
+      y: scrollSize.h,
     });
 
     const tmp = getElementScroll(_scrollOffsetElement);
     scrollElementTo(_scrollOffsetElement, {
       // if tmp is very close start there porbably wasn't any scroll happening so scroll again in different direction
-      x: tmp.x - _start.x < 1 && -overflowAmount.w,
-      y: tmp.y - _start.y < 1 && -overflowAmount.h,
+      x: tmp.x - _start.x < 1 && -scrollSize.w,
+      y: tmp.y - _start.y < 1 && -scrollSize.h,
     });
 
     const _end = getElementScroll(_scrollOffsetElement);
@@ -130,8 +131,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _end,
     };
   };
-  const getFlowDirectionStyles = (vpHasDimensions: boolean) =>
-    assignDeep({}, vpHasDimensions ? getStyles(_viewport, flowDirectionStyleArr) : {});
+  const getFlowDirectionStyles = () =>
+    assignDeep({}, hasDimensions(_viewport) ? getStyles(_viewport, flowDirectionStyleArr) : {});
 
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
@@ -192,7 +193,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     { _checkOption, _observersUpdateHints, _observersState, _force },
     { _paddingStyleChanged }
   ) => {
-    const { _sizeChanged, _contentMutation, _directionChanged, _scrollbarSizeChanged } =
+    const { _sizeChanged, _contentMutation, _directionChanged, _appear, _scrollbarSizeChanged } =
       _observersUpdateHints || {};
     const scrollbarsHidingPluginViewportArrangement =
       scrollbarsHidingPlugin &&
@@ -297,15 +298,15 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
       viewportOverflowState._overflowStyle
     );
-    const vpHasDimensions = hasDimensions(_viewport);
     const [, flowDirectionStylesChanged] = updateFlowDirectionStyles(
-      getFlowDirectionStyles(vpHasDimensions),
+      getFlowDirectionStyles(),
       _force
     );
+
     const adjustMeasuredScrollCoordinates =
-      vpHasDimensions && (_directionChanged || flowDirectionStylesChanged || _force);
+      _directionChanged || _appear || flowDirectionStylesChanged || _force;
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
-      ? updateMeasuredScrollCoordinates(measureScrollCoordinates(overflowAmount), _force)
+      ? updateMeasuredScrollCoordinates(measureScrollCoordinates(), _force)
       : getCurrentMeasuredScrollCoordinates();
 
     if (adjustViewportStyle) {
