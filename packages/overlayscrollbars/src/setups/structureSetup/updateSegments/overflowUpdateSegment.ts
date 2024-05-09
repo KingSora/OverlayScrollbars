@@ -309,8 +309,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _force
     );
 
+    // overflowStyleChanged is important here because otherwise we possibly don't catch "hasOverflowChanged" changes which influence the scrollCoordinates
     const adjustMeasuredScrollCoordinates =
-      _directionChanged || _appear || flowDirectionStylesChanged || _force;
+      _directionChanged || _appear || flowDirectionStylesChanged || overflowStyleChanged || _force;
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
       ? updateMeasuredScrollCoordinates(measureScrollCoordinates(), _force)
       : getCurrentMeasuredScrollCoordinates();

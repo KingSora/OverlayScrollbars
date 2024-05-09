@@ -588,6 +588,22 @@ const checkMetrics = async (checkComparison: CheckComparisonObj) => {
       );
     }
 
+    // ==== scroll coordinates:
+
+    const { scrollCoordinates, overflowAmount } = osInstance.state();
+    const { start, end } = scrollCoordinates;
+
+    should.equal(
+      Math.abs(start.x + end.x),
+      overflowAmount.x,
+      'OverflowAmountX and ScrollCoordinatesX matches.'
+    );
+    should.equal(
+      Math.abs(start.y + end.y),
+      overflowAmount.y,
+      'OverflowAmountY and ScrollCoordinatesY matches.'
+    );
+
     await timeout(1);
   });
 };
@@ -890,8 +906,7 @@ const start = async () => {
 
     setTestResult(true);
   } catch (e: any) {
-    const { scrollbarsSize, scrollbarsOverlaid, scrollbarsHiding, rtlScrollBehavior } =
-      OverlayScrollbars.env();
+    const { scrollbarsSize, scrollbarsOverlaid, scrollbarsHiding } = OverlayScrollbars.env();
     console.error(
       e.message,
       {
@@ -905,7 +920,6 @@ const start = async () => {
           scrollbarsSize,
           scrollbarsOverlaid,
           scrollbarsHiding,
-          rtlScrollBehavior,
         },
         opts: targetOptionsSlot!.textContent,
         flags: document.body.getAttribute('class'),
