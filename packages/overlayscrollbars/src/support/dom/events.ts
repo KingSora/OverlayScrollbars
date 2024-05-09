@@ -10,6 +10,8 @@ export interface EventListenerOptions {
   _once?: boolean;
 }
 
+export type EventListenerTarget = EventTarget | false | null | undefined;
+
 export type EventListenerMap = {
   [eventNames: string]: ((event: any) => any) | false | null | undefined;
 };
@@ -22,13 +24,13 @@ export type EventListenerMap = {
  * @param capture The options of the removed listener.
  */
 export const removeEventListener = <T extends Event = Event>(
-  target: EventTarget,
+  target: EventListenerTarget,
   eventNames: DomTokens,
   listener: (event: T) => any,
   capture?: boolean
 ): void => {
   each(getDomTokensArray(eventNames), (eventName) => {
-    target.removeEventListener(eventName, listener as EventListener, capture);
+    target && target.removeEventListener(eventName, listener as EventListener, capture);
   });
 };
 
@@ -40,7 +42,7 @@ export const removeEventListener = <T extends Event = Event>(
  * @param options The options of the added listener.
  */
 export const addEventListener = <T extends Event = Event>(
-  target: EventTarget,
+  target: EventListenerTarget,
   eventNames: DomTokens,
   listener: ((event: T) => any) | false | null | undefined,
   options?: EventListenerOptions
@@ -65,7 +67,7 @@ export const addEventListener = <T extends Event = Event>(
           : listener
       ) as EventListener;
 
-      target.addEventListener(eventName, finalListener, nativeOptions);
+      target && target.addEventListener(eventName, finalListener, nativeOptions);
       return bind(removeEventListener, target, eventName, finalListener, capture);
     })
   );
@@ -78,7 +80,7 @@ export const addEventListener = <T extends Event = Event>(
  * @param options The options of the added listeners.
  */
 export const addEventListeners = (
-  target: EventTarget,
+  target: EventListenerTarget,
   eventListenerMap: EventListenerMap,
   options?: EventListenerOptions
 ): (() => void) =>

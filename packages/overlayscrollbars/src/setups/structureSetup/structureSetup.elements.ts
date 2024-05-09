@@ -18,7 +18,6 @@ import {
   addRemoveAttrClass,
   setAttrs,
   getAttr,
-  noop,
   stopPropagation,
   isBodyElement,
   getFocusedElement,
@@ -192,20 +191,9 @@ export const createStructureSetupElements = (
     };
     // wrapping / unwrapping will cause the focused element to blur, this should prevent those events to surface
     const prepareWrapUnwrapFocus = (activeElement?: Element | null) =>
-      activeElement
-        ? addEventListener(
-            activeElement,
-            'focusin focusout focus blur',
-            (event) => {
-              stopPropagation(event);
-              event.stopImmediatePropagation();
-            },
-            {
-              _capture: true,
-              _passive: false,
-            }
-          )
-        : noop;
+      addEventListener(activeElement, 'focusin focusout focus blur', stopPropagation, {
+        _capture: true,
+      });
     const tabIndexStr = 'tabindex';
     const ogTabindex = getAttr(_viewport, tabIndexStr);
     const undoInitWrapUndwrapFocus = prepareWrapUnwrapFocus(initActiveElm);

@@ -19,6 +19,7 @@ import {
   hasAttr,
   stopAndPrevent,
   isFunction,
+  mathAbs,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import {
@@ -162,7 +163,7 @@ export const createScrollbarsSetupEvents = (
                 y: withSnapScrollOffset.y - withoutSnapScrollOffset.y,
               };
 
-              if (snapScrollDiff.x || snapScrollDiff.y) {
+              if (mathAbs(snapScrollDiff.x) > 3 || mathAbs(snapScrollDiff.y) > 3) {
                 addScrollbarPressedClass();
                 scrollElementTo(_scrollOffsetElement, withoutSnapScrollOffset);
                 scrollOffsetElementScrollBy(snapScrollDiff);
