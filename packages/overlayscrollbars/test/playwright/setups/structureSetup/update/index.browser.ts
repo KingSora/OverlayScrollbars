@@ -879,11 +879,6 @@ const start = async () => {
   target?.removeAttribute('style');
 
   try {
-    await overflowTest({ overflow: { x: 'visible', y: 'visible' } });
-    await overflowTest({ overflow: { x: 'hidden', y: 'scroll' } });
-    await overflowTest({ overflow: { x: 'visible-hidden', y: 'scroll' } });
-    await overflowTest({ overflow: { x: 'scroll', y: 'visible-scroll' } });
-
     await overflowTest();
 
     osInstance.options({ paddingAbsolute: !initialPaddingAbsolute });
@@ -891,6 +886,11 @@ const start = async () => {
     await overflowTest();
 
     osInstance.options({ paddingAbsolute: initialPaddingAbsolute });
+
+    await overflowTest({ overflow: { x: 'visible', y: 'visible' } });
+    await overflowTest({ overflow: { x: 'hidden', y: 'scroll' } });
+    await overflowTest({ overflow: { x: 'visible-hidden', y: 'scroll' } });
+    await overflowTest({ overflow: { x: 'scroll', y: 'visible-scroll' } });
 
     if (!isFastTestRun) {
       await overflowTest({ overflow: { x: 'visible-scroll', y: 'visible-hidden' } });
