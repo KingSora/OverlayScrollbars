@@ -86,6 +86,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _equal: equalWH,
     _initialValue: { w: 0, h: 0 },
   };
+  const partialXYOptions = {
+    _equal: equalXY,
+    _initialValue: {},
+  };
   const getOverflowAmount = (
     viewportScrollSize: WH<number>,
     viewportClientSize: WH<number>
@@ -149,11 +153,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   >(whCacheOptions, bind(getScrollSize, _viewport));
   const [updateOverflowAmountCache, getCurrentOverflowAmountCache] =
     createCache<WH<number>>(whCacheOptions);
+  const [updateHasOverflowCache] = createCache<Partial<XY<boolean>>>(partialXYOptions);
   const [updateOverflowEdge, getCurrentOverflowEdgeCache] = createCache<WH<number>>(whCacheOptions);
-  const [updateOverflowStyleCache] = createCache<Partial<XY<OverflowStyle>>>({
-    _equal: equalXY,
-    _initialValue: {},
-  });
+  const [updateOverflowStyleCache] = createCache<Partial<XY<OverflowStyle>>>(partialXYOptions);
   const [updateFlowDirectionStyles] = createCache<FlowDirectionStyles>({
     _equal: (currVal, newValu) => equal(currVal, newValu, flowDirectionStyleArr),
     _initialValue: {},
@@ -281,10 +283,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
     const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
     const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
-    const hasOverflow = {
+    const [hasOverflow, hasOverflowChanged] = updateHasOverflowCache({
       x: overflowAmount.w > 0,
       y: overflowAmount.h > 0,
-    };
+    });
     const removeClipping =
       (overflowXVisible && overflowYVisible && (hasOverflow.x || hasOverflow.y)) ||
       (overflowXVisible && hasOverflow.x && !hasOverflow.y) ||
@@ -309,9 +311,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _force
     );
 
-    // overflowStyleChanged is important here because otherwise we possibly don't catch "hasOverflowChanged" changes which influence the scrollCoordinates
     const adjustMeasuredScrollCoordinates =
-      _directionChanged || _appear || flowDirectionStylesChanged || overflowStyleChanged || _force;
+      _directionChanged || _appear || flowDirectionStylesChanged || hasOverflowChanged || _force;
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
       ? updateMeasuredScrollCoordinates(measureScrollCoordinates(), _force)
       : getCurrentMeasuredScrollCoordinates();

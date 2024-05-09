@@ -33,14 +33,14 @@ export const overflowIsVisible = (overflowBehavior: string) =>
  * @returns A object which represents the newly set overflow state.
  */
 export const createViewportOverflowState = (
-  hasOverflow: XY<boolean>,
+  hasOverflow: Partial<XY<boolean>>,
   overflowBehavior: XY<OverflowBehavior>
 ): ViewportOverflowState => {
   const getAxisOverflowStyle = (
     axisBehavior: OverflowBehavior,
-    axisHasOverflow: boolean,
+    axisHasOverflow: boolean | undefined,
     perpendicularBehavior: OverflowBehavior,
-    perpendicularOverflow: boolean
+    perpendicularOverflow: boolean | undefined
   ): OverflowStyle => {
     // convert behavior to style:
     // 'visible'        -> 'hidden'
