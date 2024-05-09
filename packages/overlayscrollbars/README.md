@@ -39,6 +39,7 @@ I created this plugin because I hate ugly and space consuming scrollbars. Simila
  - Automatic update detection - **no polling**
  - Usage of latest browser features - best **performance** in new browsers
  - Flow independent - supports all values for `direction`, `flex-direction` and `writing-mode`
+ - Supports Scroll Snapping
  - Supports all **virtual scrolling** libraries
  - Supports the `body` element
  - Simple and effective scrollbar styling
@@ -387,7 +388,7 @@ The [`PointerTypes`](https://developer.mozilla.org/en-US/docs/Web/API/PointerEve
 
 ```ts
 // The options of a OverlayScrollbars instance.
-export type Options = {
+type Options = {
   // Whether the padding shall be absolute.
   paddingAbsolute: boolean;
   // Whether to show the native scrollbars. Has only an effect it the native scrollbars are overlaid.
@@ -509,7 +510,7 @@ Is dispatched by scrolling the viewport.
 
 ```ts
 // A mapping between event names and their listener arguments.
-export type EventListenerArgs = {
+type EventListenerArgs = {
   // Dispatched after all elements are initialized and appended.
   initialized: [instance: OverlayScrollbars];
   // Dispatched after an update.
@@ -520,7 +521,7 @@ export type EventListenerArgs = {
   scroll: [instance: OverlayScrollbars, event: Event];
 };
 
-export interface OnUpdatedEventListenerArgs {
+interface OnUpdatedEventListenerArgs {
   // Hints which describe what changed in the DOM.
   updateHints: {
     // Whether the size of the host element changed.
@@ -535,6 +536,8 @@ export interface OnUpdatedEventListenerArgs {
     overflowAmountChanged: boolean;
     // Whether the overflow style changed.
     overflowStyleChanged: boolean;
+    // Whether the scroll coordinates changed.
+    scrollCoordinatesChanged: boolean;
     // Whether an host mutation took place.
     hostMutation: boolean;
     // Whether an content mutation took place.
@@ -734,6 +737,13 @@ const osInstance = OverlayScrollbars(document.body, {});
     overflowStyle: XY<OverflowStyle>;
     // Whether the viewport has an overflow.
     hasOverflow: XY<boolean>;
+    // The scroll coordinates of the viewport.
+    scrollCoordinates: {
+      // The start (origin) scroll coordinates for each axis.
+      start: XY<number>;
+      // The end scroll coordinates for each axis.
+      end: XY<number>;
+    };
     // Whether the direction is considered rtl.
     directionRTL: boolean;
     // Whether the instance is considered destroyed.
@@ -1164,7 +1174,7 @@ instancePluginInstance.count; // 1
 
 ```ts
 // Describes a OverlayScrollbar plugin.
-export type Plugin<
+type Plugin<
   // the name of the plugin
   Name extends string = string,
   // the module instance type of the static module
@@ -1176,22 +1186,22 @@ export type Plugin<
 };
 
 // Describes a OverlayScrollbar plugin which has only a static module.
-export type StaticPlugin<
+type StaticPlugin<
   Name extends string = string,
   T extends PluginModuleInstance = PluginModuleInstance
 > = Plugin<Name, T, void>;
 
 // Describes a OverlayScrollbar plugin which has only a instance module.
-export type InstancePlugin<
+type InstancePlugin<
   Name extends string = string,
   T extends PluginModuleInstance = PluginModuleInstance
 > = Plugin<Name, void, T>;
 
 // Infers the type of the static modules instance of the passed plugin.
-export type InferStaticPluginModuleInstance<T extends StaticPlugin>;
+type InferStaticPluginModuleInstance<T extends StaticPlugin>;
 
 // Infers the type of the instance modules instance of the passed plugin.
-export type InferInstancePluginModuleInstance<T extends InstancePlugin>;
+type InferInstancePluginModuleInstance<T extends InstancePlugin>;
 ```
 
 </details>

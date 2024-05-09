@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.8.0
+
+### Breaking Changes
+
+- Although not a major release, I've decided to remove the `rtlScrollBehavior` field from the `Environment` object. The reason for it is a switch of how the library now detects scroll coordinates for non default flow directions. The replacement for this field is the `scrollCoordinates` field of the `state` object for each instance.
+
+### Features
+
+- Support non default flow directions (block and inline) not only `direction: rtl`. [#625](https://github.com/KingSora/OverlayScrollbars/issues/625)
+- A new field `scrollCoordinates` in the `state` object. It indicates the min. and max. scroll coordinates for the viewport. (useful for non default flow direction scrolling)
+- A new field `scrollCoordinatesChanged` in the `updateHints` object. It indicates whether the scroll coordinates changed in an update.
+
+### Improvements
+
+- Fix a Firefox only behavior where releasing a scrollbar handle over an anchor would trigger the anchor and navigate to it.
+- Change `zoom` detection: instead of the `window.resize` event, the `window.matchMedia` event is used.
+- Greatly improve how dragging and releasing the scrollbar handle behaves for `scroll-snapped` viewports. 
+
+### Bug Fixes
+
+- Fix a bug here pointer capture was released too early for wacom pen devices. [#630](https://github.com/KingSora/OverlayScrollbars/issues/630)
+
 ## 2.7.3
 
 ### Improvements
