@@ -1,7 +1,7 @@
 import {
   scrollElementTo,
   getElementScroll,
-  sanatizeScrollCoordinates,
+  sanitizeScrollCoordinates,
   isDefaultDirectionScrollCoordinates,
   getScrollCoordinatesPercent,
   getScrollCoordinatesPosition,
@@ -75,9 +75,9 @@ describe('dom scroll', () => {
     });
   });
 
-  describe('sanatizeScrollCoordinates', () => {
+  describe('sanitizeScrollCoordinates', () => {
     test('everything is zero', () => {
-      const { _start, _end } = sanatizeScrollCoordinates(
+      const { _start, _end } = sanitizeScrollCoordinates(
         {
           _start: { x: 0, y: 0 },
           _end: { x: 0, y: 0 },
@@ -93,7 +93,7 @@ describe('dom scroll', () => {
     });
 
     test('overflow amount is zero', () => {
-      const { _start, _end } = sanatizeScrollCoordinates(
+      const { _start, _end } = sanitizeScrollCoordinates(
         {
           _start: { x: -123, y: 531 },
           _end: { x: 23, y: -11 },
@@ -109,7 +109,7 @@ describe('dom scroll', () => {
     });
 
     test('overflow amount is smaller than scroll coordinate', () => {
-      const positive = sanatizeScrollCoordinates(
+      const positive = sanitizeScrollCoordinates(
         {
           _start: { x: 0, y: 200 },
           _end: { x: 200, y: 0 },
@@ -123,7 +123,7 @@ describe('dom scroll', () => {
       expect(positive._start).toEqual({ x: 0, y: 100 });
       expect(positive._end).toEqual({ x: 100, y: 0 });
 
-      const negative = sanatizeScrollCoordinates(
+      const negative = sanitizeScrollCoordinates(
         {
           _start: { x: 0, y: -200 },
           _end: { x: -200, y: 0 },
@@ -139,7 +139,7 @@ describe('dom scroll', () => {
     });
 
     test('overflow amount is greater than scroll coordinate', () => {
-      const positive = sanatizeScrollCoordinates(
+      const positive = sanitizeScrollCoordinates(
         {
           _start: { x: 0, y: 100 },
           _end: { x: 100, y: 0 },
@@ -153,7 +153,7 @@ describe('dom scroll', () => {
       expect(positive._start).toEqual({ x: 0, y: 200 });
       expect(positive._end).toEqual({ x: 200, y: 0 });
 
-      const negative = sanatizeScrollCoordinates(
+      const negative = sanitizeScrollCoordinates(
         {
           _start: { x: 0, y: -100 },
           _end: { x: -100, y: 0 },
@@ -169,7 +169,7 @@ describe('dom scroll', () => {
     });
 
     test('start is smaller than end', () => {
-      const { _start, _end } = sanatizeScrollCoordinates(
+      const { _start, _end } = sanitizeScrollCoordinates(
         {
           _start: { x: 0, y: 0 },
           _end: { x: 999, y: -999 },
@@ -185,7 +185,7 @@ describe('dom scroll', () => {
     });
 
     test('start is greater than end', () => {
-      const { _start, _end } = sanatizeScrollCoordinates(
+      const { _start, _end } = sanitizeScrollCoordinates(
         {
           _start: { x: 999, y: -999 },
           _end: { x: 0, y: 0 },
@@ -200,8 +200,68 @@ describe('dom scroll', () => {
       expect(_end).toEqual({ x: 0, y: 0 });
     });
 
+    test('start equals end', () => {
+      const { _start: startA, _end: endA } = sanitizeScrollCoordinates(
+        {
+          _start: { x: 999, y: 999 },
+          _end: { x: 999, y: 999 },
+        },
+        {
+          w: 999,
+          h: 999,
+        }
+      );
+
+      expect(startA).toEqual({ x: 0, y: 0 });
+      expect(endA).toEqual({ x: 999, y: 999 });
+
+      const { _start: startB, _end: endB } = sanitizeScrollCoordinates(
+        {
+          _start: { x: -999, y: -999 },
+          _end: { x: -999, y: -999 },
+        },
+        {
+          w: 999,
+          h: 999,
+        }
+      );
+
+      expect(startB).toEqual({ x: 0, y: 0 });
+      expect(endB).toEqual({ x: -999, y: -999 });
+    });
+
+    test('start and end is not 0', () => {
+      const { _start: startA, _end: endA } = sanitizeScrollCoordinates(
+        {
+          _start: { x: 200, y: -200 },
+          _end: { x: 999, y: -999 },
+        },
+        {
+          w: 999,
+          h: 999,
+        }
+      );
+
+      expect(startA).toEqual({ x: 0, y: 0 });
+      expect(endA).toEqual({ x: 999, y: -999 });
+
+      const { _start: startB, _end: endB } = sanitizeScrollCoordinates(
+        {
+          _start: { x: 999, y: -999 },
+          _end: { x: 200, y: -200 },
+        },
+        {
+          w: 999,
+          h: 999,
+        }
+      );
+
+      expect(startB).toEqual({ x: 999, y: -999 });
+      expect(endB).toEqual({ x: 0, y: 0 });
+    });
+
     test('closest axis coordinate is set to zero if start and end dont have zero', () => {
-      const startGreater = sanatizeScrollCoordinates(
+      const startGreater = sanitizeScrollCoordinates(
         {
           _start: { x: 999, y: -999 },
           _end: { x: 555, y: -555 },
@@ -215,7 +275,7 @@ describe('dom scroll', () => {
       expect(startGreater._start).toEqual({ x: 999, y: -999 });
       expect(startGreater._end).toEqual({ x: 0, y: 0 });
 
-      const endGreater = sanatizeScrollCoordinates(
+      const endGreater = sanitizeScrollCoordinates(
         {
           _start: { x: -555, y: 555 },
           _end: { x: -999, y: 999 },

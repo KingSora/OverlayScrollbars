@@ -20,7 +20,7 @@ import {
   strScroll,
   scrollElementTo,
   getElementScroll,
-  sanatizeScrollCoordinates,
+  sanitizeScrollCoordinates,
   getStyles,
   equal,
   getZeroScrollCoordinates,
@@ -346,7 +346,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         y: overflowAmount.h,
       },
       _hasOverflow: hasOverflow,
-      _scrollCoordinates: sanatizeScrollCoordinates(scrollCoordinates, overflowAmount),
+      _scrollCoordinates: sanitizeScrollCoordinates(scrollCoordinates, overflowAmount),
     });
 
     return {

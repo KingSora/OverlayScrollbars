@@ -33,11 +33,11 @@ body {
   height: 350px;
   padding: 100px;
 }
-ul {
+.viewport {
   scroll-snap-type: both mandatory;
   overscroll-behavior: contain contain;
 }
-ul {
+.viewport {
   display: grid;
   gap: 60px;
   box-sizing: border-box;
@@ -55,7 +55,7 @@ ul {
   background-attachment: local;
   margin: auto;
 }
-li {
+.item {
   scroll-snap-align: center center;
   height: 210px;
   width: 210px;
@@ -68,7 +68,7 @@ li {
   text-align: center;
   counter-increment: items 1;
 }
-li::after {
+.item::after {
   content: counter(items);
 }
 input {

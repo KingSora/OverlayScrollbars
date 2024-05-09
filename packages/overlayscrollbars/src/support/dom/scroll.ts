@@ -49,7 +49,7 @@ export const getZeroScrollCoordinates = (): ScrollCoordinates => ({
  * @param overflowAmount The overflow amount.
  * @returns
  */
-export const sanatizeScrollCoordinates = (
+export const sanitizeScrollCoordinates = (
   rawScrollCoordinates: ScrollCoordinates,
   overflowAmount: WH<number>
 ) => {
@@ -66,6 +66,10 @@ export const sanatizeScrollCoordinates = (
       newEnd = startAbs > endAbs ? 0 : newEnd;
       newStart = startAbs < endAbs ? 0 : newStart;
     }
+
+    // in doubt set start to 0
+    newStart = newStart === newEnd ? 0 : newStart;
+
     return [newStart + 0, newEnd + 0] as const; // "+ 0" prevents "-0" to be in the result
   };
 
