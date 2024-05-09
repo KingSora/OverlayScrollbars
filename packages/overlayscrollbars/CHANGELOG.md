@@ -4,12 +4,12 @@
 
 ### Breaking Changes
 
-- Although not a major release, I've decided to remove the `rtlScrollBehavior` field from the `Environment` object. The reason for it is a switch of how the library now detects scroll coordinates for non default flow directions. The replacement for this field is the `scrollCoordinates` field of the `state` object for each instance.
+- Although not a major release, I've decided to remove the `rtlScrollBehavior` field from the `Environment` object. The reason for it is a switch of how the library now detects scroll coordinates for non default flow directions. The replacement for this field is the `scrollCoordinates` field of the `State` object for each instance.
 
 ### Features
 
 - Support non default flow directions (block and inline) not only `direction: rtl`. [#625](https://github.com/KingSora/OverlayScrollbars/issues/625)
-- A new field `scrollCoordinates` in the `state` object. It indicates the min. and max. scroll coordinates for the viewport. (useful for non default flow direction scrolling)
+- A new field `scrollCoordinates` in the `State` object. It indicates the min. and max. scroll coordinates for the viewport. (useful for non default flow direction scrolling)
 - A new field `scrollCoordinatesChanged` in the `updateHints` object. It indicates whether the scroll coordinates changed in an update.
 
 ### Improvements
