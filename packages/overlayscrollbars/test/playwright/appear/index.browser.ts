@@ -407,8 +407,13 @@ startBtn.addEventListener('click', async () => {
     await runHideWrapper();
 
     setTestResult(true);
-  } catch (exception) {
+  } catch (e: any) {
     setTestResult(false);
-    throw exception;
+    console.error(e.message, {
+      expected: e.expected,
+      actual: e.actual,
+      operator: e.operator,
+    });
+    throw e;
   }
 });
