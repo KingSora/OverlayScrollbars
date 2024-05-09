@@ -337,11 +337,21 @@ const assetScrollbarClickStopsPropagation = (osInstance: OverlayScrollbars) => {
 
 const assertScrollCoordinates = (osInstance: OverlayScrollbars) => {
   const { target } = osInstance.elements();
-  const { end } = osInstance.state().scrollCoordinates;
   const hostId = target === document.body ? 'body' : target.getAttribute('id');
 
-  should(end.x).not.equal(0, `Scroll Coordinate EndX is incorrect for "${hostId}".`);
-  should(end.y).not.equal(0, `Scroll Coordinate EndY is incorrect for "${hostId}".`);
+  const { scrollCoordinates, overflowAmount } = osInstance.state();
+  const { start, end } = scrollCoordinates;
+
+  should.equal(
+    Math.abs(start.x + end.x),
+    overflowAmount.x,
+    `OverflowAmountX and ScrollCoordinatesX matches for "${hostId}".`
+  );
+  should.equal(
+    Math.abs(start.y + end.y),
+    overflowAmount.y,
+    `OverflowAmountY and ScrollCoordinatesY matches for "${hostId}".`
+  );
 };
 
 const runBlock = async () => {

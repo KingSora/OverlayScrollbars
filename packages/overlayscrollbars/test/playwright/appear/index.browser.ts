@@ -211,6 +211,7 @@ const updateInstances = (force?: boolean) => {
 const checkInstanceState = (osInstance: OverlayScrollbars, before?: boolean) => {
   const { host } = osInstance.elements();
   const { scrollCoordinates, overflowAmount, hasOverflow } = osInstance.state();
+  const { start, end } = scrollCoordinates;
   const beforeAfter = before ? 'before' : 'after';
   const hostId = host.id;
 
@@ -233,13 +234,13 @@ const checkInstanceState = (osInstance: OverlayScrollbars, before?: boolean) => 
     );
   }
 
-  should(scrollCoordinates.end.x).equal(
+  should(Math.abs(start.x + end.x)).equal(
     overflowAmount.x,
-    `Scroll Coordinates for EndX must equal overflow amount ${beforeAfter} appear. (${hostId})`
+    `ScrollCoordinatesX must equal overflowAmountX ${beforeAfter} appear. (${hostId})`
   );
-  should(scrollCoordinates.end.y).equal(
+  should(Math.abs(start.y + end.y)).equal(
     overflowAmount.y,
-    `Scroll Coordinates for EndY must equal overflow amount ${beforeAfter} appear. (${hostId})`
+    `ScrollCoordinatesY must equal overflowAmountY ${beforeAfter} appear. (${hostId})`
   );
 };
 
