@@ -1,10 +1,13 @@
 import { getEnvironment } from '~/environment';
 import {
+  addEventListener,
   assignDeep,
   each,
   getElementScroll,
   getZeroScrollCoordinates,
   scrollElementTo,
+  selfClearTimeout,
+  stopPropagation,
   strHidden,
   strMarginBottom,
   strMarginLeft,
@@ -13,6 +16,7 @@ import {
   strPaddingLeft,
   strPaddingRight,
   strPaddingTop,
+  strScroll,
   type TRBL,
   type XY,
 } from '~/support';
@@ -78,6 +82,7 @@ export type CreateStructureUpdateSegment = (
 
 export const createStructureSetup = (target: InitializationTarget): StructureSetup => {
   const [elements, appendStructureElements, canceled] = createStructureSetupElements(target);
+  const [requestRemoveScrollBlockFrame] = selfClearTimeout();
   const state: StructureSetupState = {
     _padding: {
       t: 0,
@@ -107,7 +112,13 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     },
     _scrollCoordinates: getZeroScrollCoordinates(),
   };
-  const { _target, _scrollOffsetElement, _viewportIsTarget, _viewportAddRemoveClass } = elements;
+  const {
+    _target,
+    _scrollEventElement,
+    _scrollOffsetElement,
+    _viewportIsTarget,
+    _viewportAddRemoveClass,
+  } = elements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } = getEnvironment();
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
@@ -125,6 +136,9 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       const adjustScrollOffset = doViewportArrange;
       const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
       const scrollOffset = adjustScrollOffset && getElementScroll(_scrollOffsetElement);
+      const removeScrollBlock = addEventListener(_scrollEventElement, strScroll, stopPropagation, {
+        _capture: true,
+      });
 
       each(updateSegments, (updateSegment) => {
         assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
@@ -133,6 +147,8 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       scrollElementTo(_scrollOffsetElement, scrollOffset);
       !_viewportIsTarget && scrollElementTo(_target, 0);
       revertMeasuring();
+
+      requestRemoveScrollBlockFrame(removeScrollBlock);
 
       return updateHints;
     },

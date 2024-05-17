@@ -109,7 +109,7 @@ html[data-overlayscrollbars-body] > body {
 [data-overlayscrollbars-viewport~='measuring'] {
   overflow: hidden !important;
   scroll-behavior: auto !important;
-  overflow-anchor: none !important;
+  scroll-snap-type: none !important;
 }
 
 [data-overlayscrollbars-viewport~='overflowXVisible']:not(

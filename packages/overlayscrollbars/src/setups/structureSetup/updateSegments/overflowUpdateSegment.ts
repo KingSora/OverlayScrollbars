@@ -25,8 +25,6 @@ import {
   equal,
   getZeroScrollCoordinates,
   hasDimensions,
-  addEventListener,
-  stopPropagation,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -108,9 +106,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const measureScrollCoordinates = (): ScrollCoordinates => {
     const originalScrollOffset = getElementScroll(_scrollOffsetElement);
     const removeNoContent = _viewportAddRemoveClass(dataValueViewportNoContent, true);
-    const removeScrollBlock = addEventListener(_scrollOffsetElement, strScroll, stopPropagation, {
-      _capture: true,
-    });
 
     scrollElementTo(_scrollOffsetElement, {
       x: 0,
@@ -134,7 +129,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     const _end = getElementScroll(_scrollOffsetElement);
     scrollElementTo(_scrollOffsetElement, originalScrollOffset);
-    removeScrollBlock();
 
     return {
       _start,

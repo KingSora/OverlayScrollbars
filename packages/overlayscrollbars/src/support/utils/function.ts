@@ -47,7 +47,7 @@ export const selfClearTimeout = (timeout?: number | (() => number)) => {
     (callback: () => any) => {
       clearTFn(id);
       // @ts-ignore
-      id = setTFn(callback, isFunction(timeout) ? timeout() : timeout);
+      id = setTFn(() => callback(), isFunction(timeout) ? timeout() : timeout);
     },
     () => clearTFn(id),
   ] as [timeout: (callback: () => any) => void, clear: () => void];
@@ -68,7 +68,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
   let clear = noop;
   const { _timeout, _maxDelay, _mergeParams } = options || {};
 
-  const invokeFunctionToDebounce = function (args: IArguments) {
+  const invokeFunctionToDebounce = function (args: Parameters<FunctionToDebounce>) {
     clear();
     clearT(maxTimeoutId);
     maxTimeoutId = prevArguments = undefined;
