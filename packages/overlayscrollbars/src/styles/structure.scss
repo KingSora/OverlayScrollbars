@@ -135,7 +135,7 @@ html[data-overlayscrollbars-body] > body {
   overflow-y: scroll !important;
 }
 
-[data-overlayscrollbars-viewport~='noContent'] {
+[data-overlayscrollbars-viewport~='noContent']:not(#osFakeId) {
   font-size: 0 !important;
   line-height: 0 !important;
 }
