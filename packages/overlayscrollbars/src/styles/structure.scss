@@ -135,11 +135,11 @@ html[data-overlayscrollbars-body] > body {
   overflow-y: scroll !important;
 }
 
+// use `:not(#osFakeId)` to increase specificity
 [data-overlayscrollbars-viewport~='noContent']:not(#osFakeId) {
   font-size: 0 !important;
   line-height: 0 !important;
 }
-// use `:not(#osFakeId)` to increase specificity
 [data-overlayscrollbars-viewport~='noContent']:not(#osFakeId)::before,
 [data-overlayscrollbars-viewport~='noContent']:not(#osFakeId)::after,
 [data-overlayscrollbars-viewport~='noContent']:not(#osFakeId) > * {
