@@ -4,24 +4,18 @@ import {
   closest,
   createCache,
   debounce,
-  each,
   equalWH,
   getFractionalSize,
   isArray,
   isFunction,
   isNumber,
-  isString,
   keys,
   liesBetween,
-  removeAttrs,
   getScrollSize,
   getElementScroll,
   scrollElementTo,
-  inArray,
   domRectAppeared,
   concat,
-  getAttr,
-  setAttrs,
   getStyles,
 } from '~/support';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
@@ -87,7 +81,7 @@ export const createObserversSetup = (
   // TODO: observer textarea attrs if textarea
 
   const viewportSelector = `[${dataAttributeViewport}]`;
-  const viewportAttrsFromTarget = ['tabindex'] as const;
+  const viewportAttrsFromTarget = [] as const;
   const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'] as const;
   const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'] as const;
   const {
@@ -177,6 +171,7 @@ export const createObserversSetup = (
     prevDirectionIsRTL = newDirectionIsRTL;
   };
 
+  /*
   const updateViewportAttrsFromHost = (attributes?: string[]) => {
     each(attributes || viewportAttrsFromTarget, (attribute) => {
       if (inArray(viewportAttrsFromTarget, attribute)) {
@@ -189,6 +184,7 @@ export const createObserversSetup = (
       }
     });
   };
+  */
 
   const onTrinsicChanged = (
     heightIntrinsicCache: CacheValues<boolean>,
@@ -257,9 +253,12 @@ export const createObserversSetup = (
 
     if (targetStyleChanged && !fromRecords) {
       onObserversUpdatedDebounced(updateHints);
-    } else if (!_viewportIsTarget) {
+    }
+    /*
+    else if (!_viewportIsTarget) {
       updateViewportAttrsFromHost(targetChangedAttrs);
     }
+    */
 
     return updateHints;
   };
@@ -300,7 +299,7 @@ export const createObserversSetup = (
   return [
     () => {
       // order is matter!
-      updateViewportAttrsFromHost();
+      // updateViewportAttrsFromHost();
       viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
       const destroySizeObserver = constructSizeObserver && constructSizeObserver();
       const destroyTrinsicObserver = constructTrinsicObserver && constructTrinsicObserver();

@@ -5,8 +5,8 @@ import {
   each,
   getElementScroll,
   getZeroScrollCoordinates,
+  rAF,
   scrollElementTo,
-  selfClearTimeout,
   stopPropagation,
   strHidden,
   strMarginBottom,
@@ -82,7 +82,6 @@ export type CreateStructureUpdateSegment = (
 
 export const createStructureSetup = (target: InitializationTarget): StructureSetup => {
   const [elements, appendStructureElements, canceled] = createStructureSetupElements(target);
-  const [requestRemoveScrollBlockFrame] = selfClearTimeout();
   const state: StructureSetupState = {
     _padding: {
       t: 0,
@@ -136,9 +135,15 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       const adjustScrollOffset = doViewportArrange;
       const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
       const scrollOffset = adjustScrollOffset && getElementScroll(_scrollOffsetElement);
-      const removeScrollBlock = addEventListener(_scrollEventElement, strScroll, stopPropagation, {
-        _capture: true,
-      });
+      const removeScrollBlock = addEventListener(
+        _scrollEventElement,
+        strScroll,
+        // dont block manually dispatched (untrusted) scroll events
+        (event) => event.isTrusted && stopPropagation(event),
+        {
+          _capture: true,
+        }
+      );
 
       each(updateSegments, (updateSegment) => {
         assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
@@ -148,7 +153,8 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       !_viewportIsTarget && scrollElementTo(_target, 0);
       revertMeasuring();
 
-      requestRemoveScrollBlockFrame(removeScrollBlock);
+      // need rAF because scroll events are dispatched in the next frame
+      rAF(() => removeScrollBlock());
 
       return updateHints;
     },

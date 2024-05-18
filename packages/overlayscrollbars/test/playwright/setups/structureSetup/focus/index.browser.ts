@@ -43,6 +43,8 @@ const subscribeFocusEvents = (elm: HTMLElement) => {
   document.body.addEventListener('focus', incrementFocusEvents);
   document.body.addEventListener('blur', incrementBlurEvents);
 
+  elm.addEventListener('focusout', incrementBlurEvents);
+  elm.addEventListener('focusin', incrementFocusEvents);
   elm.addEventListener('focus', incrementFocusEvents);
   elm.addEventListener('blur', incrementBlurEvents);
   return () => {
@@ -51,6 +53,8 @@ const subscribeFocusEvents = (elm: HTMLElement) => {
     document.body.removeEventListener('focus', incrementFocusEvents);
     document.body.removeEventListener('blur', incrementBlurEvents);
 
+    elm.removeEventListener('focusout', incrementBlurEvents);
+    elm.removeEventListener('focusin', incrementFocusEvents);
     elm.removeEventListener('focus', incrementFocusEvents);
     elm.removeEventListener('blur', incrementBlurEvents);
   };
@@ -92,7 +96,7 @@ const testInputFocus = async () => {
   removeFocusEvents();
 };
 
-const testViewportFocus = async () => {
+const testBodyViewportFocus = async () => {
   const body = document.body;
   (document.activeElement as HTMLElement | null)?.blur?.();
 
@@ -127,12 +131,167 @@ const testViewportFocus = async () => {
   removeFocusEvents();
 };
 
+const testElementViewportFocus = async () => {
+  const viewportElm = targetElm!.firstElementChild! as HTMLElement;
+  viewportElm.setAttribute('tabindex', '123');
+  viewportElm.focus();
+
+  const unsubscribe = subscribeFocusEvents(viewportElm);
+
+  const beforeInitFocusEvents = focusEvents;
+  const beforeInitBlurEvents = blurEvents;
+
+  const targetInstance = OverlayScrollbars(
+    viewportIsTarget
+      ? targetElm!
+      : {
+          target: targetElm!,
+          elements: {
+            viewport: viewportElm,
+          },
+        },
+    {}
+  );
+
+  should.equal(
+    viewportElm.getAttribute('tabindex'),
+    '123',
+    'Explicit viewport tabindex is correct before init.'
+  );
+
+  const afterInitFocusEvents = focusEvents;
+  const afterInitBlurEvents = blurEvents;
+
+  should.ok(
+    document.activeElement === viewportElm,
+    `Explicit viewport holds focus during initialization.`
+  );
+  should.ok(
+    beforeInitFocusEvents === afterInitFocusEvents,
+    `0 Additional Focus events after explicit viewport init.`
+  );
+  should.ok(
+    beforeInitBlurEvents === afterInitBlurEvents,
+    `0 Additional Blur events after explicit viewport init.`
+  );
+
+  await timeout(100);
+  should.equal(
+    viewportElm.getAttribute('tabindex'),
+    '123',
+    'Explicit viewport tabindex is correct after init.'
+  );
+
+  const beforeDestroyFocusEvents = focusEvents;
+  const beforeDestroyBlurEvents = blurEvents;
+
+  targetInstance.destroy();
+
+  const afterDestroyFocusEvents = focusEvents;
+  const afterDestroyBlurEvents = blurEvents;
+
+  should.ok(document.activeElement === viewportElm, `Explicit viewport holds focus after destroy.`);
+  should.ok(
+    beforeDestroyFocusEvents === afterDestroyFocusEvents,
+    `0 Additional Focus events after explicit viewport destroy.`
+  );
+  should.ok(
+    beforeDestroyBlurEvents === afterDestroyBlurEvents,
+    `0 Additional Blur events after explicit viewport destroy.`
+  );
+  should.equal(
+    viewportElm.getAttribute('tabindex'),
+    '123',
+    'Explicit viewport tabindex is correct after destroy.'
+  );
+
+  unsubscribe();
+  viewportElm.removeAttribute('tabindex');
+};
+
+const testElementTargetFocus = async () => {
+  targetElm!.setAttribute('tabindex', '456');
+  targetElm!.focus();
+
+  const unsubscribe = subscribeFocusEvents(targetElm!);
+
+  const beforeInitFocusEvents = focusEvents;
+  const beforeInitBlurEvents = blurEvents;
+
+  const targetInstance = OverlayScrollbars(targetElm!, {});
+
+  should.equal(
+    targetElm!.getAttribute('tabindex'),
+    '456',
+    'Target tabindex is correct before init.'
+  );
+
+  const afterInitFocusEvents = focusEvents;
+  const afterInitBlurEvents = blurEvents;
+
+  should.ok(
+    document.activeElement === (viewportIsTarget ? targetElm! : targetInstance.elements().viewport),
+    `Target holds focus during initialization.`
+  );
+  should.ok(
+    beforeInitFocusEvents === afterInitFocusEvents,
+    `0 Additional Focus events after target init.`
+  );
+  should.ok(
+    beforeInitBlurEvents === afterInitBlurEvents,
+    `0 Additional Blur events after target init.`
+  );
+
+  await timeout(100);
+  should.equal(
+    targetElm!.getAttribute('tabindex'),
+    '456',
+    'Target tabindex is correct after init.'
+  );
+  should.equal(
+    targetInstance.elements().viewport.getAttribute('tabindex'),
+    viewportIsTarget ? '456' : '-1',
+    'Target init viewport tabindex is correct after init.'
+  );
+
+  const beforeDestroyFocusEvents = focusEvents;
+  const beforeDestroyBlurEvents = blurEvents;
+
+  targetInstance.destroy();
+
+  const afterDestroyFocusEvents = focusEvents;
+  const afterDestroyBlurEvents = blurEvents;
+
+  should.ok(document.activeElement === targetElm!, `target holds focus after destroy.`);
+  should.ok(
+    beforeDestroyFocusEvents === afterDestroyFocusEvents,
+    `0 Additional Focus events after target destroy.`
+  );
+  should.ok(
+    beforeDestroyBlurEvents === afterDestroyBlurEvents,
+    `0 Additional Blur events after target destroy.`
+  );
+  should.equal(
+    targetElm!.getAttribute('tabindex'),
+    '456',
+    'Target tabindex is correct after destroy.'
+  );
+
+  unsubscribe();
+  targetElm!.removeAttribute('tabindex');
+};
+
 startBtn?.addEventListener('click', async () => {
   setTestResult(null);
 
   try {
-    // viewport first!
-    await testViewportFocus();
+    // body viewport first!
+    await testBodyViewportFocus();
+    await timeout(100);
+    await testElementTargetFocus();
+    await timeout(100);
+    await testElementViewportFocus();
+    await timeout(100);
     await testInputFocus();
     setTestResult(true);
   } catch (exception) {

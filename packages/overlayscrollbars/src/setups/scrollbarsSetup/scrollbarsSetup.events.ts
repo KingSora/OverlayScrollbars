@@ -20,6 +20,7 @@ import {
   stopAndPrevent,
   isFunction,
   mathAbs,
+  focusElement,
 } from '~/support';
 import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
 import {
@@ -230,9 +231,7 @@ export const createScrollbarsSetupEvents = (
             hasAttr(focusedElement, dataAttributeHost) ||
             focusedElement === document.body
           ) {
-            setT(() => {
-              _viewport.focus({ preventScroll: true });
-            }, 25);
+            setT(bind(focusElement, _viewport), 25);
           }
         }),
       // propagate wheel events to viewport when mouse is over scrollbar

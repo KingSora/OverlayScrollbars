@@ -18,10 +18,11 @@ import {
   addRemoveAttrClass,
   setAttrs,
   getAttr,
-  stopPropagation,
   isBodyElement,
   getFocusedElement,
   wnd,
+  focusElement,
+  stopAndPrevent,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -98,11 +99,6 @@ export const createStructureSetupElements = (
   const ownerDocument = targetElement.ownerDocument;
   const docElement = ownerDocument.documentElement;
   const getDocumentWindow = () => ownerDocument.defaultView || wnd;
-  const focusElm = (customActiveElm: Element | null) => {
-    if (customActiveElm && (customActiveElm as HTMLElement).focus) {
-      (customActiveElm as HTMLElement).focus({ preventScroll: true });
-    }
-  };
   const staticInitializationElement = bind(generalStaticInitializationElement, [targetElement]);
   const dynamicInitializationElement = bind(generalDynamicInitializationElement, [targetElement]);
   const createNewDiv = bind(createDiv, '');
@@ -190,12 +186,13 @@ export const createStructureSetupElements = (
       removeElements(elm);
     };
     // wrapping / unwrapping will cause the focused element to blur, this should prevent those events to surface
-    const prepareWrapUnwrapFocus = (activeElement?: Element | null) =>
-      addEventListener(activeElement, 'focusin focusout focus blur', stopPropagation, {
+    const prepareWrapUnwrapFocus = (activeElement: Element | false | null | undefined) =>
+      addEventListener(activeElement, 'focusin focusout focus blur', stopAndPrevent, {
         _capture: true,
+        _passive: false,
       });
     const tabIndexStr = 'tabindex';
-    const ogTabindex = getAttr(_viewport, tabIndexStr);
+    const originalViewportTabIndex = getAttr(_viewport, tabIndexStr);
     const undoInitWrapUndwrapFocus = prepareWrapUnwrapFocus(initActiveElm);
     setAttrs(_host, dataAttributeHost, viewportIsTarget ? '' : dataValueHostIsHost);
     setAttrs(_padding, dataAttributePadding, '');
@@ -203,7 +200,7 @@ export const createStructureSetupElements = (
     setAttrs(_content, dataAttributeContent, '');
 
     if (!viewportIsTarget) {
-      setAttrs(_viewport, tabIndexStr, ogTabindex || '-1');
+      setAttrs(_viewport, tabIndexStr, originalViewportTabIndex || '-1');
       isBody && setAttrs(docElement, dataAttributeHtmlBody, '');
     }
 
@@ -226,19 +223,24 @@ export const createStructureSetupElements = (
       undoInitWrapUndwrapFocus,
       () => {
         const destroyActiveElm = getFocusedElement();
-        const undoDestroyWrapUndwrapFocus = prepareWrapUnwrapFocus(destroyActiveElm);
+        const viewportIsGenerated = elementIsGenerated(_viewport);
+        // if the focused element is viewport and viewport will be destroyed shift the focus to target
+        // otherwise keep the focused element
+        const destroyFocusElement =
+          viewportIsGenerated && destroyActiveElm === _viewport ? targetElement : destroyActiveElm;
+        const undoDestroyWrapUndwrapFocus = prepareWrapUnwrapFocus(destroyFocusElement);
         removeAttrs(_padding, dataAttributePadding);
         removeAttrs(_content, dataAttributeContent);
         removeAttrs(_viewport, dataAttributeViewport);
         isBody && removeAttrs(docElement, dataAttributeHtmlBody);
-        ogTabindex
-          ? setAttrs(_viewport, tabIndexStr, ogTabindex)
+        originalViewportTabIndex
+          ? setAttrs(_viewport, tabIndexStr, originalViewportTabIndex)
           : removeAttrs(_viewport, tabIndexStr);
 
         elementIsGenerated(_content) && unwrap(_content);
-        elementIsGenerated(_viewport) && unwrap(_viewport);
+        viewportIsGenerated && unwrap(_viewport);
         elementIsGenerated(_padding) && unwrap(_padding);
-        focusElm(destroyActiveElm);
+        focusElement(destroyFocusElement);
         undoDestroyWrapUndwrapFocus();
       },
     ]);
@@ -249,7 +251,7 @@ export const createStructureSetupElements = (
     }
 
     // focus viewport if previously focused element was target, otherwise focus previously focused element
-    focusElm(
+    focusElement(
       !viewportIsTarget && initActiveElm === targetElement && docWnd.top === docWnd
         ? _viewport
         : initActiveElm
