@@ -96,7 +96,7 @@ const testInputFocus = async () => {
   removeFocusEvents();
 };
 
-const testBodyViewportFocus = async () => {
+const testBodyFocus = async () => {
   const body = document.body;
   (document.activeElement as HTMLElement | null)?.blur?.();
 
@@ -108,12 +108,13 @@ const testBodyViewportFocus = async () => {
 
   const bodyInstance = OverlayScrollbars(body, {});
   const { viewport } = bodyInstance.elements();
+  const bodyViewportIsTarget = viewport === document.documentElement;
 
   should.ok(
-    viewport === document.documentElement
+    bodyViewportIsTarget
       ? document.activeElement === document.body
       : document.activeElement === viewport,
-    'Viewport element is focused after init.'
+    'Body Viewport element is focused after init.'
   );
   should.equal(beforeInitFocusEvents, focusEvents, '0 additional Focus events after init.');
   should.equal(beforeInitBlurEvents, blurEvents, '0 additional Blur events after init.');
@@ -209,30 +210,33 @@ const testElementViewportFocus = async () => {
   viewportElm.removeAttribute('tabindex');
 };
 
-const testElementTargetFocus = async () => {
-  targetElm!.setAttribute('tabindex', '456');
-  targetElm!.focus();
+const testElementTargetFocus = async (withTargetFocus?: boolean) => {
+  if (withTargetFocus) {
+    targetElm!.setAttribute('tabindex', '456');
+    targetElm!.focus();
+  }
+
+  const originalFocusElement = document.activeElement as HTMLElement;
 
   const unsubscribe = subscribeFocusEvents(targetElm!);
 
   const beforeInitFocusEvents = focusEvents;
   const beforeInitBlurEvents = blurEvents;
 
+  should.ok(document.activeElement === originalFocusElement, `Target before init correct focus.`);
+
   const targetInstance = OverlayScrollbars(targetElm!, {});
 
   should.equal(
     targetElm!.getAttribute('tabindex'),
-    '456',
+    withTargetFocus ? '456' : null,
     'Target tabindex is correct before init.'
   );
 
   const afterInitFocusEvents = focusEvents;
   const afterInitBlurEvents = blurEvents;
 
-  should.ok(
-    document.activeElement === (viewportIsTarget ? targetElm! : targetInstance.elements().viewport),
-    `Target holds focus during initialization.`
-  );
+  should.ok(document.activeElement === originalFocusElement, `Target after init correct focus.`);
   should.ok(
     beforeInitFocusEvents === afterInitFocusEvents,
     `0 Additional Focus events after target init.`
@@ -245,12 +249,12 @@ const testElementTargetFocus = async () => {
   await timeout(100);
   should.equal(
     targetElm!.getAttribute('tabindex'),
-    '456',
+    withTargetFocus ? '456' : null,
     'Target tabindex is correct after init.'
   );
   should.equal(
     targetInstance.elements().viewport.getAttribute('tabindex'),
-    viewportIsTarget ? '456' : '-1',
+    viewportIsTarget ? (withTargetFocus ? '456' : null) : '-1',
     'Target init viewport tabindex is correct after init.'
   );
 
@@ -262,7 +266,18 @@ const testElementTargetFocus = async () => {
   const afterDestroyFocusEvents = focusEvents;
   const afterDestroyBlurEvents = blurEvents;
 
-  should.ok(document.activeElement === targetElm!, `target holds focus after destroy.`);
+  if (withTargetFocus) {
+    should.ok(
+      document.activeElement === originalFocusElement,
+      `Target after destroy correct focus.`
+    );
+  }
+
+  should.equal(
+    targetElm!.getAttribute('tabindex'),
+    withTargetFocus ? '456' : null,
+    'Target tabindex is correct after destroy.'
+  );
   should.ok(
     beforeDestroyFocusEvents === afterDestroyFocusEvents,
     `0 Additional Focus events after target destroy.`
@@ -270,11 +285,6 @@ const testElementTargetFocus = async () => {
   should.ok(
     beforeDestroyBlurEvents === afterDestroyBlurEvents,
     `0 Additional Blur events after target destroy.`
-  );
-  should.equal(
-    targetElm!.getAttribute('tabindex'),
-    '456',
-    'Target tabindex is correct after destroy.'
   );
 
   unsubscribe();
@@ -286,9 +296,11 @@ startBtn?.addEventListener('click', async () => {
 
   try {
     // body viewport first!
-    await testBodyViewportFocus();
+    await testBodyFocus();
     await timeout(100);
     await testElementTargetFocus();
+    await timeout(100);
+    await testElementTargetFocus(true);
     await timeout(100);
     await testElementViewportFocus();
     await timeout(100);

@@ -227,7 +227,7 @@ export const createStructureSetupElements = (
         // if the focused element is viewport and viewport will be destroyed shift the focus to target
         // otherwise keep the focused element
         const destroyFocusElement =
-          viewportIsGenerated && destroyActiveElm === _viewport ? targetElement : destroyActiveElm;
+          viewportIsGenerated && destroyActiveElm === _viewport ? _target : destroyActiveElm;
         const undoDestroyWrapUndwrapFocus = prepareWrapUnwrapFocus(destroyFocusElement);
         removeAttrs(_padding, dataAttributePadding);
         removeAttrs(_content, dataAttributeContent);
@@ -250,9 +250,10 @@ export const createStructureSetupElements = (
       push(destroyFns, bind(removeAttrs, _viewport, dataAttributeViewport));
     }
 
-    // focus viewport if previously focused element was target, otherwise focus previously focused element
+    // keep the original focused element focused except when
+    // the target is body and viewport is not target, then shift the focus to the viewport element
     focusElement(
-      !viewportIsTarget && initActiveElm === targetElement && docWnd.top === docWnd
+      !viewportIsTarget && isBody && initActiveElm === _target && docWnd.top === docWnd
         ? _viewport
         : initActiveElm
     );
