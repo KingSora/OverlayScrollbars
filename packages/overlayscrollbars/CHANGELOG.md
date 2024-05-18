@@ -6,6 +6,7 @@
 
 - Improve the `scrollCoordinates` logic introduces in `v2.8.0` to have better defaults in case of ambiguity because of third party styles.
 - The `scroll` event is not propagated if it is an result of `scrollCoordinates` detection during update.
+- Focus management improvements.
 
 ## 2.8.0
 
