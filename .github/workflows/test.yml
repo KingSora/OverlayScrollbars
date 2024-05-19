@@ -21,12 +21,12 @@ jobs:
           node-version: '>=20.6.0'
       - name: Install dependencies
         run: npm ci
+      - name: Run e2e Tests
+        run: xvfb-run npm run ci:e2e
       - name: Build
         run: npm run build
       - name: Run Unit Tests
         run: npm run ci:test
-      - name: Run e2e Tests
-        run: xvfb-run npm run ci:e2e
       - name: Upload Unit Tests Coverage
         uses: codecov/codecov-action@v3
         with:
