@@ -117,6 +117,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         const scrollEventScrollOffset = getElementScroll(_scrollOffsetElement);
         // if scroll offset didnt change
         if (
+          event.isTrusted &&
           scrollEventScrollOffset.x === originalScrollOffset.x &&
           scrollEventScrollOffset.y === originalScrollOffset.y
         ) {

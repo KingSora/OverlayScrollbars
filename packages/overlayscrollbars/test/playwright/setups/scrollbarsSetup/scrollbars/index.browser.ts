@@ -73,7 +73,7 @@ const targetD: HTMLElement | null = document.querySelector('#targetD');
 let directionRTL = false;
 let flexReverse = false;
 const clickErrors: Error[] = [];
-const scrollInstance = (osInstance: OverlayScrollbars) => {
+const scrollInstance = (osInstance: OverlayScrollbars, percent = 0.5) => {
   const { scrollCoordinates } = osInstance.state();
   const { scrollOffsetElement } = osInstance.elements();
   const { x, y } = getScrollCoordinatesPosition(
@@ -82,8 +82,8 @@ const scrollInstance = (osInstance: OverlayScrollbars) => {
       _end: scrollCoordinates.end,
     },
     {
-      x: 0.5,
-      y: 0.5,
+      x: percent,
+      y: percent,
     }
   );
   scrollOffsetElement.scrollTo({
@@ -385,6 +385,38 @@ const runScrollCoordinatesAfterHidden = async () => {
   runScrollCoordinates();
 };
 
+const runUpdateAndScrollInstances = async () => {
+  const checkInstance = async (osInstance: OverlayScrollbars) => {
+    let scrolled = false;
+    const listener = () => {
+      scrolled = true;
+    };
+    const { target, scrollEventElement } = osInstance.elements();
+    const hostId = target === document.body ? 'body' : target.getAttribute('id');
+
+    scrollInstance(osInstance, 0);
+
+    await timeout(100);
+
+    scrollEventElement.addEventListener('scroll', listener);
+    osInstance.update(true);
+    scrollInstance(osInstance);
+
+    await timeout(100);
+
+    should.ok(scrolled, `Instance receives scroll event after update. (${hostId})`);
+    osInstance.elements().scrollEventElement.removeEventListener('scroll', listener);
+  };
+
+  await timeout(100);
+
+  await checkInstance(osInstanceBody);
+  await checkInstance(osInstanceA);
+  await checkInstance(osInstanceB);
+  await checkInstance(osInstanceC);
+  await checkInstance(osInstanceD);
+};
+
 directionRTLButton?.addEventListener('click', () => {
   if (directionRTL) {
     document.documentElement.style.direction = 'ltr';
@@ -429,6 +461,8 @@ startButton?.addEventListener('click', async () => {
 
   await runScrollCoordinatesAfterHidden();
   await scrollInstances();
+
+  await runUpdateAndScrollInstances();
 
   if (clickErrors.length > 0) {
     setTestResult(false);
