@@ -121,7 +121,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
           scrollEventScrollOffset.x === originalScrollOffset.x &&
           scrollEventScrollOffset.y === originalScrollOffset.y
         ) {
-          stopPropagation(event);
+          // stopPropagation(event);
         }
       },
       {
