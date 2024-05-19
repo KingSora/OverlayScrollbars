@@ -365,6 +365,8 @@ const runHideWrapper = async () => {
     assertScrollbarVisibility(osInstanceD, true, msg),
   ]);
 
+  await timeout(100);
+
   if (autoHideSuspend) {
     const msg2 = 'AutoHideSuspend works correctly after interaction.';
     [osInstanceA, osInstanceB, osInstanceC, osInstanceD].forEach((osInstance) => {
