@@ -403,6 +403,7 @@ startBtn.addEventListener('click', async () => {
   setTestResult(null);
 
   try {
+    // check whether scroll event was fired during init
     await timeout(100);
     should.equal(targetAScrollCount, 0, `TargetA scroll count should be 0. (start)`);
     should.equal(targetBScrollCount, 0, `TargetB scroll count should be 0. (start)`);
@@ -426,13 +427,15 @@ startBtn.addEventListener('click', async () => {
 
     await runAppear(2);
 
-    await runHideWrapper();
-
+    // check whether scroll event was fired during updates
     await timeout(100);
     should.equal(targetAScrollCount, 0, `TargetA scroll count should be 0. (end)`);
     should.equal(targetBScrollCount, 0, `TargetB scroll count should be 0. (end)`);
     should.equal(targetCScrollCount, 0, `TargetC scroll count should be 0. (end)`);
     should.equal(targetDScrollCount, 0, `TargetD scroll count should be 0. (end)`);
+
+    // does scrolling if `autoHideSuspend` is true
+    await runHideWrapper();
 
     setTestResult(true);
   } catch (e: any) {
