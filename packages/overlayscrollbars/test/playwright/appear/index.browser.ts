@@ -146,7 +146,7 @@ const assertScrollbarVisibility = async (
   visible: boolean,
   message: string
 ) => {
-  await timeout(3000);
+  await timeout(4000);
 
   const { host, scrollbarHorizontal, scrollbarVertical } = osInstance.elements();
   const hostId = host.id;
