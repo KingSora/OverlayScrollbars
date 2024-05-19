@@ -28,6 +28,10 @@ let targetAAppearCount = 0;
 let targetBAppearCount = 0;
 let targetCAppearCount = 0;
 let targetDAppearCount = 0;
+let targetAScrollCount = 0;
+let targetBScrollCount = 0;
+let targetCScrollCount = 0;
+let targetDScrollCount = 0;
 let appeared = false;
 let wrapperHidden = false;
 
@@ -55,6 +59,9 @@ const osInstanceA = (window.osA = OverlayScrollbars(
         updateAppearCounts();
       }
     },
+    scroll: () => {
+      targetAScrollCount++;
+    },
   }
 ));
 // @ts-ignore
@@ -79,6 +86,9 @@ const osInstanceB = (window.osB = OverlayScrollbars(
         updateAppearCounts();
       }
     },
+    scroll: () => {
+      targetBScrollCount++;
+    },
   }
 ));
 // @ts-ignore
@@ -97,6 +107,9 @@ const osInstanceC = (window.osC = OverlayScrollbars(
         targetCAppearCount++;
         updateAppearCounts();
       }
+    },
+    scroll: () => {
+      targetCScrollCount++;
     },
   }
 ));
@@ -121,6 +134,9 @@ const osInstanceD = (window.osD = OverlayScrollbars(
         targetDAppearCount++;
         updateAppearCounts();
       }
+    },
+    scroll: () => {
+      targetDScrollCount++;
     },
   }
 ));
@@ -387,6 +403,12 @@ startBtn.addEventListener('click', async () => {
   setTestResult(null);
 
   try {
+    await timeout(100);
+    should.equal(targetAScrollCount, 0, `TargetA scroll count should be 0. (start)`);
+    should.equal(targetBScrollCount, 0, `TargetB scroll count should be 0. (start)`);
+    should.equal(targetCScrollCount, 0, `TargetC scroll count should be 0. (start)`);
+    should.equal(targetDScrollCount, 0, `TargetD scroll count should be 0. (start)`);
+
     await runAppeared();
     await runAppear(0);
 
@@ -405,6 +427,12 @@ startBtn.addEventListener('click', async () => {
     await runAppear(2);
 
     await runHideWrapper();
+
+    await timeout(100);
+    should.equal(targetAScrollCount, 0, `TargetA scroll count should be 0. (end)`);
+    should.equal(targetBScrollCount, 0, `TargetB scroll count should be 0. (end)`);
+    should.equal(targetCScrollCount, 0, `TargetC scroll count should be 0. (end)`);
+    should.equal(targetDScrollCount, 0, `TargetD scroll count should be 0. (end)`);
 
     setTestResult(true);
   } catch (e: any) {

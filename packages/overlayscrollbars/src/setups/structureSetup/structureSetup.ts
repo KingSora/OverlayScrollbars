@@ -1,13 +1,10 @@
 import { getEnvironment } from '~/environment';
 import {
-  addEventListener,
   assignDeep,
   each,
   getElementScroll,
   getZeroScrollCoordinates,
-  rAF,
   scrollElementTo,
-  stopPropagation,
   strHidden,
   strMarginBottom,
   strMarginLeft,
@@ -16,7 +13,6 @@ import {
   strPaddingLeft,
   strPaddingRight,
   strPaddingTop,
-  strScroll,
   type TRBL,
   type XY,
 } from '~/support';
@@ -111,13 +107,7 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     },
     _scrollCoordinates: getZeroScrollCoordinates(),
   };
-  const {
-    _target,
-    _scrollEventElement,
-    _scrollOffsetElement,
-    _viewportIsTarget,
-    _viewportAddRemoveClass,
-  } = elements;
+  const { _target, _scrollOffsetElement, _viewportIsTarget, _viewportAddRemoveClass } = elements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } = getEnvironment();
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
@@ -135,15 +125,6 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       const adjustScrollOffset = doViewportArrange;
       const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
       const scrollOffset = adjustScrollOffset && getElementScroll(_scrollOffsetElement);
-      const removeScrollBlock = addEventListener(
-        _scrollEventElement,
-        strScroll,
-        // dont block manually dispatched (untrusted) scroll events
-        (event) => event.isTrusted && stopPropagation(event),
-        {
-          _capture: true,
-        }
-      );
 
       each(updateSegments, (updateSegment) => {
         assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
@@ -152,9 +133,6 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       scrollElementTo(_scrollOffsetElement, scrollOffset);
       !_viewportIsTarget && scrollElementTo(_target, 0);
       revertMeasuring();
-
-      // need rAF because scroll events are dispatched in the next frame
-      rAF(() => removeScrollBlock());
 
       return updateHints;
     },
