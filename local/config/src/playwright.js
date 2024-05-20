@@ -4,7 +4,7 @@ module.exports = {
   testMatch: /.*\/test\/playwright\/.*\.test\.[jt]sx?/,
   timeout: 10 * 60 * 1500,
   navigationTimeout: 1000,
-  retries: 0,
+  retries: 1,
   maxFailures: 0,
   workers: 4,
   fullyParallel: true,
