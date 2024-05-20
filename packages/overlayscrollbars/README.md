@@ -94,7 +94,7 @@ Embedd OverlayScrollbars manually in your HTML:
 <script type="text/javascript" src="path/to/overlayscrollbars.browser.es.js" defer></script>
 ```
 
-You can then use the global variable `OverlayScrollbarsGlobal` to access the api similar to how you can do it in nodejs / modules:
+Use the global variable `OverlayScrollbarsGlobal` to access the api similar to how you can do it in nodejs / modules:
 ```js
 var { 
   OverlayScrollbars, 
@@ -103,6 +103,8 @@ var {
   ClickScrollPlugin  
 } = OverlayScrollbarsGlobal;
 ```
+
+You can use this [CDN Example](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/cdn) as an reference / starting point.
 
 The examples in this documentation will use the `import` syntax instead of the `OverlayScrollbarsGlobal` object. Both versions are equivalent though.
 
