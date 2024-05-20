@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" data-overlayscrollbars-initialize>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>OverlayScrollbars</title>
+
+    <!-- overlayscrollbars css -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/overlayscrollbars/styles/overlayscrollbars.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- overlayscrollbars js -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/overlayscrollbars/browser/overlayscrollbars.browser.es6.min.js"
+      defer
+    ></script>
+  </head>
+  <body data-overlayscrollbars-initialize>
+    <div id="app">
+      <main>
+        <h1>
+          <a href="https://www.npmjs.com/package/overlayscrollbars" target="_blank">
+            OverlayScrollbars
+          </a>
+        </h1>
+        <section class="slot">
+          <div id="target" class="overlayscrollbars" data-overlayscrollbars-initialize>
+            <div id="targetContent" class="logo">
+              <img alt="Logo" src="logo.png" width="333" height="333" />
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <a
+          href="https://github.com/KingSora/OverlayScrollbars/tree/master/examples/cdn"
+          target="_blank"
+        >
+          Open source code of this example.
+        </a>
+      </footer>
+    </div>
+
+    <!-- overlayscrollbars initialization -->
+    <script src="script.js" defer></script>
+  </body>
+</html>
