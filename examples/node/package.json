@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "overlayscrollbars": "file:../../packages/overlayscrollbars/dist"
+  },
+  "devDependencies": {
+    "vite": "^5.2.11"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --base /OverlayScrollbars/example/cdn",
+    "preview": "vite preview"
+  }
+}

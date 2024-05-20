@@ -2,7 +2,15 @@
 
 You can either use the provided online examples or run examples locally by cloning the repository.
 
+## Simple Examples
+
+If you search for the simplest examples possible, you can use either the [`CDN`](https://kingsora.github.io/OverlayScrollbars/example/cdn) or [`Node`](https://kingsora.github.io/OverlayScrollbars/example/node) example.
+
+Both are written in simple JavaScript and only consist of minimal initialization code and some styling.
+
 ## Online Examples
+
+All of the following examples are written in TypeScript if the corresponding framework has support for it.
 
 | Framework  | Examples |
 | :--- | :--- |
