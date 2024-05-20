@@ -1,9 +1,6 @@
 {
   "private": true,
   "type": "module",
-  "dependencies": {
-    "overlayscrollbars": "file:../../packages/overlayscrollbars/dist"
-  },
   "devDependencies": {
     "vite": "^5.2.11"
   },
