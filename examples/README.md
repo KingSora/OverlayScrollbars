@@ -4,7 +4,7 @@ You can either use the provided online examples or run examples locally by cloni
 
 ## Simple Examples
 
-If you search for the simplest examples possible, you can use either the [`CDN`](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/cdn) or [`Node`](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/node) example.
+If you search for the simplest examples possible, you can use either the [`Browser`](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/browser) or [`Node`](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/node) example.
 
 Both are written in simple JavaScript and only consist of minimal initialization code and some styling.
 
