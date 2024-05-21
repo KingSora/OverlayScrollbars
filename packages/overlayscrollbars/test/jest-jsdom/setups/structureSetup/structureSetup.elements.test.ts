@@ -1444,6 +1444,39 @@ describe('structureSetup.elements', () => {
       expect(document.activeElement).toBe(originalFocus);
     });
 
+    test('element with explicit viewport focused', () => {
+      document.body.innerHTML = '<div tabindex="123"><div tabindex="456"></div></div>';
+      const target = document.body.firstElementChild as HTMLElement;
+      const viewport = target.firstElementChild as HTMLElement;
+      viewport.focus();
+
+      const { elements } = createStructureSetupElementsProxy({
+        target,
+        elements: {
+          viewport,
+        },
+      });
+      expect(elements._viewport.getAttribute('tabindex')).toBe('456');
+      expect(elements._host.getAttribute('tabindex')).toBe('123');
+      expect(document.activeElement).toBe(elements._viewport);
+    });
+
+    test('element with explicit viewport not focused', () => {
+      document.body.innerHTML = '<div><div></div></div>';
+      const target = document.body.firstElementChild as HTMLElement;
+      const viewport = target.firstElementChild as HTMLElement;
+      const originalFocus = document.activeElement;
+      const { elements } = createStructureSetupElementsProxy({
+        target,
+        elements: {
+          viewport,
+        },
+      });
+      expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
+      expect(elements._host.getAttribute('tabindex')).toBe(null);
+      expect(document.activeElement).toBe(originalFocus);
+    });
+
     test('element viewportIsTarget focused', () => {
       document.body.innerHTML = '<div tabindex="123"></div>';
       const target = document.body.firstElementChild as HTMLElement;
