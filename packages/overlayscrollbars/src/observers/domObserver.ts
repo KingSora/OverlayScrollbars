@@ -14,6 +14,7 @@ import {
   inArray,
   concat,
   getAttr,
+  isString,
 } from '~/support';
 
 type DOMContentObserverCallback = (contentChangedThroughEvent: boolean) => any;
@@ -203,9 +204,10 @@ export const createDOMObserver = <ContentObserver extends boolean>(
         const isChildListType = type === 'childList';
         const targetIsMutationTarget = target === mutationTarget;
         const isAttrChange = isAttributesType && attributeName;
-        // isAttrChange check needed, otherwise mutationTarget might not be a valid HTMLElement
-        const attributeValue =
-          (isAttrChange && getAttr(mutationTarget as HTMLElement, attributeName || '')) || null;
+        const newValue =
+          isAttrChange && getAttr(mutationTarget as HTMLElement, attributeName || '');
+        // narrow down attributeValue type to `string` or `null` but don't overwrite `<empty string>` with `null`
+        const attributeValue = isString(newValue) ? newValue : null;
         const attributeChanged = isAttrChange && oldValue !== attributeValue;
         const styleChangingAttrChanged =
           inArray(finalStyleChangingAttributes, attributeName) && attributeChanged;

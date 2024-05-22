@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.2
+
+### Bug Fixes
+
+- Fix a bug where children attribute mutations were not picked up if the new attribute value was an empty string.  
+
 ## 2.8.1
 
 ### Improvements
