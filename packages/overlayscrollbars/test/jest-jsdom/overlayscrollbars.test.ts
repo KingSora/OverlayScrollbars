@@ -633,12 +633,22 @@ describe('overlayscrollbars', () => {
         expect(updated).toHaveBeenCalledTimes(0);
 
         window.dispatchEvent(new Event('resize'));
+        expect(updated).toHaveBeenCalledTimes(1);
 
-        expect(updated).toHaveBeenCalledTimes(0);
+        window.dispatchEvent(new Event('resize'));
+        expect(updated).toHaveBeenCalledTimes(1);
+
+        jest.advanceTimersByTime(100);
+
+        window.dispatchEvent(new Event('resize'));
+        expect(updated).toHaveBeenCalledTimes(1);
+
+        window.dispatchEvent(new Event('resize'));
+        expect(updated).toHaveBeenCalledTimes(1);
 
         jest.runAllTimers();
 
-        expect(updated).toHaveBeenCalledTimes(1);
+        expect(updated).toHaveBeenCalledTimes(1); // should be 2 if something changes
       });
     });
   });
