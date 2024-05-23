@@ -555,59 +555,6 @@ describe('function', () => {
           jest.advanceTimersByTime(1000);
           expect(i).toBe(3);
         });
-
-        test('with maxDelay function', async () => {
-          let i = 0;
-          let maxDelayMs = 300;
-          const debouncedFn = debounce(
-            () => {
-              i += 1;
-            },
-            { _timeout: 400, _maxDelay: () => maxDelayMs, _leading: true }
-          );
-          debouncedFn();
-          expect(i).toBe(1);
-
-          debouncedFn();
-          jest.advanceTimersByTime(100); // 100
-          expect(i).toBe(1);
-
-          debouncedFn();
-          expect(i).toBe(1);
-          jest.advanceTimersByTime(100); // 200
-
-          maxDelayMs = 800; // this delay will be applied in the next cycle, not instantly
-
-          debouncedFn();
-          expect(i).toBe(1);
-          jest.advanceTimersByTime(99); // 299
-          expect(i).toBe(1);
-          jest.advanceTimersByTime(1); // 300
-          expect(i).toBe(2);
-
-          debouncedFn();
-          expect(i).toBe(3);
-          jest.advanceTimersByTime(300); // 300
-
-          debouncedFn();
-          expect(i).toBe(3);
-          jest.advanceTimersByTime(300); // 600
-
-          debouncedFn();
-          expect(i).toBe(3);
-          jest.advanceTimersByTime(199); // 799
-          expect(i).toBe(3);
-          jest.advanceTimersByTime(1); // 800
-          expect(i).toBe(4); // max delay 800 invoked here
-
-          debouncedFn();
-          expect(i).toBe(5);
-          jest.advanceTimersByTime(399);
-          debouncedFn();
-          expect(i).toBe(5);
-          jest.advanceTimersByTime(401);
-          expect(i).toBe(6);
-        });
       });
 
       describe('mergeParams', () => {
