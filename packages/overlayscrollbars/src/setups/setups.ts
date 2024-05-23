@@ -77,6 +77,7 @@ export type Setups = [
 export const createSetups = (
   target: InitializationTarget,
   options: ReadonlyOptions,
+  isDestroyed: () => boolean,
   onUpdated: (updateInfo: SetupsUpdateInfo, updateHints: SetupsUpdateHints) => void,
   onScroll: (scrollEvent: Event) => void
 ): Setups => {
@@ -114,6 +115,10 @@ export const createSetups = (
     updateInfo: SetupsUpdateInfo,
     observerUpdateHints?: ObserversSetupUpdateHints
   ): boolean => {
+    if (isDestroyed()) {
+      return false;
+    }
+
     const {
       _changedOptions: rawChangedOptions,
       _force: rawForce,

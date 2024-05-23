@@ -15,6 +15,10 @@ export interface DebounceOptions<FunctionToDebounce extends (...args: any) => an
    */
   _maxDelay?: DebounceTiming | (() => DebounceTiming);
   /**
+   * Defines the calling on the leading edge of the timeout.
+   */
+  _leading?: boolean;
+  /**
    * Function which merges parameters for each canceled debounce.
    * If parameters can't be merged the function will return null, otherwise it returns the merged parameters.
    */
@@ -62,16 +66,17 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
   functionToDebounce: FunctionToDebounce,
   options?: DebounceOptions<FunctionToDebounce>
 ): Debounced<FunctionToDebounce> => {
+  const { _timeout, _maxDelay, _leading, _mergeParams } = options || {};
   let maxTimeoutId: number | undefined;
   let prevArguments: Parameters<FunctionToDebounce> | null | undefined;
   let latestArguments: Parameters<FunctionToDebounce> | null | undefined;
+  let leadingInvoked: boolean | undefined;
   let clear = noop;
-  const { _timeout, _maxDelay, _mergeParams } = options || {};
 
   const invokeFunctionToDebounce = function (args: Parameters<FunctionToDebounce>) {
     clear();
     clearT(maxTimeoutId);
-    maxTimeoutId = prevArguments = undefined;
+    leadingInvoked = maxTimeoutId = prevArguments = undefined;
     clear = noop;
     // eslint-disable-next-line
     // @ts-ignore
@@ -110,9 +115,14 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
       // }
 
       clear();
-      // @ts-ignore
-      const timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
-      clear = () => clearTimeoutFn(timeoutId);
+      if (_leading && !leadingInvoked) {
+        boundInvoke();
+        leadingInvoked = true;
+      } else {
+        // @ts-ignore
+        const timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
+        clear = () => clearTimeoutFn(timeoutId);
+      }
 
       if (hasMaxWait && !maxTimeoutId) {
         maxTimeoutId = setT(flush, finalMaxWait as number);

@@ -295,6 +295,17 @@ export const createObserversSetup = (
       });
       prevContentRect = currContentRect;
     });
+  const onWindowResizeDebounced = debounce(
+    () => {
+      const [, _contentMutation] = updateContentSizeCache();
+      onObserversUpdated({ _contentMutation });
+    },
+    {
+      _timeout: 333,
+      _maxDelay: 666,
+      _leading: true,
+    }
+  );
 
   return [
     () => {
@@ -305,8 +316,11 @@ export const createObserversSetup = (
       const destroyTrinsicObserver = constructTrinsicObserver && constructTrinsicObserver();
       const destroyHostMutationObserver = constructHostMutationObserver();
       const removeResizeListener = env._addResizeListener((_scrollbarSizeChanged) => {
-        const [, _contentMutation] = updateContentSizeCache();
-        onObserversUpdatedDebounced({ _scrollbarSizeChanged, _contentMutation });
+        if (_scrollbarSizeChanged) {
+          onObserversUpdatedDebounced({ _scrollbarSizeChanged });
+        } else {
+          onWindowResizeDebounced();
+        }
       });
 
       return () => {

@@ -341,6 +341,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       createSetups(
         target,
         currentOptions,
+        () => destroyed,
         ({ _changedOptions, _force }, { _observersUpdateHints, _structureUpdateHints }) => {
           const {
             _sizeChanged,
