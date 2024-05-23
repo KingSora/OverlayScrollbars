@@ -124,12 +124,12 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
       } else {
         // @ts-ignore
         timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
+
+        if (hasMaxWait && !maxTimeoutId) {
+          maxTimeoutId = setT(flush, finalMaxWait as number);
+        }
       }
       clear = () => clearTimeoutFn(timeoutId);
-
-      if (hasMaxWait && !maxTimeoutId) {
-        maxTimeoutId = setT(flush, finalMaxWait as number);
-      }
 
       prevArguments = latestArguments = invokedArgs;
     } else {

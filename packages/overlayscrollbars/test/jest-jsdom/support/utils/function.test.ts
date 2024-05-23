@@ -483,6 +483,15 @@ describe('function', () => {
 
           jest.advanceTimersByTime(1);
           expect(i).toBe(2);
+
+          debouncedFn();
+          expect(i).toBe(3);
+          jest.advanceTimersByTime(100);
+
+          debouncedFn();
+          expect(i).toBe(4);
+          jest.advanceTimersByTime(200);
+          expect(i).toBe(4);
         });
 
         test('with maxDelay and longer timeout', async () => {
@@ -503,8 +512,13 @@ describe('function', () => {
           jest.advanceTimersByTime(1);
           expect(i).toBe(2);
 
-          jest.advanceTimersByTime(20000);
+          jest.advanceTimersByTime(10000);
           expect(i).toBe(2);
+
+          debouncedFn();
+          expect(i).toBe(3);
+          jest.advanceTimersByTime(20000);
+          expect(i).toBe(3);
         });
 
         test('with maxDelay and shorter timeout with multiple calls', async () => {
@@ -535,6 +549,11 @@ describe('function', () => {
 
           jest.advanceTimersByTime(1); // 500
           expect(i).toBe(2);
+
+          debouncedFn();
+          expect(i).toBe(3);
+          jest.advanceTimersByTime(1000);
+          expect(i).toBe(3);
         });
 
         test('with maxDelay function', async () => {
