@@ -26,6 +26,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    noDiscovery: true,
+    exclude: ['overlayscrollbars', 'overlayscrollbars-vue'],
   },
 });

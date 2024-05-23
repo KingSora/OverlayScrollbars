@@ -8,6 +8,6 @@ export default defineConfig({
     preserveSymlinks: true,
   },
   optimizeDeps: {
-    noDiscovery: true,
+    exclude: ['overlayscrollbars'],
   },
 });
