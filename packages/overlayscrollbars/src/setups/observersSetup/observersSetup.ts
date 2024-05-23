@@ -301,8 +301,7 @@ export const createObserversSetup = (
       onObserversUpdated({ _contentMutation });
     },
     {
-      _timeout: 333,
-      _maxDelay: 666,
+      _timeout: 222,
       _leading: true,
     }
   );
