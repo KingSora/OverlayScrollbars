@@ -109,6 +109,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
       const mergeParamsResult = mergeParms(args);
       const invokedArgs = mergeParamsResult || args;
       const boundInvoke = invokeFunctionToDebounce.bind(0, invokedArgs);
+      let timeoutId: number | undefined;
 
       // if (!mergeParamsResult) {
       //   invokeFunctionToDebounce(prevArguments || args);
@@ -118,11 +119,13 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
       if (_leading && !leadingInvoked) {
         boundInvoke();
         leadingInvoked = true;
+        // @ts-ignore
+        timeoutId = setTimeoutFn(() => (leadingInvoked = undefined), finalTimeout);
       } else {
         // @ts-ignore
-        const timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
-        clear = () => clearTimeoutFn(timeoutId);
+        timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
       }
+      clear = () => clearTimeoutFn(timeoutId);
 
       if (hasMaxWait && !maxTimeoutId) {
         maxTimeoutId = setT(flush, finalMaxWait as number);
