@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.3
+
+### Improvements
+
+- Performance improvements.
+
 ## 2.8.2
 
 ### Bug Fixes

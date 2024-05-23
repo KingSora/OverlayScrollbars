@@ -21,297 +21,299 @@ jest.mock('~/support/utils/alias', () => {
 
 describe('function', () => {
   describe('debounce', () => {
-    describe('timeout', () => {
-      test('without timeout', () => {
-        let i = 0;
-        const debouncedFn = debounce(() => {
-          i += 1;
+    describe('trailing', () => {
+      describe('timeout', () => {
+        test('without timeout', () => {
+          let i = 0;
+          const debouncedFn = debounce(() => {
+            i += 1;
+          });
+          expect(rAF).not.toHaveBeenCalled();
+          expect(setT).not.toHaveBeenCalled();
+          debouncedFn();
+          expect(rAF).not.toHaveBeenCalled();
+          expect(setT).not.toHaveBeenCalled();
+          expect(i).toBe(1);
         });
-        expect(rAF).not.toHaveBeenCalled();
-        expect(setT).not.toHaveBeenCalled();
-        debouncedFn();
-        expect(rAF).not.toHaveBeenCalled();
-        expect(setT).not.toHaveBeenCalled();
-        expect(i).toBe(1);
-      });
 
-      test('with timeout 0', async () => {
-        let i = 0;
-        const debouncedFn = debounce(
-          () => {
-            i += 1;
-          },
-          { _timeout: 0 }
-        );
+        test('with timeout 0', async () => {
+          let i = 0;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _timeout: 0 }
+          );
 
-        expect(rAF).not.toHaveBeenCalled();
-        expect(setT).not.toHaveBeenCalled();
-        debouncedFn();
-        expect(rAF).toHaveBeenCalledTimes(1);
-        expect(setT).not.toHaveBeenCalled();
-        expect(i).toBe(0);
+          expect(rAF).not.toHaveBeenCalled();
+          expect(setT).not.toHaveBeenCalled();
+          debouncedFn();
+          expect(rAF).toHaveBeenCalledTimes(1);
+          expect(setT).not.toHaveBeenCalled();
+          expect(i).toBe(0);
 
-        jest.advanceTimersByTime(0);
+          jest.advanceTimersByTime(0);
 
-        expect(i).toBe(1);
-      });
-
-      test('with timeout > 0', async () => {
-        let i = 0;
-        const debouncedFn = debounce(
-          () => {
-            i += 1;
-          },
-          { _timeout: 100 }
-        );
-
-        expect(rAF).not.toHaveBeenCalled();
-        expect(setT).not.toHaveBeenCalled();
-        debouncedFn();
-        expect(rAF).not.toHaveBeenCalled();
-        expect(setT).toHaveBeenCalledTimes(1);
-
-        expect(i).toBe(0);
-
-        jest.advanceTimersByTime(100);
-
-        expect(i).toBe(1);
-      });
-
-      test('with timeout > 0 and multiple calls', async () => {
-        let i = 0;
-        const debouncedFn = debounce(
-          () => {
-            i += 1;
-          },
-          { _timeout: 200 }
-        );
-
-        debouncedFn();
-        jest.advanceTimersByTime(100);
-        expect(i).toBe(0);
-
-        debouncedFn();
-        jest.advanceTimersByTime(100);
-        expect(i).toBe(0);
-
-        debouncedFn();
-        jest.advanceTimersByTime(100);
-        expect(i).toBe(0);
-
-        debouncedFn();
-        jest.advanceTimersByTime(100);
-        expect(i).toBe(0);
-
-        debouncedFn();
-        jest.advanceTimersByTime(200);
-        expect(i).toBe(1);
-      });
-
-      test('with timeout function', async () => {
-        let i = 0;
-        let timeoutMs = 200;
-        const debouncedFn = debounce(
-          () => {
-            i += 1;
-          },
-          { _timeout: () => timeoutMs }
-        );
-
-        debouncedFn();
-        jest.advanceTimersByTime(100);
-        expect(i).toBe(0);
-
-        timeoutMs = 1000;
-
-        debouncedFn();
-        jest.advanceTimersByTime(500);
-        expect(i).toBe(0);
-
-        jest.advanceTimersByTime(500);
-        expect(i).toBe(1);
-      });
-    });
-
-    describe('maxDelay', () => {
-      test('without maxDelay', async () => {
-        let i = 0;
-        const debouncedFn = debounce(
-          () => {
-            i += 1;
-          },
-          { _timeout: 100 }
-        );
-        debouncedFn();
-        expect(i).toBe(0);
-
-        jest.advanceTimersByTime(99);
-        expect(i).toBe(0);
-
-        jest.advanceTimersByTime(1);
-        expect(i).toBe(1);
-      });
-
-      test('with maxDelay and longer timeout', async () => {
-        let i = 0;
-        const debouncedFn = debounce(
-          () => {
-            i += 1;
-          },
-          { _timeout: 10000, _maxDelay: 100 }
-        );
-        debouncedFn();
-        expect(i).toBe(0);
-
-        jest.advanceTimersByTime(99);
-        expect(i).toBe(0);
-
-        jest.advanceTimersByTime(1);
-        expect(i).toBe(1);
-      });
-
-      test('with maxDelay and shorter timeout with multiple calls', async () => {
-        let i = 0;
-        const debouncedFn = debounce(
-          () => {
-            i += 1;
-          },
-          { _timeout: 200, _maxDelay: 500 }
-        );
-        debouncedFn();
-        jest.advanceTimersByTime(150); // 150
-        expect(i).toBe(0);
-
-        debouncedFn();
-        jest.advanceTimersByTime(150); // 300
-
-        debouncedFn();
-        jest.advanceTimersByTime(150); // 450
-        expect(i).toBe(0);
-
-        debouncedFn();
-        jest.advanceTimersByTime(49); // 499
-        expect(i).toBe(0);
-
-        jest.advanceTimersByTime(1); // 500
-        expect(i).toBe(1);
-      });
-
-      test('with maxDelay function', async () => {
-        let i = 0;
-        let maxDelayMs = 300;
-        const debouncedFn = debounce(
-          () => {
-            i += 1;
-          },
-          { _timeout: 400, _maxDelay: () => maxDelayMs }
-        );
-        debouncedFn();
-        expect(i).toBe(0);
-        jest.advanceTimersByTime(100); // 100
-
-        debouncedFn();
-        expect(i).toBe(0);
-        jest.advanceTimersByTime(100); // 200
-
-        maxDelayMs = 800; // this delay will be applied in the next cycle, not instantly
-
-        debouncedFn();
-        expect(i).toBe(0);
-        jest.advanceTimersByTime(99); // 299
-        expect(i).toBe(0);
-        jest.advanceTimersByTime(1); // 300
-        expect(i).toBe(1);
-
-        debouncedFn();
-        expect(i).toBe(1);
-        jest.advanceTimersByTime(300); // 300
-
-        debouncedFn();
-        expect(i).toBe(1);
-        jest.advanceTimersByTime(300); // 600
-
-        debouncedFn();
-        expect(i).toBe(1);
-        jest.advanceTimersByTime(199); // 799
-        expect(i).toBe(1);
-        jest.advanceTimersByTime(1); // 800
-        expect(i).toBe(2); // max delay 800 invoked here
-
-        debouncedFn();
-        expect(i).toBe(2);
-        jest.advanceTimersByTime(399);
-        debouncedFn();
-        expect(i).toBe(2);
-        jest.advanceTimersByTime(401);
-        expect(i).toBe(3);
-      });
-    });
-
-    describe('mergeParams', () => {
-      test('with correct mergeParams function', async () => {
-        let i = 0;
-        const _mergeParams = jest.fn((prev: [number, number], curr: [number, number]) => {
-          const [prevA, prevB] = prev;
-          const [currA, currB] = curr;
-
-          return [prevA + currA, prevB + currB] as [number, number];
+          expect(i).toBe(1);
         });
-        const debouncedFn = debounce(
-          (a: number, b: number) => {
-            i += a * b;
-          },
-          { _timeout: 200, _mergeParams }
-        );
-        debouncedFn(1, 1);
-        expect(i).toBe(0);
-        expect(_mergeParams).not.toHaveBeenCalled();
 
-        jest.advanceTimersByTime(100); // 100
+        test('with timeout > 0', async () => {
+          let i = 0;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _timeout: 100 }
+          );
 
-        debouncedFn(4, 4);
-        expect(i).toBe(0);
-        expect(_mergeParams).toHaveBeenLastCalledWith([1, 1], [4, 4]);
+          expect(rAF).not.toHaveBeenCalled();
+          expect(setT).not.toHaveBeenCalled();
+          debouncedFn();
+          expect(rAF).not.toHaveBeenCalled();
+          expect(setT).toHaveBeenCalledTimes(1);
 
-        jest.advanceTimersByTime(100); // 200
+          expect(i).toBe(0);
 
-        debouncedFn(10, 10);
-        expect(i).toBe(0);
-        expect(_mergeParams).toHaveBeenLastCalledWith([5, 5], [10, 10]);
+          jest.advanceTimersByTime(100);
 
-        jest.advanceTimersByTime(250); // 450
+          expect(i).toBe(1);
+        });
 
-        expect(i).toBe(15 * 15);
+        test('with timeout > 0 and multiple calls', async () => {
+          let i = 0;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _timeout: 200 }
+          );
+
+          debouncedFn();
+          jest.advanceTimersByTime(100);
+          expect(i).toBe(0);
+
+          debouncedFn();
+          jest.advanceTimersByTime(100);
+          expect(i).toBe(0);
+
+          debouncedFn();
+          jest.advanceTimersByTime(100);
+          expect(i).toBe(0);
+
+          debouncedFn();
+          jest.advanceTimersByTime(100);
+          expect(i).toBe(0);
+
+          debouncedFn();
+          jest.advanceTimersByTime(200);
+          expect(i).toBe(1);
+        });
+
+        test('with timeout function', async () => {
+          let i = 0;
+          let timeoutMs = 200;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _timeout: () => timeoutMs }
+          );
+
+          debouncedFn();
+          jest.advanceTimersByTime(100);
+          expect(i).toBe(0);
+
+          timeoutMs = 1000;
+
+          debouncedFn();
+          jest.advanceTimersByTime(500);
+          expect(i).toBe(0);
+
+          jest.advanceTimersByTime(500);
+          expect(i).toBe(1);
+        });
       });
 
-      test('without correct mergeParams function', async () => {
-        let i = 0;
-        const _mergeParams = jest.fn(() => null);
-        const debouncedFn = debounce(
-          (a, b) => {
-            i += a * b;
-          },
-          { _timeout: 200, _mergeParams }
-        );
-        debouncedFn(1, 1);
-        expect(i).toBe(0);
-        expect(_mergeParams).not.toHaveBeenCalled();
+      describe('maxDelay', () => {
+        test('without maxDelay', async () => {
+          let i = 0;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _timeout: 100 }
+          );
+          debouncedFn();
+          expect(i).toBe(0);
 
-        jest.advanceTimersByTime(100); // 100
+          jest.advanceTimersByTime(99);
+          expect(i).toBe(0);
 
-        debouncedFn(2, 2);
-        expect(i).toBe(0);
-        expect(_mergeParams).toHaveBeenLastCalledWith([1, 1], [2, 2]);
+          jest.advanceTimersByTime(1);
+          expect(i).toBe(1);
+        });
 
-        jest.advanceTimersByTime(100); // 200
+        test('with maxDelay and longer timeout', async () => {
+          let i = 0;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _timeout: 10000, _maxDelay: 100 }
+          );
+          debouncedFn();
+          expect(i).toBe(0);
 
-        debouncedFn(3, 3);
-        expect(i).toBe(0);
-        expect(_mergeParams).toHaveBeenLastCalledWith([2, 2], [3, 3]);
+          jest.advanceTimersByTime(99);
+          expect(i).toBe(0);
 
-        jest.advanceTimersByTime(250); // 450
+          jest.advanceTimersByTime(1);
+          expect(i).toBe(1);
+        });
 
-        expect(i).toBe(3 * 3);
+        test('with maxDelay and shorter timeout with multiple calls', async () => {
+          let i = 0;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _timeout: 200, _maxDelay: 500 }
+          );
+          debouncedFn();
+          jest.advanceTimersByTime(150); // 150
+          expect(i).toBe(0);
+
+          debouncedFn();
+          jest.advanceTimersByTime(150); // 300
+
+          debouncedFn();
+          jest.advanceTimersByTime(150); // 450
+          expect(i).toBe(0);
+
+          debouncedFn();
+          jest.advanceTimersByTime(49); // 499
+          expect(i).toBe(0);
+
+          jest.advanceTimersByTime(1); // 500
+          expect(i).toBe(1);
+        });
+
+        test('with maxDelay function', async () => {
+          let i = 0;
+          let maxDelayMs = 300;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _timeout: 400, _maxDelay: () => maxDelayMs }
+          );
+          debouncedFn();
+          expect(i).toBe(0);
+          jest.advanceTimersByTime(100); // 100
+
+          debouncedFn();
+          expect(i).toBe(0);
+          jest.advanceTimersByTime(100); // 200
+
+          maxDelayMs = 800; // this delay will be applied in the next cycle, not instantly
+
+          debouncedFn();
+          expect(i).toBe(0);
+          jest.advanceTimersByTime(99); // 299
+          expect(i).toBe(0);
+          jest.advanceTimersByTime(1); // 300
+          expect(i).toBe(1);
+
+          debouncedFn();
+          expect(i).toBe(1);
+          jest.advanceTimersByTime(300); // 300
+
+          debouncedFn();
+          expect(i).toBe(1);
+          jest.advanceTimersByTime(300); // 600
+
+          debouncedFn();
+          expect(i).toBe(1);
+          jest.advanceTimersByTime(199); // 799
+          expect(i).toBe(1);
+          jest.advanceTimersByTime(1); // 800
+          expect(i).toBe(2); // max delay 800 invoked here
+
+          debouncedFn();
+          expect(i).toBe(2);
+          jest.advanceTimersByTime(399);
+          debouncedFn();
+          expect(i).toBe(2);
+          jest.advanceTimersByTime(401);
+          expect(i).toBe(3);
+        });
+      });
+
+      describe('mergeParams', () => {
+        test('with correct mergeParams function', async () => {
+          let i = 0;
+          const _mergeParams = jest.fn((prev: [number, number], curr: [number, number]) => {
+            const [prevA, prevB] = prev;
+            const [currA, currB] = curr;
+
+            return [prevA + currA, prevB + currB] as [number, number];
+          });
+          const debouncedFn = debounce(
+            (a: number, b: number) => {
+              i += a * b;
+            },
+            { _timeout: 200, _mergeParams }
+          );
+          debouncedFn(1, 1);
+          expect(i).toBe(0);
+          expect(_mergeParams).not.toHaveBeenCalled();
+
+          jest.advanceTimersByTime(100); // 100
+
+          debouncedFn(4, 4);
+          expect(i).toBe(0);
+          expect(_mergeParams).toHaveBeenLastCalledWith([1, 1], [4, 4]);
+
+          jest.advanceTimersByTime(100); // 200
+
+          debouncedFn(10, 10);
+          expect(i).toBe(0);
+          expect(_mergeParams).toHaveBeenLastCalledWith([5, 5], [10, 10]);
+
+          jest.advanceTimersByTime(250); // 450
+
+          expect(i).toBe(15 * 15);
+        });
+
+        test('without correct mergeParams function', async () => {
+          let i = 0;
+          const _mergeParams = jest.fn(() => null);
+          const debouncedFn = debounce(
+            (a, b) => {
+              i += a * b;
+            },
+            { _timeout: 200, _mergeParams }
+          );
+          debouncedFn(1, 1);
+          expect(i).toBe(0);
+          expect(_mergeParams).not.toHaveBeenCalled();
+
+          jest.advanceTimersByTime(100); // 100
+
+          debouncedFn(2, 2);
+          expect(i).toBe(0);
+          expect(_mergeParams).toHaveBeenLastCalledWith([1, 1], [2, 2]);
+
+          jest.advanceTimersByTime(100); // 200
+
+          debouncedFn(3, 3);
+          expect(i).toBe(0);
+          expect(_mergeParams).toHaveBeenLastCalledWith([2, 2], [3, 3]);
+
+          jest.advanceTimersByTime(250); // 450
+
+          expect(i).toBe(3 * 3);
+        });
       });
     });
   });
