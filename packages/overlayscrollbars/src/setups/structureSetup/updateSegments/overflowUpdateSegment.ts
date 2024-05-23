@@ -27,6 +27,7 @@ import {
   addEventListener,
   stopPropagation,
   rAF,
+  hasAttrClass,
 } from '~/support';
 import { getEnvironment } from '~/environment';
 import {
@@ -270,7 +271,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     }
 
     if (viewportChanged) {
-      setMeasuringMode(true);
+      if (hasAttrClass(_host, dataAttributeHost, dataValueNoClipping)) {
+        setMeasuringMode(true);
+      }
 
       const [redoViewportArrange] = _undoViewportArrange ? _undoViewportArrange() : [];
 
