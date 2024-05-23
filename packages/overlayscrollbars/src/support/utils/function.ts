@@ -129,7 +129,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
           maxTimeoutId = setT(flush, finalMaxWait as number);
         }
       }
-      clear = () => clearTimeoutFn(timeoutId);
+      clear = () => clearTimeoutFn(timeoutId as number);
 
       prevArguments = latestArguments = invokedArgs;
     } else {
