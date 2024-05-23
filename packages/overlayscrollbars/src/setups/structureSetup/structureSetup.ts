@@ -16,7 +16,6 @@ import {
   type TRBL,
   type XY,
 } from '~/support';
-import { dataValueViewportMeasuring } from '~/classnames';
 import type { ScrollCoordinates } from '~/support';
 import type { StructureSetupElementsObj } from './structureSetup.elements';
 import type {
@@ -107,7 +106,7 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     },
     _scrollCoordinates: getZeroScrollCoordinates(),
   };
-  const { _target, _scrollOffsetElement, _viewportIsTarget, _viewportAddRemoveClass } = elements;
+  const { _target, _scrollOffsetElement, _viewportIsTarget } = elements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } = getEnvironment();
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
@@ -123,7 +122,6 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     (updateInfo) => {
       const updateHints: StructureSetupUpdateHints = {};
       const adjustScrollOffset = doViewportArrange;
-      const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
       const scrollOffset = adjustScrollOffset && getElementScroll(_scrollOffsetElement);
 
       each(updateSegments, (updateSegment) => {
@@ -132,7 +130,6 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
 
       scrollElementTo(_scrollOffsetElement, scrollOffset);
       !_viewportIsTarget && scrollElementTo(_target, 0);
-      revertMeasuring();
 
       return updateHints;
     },

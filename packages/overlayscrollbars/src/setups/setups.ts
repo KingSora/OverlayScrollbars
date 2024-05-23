@@ -8,7 +8,6 @@ import {
   scrollElementTo,
 } from '~/support';
 import { createOptionCheck } from '~/options';
-import { dataValueViewportMeasuring } from '~/classnames';
 import type { OptionsCheckFn, Options, PartialOptions, ReadonlyOptions } from '~/options';
 import type { DeepReadonly } from '~/typings';
 import type { InitializationTarget } from '~/initialization';
@@ -171,14 +170,11 @@ export const createSetups = (
 
   return [
     () => {
-      const { _originalScrollOffsetElement, _scrollOffsetElement, _viewportAddRemoveClass } =
-        structureSetupElements;
-      const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
+      const { _originalScrollOffsetElement, _scrollOffsetElement } = structureSetupElements;
       const initialScroll = getElementScroll(_originalScrollOffsetElement);
       const destroyFns = [observersSetupCreate(), structureSetupCreate(), scrollbarsSetupCreate()];
 
       scrollElementTo(_scrollOffsetElement, initialScroll);
-      revertMeasuring();
 
       return bind(runEachAndClear, destroyFns);
     },

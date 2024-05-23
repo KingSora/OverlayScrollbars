@@ -17,6 +17,7 @@ import {
   domRectAppeared,
   concat,
   getStyles,
+  hasAttrClass,
 } from '~/support';
 import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
 import { getEnvironment } from '~/environment';
@@ -26,6 +27,7 @@ import {
   dataAttributeViewport,
   dataValueViewportMeasuring,
   dataValueViewportArrange,
+  dataValueNoClipping,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { Options, OptionsCheckFn } from '~/options';
@@ -73,9 +75,6 @@ export const createObserversSetup = (
   let destroyContentMutationObserver: (() => void) | undefined;
   let prevContentRect: DOMRectReadOnly | undefined;
   let prevDirectionIsRTL: boolean | undefined;
-
-  const { _nativeScrollbarsHiding } = getEnvironment();
-
   const hostSelector = `[${dataAttributeHost}]`;
 
   // TODO: observer textarea attrs if textarea
@@ -123,10 +122,11 @@ export const createObserversSetup = (
           getCurrentOption
         )._undoViewportArrange;
 
+      const noClipping = hasAttrClass(_host, dataAttributeHost, dataValueNoClipping);
       const isArranged = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
       const scrollOffset = isArranged && getElementScroll(_scrollOffsetElement);
 
-      const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, true);
+      const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, noClipping);
       const redoViewportArrange = isArranged && _undoViewportArrange && _undoViewportArrange()[0];
 
       const contentScroll = getScrollSize(_content);
@@ -136,7 +136,7 @@ export const createObserversSetup = (
       redoViewportArrange && redoViewportArrange();
 
       scrollElementTo(_scrollOffsetElement, scrollOffset);
-      revertMeasuring();
+      noClipping && revertMeasuring();
 
       return {
         w: viewportScroll.w + contentScroll.w + fractional.w,
@@ -207,7 +207,7 @@ export const createObserversSetup = (
       // use debounceed update:
       // if native scrollbars hiding is supported
       // and if the update is more than just a exclusive sizeChange (e.g. size change + appear, or size change + direction)
-      !exclusiveSizeChange && _nativeScrollbarsHiding
+      !exclusiveSizeChange && env._nativeScrollbarsHiding
         ? onObserversUpdatedDebounced
         : onObserversUpdated;
 
@@ -263,7 +263,6 @@ export const createObserversSetup = (
     return updateHints;
   };
 
-  const { _addResizeListener } = env;
   const [constructTrinsicObserver, updateTrinsicObserver] = _content
     ? createTrinsicObserver(_host, onTrinsicChanged)
     : [];
@@ -304,7 +303,7 @@ export const createObserversSetup = (
       const destroySizeObserver = constructSizeObserver && constructSizeObserver();
       const destroyTrinsicObserver = constructTrinsicObserver && constructTrinsicObserver();
       const destroyHostMutationObserver = constructHostMutationObserver();
-      const removeResizeListener = _addResizeListener((_scrollbarSizeChanged) => {
+      const removeResizeListener = env._addResizeListener((_scrollbarSizeChanged) => {
         const [, _contentMutation] = updateContentSizeCache();
         onObserversUpdatedDebounced({ _scrollbarSizeChanged, _contentMutation });
       });

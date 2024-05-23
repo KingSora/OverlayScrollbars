@@ -38,6 +38,7 @@ import {
   dataValueViewportOverflowXPrefix,
   dataValueViewportOverflowYPrefix,
   dataValueViewportNoContent,
+  dataValueViewportMeasuring,
 } from '~/classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
 import type { ScrollCoordinates, WH, XY } from '~/support';
@@ -92,6 +93,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _equal: equalXY,
     _initialValue: {},
   };
+  const setMeasuringMode = (active: boolean) => {
+    _viewportAddRemoveClass(dataValueViewportMeasuring, active);
+  };
+
   const getOverflowAmount = (
     viewportScrollSize: WH<number>,
     viewportClientSize: WH<number>
@@ -108,6 +113,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     };
   };
   const measureScrollCoordinates = (): ScrollCoordinates => {
+    setMeasuringMode(true);
+
     const originalScrollOffset = getElementScroll(_scrollOffsetElement);
     const removeNoContent = _viewportAddRemoveClass(dataValueViewportNoContent, true);
     const removeScrollBlock = addEventListener(
@@ -258,6 +265,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     }
 
     if (viewportChanged) {
+      setMeasuringMode(true);
+
       const [redoViewportArrange] = _undoViewportArrange ? _undoViewportArrange() : [];
 
       const [sizeFraction] = (sizeFractionCache = updateSizeFraction(_force));
@@ -349,6 +358,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         );
       }
     }
+
+    setMeasuringMode(false);
 
     addRemoveAttrClass(_host, dataAttributeHost, dataValueNoClipping, removeClipping);
     addRemoveAttrClass(_padding, dataAttributePadding, dataValueNoClipping, removeClipping);
