@@ -91,6 +91,7 @@ export const createObserversSetup = (
     _content,
     _isTextarea,
     _viewportIsTarget,
+    _isBody,
     _viewportHasClass,
     _viewportAddRemoveClass,
   } = structureSetupElements;
@@ -122,14 +123,14 @@ export const createObserversSetup = (
           getCurrentOption
         )._undoViewportArrange;
 
-      const noClipping = hasAttrClass(_host, dataAttributeHost, dataValueNoClipping);
+      const viewportIsTargetBody = _isBody && _viewportIsTarget;
+      const noClipping =
+        !viewportIsTargetBody && hasAttrClass(_host, dataAttributeHost, dataValueNoClipping);
       const isArranged = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
       const scrollOffset = isArranged && getElementScroll(_scrollOffsetElement);
 
       const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, noClipping);
       const redoViewportArrange = isArranged && _undoViewportArrange && _undoViewportArrange()[0];
-
-      const contentScroll = getScrollSize(_content);
       const viewportScroll = getScrollSize(_viewport);
       const fractional = getFractionalSize(_viewport);
 
@@ -139,8 +140,8 @@ export const createObserversSetup = (
       noClipping && revertMeasuring();
 
       return {
-        w: viewportScroll.w + contentScroll.w + fractional.w,
-        h: viewportScroll.h + contentScroll.h + fractional.h,
+        w: viewportScroll.w + fractional.w,
+        h: viewportScroll.h + fractional.h,
       };
     }
   );
