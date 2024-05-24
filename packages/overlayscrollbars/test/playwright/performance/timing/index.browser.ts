@@ -73,7 +73,7 @@ const createTimingTest = (testCase: (onCompleted: () => void) => void, maxSample
 
 startBtn.addEventListener('click', async () => {
   setTestResult(null);
-
+  await timeout(1000);
   try {
     const noForceUpdateTest = createTimingTest((completed) => {
       for (let i = 0; i < 10000; i++) {
@@ -83,7 +83,7 @@ startBtn.addEventListener('click', async () => {
     });
     const noForceUpdateTestResult = await noForceUpdateTest.run();
     console.error(
-      `No Force Update (10k runs): { samples: ${noForceUpdateTestResult.samples}, timeMs: ${noForceUpdateTestResult.timeMs} }`
+      `No Force Update (10k runs / sample): { samples: ${noForceUpdateTestResult.samples}, timeMs: ${noForceUpdateTestResult.timeMs} }`
     );
 
     const forceUpdateTest = createTimingTest((completed) => {
@@ -94,7 +94,7 @@ startBtn.addEventListener('click', async () => {
     });
     const forceUpdateTestResult = await forceUpdateTest.run();
     console.error(
-      `Force Update (1k runs): { samples: ${forceUpdateTestResult.samples}, timeMs: ${forceUpdateTestResult.timeMs} }`
+      `Force Update (1k runs / sample): { samples: ${forceUpdateTestResult.samples}, timeMs: ${forceUpdateTestResult.timeMs} }`
     );
 
     setTestResult(true);

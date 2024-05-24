@@ -174,7 +174,7 @@ const createFramerateTest = (
 
 startBtn.addEventListener('click', async () => {
   setTestResult(null);
-
+  await timeout(1000);
   try {
     const wrapperResizeFpsTest = createFramerateTest(async (completed) => {
       const width = wrapper.offsetWidth;
