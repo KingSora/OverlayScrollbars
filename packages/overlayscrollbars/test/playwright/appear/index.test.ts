@@ -4,8 +4,8 @@ import { test } from '@playwright/test';
 playwrightRollup();
 
 test.describe('appear', () => {
-  test.beforeEach(({ page }) => {
-    page.mouse.move(0, 0);
+  test.beforeEach(async ({ page }) => {
+    await page.mouse.move(0, 0);
   });
 
   test('default', async ({ page }) => {

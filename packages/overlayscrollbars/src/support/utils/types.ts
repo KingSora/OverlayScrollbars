@@ -47,7 +47,9 @@ export const isArrayLike = <T extends PlainObject = any>(obj: any): obj is Array
  * @param obj The Object.
  */
 export const isPlainObject = <T = any>(obj: any): obj is PlainObject<T> => {
-  if (!obj || !isObject(obj) || type(obj) !== 'object') return false;
+  if (!obj || !isObject(obj)) {
+    return false;
+  }
 
   let key;
   const cstr = 'constructor';

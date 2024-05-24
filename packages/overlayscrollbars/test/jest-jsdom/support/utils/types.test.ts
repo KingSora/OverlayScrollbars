@@ -179,6 +179,7 @@ describe('types', () => {
       objectEmpty: true,
       objectCreate: true,
       arrayLikeObject: true,
+      window: true, // should be false for correctness but can stay true for smaller bundle size
     });
   });
 
