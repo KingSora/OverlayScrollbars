@@ -216,28 +216,22 @@ export const createScrollbarsSetupEvents = (
     ) => {
       const [requestTransitionAnimationFrame, cancelTransitionAnimationFrame] = selfClearTimeout();
       const isTransitionTarget = (event: TransitionEvent) => event.target === target;
-      const transitionStartAnimation = () => {
-        const animateHandleOffset = () => {
-          refreshHandleOffsetTransition();
-          requestTransitionAnimationFrame(animateHandleOffset);
-        };
-        animateHandleOffset();
-      };
-      const transitionEndAnimation = () => {
-        cancelTransitionAnimationFrame();
-        refreshHandleOffsetTransition();
-      };
 
       return bind(runEachAndClear, [
         cancelTransitionAnimationFrame,
         addEventListener(target, 'transitionstart', (event: TransitionEvent) => {
           if (isTransitionTarget(event) && (isAffecting ? isAffecting(event) : true)) {
-            transitionStartAnimation();
+            const animateHandleOffset = () => {
+              refreshHandleOffsetTransition();
+              requestTransitionAnimationFrame(animateHandleOffset);
+            };
+            animateHandleOffset();
           }
         }),
         addEventListener(target, 'transitionend transitioncancel', (event: TransitionEvent) => {
           if (isTransitionTarget(event)) {
-            transitionEndAnimation();
+            cancelTransitionAnimationFrame();
+            refreshHandleOffsetTransition();
           }
         }),
       ]);
@@ -295,7 +289,10 @@ export const createScrollbarsSetupEvents = (
         (event: TransitionEvent) => event.propertyName.indexOf(widthHeightKey) > -1
       ),
       // when the scrollbar has a size transition, update the handle offset each frame for the time of the transition
-      addTransitionAnimation(_scrollbar),
+      addTransitionAnimation(
+        _scrollbar,
+        (event: TransitionEvent) => !['opacity', 'visibility'].includes(event.propertyName)
+      ),
       // solve problem of interaction causing click events
       addEventListener(
         _scrollbar,
