@@ -293,7 +293,6 @@ startBtn.addEventListener('click', async () => {
     console.error(
       `Wrapper Resize: { samples: ${wrapperResizeTestResult.samples}, fps: ${wrapperResizeTestResult.fps} }`
     );
-
     console.error(
       `Target Resize: { samples: ${targetResizeFpsTestResult.samples}, fps: ${targetResizeFpsTestResult.fps} }`
     );

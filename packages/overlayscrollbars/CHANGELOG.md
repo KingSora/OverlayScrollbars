@@ -4,7 +4,8 @@
 
 ### Improvements
 
-- Performance improvements.
+- Improvements to update performance.
+- Added automated e2e performance metrics.
 
 ## 2.8.2
 
