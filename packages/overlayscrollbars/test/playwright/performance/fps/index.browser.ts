@@ -286,21 +286,20 @@ startBtn.addEventListener('click', async () => {
     });
 
     const wrapperResizeTestResult = await wrapperResizeFpsTest.run();
+    const targetResizeFpsTestResult = await targetResizeFpsTest.run();
+    const contentResizeFpsTestResult = await contentResizeFpsTest.run();
+    const scrollAnimationFpsTestResult = await scrollAnimationFpsTest.run();
+
     console.error(
       `Wrapper Resize: { samples: ${wrapperResizeTestResult.samples}, fps: ${wrapperResizeTestResult.fps} }`
     );
 
-    const targetResizeFpsTestResult = await targetResizeFpsTest.run();
     console.error(
       `Target Resize: { samples: ${targetResizeFpsTestResult.samples}, fps: ${targetResizeFpsTestResult.fps} }`
     );
-
-    const contentResizeFpsTestResult = await contentResizeFpsTest.run();
     console.error(
       `Content Resize: { samples: ${contentResizeFpsTestResult.samples}, fps: ${contentResizeFpsTestResult.fps} }`
     );
-
-    const scrollAnimationFpsTestResult = await scrollAnimationFpsTest.run();
     console.error(
       `Scroll Animation: { samples: ${scrollAnimationFpsTestResult.samples}, fps: ${scrollAnimationFpsTestResult.fps} }`
     );

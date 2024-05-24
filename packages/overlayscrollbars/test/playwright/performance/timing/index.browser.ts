@@ -82,9 +82,6 @@ startBtn.addEventListener('click', async () => {
       completed();
     });
     const noForceUpdateTestResult = await noForceUpdateTest.run();
-    console.error(
-      `No Force Update (10k runs / sample): { samples: ${noForceUpdateTestResult.samples}, timeMs: ${noForceUpdateTestResult.timeMs} }`
-    );
 
     const forceUpdateTest = createTimingTest((completed) => {
       for (let i = 0; i < 1000; i++) {
@@ -93,6 +90,10 @@ startBtn.addEventListener('click', async () => {
       completed();
     });
     const forceUpdateTestResult = await forceUpdateTest.run();
+
+    console.error(
+      `No Force Update (10k runs / sample): { samples: ${noForceUpdateTestResult.samples}, timeMs: ${noForceUpdateTestResult.timeMs} }`
+    );
     console.error(
       `Force Update (1k runs / sample): { samples: ${forceUpdateTestResult.samples}, timeMs: ${forceUpdateTestResult.timeMs} }`
     );
