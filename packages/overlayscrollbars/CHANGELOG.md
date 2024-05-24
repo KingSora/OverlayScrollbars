@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.4
+
+### Improvements
+
+- The scrollbar handle size is now updated if the corresponding scrollbar element has an transition. 
+
 ## 2.8.3
 
 ### Improvements
