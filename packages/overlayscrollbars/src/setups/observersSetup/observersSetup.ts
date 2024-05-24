@@ -316,7 +316,11 @@ export const createObserversSetup = (
       const destroyHostMutationObserver = constructHostMutationObserver();
       const removeResizeListener = env._addResizeListener((_scrollbarSizeChanged) => {
         if (_scrollbarSizeChanged) {
-          onObserversUpdatedDebounced({ _scrollbarSizeChanged, _contentMutation: true });
+          onObserversUpdatedDebounced({
+            _scrollbarSizeChanged,
+            _contentMutation: true,
+            _sizeChanged: true,
+          });
         } else {
           onWindowResizeDebounced();
         }
