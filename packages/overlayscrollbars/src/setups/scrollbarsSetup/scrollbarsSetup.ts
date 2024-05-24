@@ -260,6 +260,8 @@ export const createScrollbarsSetup = (
         _scrollbarsAddRemoveClass(classNameScrollbarTrackInteractive, clickScroll);
       }
 
+      // always update scrollbar visibility before scrollbar size
+      // the scrollbar size is influenced whether both or just one scrollbar is visible (because of the corner element)
       if (updateVisibility) {
         const xVisible = setScrollbarVisibility(overflow.x, _overflowStyle.x, true);
         const yVisible = setScrollbarVisibility(overflow.y, _overflowStyle.y, false);
@@ -268,6 +270,7 @@ export const createScrollbarsSetup = (
         _scrollbarsAddRemoveClass(classNameScrollbarCornerless, !hasCorner);
       }
 
+      // always update scrollbar sizes after the visibility
       if (updateScrollbars) {
         // order is matter! length has to be refreshed before offset
         _refreshScrollbarsHandleLength();

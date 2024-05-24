@@ -12,7 +12,7 @@ body > .os-scrollbar {
   z-index: 99999;
 }
 .os-scrollbar-transitionless {
-  transition: none;
+  transition: none !important;
 }
 .os-scrollbar-track {
   position: relative;

@@ -153,7 +153,11 @@ const createEnvironment = (): Env => {
     triggerEvent('r', []);
   });
 
-  if (isFunction(wnd.matchMedia)) {
+  if (
+    isFunction(wnd.matchMedia) &&
+    !nativeScrollbarsHiding &&
+    (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)
+  ) {
     const addZoomListener = (onZoom: () => void) => {
       const media = wnd.matchMedia(`(resolution: ${wnd.devicePixelRatio}dppx)`);
       addEventListener(
@@ -169,14 +173,10 @@ const createEnvironment = (): Env => {
       );
     };
     addZoomListener(() => {
-      let updatedNativeScrollbarSize, nativeScrollbarSizeChanged;
+      const [updatedNativeScrollbarSize, nativeScrollbarSizeChanged] =
+        updateNativeScrollbarSizeCache();
 
-      // updating scrollbar size is only needed if there is no `nativeScrollbarsHiding` support and the native scrollbars are not overlaid
-      if (!nativeScrollbarsHiding && (!nativeScrollbarsOverlaid.x || !nativeScrollbarsOverlaid.y)) {
-        [updatedNativeScrollbarSize, nativeScrollbarSizeChanged] = updateNativeScrollbarSizeCache();
-        assignDeep(env._nativeScrollbarsSize, updatedNativeScrollbarSize); // keep the object and just re-assign!
-      }
-
+      assignDeep(env._nativeScrollbarsSize, updatedNativeScrollbarSize); // keep the object and just re-assign!
       triggerEvent('r', [nativeScrollbarSizeChanged]);
     });
   }

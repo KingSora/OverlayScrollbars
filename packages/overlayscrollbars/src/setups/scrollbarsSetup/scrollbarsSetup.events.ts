@@ -72,8 +72,6 @@ export const createScrollbarsSetupEvents = (
     const [wheelTimeout, clearWheelTimeout] = selfClearTimeout(333);
     const [scrollSnapScrollTransitionTimeout, clearScrollSnapScrollTransitionTimeout] =
       selfClearTimeout(444);
-    const [requestHandleTransitionAnimationFrame, clearHandleTransitionTimeout] =
-      selfClearTimeout();
     const refreshHandleOffsetTransition = bind(
       refreshScrollbarStructuresHandleOffset,
       [scrollbarStructure],
@@ -211,8 +209,39 @@ export const createScrollbarsSetupEvents = (
     };
 
     let wheelScrollBy = true;
-    const isAffectingTransition = (event: TransitionEvent) =>
-      event.propertyName.indexOf(widthHeightKey) > -1;
+
+    const addTransitionAnimation = (
+      target: HTMLElement,
+      isAffecting?: (event: TransitionEvent) => boolean
+    ) => {
+      const [requestTransitionAnimationFrame, cancelTransitionAnimationFrame] = selfClearTimeout();
+      const isTransitionTarget = (event: TransitionEvent) => event.target === target;
+      const transitionStartAnimation = () => {
+        const animateHandleOffset = () => {
+          refreshHandleOffsetTransition();
+          requestTransitionAnimationFrame(animateHandleOffset);
+        };
+        animateHandleOffset();
+      };
+      const transitionEndAnimation = () => {
+        cancelTransitionAnimationFrame();
+        refreshHandleOffsetTransition();
+      };
+
+      return bind(runEachAndClear, [
+        cancelTransitionAnimationFrame,
+        addEventListener(target, 'transitionstart', (event: TransitionEvent) => {
+          if (isTransitionTarget(event) && (isAffecting ? isAffecting(event) : true)) {
+            transitionStartAnimation();
+          }
+        }),
+        addEventListener(target, 'transitionend transitioncancel', (event: TransitionEvent) => {
+          if (isTransitionTarget(event)) {
+            transitionEndAnimation();
+          }
+        }),
+      ]);
+    };
 
     return bind(runEachAndClear, [
       addEventListener(_handle, 'pointermove pointerleave', scrollbarHandlePointerInteraction),
@@ -261,21 +290,12 @@ export const createScrollbarsSetupEvents = (
         { _passive: false, _capture: true }
       ),
       // when the handle has a size transition, update the handle offset each frame for the time of the transition
-      addEventListener(_handle, 'transitionstart', (event: TransitionEvent) => {
-        if (isAffectingTransition(event)) {
-          const animateHandleOffset = () => {
-            refreshHandleOffsetTransition();
-            requestHandleTransitionAnimationFrame(animateHandleOffset);
-          };
-          animateHandleOffset();
-        }
-      }),
-      addEventListener(_handle, 'transitionend transitioncancel', (event: TransitionEvent) => {
-        if (isAffectingTransition(event)) {
-          clearHandleTransitionTimeout();
-          refreshHandleOffsetTransition();
-        }
-      }),
+      addTransitionAnimation(
+        _handle,
+        (event: TransitionEvent) => event.propertyName.indexOf(widthHeightKey) > -1
+      ),
+      // when the scrollbar has a size transition, update the handle offset each frame for the time of the transition
+      addTransitionAnimation(_scrollbar),
       // solve problem of interaction causing click events
       addEventListener(
         _scrollbar,
@@ -292,7 +312,6 @@ export const createScrollbarsSetupEvents = (
       createInteractiveScrollEvents(),
       clearWheelTimeout,
       clearScrollSnapScrollTransitionTimeout,
-      clearHandleTransitionTimeout,
     ]);
   };
 };
