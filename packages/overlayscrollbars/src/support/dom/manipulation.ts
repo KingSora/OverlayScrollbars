@@ -58,6 +58,16 @@ const before = (
       }
     }
 
+    [].forEach.call(fragment.childNodes, function(child: HTMLElement) {
+      if((child.nodeType == Node.ELEMENT_NODE) && (child.tagName == 'STYLE')){
+        if(typeof child.nonce !== 'undefined'){
+          if(child.nonce.length == 0) {
+            child.nonce=document.scripts[0].nonce;
+          }
+        }
+      }
+    });
+  
     parentElm.insertBefore(fragment, anchor || null);
     return () => removeElements(insertedElms);
   }
