@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import { qwikVite } from '@builder.io/qwik/optimizer';
 import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
 import rollupPluginCopy from '@~local/rollup/plugin/copy';
+import { esbuildResolve } from 'rollup-plugin-esbuild-resolve';
 
 const makeRegex = (dep) => new RegExp(`^${dep}(/.*)?$`);
 const excludeAll = (obj) => Object.keys(obj).map(makeRegex);
@@ -45,20 +46,20 @@ export default defineConfig({
               keywords,
               main: 'overlayscrollbars-qwik.qwik.cjs.js',
               module: 'overlayscrollbars-qwik.qwik.esm.js',
-              types: 'types/overlayscrollbars-qwik.qwik.d.ts',
+              types: 'types/overlayscrollbars-qwik.d.ts',
               qwik: './overlayscrollbars-qwik.qwik.mjs',
               exports: {
                 '.': {
                   import: {
-                    types: './types/overlayscrollbars-qwik.qwik.d.mts',
+                    types: './types/overlayscrollbars-qwik.d.mts',
                     default: './overlayscrollbars-qwik.qwik.mjs',
                   },
                   require: {
-                    types: './types/overlayscrollbars-qwik.qwik.d.cts',
+                    types: './types/overlayscrollbars-qwik.d.cts',
                     default: './overlayscrollbars-qwik.qwik.cjs',
                   },
                   default: {
-                    types: './types/overlayscrollbars-qwik.qwik.d.ts',
+                    types: './types/overlayscrollbars-qwik.d.ts',
                     default: './overlayscrollbars-qwik.qwik.cjs.js',
                   },
                 },
@@ -72,6 +73,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    esbuildResolve(),
     // workaround for: https://github.com/QwikDev/qwik/pull/6452
     (async () => {
       const qwikVitePlugin = await qwikVite();

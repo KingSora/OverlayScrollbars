@@ -32,6 +32,7 @@
   "devDependencies": {
     "@builder.io/qwik": "1.5.5",
     "@types/node": "^20.12.7",
+    "overlayscrollbars": "file:./../overlayscrollbars/dist",
     "vite": "^5.2.10"
   },
   "scripts": {

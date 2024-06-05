@@ -269,6 +269,7 @@ export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): D
       }
 
       if (isDiff) {
+        // @ts-ignore
         diff[optionKey] = newOptionValue;
       }
     }

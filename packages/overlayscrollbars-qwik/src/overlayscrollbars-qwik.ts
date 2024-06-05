@@ -1,2 +1,2 @@
-export * from "./OverlayScrollbarsComponent";
-export * from "./useOverlayScrollbars";
+export * from './OverlayScrollbarsComponent';
+export * from './useOverlayScrollbars';
