@@ -21,36 +21,36 @@
 
 # OverlayScrollbars
 
-> OverlayScrollbars is a javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.
+> A javascript scrollbar plugin that hides the native scrollbars, provides custom styleable overlay scrollbars, and preserves the native functionality and feel.
 
-## Why
+## Why?
 
-I created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
+I created this plugin because I hate ugly and space-consuming scrollbars. Similar plugins didn't meet my requirements in terms of features, quality, simplicity, license or browser support.
 
 ## Goals & Features
 
- - Simple, powerful and well documented API
+ - Simple, powerful and well-documented API
  - High browser compatibility - **Firefox 59+**, **Chrome 55+**, **Opera 42+**, **Edge 15+** and **Safari 10+**
- - **Fully Accessible** - Native scroll behavior is completely preserved
- - Can be run on the server (`Node`, `Deno` and `Bun`) - **SSR**, **SSG** and **ISR** support
- - Tested on various devices - **Mobile**, **Desktop** and **Tablet**
- - Tested with various (and mixed) inputs - **Mouse**, **Touch** and **Pen**
+ - **Fully Accessible** - Native scrolling behavior is fully preserved
+ - Can run on the server (`Node`, `Deno` and `Bun`) - **SSR**, **SSG** and **ISR** support
+ - Tested on various devices - **Mobile**, **Desktop** and **Tablet**.
+ - Tested with various (and mixed) inputs - **Mouse**, **Touch** and **Pen**.
  - **Treeshaking** - bundle only what you really need 
- - Automatic update detection - **no polling**
- - Usage of latest browser features - best **performance** in new browsers
- - Flow independent - supports all values for `direction`, `flex-direction` and `writing-mode`
- - Supports Scroll Snapping
+ - Automatic update detection - **no polling required**.
+ - Leverage latest browser features - best performance in new browsers
+ - Flow independent - supports all values for `direction`, `flex-direction` and `writing-mode`.
+ - Supports scroll snapping
  - Supports all **virtual scrolling** libraries
- - Supports the `body` element
- - Simple and effective scrollbar styling
+ - Supports the `body' element
+ - Easy and effective scrollbar styling
  - Highly customizable
- - TypeScript support - fully written in TypeScript
- - Dependency free - 100% self written to ensure small size and best functionality
+ - TypeScript support - completely written in TypeScript
+ - Dependency-free - 100% self-written to ensure small size and best functionality
  - High quality and fully typed framework versions for [`react`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react), [`vue`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue), [`angular`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx), [`svelte`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte) and [`solid`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid).
 
 ## Choose your framework
 
-Additionally to the vanilla JavaScript version you can use the official framework components & utilities:
+In addition to the vanilla JavaScript version, you can use the official framework components & utilities:
 
 <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React"></a>
 <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="80" height="80" alt="Vue"></a>
@@ -66,7 +66,7 @@ OverlayScrollbars can be downloaded from [npm](https://www.npmjs.com/package/ove
 ```sh
 npm install overlayscrollbars
 ```
-After installation it can be imported:
+Once installed, it can be imported:
 ```js
 import 'overlayscrollbars/overlayscrollbars.css';
 import { 
@@ -81,7 +81,7 @@ import {
 
 You can use this [Node Example](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/node) as an reference / starting point.
 
-### Manual download & embedding
+### Manual Download & Embedding
 
 You can use OverlayScrollbars without any bundler or package manager.  
 Simply download it from the [Releases](https://github.com/KingSora/OverlayScrollbars/releases) or use a [CDN](https://cdnjs.com/libraries/overlayscrollbars).
@@ -90,7 +90,7 @@ Simply download it from the [Releases](https://github.com/KingSora/OverlayScroll
 - Use the javascript files with the `.es5` extension if you need to support older browsers, otherwise use the `.es6` files.
 - For production use the javascript / stylesheet files with the `.min` extension. 
 
-Embedd OverlayScrollbars manually in your HTML:
+Embed OverlayScrollbars manually in your HTML:
 ```html
 <link type="text/css" href="path/to/overlayscrollbars.css" rel="stylesheet" />
 <script type="text/javascript" src="path/to/overlayscrollbars.browser.es.js" defer></script>
@@ -108,11 +108,11 @@ var {
 
 You can use this [Browser Example](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/browser) as an reference / starting point.
 
-The examples in this documentation will use the `import` syntax instead of the `OverlayScrollbarsGlobal` object. Both versions are equivalent though.
+The examples in this documentation will use the `import` syntax instead of the `OverlayScrollbarsGlobal` object. However, both versions are equivalent.
 
 ## Initialization
 
-The initialization of `OverlayScrollbars` is explicit _per element_. Only the scrollbars of the element the plugin was initialized on will be changed. Scrollbars of child elements will remain unchanged unless the plugin is also initialized on them.
+The initialization of `OverlayScrollbars` is explicit _per element_. Only the scrollbars of the element on which the plugin is initialized will be changed. Scrollbars of child elements will remain unchanged unless the plugin is initialized on them as well.
 
 You can initialize either directly with an `Element` or with an `Object` where you have more control over the initialization process. 
 
@@ -123,10 +123,9 @@ const osInstance = OverlayScrollbars(document.querySelector('#myElement'), {});
 
 ### Bridging initialization flickering
 
-If you initialize OverlayScrollbars it needs a few milliseconds to create and append all the elements to the DOM.
-While this period the native scrollbars are still visible and are switched out after the initialization is finished. This is perceived as flickering. 
+When you initialize OverlayScrollbars, it takes a few milliseconds to create and append all the elements to the DOM. During this time, the native scrollbars are still visible and will be switched out after the initialization is finished. This is seen as flickering. 
 
-To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (and `html` element if the target element is `body`).
+To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (and the `html` element if the target element is `body`).
 
 ```html
 <!-- for the body element -->
@@ -148,8 +147,8 @@ To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to 
   </summary>
   <br />
   
-The only required field is the `target` field. This is the field to which the plugin is applied to.  
-If you use the object initialization only with the `target` field, the outcome is equivalent to the element initialization:
+The only required field is the `target' field. This is the field to which the plugin will be applied.  
+If you use the object initialization with only the `target' field, the result is equivalent to the element initialization:
 ```js
 // Both initializations have the same outcome
 
@@ -157,8 +156,8 @@ OverlayScrollbars(document.querySelector('#myElement'), {});
 OverlayScrollbars({ target: document.querySelector('#myElement') }, {});
 ```
 
-In the initialization object you can specify how the library is handling generated elements.
-For example you can appoint an existing element as the `viewport` element. Like this the library won't generate it but take the specified element instead:
+In the initialization object you can specify how the library handles generated elements.
+For example, you can specify an existing element as the `viewport' element. Then the library won't generate it, but use the specified element instead:
 
  ```js
 OverlayScrollbars({ 
@@ -169,7 +168,7 @@ OverlayScrollbars({
 }, {});
 ```
 
-This is very useful if you have a fixed DOM structure and don't want OverlayScrollbars to generate its own elements. Those cases arise very often when you want an other library to work together with OverlayScrollbars.
+This is very useful if you have a fixed DOM structure and don't want OverlayScrollbars to create its own elements. These cases are very common when you want another library to work with OverlayScrollbars.
 
 ---
 
@@ -186,7 +185,8 @@ OverlayScrollbars({
 
 ---
 
-And last but not least you can decide when the initialization should be canceled:
+Last but not least, you can decide when to cancel the initialization:
+
  ```js
 OverlayScrollbars({ 
   target: document.querySelector('#target'),
@@ -197,7 +197,7 @@ OverlayScrollbars({
 }, {});
 ```
 
-In the above example the initialization is canceled when the native scrollbars are overlaid or when your target is a `body` element and the plugin determined that a initialization to the `body` element would affect native functionality like `window.scrollTo`.
+In the above example, the initialization will be aborted if the native scrollbars are overlaid, or if your target is a `body` element and the plugin has determined that initializing to the `body` element would interfere with native functionality such as `window.scrollTo`.
 
 </details>
 
@@ -927,7 +927,7 @@ OverlayScrollbars.plugin(SomePlugin);
 
 OverlayScrollbars comes with two themes called `os-theme-dark` and `os-theme-light`. You can use the `scrollbars.theme` option to change the theme.
 
-Custom themes can be done in multiple ways. The easiest and fastest is to use the predefined set of `CSS Custom Properties` aka. CSS variables. In case those aren't enought you can add custom class names or add custom styling to the existing class names.  
+Custom themes can be done in several ways. The easiest and fastest way is to use the predefined set of `CSS Custom Properties` aka CSS variables. If that's not enough, you can add custom class names or add custom styling to the existing class names.  
 
 ### Styling in depth
 
@@ -990,7 +990,7 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
   }
   ```
 
-  You can alter the properties either for both scrollbars at once or per scrollbar axis. In the example below I've chosen `os-theme-custom` as the theme name:
+  You can change the properties for both scrollbars at once, or for each scrollbar axis. In the example below, I've chosen `os-theme-custom` as the theme name:
 
   ```scss
   // horizontal and vertical scrollbar are 10px 
@@ -1018,8 +1018,8 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
   });
   ```
 
-  Since scrollbar styles are usually simple, this set of options should be enough to get your desired styling.
-  In case you need more freedom you can create your own styles by adding styling to the base class names described in the next section.
+  Since scrollbar styles are usually simple, this set of options should be enough to get the styling you want.
+  If you need more freedom, you can create your own styles by adding styling to the base class names described in the next section.
 
   ### Scrollbars structure and CSS class names
 
@@ -1059,19 +1059,19 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
 
   ### Gotchas
 
-  Its important that the chosen theme class name in your CSS file matches the assigned theme name in the options. If the CSS class name is `.my-theme` the `scrollbars.theme` has to be `'my-theme'`.  
+  It is important that the chosen theme class name in your CSS file matches the assigned theme name in the options. If the CSS class name is `.my-theme`, the `scrollbars.theme` must be `'my-theme'`.  
     
     
-  Please be aware of your stack. `css-modules` for example will alter your class names to prevent naming collisions. Always double check if your CSS is really what you expect it to be.
+  Please be aware of your stack. For example, `css-modules` will change your class names to avoid naming collisions. Always check that your CSS is what you expect it to be.
 
 </details>
 
 ## Plugins
 
-Everything thats considered not core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are treeshaken and thus won't end up in your final bundle. OverlayScrollbars comes with the following plugins:
+Anything that is not considered core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are treeshaken and won't end up in your final bundle. OverlayScrollbars ships with the following plugins:
 
-- **ScrollbarsHidingPlugin**: Is needed for old browsers which aren't supporting native scrollbar styling features. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=scrollbar%20styling) (note that even though `iOS Safari >= 14` is marked as unsupported you only need this plugin for `iOS < 7.1`).
-- **SizeObserverPlugin**: Is needed for old browsers which aren't supporting the `ResizeObserver` api. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=ResizeObserver)
+- **ScrollbarsHidingPlugin**: Needed for old browsers that don't support native scrollbar styling. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=scrollbar%20styling) (note that even though `iOS Safari >= 14` is marked as unsupported, you only need this plugin for `iOS < 7.1`).
+- **SizeObserverPlugin**: Needed for old browsers that don't support the `ResizeObserver` api. [You can find the list of browsers that need this plugin here](https://caniuse.com/?search=ResizeObserver)
 - **ClickScrollPlugin**: If you want to use the option `scrollbars: { clickScroll: true }`.
 
 ### Consuming Plugins
@@ -1175,7 +1175,7 @@ const instancePlugin = {
 }
 ```
 
-When the plugin is added with the `OverlayScrollbars.plugin` function all OverlayScrollbar instances will add the plugin automatically from that point on. Already created instances will not have the plugin. The instance modules instance is returned with the `osInstance.plugin` function:
+When the plugin is added with the `OverlayScrollbars.plugin` function, all OverlayScrollbar instances will automatically add the plugin from that point on. Previously created instances will not have the plugin. The instance module instance is returned with the `osInstance.plugin` function:
 ```js
 OverlayScrollbars.plugin(instancePlugin); // plugin is added
 
