@@ -828,11 +828,11 @@ OverlayScrollbars.plugin(SomePlugin);
 
   ### `nonce(newNonce): void`
 
-  Gets the environment.
+  Sets the nonce attribute for inline styles.
 
   | parameter | type | description |
   | :--- | :--- | :--- |
-  | newNonce | `string | undefined` | The nonce attribute for inline styles. |
+  | newNonce | `string / undefined` | The nonce attribute for inline styles. |
 
   ### `plugin(plugin): object | undefined`
 
