@@ -112,6 +112,8 @@ The examples in this documentation will use the `import` syntax instead of the `
 
 ## Initialization
 
+The initialization of `OverlayScrollbars` is explicit _per element_. Only the scrollbars of the element the plugin was initialized on will be changed. Scrollbars of child elements will remain unchanged unless the plugin is also initialized on them.
+
 You can initialize either directly with an `Element` or with an `Object` where you have more control over the initialization process. 
 
 ```js
