@@ -2,6 +2,7 @@ import { defaultOptions } from '~/options';
 import { getEnvironment } from '~/environment';
 import { ScrollbarsHidingPlugin } from '~/plugins';
 import { OverlayScrollbars } from '~/overlayscrollbars';
+import * as nonceM from '~/nonce';
 import type { DeepPartial } from '~/typings';
 import type { Options } from '~/options';
 import type { Initialization } from '~/initialization';
@@ -41,9 +42,11 @@ const defaultInitialization = {
 };
 
 let getEnv = getEnvironment;
+let nonceModule = nonceM;
 
 describe('environment', () => {
   beforeEach(async () => {
+    document.body.innerHTML = '';
     jest.resetModules();
     jest.doMock('~/support', () => {
       const originalModule = jest.requireActual('~/support');
@@ -55,10 +58,16 @@ describe('environment', () => {
           return { w: 100 + i, h: 100 + i };
         }),
         clientSize: jest.fn().mockImplementation(() => ({ w: 90, h: 90 })),
+        removeElements: jest.fn().mockImplementation(),
       };
     });
     jest.doMock('~/plugins', () => {
       const originalModule = jest.requireActual('~/plugins');
+      return { ...originalModule };
+    });
+    jest.doMock('~/nonce', () => {
+      const originalModule = jest.requireActual('~/nonce');
+      nonceModule = originalModule;
       return { ...originalModule };
     });
 
@@ -224,6 +233,25 @@ describe('environment', () => {
       window.dispatchEvent(new Event('resize'));
 
       expect(listener).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('nonce', () => {
+    test('without nonce', () => {
+      getEnv();
+      const styleTag = document.body.querySelector('style');
+      expect(styleTag).toBeDefined();
+      expect(styleTag?.getAttribute('nonce')).toBe(null);
+      expect(styleTag?.nonce).toBeFalsy();
+    });
+
+    test('with nonce', () => {
+      nonceModule.setNonce('my new nonce');
+      getEnv();
+      const styleTag = document.body.querySelector('style');
+      expect(styleTag).toBeDefined();
+      expect(styleTag?.getAttribute('nonce')).toBe('my new nonce');
+      expect(styleTag?.nonce).toBe('my new nonce');
     });
   });
 });

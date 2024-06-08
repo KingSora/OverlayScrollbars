@@ -42,6 +42,7 @@ import type {
   ScrollbarsSetupElement,
   ScrollbarStructure,
 } from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
+import { setNonce } from './nonce';
 
 // Notes:
 // Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
@@ -107,6 +108,19 @@ export interface OverlayScrollbarsStatic {
   ): OverlayScrollbars;
 
   /**
+   * Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
+   * @param osInstance The value which shall be checked.
+   */
+  valid(osInstance: any): osInstance is OverlayScrollbars;
+  /**
+   * Gets the environment.
+   */
+  env(): Environment;
+  /**
+   * Sets the nonce attribute for inline styles.
+   */
+  nonce(newNonce: string | undefined): void;
+  /**
    * Adds a single plugin.
    * @param plugin The plugin to be added.
    * @returns The plugins static modules instance or `void` if no instance was found.
@@ -126,16 +140,6 @@ export interface OverlayScrollbarsStatic {
         [K in keyof P]: P[K] extends StaticPlugin ? InferStaticPluginModuleInstance<P[K]> : void;
       }
     : void;
-
-  /**
-   * Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
-   * @param osInstance The value which shall be checked.
-   */
-  valid(osInstance: any): osInstance is OverlayScrollbars;
-  /**
-   * Gets the environment.
-   */
-  env(): Environment;
 }
 
 /**
@@ -581,3 +585,4 @@ OverlayScrollbars.env = () => {
     }
   );
 };
+OverlayScrollbars.nonce = setNonce;

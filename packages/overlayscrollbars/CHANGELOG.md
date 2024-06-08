@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.9.0
+
+### Features
+
+- Add the possibility to define a [`nonce`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) value for websites with a CSP. [#646](https://github.com/KingSora/OverlayScrollbars/pull/646)
+
 ## 2.8.4
 
 ### Improvements

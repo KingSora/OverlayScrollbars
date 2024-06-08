@@ -677,6 +677,33 @@ describe('overlayscrollbars', () => {
       expect(env).toEqual(envObj);
     });
 
+    describe('nonce', () => {
+      beforeEach(async () => {
+        document.body.innerHTML = '';
+
+        jest.doMock('~/support', () => {
+          const originalModule = jest.requireActual('~/support');
+          return {
+            ...originalModule,
+            removeElements: jest.fn().mockImplementation(),
+          };
+        });
+      });
+
+      test('without nonce', () => {
+        OverlayScrollbars.env();
+
+        expect(document.body.querySelector('style')?.nonce).toBeFalsy();
+      });
+
+      test('with nonce', () => {
+        OverlayScrollbars.nonce('abc');
+        OverlayScrollbars.env();
+
+        expect(document.body.querySelector('style')?.nonce).toBe('abc');
+      });
+    });
+
     test('valid', () => {
       expect(OverlayScrollbars.valid(true)).toBe(false);
       expect(OverlayScrollbars.valid(false)).toBe(false);

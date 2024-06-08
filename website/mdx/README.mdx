@@ -783,6 +783,34 @@ OverlayScrollbars.plugin(SomePlugin);
     This is a in depth topic. Click here to read it.
   </summary>
 
+  ### `valid(osInstance): boolean`
+
+  Checks whether the passed value is a valid and not destroyed overlayscrollbars instance
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | osInstance | `any` | The value to be checked. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `boolean` | Whether the passed value is a valid and not destroyed overlayscrollbars instance. |
+
+  ### `env(): Environment`
+
+  Gets the environment.
+
+  | returns | description |
+  | :--- | :--- |
+  | `Environment` | An object which described the environment. |
+
+  ### `nonce(newNonce): void`
+
+  Gets the environment.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | newNonce | `string | undefined` | The nonce attribute for inline styles. |
+
   ### `plugin(plugin): object | undefined`
 
   Adds a single plugin.
@@ -807,26 +835,6 @@ OverlayScrollbars.plugin(SomePlugin);
   | :--- | :--- |
   | `(object / void)[]` | An array which describes the plugins static modules instances or `undefined` if no instance was found. |
 
-  ### `valid(osInstance): boolean`
-
-  Checks whether the passed value is a valid and not destroyed overlayscrollbars instance
-
-  | parameter | type | description |
-  | :--- | :--- | :--- |
-  | osInstance | `any` | The value to be checked. |
-
-  | returns | description |
-  | :--- | :--- |
-  | `boolean` | Whether the passed value is a valid and not destroyed overlayscrollbars instance. |
-
-  ### `env(): Environment`
-
-  Gets the environment.
-
-  | returns | description |
-  | :--- | :--- |
-  | `Environment` | An object which described the environment. |
-
   #### TypeScript
 
   ```ts
@@ -837,18 +845,21 @@ OverlayScrollbars.plugin(SomePlugin);
     // Initializes OverlayScrollbars to the passed target with passed options and event listeners.
     (target: InitializationTarget, options: PartialOptions, eventListeners?: EventListeners): OverlayScrollbars;
 
-    // Adds a single plugin.
-    plugin(plugin: Plugin): InferStaticPluginModuleInstance<Plugin>
-    // Adds multiple plugins.
-    plugin(plugins: Plugin[]): InferStaticPluginModuleInstance<Plugin>[];
-
     // Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
     valid(osInstance: any): osInstance is OverlayScrollbars;
 
     // Gets the environment.
     env(): Environment;
+
+    // Sets the nonce attribute for inline styles.
+    nonce(newNonce: string | undefined): void;
+
+    // Adds a single plugin.
+    plugin(plugin: Plugin): InferStaticPluginModuleInstance<Plugin>
+    // Adds multiple plugins.
+    plugin(plugins: Plugin[]): InferStaticPluginModuleInstance<Plugin>[];
   }
-  
+
   // Describes the OverlayScrollbars environment.
   interface Environment {
     // The native scrollbars size of the browser / system.

@@ -25,6 +25,7 @@ import type { XY, EventListener } from '~/support';
 import type { Options, PartialOptions } from '~/options';
 import type { Initialization, PartialInitialization } from '~/initialization';
 import type { StyleObjectKey } from './typings';
+import { getNonce } from './nonce';
 
 type EnvironmentEventArgs = {
   r: [scrollbarSizeChanged?: boolean];
@@ -87,6 +88,13 @@ const createEnvironment = (): Env => {
   );
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
+  const styleElm = envElm.lastChild as HTMLStyleElement;
+  const nonce = getNonce();
+
+  if (nonce) {
+    styleElm.nonce = nonce;
+  }
+
   const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventArgs>();
   const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache(
     {
