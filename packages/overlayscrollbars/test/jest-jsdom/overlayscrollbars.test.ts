@@ -41,6 +41,13 @@ let OverlayScrollbars = originalOverlayScrollbars;
 describe('overlayscrollbars', () => {
   beforeEach(async () => {
     jest.resetModules();
+    jest.doMock('~/support/dom/dimensions', () => {
+      const originalModule = jest.requireActual('~/support/dom/dimensions');
+      return {
+        ...originalModule,
+        hasDimensions: jest.fn().mockImplementation(() => true),
+      };
+    });
     ({ OverlayScrollbars } = await import('~/overlayscrollbars'));
   });
 
@@ -681,6 +688,7 @@ describe('overlayscrollbars', () => {
       beforeEach(async () => {
         document.body.innerHTML = '';
 
+        jest.resetModules();
         jest.doMock('~/support', () => {
           const originalModule = jest.requireActual('~/support');
           return {
@@ -699,6 +707,8 @@ describe('overlayscrollbars', () => {
       test('with nonce', () => {
         OverlayScrollbars.nonce('abc');
         OverlayScrollbars.env();
+
+        console.log(document.body.innerHTML);
 
         expect(document.body.querySelector('style')?.nonce).toBe('abc');
       });
