@@ -80,16 +80,13 @@ export const createObserversSetup = (
   // TODO: observer textarea attrs if textarea
 
   const viewportSelector = `[${dataAttributeViewport}]`;
-  const viewportAttrsFromTarget = [] as const;
-  const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'] as const;
-  const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'] as const;
+  const baseStyleChangingAttrs = ['id', 'class', 'style', 'open', 'wrap', 'cols', 'rows'];
   const {
     _target,
     _host,
     _viewport,
     _scrollOffsetElement,
     _content,
-    _isTextarea,
     _viewportIsTarget,
     _isBody,
     _viewportHasClass,
@@ -146,10 +143,6 @@ export const createObserversSetup = (
     }
   );
 
-  const contentMutationObserverAttr = _isTextarea
-    ? baseStyleChangingAttrsTextarea
-    : concat(baseStyleChangingAttrs, baseStyleChangingAttrsTextarea);
-
   const onObserversUpdatedDebounced = debounce(onObserversUpdated, {
     _timeout: () => debounceTimeout,
     _maxDelay: () => debounceMaxDelay,
@@ -171,21 +164,6 @@ export const createObserversSetup = (
     assignDeep(state, { _directionIsRTL: newDirectionIsRTL });
     prevDirectionIsRTL = newDirectionIsRTL;
   };
-
-  /*
-  const updateViewportAttrsFromHost = (attributes?: string[]) => {
-    each(attributes || viewportAttrsFromTarget, (attribute) => {
-      if (inArray(viewportAttrsFromTarget, attribute)) {
-        const hostAttr = getAttr(_host, attribute);
-        if (isString(hostAttr)) {
-          setAttrs(_viewport, attribute, hostAttr);
-        } else {
-          removeAttrs(_viewport, attribute);
-        }
-      }
-    });
-  };
-  */
 
   const onTrinsicChanged = (
     heightIntrinsicCache: CacheValues<boolean>,
@@ -280,7 +258,7 @@ export const createObserversSetup = (
     onHostMutation,
     {
       _styleChangingAttributes: baseStyleChangingAttrs,
-      _attributes: concat(baseStyleChangingAttrs, viewportAttrsFromTarget),
+      _attributes: baseStyleChangingAttrs,
     }
   );
 
@@ -352,7 +330,7 @@ export const createObserversSetup = (
           true,
           onContentMutation,
           {
-            _attributes: concat(contentMutationObserverAttr, attributes || []),
+            _attributes: concat(baseStyleChangingAttrs, attributes || []),
             _eventContentChange: elementEvents,
             _nestedTargetSelector: hostSelector,
             _ignoreContentChange: (mutation, isNestedTarget) => {

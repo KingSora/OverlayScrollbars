@@ -113,7 +113,7 @@ const validateRecursive = <T extends PlainObject>(
     const templateIsComplex = isPlainObject(templateValue);
     const propPrefix = propPath ? `${propPath}.` : '';
 
-    // if the template has a object as value, it means that the options are complex (verschachtelt)
+    // if the template has a object as value, it means that the options are complex (nested)
     if (templateIsComplex && isPlainObject(optionsValue)) {
       const [validated, foreign] = validateRecursive(
         templateValue as T,

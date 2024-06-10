@@ -2,9 +2,7 @@ import {
   isHTMLElement,
   appendChildren,
   createDiv,
-  is,
   contents,
-  insertAfter,
   parent,
   removeElements,
   push,
@@ -61,7 +59,6 @@ export interface StructureSetupElementsObj {
   _scrollEventElement: HTMLElement | Document;
   _originalScrollOffsetElement: HTMLElement;
   // ctx ----
-  _isTextarea: boolean;
   _isBody: boolean;
   _documentElm: Document;
   _targetIsElm: boolean;
@@ -78,7 +75,6 @@ export const createStructureSetupElements = (
   const { _getDefaultInitialization, _nativeScrollbarsHiding } = env;
   const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
-    host: defaultHostInitialization,
     padding: defaultPaddingInitialization,
     viewport: defaultViewportInitialization,
     content: defaultContentInitialization,
@@ -87,7 +83,6 @@ export const createStructureSetupElements = (
   const targetStructureInitialization = (targetIsElm ? {} : target) as InitializationTargetObject;
   const { elements: initElements } = targetStructureInitialization;
   const {
-    host: hostInitialization,
     padding: paddingInitialization,
     viewport: viewportInitialization,
     content: contentInitialization,
@@ -95,7 +90,6 @@ export const createStructureSetupElements = (
 
   const targetElement = targetIsElm ? target : targetStructureInitialization.target;
   const isBody = isBodyElement(targetElement);
-  const isTextarea = is(targetElement, 'textarea');
   const ownerDocument = targetElement.ownerDocument;
   const docElement = ownerDocument.documentElement;
   const getDocumentWindow = () => ownerDocument.defaultView || wnd;
@@ -121,10 +115,7 @@ export const createStructureSetupElements = (
   // will act the same way as initialization: `{ elements: { viewport, content: false } }`
   const viewportIsContent = !viewportIsTarget && possibleViewportElement === possibleContentElement;
   const viewportElement = viewportIsTargetBody ? docElement : possibleViewportElement;
-  const nonBodyHostElement = isTextarea
-    ? staticInitializationElement(createNewDiv, defaultHostInitialization, hostInitialization)
-    : (targetElement as HTMLElement);
-  const hostElement = viewportIsTargetBody ? viewportElement : nonBodyHostElement;
+  const hostElement = viewportIsTargetBody ? viewportElement : targetElement;
   const paddingElement =
     !viewportIsTarget &&
     dynamicInitializationElement(createNewDiv, defaultPaddingInitialization, paddingInitialization);
@@ -147,7 +138,6 @@ export const createStructureSetupElements = (
     _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
     _originalScrollOffsetElement: isBody ? docElement : originalNonBodyScrollOffsetElement,
     _documentElm: ownerDocument,
-    _isTextarea: isTextarea,
     _isBody: isBody,
     _targetIsElm: targetIsElm,
     _viewportIsTarget: viewportIsTarget,
@@ -168,14 +158,9 @@ export const createStructureSetupElements = (
       }
     },
   ];
-  const isTextareaHostGenerated = isTextarea && elementIsGenerated(_host);
-  let targetContents = isTextarea
-    ? _target
-    : contents(
-        [_content, _viewport, _padding, _host, _target].find(
-          (elm) => elm && !elementIsGenerated(elm)
-        )
-      );
+  let targetContents = contents(
+    [_content, _viewport, _padding, _host, _target].find((elm) => elm && !elementIsGenerated(elm))
+  );
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
   const destroy = bind(runEachAndClear, destroyFns);
   const appendElements = () => {
@@ -202,16 +187,6 @@ export const createStructureSetupElements = (
     if (!viewportIsTarget) {
       setAttrs(_viewport, tabIndexStr, originalViewportTabIndex || '-1');
       isBody && setAttrs(docElement, dataAttributeHtmlBody, '');
-    }
-
-    // only insert host for textarea after target if it was generated
-    if (isTextareaHostGenerated) {
-      insertAfter(_target, _host);
-
-      push(destroyFns, () => {
-        insertAfter(_host, _target);
-        removeElements(_host);
-      });
     }
 
     appendChildren(contentSlot, targetContents);

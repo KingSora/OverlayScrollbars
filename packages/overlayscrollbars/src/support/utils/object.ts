@@ -105,9 +105,4 @@ export const removeUndefinedProperties = <T extends PlainObject>(target: T, deep
  * Returns true if the given object is empty, false otherwise.
  * @param obj The Object.
  */
-export const isEmptyObject = (obj: any): boolean => {
-  // eslint-disable-next-line no-restricted-syntax, no-unreachable-loop, guard-for-in
-  for (const name in obj) return false;
-  return true;
-  /* eslint-enable */
-};
+export const isEmptyObject = (obj: any): boolean => !keys(obj).length;

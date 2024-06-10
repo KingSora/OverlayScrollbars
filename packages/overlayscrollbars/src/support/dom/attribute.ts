@@ -1,12 +1,12 @@
 import type { HTMLElementTarget } from './types';
-import { bind, each, from, isArray } from '../utils';
+import { bind, deduplicateArray, each, from, isArray } from '../utils';
 
 export type AttributeElementTarget = HTMLElementTarget | Element;
 
 export type DomTokens = string | string[] | false | null | undefined | void;
 
 export const getDomTokensArray = (tokens: DomTokens) =>
-  from(new Set((isArray(tokens) ? tokens : (tokens || '').split(' ')).filter((token) => token)));
+  deduplicateArray((isArray(tokens) ? tokens : (tokens || '').split(' ')).filter((token) => token));
 
 /**
  * Gets a attribute with the given attribute of the given element.

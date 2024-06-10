@@ -12,8 +12,6 @@ export interface TRBL {
   l: number;
 }
 
-const customCssPropRegex = /^--/;
-
 const getCSSVal = (computedStyle: CSSStyleDeclaration, prop: StyleObjectKey): string =>
   computedStyle.getPropertyValue(prop) || computedStyle[prop as any] || '';
 
@@ -40,7 +38,7 @@ export function setStyles(
         const elmStyle = elm.style;
         const value = isNumber(rawValue) ? numberToCssPx(rawValue) : (rawValue || '') + '';
 
-        if (customCssPropRegex.test(name)) {
+        if (name.indexOf('--') === 0) {
           elmStyle.setProperty(name, value);
         } else {
           elmStyle[name as any] = value;

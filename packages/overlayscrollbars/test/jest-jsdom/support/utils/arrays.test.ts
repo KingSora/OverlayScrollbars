@@ -319,6 +319,11 @@ describe('array utilities', () => {
 
     expect(createOrKeepArray(val)).not.toBe(arr);
     expect(createOrKeepArray(val)).toEqual(arr);
+
+    expect(createOrKeepArray('abc')).toEqual(['abc']);
+    expect(createOrKeepArray(document.querySelectorAll('*'))).toEqual(
+      Array.from(document.querySelectorAll('*'))
+    );
   });
 
   test('isEmptyArray', () => {

@@ -77,10 +77,16 @@ export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => Array.from(arr || 
 
 /**
  * Creates an array if the passed value is not an array, or returns the value if it is.
+ * If the passed value is an array like structure and not a string it will be converted into an array.
  * @param value The value.
  * @returns An array which represents the passed value(s).
  */
-export const createOrKeepArray = <T>(value: T | T[]): T[] => (isArray(value) ? value : [value]);
+export const createOrKeepArray = <T>(value: T | T[] | ArrayLike<T>): T[] => {
+  if (isArray(value)) {
+    return value;
+  }
+  return !isString(value) && isArrayLike(value) ? from(value) : [value];
+};
 
 /**
  * Check whether the passed array is empty.
