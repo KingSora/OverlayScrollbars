@@ -192,11 +192,9 @@ const createEnvironment = (): Env => {
   return env;
 };
 
-const getEnvironment = (): Env => {
+export const getEnvironment = (): Env => {
   if (!environmentInstance) {
     environmentInstance = createEnvironment();
   }
   return environmentInstance;
 };
-
-export { getEnvironment };

@@ -1,7 +1,7 @@
 import type { NodeElementTarget, NodeElementTargetCollection } from './types';
 import { createOrKeepArray, each } from '../utils/array';
 import { parent } from './traversal';
-import { bind, noop } from '../utils';
+import { bind } from '../utils';
 
 /**
  * Removes the given Nodes from their parent.
@@ -21,11 +21,11 @@ export const removeElements = (nodes: NodeElementTargetCollection): void => {
  * @returns A function which removes the inserted nodes.
  */
 export const appendChildren = (node: NodeElementTarget, children: NodeElementTargetCollection) =>
-  node && children
-    ? bind(
-        removeElements,
-        each(createOrKeepArray(children), (child) => {
-          child && node.appendChild(child);
-        })
-      )
-    : noop;
+  bind(
+    removeElements,
+    node &&
+      children &&
+      each(createOrKeepArray(children), (child) => {
+        child && node.appendChild(child);
+      })
+  );
