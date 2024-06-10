@@ -81,7 +81,7 @@ export const createSetups = (
   onUpdated: (updateInfo: SetupsUpdateInfo, updateHints: SetupsUpdateHints) => void,
   onScroll: (scrollEvent: Event) => void
 ): Setups => {
-  let cacheInitialized = false;
+  let cacheAndOptionsInitialized = false;
   const getCurrentOption = createOptionCheck(options, {});
   const [
     structureSetupCreate,
@@ -128,7 +128,7 @@ export const createSetups = (
     } = updateInfo;
 
     const _changedOptions = rawChangedOptions || {};
-    const _force = !!rawForce || !cacheInitialized;
+    const _force = !!rawForce || !cacheAndOptionsInitialized;
     const baseUpdateInfoObj: SetupUpdateInfo = {
       _checkOption: createOptionCheck(options, _changedOptions, _force),
       _changedOptions,
@@ -167,7 +167,7 @@ export const createSetups = (
     const changed =
       truthyObserversHints || truthyStructureHints || !isEmptyObject(_changedOptions) || _force;
 
-    cacheInitialized = true;
+    cacheAndOptionsInitialized = true;
 
     changed &&
       onUpdated(updateInfo, {
