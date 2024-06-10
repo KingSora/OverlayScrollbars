@@ -81,7 +81,7 @@ export const createSetups = (
   onUpdated: (updateInfo: SetupsUpdateInfo, updateHints: SetupsUpdateHints) => void,
   onScroll: (scrollEvent: Event) => void
 ): Setups => {
-  let cacheAndOptionsInitialized = false;
+  let cacheInitialized = false;
   const getCurrentOption = createOptionCheck(options, {});
   const [
     structureSetupCreate,
@@ -116,6 +116,10 @@ export const createSetups = (
     updateInfo: SetupsUpdateInfo,
     observerUpdateHints?: ObserversSetupUpdateHints
   ): boolean => {
+    if (isDestroyed()) {
+      return false;
+    }
+
     const {
       _changedOptions: rawChangedOptions,
       _force: rawForce,
@@ -124,29 +128,19 @@ export const createSetups = (
     } = updateInfo;
 
     const _changedOptions = rawChangedOptions || {};
-    const _force = !!rawForce || !cacheAndOptionsInitialized;
+    const _force = !!rawForce || !cacheInitialized;
     const baseUpdateInfoObj: SetupUpdateInfo = {
       _checkOption: createOptionCheck(options, _changedOptions, _force),
       _changedOptions,
       _force,
     };
-    const hasChangedOptions = !isEmptyObject(_changedOptions);
-
-    if (isDestroyed()) {
-      return false;
-    }
 
     if (_cloneScrollbar) {
       scrollbarsSetupUpdate(baseUpdateInfoObj);
       return false;
     }
 
-    let changed = _force || hasChangedOptions;
-    let observersHints = {};
-    let structureHints = {};
-
-    // if (changed || hasDimensions(structureSetupElements._host)) {
-    observersHints =
+    const observersHints =
       observerUpdateHints ||
       observersSetupUpdate(
         assignDeep({}, baseUpdateInfoObj, {
@@ -154,12 +148,13 @@ export const createSetups = (
         })
       );
 
-    structureHints = structureSetupUpdate(
+    const structureHints = structureSetupUpdate(
       assignDeep({}, baseUpdateInfoObj, {
         _observersState: observersSetupState,
         _observersUpdateHints: observersHints,
       })
     );
+
     scrollbarsSetupUpdate(
       assignDeep({}, baseUpdateInfoObj, {
         _observersUpdateHints: observersHints,
@@ -169,16 +164,16 @@ export const createSetups = (
 
     const truthyObserversHints = updateHintsAreTruthy(observersHints);
     const truthyStructureHints = updateHintsAreTruthy(structureHints);
-    changed = changed || truthyObserversHints || truthyStructureHints;
-    // }
+    const changed =
+      truthyObserversHints || truthyStructureHints || !isEmptyObject(_changedOptions) || _force;
+
+    cacheInitialized = true;
 
     changed &&
       onUpdated(updateInfo, {
         _observersUpdateHints: observersHints,
         _structureUpdateHints: structureHints,
       });
-
-    cacheAndOptionsInitialized = true;
 
     return changed;
   };
