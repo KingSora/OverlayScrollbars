@@ -254,6 +254,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const overflowYVisible = overflowIsVisible(overflow.y);
 
     const viewportChanged =
+      true ||
       _sizeChanged ||
       _paddingStyleChanged ||
       _contentMutation ||

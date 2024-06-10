@@ -2,6 +2,7 @@ import {
   assignDeep,
   bind,
   getElementScroll,
+  hasDimensions,
   isEmptyObject,
   keys,
   runEachAndClear,
@@ -81,6 +82,7 @@ export const createSetups = (
   onUpdated: (updateInfo: SetupsUpdateInfo, updateHints: SetupsUpdateHints) => void,
   onScroll: (scrollEvent: Event) => void
 ): Setups => {
+  let cacheInitialized = false;
   const getCurrentOption = createOptionCheck(options, {});
   const [
     structureSetupCreate,
@@ -115,23 +117,24 @@ export const createSetups = (
     updateInfo: SetupsUpdateInfo,
     observerUpdateHints?: ObserversSetupUpdateHints
   ): boolean => {
-    if (isDestroyed()) {
-      return false;
-    }
-
     const {
       _changedOptions: rawChangedOptions,
       _force: rawForce,
       _takeRecords,
       _cloneScrollbar,
     } = updateInfo;
+
     const _changedOptions = rawChangedOptions || {};
-    const _force = !!rawForce;
+    const _force = !!rawForce || !cacheInitialized;
     const baseUpdateInfoObj: SetupUpdateInfo = {
       _checkOption: createOptionCheck(options, _changedOptions, _force),
       _changedOptions,
       _force,
     };
+
+    if (isDestroyed() || !hasDimensions(structureSetupElements._host)) {
+      return false;
+    }
 
     if (_cloneScrollbar) {
       scrollbarsSetupUpdate(baseUpdateInfoObj);
@@ -169,6 +172,8 @@ export const createSetups = (
         _observersUpdateHints: observersHints,
         _structureUpdateHints: structureHints,
       });
+
+    cacheInitialized = true;
 
     return changed;
   };
