@@ -2,7 +2,6 @@ import {
   assignDeep,
   bind,
   getElementScroll,
-  hasDimensions,
   isEmptyObject,
   keys,
   runEachAndClear,
@@ -82,7 +81,7 @@ export const createSetups = (
   onUpdated: (updateInfo: SetupsUpdateInfo, updateHints: SetupsUpdateHints) => void,
   onScroll: (scrollEvent: Event) => void
 ): Setups => {
-  let cacheInitialized = false;
+  let cacheAndOptionsInitialized = false;
   const getCurrentOption = createOptionCheck(options, {});
   const [
     structureSetupCreate,
@@ -125,7 +124,7 @@ export const createSetups = (
     } = updateInfo;
 
     const _changedOptions = rawChangedOptions || {};
-    const _force = !!rawForce || !cacheInitialized;
+    const _force = !!rawForce || !cacheAndOptionsInitialized;
     const baseUpdateInfoObj: SetupUpdateInfo = {
       _checkOption: createOptionCheck(options, _changedOptions, _force),
       _changedOptions,
@@ -146,32 +145,32 @@ export const createSetups = (
     let observersHints = {};
     let structureHints = {};
 
-    if (changed || hasDimensions(structureSetupElements._host)) {
-      observersHints =
-        observerUpdateHints ||
-        observersSetupUpdate(
-          assignDeep({}, baseUpdateInfoObj, {
-            _takeRecords,
-          })
-        );
-
-      structureHints = structureSetupUpdate(
+    // if (changed || hasDimensions(structureSetupElements._host)) {
+    observersHints =
+      observerUpdateHints ||
+      observersSetupUpdate(
         assignDeep({}, baseUpdateInfoObj, {
-          _observersState: observersSetupState,
-          _observersUpdateHints: observersHints,
-        })
-      );
-      scrollbarsSetupUpdate(
-        assignDeep({}, baseUpdateInfoObj, {
-          _observersUpdateHints: observersHints,
-          _structureUpdateHints: structureHints,
+          _takeRecords,
         })
       );
 
-      const truthyObserversHints = updateHintsAreTruthy(observersHints);
-      const truthyStructureHints = updateHintsAreTruthy(structureHints);
-      changed = changed || truthyObserversHints || truthyStructureHints;
-    }
+    structureHints = structureSetupUpdate(
+      assignDeep({}, baseUpdateInfoObj, {
+        _observersState: observersSetupState,
+        _observersUpdateHints: observersHints,
+      })
+    );
+    scrollbarsSetupUpdate(
+      assignDeep({}, baseUpdateInfoObj, {
+        _observersUpdateHints: observersHints,
+        _structureUpdateHints: structureHints,
+      })
+    );
+
+    const truthyObserversHints = updateHintsAreTruthy(observersHints);
+    const truthyStructureHints = updateHintsAreTruthy(structureHints);
+    changed = changed || truthyObserversHints || truthyStructureHints;
+    // }
 
     changed &&
       onUpdated(updateInfo, {
@@ -179,7 +178,7 @@ export const createSetups = (
         _structureUpdateHints: structureHints,
       });
 
-    cacheInitialized = true;
+    cacheAndOptionsInitialized = true;
 
     return changed;
   };
