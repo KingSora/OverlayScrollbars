@@ -1,4 +1,7 @@
 export const isBrowser =
+  // deno has the global `window` defined
   typeof window !== 'undefined' &&
-  // deno has the global `window` defined, so additionally check for document
-  typeof document !== 'undefined';
+  // make sure HTML element is available
+  typeof HTMLElement !== 'undefined' &&
+  // make sure document is defined
+  !!window.document;
