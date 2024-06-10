@@ -253,8 +253,9 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('events', async () => {
-    const onUpdatedInitial = vitest.fn();
+    const onInitialized = vitest.fn();
     const onUpdated = vitest.fn();
+    const onUpdated2 = vitest.fn();
     const osRef = ref();
     const { rerender } = render(
       {
@@ -271,7 +272,7 @@ describe('OverlayScrollbarsComponent', () => {
       },
       {
         props: {
-          events: { updated: onUpdatedInitial },
+          events: { initialized: onInitialized },
         },
       }
     );
@@ -279,46 +280,48 @@ describe('OverlayScrollbarsComponent', () => {
 
     const instance = osRef.value!.osInstance()!;
 
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
 
     await rerender({ events: { updated: onUpdated } });
 
     expect(onUpdated).not.toHaveBeenCalled();
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(1);
+    expect(onUpdated2).toHaveBeenCalledTimes(0);
 
-    await rerender({ events: { updated: [onUpdated, onUpdatedInitial] } });
+    await rerender({ events: { updated: [onUpdated, onUpdated2] } });
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
     // unregister with `[]`, `null` or `undefined`
     await rerender({ events: { updated: null } });
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
     // instance didn't change
     expect(instance).toBe(osRef.value!.osInstance());
 
-    await rerender({ element: 'span', events: { updated: [onUpdated, onUpdatedInitial] } });
+    await rerender({ element: 'span', events: { updated: [onUpdated, onUpdated2] } });
 
     const newElementInstance = osRef.value!.osInstance()!;
     expect(newElementInstance).not.toBe(instance);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
 
     // reset events with `undefined`, `null`, `false` or `{}`
     await rerender({ events: undefined });
 
     newElementInstance.update(true);
     expect(newElementInstance).toBe(osRef.value!.osInstance());
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
   });
 
   test('destroy', async () => {

@@ -332,12 +332,13 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('events', () => {
-    const onUpdatedInitial = vitest.fn();
+    const onInitialized = vitest.fn();
     const onUpdated = vitest.fn();
+    const onUpdated2 = vitest.fn();
     let osRef: OverlayScrollbarsComponentRef | undefined;
     render(
       createTestComponent({
-        events: { updated: onUpdatedInitial },
+        events: { initialized: onInitialized },
         getRef: (ref: any) => {
           osRef = ref;
         },
@@ -346,7 +347,7 @@ describe('OverlayScrollbarsComponent', () => {
 
     const instance = osRef!.osInstance()!;
 
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
 
     fireEvent(
       screen.getByText('props'),
@@ -359,21 +360,21 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdated).not.toHaveBeenCalled();
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(1);
+    expect(onUpdated2).toHaveBeenCalledTimes(0);
 
     fireEvent(
       screen.getByText('props'),
       new CustomEvent('osProps', {
         detail: {
-          events: { updated: [onUpdated, onUpdatedInitial] },
+          events: { updated: [onUpdated, onUpdated2] },
         },
       })
     );
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
     // unregister with `[]`, `null` or `undefined`
     fireEvent(
@@ -386,8 +387,8 @@ describe('OverlayScrollbarsComponent', () => {
     );
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
     // instance didn't change
     expect(instance).toBe(osRef!.osInstance());
@@ -395,14 +396,14 @@ describe('OverlayScrollbarsComponent', () => {
     fireEvent(
       screen.getByText('props'),
       new CustomEvent('osProps', {
-        detail: { element: 'span', events: { updated: [onUpdated, onUpdatedInitial] } },
+        detail: { element: 'span', events: { updated: [onUpdated, onUpdated2] } },
       })
     );
 
     const newElementInstance = osRef!.osInstance()!;
     expect(newElementInstance).not.toBe(instance);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
 
     // reset events with `undefined`, `null`, `false` or `{}`
     fireEvent(
@@ -414,8 +415,9 @@ describe('OverlayScrollbarsComponent', () => {
 
     newElementInstance.update(true);
     expect(newElementInstance).toBe(osRef!.osInstance());
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
   });
 
   test('destroy', () => {

@@ -325,17 +325,18 @@ describe('OverlayscrollbarsNgxComponent', () => {
   });
 
   it('events', async () => {
-    const onUpdatedInitial = jasmine.createSpy();
+    const onInitialized = jasmine.createSpy();
     const onUpdated = jasmine.createSpy();
+    const onUpdated2 = jasmine.createSpy();
     const testFixture = TestBed.createComponent(Test);
     const testInstance = testFixture.componentInstance;
 
-    testInstance.events = { updated: onUpdatedInitial };
+    testInstance.events = { initialized: onInitialized };
     testFixture.detectChanges();
 
     const instance = testInstance.ref!.osInstance()!;
 
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
 
     testInstance.events = { updated: onUpdated };
     testFixture.detectChanges();
@@ -343,38 +344,39 @@ describe('OverlayscrollbarsNgxComponent', () => {
     expect(onUpdated).not.toHaveBeenCalled();
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(1);
+    expect(onUpdated2).toHaveBeenCalledTimes(0);
 
-    testInstance.events = { updated: [onUpdated, onUpdatedInitial] };
+    testInstance.events = { updated: [onUpdated, onUpdated2] };
     testFixture.detectChanges();
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
     // unregister with `[]`, `null` or `undefined`
     testInstance.events = { updated: null };
     testFixture.detectChanges();
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
-    testInstance.events = { updated: [onUpdated, onUpdatedInitial] };
+    testInstance.events = { updated: [onUpdated, onUpdated2] };
     testFixture.detectChanges();
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
 
     // reset events with `undefined`, `null`, `false` or `{}`
     testInstance.events = undefined;
     testFixture.detectChanges();
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
 
     // instance didn't change
     expect(instance).toBe(testInstance.ref!.osInstance()!);

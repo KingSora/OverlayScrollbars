@@ -131,8 +131,9 @@ export const createSetups = (
       _changedOptions,
       _force,
     };
+    const hasChangedOptions = !isEmptyObject(_changedOptions);
 
-    if (isDestroyed() || !hasDimensions(structureSetupElements._host)) {
+    if (isDestroyed()) {
       return false;
     }
 
@@ -141,31 +142,36 @@ export const createSetups = (
       return false;
     }
 
-    const observersHints =
-      observerUpdateHints ||
-      observersSetupUpdate(
+    let changed = _force || hasChangedOptions;
+    let observersHints = {};
+    let structureHints = {};
+
+    if (changed || hasDimensions(structureSetupElements._host)) {
+      observersHints =
+        observerUpdateHints ||
+        observersSetupUpdate(
+          assignDeep({}, baseUpdateInfoObj, {
+            _takeRecords,
+          })
+        );
+
+      structureHints = structureSetupUpdate(
         assignDeep({}, baseUpdateInfoObj, {
-          _takeRecords,
+          _observersState: observersSetupState,
+          _observersUpdateHints: observersHints,
+        })
+      );
+      scrollbarsSetupUpdate(
+        assignDeep({}, baseUpdateInfoObj, {
+          _observersUpdateHints: observersHints,
+          _structureUpdateHints: structureHints,
         })
       );
 
-    const structureHints = structureSetupUpdate(
-      assignDeep({}, baseUpdateInfoObj, {
-        _observersState: observersSetupState,
-        _observersUpdateHints: observersHints,
-      })
-    );
-    scrollbarsSetupUpdate(
-      assignDeep({}, baseUpdateInfoObj, {
-        _observersUpdateHints: observersHints,
-        _structureUpdateHints: structureHints,
-      })
-    );
-
-    const truthyObserversHints = updateHintsAreTruthy(observersHints);
-    const truthyStructureHints = updateHintsAreTruthy(structureHints);
-    const changed =
-      truthyObserversHints || truthyStructureHints || !isEmptyObject(_changedOptions) || _force;
+      const truthyObserversHints = updateHintsAreTruthy(observersHints);
+      const truthyStructureHints = updateHintsAreTruthy(structureHints);
+      changed = changed || truthyObserversHints || truthyStructureHints;
+    }
 
     changed &&
       onUpdated(updateInfo, {

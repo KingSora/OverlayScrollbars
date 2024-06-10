@@ -708,8 +708,6 @@ describe('overlayscrollbars', () => {
         OverlayScrollbars.nonce('abc');
         OverlayScrollbars.env();
 
-        console.log(document.body.innerHTML);
-
         expect(document.body.querySelector('style')?.nonce).toBe('abc');
       });
     });

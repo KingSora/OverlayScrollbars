@@ -48,3 +48,18 @@ export const mockComputedStyles = () => {
     window.getComputedStyle = (a) => cmptdStyle(a);
   } catch {}
 };
+
+export const mockDimensions = () => {
+  Object.defineProperties(HTMLElement.prototype, {
+    offsetWidth: {
+      writable: false,
+      configurable: true,
+      value: 1,
+    },
+    offsetHeight: {
+      writable: false,
+      configurable: true,
+      value: 1,
+    },
+  });
+};

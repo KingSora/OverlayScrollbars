@@ -533,7 +533,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
     triggerEvent('initialized', [instance]);
 
-    instance.update(true);
+    instance.update();
 
     return instance;
   }
