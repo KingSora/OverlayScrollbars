@@ -21,6 +21,8 @@ import {
   wnd,
   focusElement,
   stopAndPrevent,
+  getOffsetSize,
+  getScrollSize,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -106,6 +108,12 @@ export const createStructureSetupElements = (
     createNewDiv,
     defaultContentInitialization
   );
+  const elementHasOverflow = (elm: HTMLElement) => {
+    const offsetSize = getOffsetSize(elm);
+    const scrollSize = getScrollSize(elm);
+
+    return scrollSize.w - offsetSize.w > 0 || scrollSize.h - offsetSize.h > 0;
+  };
   const possibleViewportElement = generateViewportElement(viewportInitialization);
   const viewportIsTarget = possibleViewportElement === targetElement;
   const viewportIsTargetBody = viewportIsTarget && isBody;
@@ -124,9 +132,10 @@ export const createStructureSetupElements = (
     (elm) => isHTMLElement(elm) && !parent(elm) && elm
   );
   const elementIsGenerated = (elm: HTMLElement | false) => elm && inArray(generatedElements, elm);
-  const originalNonBodyScrollOffsetElement = elementIsGenerated(viewportElement)
-    ? targetElement
-    : viewportElement;
+  const originalNonBodyScrollOffsetElement =
+    !elementIsGenerated(viewportElement) && elementHasOverflow(viewportElement)
+      ? viewportElement
+      : targetElement;
 
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,

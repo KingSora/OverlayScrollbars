@@ -2,10 +2,20 @@
 import { useEffect } from 'react';
 import { useOverlayScrollbars } from 'overlayscrollbars-react';
 import { UAParser } from 'ua-parser-js';
+import { ClickScrollPlugin, OverlayScrollbars } from 'overlayscrollbars';
 import type { ComponentPropsWithoutRef } from 'react';
 
+OverlayScrollbars.plugin(ClickScrollPlugin);
+
 export const Html = ({ children }: ComponentPropsWithoutRef<'html'>) => {
-  const [initialize] = useOverlayScrollbars({ defer: true });
+  const [initialize] = useOverlayScrollbars({
+    defer: true,
+    options: {
+      scrollbars: {
+        clickScroll: true,
+      },
+    },
+  });
 
   useEffect(() => {
     const ua = new UAParser();

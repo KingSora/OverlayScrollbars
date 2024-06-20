@@ -380,7 +380,11 @@ const assertCorrectSetupElements = (
     } else {
       const resolvedViewport = resolveInitialization([target], viewportInitialization);
 
-      if (isHTMLElement(resolvedViewport)) {
+      if (
+        isHTMLElement(resolvedViewport) &&
+        (resolvedViewport.offsetHeight - resolvedViewport.scrollHeight > 0 ||
+          resolvedViewport.offsetWidth - resolvedViewport.scrollWidth)
+      ) {
         expect(_originalScrollOffsetElement).toBe(resolvedViewport);
       } else {
         expect(_originalScrollOffsetElement).toBe(target);
