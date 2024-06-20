@@ -1,4 +1,4 @@
-import { animateNumber, noop, setT } from '~/support';
+import { animateNumber, noop, selfClearTimeout } from '~/support';
 import type { StaticPlugin } from '~/plugins';
 
 export const clickScrollPluginModuleName = '__osClickScrollPlugin';
@@ -16,9 +16,11 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
       ): (() => void) => {
         // click scroll animation
         let iteration = 0;
-        let clear = noop;
-        const animateClickScroll = (clickScrollProgress: number) => {
-          clear = animateNumber(
+        let stopAnimation = noop;
+        const [setFirstIterationPauseTimeout, clearFirstIterationPauseTimeout] =
+          selfClearTimeout(222);
+        const animateClickScroll = (clickScrollProgress: number) =>
+          animateNumber(
             clickScrollProgress,
             clickScrollProgress + handleLength * Math.sign(startOffset),
             133,
@@ -29,29 +31,29 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
               const mouseBetweenHandleBounds =
                 relativeTrackPointerOffset >= handleStartBound &&
                 relativeTrackPointerOffset <= handleEndBound;
+              const animationCompletedAction = () => {
+                stopAnimation = animateClickScroll(animationProgress);
+              };
 
               if (animationCompleted && !mouseBetweenHandleBounds) {
                 if (iteration) {
-                  animateClickScroll(animationProgress);
+                  animationCompletedAction();
                 } else {
-                  const firstIterationPauseTimeout = setT(() => {
-                    animateClickScroll(animationProgress);
-                  }, 222);
-                  clear = () => {
-                    clearTimeout(firstIterationPauseTimeout);
-                  };
+                  setFirstIterationPauseTimeout(animationCompletedAction);
                 }
+
                 iteration++;
               }
             }
           );
-        };
 
+        // never stop the first animation iteration because in case of a tap / very fast click scrolling would be canceled instantly
+        // stopAnimation = animateClickScroll(0);
         animateClickScroll(0);
 
         return () => {
-          // dont clear iteration `0` because in case of a tap it would be canceled instantly
-          iteration && clear();
+          clearFirstIterationPauseTimeout();
+          stopAnimation();
         };
       },
   },
