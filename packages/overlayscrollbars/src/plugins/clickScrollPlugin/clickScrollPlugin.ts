@@ -49,7 +49,10 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
 
         animateClickScroll(0);
 
-        return () => clear();
+        return () => {
+          // dont clear iteration `0` because in case of a tap it would be canceled instantly
+          iteration && clear();
+        };
       },
   },
 }))() satisfies StaticPlugin<typeof clickScrollPluginModuleName>;
