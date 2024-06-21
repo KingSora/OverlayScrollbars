@@ -47,48 +47,48 @@
   --os-handle-interactive-area-offset: 0;
 }
 
-.os-scrollbar {
-  .os-scrollbar-track {
-    border: var(--os-track-border);
-    border-radius: var(--os-track-border-radius);
-    background: var(--os-track-bg);
-    transition: opacity 0.15s, background-color 0.15s, border-color 0.15s;
+.os-scrollbar-track {
+  border: var(--os-track-border);
+  border-radius: var(--os-track-border-radius);
+  background: var(--os-track-bg);
+  transition: opacity 0.15s, background-color 0.15s, border-color 0.15s;
 
-    &:hover {
-      border: var(--os-track-border-hover);
-      background: var(--os-track-bg-hover);
-    }
-
-    &:active {
-      border: var(--os-track-border-active);
-      background: var(--os-track-bg-active);
-    }
+  &:hover {
+    border: var(--os-track-border-hover);
+    background: var(--os-track-bg-hover);
   }
-  .os-scrollbar-handle {
-    border: var(--os-handle-border);
-    border-radius: var(--os-handle-border-radius);
-    background: var(--os-handle-bg);
 
-    &:before {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      display: block;
-    }
-
-    &:hover {
-      border: var(--os-handle-border-hover);
-      background: var(--os-handle-bg-hover);
-    }
-
-    &:active {
-      border: var(--os-handle-border-active);
-      background: var(--os-handle-bg-active);
-    }
+  &:active {
+    border: var(--os-track-border-active);
+    background: var(--os-track-bg-active);
   }
+}
+
+.os-scrollbar-handle {
+  border: var(--os-handle-border);
+  border-radius: var(--os-handle-border-radius);
+  background: var(--os-handle-bg);
+
+  &:hover {
+    border: var(--os-handle-border-hover);
+    background: var(--os-handle-bg-hover);
+  }
+
+  &:active {
+    border: var(--os-handle-border-active);
+    background: var(--os-handle-bg-active);
+  }
+}
+
+.os-scrollbar-track:before,
+.os-scrollbar-handle:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: block;
 }
 
 .os-scrollbar-horizontal {
@@ -99,6 +99,13 @@
   &.os-scrollbar-rtl {
     left: var(--os-size);
     right: 0;
+  }
+
+  .os-scrollbar-track {
+    &:before {
+      top: calc(var(--os-padding-perpendicular) * -1);
+      bottom: calc(var(--os-padding-perpendicular) * -1);
+    }
   }
 
   .os-scrollbar-handle {
@@ -130,6 +137,13 @@
   padding: var(--os-padding-axis) var(--os-padding-perpendicular);
   bottom: var(--os-size);
   width: var(--os-size);
+
+  .os-scrollbar-track {
+    &:before {
+      left: calc(var(--os-padding-perpendicular) * -1);
+      right: calc(var(--os-padding-perpendicular) * -1);
+    }
+  }
 
   .os-scrollbar-handle {
     min-height: var(--os-handle-min-size);
