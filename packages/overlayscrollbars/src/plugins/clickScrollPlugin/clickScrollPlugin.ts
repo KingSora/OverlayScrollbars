@@ -1,4 +1,5 @@
 import { animateNumber, noop, selfClearTimeout } from '~/support';
+import type { EasingFn } from '~/support';
 import type { StaticPlugin } from '~/plugins';
 
 export const clickScrollPluginModuleName = '__osClickScrollPlugin';
@@ -20,17 +21,20 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
         // The "click" should not be canceled by a "pointerup" event because very fast clicks or taps would cancel it too fast
         // The "click" should only be canceled by a subsequent "pointerdown" event because otherwise 2 animations would run
         // The "press" should be canceld by the next "pointerup" event
-        let iteration = 0;
         let stop = false;
         let stopClickAnimation = noop;
         let stopPressAnimation = noop;
         const [setFirstIterationPauseTimeout, clearFirstIterationPauseTimeout] =
           selfClearTimeout(222);
-        const animateClickScroll = (clickScrollProgress: number) =>
+        const animateClickScroll = (
+          clickScrollProgress: number,
+          iteration: number,
+          easing?: EasingFn | false
+        ) =>
           animateNumber(
             clickScrollProgress,
             clickScrollProgress + handleLength * Math.sign(startOffset),
-            133,
+            iteration ? 133 : 222,
             (animationProgress, _, animationCompleted) => {
               moveHandleRelative(animationProgress);
               const handleStartBound = getHandleOffset();
@@ -39,7 +43,7 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
                 relativeTrackPointerOffset >= handleStartBound &&
                 relativeTrackPointerOffset <= handleEndBound;
               const animationCompletedAction = () => {
-                stopPressAnimation = animateClickScroll(animationProgress);
+                stopPressAnimation = animateClickScroll(animationProgress, iteration + 1);
               };
 
               if (!stop && animationCompleted && !mouseBetweenHandleBounds) {
@@ -48,13 +52,12 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
                 } else {
                   setFirstIterationPauseTimeout(animationCompletedAction);
                 }
-
-                iteration++;
               }
-            }
+            },
+            easing
           );
 
-        stopClickAnimation = animateClickScroll(0);
+        stopClickAnimation = animateClickScroll(0, 0, (x) => 1 - (1 - x) * (1 - x));
 
         return (stopClick?: boolean) => {
           stop = true;
