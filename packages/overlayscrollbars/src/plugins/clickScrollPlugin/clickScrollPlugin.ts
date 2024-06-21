@@ -57,6 +57,7 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
             easing
           );
 
+        // easeOutQuad
         stopClickAnimation = animateClickScroll(0, 0, (x) => 1 - (1 - x) * (1 - x));
 
         return (stopClick?: boolean) => {
