@@ -23,6 +23,9 @@ import {
   stopAndPrevent,
   getOffsetSize,
   getScrollSize,
+  getStyles,
+  strOverflowX,
+  strOverflowY,
 } from '~/support';
 import {
   dataAttributeHost,
@@ -44,6 +47,7 @@ import type {
   InitializationTargetElement,
   InitializationTargetObject,
 } from '~/initialization';
+import { overflowIsVisible } from './structureSetup.utils';
 
 export type StructureSetupElements = [
   elements: StructureSetupElementsObj,
@@ -111,8 +115,13 @@ export const createStructureSetupElements = (
   const elementHasOverflow = (elm: HTMLElement) => {
     const offsetSize = getOffsetSize(elm);
     const scrollSize = getScrollSize(elm);
+    const overflowX = getStyles(elm, strOverflowX);
+    const overflowY = getStyles(elm, strOverflowY);
 
-    return scrollSize.w - offsetSize.w > 0 || scrollSize.h - offsetSize.h > 0;
+    return (
+      (scrollSize.w - offsetSize.w > 0 && !overflowIsVisible(overflowX)) ||
+      (scrollSize.h - offsetSize.h > 0 && !overflowIsVisible(overflowY))
+    );
   };
   const possibleViewportElement = generateViewportElement(viewportInitialization);
   const viewportIsTarget = possibleViewportElement === targetElement;
