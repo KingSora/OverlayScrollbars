@@ -9,6 +9,11 @@
 ### Improvements
 
 - Reduced bundle size due to removed compatiblity code.
+- Improve `clickScroll` to not cancel fast clicks / taps [#650](https://github.com/KingSora/OverlayScrollbars/issues/650)
+
+### Bug Fixes
+
+- Only take the initial scroll coordinates from the `viewport` element if it has a scrollable overflow. (Otherwise take the initial scroll coordinates from the target element) [#652](https://github.com/KingSora/OverlayScrollbars/issues/652)
 
 ## 2.8.4
 
