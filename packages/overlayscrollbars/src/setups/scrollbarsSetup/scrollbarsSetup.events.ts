@@ -41,10 +41,6 @@ import type { StructureSetupElementsObj } from '../structureSetup/structureSetup
 export type ScrollbarsSetupEvents = (
   scrollbarStructure: ScrollbarStructure,
   scrollbarsAddRemoveClass: ScrollbarsSetupElementsObj['_scrollbarsAddRemoveClass'],
-  refreshScrollbarStructuresHandleOffset: (
-    scrollbarStructure: ScrollbarStructure[],
-    isHorizontal?: boolean
-  ) => void,
   isHorizontal?: boolean
 ) => () => void;
 
@@ -54,12 +50,7 @@ export const createScrollbarsSetupEvents = (
   structureSetupState: StructureSetupState,
   scrollbarHandlePointerInteraction: (event: PointerEvent) => void
 ): ScrollbarsSetupEvents => {
-  return (
-    scrollbarStructure,
-    scrollbarsAddRemoveClass,
-    refreshScrollbarStructuresHandleOffset,
-    isHorizontal
-  ) => {
+  return (scrollbarStructure, scrollbarsAddRemoveClass, isHorizontal) => {
     const {
       _host,
       _viewport,
@@ -72,11 +63,6 @@ export const createScrollbarsSetupEvents = (
     const [wheelTimeout, clearWheelTimeout] = selfClearTimeout(333);
     const [scrollSnapScrollTransitionTimeout, clearScrollSnapScrollTransitionTimeout] =
       selfClearTimeout(444);
-    const refreshHandleOffsetTransition = bind(
-      refreshScrollbarStructuresHandleOffset,
-      [scrollbarStructure],
-      isHorizontal
-    );
     const scrollOffsetElementScrollBy = (coordinates: XY<number>) => {
       isFunction(_scrollOffsetElement.scrollBy) &&
         _scrollOffsetElement.scrollBy({
@@ -85,11 +71,11 @@ export const createScrollbarsSetupEvents = (
           top: coordinates.y,
         });
     };
-    const widthHeightKey = isHorizontal ? strWidth : strHeight;
 
     const createInteractiveScrollEvents = () => {
       const releasePointerCaptureEvents = 'pointerup pointercancel lostpointercapture';
       const clientXYKey = `client${isHorizontal ? 'X' : 'Y'}` as 'clientX' | 'clientY';
+      const widthHeightKey = isHorizontal ? strWidth : strHeight;
       const leftTopKey = isHorizontal ? 'left' : 'top';
       const whKey = isHorizontal ? 'w' : 'h';
       const xyKey = isHorizontal ? 'x' : 'y';
@@ -212,33 +198,6 @@ export const createScrollbarsSetupEvents = (
 
     let wheelScrollBy = true;
 
-    const addTransitionAnimation = (
-      target: HTMLElement,
-      isAffecting?: (event: TransitionEvent) => boolean
-    ) => {
-      const [requestTransitionAnimationFrame, cancelTransitionAnimationFrame] = selfClearTimeout();
-      const isTransitionTarget = (event: TransitionEvent) => event.target === target;
-
-      return bind(runEachAndClear, [
-        cancelTransitionAnimationFrame,
-        addEventListener(target, 'transitionstart', (event: TransitionEvent) => {
-          if (isTransitionTarget(event) && (isAffecting ? isAffecting(event) : true)) {
-            const animateHandleOffset = () => {
-              refreshHandleOffsetTransition();
-              requestTransitionAnimationFrame(animateHandleOffset);
-            };
-            animateHandleOffset();
-          }
-        }),
-        addEventListener(target, 'transitionend transitioncancel', (event: TransitionEvent) => {
-          if (isTransitionTarget(event)) {
-            cancelTransitionAnimationFrame();
-            refreshHandleOffsetTransition();
-          }
-        }),
-      ]);
-    };
-
     return bind(runEachAndClear, [
       addEventListener(_handle, 'pointermove pointerleave', scrollbarHandlePointerInteraction),
       addEventListener(_scrollbar, 'pointerenter', () => {
@@ -284,16 +243,6 @@ export const createScrollbarsSetupEvents = (
           preventDefault(wheelEvent);
         },
         { _passive: false, _capture: true }
-      ),
-      // when the handle has a size transition, update the handle offset each frame for the time of the transition
-      addTransitionAnimation(
-        _handle,
-        (event: TransitionEvent) => event.propertyName.indexOf(widthHeightKey) > -1
-      ),
-      // when the scrollbar has a size transition, update the handle offset each frame for the time of the transition
-      addTransitionAnimation(
-        _scrollbar,
-        (event: TransitionEvent) => !['opacity', 'visibility'].includes(event.propertyName)
       ),
       // solve problem of interaction causing click events
       addEventListener(

@@ -93,6 +93,7 @@ export const createScrollbarsSetup = (
     _scrollbarsAddRemoveClass,
     _refreshScrollbarsHandleLength,
     _refreshScrollbarsHandleOffset,
+    _refreshScrollbarsScrollCoordinates,
     _refreshScrollbarsScrollbarOffset,
   } = elements;
   const manageScrollbarsAutoHide = (removeAutoHide: boolean, delayless?: boolean) => {
@@ -272,10 +273,10 @@ export const createScrollbarsSetup = (
 
       // always update scrollbar sizes after the visibility
       if (updateScrollbars) {
-        // order is matter! length has to be refreshed before offset
-        _refreshScrollbarsHandleLength();
         _refreshScrollbarsHandleOffset();
+        _refreshScrollbarsHandleLength();
         _refreshScrollbarsScrollbarOffset();
+        _scrollCoordinatesChanged && _refreshScrollbarsScrollCoordinates();
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_hasOverflow.x, true);
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_hasOverflow.y, false);

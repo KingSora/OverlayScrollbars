@@ -1,3 +1,26 @@
+@property --os-scroll-percent {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@property --os-viewport-percent {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+.os-scrollbar {
+  // The viewport size percentage of the scrollbar axis in the range 0..1
+  --os-viewport-percent: 0;
+  // The scroll percentage of the scrollbar axis in the range 0..1
+  --os-scroll-percent: 0;
+  // The scroll direction of the scrollbar axis. `0` represents the default scroll direction and `1` represents a non-default scroll direction
+  --os-scroll-direction: 0;
+  // The direction aware scroll percentage of the scrollbar axis. The range for default scroll directions is 0..1 and for non default 1 - (0..1).
+  --os-scroll-percent-directional: calc(
+    var(--os-scroll-percent) - (var(--os-scroll-percent) + (1 - var(--os-scroll-percent)) * -1) *
+      var(--os-scroll-direction)
+  );
+}
 .os-scrollbar {
   contain: size layout;
   contain: size layout style;
@@ -77,13 +100,43 @@ body > .os-scrollbar {
 }
 .os-scrollbar-horizontal .os-scrollbar-handle {
   bottom: 0;
-  left: 0;
+  left: calc(var(--os-scroll-percent-directional) * 100%);
+  transform: translateX(calc(var(--os-scroll-percent-directional) * -100%));
+  width: calc(var(--os-viewport-percent) * 100%);
 }
 .os-scrollbar-vertical .os-scrollbar-handle {
-  top: 0;
   right: 0;
+  top: calc(var(--os-scroll-percent-directional) * 100%);
+  transform: translateY(calc(var(--os-scroll-percent-directional) * -100%));
+  height: calc(var(--os-viewport-percent) * 100%);
 }
-.os-scrollbar-rtl.os-scrollbar-horizontal .os-scrollbar-handle,
+@supports (container-type: size) {
+  .os-scrollbar-track {
+    container-type: size;
+  }
+  .os-scrollbar-horizontal .os-scrollbar-handle {
+    left: auto;
+    transform: translateX(
+      calc(
+        (var(--os-scroll-percent-directional) * 100cqw) +
+          (var(--os-scroll-percent-directional) * -100%)
+      )
+    );
+  }
+  .os-scrollbar-vertical .os-scrollbar-handle {
+    top: auto;
+    transform: translateY(
+      calc(
+        (var(--os-scroll-percent-directional) * 100cqh) +
+          (var(--os-scroll-percent-directional) * -100%)
+      )
+    );
+  }
+  .os-scrollbar-rtl.os-scrollbar-horizontal .os-scrollbar-handle {
+    right: auto;
+    left: 0;
+  }
+}
 .os-scrollbar-rtl.os-scrollbar-vertical .os-scrollbar-handle {
   right: auto;
   left: 0;
