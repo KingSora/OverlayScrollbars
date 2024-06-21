@@ -9,7 +9,10 @@
 ### Improvements
 
 - Reduced bundle size due to removed compatiblity code.
-- Improve `clickScroll` to not cancel fast clicks / taps [#650](https://github.com/KingSora/OverlayScrollbars/issues/650)
+- `clickScroll` will not cancel on fast clicks / taps. [#650](https://github.com/KingSora/OverlayScrollbars/issues/650)
+- Add easing to the `clickScroll` animation.
+- The scrollbar-handle offset and size calculations are now entirely in CSS and will not force reflows.
+- Use custom css properties for setting the scrollbar-handle offset and size.
 
 ### Bug Fixes
 

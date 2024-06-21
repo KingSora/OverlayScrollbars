@@ -25,7 +25,7 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
         let stopClickAnimation = noop;
         let stopPressAnimation = noop;
         const [setFirstIterationPauseTimeout, clearFirstIterationPauseTimeout] =
-          selfClearTimeout(222);
+          selfClearTimeout(133);
         const animateClickScroll = (
           clickScrollProgress: number,
           iteration: number,
