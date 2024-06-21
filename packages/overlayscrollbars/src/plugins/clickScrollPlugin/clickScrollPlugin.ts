@@ -13,10 +13,17 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
         startOffset: number,
         handleLength: number,
         relativeTrackPointerOffset: number
-      ): (() => void) => {
-        // click scroll animation
+      ) => {
+        // click scroll animation has 2 parts:
+        // 1. the "click" which scrolls 100% of the viewport in a certain amount of time
+        // 2. the "press" which scrolls to the point where the cursor is located, the "press" always waits for the "click" to finish
+        // The "click" should not be canceled by a "pointerup" event because very fast clicks or taps would cancel it too fast
+        // The "click" should only be canceled by a subsequent "pointerdown" event because otherwise 2 animations would run
+        // The "press" should be canceld by the next "pointerup" event
         let iteration = 0;
-        let stopAnimation = noop;
+        let stop = false;
+        let stopClickAnimation = noop;
+        let stopPressAnimation = noop;
         const [setFirstIterationPauseTimeout, clearFirstIterationPauseTimeout] =
           selfClearTimeout(222);
         const animateClickScroll = (clickScrollProgress: number) =>
@@ -32,10 +39,10 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
                 relativeTrackPointerOffset >= handleStartBound &&
                 relativeTrackPointerOffset <= handleEndBound;
               const animationCompletedAction = () => {
-                stopAnimation = animateClickScroll(animationProgress);
+                stopPressAnimation = animateClickScroll(animationProgress);
               };
 
-              if (animationCompleted && !mouseBetweenHandleBounds) {
+              if (!stop && animationCompleted && !mouseBetweenHandleBounds) {
                 if (iteration) {
                   animationCompletedAction();
                 } else {
@@ -47,13 +54,17 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
             }
           );
 
-        // never stop the first animation iteration because in case of a tap / very fast click scrolling would be canceled instantly
-        // stopAnimation = animateClickScroll(0);
-        animateClickScroll(0);
+        stopClickAnimation = animateClickScroll(0);
 
-        return () => {
+        return (stopClick?: boolean) => {
+          stop = true;
           clearFirstIterationPauseTimeout();
-          stopAnimation();
+          if (stopClick) {
+            stopClickAnimation();
+            stopPressAnimation();
+          } else {
+            stopPressAnimation();
+          }
         };
       },
   },

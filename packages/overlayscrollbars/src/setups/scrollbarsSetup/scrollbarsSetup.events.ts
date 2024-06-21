@@ -105,6 +105,7 @@ export const createScrollbarsSetupEvents = (
             [xyKey]: mouseDownScroll + scrollDelta,
           });
         };
+      const pointerdownCleanupFns: Array<() => void> = [];
 
       return addEventListener(_track, 'pointerdown', (pointerDownEvent: PointerEvent) => {
         const isDragScroll =
@@ -122,6 +123,7 @@ export const createScrollbarsSetupEvents = (
           (pointers || []).includes(pointerType);
 
         if (continuePointerDown) {
+          runEachAndClear(pointerdownCleanupFns);
           clearScrollSnapScrollTransitionTimeout();
 
           const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
@@ -145,14 +147,14 @@ export const createScrollbarsSetupEvents = (
           const startOffset = isDragScroll ? 0 : relativeTrackPointerOffset - handleCenter;
           const releasePointerCapture = (pointerUpEvent: PointerEvent) => {
             // eslint-disable-next-line @typescript-eslint/no-use-before-define
-            runEachAndClear(offFns);
+            runEachAndClear(pointerupCleanupFns);
             pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
           };
           const addScrollbarPressedClass = () =>
             _viewportAddRemoveClass(dataValueViewportScrollbarPressed, true);
           const removeScrollbarPressedClass = addScrollbarPressedClass();
 
-          const offFns = [
+          const pointerupCleanupFns = [
             () => {
               const withoutSnapScrollOffset = getElementScroll(_scrollOffsetElement);
               removeScrollbarPressedClass();
@@ -191,18 +193,18 @@ export const createScrollbarsSetupEvents = (
             const animateClickScroll = getStaticPluginModuleInstance<typeof ClickScrollPlugin>(
               clickScrollPluginModuleName
             );
-
-            animateClickScroll &&
-              push(
-                offFns,
-                animateClickScroll(
-                  moveHandleRelative,
-                  getHandleOffset,
-                  startOffset,
-                  handleLength,
-                  relativeTrackPointerOffset
-                )
+            if (animateClickScroll) {
+              const stopClickScrollAnimation = animateClickScroll(
+                moveHandleRelative,
+                getHandleOffset,
+                startOffset,
+                handleLength,
+                relativeTrackPointerOffset
               );
+
+              push(pointerupCleanupFns, bind(stopClickScrollAnimation));
+              push(pointerdownCleanupFns, bind(stopClickScrollAnimation, true));
+            }
           }
         }
       });
