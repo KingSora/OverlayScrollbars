@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.9.1
+
+### Improvements
+
+- Resilience against `scroll-behavior: smooth` style when scrolling should be instant.
+
 ## 2.9.0
 
 ### Features

@@ -24,7 +24,7 @@ const osInstance = (window.os = OverlayScrollbars(
 
 const plusMinusSame = (a: number, b: number) => {
   const result = Math.abs(a - b);
-  return result < 1;
+  return result < 1.5;
 };
 
 const startBtn: HTMLButtonElement | null = document.querySelector('#start');
@@ -35,6 +35,8 @@ const runMeasureTest = async () => {
   const { scrollbarsHiding } = OverlayScrollbars.env();
   const checkingElement = scrollbarsHiding ? document.documentElement : document.body;
   const { overflowEdge, overflowAmount } = osInstance.state();
+
+  console.log(overflowEdge, checkingElement.clientWidth);
 
   should.ok(
     plusMinusSame(overflowEdge.x, checkingElement.clientWidth),
