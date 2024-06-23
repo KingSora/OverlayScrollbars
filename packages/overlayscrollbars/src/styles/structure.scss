@@ -155,7 +155,7 @@ html[data-overlayscrollbars-body] > body {
   border-width: 0 !important;
 }
 
-[data-overlayscrollbars-viewport~='scrollbarPressed'] {
+[data-overlayscrollbars-viewport~='scrolling'] {
   scroll-behavior: auto !important;
   scroll-snap-type: none !important;
 }

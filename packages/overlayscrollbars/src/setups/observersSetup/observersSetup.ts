@@ -91,6 +91,7 @@ export const createObserversSetup = (
     _isBody,
     _viewportHasClass,
     _viewportAddRemoveClass,
+    _removeScrollObscuringStyles,
   } = structureSetupElements;
 
   const getDirectionIsRTL = (elm: HTMLElement): boolean => getStyles(elm, 'direction') === 'rtl';
@@ -125,6 +126,7 @@ export const createObserversSetup = (
         !viewportIsTargetBody && hasAttrClass(_host, dataAttributeHost, dataValueNoClipping);
       const isArranged = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
       const scrollOffset = isArranged && getElementScroll(_scrollOffsetElement);
+      const revertScrollObscuringStyles = scrollOffset && _removeScrollObscuringStyles();
 
       const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, noClipping);
       const redoViewportArrange = isArranged && _undoViewportArrange && _undoViewportArrange()[0];
@@ -134,6 +136,7 @@ export const createObserversSetup = (
       redoViewportArrange && redoViewportArrange();
 
       scrollElementTo(_scrollOffsetElement, scrollOffset);
+      revertScrollObscuringStyles && revertScrollObscuringStyles();
       noClipping && revertMeasuring();
 
       return {

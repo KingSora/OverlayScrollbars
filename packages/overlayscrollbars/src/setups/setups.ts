@@ -180,11 +180,14 @@ export const createSetups = (
 
   return [
     () => {
-      const { _originalScrollOffsetElement, _scrollOffsetElement } = structureSetupElements;
+      const { _originalScrollOffsetElement, _scrollOffsetElement, _removeScrollObscuringStyles } =
+        structureSetupElements;
       const initialScroll = getElementScroll(_originalScrollOffsetElement);
       const destroyFns = [observersSetupCreate(), structureSetupCreate(), scrollbarsSetupCreate()];
+      const revertScrollObscuringStyles = _removeScrollObscuringStyles();
 
       scrollElementTo(_scrollOffsetElement, initialScroll);
+      revertScrollObscuringStyles();
 
       return bind(runEachAndClear, destroyFns);
     },

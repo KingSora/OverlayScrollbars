@@ -29,7 +29,6 @@ import {
   classNameScrollbarWheel,
   dataAttributeHost,
   dataAttributeViewport,
-  dataValueViewportScrollbarPressed,
 } from '~/classnames';
 import type { XY } from '~/support';
 import type { ClickScrollPlugin } from '~/plugins';
@@ -57,7 +56,7 @@ export const createScrollbarsSetupEvents = (
       _viewportIsTarget,
       _scrollOffsetElement,
       _documentElm,
-      _viewportAddRemoveClass,
+      _removeScrollObscuringStyles,
     } = structureSetupElements;
     const { _scrollbar, _track, _handle } = scrollbarStructure;
     const [wheelTimeout, clearWheelTimeout] = selfClearTimeout(333);
@@ -136,14 +135,12 @@ export const createScrollbarsSetupEvents = (
             runEachAndClear(pointerupCleanupFns);
             pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
           };
-          const addScrollbarPressedClass = () =>
-            _viewportAddRemoveClass(dataValueViewportScrollbarPressed, true);
-          const removeScrollbarPressedClass = addScrollbarPressedClass();
+          const revertScrollObscuringStyles = _removeScrollObscuringStyles();
 
           const pointerupCleanupFns = [
             () => {
               const withoutSnapScrollOffset = getElementScroll(_scrollOffsetElement);
-              removeScrollbarPressedClass();
+              revertScrollObscuringStyles();
               const withSnapScrollOffset = getElementScroll(_scrollOffsetElement);
               const snapScrollDiff = {
                 x: withSnapScrollOffset.x - withoutSnapScrollOffset.x,
@@ -151,10 +148,10 @@ export const createScrollbarsSetupEvents = (
               };
 
               if (mathAbs(snapScrollDiff.x) > 3 || mathAbs(snapScrollDiff.y) > 3) {
-                addScrollbarPressedClass();
+                _removeScrollObscuringStyles();
                 scrollElementTo(_scrollOffsetElement, withoutSnapScrollOffset);
                 scrollOffsetElementScrollBy(snapScrollDiff);
-                scrollSnapScrollTransitionTimeout(removeScrollbarPressedClass);
+                scrollSnapScrollTransitionTimeout(revertScrollObscuringStyles);
               }
             },
             addEventListener(_documentElm, releasePointerCaptureEvents, releasePointerCapture),

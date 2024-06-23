@@ -36,6 +36,7 @@ import {
   dataAttributeContent,
   dataAttributeHtmlBody,
   dataValueHostIsHost,
+  dataValueViewportScrolling,
 } from '~/classnames';
 import { getEnvironment } from '~/environment';
 import {
@@ -72,6 +73,7 @@ export interface StructureSetupElementsObj {
   _windowElm: () => Window;
   _viewportHasClass: (viewportAttributeClassName: string) => boolean;
   _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) => () => void;
+  _removeScrollObscuringStyles: () => () => void;
 }
 
 export const createStructureSetupElements = (
@@ -145,6 +147,8 @@ export const createStructureSetupElements = (
     !elementIsGenerated(viewportElement) && elementHasOverflow(viewportElement)
       ? viewportElement
       : targetElement;
+  const scrollOffsetElement = viewportIsTargetBody ? docElement : viewportElement;
+  const scrollEventElement = viewportIsTargetBody ? ownerDocument : viewportElement;
 
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
@@ -152,8 +156,8 @@ export const createStructureSetupElements = (
     _viewport: viewportElement,
     _padding: paddingElement,
     _content: contentElement,
-    _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
-    _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
+    _scrollOffsetElement: scrollOffsetElement,
+    _scrollEventElement: scrollEventElement,
     _originalScrollOffsetElement: isBody ? docElement : originalNonBodyScrollOffsetElement,
     _documentElm: ownerDocument,
     _isBody: isBody,
@@ -164,6 +168,13 @@ export const createStructureSetupElements = (
       hasAttrClass(viewportElement, dataAttributeViewport, viewportAttributeClassName),
     _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) =>
       addRemoveAttrClass(viewportElement, dataAttributeViewport, viewportAttributeClassName, add),
+    _removeScrollObscuringStyles: () =>
+      addRemoveAttrClass(
+        scrollOffsetElement,
+        dataAttributeViewport,
+        dataValueViewportScrolling,
+        true
+      ),
   };
   const { _target, _host, _padding, _viewport, _content } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [

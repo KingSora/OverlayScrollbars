@@ -106,7 +106,8 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
     },
     _scrollCoordinates: getZeroScrollCoordinates(),
   };
-  const { _target, _scrollOffsetElement, _viewportIsTarget } = elements;
+  const { _target, _scrollOffsetElement, _viewportIsTarget, _removeScrollObscuringStyles } =
+    elements;
   const { _nativeScrollbarsHiding, _nativeScrollbarsOverlaid } = getEnvironment();
   const doViewportArrange =
     !_nativeScrollbarsHiding && (_nativeScrollbarsOverlaid.x || _nativeScrollbarsOverlaid.y);
@@ -123,12 +124,14 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       const updateHints: StructureSetupUpdateHints = {};
       const adjustScrollOffset = doViewportArrange;
       const scrollOffset = adjustScrollOffset && getElementScroll(_scrollOffsetElement);
+      const revertScrollObscuringStyles = scrollOffset && _removeScrollObscuringStyles();
 
       each(updateSegments, (updateSegment) => {
         assignDeep(updateHints, updateSegment(updateInfo, updateHints) || {});
       });
 
       scrollElementTo(_scrollOffsetElement, scrollOffset);
+      revertScrollObscuringStyles && revertScrollObscuringStyles();
       !_viewportIsTarget && scrollElementTo(_target, 0);
 
       return updateHints;
