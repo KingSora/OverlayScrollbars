@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import '~/index.scss';
 import './index.scss';
+import './handleEnvironment';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import { ScrollbarsHidingPlugin } from '~/plugins';
 import { resize, setTestResult, timeout, waitForOrFailTest } from '@~local/browser-testing';
@@ -15,6 +16,7 @@ if (!OverlayScrollbars.env().scrollbarsHiding) {
   OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 }
 
+const nonDefaultScrollDirection = document.body.classList.contains('ndsd');
 const startBtn = document.querySelector<HTMLButtonElement>('#start')!;
 const wrapper = document.querySelector<HTMLElement>('#wrapper')!;
 const content = document.querySelector<HTMLElement>('#content')!;
@@ -90,12 +92,17 @@ startBtn.addEventListener('click', async () => {
       completed();
     });
     const forceUpdateTestResult = await forceUpdateTest.run();
+    const scrollDirectionStr = nonDefaultScrollDirection ? 'non-default' : 'default';
 
     console.error(
-      `No Force Update (10k runs / sample): { samples: ${noForceUpdateTestResult.samples}, timeMs: ${noForceUpdateTestResult.timeMs} }`
+      `[ScrollDirection: ${scrollDirectionStr}] [force: false]: (10k runs / sample): { samples: ${
+        noForceUpdateTestResult.samples
+      }, timeMs: ${noForceUpdateTestResult.timeMs.toFixed(3)} }`
     );
     console.error(
-      `Force Update (1k runs / sample): { samples: ${forceUpdateTestResult.samples}, timeMs: ${forceUpdateTestResult.timeMs} }`
+      `[ScrollDirection: ${scrollDirectionStr}] [force: true]:  (1k runs / sample):  { samples: ${
+        forceUpdateTestResult.samples
+      }, timeMs: ${forceUpdateTestResult.timeMs.toFixed(3)} }`
     );
 
     setTestResult(true);
