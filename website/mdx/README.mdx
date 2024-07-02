@@ -256,7 +256,7 @@ An array of tuples. The first value in the tuple is an `selector` and the second
 
 > __Note__: If 0 is used for the timeout, `requestAnimationFrame` instead of `setTimeout` is used for the debounce.
 
-Debounces the `MutationObserver` which tracks changes to the content. If a **tuple** is passed, the first value is the timeout and second is the max wait. If only a **number** is passed you specify only the timeout and there is no max wait. With **null** there is no debounce. **Usefull to fine-tune performance.**
+Debounces the `MutationObserver` which tracks changes to the content. If a **tuple** is passed, the first value is the timeout and second is the max wait. If only a **number** is passed you specify only the timeout and there is no max wait. With **null** there is no debounce. **Useful to fine-tune performance.**
 
 ### `update.attributes`
 
@@ -274,7 +274,7 @@ An array of additional attributes that the `MutationObserver` should observe for
 | :--- | :--- |
 | `((mutation) => any) \| null` | `null` |
 
-A function which receives a [`MutationRecord`](https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord) as an argument. If the function returns a truthy value the mutation will be ignored and the plugin won't update. **Usefull to fine-tune performance.**
+A function which receives a [`MutationRecord`](https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord) as an argument. If the function returns a truthy value the mutation will be ignored and the plugin won't update. **Useful to fine-tune performance.**
 
 ### `overflow.x`
 
@@ -469,7 +469,7 @@ Is dispatched after all generated elements, observers and events were appended t
 
 > __Note__: If an update was triggered but nothing changed, the event won't be dispatched.
 
-Is dispatched after the instace was updated. 
+Is dispatched after the instance was updated.
 
 ### `destroyed`
 
@@ -650,7 +650,7 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   ### `elements(): Elements`
 
-  Gets the instances elments.
+  Gets the instances elements.
 
   | returns | description |
   | :--- | :--- |
@@ -920,7 +920,7 @@ Custom themes can be done in several ways. The easiest and fastest way is to use
   .os-scrollbar {
     // The size of the scrollbar
     --os-size: 0;
-    // The axis-perpedicular padding of the scrollbar (horizontal: padding-y, vertical: padding-x)
+    // The axis-perpendicular padding of the scrollbar (horizontal: padding-y, vertical: padding-x)
     --os-padding-perpendicular: 0;
     // The axis padding of the scrollbar (horizontal: padding-x, vertical: padding-y)
     --os-padding-axis: 0;
@@ -956,11 +956,11 @@ Custom themes can be done in several ways. The easiest and fastest way is to use
     --os-handle-min-size: 33px;
     // The max size of the scrollbar handle
     --os-handle-max-size: none;
-    // The axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+    // The axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
     --os-handle-perpendicular-size: 100%;
-    // The :hover axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+    // The :hover axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
     --os-handle-perpendicular-size-hover: 100%;
-    // The :active axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+    // The :active axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
     --os-handle-perpendicular-size-active: 100%;
     // Increases the interactive area of the scrollbar handle.
     --os-handle-interactive-area-offset: 0;
@@ -1081,7 +1081,8 @@ Plugins are plain objects with a **single field**, the name of the field is the 
 
 ### Plugin Modules
 
-A Plugin module is the constructor of a plugin modules instance. There are two kinds of plugin modules: `static` and `instance`. A single plugin must have one or more modules. Plugin modules can return an instance, but doesnt have to.
+
+A Plugin module is the constructor of a plugin modules instance. There are two kinds of plugin modules: `static` and `instance`. A single plugin must have one or more modules. Plugin modules can return an instance, but doesn't have to.
 
 #### Static Plugin Module
 
@@ -1126,7 +1127,7 @@ const instancePlugin = {
     // instance function describes a instance module and returns the module instance or void / undefined if no instance is needed
     // the `osInstance` parameter is the OverlayScrollbar instance the plugin is bound to
     // the `event` parameter is a function which adds events to the instance which can't be removed from outside the plugin
-    // the `osStatic` parameter is the gobal OverlayScrollbar object
+    // the `osStatic` parameter is the global OverlayScrollbar object
     instance: (osInstance, event, osStatic) => {
       let count = 0;
 
