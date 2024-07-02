@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.9.2
+
+### Improvements
+
+- Improve initialization and update performance by determining if a non-default scroll direction is possible before measuring scroll coordinates. [#655](https://github.com/KingSora/OverlayScrollbars/issues/655)
+
 ## 2.9.1
 
 ### Improvements
