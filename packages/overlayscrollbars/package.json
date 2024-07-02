@@ -1,7 +1,7 @@
 {
   "name": "overlayscrollbars",
   "private": true,
-  "version": "2.9.1",
+  "version": "2.9.2",
   "description": "A javascript scrollbar plugin that hides the native scrollbars, provides custom styleable overlay scrollbars, and preserves the native functionality and feel.",
   "author": "Rene Haas | KingSora",
   "license": "MIT",
