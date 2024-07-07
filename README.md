@@ -117,7 +117,7 @@ The initialization of `OverlayScrollbars` is explicit _per element_. Only the sc
 You can either initialize a new instance directly with an `Element` or with an `Object` where you have more control over the initialization process. 
 
 ```js
-// simple initialization with an element
+// Simple initialization with an element
 const osInstance = OverlayScrollbars(document.querySelector('#myElement'), {});
 ```
 
@@ -600,7 +600,7 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   | parameter | type | description |
   | :--- | :--- | :--- |
-  | eventListeners | `EventListeners` | An object which contains the added listeners. The fields are the event names and the values the listeners. |
+  | eventListeners | `EventListeners` | An object which contains the added listeners. The fields are the event names and the listeners. |
   | pure | `boolean / undefined` | Whether all already added event listeners should be removed before the new listeners are added. |
 
   | returns | description |
@@ -614,7 +614,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | name | `string` | The event name. |
-  | listener | `Function` | The function which is invoked when the event is dispatched. |
+  | listener | `Function` | The function invoked when the event is dispatched. |
 
   | returns | description |
   | :--- | :--- |
@@ -627,7 +627,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | name | `string` | The event name. |
-  | listeners | `Function[]` | The functions which are invoked when the event is dispatched. |
+  | listeners | `Function[]` | The functions invoked when the event is dispatched. |
 
   | returns | description |
   | :--- | :--- |
@@ -665,11 +665,11 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   ### `state(): State`
 
-  Gets the instances state.
+  Gets the instance's state.
 
   | returns | description |
   | :--- | :--- |
-  | `State` | An object which describes the state of the instance. |
+  | `State` | An object describing the state of the instance. |
 
   ### `elements(): Elements`
 
@@ -677,7 +677,7 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   | returns | description |
   | :--- | :--- |
-  | `Elements` | An object which describes the elements of the instance. |
+  | `Elements` | An object describing the elements of the instance. |
 
   ### `destroy(): void`
 
@@ -716,10 +716,10 @@ const osInstance = OverlayScrollbars(document.body, {});
     // Updates the instance.
     update(force?: boolean): boolean;
 
-    // Gets the instances state.
+    // Gets the instance's state.
     state(): State;
 
-    // Gets the instances elements.
+    // Gets the instance's elements.
     elements(): Elements;
 
     // Destroys the instance and removes all added elements.
@@ -731,13 +731,13 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   // Describes a OverlayScrollbars instances state.
   interface State {
-    // Describes the current padding in pixel.
+    // Describes the current padding in pixels.
     padding: TRBL;
     // Whether the current padding is absolute.
     paddingAbsolute: boolean;
-    // The client width (x) & height (y) of the viewport in pixel.
+    // The client width (x) & height (y) of the viewport in pixels.
     overflowEdge: XY<number>;
-    // The overflow amount in pixel.
+    // The overflow amount in pixels.
     overflowAmount: XY<number>;
     // The css overflow style of the viewport.
     overflowStyle: XY<OverflowStyle>;
@@ -760,18 +760,18 @@ const osInstance = OverlayScrollbars(document.body, {});
   interface Elements {
     // The element the instance was applied to.
     target: HTMLElement;
-    // The host element. Its the root of all other elements.
+    // The host element. It's the root of all other elements.
     host: HTMLElement;
     /**
-     * The element which is responsible to apply correct paddings.
-     * Depending on the Initialization it can be the same as the viewport element.
+     * The element responsible for the correct padding.
+     * Depending on initialization it can be the same as the viewport element.
      */
     padding: HTMLElement;
-    // The element which is responsible to do any scrolling.
+    // The element responsible of the scrolling.
     viewport: HTMLElement;
     /**
-     * The element which is responsible to hold the content.
-     * Depending on the Initialization it can be the same as the viewport element.
+     * The element responsible for holding the actual content.
+     * Depending on initialization it can be the same as the viewport element.
      */
     content: HTMLElement;
     /**
@@ -784,9 +784,9 @@ const osInstance = OverlayScrollbars(document.body, {});
      * Depending on the target element it can be the same as the viewport element.
      */
     scrollEventElement: HTMLElement | Document;
-    // The horizontal scrollbar elements.
+    // The horizontal scrollbar's elements.
     scrollbarHorizontal: CloneableScrollbarElements;
-    // The vertical scrollbar elements.
+    // The vertical scrollbar's elements.
     scrollbarVertical: CloneableScrollbarElements;
   }
   ```
@@ -826,7 +826,7 @@ OverlayScrollbars.plugin(SomePlugin);
 
   | returns | description |
   | :--- | :--- |
-  | `Environment` | An object which described the environment. |
+  | `Environment` | An object describing the environment. |
 
   ### `nonce(newNonce): void`
 
@@ -846,7 +846,7 @@ OverlayScrollbars.plugin(SomePlugin);
 
   | returns | description |
   | :--- | :--- |
-  | `object / void` | An object which describes the plugins static modules instance or `void` if no instance was found. |
+  | `object / void` | An object describing the plugin's static module instance or `void` if no instance was found. |
 
   ### `plugin(plugins): (object | void)[]`
 
@@ -858,7 +858,7 @@ OverlayScrollbars.plugin(SomePlugin);
 
   | returns | description |
   | :--- | :--- |
-  | `(object / void)[]` | An array which describes the plugins static modules instances or `undefined` if no instance was found. |
+  | `(object / void)[]` | An array describing the plugins static modules instances or `undefined` if no instance was found. |
 
   #### TypeScript
 
@@ -891,7 +891,7 @@ OverlayScrollbars.plugin(SomePlugin);
     scrollbarsSize: XY<number>;
     // Whether the native scrollbars are overlaid.
     scrollbarsOverlaid: XY<boolean>;
-    // Whether the browser supports native scrollbars hiding.
+    // Whether the browser supports native scrollbar hiding.
     scrollbarsHiding: boolean;
     // Whether the browser supports the ScrollTimeline API.
     scrollTimeline: boolean;
@@ -993,16 +993,16 @@ Custom themes can be done in several ways. The easiest and fastest way is to use
   You can change the properties for both scrollbars at once, or for each scrollbar axis. In the example below, I've chosen `os-theme-custom` as the theme name:
 
   ```scss
-  // horizontal and vertical scrollbar are 10px 
+  // Horizontal and vertical scrollbar are 10px 
   .os-theme-custom {
     --os-size: 10px;
   }
 
-  // horizontal scrollbar is 10px
+  // Horizontal scrollbar is 10px
   .os-theme-custom.os-scrollbar-horizontal {
     --os-size: 10px;
   }
-  // vertical scrollbar is 20px
+  // Vertical scrollbar is 20px
   .os-theme-custom.os-scrollbar-vertical {
     --os-size: 20px;
   }
@@ -1068,7 +1068,7 @@ Custom themes can be done in several ways. The easiest and fastest way is to use
 
 ## Plugins
 
-Anything that is not considered core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are treeshaken and won't end up in your final bundle. OverlayScrollbars ships with the following plugins:
+Anything that is not considered core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are omitted during treeshaking and won't end up in your final bundle. OverlayScrollbars ships with the following plugins:
 
 - **ScrollbarsHidingPlugin**: Needed for old browsers that don't support native scrollbar styling. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=scrollbar%20styling) (note that even though `iOS Safari >= 14` is marked as unsupported, you only need this plugin for `iOS < 7.1`).
 - **SizeObserverPlugin**: Needed for old browsers that don't support the `ResizeObserver` api. [You can find the list of browsers that need this plugin here](https://caniuse.com/?search=ResizeObserver)
@@ -1085,10 +1085,10 @@ import {
   ClickScrollPlugin 
 } from 'overlayscrollbars';
 
-// single plugin
+// Single plugin
 OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 
-// multiple plugins
+// Multiple plugins
 OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
 ```
 
@@ -1100,11 +1100,11 @@ OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
   </summary>
   <br />
 
-Plugins are plain objects with a **single field**, the name of the field is the name of the plugin. This name is the plugins identifier and _must_ be unique across all plugin. In case multiple plugins have the same name, the last added plugin overwrites  previously added plugins.
+Plugins are plain objects with a **single field**, the name of the field is the name of the plugin. This name is the plugin's identifier and _must_ be unique across all plugins. In case multiple plugins have the same name, the last added plugin overwrites the plugin added previously under the same name.
 
 ### Plugin Modules
 
-A Plugin module is the constructor of a plugin modules instance. There are two kinds of plugin modules: `static` and `instance`. A single plugin must have one or more modules. Plugin modules can return an instance, but doesn't have to.
+A Plugin module is the constructor of a plugin module's instance. There are two kinds of plugin modules: `static` and `instance`. A single plugin must have one or more modules. A plugin module can return an instance, but doesn't have to.
 
 #### Static Plugin Module
 
@@ -1113,10 +1113,10 @@ The `static` plugin module is invoked when the plugin is added with the `Overlay
 Example plugin with a `static` module:
 ```js
 const staticPlugin = {
-  // plugin has the name `examplePlugin`
+  // Plugin has the name `examplePlugin`.
   examplePlugin: {
-    // static function describes a static module and returns the module instance or void / undefined if no instance is needed
-    // the `osStatic` parameter is the global `OverlayScrollbars` object
+    // The `static` function describes a static module and returns the module instance or void / undefined if no instance is needed.
+    // The `osStatic` parameter is the global `OverlayScrollbars` object.
     static: (osStatic) => {
       let count = 0;
       const staticPluginModuleInstance = {
@@ -1131,7 +1131,7 @@ const staticPlugin = {
 
 When the plugin is added with the `OverlayScrollbars.plugin` function, the static module instance is returned:
 ```js
-const staticModuleInstance = OverlayScrollbars.plugin(staticPlugin); // plugins static module is invoked
+const staticModuleInstance = OverlayScrollbars.plugin(staticPlugin); // Plugins static module is invoked
 staticModuleInstance.count; // 0
 staticModuleInstance.increment();
 staticModuleInstance.count; // 1
@@ -1144,12 +1144,12 @@ The `instance` plugin module is invoked when a new `OverlayScrollbars` instance 
 Example plugin with a `instance` module:
 ```js
 const instancePlugin = {
-  // plugin has the name `examplePlugin`
+  // Plugin has the name `examplePlugin`.
   examplePlugin: {
-    // instance function describes a instance module and returns the module instance or void / undefined if no instance is needed
-    // the `osInstance` parameter is the OverlayScrollbar instance the plugin is bound to
-    // the `event` parameter is a function which adds events to the instance which can't be removed from outside the plugin
-    // the `osStatic` parameter is the global OverlayScrollbar object
+    // Instance function describes na instance module and returns the module instance or void / undefined if no instance is needed.
+    // The `osInstance` parameter is the OverlayScrollbar instance the plugin is bound to.
+    // The `event` parameter is a function which adds events to the instance which can't be removed from outside the plugin.
+    // The `osStatic` parameter is the global OverlayScrollbar object.
     instance: (osInstance, event, osStatic) => {
       let count = 0;
 
@@ -1158,15 +1158,15 @@ const instancePlugin = {
         increment: () => { count++ },
       }
 
-      // event which fires when the instance was initialized
+      // Event which fires when the instance was initialized.
       event('initialized', () => {
         console.log("instance initialized");
       });
 
-      // event which fires when the viewport was scrolled
+      // Event which fires when the viewport was scrolled.
       const removeScrollEvent = event('scroll', () => {
         console.log("viewport scrolled");
-        removeScrollEvent(); // removes the event after the first scroll
+        removeScrollEvent(); // Removes the event after the first scroll.
       });
       
       return instancePluginModuleInstance;
@@ -1177,9 +1177,9 @@ const instancePlugin = {
 
 When the plugin is added with the `OverlayScrollbars.plugin` function, all OverlayScrollbar instances will automatically add the plugin from that point on. Previously created instances will not have the plugin. The instance module instance is returned with the `osInstance.plugin` function:
 ```js
-OverlayScrollbars.plugin(instancePlugin); // plugin is added
+OverlayScrollbars.plugin(instancePlugin); // Plugin is added
 
-const osInstance = OverlayScrollbars(document.body, {}); // plugins instance module is invoked
+const osInstance = OverlayScrollbars(document.body, {}); // Plugin's instance module is invoked
 const instancePluginInstance = osInstance.plugin(instancePlugin);
 
 instancePluginInstance.count; // 0
@@ -1192,11 +1192,11 @@ instancePluginInstance.count; // 1
 ```ts
 // Describes a OverlayScrollbar plugin.
 type Plugin<
-  // the name of the plugin
+  // The name of the plugin.
   Name extends string = string,
-  // the module instance type of the static module
+  // The module instance type of the static module.
   S extends PluginModuleInstance | void = PluginModuleInstance | void, 
-  // the module instance type of the instance module
+  // The module instance type of the instance module.
   I extends PluginModuleInstance | void = PluginModuleInstance | void 
 > = {
   [pluginName in Name]: PluginModule<S, I>;
@@ -1214,7 +1214,7 @@ type InstancePlugin<
   T extends PluginModuleInstance = PluginModuleInstance
 > = Plugin<Name, void, T>;
 
-// Infers the type of the static modules instance of the passed plugin.
+// Infers the type of the static module's instance of the passed plugin.
 type InferStaticPluginModuleInstance<T extends StaticPlugin>;
 
 // Infers the type of the instance modules instance of the passed plugin.
@@ -1238,8 +1238,8 @@ If the plugin was applied to any other element you have to get the `viewport` el
 
 ```js
 const { viewport } = osInstance.elements();
-const { scrollLeft, scrollTop } = viewport; // get scroll offset
-viewport.scrollTo({ top: 0 }); // set scroll offset
+const { scrollLeft, scrollTop } = viewport; // Get scroll offset
+viewport.scrollTo({ top: 0 }); // Set scroll offset
 ```
 </details>
 
@@ -1249,7 +1249,7 @@ viewport.scrollTo({ top: 0 }); // set scroll offset
   </summary>
   <br />
 
- You can adjust a scrollbars handle length by setting a `min-width / min-height` and `max-width / max-height` style:
+ You can adjust a scrollbar's handle length by setting a `min-width / min-height` and `max-width / max-height` style:
 
 ```css
 /* horizontal boundaries */
