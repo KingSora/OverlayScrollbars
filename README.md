@@ -41,7 +41,7 @@ I created this plugin because I hate ugly and space-consuming scrollbars. Simila
  - Flow independent - supports all values for `direction`, `flex-direction` and `writing-mode`.
  - Supports scroll snapping.
  - Supports all **virtual scrolling** libraries.
- - Supports the `body' element.
+ - Supports the `body` element.
  - Easy and effective scrollbar styling.
  - Highly customizable.
  - TypeScript support - completely written in TypeScript.
@@ -205,7 +205,7 @@ In the above example, the initialization will be aborted if the native scrollbar
 
 You can initialize OverlayScrollbars with an initial set of options, which can be changed at any time with the `options` method:
 ```js
-const instance = OverlayScrollbars(document.querySelector('#myElement'), {
+OverlayScrollbars(document.querySelector('#myElement'), {
   overflow: {
     x: 'hidden',
   },
