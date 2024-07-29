@@ -31,6 +31,7 @@ const App = () => {
     options: {
       scrollbars: {
         theme: 'os-theme-light',
+        clickScroll: true,
       },
     },
   });
@@ -86,7 +87,7 @@ const App = () => {
             OverlayScrollbars React
           </a>
         </h1>
-        <section className="slot">
+        <section>
           {overlayScrollbarsApplied ? (
             <OverlayScrollbarsComponent
               className="overlayscrollbars-react"

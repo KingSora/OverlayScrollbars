@@ -23,6 +23,7 @@ const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = useOverlay
   options: {
     scrollbars: {
       theme: 'os-theme-light',
+      clickScroll: true,
     },
   },
 });
@@ -71,7 +72,7 @@ onMounted(() => initBodyOverlayScrollbars(document.body));
         OverlayScrollbars Vue
       </a>
     </h1>
-    <section class="slot">
+    <section>
       <OverlayScrollbarsComponent
         v-if="overlayScrollbarsApplied"
         class="overlayscrollbars-vue"

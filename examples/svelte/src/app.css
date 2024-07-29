@@ -102,30 +102,26 @@ img {
   height: 100%;
 }
 
-.slot {
-  border-radius: 6px;
+.overlayscrollbars-svelte {
   width: 16rem;
   height: 16rem;
   margin: 0 auto;
-  flex: none;
-}
-
-.overlayscrollbars-svelte {
-  width: 100%;
-  height: 100%;
+  resize: both;
   overflow: auto;
-  border: 2px solid var(--foreground-color);
   border-radius: 6px;
+  border: 2px solid var(--foreground-color);
   box-shadow: rgb(var(--foreground-color-rgb) / 0.14) 0 0.875rem 3.125rem;
 }
 
 .logo {
-  width: 180%;
-  height: 180%;
+  width: 32rem;
+  height: 32rem;
   padding: 1rem;
-  display: inline-block;
+  display: block;
   pointer-events: none;
   user-select: none;
+  backdrop-filter: brightness(88%) contrast(1.012);
+  margin: 0 auto;
 }
 
 .title {
