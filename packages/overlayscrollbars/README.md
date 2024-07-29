@@ -449,6 +449,7 @@ type Options = {
     // An array of pointer types that shall be supported.
     pointers: string[] | null;
   };
+};
 
 // The overflow behavior of an axis.
 type OverflowBehavior =
@@ -491,7 +492,6 @@ type ScrollbarsAutoHideBehavior =
 
 // The scrollbar click scroll behavior.
 type ScrollbarsClickScrollBehavior = boolean | 'instant';
-};
 ```
 
 </details>
