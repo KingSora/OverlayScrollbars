@@ -98,20 +98,22 @@ export const createScrollbarsSetupEvents = (
         const pointerCaptureElement = isDragScroll ? _handle : _track;
 
         const scrollbarOptions = options.scrollbars;
+        const dragClickScrollOption = scrollbarOptions[isDragScroll ? 'dragScroll' : 'clickScroll'];
         const { button, isPrimary, pointerType } = pointerDownEvent;
         const { pointers } = scrollbarOptions;
 
         const continuePointerDown =
           button === 0 &&
           isPrimary &&
-          scrollbarOptions[isDragScroll ? 'dragScroll' : 'clickScroll'] &&
+          dragClickScrollOption &&
           (pointers || []).includes(pointerType);
 
         if (continuePointerDown) {
           runEachAndClear(pointerdownCleanupFns);
           clearScrollSnapScrollTransitionTimeout();
 
-          const instantClickScroll = !isDragScroll && pointerDownEvent.shiftKey;
+          const instantClickScroll =
+            !isDragScroll && (pointerDownEvent.shiftKey || dragClickScrollOption === 'instant');
           const getHandleRect = bind(getBoundingClientRect, _handle);
           const getTrackRect = bind(getBoundingClientRect, _track);
           const getHandleOffset = (handleRect?: DOMRect, trackRect?: DOMRect) =>
@@ -139,8 +141,19 @@ export const createScrollbarsSetupEvents = (
           const revertScrollObscuringStyles = _removeScrollObscuringStyles();
 
           const pointerupCleanupFns = [
-            () => {
-              if (nonAnimatedScroll) {
+            addEventListener(_documentElm, releasePointerCaptureEvents, releasePointerCapture),
+            addEventListener(_documentElm, 'selectstart', (event: Event) => preventDefault(event), {
+              _passive: false,
+            }),
+            addEventListener(_track, releasePointerCaptureEvents, releasePointerCapture),
+            nonAnimatedScroll &&
+              addEventListener(_track, 'pointermove', (pointerMoveEvent: PointerEvent) =>
+                moveHandleRelative(
+                  startOffset + (pointerMoveEvent[clientXYKey] - pointerDownOffset)
+                )
+              ),
+            nonAnimatedScroll &&
+              (() => {
                 const withoutSnapScrollOffset = getElementScroll(_scrollOffsetElement);
                 revertScrollObscuringStyles();
                 const withSnapScrollOffset = getElementScroll(_scrollOffsetElement);
@@ -155,20 +168,7 @@ export const createScrollbarsSetupEvents = (
                   scrollOffsetElementScrollBy(snapScrollDiff);
                   scrollSnapScrollTransitionTimeout(revertScrollObscuringStyles);
                 }
-              }
-            },
-            addEventListener(_documentElm, releasePointerCaptureEvents, releasePointerCapture),
-            addEventListener(_documentElm, 'selectstart', (event: Event) => preventDefault(event), {
-              _passive: false,
-            }),
-            addEventListener(_track, releasePointerCaptureEvents, releasePointerCapture),
-            addEventListener(_track, 'pointermove', (pointerMoveEvent: PointerEvent) => {
-              const relativeMovement = pointerMoveEvent[clientXYKey] - pointerDownOffset;
-
-              if (nonAnimatedScroll) {
-                moveHandleRelative(startOffset + relativeMovement);
-              }
-            }),
+              }),
           ];
 
           pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);

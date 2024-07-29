@@ -138,6 +138,11 @@ export type ScrollbarsAutoHideBehavior =
   | 'leave';
 
 /**
+ * The scrollbar click scroll behavior.
+ */
+export type ScrollbarsClickScrollBehavior = boolean | 'instant';
+
+/**
  * The options of a OverlayScrollbars instance.
  */
 export type Options = {
@@ -198,7 +203,7 @@ export type Options = {
     /** Whether it is possible to drag the handle of a scrollbar to scroll the viewport. */
     dragScroll: boolean;
     /** Whether it is possible to click the track of a scrollbar to scroll the viewport. */
-    clickScroll: boolean;
+    clickScroll: ScrollbarsClickScrollBehavior;
     /**
      * An array of pointer types which shall be supported.
      * Common pointer types are: `mouse`, `pen` and `touch`.

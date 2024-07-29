@@ -258,7 +258,7 @@ export const createScrollbarsSetup = (
       }
 
       if (clickScrollChanged) {
-        _scrollbarsAddRemoveClass(classNameScrollbarTrackInteractive, clickScroll);
+        _scrollbarsAddRemoveClass(classNameScrollbarTrackInteractive, !!clickScroll);
       }
 
       // always update scrollbar visibility before scrollbar size

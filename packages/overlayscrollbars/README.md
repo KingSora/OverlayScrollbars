@@ -376,9 +376,9 @@ Indicates whether you can drag the scrollbar handles for scrolling.
 
 | type  | default |
 | :--- | :--- |
-| `boolean` | `false` |
+| `boolean \| 'instant'` | `false` |
 
-> __Note__: This options requires the **ClickScrollPlugin** to work.
+> __Note__: If set to `true` the **ClickScrollPlugin** is required.
 
 Indicates whether you can click on the scrollbar track for scrolling.
 
@@ -442,13 +442,55 @@ type Options = {
     autoHideDelay: number;
     // Whether the scrollbar's auto hide behavior is suspended until a scroll happened.
     autoHideSuspend: boolean;
-    // Whether its possible to drag the handle of a scrollbar to scroll the viewport.
+    // Whether it is possible to drag the handle of a scrollbar to scroll the viewport.
     dragScroll: boolean;
-    // Whether its possible to click the track of a scrollbar to scroll the viewport.
-    clickScroll: boolean;
+    // Whether it is possible to click the track of a scrollbar to scroll the viewport.
+    clickScroll: ScrollbarsClickScrollBehavior;
     // An array of pointer types that shall be supported.
     pointers: string[] | null;
   };
+
+// The overflow behavior of an axis.
+type OverflowBehavior =
+  // No scrolling is possible and the content is clipped.
+  | 'hidden'
+  // No scrolling is possible and the content isn't clipped.
+  | 'visible'
+  // Scrolling is possible if there is an overflow.
+  | 'scroll'
+  /**
+   * If the other axis has no overflow the behavior is similar to `visible`.
+   * If the other axis has overflow the behavior is similar to `hidden`.
+   */
+  | 'visible-hidden'
+  /**
+   * If the other axis has no overflow the behavior is similar to `visible`.
+   * If the other axis has overflow the behavior is similar to `scroll`.
+   */
+  | 'visible-scroll';
+
+// The scrollbars visibility behavior.
+type ScrollbarsVisibilityBehavior =
+  // The scrollbars are always visible.
+  | 'visible'
+  // The scrollbars are always hidden.
+  | 'hidden'
+  // The scrollbars are only visibile if there is overflow.
+  | 'auto';
+
+// The scrollbars auto hide behavior
+type ScrollbarsAutoHideBehavior =
+  // The scrollbars are never hidden automatically.
+  | 'never'
+  // The scrollbars are hidden unless the user scrolls.
+  | 'scroll'
+  // The scrollbars are hidden unless the pointer moves in the host element or the user scrolls.
+  | 'move'
+  // The scrollbars are hidden if the pointer leaves the host element or unless the user scrolls.
+  | 'leave';
+
+// The scrollbar click scroll behavior.
+type ScrollbarsClickScrollBehavior = boolean | 'instant';
 };
 ```
 
@@ -588,7 +630,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | newOptions | `PartialOptions` | The new (partial) options which should be applied. |
-  | pure | `boolean / undefined` | Whether the options should be reset before the new options are added. |
+  | pure | `boolean \| undefined` | Whether the options should be reset before the new options are added. |
 
   | returns | description |
   | :--- | :--- |
@@ -601,7 +643,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | eventListeners | `EventListeners` | An object which contains the added listeners. The fields are the event names and the listeners. |
-  | pure | `boolean / undefined` | Whether all already added event listeners should be removed before the new listeners are added. |
+  | pure | `boolean \| undefined` | Whether all already added event listeners should be removed before the new listeners are added. |
 
   | returns | description |
   | :--- | :--- |
@@ -657,7 +699,7 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   | parameter | type | description |
   | :--- | :--- | :--- |
-  | force | `boolean / undefined` |  Whether the update should force the cache to be invalidated. |
+  | force | `boolean \| undefined` |  Whether the update should force the cache to be invalidated. |
 
   | returns | description |
   | :--- | :--- |
@@ -689,7 +731,7 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   | returns | description |
   | :--- | :--- |
-  | `object / undefined` | An object which describes the plugins instance modules instance or `undefined` if no instance was found. |
+  | `object \| undefined` | An object which describes the plugins instance modules instance or `undefined` if no instance was found. |
 
   #### TypeScript 
 
@@ -834,7 +876,7 @@ OverlayScrollbars.plugin(SomePlugin);
 
   | parameter | type | description |
   | :--- | :--- | :--- |
-  | newNonce | `string / undefined` | The nonce attribute for inline styles. |
+  | newNonce | `string \| undefined` | The nonce attribute for inline styles. |
 
   ### `plugin(plugin): object | undefined`
 
@@ -846,7 +888,7 @@ OverlayScrollbars.plugin(SomePlugin);
 
   | returns | description |
   | :--- | :--- |
-  | `object / void` | An object describing the plugin's static module instance or `void` if no instance was found. |
+  | `object \| void` | An object describing the plugin's static module instance or `void` if no instance was found. |
 
   ### `plugin(plugins): (object | void)[]`
 
@@ -858,7 +900,7 @@ OverlayScrollbars.plugin(SomePlugin);
 
   | returns | description |
   | :--- | :--- |
-  | `(object / void)[]` | An array describing the plugins static modules instances or `undefined` if no instance was found. |
+  | `(object \| void)[]` | An array describing the plugins static modules instances or `undefined` if no instance was found. |
 
   #### TypeScript
 
@@ -1050,10 +1092,10 @@ Custom themes can be done in several ways. The easiest and fastest way is to use
 | `.os-scrollbar-rtl` | Indicates a `RTL` direction of the host element the scrollbar belongs to. |
 | `.os-scrollbar-horizontal` | The root element of a horizontal scrollbar. |
 | `.os-scrollbar-vertical` | The root element of a vertical scrollbar. |
-| `.os-scrollbar-handle-interactive` | Indicates that the handle inside the scrollbar is interactive (`scrollbars.dragScroll` is `true`). |
-| `.os-scrollbar-track-interactive` | Indicates that the track inside the scrollbar is interactive (`scrollbars.clickScroll` is `true`). |
-| `.os-scrollbar-track` | The track element. This is the track of the nested handle element. If `scrollbars.clickScroll` is `true` this is the element users can click to change the scroll offset. |
-| `.os-scrollbar-handle` | The handle element. If `scrollbars.dragScroll` is `true` this is the handle users can drag to change the scroll offset. |
+| `.os-scrollbar-handle-interactive` | Indicates that the handle inside the scrollbar is interactive (`scrollbars.dragScroll` is not `false`). |
+| `.os-scrollbar-track-interactive` | Indicates that the track inside the scrollbar is interactive (`scrollbars.clickScroll` is not `false`). |
+| `.os-scrollbar-track` | The track element. This is the track of the nested handle element. If `scrollbars.clickScroll` is not `false` this is the element users can click to change the scroll offset. |
+| `.os-scrollbar-handle` | The handle element. If `scrollbars.dragScroll` is not `false` this is the handle users can drag to change the scroll offset. |
 
   If you create your own theme, please only use the classes listed above. All other classes are modifier classes used to change visibility, alignment and pointer-events of the scrollbars.
 
