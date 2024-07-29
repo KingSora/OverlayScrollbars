@@ -135,23 +135,26 @@ export const createScrollbarsSetupEvents = (
             runEachAndClear(pointerupCleanupFns);
             pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
           };
+          const nonAnimatedScroll = isDragScroll || instantClickScroll;
           const revertScrollObscuringStyles = _removeScrollObscuringStyles();
 
           const pointerupCleanupFns = [
             () => {
-              const withoutSnapScrollOffset = getElementScroll(_scrollOffsetElement);
-              revertScrollObscuringStyles();
-              const withSnapScrollOffset = getElementScroll(_scrollOffsetElement);
-              const snapScrollDiff = {
-                x: withSnapScrollOffset.x - withoutSnapScrollOffset.x,
-                y: withSnapScrollOffset.y - withoutSnapScrollOffset.y,
-              };
+              if (nonAnimatedScroll) {
+                const withoutSnapScrollOffset = getElementScroll(_scrollOffsetElement);
+                revertScrollObscuringStyles();
+                const withSnapScrollOffset = getElementScroll(_scrollOffsetElement);
+                const snapScrollDiff = {
+                  x: withSnapScrollOffset.x - withoutSnapScrollOffset.x,
+                  y: withSnapScrollOffset.y - withoutSnapScrollOffset.y,
+                };
 
-              if (mathAbs(snapScrollDiff.x) > 3 || mathAbs(snapScrollDiff.y) > 3) {
-                _removeScrollObscuringStyles();
-                scrollElementTo(_scrollOffsetElement, withoutSnapScrollOffset);
-                scrollOffsetElementScrollBy(snapScrollDiff);
-                scrollSnapScrollTransitionTimeout(revertScrollObscuringStyles);
+                if (mathAbs(snapScrollDiff.x) > 3 || mathAbs(snapScrollDiff.y) > 3) {
+                  _removeScrollObscuringStyles();
+                  scrollElementTo(_scrollOffsetElement, withoutSnapScrollOffset);
+                  scrollOffsetElementScrollBy(snapScrollDiff);
+                  scrollSnapScrollTransitionTimeout(revertScrollObscuringStyles);
+                }
               }
             },
             addEventListener(_documentElm, releasePointerCaptureEvents, releasePointerCapture),
@@ -162,7 +165,7 @@ export const createScrollbarsSetupEvents = (
             addEventListener(_track, 'pointermove', (pointerMoveEvent: PointerEvent) => {
               const relativeMovement = pointerMoveEvent[clientXYKey] - pointerDownOffset;
 
-              if (isDragScroll || instantClickScroll) {
+              if (nonAnimatedScroll) {
                 moveHandleRelative(startOffset + relativeMovement);
               }
             }),
@@ -179,13 +182,19 @@ export const createScrollbarsSetupEvents = (
             if (animateClickScroll) {
               const stopClickScrollAnimation = animateClickScroll(
                 moveHandleRelative,
-                getHandleOffset,
                 startOffset,
                 handleLength,
-                relativeTrackPointerOffset
+                (stopped) => {
+                  // if the scroll animation doesn't continue with a press
+                  if (stopped) {
+                    revertScrollObscuringStyles();
+                  } else {
+                    push(pointerupCleanupFns, revertScrollObscuringStyles);
+                  }
+                }
               );
 
-              push(pointerupCleanupFns, bind(stopClickScrollAnimation));
+              push(pointerupCleanupFns, stopClickScrollAnimation);
               push(pointerdownCleanupFns, bind(stopClickScrollAnimation, true));
             }
           }

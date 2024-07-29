@@ -195,9 +195,9 @@ export type Options = {
     autoHideDelay: number;
     /** Whether the scrollbars auto hide behavior is suspended until a scroll happened. */
     autoHideSuspend: boolean;
-    /** Whether its possible to drag the handle of a scrollbar to scroll the viewport. */
+    /** Whether it is possible to drag the handle of a scrollbar to scroll the viewport. */
     dragScroll: boolean;
-    /** Whether its possible to click the track of a scrollbar to scroll the viewport. */
+    /** Whether it is possible to click the track of a scrollbar to scroll the viewport. */
     clickScroll: boolean;
     /**
      * An array of pointer types which shall be supported.

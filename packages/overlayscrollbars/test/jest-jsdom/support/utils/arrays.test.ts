@@ -280,15 +280,31 @@ describe('array utilities', () => {
 
   describe('runEachAndClear', () => {
     test('array', () => {
-      const arr = [jest.fn(), null, jest.fn(), undefined, jest.fn()];
+      const firstFn = jest.fn();
+      const middleFn = jest.fn();
+      const lastFn = jest.fn();
+      const arr = [
+        firstFn,
+        false as const,
+        null,
+        undefined,
+        middleFn,
+        undefined,
+        null,
+        false as const,
+        lastFn,
+      ];
       runEachAndClear(arr, ['a', 'b', 'c', 'd'], true);
-      arr.forEach((fn) => {
-        if (fn) {
-          expect(fn).toHaveBeenCalledWith('a', 'b', 'c', 'd');
-        }
-      });
       runEachAndClear(arr, ['a', 'b', 'c', 'd']);
+
       expect(arr.length).toBe(0);
+
+      expect(firstFn).toHaveBeenCalledTimes(2);
+      expect(firstFn).toHaveBeenCalledWith('a', 'b', 'c', 'd');
+      expect(middleFn).toHaveBeenCalledTimes(2);
+      expect(middleFn).toHaveBeenCalledWith('a', 'b', 'c', 'd');
+      expect(lastFn).toHaveBeenCalledTimes(2);
+      expect(lastFn).toHaveBeenCalledWith('a', 'b', 'c', 'd');
     });
   });
 

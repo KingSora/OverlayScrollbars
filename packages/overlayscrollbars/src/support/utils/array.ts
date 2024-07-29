@@ -109,7 +109,7 @@ export const deduplicateArray = <T extends any[]>(array: T): T => from(new Set(a
  */
 export const runEachAndClear = (arr: RunEachItem[], args?: any[], keep?: boolean): void => {
   // eslint-disable-next-line prefer-spread
-  const runFn = (fn: RunEachItem) => fn && fn.apply(undefined, args || []);
+  const runFn = (fn: RunEachItem) => (fn ? fn.apply(undefined, args || []) : true); // return true when fn is falsy to not break the loop
   each(arr, runFn);
   !keep && ((arr as any[]).length = 0);
 };

@@ -1,5 +1,4 @@
 import { animateNumber, noop, selfClearTimeout } from '~/support';
-import type { EasingFn } from '~/support';
 import type { StaticPlugin } from '~/plugins';
 
 export const clickScrollPluginModuleName = '__osClickScrollPlugin';
@@ -10,65 +9,87 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
       () =>
       (
         moveHandleRelative: (deltaMovement: number) => void,
-        getHandleOffset: (handleRect?: DOMRect, trackRect?: DOMRect) => number,
-        startOffset: number,
+        targetOffset: number,
         handleLength: number,
-        relativeTrackPointerOffset: number
+        onClickScrollCompleted: (stopped: boolean) => void
       ) => {
-        // click scroll animation has 2 parts:
+        // click scroll animation has 2 main parts:
         // 1. the "click" which scrolls 100% of the viewport in a certain amount of time
         // 2. the "press" which scrolls to the point where the cursor is located, the "press" always waits for the "click" to finish
         // The "click" should not be canceled by a "pointerup" event because very fast clicks or taps would cancel it too fast
         // The "click" should only be canceled by a subsequent "pointerdown" event because otherwise 2 animations would run
         // The "press" should be canceld by the next "pointerup" event
-        let stop = false;
-        let stopClickAnimation = noop;
+
+        let stopped = false;
         let stopPressAnimation = noop;
-        const [setFirstIterationPauseTimeout, clearFirstIterationPauseTimeout] =
-          selfClearTimeout(133);
-        const animateClickScroll = (
-          clickScrollProgress: number,
-          iteration: number,
-          easing?: EasingFn | false
-        ) =>
+        const linearScrollMs = 133;
+        const easedScrollMs = 222;
+        const [setPressAnimationTimeout, clearPressAnimationTimeout] =
+          selfClearTimeout(linearScrollMs);
+        const targetOffsetSign = Math.sign(targetOffset);
+        const handleLengthWithTargetSign = handleLength * targetOffsetSign;
+        const handleLengthWithTargetSignHalf = handleLengthWithTargetSign / 2;
+        const easing = (x: number) => 1 - (1 - x) * (1 - x); // easeOutQuad;
+        const easedEndPressAnimation = (from: number, to: number) =>
+          animateNumber(from, to, easedScrollMs, moveHandleRelative, easing);
+        const linearPressAnimation = (linearFrom: number, msFactor: number) =>
           animateNumber(
-            clickScrollProgress,
-            clickScrollProgress + handleLength * Math.sign(startOffset),
-            iteration ? 133 : 222,
-            (animationProgress, _, animationCompleted) => {
-              moveHandleRelative(animationProgress);
-              const handleStartBound = getHandleOffset();
-              const handleEndBound = handleStartBound + handleLength;
-              const mouseBetweenHandleBounds =
-                relativeTrackPointerOffset >= handleStartBound &&
-                relativeTrackPointerOffset <= handleEndBound;
-              const animationCompletedAction = () => {
-                stopPressAnimation = animateClickScroll(animationProgress, iteration + 1);
-              };
+            linearFrom,
+            targetOffset - handleLengthWithTargetSign,
+            linearScrollMs * msFactor,
+            (progress, _, completed) => {
+              moveHandleRelative(progress);
 
-              if (!stop && animationCompleted && !mouseBetweenHandleBounds) {
-                if (iteration) {
-                  animationCompletedAction();
-                } else {
-                  setFirstIterationPauseTimeout(animationCompletedAction);
-                }
+              if (completed) {
+                stopPressAnimation = easedEndPressAnimation(progress, targetOffset);
               }
-            },
-            easing
+            }
           );
+        const stopClickAnimation = animateNumber(
+          0,
+          handleLengthWithTargetSign,
+          easedScrollMs,
+          (clickAnimationProgress, _, clickAnimationCompleted) => {
+            moveHandleRelative(clickAnimationProgress);
 
-        // easeOutQuad
-        stopClickAnimation = animateClickScroll(0, 0, (x) => 1 - (1 - x) * (1 - x));
+            if (clickAnimationCompleted) {
+              onClickScrollCompleted(stopped);
+
+              if (!stopped) {
+                const remainingScrollDistance = targetOffset - clickAnimationProgress;
+                const continueWithPress =
+                  Math.sign(remainingScrollDistance - handleLengthWithTargetSignHalf) ===
+                  targetOffsetSign;
+
+                continueWithPress &&
+                  setPressAnimationTimeout(() => {
+                    const remainingLinearScrollDistance =
+                      remainingScrollDistance - handleLengthWithTargetSign;
+                    const linearBridge =
+                      Math.sign(remainingLinearScrollDistance) === targetOffsetSign;
+
+                    stopPressAnimation = linearBridge
+                      ? linearPressAnimation(
+                          clickAnimationProgress,
+                          Math.abs(remainingLinearScrollDistance) / handleLength
+                        )
+                      : easedEndPressAnimation(clickAnimationProgress, targetOffset);
+                  });
+              }
+            }
+          },
+          easing
+        );
 
         return (stopClick?: boolean) => {
-          stop = true;
-          clearFirstIterationPauseTimeout();
+          stopped = true;
+
           if (stopClick) {
             stopClickAnimation();
-            stopPressAnimation();
-          } else {
-            stopPressAnimation();
           }
+
+          clearPressAnimationTimeout();
+          stopPressAnimation();
         };
       },
   },
