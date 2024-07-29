@@ -4,7 +4,7 @@
 
 ### Features
 
-- The options `scrollbars.clickScroll` now supports the value `'instant'`. The `ClickScrollPlugin` is not required for it to work. [#645](https://github.com/KingSora/OverlayScrollbars/issues/645)
+- The option `scrollbars.clickScroll` now supports the value `'instant'`. The `ClickScrollPlugin` is not required for it to work. [#645](https://github.com/KingSora/OverlayScrollbars/issues/645)
 
 ### Improvements
 
