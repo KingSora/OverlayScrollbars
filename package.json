@@ -1,9 +1,6 @@
 {
   "private": true,
   "type": "module",
-  "nohoist": [
-    "overlayscrollbars"
-  ],
   "workspaces": [
     "packages/*"
   ],
