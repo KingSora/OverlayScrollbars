@@ -1,11 +1,15 @@
 import { playwrightRollup, expectSuccess } from '@~local/playwright-tooling';
 import { expect, test } from '@playwright/test';
-import { timeout } from '@~local/browser-testing';
 import type { Page } from '@playwright/test';
 
 playwrightRollup();
 
 test.describe('scrollbarsSetup.scrollbars', () => {
+  const timeout = (ms: number) =>
+    new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+
   const clickScrollbar = async (page: Page, target: string) => {
     const options = {
       force: true,
