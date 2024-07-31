@@ -90,7 +90,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
   ],
   plugins: defaultPlugins,
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     tsconfigRootDir: __dirname,
@@ -128,7 +128,7 @@ module.exports = {
   overrides: [
     {
       files: ['*.test.*', '**/test/**/*'],
-      plugins: [...defaultPlugins, 'jest-dom'],
+      plugins: [...defaultPlugins],
       rules: {
         ...defaultRules,
         'no-shadow': 'off',
@@ -148,14 +148,6 @@ module.exports = {
         'no-void': 'off',
         'no-empty-function': 'off',
         'no-new-func': 'off',
-      },
-    },
-    {
-      files: ['*rollup*'],
-      rules: {
-        'no-console': 'off',
-        'global-require': 'off',
-        'import/no-dynamic-require': 'off',
       },
     },
   ],
