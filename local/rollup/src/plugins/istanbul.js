@@ -1,7 +1,7 @@
-const { createFilter } = require('@rollup/pluginutils');
-const istanbul = require('istanbul-lib-instrument');
+import { createFilter } from '@rollup/pluginutils';
+import istanbul from 'istanbul-lib-instrument';
 
-module.exports = (options = {}) => {
+export default (options = {}) => {
   const filter = createFilter(options.include, options.exclude);
 
   return {

@@ -1,16 +1,15 @@
 /* eslint-disable no-console */
 /* eslint-disable import/no-dynamic-require */
-const fs = require('fs');
-const path = require('path');
-const rollupPluginStyles = require('rollup-plugin-styles');
-const rollupPluginServe = require('rollup-plugin-serve');
-const rollupPluginLivereload = require('rollup-plugin-livereload');
-const resolve = require('@~local/config/resolve');
-
-const rollupPluginHtml = require('../plugins/html');
-const rollupAdditionalWatchFiles = require('../plugins/additionalWatchFiles');
-const rollupIstanbul = require('../plugins/istanbul');
-const createRollupConfig = require('../createRollupConfig');
+import fs from 'node:fs';
+import path from 'node:path';
+import rollupPluginStyles from 'rollup-plugin-styles';
+import rollupPluginServe from 'rollup-plugin-serve';
+import rollupPluginLivereload from 'rollup-plugin-livereload';
+import resolve from '@~local/config/resolve' with { type: 'json' };
+import rollupPluginHtml from '../plugins/html.js';
+import rollupAdditionalWatchFiles from '../plugins/additionalWatchFiles.js';
+import rollupIstanbul from '../plugins/istanbul.js';
+import createRollupConfig from '../createRollupConfig.js';
 
 const portRange = {
   min: 20000,
@@ -23,7 +22,7 @@ const paths = {
   html: './index.html',
 };
 
-module.exports = (testDir, useEsbuild, dev) => {
+export default (testDir, useEsbuild, dev) => {
   const testPaths = Object.keys(paths).reduce((obj, key) => {
     obj[key] = path.resolve(testDir, paths[key]);
     return obj;

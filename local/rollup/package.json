@@ -1,6 +1,7 @@
 {
   "name": "@~local/rollup",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@rollup/plugin-alias": "^4.0.2",
     "@rollup/plugin-babel": "^6.0.4",

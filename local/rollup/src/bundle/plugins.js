@@ -1,37 +1,24 @@
-const path = require('path');
-const sass = require('sass');
-const postcss = require('postcss');
-const cssnano = require('cssnano');
-const autoprefixer = require('autoprefixer');
-const { babel: rollupBabelInputPlugin } = require('@rollup/plugin-babel');
-const { esbuildResolve: rollupPluginEsBuildResolve } = require('rollup-plugin-esbuild-resolve');
-const rollupPluginScss = require('rollup-plugin-scss');
-const rollupPluginIgnoreImport = require('rollup-plugin-ignore-import');
-const rollupPluginCommonjs = require('@rollup/plugin-commonjs');
-const rollupPluginAlias = require('@rollup/plugin-alias');
-const rollupPluginVirtual = require('@rollup/plugin-virtual');
-const rollupPluginTs = require('rollup-plugin-typescript2');
-const rollupPluginLicense = require('rollup-plugin-license');
-const rollupPluginEsBuild = require('../plugins/esbuild');
-const babelConfigEs5 = require('./babel.config.es5');
-const babelConfigEs6 = require('./babel.config.es2015');
+import path from 'node:path';
+import * as sass from 'sass';
+import postcss from 'postcss';
+import cssnano from 'cssnano';
+import autoprefixer from 'autoprefixer';
+import { babel as rollupBabelInputPlugin } from '@rollup/plugin-babel';
+import { esbuildResolve as rollupPluginEsBuildResolve } from 'rollup-plugin-esbuild-resolve';
+import rollupPluginScss from 'rollup-plugin-scss';
+import rollupPluginIgnoreImport from 'rollup-plugin-ignore-import';
+import rollupPluginCommonjs from '@rollup/plugin-commonjs';
+import rollupPluginVirtual from '@rollup/plugin-virtual';
+import rollupPluginTs from 'rollup-plugin-typescript2';
+import rollupPluginLicense from 'rollup-plugin-license';
+import rollupPluginEsBuild from '../plugins/esbuild.js';
+import babelConfigEs5 from './babel.config.es5.js';
+import babelConfigEs6 from './babel.config.es2015.js';
 
 const normalizePath = (pathName) =>
   pathName ? pathName.split(path.sep).join(path.posix.sep) : pathName;
 
-module.exports = {
-  rollupAlias: (resolve, aliasEntries) =>
-    rollupPluginAlias({
-      entries: [
-        ...Object.entries(aliasEntries).reduce((arr, [key, value]) => {
-          arr.push({
-            find: key,
-            replacement: value,
-          });
-          return arr;
-        }, []),
-      ],
-    }),
+export default {
   rollupCommonjs: (sourcemap, resolve) =>
     rollupPluginCommonjs({
       sourceMap: sourcemap,

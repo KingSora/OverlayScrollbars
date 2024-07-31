@@ -1,6 +1,6 @@
-const { extname } = require('path');
-const { transform } = require('esbuild');
-const { createFilter } = require('@rollup/pluginutils');
+import { extname } from 'node:path';
+import { transform } from 'esbuild';
+import { createFilter } from '@rollup/pluginutils';
 
 const defaultLoader = {
   '.js': 'js',
@@ -9,7 +9,7 @@ const defaultLoader = {
   '.tsx': 'tsx',
 };
 
-module.exports = ({ include, exclude, ...esbuildOptions } = {}) => {
+export default ({ include, exclude, ...esbuildOptions } = {}) => {
   const extensions = Object.keys(defaultLoader);
   const INCLUDE_REGEXP = new RegExp(`\\.(${extensions.map((ext) => ext.slice(1)).join('|')})$`);
   const EXCLUDE_REGEXP = /node_modules/;

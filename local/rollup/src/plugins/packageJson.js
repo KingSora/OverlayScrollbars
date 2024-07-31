@@ -1,11 +1,17 @@
-const path = require('path');
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-module.exports = ({ input = 'package.json', output = 'package.json', json } = {}) => {
+export default ({ input = 'package.json', output = 'package.json', json } = {}) => {
   const resolvedInput = path.resolve(input);
-  const inputPackageJson = require(resolvedInput);
+
   return {
     name: 'packageJson',
-    buildStart() {
+    async buildStart() {
+      const inputPackageJson = (
+        await import(pathToFileURL(resolvedInput), {
+          with: { type: 'json' },
+        })
+      ).default;
       this.emitFile({
         type: 'asset',
         source: JSON.stringify(

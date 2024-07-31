@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import sass from 'sass';
+import * as sass from 'sass';
 import esbuild from 'esbuild';
 import postcss from 'postcss';
 import autoprefixer from 'autoprefixer';

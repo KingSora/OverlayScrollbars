@@ -1,12 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const rollupDts = require('rollup-plugin-dts');
+import fs from 'node:fs';
+import path from 'node:path';
+import rollupDts from 'rollup-plugin-dts';
+import buildPlugins from './plugins.js';
 
-const { rollupTs } = require('./plugins');
+const { rollupTs } = buildPlugins;
 const tsFileEnding = '.ts';
 const tsDeclarationFileEnding = `.d${tsFileEnding}`;
 
-module.exports = (resolve, options) => {
+export default (resolve, options) => {
   const { rollup, paths } = options;
   const { output: rollupOutput, input } = rollup;
   const { file } = rollupOutput;
@@ -37,7 +38,7 @@ module.exports = (resolve, options) => {
       },
       external: [...resolve.styleExtensions.map((ext) => new RegExp(`.*\\${ext}`))],
       plugins: [
-        rollupDts.default({
+        rollupDts({
           respectExternal: true,
           compilerOptions: {
             paths: {

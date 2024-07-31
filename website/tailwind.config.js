@@ -1,5 +1,7 @@
-const config = {
-  presets: [require('@~local/tailwind')],
+import tailwindPreset from '@~local/tailwind';
+
+export default {
+  presets: [tailwindPreset],
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -7,4 +9,3 @@ const config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
 };
-export default config;

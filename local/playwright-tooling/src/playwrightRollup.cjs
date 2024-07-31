@@ -1,10 +1,10 @@
 const { dirname } = require('path');
 const { watch: rollupWatch } = require('rollup');
 const { test } = require('@playwright/test');
-const createPlaywrightRollupConfig = require('@~local/rollup/playwright');
 const collectCoverage = require('./collectCoverage');
 
 const createRollupBundle = async (testDir, useEsbuild, dev) => {
+  const createPlaywrightRollupConfig = (await import('@~local/rollup/playwright')).default;
   const [config, getServer] = await createPlaywrightRollupConfig(testDir, useEsbuild, dev);
   const watcher = rollupWatch(config);
 

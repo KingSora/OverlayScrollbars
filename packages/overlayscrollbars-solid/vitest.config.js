@@ -1,28 +1,22 @@
 import { fileURLToPath } from 'url';
 import { mergeConfig } from 'vite';
 import vitestConfig from '@~local/config/vitest';
-import viteConfig from './vite.config.mjs';
+import viteConfig from './vite.config.js';
 
 export default mergeConfig(
   {
     ...viteConfig,
-    // see https://github.com/testing-library/svelte-testing-library/issues/222
     resolve: {
-      conditions: ['browser'],
+      conditions: ['development', 'browser'],
     },
   },
   {
     test: {
       ...vitestConfig.test,
-      coverage: {
-        ...vitestConfig.test.coverage,
-        exclude: [
-          'env.d.ts',
-          'svelte.config.js',
-          '**/.svelte-kit/**/*',
-          '**/Test.svelte',
-          '**/OverlayScrollbarsComponent.types.ts',
-        ],
+      server: {
+        deps: {
+          inline: [/solid-testing-library/],
+        },
       },
       environmentMatchGlobs: [
         ['test/body/*', fileURLToPath(import.meta.resolve('@~local/config/vitest.new-jsdom.env'))],

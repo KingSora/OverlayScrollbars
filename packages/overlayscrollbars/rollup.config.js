@@ -1,11 +1,12 @@
-const { dirname, basename, resolve } = require('path');
-const rollupTerser = require('@rollup/plugin-terser');
-// const { summary } = require('rollup-plugin-summary');
-const filesize = require('rollup-plugin-filesize');
-const createRollupConfig = require('@~local/rollup');
-const { devDependencies, peerDependencies, version } = require('./package.json');
+import { dirname, basename, resolve } from 'node:path';
+import rollupTerser from '@rollup/plugin-terser';
+import filesize from 'rollup-plugin-filesize';
+import createRollupConfig from '@~local/rollup';
+import pkg from './package.json' with { type: 'json' };
 
-module.exports = createRollupConfig({
+const { devDependencies, peerDependencies, version } = pkg;
+
+export default createRollupConfig({
   project: 'OverlayScrollbars',
   verbose: true,
   extractStyles: true,

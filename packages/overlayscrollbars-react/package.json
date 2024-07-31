@@ -1,6 +1,7 @@
 {
   "name": "overlayscrollbars-react",
   "private": true,
+  "type": "module",
   "version": "0.5.6",
   "description": "OverlayScrollbars for React.",
   "author": "Rene Haas | KingSora",

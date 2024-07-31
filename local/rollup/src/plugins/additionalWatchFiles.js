@@ -1,6 +1,6 @@
-const fs = require('fs');
+import fs from 'node:fs';
 
-module.exports = (files) => ({
+export default (files) => ({
   buildStart() {
     if (files) {
       files.forEach((file) => {

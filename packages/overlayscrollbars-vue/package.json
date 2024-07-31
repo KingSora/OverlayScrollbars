@@ -1,6 +1,7 @@
 {
   "name": "overlayscrollbars-vue",
   "private": true,
+  "type": "module",
   "version": "0.5.9",
   "description": "OverlayScrollbars for Vue.",
   "author": "Rene Haas | KingSora",

@@ -1,14 +1,9 @@
-const path = require('path');
-const rollupTerser = require('@rollup/plugin-terser');
-const {
-  rollupBabel,
-  rollupTs,
-  rollupCommonjs,
-  rollupEsbuildResolve,
-  rollupAlias,
-  rollupScss,
-  rollupLicense,
-} = require('./plugins');
+import path from 'node:path';
+import rollupTerser from '@rollup/plugin-terser';
+import buildPlugins from './plugins.js';
+
+const { rollupBabel, rollupTs, rollupCommonjs, rollupEsbuildResolve, rollupScss, rollupLicense } =
+  buildPlugins;
 
 const moduleFormats = ['es', 'esm', 'module'];
 const createMinifiedOutput = (baseOutput) => {
@@ -33,8 +28,8 @@ const createMinifiedOutput = (baseOutput) => {
   };
 };
 
-module.exports = (resolve, options) => {
-  const { rollup, paths, versions, alias, extractStyles, banner } = options;
+export default (resolve, options) => {
+  const { rollup, paths, versions, extractStyles, banner } = options;
   const { output: rollupOutput, input, plugins = [], ...rollupOptions } = rollup;
   const { name, file, globals, exports, sourcemap: rawSourcemap, ...outputConfig } = rollupOutput;
   const { js: jsPath } = paths;
@@ -68,7 +63,6 @@ module.exports = (resolve, options) => {
         plugins: [
           rollupLicense(banner, sourcemap),
           rollupEsbuildResolve(resolve),
-          rollupAlias(resolve, alias),
           rollupScss(resolve, sourcemap, extractStyles, false),
           rollupTs(input),
           rollupCommonjs(sourcemap, resolve),

@@ -1,13 +1,15 @@
-const path = require('path');
-const resolve = require('./resolve');
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import resolve from './resolve.json' with { type: 'json' };
 
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 const assetFilesModuleNameMapper = {
   '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
-    path.resolve(__dirname, 'jest.fileMock.js'),
-  '.*\\.(css|less|scss|sass)$': path.resolve(__dirname, 'jest.fileMock.js'),
+    path.resolve(dirname, 'jest.fileMock.js'),
+  '.*\\.(css|less|scss|sass)$': path.resolve(dirname, 'jest.fileMock.js'),
 };
 const coveragePathIgnorePatterns = [
   '/node_modules/',
@@ -15,7 +17,7 @@ const coveragePathIgnorePatterns = [
 ];
 
 /** @type {import('jest').Config} */
-module.exports = {
+export default {
   coverageDirectory: './.coverage/unit',
   projects: [
     {
@@ -30,7 +32,7 @@ module.exports = {
         ...resolve.paths.jest.moduleNameMapper,
       },
       testPathIgnorePatterns: ['/node_modules/'],
-      setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.node.js')],
+      setupFilesAfterEnv: [path.resolve(dirname, './jest.setup.node.js')],
       coveragePathIgnorePatterns,
     },
     {
@@ -45,7 +47,7 @@ module.exports = {
         ...resolve.paths.jest.moduleNameMapper,
       },
       testPathIgnorePatterns: ['/node_modules/'],
-      setupFilesAfterEnv: [path.resolve(__dirname, './jest.setup.jsdom.js')],
+      setupFilesAfterEnv: [path.resolve(dirname, './jest.setup.jsdom.js')],
       coveragePathIgnorePatterns,
     },
   ],

@@ -1,9 +1,11 @@
-const { rollupVirtual } = require('./plugins');
-const rollupPluginClean = require('../plugins/clean');
-const rollupPluginCopy = require('../plugins/copy');
-const rollupPluginPackageJson = require('../plugins/packageJson');
+import buildPlugins from './plugins.js';
+import rollupPluginClean from '../plugins/clean.js';
+import rollupPluginCopy from '../plugins/copy.js';
+import rollupPluginPackageJson from '../plugins/packageJson.js';
 
-module.exports = (_, options) => {
+const { rollupVirtual } = buildPlugins;
+
+export default (_, options) => {
   const { project, verbose, clean, copy, outDir, projectDir, extractPackageJson } = options;
 
   return {

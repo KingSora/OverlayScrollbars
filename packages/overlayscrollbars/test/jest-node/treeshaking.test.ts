@@ -5,9 +5,6 @@ import { webpack } from 'webpack';
 import { build } from 'esbuild';
 import terser from '@rollup/plugin-terser';
 
-// @ts-ignore
-import rollupConfig from '~/../rollup.config';
-
 const cleanBundle = true;
 const cleanFixture = true;
 const expectedBundleDiff = 2000;
@@ -113,6 +110,8 @@ const testBundler = (bundlerName: keyof typeof bundleFunctions) => async () => {
 describe('tree shaking', () => {
   // build the fixture
   beforeAll(async () => {
+    // @ts-ignore
+    const rollupConfig = (await import('~/../rollup.config')).default;
     const config = rollupConfig.find((inputConfig: any) => {
       const { output } = inputConfig;
       if (output) {

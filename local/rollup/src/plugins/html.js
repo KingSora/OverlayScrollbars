@@ -1,4 +1,4 @@
-const rollupPluginHtml = require('@rollup/plugin-html');
+import rollupPluginHtml from '@rollup/plugin-html';
 
 const makeHtmlAttributes = (attributes) => {
   if (!attributes) {
@@ -11,32 +11,28 @@ const makeHtmlAttributes = (attributes) => {
   return keys.reduce((result, key) => (result += ` ${key}="${attributes[key]}"`), '');
 };
 
-const genHtmlTemplateFunc = (contentOrContentFn) => ({
-  attributes,
-  files,
-  meta,
-  publicPath,
-  title,
-}) => {
-  const scripts = (files.js || [])
-    .map(
-      ({ fileName }) =>
-        `<script src="${publicPath}${fileName}"${makeHtmlAttributes(attributes.script)}></script>`
-    )
-    .join('\n');
+const genHtmlTemplateFunc =
+  (contentOrContentFn) =>
+  ({ attributes, files, meta, publicPath, title }) => {
+    const scripts = (files.js || [])
+      .map(
+        ({ fileName }) =>
+          `<script src="${publicPath}${fileName}"${makeHtmlAttributes(attributes.script)}></script>`
+      )
+      .join('\n');
 
-  const links = (files.css || [])
-    .map(
-      ({ fileName }) =>
-        `<link href="${publicPath}${fileName}" rel="stylesheet"${makeHtmlAttributes(
-          attributes.link
-        )}>`
-    )
-    .join('\n');
+    const links = (files.css || [])
+      .map(
+        ({ fileName }) =>
+          `<link href="${publicPath}${fileName}" rel="stylesheet"${makeHtmlAttributes(
+            attributes.link
+          )}>`
+      )
+      .join('\n');
 
-  const metas = meta.map((input) => `<meta${makeHtmlAttributes(input)}>`).join('\n');
+    const metas = meta.map((input) => `<meta${makeHtmlAttributes(input)}>`).join('\n');
 
-  return `<!doctype html>
+    return `<!doctype html>
 <html${makeHtmlAttributes(attributes.html)}>
   <head>
     ${metas}
@@ -91,9 +87,9 @@ const genHtmlTemplateFunc = (contentOrContentFn) => ({
     <div id="testResult"></div>
   </body>
 </html>`;
-};
+  };
 
-module.exports = (title, fileName, getHtmlContent) =>
+export default (title, fileName, getHtmlContent) =>
   rollupPluginHtml({
     title,
     fileName,

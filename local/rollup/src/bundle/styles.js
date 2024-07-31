@@ -1,8 +1,10 @@
-const path = require('path');
-const { rollupAlias, rollupEsbuildResolve, rollupScss, rollupEsBuild } = require('./plugins');
+import path from 'node:path';
+import buildPlugins from './plugins.js';
 
-module.exports = (resolve, options) => {
-  const { rollup, alias, paths, banner, extractStyles } = options;
+const { rollupEsbuildResolve, rollupScss, rollupEsBuild } = buildPlugins;
+
+export default (resolve, options) => {
+  const { rollup, paths, banner, extractStyles } = options;
   const { output: rollupOutput, input } = rollup;
   const { file, sourcemap } = rollupOutput;
   const { styles: stylesPath } = paths;
@@ -18,7 +20,6 @@ module.exports = (resolve, options) => {
     },
     plugins: [
       rollupEsbuildResolve(resolve),
-      rollupAlias(resolve, alias),
       rollupScss(
         resolve,
         false && sourcemap && !minified,

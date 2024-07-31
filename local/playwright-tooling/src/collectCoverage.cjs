@@ -1,8 +1,8 @@
 const fs = require('fs');
 const { basename, dirname, join } = require('path');
-const { tmpCoverageDirectory } = require('@~local/config/playwright.coverage');
 
 module.exports = async (coverageOutputDir, coverage, testfile) => {
+  const { tmpCoverageDirectory } = (await import('@~local/config/playwright.coverage')).default;
   if (coverage) {
     // eslint-disable-next-line no-restricted-syntax
     const coveragePath = join(

@@ -1,7 +1,7 @@
-const path = require('path');
-const fs = require('fs');
+import path from 'node:path';
+import fs from 'node:fs';
 
-module.exports = ({ paths = [], verbose = false } = {}) => {
+export default ({ paths = [], verbose = false } = {}) => {
   return {
     name: 'copy',
     buildStart() {
