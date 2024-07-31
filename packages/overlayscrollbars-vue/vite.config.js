@@ -1,6 +1,5 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
-import { esbuildResolve } from 'rollup-plugin-esbuild-resolve';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
@@ -95,7 +94,6 @@ export default defineConfig({
     },
   },
   plugins: [
-    esbuildResolve(),
     vue(),
     vueJsx(), // used for testing
   ],

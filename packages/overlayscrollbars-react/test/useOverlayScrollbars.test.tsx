@@ -3,7 +3,7 @@ import { describe, test, afterEach, expect } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { useOverlayScrollbars } from '~/overlayscrollbars-react';
+import { useOverlayScrollbars } from '../src/overlayscrollbars-react';
 
 describe('useOverlayScrollbars', () => {
   afterEach(() => cleanup());

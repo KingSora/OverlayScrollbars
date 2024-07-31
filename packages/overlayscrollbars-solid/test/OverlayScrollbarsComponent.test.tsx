@@ -3,8 +3,8 @@ import { createSignal, createEffect } from 'solid-js';
 import { render, screen, cleanup, fireEvent } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-solid';
-import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-solid';
+import type { OverlayScrollbarsComponentRef } from '../src/overlayscrollbars-solid';
+import { OverlayScrollbarsComponent } from '../src/overlayscrollbars-solid';
 
 vi.useFakeTimers({
   toFake: [

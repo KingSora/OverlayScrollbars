@@ -1,6 +1,5 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vitest/config';
-import { esbuildResolve } from 'rollup-plugin-esbuild-resolve';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
 import rollupPluginCopy from '@~local/rollup/plugin/copy';
@@ -93,5 +92,5 @@ export default defineConfig({
       ],
     },
   },
-  plugins: [esbuildResolve(), svelte(process.env.VITEST ? { hot: false } : {})],
+  plugins: [svelte(process.env.VITEST ? { hot: false } : {})],
 });

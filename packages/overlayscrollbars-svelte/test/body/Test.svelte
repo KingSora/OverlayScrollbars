@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { OverlayScrollbarsComponent } from '~/overlayscrollbars-svelte';
+  import { OverlayScrollbarsComponent } from '../../src/overlayscrollbars-svelte';
   export let element: any = 'div';
 </script>
 

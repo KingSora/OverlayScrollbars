@@ -3,7 +3,7 @@ import { describe, test, afterEach, expect, vitest, vi } from 'vitest';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { fireEvent, render, screen, cleanup } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-vue';
+import { OverlayScrollbarsComponent } from '../src/overlayscrollbars-vue';
 
 vi.useFakeTimers({
   toFake: [

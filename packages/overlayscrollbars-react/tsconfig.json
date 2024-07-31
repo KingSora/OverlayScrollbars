@@ -7,10 +7,6 @@
     "module": "ES2015",
     "moduleResolution": "node",
     "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./src/*"]
-    },
     "types": ["jest", "@testing-library/jest-dom"]
   }
 }

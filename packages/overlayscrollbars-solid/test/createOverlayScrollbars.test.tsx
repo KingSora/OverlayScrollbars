@@ -4,8 +4,8 @@ import { createStore } from 'solid-js/store';
 import { render, screen, cleanup } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { createOverlayScrollbars } from '~/overlayscrollbars-solid';
 import type { PartialOptions, EventListeners } from 'overlayscrollbars';
+import { createOverlayScrollbars } from '../src/overlayscrollbars-solid';
 
 describe('OverlayScrollbarsComponent', () => {
   afterEach(() => cleanup());

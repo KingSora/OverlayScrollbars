@@ -3,9 +3,9 @@ import { describe, test, afterEach, expect, vitest, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
 import type { RefObject } from 'react';
-import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-react';
+import type { OverlayScrollbarsComponentRef } from '../src/overlayscrollbars-react';
+import { OverlayScrollbarsComponent } from '../src/overlayscrollbars-react';
 
 vi.useFakeTimers({
   toFake: [

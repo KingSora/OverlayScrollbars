@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect, vi } from 'vitest';
 import { render, cleanup } from '@testing-library/vue';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-vue';
+import { OverlayScrollbarsComponent } from '../../src/overlayscrollbars-vue';
 
 const getComputedStyleOriginal = window.getComputedStyle;
 vi.stubGlobal(

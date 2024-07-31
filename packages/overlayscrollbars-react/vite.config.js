@@ -1,6 +1,5 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
-import { esbuildResolve } from 'rollup-plugin-esbuild-resolve';
 import react from '@vitejs/plugin-react';
 import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
 import rollupPluginCopy from '@~local/rollup/plugin/copy';
@@ -92,8 +91,5 @@ export default defineConfig({
       ],
     },
   },
-  plugins: [
-    esbuildResolve(),
-    react(process.env.VITEST ? { jsxRuntime: 'automatic' } : { jsxRuntime: 'classic' }),
-  ],
+  plugins: [react(process.env.VITEST ? { jsxRuntime: 'automatic' } : { jsxRuntime: 'classic' })],
 });

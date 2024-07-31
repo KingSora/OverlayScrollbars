@@ -1,6 +1,6 @@
 <script lang="ts">
   import { afterUpdate, onMount } from 'svelte';
-  import { OverlayScrollbarsComponent } from '~/overlayscrollbars-svelte';
+  import { OverlayScrollbarsComponent } from '../src/overlayscrollbars-svelte';
   let children = 1;
   let ref: any;
 

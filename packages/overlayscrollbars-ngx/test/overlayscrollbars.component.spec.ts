@@ -1,13 +1,13 @@
 import { Component, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { OverlayScrollbars } from 'overlayscrollbars';
+import type { ComponentFixture } from '@angular/core/testing';
+import type { EventListenerArgs } from 'overlayscrollbars';
 import {
   OverlayScrollbarsComponent,
   OverlayScrollbarsDirective,
   OverlayscrollbarsModule,
-} from '~/public-api';
-import type { ComponentFixture } from '@angular/core/testing';
-import type { EventListenerArgs } from 'overlayscrollbars';
+} from '../src/public-api';
 
 @Component({
   template: `

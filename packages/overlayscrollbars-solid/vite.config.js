@@ -1,7 +1,6 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { defineConfig } from 'vite';
-import { esbuildResolve } from 'rollup-plugin-esbuild-resolve';
 import solidPlugin from 'vite-plugin-solid';
 import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
 import rollupPluginCopy from '@~local/rollup/plugin/copy';
@@ -92,7 +91,6 @@ export default defineConfig({
     },
   },
   plugins: [
-    esbuildResolve(),
     solidPlugin({
       solid: {
         generate: 'dom',

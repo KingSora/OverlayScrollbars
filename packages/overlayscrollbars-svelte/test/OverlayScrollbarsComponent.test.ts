@@ -2,8 +2,8 @@ import { describe, test, expect, afterEach, vitest, vi } from 'vitest';
 import { cleanup, render, screen, fireEvent } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-svelte';
-import type { Ref } from '~/OverlayScrollbarsComponent.types';
+import type { Ref } from '../src/OverlayScrollbarsComponent.types';
+import { OverlayScrollbarsComponent } from '../src/overlayscrollbars-svelte';
 import Test from './Test.svelte';
 
 vi.useFakeTimers({
