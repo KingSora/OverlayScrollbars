@@ -102,6 +102,9 @@ export default defineConfig({
     {
       name: 'ts',
       closeBundle() {
+        if (process.env.VITEST) {
+          return;
+        }
         const program = ts.createProgram(
           [
             resolve(__dirname, 'src/overlayscrollbars-solid.ts'),

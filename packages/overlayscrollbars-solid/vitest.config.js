@@ -13,11 +13,6 @@ export default mergeConfig(
   {
     test: {
       ...vitestConfig.test,
-      server: {
-        deps: {
-          inline: [/solid-testing-library/],
-        },
-      },
       environmentMatchGlobs: [
         ['test/body/*', fileURLToPath(import.meta.resolve('@~local/config/vitest.new-jsdom.env'))],
       ],

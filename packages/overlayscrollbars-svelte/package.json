@@ -42,7 +42,7 @@
     "@sveltejs/kit": "^2.0.4",
     "@sveltejs/package": "^2.2.4",
     "@sveltejs/vite-plugin-svelte": "^3.0.1",
-    "@testing-library/svelte": "^4.0.5",
+    "@testing-library/svelte": "^5.2.1",
     "overlayscrollbars": "file:./../overlayscrollbars/dist",
     "svelte": "^4.0.0",
     "svelte-check": "^3.6.2",

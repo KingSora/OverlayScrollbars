@@ -27,13 +27,12 @@ describe('OverlayScrollbarsComponent', () => {
       const elementB = 'span';
       let osInstance;
       const { container } = render(Test);
-      const realContainer = container.firstElementChild!;
 
-      expect(realContainer).not.toBeEmptyDOMElement();
-      expect(realContainer.querySelector('div')).toBe(realContainer.firstElementChild); // default is div
+      expect(container).not.toBeEmptyDOMElement();
+      expect(container.querySelector('div')).toBe(container.firstElementChild); // default is div
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false);
-      osInstance = OverlayScrollbars(realContainer.firstElementChild as HTMLElement);
+      osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);
 
       expect(osInstance).toBeDefined();
       expect(OverlayScrollbars.valid(osInstance)).toBe(true);
@@ -44,10 +43,10 @@ describe('OverlayScrollbarsComponent', () => {
           detail: { element: elementA },
         })
       );
-      expect(realContainer.querySelector(elementA)).toBe(realContainer.firstElementChild);
+      expect(container.querySelector(elementA)).toBe(container.firstElementChild);
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
-      osInstance = OverlayScrollbars(realContainer.firstElementChild as HTMLElement);
+      osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);
       expect(osInstance).toBeDefined();
       expect(OverlayScrollbars.valid(osInstance)).toBe(true);
 
@@ -57,10 +56,10 @@ describe('OverlayScrollbarsComponent', () => {
           detail: { element: elementB },
         })
       );
-      expect(realContainer.querySelector(elementB)).toBe(realContainer.firstElementChild);
+      expect(container.querySelector(elementB)).toBe(container.firstElementChild);
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
-      osInstance = OverlayScrollbars(realContainer.firstElementChild as HTMLElement);
+      osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);
       expect(osInstance).toBeDefined();
       expect(OverlayScrollbars.valid(osInstance)).toBe(true);
     });
@@ -102,9 +101,8 @@ describe('OverlayScrollbarsComponent', () => {
           className: 'overlay scrollbars',
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(realContainer.firstElementChild).toHaveClass('overlay', 'scrollbars');
+      expect(container.firstElementChild).toHaveClass('overlay', 'scrollbars');
 
       await fireEvent(
         screen.getByText('props'),
@@ -113,7 +111,7 @@ describe('OverlayScrollbarsComponent', () => {
         })
       );
 
-      expect(realContainer.firstElementChild).toHaveClass('overlay', 'scrollbars', 'svelte');
+      expect(container.firstElementChild).toHaveClass('overlay', 'scrollbars', 'svelte');
     });
 
     test('style', async () => {
@@ -122,9 +120,8 @@ describe('OverlayScrollbarsComponent', () => {
           style: 'width: 22px',
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(realContainer.firstElementChild).toHaveStyle({ width: '22px' });
+      expect(container.firstElementChild).toHaveStyle({ width: '22px' });
 
       await fireEvent(
         screen.getByText('props'),
@@ -133,7 +130,7 @@ describe('OverlayScrollbarsComponent', () => {
         })
       );
 
-      expect(realContainer.firstElementChild).toHaveStyle({ height: '33px' });
+      expect(container.firstElementChild).toHaveStyle({ height: '33px' });
     });
   });
 
@@ -144,13 +141,12 @@ describe('OverlayScrollbarsComponent', () => {
           defer: true,
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeUndefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
 
       vi.advanceTimersByTime(2000);
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeDefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
     });
 
     test('options defer', () => {
@@ -159,13 +155,12 @@ describe('OverlayScrollbarsComponent', () => {
           defer: { timeout: 0 },
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeUndefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
 
       vi.advanceTimersByTime(2000);
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeDefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
     });
 
     test('defer with unsupported Idle', () => {
@@ -178,13 +173,12 @@ describe('OverlayScrollbarsComponent', () => {
           defer: true,
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeUndefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
 
       vi.advanceTimersByTime(2000);
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeDefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
 
       window.requestIdleCallback = original;
     });
@@ -199,7 +193,6 @@ describe('OverlayScrollbarsComponent', () => {
         },
       },
     });
-    const realContainer = container.firstElementChild!;
 
     expect(osRef).toBeTruthy();
 
@@ -207,7 +200,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(osInstance).toBeTypeOf('function');
     expect(getElement).toBeTypeOf('function');
     expect(OverlayScrollbars.valid(osInstance())).toBe(true);
-    expect(getElement()).toBe(realContainer.firstElementChild);
+    expect(getElement()).toBe(container.firstElementChild);
   });
 
   test('options', async () => {

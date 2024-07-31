@@ -1,7 +1,7 @@
 import { describe, test, afterEach, expect, vitest } from 'vitest';
 import { createSignal, createEffect, onMount } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { render, screen, cleanup } from 'solid-testing-library';
+import { render, screen, cleanup } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { createOverlayScrollbars } from '~/overlayscrollbars-solid';

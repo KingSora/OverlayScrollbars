@@ -13,11 +13,10 @@ export default defineConfig({
     include,
     coverage: {
       reportsDirectory: './.coverage/unit',
-      exclude: ['**/*.env.*'],
     },
     poolOptions: {
-      threads: {
-        singleThread: true,
+      forks: {
+        singleFork: true,
       },
     },
   },

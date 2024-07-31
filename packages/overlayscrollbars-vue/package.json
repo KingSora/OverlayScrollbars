@@ -35,7 +35,7 @@
     "overlayscrollbars": "^2.0.0"
   },
   "devDependencies": {
-    "@testing-library/vue": "^6.6.1",
+    "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^4.5.2",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "@vue/tsconfig": "^0.4.0",

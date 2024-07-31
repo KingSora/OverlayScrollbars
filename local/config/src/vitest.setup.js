@@ -1,8 +1,5 @@
-import matchers from '@testing-library/jest-dom/matchers';
-import { expect } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 import { mockAnimationApi, mockComputedStyles } from './mocks.js';
-
-expect.extend(matchers);
 
 mockAnimationApi();
 mockComputedStyles();

@@ -14,16 +14,6 @@ export default mergeConfig(
   {
     test: {
       ...vitestConfig.test,
-      coverage: {
-        ...vitestConfig.test.coverage,
-        exclude: [
-          'env.d.ts',
-          'svelte.config.js',
-          '**/.svelte-kit/**/*',
-          '**/Test.svelte',
-          '**/OverlayScrollbarsComponent.types.ts',
-        ],
-      },
       environmentMatchGlobs: [
         ['test/body/*', fileURLToPath(import.meta.resolve('@~local/config/vitest.new-jsdom.env'))],
       ],
