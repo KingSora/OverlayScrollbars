@@ -1,4 +1,4 @@
-import type { PlainObject } from '~/typings';
+import type { PlainObject } from '../../typings';
 import { isArray, isArrayLike, isString } from './types';
 
 type RunEachItem = ((...args: any) => any | any[]) | false | null | undefined;

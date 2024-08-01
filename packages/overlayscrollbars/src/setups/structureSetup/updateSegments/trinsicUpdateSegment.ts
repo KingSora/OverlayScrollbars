@@ -1,5 +1,5 @@
-import { setStyles, strHeight } from '~/support';
 import type { CreateStructureUpdateSegment } from '../structureSetup';
+import { setStyles, strHeight } from '../../../support';
 
 /**
  * Lifecycle with the responsibility to adjust the trinsic behavior of the content element.

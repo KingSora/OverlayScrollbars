@@ -1,3 +1,11 @@
+import type { OptionsCheckFn, Options, PartialOptions, ReadonlyOptions } from '../options';
+import type { DeepReadonly } from '../typings';
+import type { InitializationTarget } from '../initialization';
+import type { ObserversSetupState, ObserversSetupUpdateHints } from './observersSetup';
+import type { StructureSetupState, StructureSetupUpdateHints } from './structureSetup';
+import type { StructureSetupElementsObj } from './structureSetup/structureSetup.elements';
+import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup/scrollbarsSetup.elements';
+import { createOptionCheck } from '../options';
 import {
   assignDeep,
   bind,
@@ -6,15 +14,7 @@ import {
   keys,
   runEachAndClear,
   scrollElementTo,
-} from '~/support';
-import { createOptionCheck } from '~/options';
-import type { OptionsCheckFn, Options, PartialOptions, ReadonlyOptions } from '~/options';
-import type { DeepReadonly } from '~/typings';
-import type { InitializationTarget } from '~/initialization';
-import type { ObserversSetupState, ObserversSetupUpdateHints } from './observersSetup';
-import type { StructureSetupState, StructureSetupUpdateHints } from './structureSetup';
-import type { StructureSetupElementsObj } from './structureSetup/structureSetup.elements';
-import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup/scrollbarsSetup.elements';
+} from '../support';
 import { createObserversSetup } from './observersSetup';
 import { createScrollbarsSetup } from './scrollbarsSetup';
 import { createStructureSetup } from './structureSetup';
@@ -30,14 +30,14 @@ export type SetupUpdateInfo = {
 export type Setup<
   U extends SetupUpdateInfo,
   S extends Readonly<Record<string, any>>,
-  H extends SetupUpdateHints | void
+  H extends SetupUpdateHints | void,
 > = [
   /** The create function which returns the `destroy` function. */
   _create: () => () => void,
   /** Function which updates the setup and returns the update result. */
   _update: (updateInfo: U) => H,
   /** Function which returns the current state. */
-  _state: S
+  _state: S,
 ];
 
 export interface SetupsUpdateInfo {
@@ -71,7 +71,7 @@ export type Setups = [
   update: (updateInfo: SetupsUpdateInfo) => boolean,
   getState: () => SetupsState,
   elements: SetupsElements,
-  canceled: () => void
+  canceled: () => void,
 ];
 
 export const createSetups = (

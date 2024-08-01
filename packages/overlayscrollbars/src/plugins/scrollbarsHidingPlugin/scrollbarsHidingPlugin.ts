@@ -1,3 +1,14 @@
+import type { ObserversSetupState } from '../../setups';
+import type { Options, OptionsCheckFn } from '../../options';
+import type { StructureSetupElementsObj } from '../../setups/structureSetup/structureSetup.elements';
+import type { ViewportOverflowState } from '../../setups/structureSetup/structureSetup.utils';
+import type { Env } from '../../environment';
+import type { WH } from '../../support';
+import type { OverflowStyle, StyleObject, StyleObjectKey } from '../../typings';
+import type { StructureSetupState } from '../../setups/structureSetup';
+import type { StaticPlugin } from '../plugins';
+import { getShowNativeOverlaidScrollbars } from '../../setups/structureSetup/structureSetup.utils';
+import { dataValueViewportArrange, dataAttributeViewport } from '../../classnames';
 import {
   keys,
   noop,
@@ -17,18 +28,7 @@ import {
   strOverflowY,
   strOverflowX,
   strScroll,
-} from '~/support';
-import { dataValueViewportArrange, dataAttributeViewport } from '~/classnames';
-import { getShowNativeOverlaidScrollbars } from '~/setups/structureSetup/structureSetup.utils';
-import type { ObserversSetupState } from '~/setups';
-import type { Options, OptionsCheckFn } from '~/options';
-import type { StructureSetupElementsObj } from '~/setups/structureSetup/structureSetup.elements';
-import type { ViewportOverflowState } from '~/setups/structureSetup/structureSetup.utils';
-import type { Env } from '~/environment';
-import type { WH } from '~/support';
-import type { OverflowStyle, StyleObject, StyleObjectKey } from '~/typings';
-import type { StructureSetupState } from '~/setups/structureSetup';
-import type { StaticPlugin } from '~/plugins';
+} from '../../support';
 
 export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';
 

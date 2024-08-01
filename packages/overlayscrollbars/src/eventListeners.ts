@@ -1,12 +1,12 @@
-import type { OverlayScrollbars } from '~/overlayscrollbars';
-import type { PartialOptions } from '~/options';
+import type { OverlayScrollbars } from './overlayscrollbars';
+import type { PartialOptions } from './options';
 import type {
   EventListeners as GeneralEventListeners,
   EventListener as GeneralEventListener,
   AddEvent as GeneralAddEvent,
   RemoveEvent as GeneralRemoveEvent,
   TriggerEvent as GeneralTriggerEvent,
-} from '~/support';
+} from './support';
 
 /**
  * Describes the changes that happend due to an update.

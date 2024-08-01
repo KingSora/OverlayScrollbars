@@ -1,5 +1,5 @@
-import { animateNumber, noop, selfClearTimeout } from '~/support';
-import type { StaticPlugin } from '~/plugins';
+import type { StaticPlugin } from '../plugins';
+import { animateNumber, noop, selfClearTimeout } from '../../support';
 
 export const clickScrollPluginModuleName = '__osClickScrollPlugin';
 

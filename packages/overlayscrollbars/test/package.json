@@ -1,4 +1,5 @@
 {
   "private": true,
+  "type": "module",
   "sideEffects": true
 }

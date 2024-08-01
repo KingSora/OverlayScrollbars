@@ -1,4 +1,4 @@
-const { expect } = require('@playwright/test');
+import { expect } from '@playwright/test';
 
 const startSelector = '#start';
 const resultSelector = '#testResult';
@@ -9,7 +9,7 @@ const logError = async (page, ...args) => {
 };
 
 // default timeout = // 15mins
-module.exports = async (page, timeout = 10 * 60 * 1500) => {
+export default async (page, timeout = 10 * 60 * 1500) => {
   page.on('pageerror', (err) => {
     logError(page, err.message);
   });

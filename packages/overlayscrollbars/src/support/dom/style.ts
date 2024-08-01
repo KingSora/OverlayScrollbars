@@ -1,4 +1,4 @@
-import type { PlainObject, StyleObject, StyleObjectKey, StyleObjectValue } from '~/typings';
+import type { PlainObject, StyleObject, StyleObjectKey, StyleObjectValue } from '../../typings';
 import type { XY } from './offset';
 import type { HTMLElementTarget } from './types';
 import { wnd } from '../utils/alias';
@@ -42,8 +42,8 @@ export function setStyles(
           isNull(rawValue) || isBoolean(rawValue)
             ? ''
             : isNumber(rawValue)
-            ? numberToCssPx(rawValue)
-            : rawValue;
+              ? numberToCssPx(rawValue)
+              : rawValue;
 
         if (name.indexOf('--') === 0) {
           elmStyle.setProperty(name, value);

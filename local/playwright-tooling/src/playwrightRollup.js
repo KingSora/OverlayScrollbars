@@ -1,10 +1,10 @@
-const { dirname } = require('path');
-const { watch: rollupWatch } = require('rollup');
-const { test } = require('@playwright/test');
-const collectCoverage = require('./collectCoverage');
+import { dirname } from 'node:path';
+import { watch as rollupWatch } from 'rollup';
+import { test } from '@playwright/test';
+import createPlaywrightRollupConfig from '@~local/rollup/playwright';
+import collectCoverage from './collectCoverage.js';
 
 const createRollupBundle = async (testDir, useEsbuild, dev) => {
-  const createPlaywrightRollupConfig = (await import('@~local/rollup/playwright')).default;
   const [config, getServer] = await createPlaywrightRollupConfig(testDir, useEsbuild, dev);
   const watcher = rollupWatch(config);
 
@@ -53,7 +53,7 @@ const createRollupBundle = async (testDir, useEsbuild, dev) => {
   };
 };
 
-module.exports = (options) => {
+export default (options) => {
   const { useEsbuild = true, adaptUrl = (originalUrl) => originalUrl } = options || {};
   let url;
   let close;

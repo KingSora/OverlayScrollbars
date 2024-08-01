@@ -1,4 +1,13 @@
-import { getEnvironment } from '~/environment';
+import type { TRBL, XY, ScrollCoordinates } from '../../support';
+import type { StructureSetupElementsObj } from './structureSetup.elements';
+import type {
+  ObserversSetupState,
+  ObserversSetupUpdateHints,
+  Setup,
+  SetupUpdateInfo,
+} from '../../setups';
+import type { InitializationTarget } from '../../initialization';
+import type { StyleObject, OverflowStyle } from '../../typings';
 import {
   assignDeep,
   each,
@@ -13,19 +22,8 @@ import {
   strPaddingLeft,
   strPaddingRight,
   strPaddingTop,
-  type TRBL,
-  type XY,
-} from '~/support';
-import type { ScrollCoordinates } from '~/support';
-import type { StructureSetupElementsObj } from './structureSetup.elements';
-import type {
-  ObserversSetupState,
-  ObserversSetupUpdateHints,
-  Setup,
-  SetupUpdateInfo,
-} from '~/setups';
-import type { InitializationTarget } from '~/initialization';
-import type { StyleObject, OverflowStyle } from '~/typings';
+} from '../../support';
+import { getEnvironment } from '../../environment';
 import { createStructureSetupElements } from './structureSetup.elements';
 import {
   createOverflowUpdateSegment,
@@ -62,7 +60,7 @@ export type StructureSetup = [
   /** The elements created by the structure setup. */
   StructureSetupElementsObj,
   /** Function to be called when the initialization was canceled. */
-  () => void
+  () => void,
 ];
 
 export type StructureUpdateSegment = (

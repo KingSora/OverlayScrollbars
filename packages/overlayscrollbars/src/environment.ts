@@ -1,3 +1,9 @@
+import type { XY, EventListener } from './support';
+import type { Options, PartialOptions } from './options';
+import type { Initialization, PartialInitialization } from './initialization';
+import type { StyleObjectKey } from './typings';
+import { defaultOptions } from './options';
+import { classNameEnvironment, classNameEnvironmentScrollbarHidden } from './classnames';
 import {
   createDOM,
   addClass,
@@ -18,13 +24,7 @@ import {
   isBodyElement,
   isFunction,
   addEventListener,
-} from '~/support';
-import { classNameEnvironment, classNameEnvironmentScrollbarHidden } from '~/classnames';
-import { defaultOptions } from '~/options';
-import type { XY, EventListener } from '~/support';
-import type { Options, PartialOptions } from '~/options';
-import type { Initialization, PartialInitialization } from '~/initialization';
-import type { StyleObjectKey } from './typings';
+} from './support';
 import { getNonce } from './nonce';
 
 type EnvironmentEventArgs = {

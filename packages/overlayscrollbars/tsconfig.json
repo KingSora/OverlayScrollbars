@@ -1,10 +1,7 @@
 {
   "extends": "@~local/tsconfig",
   "compilerOptions": {
-    "paths": {
-      "~/*": ["./src/*"]
-    },
-    "types": ["jest", "node"],
+    "types": ["node"],
   },
   "exclude": ["dist"]
 }

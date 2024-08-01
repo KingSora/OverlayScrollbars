@@ -1,3 +1,5 @@
+import type { PlainObject, DeepPartial } from '../../typings';
+import type { OptionsObject } from '../../options';
 import {
   each,
   hasOwnProperty,
@@ -9,9 +11,7 @@ import {
   isPlainObject,
   isString,
   createOrKeepArray,
-} from '~/support';
-import type { PlainObject, DeepPartial } from '~/typings';
-import type { OptionsObject } from '~/options';
+} from '../../support';
 
 export type OptionsFunctionType = (this: any, ...args: any[]) => any;
 export type OptionsTemplateType<T extends OptionsTemplateNativeTypes> = ExtractPropsKey<
@@ -31,13 +31,13 @@ export type OptionsTemplate<T> = {
   [P in keyof T]: T[P] extends OptionsObject
     ? OptionsTemplate<T[P]>
     : T[P] extends OptionsTemplateNativeTypes
-    ? OptionsTemplateValue<T[P]>
-    : never;
+      ? OptionsTemplateValue<T[P]>
+      : never;
 };
 
 export type OptionsValidationResult<T> = [
   validated: DeepPartial<T>,
-  foreign: Record<string, unknown>
+  foreign: Record<string, unknown>,
 ];
 
 type OptionsTemplateTypeMap = {

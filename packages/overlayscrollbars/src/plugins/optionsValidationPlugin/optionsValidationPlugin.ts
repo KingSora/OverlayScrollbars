@@ -5,9 +5,9 @@ import type {
   ScrollbarsVisibilityBehavior,
   ScrollbarsAutoHideBehavior,
   ScrollbarsClickScrollBehavior,
-} from '~/options';
+} from '../../options';
 import type { OptionsTemplate, OptionsTemplateValue } from './validation';
-import type { StaticPlugin } from '~/plugins';
+import type { StaticPlugin } from '../plugins';
 import { validateOptions, optionsTemplateTypes as oTypes } from './validation';
 
 export const optionsValidationPluginModuleName = '__osOptionsValidationPlugin';

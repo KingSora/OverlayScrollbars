@@ -1,7 +1,7 @@
 import type { WH } from '../dom/dimensions';
 import type { XY } from '../dom/offset';
 import type { TRBL } from '../dom/style';
-import type { PlainObject } from '~/typings';
+import type { PlainObject } from '../../typings';
 import { each } from './array';
 import { mathRound } from './alias';
 import { strHeight, strWidth } from './strings';

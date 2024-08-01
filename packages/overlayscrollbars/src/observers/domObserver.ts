@@ -15,7 +15,7 @@ import {
   concat,
   getAttr,
   isString,
-} from '~/support';
+} from '../support';
 
 type DOMContentObserverCallback = (contentChangedThroughEvent: boolean) => any;
 
@@ -77,7 +77,7 @@ export type DOMObserverOptions<ContentObserver extends boolean> = ContentObserve
 
 export type DOMObserver<ContentObserver extends boolean> = [
   construct: () => () => void,
-  update: () => void | false | Parameters<DOMObserverCallback<ContentObserver>>
+  update: () => void | false | Parameters<DOMObserverCallback<ContentObserver>>,
 ];
 
 type EventContentChangeUpdateElement = (

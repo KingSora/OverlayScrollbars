@@ -7,8 +7,8 @@ export {
   State,
   CloneableScrollbarElements,
   ScrollbarElements,
-} from '~/overlayscrollbars';
-export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from '~/plugins';
+} from './overlayscrollbars';
+export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from './plugins';
 
 export type {
   Options,
@@ -17,13 +17,13 @@ export type {
   OverflowBehavior,
   ScrollbarsVisibilityBehavior,
   ScrollbarsAutoHideBehavior,
-} from '~/options';
+} from './options';
 export type {
   EventListener,
   EventListeners,
   EventListenerArgs,
   OnUpdatedEventListenerArgs,
-} from '~/eventListeners';
+} from './eventListeners';
 export type {
   Initialization,
   PartialInitialization,
@@ -34,7 +34,7 @@ export type {
   DynamicInitialization,
   StaticInitializationElement,
   DynamicInitializationElement,
-} from '~/initialization';
+} from './initialization';
 export type {
   PluginModuleInstance,
   PluginModule,
@@ -44,4 +44,4 @@ export type {
   InstancePluginEvent,
   InferStaticPluginModuleInstance,
   InferInstancePluginModuleInstance,
-} from '~/plugins';
+} from './plugins';

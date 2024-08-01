@@ -1,3 +1,5 @@
+import type { StyleObject } from '../../../typings';
+import type { CreateStructureUpdateSegment } from '../structureSetup';
 import {
   createCache,
   topRightBottomLeft,
@@ -13,10 +15,8 @@ import {
   strPaddingTop,
   strWidth,
   setStyles,
-} from '~/support';
-import { getEnvironment } from '~/environment';
-import type { StyleObject } from '~/typings';
-import type { CreateStructureUpdateSegment } from '../structureSetup';
+} from '../../../support';
+import { getEnvironment } from '../../../environment';
 
 /**
  * Lifecycle with the responsibility to adjust the padding styling of the padding and viewport element.

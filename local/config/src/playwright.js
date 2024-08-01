@@ -10,15 +10,6 @@ export default {
   fullyParallel: true,
   reporter: 'list',
   outputDir: '.playwright',
-  build: {
-    // external: [
-    //   'local/playwright-tooling/**/*',
-    //   'local/config/**/*',
-    //   'local/rollup/**/*',
-    //   'local/esbuild/**/*',
-    //   'scrollSnap/**/*',
-    // ],
-  },
   projects: [
     {
       name: 'Chromium',

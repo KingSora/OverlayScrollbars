@@ -1,12 +1,12 @@
-import { isArray, each } from '~/support';
-import type { OptionsObject } from '~/options';
+import type { OptionsObject } from '../../options';
 import type {
   OptionsTemplate,
   OptionsTemplateNativeTypes,
   OptionsTemplateTypes,
   OptionsTemplateValue,
 } from './validation';
-import type { PlainObject } from '~/typings';
+import type { PlainObject } from '../../typings';
+import { isArray, each } from '../../support';
 
 export interface OptionsWithOptionsTemplateTransformation<T> {
   _template: OptionsTemplate<T>;
@@ -15,15 +15,15 @@ export interface OptionsWithOptionsTemplateTransformation<T> {
 
 export type OptionsWithOptionsTemplateValue<T extends OptionsTemplateNativeTypes> = [
   T,
-  OptionsTemplateValue<T>
+  OptionsTemplateValue<T>,
 ];
 
 export type OptionsWithOptionsTemplate<T> = {
   [P in keyof T]: T[P] extends OptionsObject
     ? OptionsWithOptionsTemplate<T[P]>
     : T[P] extends OptionsTemplateNativeTypes
-    ? OptionsWithOptionsTemplateValue<T[P]>
-    : never;
+      ? OptionsWithOptionsTemplateValue<T[P]>
+      : never;
 };
 
 /**

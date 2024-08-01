@@ -1,4 +1,4 @@
-import type { PlainObject } from '~/typings';
+import type { PlainObject } from '../../typings';
 
 export const isUndefined = (obj: any): obj is undefined => obj === undefined;
 

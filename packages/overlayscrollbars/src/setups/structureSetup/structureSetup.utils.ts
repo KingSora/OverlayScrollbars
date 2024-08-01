@@ -1,8 +1,8 @@
-import { strHidden, strScroll, strVisible } from '~/support';
-import type { Env } from '~/environment';
-import type { XY } from '~/support';
-import type { Options, OptionsCheckFn, OverflowBehavior } from '~/options';
-import type { OverflowStyle } from '~/typings';
+import type { Env } from '../../environment';
+import type { XY } from '../../support';
+import type { Options, OptionsCheckFn, OverflowBehavior } from '../../options';
+import type { OverflowStyle } from '../../typings';
+import { strHidden, strScroll, strVisible } from '../../support';
 
 export interface ViewportOverflowState {
   _overflowScroll: XY<boolean>;

@@ -1,3 +1,7 @@
+import type { ScrollCoordinates, WH, XY } from '../../../support';
+import type { ScrollbarsHidingPlugin } from '../../../plugins/scrollbarsHidingPlugin';
+import type { OverflowStyle } from '../../../typings';
+import type { CreateStructureUpdateSegment } from '../structureSetup';
 import {
   createCache,
   getScrollSize,
@@ -28,8 +32,8 @@ import {
   stopPropagation,
   rAF,
   hasAttrClass,
-} from '~/support';
-import { getEnvironment } from '~/environment';
+} from '../../../support';
+import { getEnvironment } from '../../../environment';
 import {
   dataAttributeHost,
   dataValueNoClipping,
@@ -39,12 +43,8 @@ import {
   dataValueViewportOverflowYPrefix,
   dataValueViewportNoContent,
   dataValueViewportMeasuring,
-} from '~/classnames';
-import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
-import type { ScrollCoordinates, WH, XY } from '~/support';
-import type { ScrollbarsHidingPlugin } from '~/plugins/scrollbarsHidingPlugin';
-import type { OverflowStyle } from '~/typings';
-import type { CreateStructureUpdateSegment } from '../structureSetup';
+} from '../../../classnames';
+import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '../../../plugins';
 import {
   createViewportOverflowState,
   getShowNativeOverlaidScrollbars,

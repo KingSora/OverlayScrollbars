@@ -1,3 +1,17 @@
+import type { XY } from '../../support';
+import type { ClickScrollPlugin } from '../../plugins';
+import type { ReadonlyOptions } from '../../options';
+import type { StructureSetupState } from '../../setups';
+import type { ScrollbarsSetupElementsObj, ScrollbarStructure } from './scrollbarsSetup.elements';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
+import {
+  classNameScrollbarHandle,
+  classNameScrollbarInteraction,
+  classNameScrollbarWheel,
+  dataAttributeHost,
+  dataAttributeViewport,
+} from '../../classnames';
+import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '../../plugins';
 import {
   getBoundingClientRect,
   getOffsetSize,
@@ -21,21 +35,7 @@ import {
   isFunction,
   mathAbs,
   focusElement,
-} from '~/support';
-import { clickScrollPluginModuleName, getStaticPluginModuleInstance } from '~/plugins';
-import {
-  classNameScrollbarHandle,
-  classNameScrollbarInteraction,
-  classNameScrollbarWheel,
-  dataAttributeHost,
-  dataAttributeViewport,
-} from '~/classnames';
-import type { XY } from '~/support';
-import type { ClickScrollPlugin } from '~/plugins';
-import type { ReadonlyOptions } from '~/options';
-import type { StructureSetupState } from '~/setups';
-import type { ScrollbarsSetupElementsObj, ScrollbarStructure } from './scrollbarsSetup.elements';
-import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
+} from '../../support';
 
 export type ScrollbarsSetupEvents = (
   scrollbarStructure: ScrollbarStructure,

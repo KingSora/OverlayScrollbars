@@ -1,4 +1,4 @@
-import type { OverlayScrollbars } from '~/overlayscrollbars';
+import type { OverlayScrollbars } from './overlayscrollbars';
 
 const targetInstanceMap: WeakMap<Element, OverlayScrollbars> = new WeakMap();
 

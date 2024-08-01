@@ -52,6 +52,7 @@
   },
   "scripts": {
     "build": "rollup -c",
+    "types": "tsc --emitDeclarationOnly -p tsconfig.types.json",
     "test": "jest --coverage",
     "e2e": "playwright test",
     "e2e:dev": "playwright test --workers 1 --timeout 0 --global-timeout 0",

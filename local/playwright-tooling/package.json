@@ -2,8 +2,8 @@
   "name": "@~local/playwright-tooling",
   "private": true,
   "type": "module",
-  "main": "./src/index.cjs",
-  "module": "./src/index.cjs",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
   "bin": {
     "playwright-merge-coverage": "./bin/mergeCoverage.js"
   },

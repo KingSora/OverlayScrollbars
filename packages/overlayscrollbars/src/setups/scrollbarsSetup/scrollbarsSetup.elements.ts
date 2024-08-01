@@ -1,3 +1,22 @@
+import type { XY } from '../../support';
+import type {
+  InitializationTarget,
+  InitializationTargetElement,
+  InitializationTargetObject,
+} from '../../initialization';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
+import type { ScrollbarsSetupEvents } from './scrollbarsSetup.events';
+import type { StyleObject } from '../../typings';
+import type { StructureSetupState } from '../structureSetup';
+import { dynamicInitializationElement as generalDynamicInitializationElement } from '../../initialization';
+import { getEnvironment } from '../../environment';
+import {
+  classNameScrollbar,
+  classNameScrollbarHorizontal,
+  classNameScrollbarVertical,
+  classNameScrollbarTrack,
+  classNameScrollbarHandle,
+} from '../../classnames';
 import {
   addClass,
   appendChildren,
@@ -19,26 +38,7 @@ import {
   getScrollCoordinatesPercent,
   isDefaultDirectionScrollCoordinates,
   roundCssNumber,
-} from '~/support';
-import {
-  classNameScrollbar,
-  classNameScrollbarHorizontal,
-  classNameScrollbarVertical,
-  classNameScrollbarTrack,
-  classNameScrollbarHandle,
-} from '~/classnames';
-import { getEnvironment } from '~/environment';
-import { dynamicInitializationElement as generalDynamicInitializationElement } from '~/initialization';
-import type { XY } from '~/support';
-import type {
-  InitializationTarget,
-  InitializationTargetElement,
-  InitializationTargetObject,
-} from '~/initialization';
-import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
-import type { ScrollbarsSetupEvents } from './scrollbarsSetup.events';
-import type { StyleObject } from '~/typings';
-import type { StructureSetupState } from '../structureSetup';
+} from '../../support';
 
 export interface ScrollbarStructure {
   _scrollbar: HTMLElement;
@@ -72,7 +72,7 @@ export interface ScrollbarsSetupElementsObj {
 
 export type ScrollbarsSetupElements = [
   elements: ScrollbarsSetupElementsObj,
-  appendElements: () => () => void
+  appendElements: () => () => void,
 ];
 
 type ScrollbarStyleFn = (
@@ -188,13 +188,12 @@ export const createScrollbarsSetupElements = (
     const viewportPercent = getViewportPercent();
     const createScrollbarStyleFn =
       (axisViewportPercent: number): ScrollbarStyleFn =>
-      (structure: ScrollbarStructure) =>
-        [
-          structure._scrollbar,
-          {
-            [cssCustomPropViewportPercent]: roundCssNumber(axisViewportPercent) + '',
-          },
-        ];
+      (structure: ScrollbarStructure) => [
+        structure._scrollbar,
+        {
+          [cssCustomPropViewportPercent]: roundCssNumber(axisViewportPercent) + '',
+        },
+      ];
 
     scrollbarStyle(horizontalScrollbars, createScrollbarStyleFn(viewportPercent.x));
     scrollbarStyle(verticalScrollbars, createScrollbarStyleFn(viewportPercent.y));
@@ -208,13 +207,12 @@ export const createScrollbarsSetupElements = (
       );
       const createScrollbarStyleFn =
         (axisScrollPercent: number): ScrollbarStyleFn =>
-        (structure: ScrollbarStructure) =>
-          [
-            structure._scrollbar,
-            {
-              [cssCustomPropScrollPercent]: roundCssNumber(axisScrollPercent) + '',
-            },
-          ];
+        (structure: ScrollbarStructure) => [
+          structure._scrollbar,
+          {
+            [cssCustomPropScrollPercent]: roundCssNumber(axisScrollPercent) + '',
+          },
+        ];
 
       scrollbarStyle(horizontalScrollbars, createScrollbarStyleFn(scrollPercent.x));
       scrollbarStyle(verticalScrollbars, createScrollbarStyleFn(scrollPercent.y));
@@ -225,13 +223,12 @@ export const createScrollbarsSetupElements = (
     const defaultDirectionScroll = isDefaultDirectionScrollCoordinates(_scrollCoordinates);
     const createScrollbarStyleFn =
       (axisIsDefaultDirectionScrollCoordinates: boolean): ScrollbarStyleFn =>
-      (structure: ScrollbarStructure) =>
-        [
-          structure._scrollbar,
-          {
-            [cssCustomPropScrollDirection]: axisIsDefaultDirectionScrollCoordinates ? '0' : '1',
-          },
-        ];
+      (structure: ScrollbarStructure) => [
+        structure._scrollbar,
+        {
+          [cssCustomPropScrollDirection]: axisIsDefaultDirectionScrollCoordinates ? '0' : '1',
+        },
+      ];
 
     scrollbarStyle(horizontalScrollbars, createScrollbarStyleFn(defaultDirectionScroll.x));
     scrollbarStyle(verticalScrollbars, createScrollbarStyleFn(defaultDirectionScroll.y));

@@ -1,6 +1,6 @@
-import { each, keys } from '~/support';
-import type { OverlayScrollbars, OverlayScrollbarsStatic } from '~/overlayscrollbars';
-import type { EventListener, EventListenerArgs, EventListeners } from '..';
+import type { OverlayScrollbars, OverlayScrollbarsStatic } from '../overlayscrollbars';
+import type { EventListener, EventListenerArgs, EventListeners } from '../eventListeners';
+import { each, keys } from '../support';
 
 export type PluginModuleInstance = Record<string | number | symbol, any>;
 
@@ -33,7 +33,7 @@ export type InstancePluginEvent = {
  */
 export type PluginModule<
   S extends PluginModuleInstance | void = PluginModuleInstance | void,
-  I extends PluginModuleInstance | void = PluginModuleInstance | void
+  I extends PluginModuleInstance | void = PluginModuleInstance | void,
 > = (S extends PluginModuleInstance
   ? {
       /**
@@ -71,7 +71,7 @@ export type PluginModule<
 export type Plugin<
   Name extends string = string,
   S extends PluginModuleInstance | void = PluginModuleInstance | void,
-  I extends PluginModuleInstance | void = PluginModuleInstance | void
+  I extends PluginModuleInstance | void = PluginModuleInstance | void,
 > = {
   /** The field is the plugins name. Plugin names must be globally unique, please choose wisely. */
   [pluginName in Name]: PluginModule<S, I>;
@@ -82,7 +82,7 @@ export type Plugin<
  */
 export type StaticPlugin<
   Name extends string = string,
-  T extends PluginModuleInstance = PluginModuleInstance
+  T extends PluginModuleInstance = PluginModuleInstance,
 > = Plugin<Name, T, void>;
 
 /**
@@ -90,30 +90,28 @@ export type StaticPlugin<
  */
 export type InstancePlugin<
   Name extends string = string,
-  T extends PluginModuleInstance = PluginModuleInstance
+  T extends PluginModuleInstance = PluginModuleInstance,
 > = Plugin<Name, void, T>;
 
 /**
  * Infers the type of the static modules instance of the passed plugin.
  */
-export type InferStaticPluginModuleInstance<T extends StaticPlugin> = T extends StaticPlugin<
-  infer Name
->
-  ? T[Name]['static'] extends (...args: any[]) => any
-    ? ReturnType<T[Name]['static']>
-    : void
-  : void;
+export type InferStaticPluginModuleInstance<T extends StaticPlugin> =
+  T extends StaticPlugin<infer Name>
+    ? T[Name]['static'] extends (...args: any[]) => any
+      ? ReturnType<T[Name]['static']>
+      : void
+    : void;
 
 /**
  * Infers the type of the instance modules instance of the passed plugin.
  */
-export type InferInstancePluginModuleInstance<T extends InstancePlugin> = T extends InstancePlugin<
-  infer Name
->
-  ? T[Name]['instance'] extends (...args: any[]) => any
-    ? ReturnType<T[Name]['instance']>
-    : void
-  : void;
+export type InferInstancePluginModuleInstance<T extends InstancePlugin> =
+  T extends InstancePlugin<infer Name>
+    ? T[Name]['instance'] extends (...args: any[]) => any
+      ? ReturnType<T[Name]['instance']>
+      : void
+    : void;
 
 /** All registered plugin modules. */
 export const pluginModules: Record<string, PluginModule> = {};
@@ -140,7 +138,7 @@ export const registerPluginModuleInstances = (
   instanceInfo?: [
     instanceObj: OverlayScrollbars,
     event: InstancePluginEvent,
-    instancePluginMap?: Record<string, PluginModuleInstance>
+    instancePluginMap?: Record<string, PluginModuleInstance>,
   ]
 ): Array<PluginModuleInstance | void> =>
   keys(plugin).map((name) => {

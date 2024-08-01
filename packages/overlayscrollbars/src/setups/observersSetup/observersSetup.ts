@@ -1,3 +1,21 @@
+import type { Options, OptionsCheckFn } from '../../options';
+import type { ScrollbarsHidingPlugin } from '../../plugins';
+import type { SizeObserverCallbackParams } from '../../observers';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
+import type { Setup, SetupUpdateInfo, StructureSetupState } from '../../setups';
+import type { CacheValues, WH } from '../../support';
+import type { PlainObject } from '../../typings';
+import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '../../plugins';
+import {
+  classNameScrollbar,
+  dataAttributeHost,
+  dataAttributeViewport,
+  dataValueViewportMeasuring,
+  dataValueViewportArrange,
+  dataValueNoClipping,
+} from '../../classnames';
+import { getEnvironment } from '../../environment';
+import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '../../observers';
 import {
   ResizeObserverConstructor,
   assignDeep,
@@ -18,25 +36,7 @@ import {
   concat,
   getStyles,
   hasAttrClass,
-} from '~/support';
-import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
-import { getEnvironment } from '~/environment';
-import {
-  classNameScrollbar,
-  dataAttributeHost,
-  dataAttributeViewport,
-  dataValueViewportMeasuring,
-  dataValueViewportArrange,
-  dataValueNoClipping,
-} from '~/classnames';
-import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
-import type { Options, OptionsCheckFn } from '~/options';
-import type { ScrollbarsHidingPlugin } from '~/plugins';
-import type { SizeObserverCallbackParams } from '~/observers';
-import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
-import type { Setup, SetupUpdateInfo, StructureSetupState } from '~/setups';
-import type { CacheValues, WH } from '~/support';
-import type { PlainObject } from '~/typings';
+} from '../../support';
 
 export interface ObserversSetupState {
   _heightIntrinsic: boolean;

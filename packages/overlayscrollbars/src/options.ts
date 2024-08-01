@@ -1,3 +1,4 @@
+import type { DeepPartial, DeepReadonly } from './typings';
 import {
   assignDeep,
   each,
@@ -8,8 +9,7 @@ import {
   isFunction,
   isEmptyObject,
   concat,
-} from '~/support';
-import type { DeepPartial, DeepReadonly } from '~/typings';
+} from './support';
 
 export type OptionsField = string;
 
@@ -36,36 +36,36 @@ type OptionsObjectFieldNameTuples<T> = T extends OptionsPrimitiveValue
 
 type JoinOptionsObjectFieldTuples<
   T extends OptionsField[],
-  IncompletePath extends boolean = false
+  IncompletePath extends boolean = false,
 > = T extends [infer F]
   ? F
   : T extends [infer F, ...infer R]
-  ? F extends OptionsField
-    ?
-        | (IncompletePath extends true ? F : never)
-        | `${F}.${JoinOptionsObjectFieldTuples<Extract<R, OptionsField[]>>}`
-    : never
-  : OptionsField;
+    ? F extends OptionsField
+      ?
+          | (IncompletePath extends true ? F : never)
+          | `${F}.${JoinOptionsObjectFieldTuples<Extract<R, OptionsField[]>>}`
+      : never
+    : OptionsField;
 
 type SplitJoinedOptionsObjectFieldTuples<S extends string> = string extends S
   ? OptionsField[]
   : S extends ''
-  ? []
-  : S extends `${infer T}.${infer U}`
-  ? [T, ...SplitJoinedOptionsObjectFieldTuples<U>]
-  : [S];
+    ? []
+    : S extends `${infer T}.${infer U}`
+      ? [T, ...SplitJoinedOptionsObjectFieldTuples<U>]
+      : [S];
 
 type OptionsObjectFieldTuplesType<O, T extends OptionsField[]> = T extends [infer F]
   ? F extends keyof O
     ? O[F]
     : never
   : T extends [infer F, ...infer R]
-  ? F extends keyof O
-    ? O[F] extends OptionsPrimitiveValue
-      ? O[F]
-      : OptionsObjectFieldTuplesType<O[F], Extract<R, OptionsField[]>>
-    : never
-  : never;
+    ? F extends keyof O
+      ? O[F] extends OptionsPrimitiveValue
+        ? O[F]
+        : OptionsObjectFieldTuplesType<O[F], Extract<R, OptionsField[]>>
+      : never
+    : never;
 
 type OptionsObjectFieldPath<O extends OptionsObject> = JoinOptionsObjectFieldTuples<
   OptionsObjectFieldNameTuples<O>,
@@ -74,7 +74,7 @@ type OptionsObjectFieldPath<O extends OptionsObject> = JoinOptionsObjectFieldTup
 
 type OptionsObjectFieldPathType<
   O extends OptionsObject,
-  P extends string
+  P extends string,
 > = OptionsObjectFieldTuplesType<O, SplitJoinedOptionsObjectFieldTuples<P>>;
 
 const opsStringify = (value: any) =>
@@ -289,5 +289,7 @@ export const createOptionCheck =
     changedOptions: DeepPartial<T>,
     force?: boolean
   ): OptionsCheckFn<T> =>
-  (path) =>
-    [getPropByPath(options, path), force || getPropByPath(changedOptions, path) !== undefined];
+  (path) => [
+    getPropByPath(options, path),
+    force || getPropByPath(changedOptions, path) !== undefined,
+  ];

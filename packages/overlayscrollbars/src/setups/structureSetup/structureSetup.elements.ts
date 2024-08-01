@@ -1,3 +1,8 @@
+import type {
+  InitializationTarget,
+  InitializationTargetElement,
+  InitializationTargetObject,
+} from '../../initialization';
 import {
   isHTMLElement,
   appendChildren,
@@ -26,7 +31,7 @@ import {
   getStyles,
   strOverflowX,
   strOverflowY,
-} from '~/support';
+} from '../../support';
 import {
   dataAttributeHost,
   dataAttributeInitialize,
@@ -37,23 +42,18 @@ import {
   dataAttributeHtmlBody,
   dataValueHostIsHost,
   dataValueViewportScrolling,
-} from '~/classnames';
-import { getEnvironment } from '~/environment';
+} from '../../classnames';
+import { getEnvironment } from '../../environment';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
-} from '~/initialization';
-import type {
-  InitializationTarget,
-  InitializationTargetElement,
-  InitializationTargetObject,
-} from '~/initialization';
+} from '../../initialization';
 import { overflowIsVisible } from './structureSetup.utils';
 
 export type StructureSetupElements = [
   elements: StructureSetupElementsObj,
   appendElements: () => () => void,
-  canceled: () => void
+  canceled: () => void,
 ];
 
 export interface StructureSetupElementsObj {
