@@ -97,7 +97,7 @@ export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    this.osDirective?.osInstance()!.destroy();
+    this.osDirective?.osInstance()?.destroy();
   }
 
   mergeEvents(originalEvents: OverlayScrollbarsComponent['events']) {
