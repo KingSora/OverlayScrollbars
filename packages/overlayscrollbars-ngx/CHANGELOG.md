@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.2
+
+### Bug Fix
+
+- Fix `ngOnDestroy` in case there is no active instance. [#670](https://github.com/KingSora/OverlayScrollbars/issues/670)
+
 ## 0.5.1
 
 ### Bug Fix
