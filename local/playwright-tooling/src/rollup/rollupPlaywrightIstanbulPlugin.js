@@ -1,7 +1,7 @@
 import { createFilter } from '@rollup/pluginutils';
 import istanbul from 'istanbul-lib-instrument';
 
-export default (options = {}) => {
+export const rollupPlaywrightIstanbulPlugin = (options = {}) => {
   const filter = createFilter(options.include, options.exclude);
 
   return {

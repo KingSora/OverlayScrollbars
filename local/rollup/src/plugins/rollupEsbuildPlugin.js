@@ -9,7 +9,7 @@ const defaultLoader = {
   '.tsx': 'tsx',
 };
 
-export default ({ include, exclude, ...esbuildOptions } = {}) => {
+export const rollupEsbuildPlugin = ({ include, exclude, ...esbuildOptions } = {}) => {
   const extensions = Object.keys(defaultLoader);
   const INCLUDE_REGEXP = new RegExp(`\\.(${extensions.map((ext) => ext.slice(1)).join('|')})$`);
   const EXCLUDE_REGEXP = /node_modules/;

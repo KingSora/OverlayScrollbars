@@ -6,10 +6,10 @@ import rollupPluginStyles from 'rollup-plugin-styles';
 import rollupPluginServe from 'rollup-plugin-serve';
 import rollupPluginLivereload from 'rollup-plugin-livereload';
 import resolve from '@~local/config/resolve' with { type: 'json' };
-import rollupPluginHtml from '../plugins/html.js';
-import rollupAdditionalWatchFiles from '../plugins/additionalWatchFiles.js';
-import rollupIstanbul from '../plugins/istanbul.js';
-import createRollupConfig from '../createRollupConfig.js';
+import createRollupConfig from '@~local/rollup';
+import { rollupPlaywrightHtmlPlugin } from './rollupPlaywrightHtmlPlugin.js';
+import { rollupPlaywrightAdditionalWatchFilesPlugin } from './rollupPlaywrightAdditionalWatchFilesPlugin.js';
+import { rollupPlaywrightIstanbulPlugin } from './rollupPlaywrightIstanbulPlugin.js';
 
 const portRange = {
   min: 20000,
@@ -18,11 +18,11 @@ const portRange = {
 
 const paths = {
   outDir: './.build',
-  input: './index.browser',
+  input: './index.browser.ts',
   html: './index.html',
 };
 
-export default (testDir, useEsbuild, dev) => {
+export const rollupPlaywrightConfig = (testDir, useEsbuild, dev) => {
   const testPaths = Object.keys(paths).reduce((obj, key) => {
     obj[key] = path.resolve(testDir, paths[key]);
     return obj;
@@ -59,7 +59,7 @@ export default (testDir, useEsbuild, dev) => {
       },
       plugins: [
         rollupPluginStyles(),
-        rollupPluginHtml(`Playwright: ${name}`, htmlName, () =>
+        rollupPlaywrightHtmlPlugin(`Playwright: ${name}`, htmlName, () =>
           fs.existsSync(htmlPath) ? fs.readFileSync(htmlPath, 'utf8') : null
         ),
         rollupPluginServe({
@@ -72,7 +72,7 @@ export default (testDir, useEsbuild, dev) => {
             server = srv;
           },
         }),
-        isDev && rollupAdditionalWatchFiles([htmlPath]),
+        isDev && rollupPlaywrightAdditionalWatchFilesPlugin([htmlPath]),
         isDev &&
           rollupPluginLivereload({
             watch: outDir,
@@ -80,7 +80,7 @@ export default (testDir, useEsbuild, dev) => {
             verbose: false,
           }),
         !isDev &&
-          rollupIstanbul({
+          rollupPlaywrightIstanbulPlugin({
             include: resolve.extensions.map((extension) => `/**/*${extension}`).flat(),
             exclude: ['**/node_modules/**', `**/${path.relative(process.cwd(), testDir)}/**`],
           }),

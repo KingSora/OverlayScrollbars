@@ -89,7 +89,7 @@ const genHtmlTemplateFunc =
 </html>`;
   };
 
-export default (title, fileName, getHtmlContent) =>
+export const rollupPlaywrightHtmlPlugin = (title, fileName, getHtmlContent) =>
   rollupPluginHtml({
     title,
     fileName,

@@ -1,8 +1,8 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
-import rollupPluginCopy from '@~local/rollup/plugin/copy';
+import { rollupPackageJsonPlugin } from '@~local/rollup/plugin/rollupPackageJsonPlugin';
+import { rollupCopyPlugin } from '@~local/rollup/plugin/rollupCopyPlugin';
 
 // only used for tests
 export default defineConfig({
@@ -34,8 +34,8 @@ export default defineConfig({
         },
       ],
       plugins: [
-        rollupPluginCopy({ paths: ['README.md', 'CHANGELOG.md'] }),
-        rollupPluginPackageJson({
+        rollupCopyPlugin({ paths: ['README.md', 'CHANGELOG.md'] }),
+        rollupPackageJsonPlugin({
           json: ({
             name,
             version,

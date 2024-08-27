@@ -11,7 +11,7 @@ import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import rollupPluginVirtual from '@rollup/plugin-virtual';
 import rollupPluginTs from 'rollup-plugin-typescript2';
 import rollupPluginLicense from 'rollup-plugin-license';
-import rollupPluginEsBuild from '../plugins/esbuild.js';
+import { rollupEsbuildPlugin } from '../plugins/rollupEsbuildPlugin.js';
 import babelConfigEs5 from './babel.config.es5.js';
 import babelConfigEs6 from './babel.config.es2015.js';
 
@@ -56,7 +56,7 @@ export default {
     }
   },
   rollupEsBuild: (sourcemap) =>
-    rollupPluginEsBuild({
+    rollupEsbuildPlugin({
       sourcemap,
       target: 'es6',
     }),

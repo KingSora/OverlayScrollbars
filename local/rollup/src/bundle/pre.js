@@ -1,7 +1,7 @@
 import buildPlugins from './plugins.js';
-import rollupPluginClean from '../plugins/clean.js';
-import rollupPluginCopy from '../plugins/copy.js';
-import rollupPluginPackageJson from '../plugins/packageJson.js';
+import { rollupCleanPlugin } from '../plugins/rollupCleanPlugin.js';
+import { rollupCopyPlugin } from '../plugins/rollupCopyPlugin.js';
+import { rollupPackageJsonPlugin } from '../plugins/rollupPackageJsonPlugin.js';
 
 const { rollupVirtual } = buildPlugins;
 
@@ -30,9 +30,9 @@ export default (_, options) => {
           console.log('OPTIONS : ', options);
         },
       },
-      clean && outDir !== projectDir && rollupPluginClean({ paths: [outDir], verbose }),
-      extractPackageJson && rollupPluginPackageJson(extractPackageJson),
-      copy && rollupPluginCopy({ paths: copy, verbose }),
+      clean && outDir !== projectDir && rollupCleanPlugin({ paths: [outDir], verbose }),
+      extractPackageJson && rollupPackageJsonPlugin(extractPackageJson),
+      copy && rollupCopyPlugin({ paths: copy, verbose }),
       rollupVirtual({
         preBuild: '',
       }),

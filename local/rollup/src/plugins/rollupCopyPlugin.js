@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 
-export default ({ paths = [], verbose = false } = {}) => {
+export const rollupCopyPlugin = ({ paths = [], verbose = false } = {}) => {
   return {
     name: 'copy',
     buildStart() {

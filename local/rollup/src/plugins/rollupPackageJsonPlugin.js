@@ -1,7 +1,11 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-export default ({ input = 'package.json', output = 'package.json', json } = {}) => {
+export const rollupPackageJsonPlugin = ({
+  input = 'package.json',
+  output = 'package.json',
+  json,
+} = {}) => {
   const resolvedInput = path.resolve(input);
 
   return {

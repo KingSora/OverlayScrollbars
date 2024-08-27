@@ -1,11 +1,11 @@
 import { dirname } from 'node:path';
 import { watch as rollupWatch } from 'rollup';
 import { test } from '@playwright/test';
-import createPlaywrightRollupConfig from '@~local/rollup/playwright';
+import { rollupPlaywrightConfig } from './rollup/rollupPlaywrightConfig.js';
 import collectCoverage from './collectCoverage.js';
 
 const createRollupBundle = async (testDir, useEsbuild, dev) => {
-  const [config, getServer] = await createPlaywrightRollupConfig(testDir, useEsbuild, dev);
+  const [config, getServer] = rollupPlaywrightConfig(testDir, useEsbuild, dev);
   const watcher = rollupWatch(config);
 
   const outputPath = await new Promise((resolve) => {

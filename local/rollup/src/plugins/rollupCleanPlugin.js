@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 
-export default ({ paths = [], verbose = false } = {}) => {
+export const rollupCleanPlugin = ({ paths = [], verbose = false } = {}) => {
   let cleaned = false;
   return {
     name: 'clean',

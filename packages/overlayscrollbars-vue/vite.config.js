@@ -2,8 +2,8 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
-import rollupPluginCopy from '@~local/rollup/plugin/copy';
+import { rollupPackageJsonPlugin } from '@~local/rollup/plugin/rollupPackageJsonPlugin';
+import { rollupCopyPlugin } from '@~local/rollup/plugin/rollupCopyPlugin';
 
 export default defineConfig({
   build: {
@@ -42,8 +42,8 @@ export default defineConfig({
         },
       ],
       plugins: [
-        rollupPluginCopy({ paths: ['README.md', 'CHANGELOG.md'] }),
-        rollupPluginPackageJson({
+        rollupCopyPlugin({ paths: ['README.md', 'CHANGELOG.md'] }),
+        rollupPackageJsonPlugin({
           json: ({
             name,
             version,

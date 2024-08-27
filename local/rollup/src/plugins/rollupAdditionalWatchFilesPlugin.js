@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-export default (files) => ({
+export const rollupAdditionalWatchFilesPlugin = (files) => ({
   buildStart() {
     if (files) {
       files.forEach((file) => {
