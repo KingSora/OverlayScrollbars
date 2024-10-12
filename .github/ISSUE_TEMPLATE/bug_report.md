@@ -24,8 +24,14 @@ A clear and concise description of what you expected to happen.
 Please create a small example of the bug.
 To do this you can use online platforms like [JSFiddle](https://jsfiddle.net/), [CodeSandbox](https://codesandbox.io/) or [StackBlitz](https://stackblitz.com/). You can also create a separate Github repository which I can clone.
 
+As a starting point you could use one of these templates:
+- Vanilla Javascript: https://stackblitz.com/edit/vitejs-vite-bv459t
+- React: https://stackblitz.com/edit/vitejs-vite-ou12p3
+- Vue: https://stackblitz.com/edit/vitejs-vite-8bbg5d
+
 **Environment**
 
+- OverlayScrollbars version:
 - Used Operating System(s):
 - Used Browser(s) (with version):
 
