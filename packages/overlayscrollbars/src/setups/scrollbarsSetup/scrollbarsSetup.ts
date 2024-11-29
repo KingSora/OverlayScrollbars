@@ -65,9 +65,11 @@ export const createScrollbarsSetup = (
   let prevTheme: string | null | undefined;
   let instanceAutoHideSuspendScrollDestroyFn = noop;
   let instanceAutoHideDelay = 0;
+  const hoverablePointerTypes = ['mouse', 'pen'];
 
-  // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
-  const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
+  // needed to not fire unnecessary operations for pointer events on ios safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
+  const isHoverablePointerType = (event: PointerEvent) =>
+    hoverablePointerTypes.includes(event.pointerType);
 
   const [requestScrollAnimationFrame, cancelScrollAnimationFrame] = selfClearTimeout();
   const [autoHideInstantInteractionTimeout, clearAutoHideInstantInteractionTimeout] =
