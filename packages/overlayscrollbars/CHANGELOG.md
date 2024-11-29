@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.10.1
+
+### Improvements
+
+- Add `pen` to the list of "hoverable" pointer devices. [#690](https://github.com/KingSora/OverlayScrollbars/issues/690)
+
 ## 2.10.0
 
 ### Features
