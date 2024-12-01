@@ -443,31 +443,36 @@ flexReverseButton?.addEventListener('click', () => {
 startButton?.addEventListener('click', async () => {
   setTestResult(null);
 
-  await scrollInstances();
+  try {
+    await scrollInstances();
 
-  runScrollCoordinates();
+    runScrollCoordinates();
 
-  // first block (ltr)
-  await runBlock();
+    // first block (ltr)
+    await runBlock();
 
-  // second block (rtl)
-  directionRTLButton!.click();
-  stageResizer!.removeAttribute('style');
-  await timeout(100);
-  await scrollInstances();
-  await runBlock();
+    // second block (rtl)
+    directionRTLButton!.click();
+    stageResizer!.removeAttribute('style');
+    await timeout(100);
+    await scrollInstances();
+    await runBlock();
 
-  await timeout(500);
+    await timeout(500);
 
-  await runScrollCoordinatesAfterHidden();
-  await scrollInstances();
+    await runScrollCoordinatesAfterHidden();
+    await scrollInstances();
 
-  await runUpdateAndScrollInstances();
+    await runUpdateAndScrollInstances();
 
-  if (clickErrors.length > 0) {
+    if (clickErrors.length > 0) {
+      setTestResult(false);
+    } else {
+      setTestResult(true);
+    }
+  } catch (e) {
     setTestResult(false);
-  } else {
-    setTestResult(true);
+    throw e;
   }
 });
 

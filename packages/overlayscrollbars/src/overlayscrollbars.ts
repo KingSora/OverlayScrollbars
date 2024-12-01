@@ -1,3 +1,33 @@
+import type { XY, TRBL } from './support';
+import type { Options, PartialOptions, ReadonlyOptions } from './options';
+import type {
+  InferInstancePluginModuleInstance,
+  InferStaticPluginModuleInstance,
+  InstancePlugin,
+  OptionsValidationPlugin,
+  Plugin,
+  PluginModuleInstance,
+  StaticPlugin,
+} from './plugins';
+import type { Initialization, InitializationTarget, PartialInitialization } from './initialization';
+import type { OverflowStyle } from './typings';
+import type { EventListenerArgs, EventListener, EventListeners } from './eventListeners';
+import type {
+  ScrollbarsSetupElement,
+  ScrollbarStructure,
+} from './setups/scrollbarsSetup/scrollbarsSetup.elements';
+import {
+  addPlugins,
+  getStaticPluginModuleInstance,
+  optionsValidationPluginModuleName,
+  pluginModules,
+  registerPluginModuleInstances,
+} from './plugins';
+import { createSetups } from './setups';
+import { addInstance, getInstance, removeInstance } from './instances';
+import { cancelInitialization } from './initialization';
+import { getEnvironment } from './environment';
+import { getOptionsDiff } from './options';
 import {
   assignDeep,
   isEmptyObject,
@@ -11,37 +41,8 @@ import {
   runEachAndClear,
   bind,
   removeUndefinedProperties,
-} from '~/support';
-import { getOptionsDiff } from '~/options';
-import { getEnvironment } from '~/environment';
-import { cancelInitialization } from '~/initialization';
-import { addInstance, getInstance, removeInstance } from '~/instances';
-import { createSetups } from '~/setups';
-import {
-  addPlugins,
-  getStaticPluginModuleInstance,
-  optionsValidationPluginModuleName,
-  pluginModules,
-  registerPluginModuleInstances,
-} from '~/plugins';
-import type { XY, TRBL } from '~/support';
-import type { Options, PartialOptions, ReadonlyOptions } from '~/options';
-import type {
-  InferInstancePluginModuleInstance,
-  InferStaticPluginModuleInstance,
-  InstancePlugin,
-  OptionsValidationPlugin,
-  Plugin,
-  PluginModuleInstance,
-  StaticPlugin,
-} from '~/plugins';
-import type { Initialization, InitializationTarget, PartialInitialization } from '~/initialization';
-import type { OverflowStyle } from '~/typings';
-import type { EventListenerArgs, EventListener, EventListeners } from '~/eventListeners';
-import type {
-  ScrollbarsSetupElement,
-  ScrollbarStructure,
-} from '~/setups/scrollbarsSetup/scrollbarsSetup.elements';
+} from './support';
+import { setNonce } from './nonce';
 
 // Notes:
 // Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
@@ -107,6 +108,19 @@ export interface OverlayScrollbarsStatic {
   ): OverlayScrollbars;
 
   /**
+   * Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
+   * @param osInstance The value which shall be checked.
+   */
+  valid(osInstance: any): osInstance is OverlayScrollbars;
+  /**
+   * Gets the environment.
+   */
+  env(): Environment;
+  /**
+   * Sets the nonce attribute for inline styles.
+   */
+  nonce(newNonce: string | undefined): void;
+  /**
    * Adds a single plugin.
    * @param plugin The plugin to be added.
    * @returns The plugins static modules instance or `void` if no instance was found.
@@ -126,16 +140,6 @@ export interface OverlayScrollbarsStatic {
         [K in keyof P]: P[K] extends StaticPlugin ? InferStaticPluginModuleInstance<P[K]> : void;
       }
     : void;
-
-  /**
-   * Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
-   * @param osInstance The value which shall be checked.
-   */
-  valid(osInstance: any): osInstance is OverlayScrollbars;
-  /**
-   * Gets the environment.
-   */
-  env(): Environment;
 }
 
 /**
@@ -529,7 +533,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
     triggerEvent('initialized', [instance]);
 
-    instance.update(true);
+    instance.update();
 
     return instance;
   }
@@ -581,3 +585,4 @@ OverlayScrollbars.env = () => {
     }
   );
 };
+OverlayScrollbars.nonce = setNonce;

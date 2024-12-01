@@ -1,10 +1,6 @@
 {
   "extends": "@vue/tsconfig/tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./src/*"]
-    },
     "jsx": "preserve",
     "types": ["jest", "@testing-library/jest-dom"]
   }

@@ -1,3 +1,4 @@
 {
   "extends": "@~local/tsconfig",
+  "exclude": ["**/dist/**/*", "**/build/**/*"]
 }

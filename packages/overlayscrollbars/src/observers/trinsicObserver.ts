@@ -1,3 +1,6 @@
+import type { WH, CacheValues } from '../support';
+import { createSizeObserver } from './sizeObserver';
+import { classNameTrinsicObserver } from '../classnames';
 import {
   createDiv,
   getOffsetSize,
@@ -7,15 +10,12 @@ import {
   IntersectionObserverConstructor,
   appendChildren,
   bind,
-} from '~/support';
-import { createSizeObserver } from '~/observers/sizeObserver';
-import { classNameTrinsicObserver } from '~/classnames';
-import type { WH, CacheValues } from '~/support';
+} from '../support';
 
 export type TrinsicObserverCallback = (heightIntrinsic: CacheValues<boolean>) => any;
 export type TrinsicObserver = [
   construct: () => () => void,
-  update: () => void | false | null | undefined | Parameters<TrinsicObserverCallback>
+  update: () => void | false | null | undefined | Parameters<TrinsicObserverCallback>,
 ];
 
 /**

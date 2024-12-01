@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   project: null,
   verbose: false,
   banner: null,

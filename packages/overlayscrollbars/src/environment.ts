@@ -1,3 +1,9 @@
+import type { XY, EventListener } from './support';
+import type { Options, PartialOptions } from './options';
+import type { Initialization, PartialInitialization } from './initialization';
+import type { StyleObjectKey } from './typings';
+import { defaultOptions } from './options';
+import { classNameEnvironment, classNameEnvironmentScrollbarHidden } from './classnames';
 import {
   createDOM,
   addClass,
@@ -18,13 +24,8 @@ import {
   isBodyElement,
   isFunction,
   addEventListener,
-} from '~/support';
-import { classNameEnvironment, classNameEnvironmentScrollbarHidden } from '~/classnames';
-import { defaultOptions } from '~/options';
-import type { XY, EventListener } from '~/support';
-import type { Options, PartialOptions } from '~/options';
-import type { Initialization, PartialInitialization } from '~/initialization';
-import type { StyleObjectKey } from './typings';
+} from './support';
+import { getNonce } from './nonce';
 
 type EnvironmentEventArgs = {
   r: [scrollbarSizeChanged?: boolean];
@@ -87,6 +88,13 @@ const createEnvironment = (): Env => {
   );
   const envElm = envDOM[0] as HTMLElement;
   const envChildElm = envElm.firstChild as HTMLElement;
+  const styleElm = envElm.lastChild as HTMLStyleElement;
+  const nonce = getNonce();
+
+  if (nonce) {
+    styleElm.nonce = nonce;
+  }
+
   const [addEvent, , triggerEvent] = createEventListenerHub<EnvironmentEventArgs>();
   const [updateNativeScrollbarSizeCache, getNativeScrollbarSizeCache] = createCache(
     {
@@ -184,11 +192,9 @@ const createEnvironment = (): Env => {
   return env;
 };
 
-const getEnvironment = (): Env => {
+export const getEnvironment = (): Env => {
   if (!environmentInstance) {
     environmentInstance = createEnvironment();
   }
   return environmentInstance;
 };
-
-export { getEnvironment };

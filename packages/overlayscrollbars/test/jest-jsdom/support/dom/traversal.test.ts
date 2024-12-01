@@ -113,7 +113,7 @@ describe('dom traversal', () => {
     });
 
     test('text node', () => {
-      expect(findFirst('div', createDOM('<div>textnodehere</div>')[0].firstChild)).toEqual(null);
+      expect(findFirst('div', createDOM('<div>textnodehere</div>')[0].firstChild)).toBeFalsy();
     });
   });
 

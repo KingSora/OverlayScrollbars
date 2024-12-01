@@ -3,9 +3,9 @@ import { describe, test, afterEach, expect, vitest, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
 import type { RefObject } from 'react';
-import type { OverlayScrollbarsComponentRef } from '~/overlayscrollbars-react';
+import type { OverlayScrollbarsComponentRef } from '../src/overlayscrollbars-react';
+import { OverlayScrollbarsComponent } from '../src/overlayscrollbars-react';
 
 vi.useFakeTimers({
   toFake: [
@@ -232,38 +232,39 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('events', () => {
-    const onUpdatedInitial = vitest.fn();
+    const onInitialized = vitest.fn();
     const onUpdated = vitest.fn();
+    const onUpdated2 = vitest.fn();
     const ref: RefObject<OverlayScrollbarsComponentRef> = { current: null };
     const { rerender } = render(
-      <OverlayScrollbarsComponent events={{ updated: onUpdatedInitial }} ref={ref} />
+      <OverlayScrollbarsComponent events={{ initialized: onInitialized }} ref={ref} />
     );
     const instance = ref.current!.osInstance()!;
 
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
 
     rerender(<OverlayScrollbarsComponent events={{ updated: onUpdated }} ref={ref} />);
 
     expect(onUpdated).not.toHaveBeenCalled();
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(1);
+    expect(onUpdated2).toHaveBeenCalledTimes(0);
 
     rerender(
-      <OverlayScrollbarsComponent events={{ updated: [onUpdated, onUpdatedInitial] }} ref={ref} />
+      <OverlayScrollbarsComponent events={{ updated: [onUpdated, onUpdated2] }} ref={ref} />
     );
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
     // unregister with `[]`, `null` or `undefined`
     rerender(<OverlayScrollbarsComponent events={{ updated: null }} ref={ref} />);
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
     // instance didn't change
     expect(instance).toBe(ref.current!.osInstance());
@@ -271,15 +272,15 @@ describe('OverlayScrollbarsComponent', () => {
     rerender(
       <OverlayScrollbarsComponent
         element="span"
-        events={{ updated: [onUpdated, onUpdatedInitial] }}
+        events={{ updated: [onUpdated, onUpdated2] }}
         ref={ref as any as RefObject<OverlayScrollbarsComponentRef<'span'>>}
       />
     );
 
     const newElementInstance = ref.current!.osInstance()!;
     expect(newElementInstance).not.toBe(instance);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
 
     // reset events with `undefined`, `null`, `false` or `{}`
     rerender(
@@ -292,8 +293,9 @@ describe('OverlayScrollbarsComponent', () => {
 
     newElementInstance.update(true);
     expect(newElementInstance).toBe(ref.current!.osInstance());
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
   });
 
   test('destroy', () => {

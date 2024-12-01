@@ -1,9 +1,9 @@
-import type { PlainObject, StyleObject, StyleObjectKey, StyleObjectValue } from '~/typings';
+import type { PlainObject, StyleObject, StyleObjectKey, StyleObjectValue } from '../../typings';
 import type { XY } from './offset';
 import type { HTMLElementTarget } from './types';
 import { wnd } from '../utils/alias';
 import { each, from } from '../utils/array';
-import { isString, isNumber, isObject } from '../utils/types';
+import { isString, isNumber, isObject, isNull, isBoolean } from '../utils/types';
 
 export interface TRBL {
   t: number;
@@ -11,8 +11,6 @@ export interface TRBL {
   b: number;
   l: number;
 }
-
-const customCssPropRegex = /^--/;
 
 const getCSSVal = (computedStyle: CSSStyleDeclaration, prop: StyleObjectKey): string =>
   computedStyle.getPropertyValue(prop) || computedStyle[prop as any] || '';
@@ -24,10 +22,12 @@ const validFiniteNumber = (number: number) => {
 
 const parseToZeroOrNumber = (value?: string): number => validFiniteNumber(parseFloat(value || ''));
 
-export const ratioToCssPercent = (ratio: number) =>
-  `${(validFiniteNumber(ratio) * 100).toFixed(3)}%`;
+export const roundCssNumber = (value: number) => Math.round(value * 10000) / 10000;
 
-export const numberToCssPx = (number: number) => `${validFiniteNumber(number)}px`;
+export const ratioToCssPercent = (ratio: number) =>
+  `${roundCssNumber(validFiniteNumber(ratio) * 100)}%`;
+
+export const numberToCssPx = (number: number) => `${roundCssNumber(validFiniteNumber(number))}px`;
 
 export function setStyles(
   elm: HTMLElementTarget,
@@ -38,9 +38,14 @@ export function setStyles(
     each(styles, (rawValue: StyleObjectValue, name) => {
       try {
         const elmStyle = elm.style;
-        const value = isNumber(rawValue) ? numberToCssPx(rawValue) : (rawValue || '') + '';
+        const value =
+          isNull(rawValue) || isBoolean(rawValue)
+            ? ''
+            : isNumber(rawValue)
+              ? numberToCssPx(rawValue)
+              : rawValue;
 
-        if (customCssPropRegex.test(name)) {
+        if (name.indexOf('--') === 0) {
           elmStyle.setProperty(name, value);
         } else {
           elmStyle[name as any] = value;

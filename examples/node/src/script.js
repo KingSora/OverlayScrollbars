@@ -1,5 +1,12 @@
 import 'overlayscrollbars/overlayscrollbars.css';
-import { OverlayScrollbars } from 'OverlayScrollbars';
+import { OverlayScrollbars, ClickScrollPlugin } from 'OverlayScrollbars';
 
-OverlayScrollbars(document.body, {});
+// optional: use the ClickScrollPlugin to make the option "scrollbars.clickScroll: true" available
+OverlayScrollbars.plugin(ClickScrollPlugin);
+
+OverlayScrollbars(document.body, {
+  scrollbars: {
+    clickScroll: true,
+  },
+});
 OverlayScrollbars(document.getElementById('target'), {});

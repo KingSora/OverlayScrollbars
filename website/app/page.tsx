@@ -65,8 +65,8 @@ const IndexPage = () => {
         Scrollbars
       </h1>
       <p className="text-center mx-auto max-w-screen-sm my-11 font-medium">
-        A javascript scrollbar plugin that hides native scrollbars, provides custom styleable
-        overlay scrollbars and keeps the native functionality and feeling.
+        A javascript scrollbar plugin that hides the native scrollbars, provides custom styleable
+        overlay scrollbars, and preserves the native functionality and feel.
       </p>
 
       {separator('used by')}

@@ -1,7 +1,2 @@
-const playwrightRollup = require('./playwrightRollup');
-const expectSuccess = require('./expectSuccess');
-
-module.exports = {
-  playwrightRollup,
-  expectSuccess,
-};
+export { default as playwrightRollup } from './playwrightRollup.js';
+export { default as expectSuccess } from './expectSuccess.js';

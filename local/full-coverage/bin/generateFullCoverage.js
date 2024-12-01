@@ -1,10 +1,14 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const { execSync } = require('child_process');
-const { join, dirname, basename } = require('path');
-const { coverageDirectory, tmpCoverageDirectory } = require('@~local/config/full-coverage');
-const { coverageDirectory: playwrightCoverage } = require('@~local/config/playwright.coverage');
-const { coverageDirectory: jestCoverage } = require('@~local/config/jest');
+import fs from 'node:fs';
+import { execSync } from 'node:child_process';
+import { join, dirname, basename } from 'node:path';
+import fullCoverageConfig from '@~local/config/full-coverage';
+import playwrightCoverageConfig from '@~local/config/playwright.coverage';
+import jestCoverageConfig from '@~local/config/jest';
+
+const { coverageDirectory, tmpCoverageDirectory } = fullCoverageConfig;
+const { coverageDirectory: playwrightCoverage } = playwrightCoverageConfig;
+const { coverageDirectory: jestCoverage } = jestCoverageConfig;
 
 const reportFileName = 'coverage-final.json';
 

@@ -1,15 +1,16 @@
 {
   "name": "@~local/config",
+  "type": "module",
   "private": true,
   "exports": {
     "./resolve": "./src/resolve.json",
     "./playwright": "./src/playwright.js",
     "./playwright.coverage": "./src/playwright.coverage.js",
     "./jest": "./src/jest.js",
-    "./jest-babel": "./src/jest.babel.js",
+    "./jest-babel": "./src/jest.babel.cjs",
     "./full-coverage": "./src/full-coverage.js",
-    "./vitest": "./src/vitest.mjs",
-    "./vitest.new-jsdom.env": "./src/vitest.new-jsdom.env.mjs"
+    "./vitest": "./src/vitest.js",
+    "./vitest.new-jsdom.env": "./src/vitest.new-jsdom.env.js"
   },
   "version": "0.0.0"
 }

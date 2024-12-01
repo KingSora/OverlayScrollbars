@@ -1,6 +1,7 @@
 {
   "name": "overlayscrollbars-solid",
   "private": true,
+  "type": "module",
   "version": "0.5.5",
   "description": "OverlayScrollbars for Solid.",
   "author": "Rene Haas | KingSora",
@@ -34,9 +35,9 @@
     "solid-js": "^1.7.0"
   },
   "devDependencies": {
+    "@solidjs/testing-library": "^0.8.9",
     "overlayscrollbars": "file:./../overlayscrollbars/dist",
     "solid-js": "^1.7.0",
-    "solid-testing-library": "^0.5.0",
     "typescript": "^5.0.0",
     "vite-plugin-solid": "^2.8.0"
   },

@@ -61,6 +61,7 @@
       {
         scrollbars: {
           theme: 'os-theme-light',
+          clickScroll: true,
         },
       }
     ).state().destroyed;
@@ -109,7 +110,7 @@
       OverlayScrollbars Svelte
     </a>
   </h1>
-  <section class="slot">
+  <section>
     {#if useOverlayScrollbars}
       <OverlayScrollbarsComponent
         bind:this={osRef}

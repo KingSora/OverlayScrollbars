@@ -1,4 +1,8 @@
 declare module '@~local/playwright-tooling' {
-  export function playwrightRollup(useEsbuild?: boolean): void;
+  export interface PlaywrightRollupOptions {
+    useEsbuild?: boolean;
+    adaptUrl?: (originalUrl: string) => string;
+  }
+  export function playwrightRollup(options?: PlaywrightRollupOptions): void;
   export function expectSuccess(page: any): Promise<void>;
 }

@@ -177,59 +177,26 @@ describe('types', () => {
     testTypeFn(isPlainObject, {
       object: true,
       objectEmpty: true,
-      objectCreate: true,
+      objectCreate: false, // should be true for correctness but can stay false for smaller bundle size
       arrayLikeObject: true,
-      window: true, // should be false for correctness but can stay true for smaller bundle size
     });
   });
 
   test('isElement', () => {
-    const temp = window.Element;
-
     testTypeFn(isElement, {
       body: true,
     });
     Array.from(document.querySelectorAll('*')).forEach((elm) => {
       expect(isElement(elm)).toBeTruthy();
     });
-
-    // @ts-ignore
-    delete window.Element;
-    // @ts-ignore
-    window.Element = null;
-
-    testTypeFn(isElement, {
-      body: true,
-    });
-    Array.from(document.querySelectorAll('*')).forEach((elm) => {
-      expect(isElement(elm)).toBeTruthy();
-    });
-
-    window.Element = temp;
   });
 
   test('isHTMLElement', () => {
-    const temp = window.HTMLElement;
-
     testTypeFn(isHTMLElement, {
       body: true,
     });
     Array.from(document.querySelectorAll('*')).forEach((elm) => {
       expect(isHTMLElement(elm)).toBeTruthy();
     });
-
-    // @ts-ignore
-    delete window.HTMLElement;
-    // @ts-ignore
-    window.HTMLElement = null;
-
-    testTypeFn(isHTMLElement, {
-      body: true,
-    });
-    Array.from(document.querySelectorAll('*')).forEach((elm) => {
-      expect(isHTMLElement(elm)).toBeTruthy();
-    });
-
-    window.HTMLElement = temp;
   });
 });

@@ -1,3 +1,21 @@
+import type { Options, OptionsCheckFn } from '../../options';
+import type { ScrollbarsHidingPlugin } from '../../plugins';
+import type { SizeObserverCallbackParams } from '../../observers';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
+import type { Setup, SetupUpdateInfo, StructureSetupState } from '../../setups';
+import type { CacheValues, WH } from '../../support';
+import type { PlainObject } from '../../typings';
+import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '../../plugins';
+import {
+  classNameScrollbar,
+  dataAttributeHost,
+  dataAttributeViewport,
+  dataValueViewportMeasuring,
+  dataValueViewportArrange,
+  dataValueNoClipping,
+} from '../../classnames';
+import { getEnvironment } from '../../environment';
+import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '../../observers';
 import {
   ResizeObserverConstructor,
   assignDeep,
@@ -18,25 +36,7 @@ import {
   concat,
   getStyles,
   hasAttrClass,
-} from '~/support';
-import { createDOMObserver, createSizeObserver, createTrinsicObserver } from '~/observers';
-import { getEnvironment } from '~/environment';
-import {
-  classNameScrollbar,
-  dataAttributeHost,
-  dataAttributeViewport,
-  dataValueViewportMeasuring,
-  dataValueViewportArrange,
-  dataValueNoClipping,
-} from '~/classnames';
-import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '~/plugins';
-import type { Options, OptionsCheckFn } from '~/options';
-import type { ScrollbarsHidingPlugin } from '~/plugins';
-import type { SizeObserverCallbackParams } from '~/observers';
-import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
-import type { Setup, SetupUpdateInfo, StructureSetupState } from '~/setups';
-import type { CacheValues, WH } from '~/support';
-import type { PlainObject } from '~/typings';
+} from '../../support';
 
 export interface ObserversSetupState {
   _heightIntrinsic: boolean;
@@ -80,20 +80,18 @@ export const createObserversSetup = (
   // TODO: observer textarea attrs if textarea
 
   const viewportSelector = `[${dataAttributeViewport}]`;
-  const viewportAttrsFromTarget = [] as const;
-  const baseStyleChangingAttrsTextarea = ['wrap', 'cols', 'rows'] as const;
-  const baseStyleChangingAttrs = ['id', 'class', 'style', 'open'] as const;
+  const baseStyleChangingAttrs = ['id', 'class', 'style', 'open', 'wrap', 'cols', 'rows'];
   const {
     _target,
     _host,
     _viewport,
     _scrollOffsetElement,
     _content,
-    _isTextarea,
     _viewportIsTarget,
     _isBody,
     _viewportHasClass,
     _viewportAddRemoveClass,
+    _removeScrollObscuringStyles,
   } = structureSetupElements;
 
   const getDirectionIsRTL = (elm: HTMLElement): boolean => getStyles(elm, 'direction') === 'rtl';
@@ -128,6 +126,7 @@ export const createObserversSetup = (
         !viewportIsTargetBody && hasAttrClass(_host, dataAttributeHost, dataValueNoClipping);
       const isArranged = !_viewportIsTarget && _viewportHasClass(dataValueViewportArrange);
       const scrollOffset = isArranged && getElementScroll(_scrollOffsetElement);
+      const revertScrollObscuringStyles = scrollOffset && _removeScrollObscuringStyles();
 
       const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, noClipping);
       const redoViewportArrange = isArranged && _undoViewportArrange && _undoViewportArrange()[0];
@@ -137,6 +136,7 @@ export const createObserversSetup = (
       redoViewportArrange && redoViewportArrange();
 
       scrollElementTo(_scrollOffsetElement, scrollOffset);
+      revertScrollObscuringStyles && revertScrollObscuringStyles();
       noClipping && revertMeasuring();
 
       return {
@@ -145,10 +145,6 @@ export const createObserversSetup = (
       };
     }
   );
-
-  const contentMutationObserverAttr = _isTextarea
-    ? baseStyleChangingAttrsTextarea
-    : concat(baseStyleChangingAttrs, baseStyleChangingAttrsTextarea);
 
   const onObserversUpdatedDebounced = debounce(onObserversUpdated, {
     _timeout: () => debounceTimeout,
@@ -171,21 +167,6 @@ export const createObserversSetup = (
     assignDeep(state, { _directionIsRTL: newDirectionIsRTL });
     prevDirectionIsRTL = newDirectionIsRTL;
   };
-
-  /*
-  const updateViewportAttrsFromHost = (attributes?: string[]) => {
-    each(attributes || viewportAttrsFromTarget, (attribute) => {
-      if (inArray(viewportAttrsFromTarget, attribute)) {
-        const hostAttr = getAttr(_host, attribute);
-        if (isString(hostAttr)) {
-          setAttrs(_viewport, attribute, hostAttr);
-        } else {
-          removeAttrs(_viewport, attribute);
-        }
-      }
-    });
-  };
-  */
 
   const onTrinsicChanged = (
     heightIntrinsicCache: CacheValues<boolean>,
@@ -280,7 +261,7 @@ export const createObserversSetup = (
     onHostMutation,
     {
       _styleChangingAttributes: baseStyleChangingAttrs,
-      _attributes: concat(baseStyleChangingAttrs, viewportAttrsFromTarget),
+      _attributes: baseStyleChangingAttrs,
     }
   );
 
@@ -352,7 +333,7 @@ export const createObserversSetup = (
           true,
           onContentMutation,
           {
-            _attributes: concat(contentMutationObserverAttr, attributes || []),
+            _attributes: concat(baseStyleChangingAttrs, attributes || []),
             _eventContentChange: elementEvents,
             _nestedTargetSelector: hostSelector,
             _ignoreContentChange: (mutation, isNestedTarget) => {

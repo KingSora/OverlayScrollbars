@@ -10,7 +10,11 @@ const initBodyOverlayScrollbars = (force?: boolean) =>
         body: force ? false : null,
       },
     },
-    {}
+    {
+      scrollbars: {
+        clickScroll: true,
+      },
+    }
   ).state().destroyed;
 
 const toggleBodyOverlayScrollbarsSection = document.querySelector(

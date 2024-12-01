@@ -1,3 +1,11 @@
+import type { OptionsCheckFn, Options, PartialOptions, ReadonlyOptions } from '../options';
+import type { DeepReadonly } from '../typings';
+import type { InitializationTarget } from '../initialization';
+import type { ObserversSetupState, ObserversSetupUpdateHints } from './observersSetup';
+import type { StructureSetupState, StructureSetupUpdateHints } from './structureSetup';
+import type { StructureSetupElementsObj } from './structureSetup/structureSetup.elements';
+import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup/scrollbarsSetup.elements';
+import { createOptionCheck } from '../options';
 import {
   assignDeep,
   bind,
@@ -6,15 +14,7 @@ import {
   keys,
   runEachAndClear,
   scrollElementTo,
-} from '~/support';
-import { createOptionCheck } from '~/options';
-import type { OptionsCheckFn, Options, PartialOptions, ReadonlyOptions } from '~/options';
-import type { DeepReadonly } from '~/typings';
-import type { InitializationTarget } from '~/initialization';
-import type { ObserversSetupState, ObserversSetupUpdateHints } from './observersSetup';
-import type { StructureSetupState, StructureSetupUpdateHints } from './structureSetup';
-import type { StructureSetupElementsObj } from './structureSetup/structureSetup.elements';
-import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup/scrollbarsSetup.elements';
+} from '../support';
 import { createObserversSetup } from './observersSetup';
 import { createScrollbarsSetup } from './scrollbarsSetup';
 import { createStructureSetup } from './structureSetup';
@@ -30,14 +30,14 @@ export type SetupUpdateInfo = {
 export type Setup<
   U extends SetupUpdateInfo,
   S extends Readonly<Record<string, any>>,
-  H extends SetupUpdateHints | void
+  H extends SetupUpdateHints | void,
 > = [
   /** The create function which returns the `destroy` function. */
   _create: () => () => void,
   /** Function which updates the setup and returns the update result. */
   _update: (updateInfo: U) => H,
   /** Function which returns the current state. */
-  _state: S
+  _state: S,
 ];
 
 export interface SetupsUpdateInfo {
@@ -71,7 +71,7 @@ export type Setups = [
   update: (updateInfo: SetupsUpdateInfo) => boolean,
   getState: () => SetupsState,
   elements: SetupsElements,
-  canceled: () => void
+  canceled: () => void,
 ];
 
 export const createSetups = (
@@ -81,6 +81,7 @@ export const createSetups = (
   onUpdated: (updateInfo: SetupsUpdateInfo, updateHints: SetupsUpdateHints) => void,
   onScroll: (scrollEvent: Event) => void
 ): Setups => {
+  let cacheAndOptionsInitialized = false;
   const getCurrentOption = createOptionCheck(options, {});
   const [
     structureSetupCreate,
@@ -125,8 +126,9 @@ export const createSetups = (
       _takeRecords,
       _cloneScrollbar,
     } = updateInfo;
+
     const _changedOptions = rawChangedOptions || {};
-    const _force = !!rawForce;
+    const _force = !!rawForce || !cacheAndOptionsInitialized;
     const baseUpdateInfoObj: SetupUpdateInfo = {
       _checkOption: createOptionCheck(options, _changedOptions, _force),
       _changedOptions,
@@ -152,6 +154,7 @@ export const createSetups = (
         _observersUpdateHints: observersHints,
       })
     );
+
     scrollbarsSetupUpdate(
       assignDeep({}, baseUpdateInfoObj, {
         _observersUpdateHints: observersHints,
@@ -164,6 +167,8 @@ export const createSetups = (
     const changed =
       truthyObserversHints || truthyStructureHints || !isEmptyObject(_changedOptions) || _force;
 
+    cacheAndOptionsInitialized = true;
+
     changed &&
       onUpdated(updateInfo, {
         _observersUpdateHints: observersHints,
@@ -175,11 +180,14 @@ export const createSetups = (
 
   return [
     () => {
-      const { _originalScrollOffsetElement, _scrollOffsetElement } = structureSetupElements;
+      const { _originalScrollOffsetElement, _scrollOffsetElement, _removeScrollObscuringStyles } =
+        structureSetupElements;
       const initialScroll = getElementScroll(_originalScrollOffsetElement);
       const destroyFns = [observersSetupCreate(), structureSetupCreate(), scrollbarsSetupCreate()];
+      const revertScrollObscuringStyles = _removeScrollObscuringStyles();
 
       scrollElementTo(_scrollOffsetElement, initialScroll);
+      revertScrollObscuringStyles();
 
       return bind(runEachAndClear, destroyFns);
     },

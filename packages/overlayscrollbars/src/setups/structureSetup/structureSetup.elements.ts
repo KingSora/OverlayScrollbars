@@ -1,10 +1,13 @@
+import type {
+  InitializationTarget,
+  InitializationTargetElement,
+  InitializationTargetObject,
+} from '../../initialization';
 import {
   isHTMLElement,
   appendChildren,
   createDiv,
-  is,
   contents,
-  insertAfter,
   parent,
   removeElements,
   push,
@@ -23,7 +26,12 @@ import {
   wnd,
   focusElement,
   stopAndPrevent,
-} from '~/support';
+  getOffsetSize,
+  getScrollSize,
+  getStyles,
+  strOverflowX,
+  strOverflowY,
+} from '../../support';
 import {
   dataAttributeHost,
   dataAttributeInitialize,
@@ -33,22 +41,19 @@ import {
   dataAttributeContent,
   dataAttributeHtmlBody,
   dataValueHostIsHost,
-} from '~/classnames';
-import { getEnvironment } from '~/environment';
+  dataValueViewportScrolling,
+} from '../../classnames';
+import { getEnvironment } from '../../environment';
 import {
   staticInitializationElement as generalStaticInitializationElement,
   dynamicInitializationElement as generalDynamicInitializationElement,
-} from '~/initialization';
-import type {
-  InitializationTarget,
-  InitializationTargetElement,
-  InitializationTargetObject,
-} from '~/initialization';
+} from '../../initialization';
+import { overflowIsVisible } from './structureSetup.utils';
 
 export type StructureSetupElements = [
   elements: StructureSetupElementsObj,
   appendElements: () => () => void,
-  canceled: () => void
+  canceled: () => void,
 ];
 
 export interface StructureSetupElementsObj {
@@ -61,7 +66,6 @@ export interface StructureSetupElementsObj {
   _scrollEventElement: HTMLElement | Document;
   _originalScrollOffsetElement: HTMLElement;
   // ctx ----
-  _isTextarea: boolean;
   _isBody: boolean;
   _documentElm: Document;
   _targetIsElm: boolean;
@@ -69,6 +73,7 @@ export interface StructureSetupElementsObj {
   _windowElm: () => Window;
   _viewportHasClass: (viewportAttributeClassName: string) => boolean;
   _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) => () => void;
+  _removeScrollObscuringStyles: () => () => void;
 }
 
 export const createStructureSetupElements = (
@@ -78,7 +83,6 @@ export const createStructureSetupElements = (
   const { _getDefaultInitialization, _nativeScrollbarsHiding } = env;
   const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
-    host: defaultHostInitialization,
     padding: defaultPaddingInitialization,
     viewport: defaultViewportInitialization,
     content: defaultContentInitialization,
@@ -87,7 +91,6 @@ export const createStructureSetupElements = (
   const targetStructureInitialization = (targetIsElm ? {} : target) as InitializationTargetObject;
   const { elements: initElements } = targetStructureInitialization;
   const {
-    host: hostInitialization,
     padding: paddingInitialization,
     viewport: viewportInitialization,
     content: contentInitialization,
@@ -95,7 +98,6 @@ export const createStructureSetupElements = (
 
   const targetElement = targetIsElm ? target : targetStructureInitialization.target;
   const isBody = isBodyElement(targetElement);
-  const isTextarea = is(targetElement, 'textarea');
   const ownerDocument = targetElement.ownerDocument;
   const docElement = ownerDocument.documentElement;
   const getDocumentWindow = () => ownerDocument.defaultView || wnd;
@@ -112,6 +114,17 @@ export const createStructureSetupElements = (
     createNewDiv,
     defaultContentInitialization
   );
+  const elementHasOverflow = (elm: HTMLElement) => {
+    const offsetSize = getOffsetSize(elm);
+    const scrollSize = getScrollSize(elm);
+    const overflowX = getStyles(elm, strOverflowX);
+    const overflowY = getStyles(elm, strOverflowY);
+
+    return (
+      (scrollSize.w - offsetSize.w > 0 && !overflowIsVisible(overflowX)) ||
+      (scrollSize.h - offsetSize.h > 0 && !overflowIsVisible(overflowY))
+    );
+  };
   const possibleViewportElement = generateViewportElement(viewportInitialization);
   const viewportIsTarget = possibleViewportElement === targetElement;
   const viewportIsTargetBody = viewportIsTarget && isBody;
@@ -121,10 +134,7 @@ export const createStructureSetupElements = (
   // will act the same way as initialization: `{ elements: { viewport, content: false } }`
   const viewportIsContent = !viewportIsTarget && possibleViewportElement === possibleContentElement;
   const viewportElement = viewportIsTargetBody ? docElement : possibleViewportElement;
-  const nonBodyHostElement = isTextarea
-    ? staticInitializationElement(createNewDiv, defaultHostInitialization, hostInitialization)
-    : (targetElement as HTMLElement);
-  const hostElement = viewportIsTargetBody ? viewportElement : nonBodyHostElement;
+  const hostElement = viewportIsTargetBody ? viewportElement : targetElement;
   const paddingElement =
     !viewportIsTarget &&
     dynamicInitializationElement(createNewDiv, defaultPaddingInitialization, paddingInitialization);
@@ -133,9 +143,12 @@ export const createStructureSetupElements = (
     (elm) => isHTMLElement(elm) && !parent(elm) && elm
   );
   const elementIsGenerated = (elm: HTMLElement | false) => elm && inArray(generatedElements, elm);
-  const originalNonBodyScrollOffsetElement = elementIsGenerated(viewportElement)
-    ? targetElement
-    : viewportElement;
+  const originalNonBodyScrollOffsetElement =
+    !elementIsGenerated(viewportElement) && elementHasOverflow(viewportElement)
+      ? viewportElement
+      : targetElement;
+  const scrollOffsetElement = viewportIsTargetBody ? docElement : viewportElement;
+  const scrollEventElement = viewportIsTargetBody ? ownerDocument : viewportElement;
 
   const evaluatedTargetObj: StructureSetupElementsObj = {
     _target: targetElement,
@@ -143,11 +156,10 @@ export const createStructureSetupElements = (
     _viewport: viewportElement,
     _padding: paddingElement,
     _content: contentElement,
-    _scrollOffsetElement: viewportIsTargetBody ? docElement : viewportElement,
-    _scrollEventElement: viewportIsTargetBody ? ownerDocument : viewportElement,
+    _scrollOffsetElement: scrollOffsetElement,
+    _scrollEventElement: scrollEventElement,
     _originalScrollOffsetElement: isBody ? docElement : originalNonBodyScrollOffsetElement,
     _documentElm: ownerDocument,
-    _isTextarea: isTextarea,
     _isBody: isBody,
     _targetIsElm: targetIsElm,
     _viewportIsTarget: viewportIsTarget,
@@ -156,6 +168,13 @@ export const createStructureSetupElements = (
       hasAttrClass(viewportElement, dataAttributeViewport, viewportAttributeClassName),
     _viewportAddRemoveClass: (viewportAttributeClassName: string, add?: boolean) =>
       addRemoveAttrClass(viewportElement, dataAttributeViewport, viewportAttributeClassName, add),
+    _removeScrollObscuringStyles: () =>
+      addRemoveAttrClass(
+        scrollOffsetElement,
+        dataAttributeViewport,
+        dataValueViewportScrolling,
+        true
+      ),
   };
   const { _target, _host, _padding, _viewport, _content } = evaluatedTargetObj;
   const destroyFns: (() => any)[] = [
@@ -168,14 +187,9 @@ export const createStructureSetupElements = (
       }
     },
   ];
-  const isTextareaHostGenerated = isTextarea && elementIsGenerated(_host);
-  let targetContents = isTextarea
-    ? _target
-    : contents(
-        [_content, _viewport, _padding, _host, _target].find(
-          (elm) => elm && !elementIsGenerated(elm)
-        )
-      );
+  let targetContents = contents(
+    [_content, _viewport, _padding, _host, _target].find((elm) => elm && !elementIsGenerated(elm))
+  );
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
   const destroy = bind(runEachAndClear, destroyFns);
   const appendElements = () => {
@@ -202,16 +216,6 @@ export const createStructureSetupElements = (
     if (!viewportIsTarget) {
       setAttrs(_viewport, tabIndexStr, originalViewportTabIndex || '-1');
       isBody && setAttrs(docElement, dataAttributeHtmlBody, '');
-    }
-
-    // only insert host for textarea after target if it was generated
-    if (isTextareaHostGenerated) {
-      insertAfter(_target, _host);
-
-      push(destroyFns, () => {
-        insertAfter(_host, _target);
-        removeElements(_host);
-      });
     }
 
     appendChildren(contentSlot, targetContents);

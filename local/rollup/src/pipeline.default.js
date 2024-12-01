@@ -1,10 +1,10 @@
-const bundleScriptDefault = require('./bundle/script.default');
-const bundleScriptEsbuild = require('./bundle/script.esbuild');
-const bundleStyles = require('./bundle/styles');
-const bundleTypes = require('./bundle/types');
-const preBuild = require('./bundle/pre');
+import bundleScriptDefault from './bundle/script.default.js';
+import bundleScriptEsbuild from './bundle/script.esbuild.js';
+import bundleStyles from './bundle/styles.js';
+import bundleTypes from './bundle/types.js';
+import preBuild from './bundle/pre.js';
 
-module.exports = (resolve, options, esbuild) => {
+export default (resolve, options, esbuild) => {
   const { extractTypes, extractStyles } = options;
   const bundleScript = esbuild ? bundleScriptEsbuild : bundleScriptDefault;
 

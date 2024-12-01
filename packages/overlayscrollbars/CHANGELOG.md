@@ -1,5 +1,51 @@
 # Changelog
 
+## 2.10.1
+
+### Improvements
+
+- Add `pen` to the list of "hoverable" pointer devices. [#690](https://github.com/KingSora/OverlayScrollbars/issues/690)
+
+## 2.10.0
+
+### Features
+
+- The option `scrollbars.clickScroll` now supports the value `'instant'`. The `ClickScrollPlugin` is not required for it to work. [#645](https://github.com/KingSora/OverlayScrollbars/issues/645)
+
+### Improvements
+
+- Rewrite `clickScroll` animation for better performance and to support in and out easing for a smoother animation.
+
+## 2.9.2
+
+### Improvements
+
+- Improve initialization and update performance by determining if a non-default scroll direction is possible before measuring scroll coordinates. [#655](https://github.com/KingSora/OverlayScrollbars/issues/655)
+
+## 2.9.1
+
+### Improvements
+
+- Resilience against `scroll-behavior: smooth` style when scrolling should be instant.
+
+## 2.9.0
+
+### Features
+
+- Add the possibility to define a [`nonce`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) value for websites with a CSP. [#646](https://github.com/KingSora/OverlayScrollbars/pull/646)
+
+### Improvements
+
+- Reduced bundle size due to removed compatiblity code.
+- `clickScroll` will not cancel on fast clicks / taps. [#650](https://github.com/KingSora/OverlayScrollbars/issues/650)
+- Add easing to the `clickScroll` animation.
+- The scrollbar-handle offset and size calculations are now entirely in CSS and will not force reflows.
+- Use custom css properties for setting the scrollbar-handle offset and size.
+
+### Bug Fixes
+
+- Only take the initial scroll coordinates from the `viewport` element if it has a scrollable overflow. (Otherwise take the initial scroll coordinates from the target element) [#652](https://github.com/KingSora/OverlayScrollbars/issues/652)
+
 ## 2.8.4
 
 ### Improvements

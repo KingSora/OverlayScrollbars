@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect, vi } from 'vitest';
-import { render, cleanup } from 'solid-testing-library';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-solid';
+import { render, cleanup } from '@solidjs/testing-library';
+import { OverlayScrollbarsComponent } from '../../src/overlayscrollbars-solid';
 
 const getComputedStyleOriginal = window.getComputedStyle;
 vi.stubGlobal(

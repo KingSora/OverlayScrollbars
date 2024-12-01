@@ -1,8 +1,9 @@
 {
   "name": "overlayscrollbars",
   "private": true,
-  "version": "2.8.3",
-  "description": "A scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.",
+  "type": "module",
+  "version": "2.10.1",
+  "description": "A javascript scrollbar plugin that hides the native scrollbars, provides custom styleable overlay scrollbars, and preserves the native functionality and feel.",
   "author": "Rene Haas | KingSora",
   "license": "MIT",
   "homepage": "https://kingsora.github.io/OverlayScrollbars",
@@ -51,6 +52,7 @@
   },
   "scripts": {
     "build": "rollup -c",
+    "types": "tsc --emitDeclarationOnly -p tsconfig.types.json",
     "test": "jest --coverage",
     "e2e": "playwright test",
     "e2e:dev": "playwright test --workers 1 --timeout 0 --global-timeout 0",

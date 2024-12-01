@@ -1,9 +1,18 @@
 {
   "name": "@~local/playwright-tooling",
   "private": true,
+  "type": "module",
   "main": "./src/index.js",
+  "module": "./src/index.js",
   "bin": {
     "playwright-merge-coverage": "./bin/mergeCoverage.js"
+  },
+  "dependencies": {
+    "@rollup/plugin-html": "^1.0.3",
+    "istanbul-lib-instrument": "^5.2.0",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-serve": "^2.0.0",
+    "rollup-plugin-styles": "^4.0.0"
   },
   "types": "index.d.ts",
   "version": "0.0.0"

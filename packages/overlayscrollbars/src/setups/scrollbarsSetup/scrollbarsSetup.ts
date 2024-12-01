@@ -1,14 +1,16 @@
-import {
-  bind,
-  noop,
-  addEventListener,
-  push,
-  runEachAndClear,
-  selfClearTimeout,
-  strScroll,
-  strVisible,
-} from '~/support';
-import { getEnvironment } from '~/environment';
+import type { OverflowBehavior, ReadonlyOptions } from '../../options';
+import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup.elements';
+import type {
+  ObserversSetupState,
+  ObserversSetupUpdateHints,
+  Setup,
+  SetupUpdateInfo,
+  StructureSetupState,
+  StructureSetupUpdateHints,
+} from '../../setups';
+import type { InitializationTarget } from '../../initialization';
+import type { OverflowStyle } from '../../typings';
+import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
 import {
   classNameScrollbarThemeNone,
   classNameScrollbarVisible,
@@ -19,20 +21,18 @@ import {
   classNameScrollbarTrackInteractive,
   classNameScrollbarRtl,
   classNameScrollbarAutoHide,
-} from '~/classnames';
-import type { OverflowBehavior, ReadonlyOptions } from '~/options';
-import type { ScrollbarsSetupElementsObj } from './scrollbarsSetup.elements';
-import type {
-  ObserversSetupState,
-  ObserversSetupUpdateHints,
-  Setup,
-  SetupUpdateInfo,
-  StructureSetupState,
-  StructureSetupUpdateHints,
-} from '~/setups';
-import type { InitializationTarget } from '~/initialization';
-import type { OverflowStyle } from '~/typings';
-import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
+} from '../../classnames';
+import { getEnvironment } from '../../environment';
+import {
+  bind,
+  noop,
+  addEventListener,
+  push,
+  runEachAndClear,
+  selfClearTimeout,
+  strScroll,
+  strVisible,
+} from '../../support';
 import { createScrollbarsSetupElements } from './scrollbarsSetup.elements';
 import { createScrollbarsSetupEvents } from './scrollbarsSetup.events';
 
@@ -47,7 +47,7 @@ export interface ScrollbarsSetupUpdateInfo extends SetupUpdateInfo {
 export type ScrollbarsSetup = [
   ...Setup<ScrollbarsSetupUpdateInfo, ScrollbarsSetupState, void>,
   /** The elements created by the scrollbars setup. */
-  ScrollbarsSetupElementsObj
+  ScrollbarsSetupElementsObj,
 ];
 
 export const createScrollbarsSetup = (
@@ -65,9 +65,11 @@ export const createScrollbarsSetup = (
   let prevTheme: string | null | undefined;
   let instanceAutoHideSuspendScrollDestroyFn = noop;
   let instanceAutoHideDelay = 0;
+  const hoverablePointerTypes = ['mouse', 'pen'];
 
-  // needed to not fire unnecessary operations for pointer events on safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
-  const isHoverablePointerType = (event: PointerEvent) => event.pointerType === 'mouse';
+  // needed to not fire unnecessary operations for pointer events on ios safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
+  const isHoverablePointerType = (event: PointerEvent) =>
+    hoverablePointerTypes.includes(event.pointerType);
 
   const [requestScrollAnimationFrame, cancelScrollAnimationFrame] = selfClearTimeout();
   const [autoHideInstantInteractionTimeout, clearAutoHideInstantInteractionTimeout] =
@@ -93,6 +95,7 @@ export const createScrollbarsSetup = (
     _scrollbarsAddRemoveClass,
     _refreshScrollbarsHandleLength,
     _refreshScrollbarsHandleOffset,
+    _refreshScrollbarsScrollCoordinates,
     _refreshScrollbarsScrollbarOffset,
   } = elements;
   const manageScrollbarsAutoHide = (removeAutoHide: boolean, delayless?: boolean) => {
@@ -257,7 +260,7 @@ export const createScrollbarsSetup = (
       }
 
       if (clickScrollChanged) {
-        _scrollbarsAddRemoveClass(classNameScrollbarTrackInteractive, clickScroll);
+        _scrollbarsAddRemoveClass(classNameScrollbarTrackInteractive, !!clickScroll);
       }
 
       // always update scrollbar visibility before scrollbar size
@@ -272,10 +275,10 @@ export const createScrollbarsSetup = (
 
       // always update scrollbar sizes after the visibility
       if (updateScrollbars) {
-        // order is matter! length has to be refreshed before offset
-        _refreshScrollbarsHandleLength();
         _refreshScrollbarsHandleOffset();
+        _refreshScrollbarsHandleLength();
         _refreshScrollbarsScrollbarOffset();
+        _scrollCoordinatesChanged && _refreshScrollbarsScrollCoordinates();
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_hasOverflow.x, true);
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_hasOverflow.y, false);

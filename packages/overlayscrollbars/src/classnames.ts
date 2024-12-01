@@ -25,8 +25,8 @@ export const dataValueViewportOverflowXPrefix = strOverflowX;
 export const dataValueViewportOverflowYPrefix = strOverflowY;
 export const dataValueViewportArrange = 'arrange';
 export const dataValueViewportMeasuring = 'measuring';
+export const dataValueViewportScrolling = 'scrolling';
 export const dataValueViewportScrollbarHidden = 'scrollbarHidden';
-export const dataValueViewportScrollbarPressed = 'scrollbarPressed';
 export const dataValueViewportNoContent = 'noContent';
 
 // padding

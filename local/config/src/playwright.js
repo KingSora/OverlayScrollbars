@@ -1,6 +1,6 @@
-const { devices } = require('@playwright/test');
+import { devices } from '@playwright/test';
 
-module.exports = {
+export default {
   testMatch: /.*\/test\/playwright\/.*\.test\.[jt]sx?/,
   timeout: 10 * 60 * 1500,
   navigationTimeout: 1000,

@@ -1,6 +1,7 @@
 {
   "name": "overlayscrollbars-vue",
   "private": true,
+  "type": "module",
   "version": "0.5.9",
   "description": "OverlayScrollbars for Vue.",
   "author": "Rene Haas | KingSora",
@@ -34,13 +35,13 @@
     "overlayscrollbars": "^2.0.0"
   },
   "devDependencies": {
-    "@testing-library/vue": "^6.6.1",
+    "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^4.5.2",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "@vue/tsconfig": "^0.4.0",
     "overlayscrollbars": "file:./../overlayscrollbars/dist",
     "vue": "~3.2.45",
-    "vue-tsc": "^1.8.8"
+    "vue-tsc": "^2.0.29"
   },
   "scripts": {
     "build": "run-p build-js build-types",

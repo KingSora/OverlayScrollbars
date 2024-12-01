@@ -1,19 +1,19 @@
-import { isFunction, isHTMLElement, isNull, isUndefined } from '~/support';
-import { getEnvironment } from '~/environment';
-import type { DeepPartial } from '~/typings';
+import type { DeepPartial } from './typings';
+import { isFunction, isHTMLElement, isNull, isUndefined } from './support';
+import { getEnvironment } from './environment';
 
-type FallbackStaticInitializtationElement<Args extends any[]> = Extract<
-  StaticInitializationElement<Args>,
-  (...args: Args) => any
-> extends (...args: infer P) => any
-  ? (...args: P) => HTMLElement
-  : never;
-type FallbackDynamicInitializtationElement<Args extends any[]> = Extract<
-  DynamicInitializationElement<Args>,
-  (...args: Args) => any
-> extends (...args: infer P) => any
-  ? (...args: P) => HTMLElement
-  : never;
+type FallbackStaticInitializtationElement<Args extends any[]> =
+  Extract<StaticInitializationElement<Args>, (...args: Args) => any> extends (
+    ...args: infer P
+  ) => any
+    ? (...args: P) => HTMLElement
+    : never;
+type FallbackDynamicInitializtationElement<Args extends any[]> =
+  Extract<DynamicInitializationElement<Args>, (...args: Args) => any> extends (
+    ...args: infer P
+  ) => any
+    ? (...args: P) => HTMLElement
+    : never;
 
 export type StaticInitialization = HTMLElement | false | null;
 export type DynamicInitialization = HTMLElement | boolean | null;

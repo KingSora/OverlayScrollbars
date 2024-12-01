@@ -2,8 +2,8 @@ import { describe, test, expect, afterEach, vitest, vi } from 'vitest';
 import { cleanup, render, screen, fireEvent } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-svelte';
-import type { Ref } from '~/OverlayScrollbarsComponent.types';
+import type { Ref } from '../src/OverlayScrollbarsComponent.types';
+import { OverlayScrollbarsComponent } from '../src/overlayscrollbars-svelte';
 import Test from './Test.svelte';
 
 vi.useFakeTimers({
@@ -27,13 +27,12 @@ describe('OverlayScrollbarsComponent', () => {
       const elementB = 'span';
       let osInstance;
       const { container } = render(Test);
-      const realContainer = container.firstElementChild!;
 
-      expect(realContainer).not.toBeEmptyDOMElement();
-      expect(realContainer.querySelector('div')).toBe(realContainer.firstElementChild); // default is div
+      expect(container).not.toBeEmptyDOMElement();
+      expect(container.querySelector('div')).toBe(container.firstElementChild); // default is div
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false);
-      osInstance = OverlayScrollbars(realContainer.firstElementChild as HTMLElement);
+      osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);
 
       expect(osInstance).toBeDefined();
       expect(OverlayScrollbars.valid(osInstance)).toBe(true);
@@ -44,10 +43,10 @@ describe('OverlayScrollbarsComponent', () => {
           detail: { element: elementA },
         })
       );
-      expect(realContainer.querySelector(elementA)).toBe(realContainer.firstElementChild);
+      expect(container.querySelector(elementA)).toBe(container.firstElementChild);
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
-      osInstance = OverlayScrollbars(realContainer.firstElementChild as HTMLElement);
+      osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);
       expect(osInstance).toBeDefined();
       expect(OverlayScrollbars.valid(osInstance)).toBe(true);
 
@@ -57,10 +56,10 @@ describe('OverlayScrollbarsComponent', () => {
           detail: { element: elementB },
         })
       );
-      expect(realContainer.querySelector(elementB)).toBe(realContainer.firstElementChild);
+      expect(container.querySelector(elementB)).toBe(container.firstElementChild);
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
-      osInstance = OverlayScrollbars(realContainer.firstElementChild as HTMLElement);
+      osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);
       expect(osInstance).toBeDefined();
       expect(OverlayScrollbars.valid(osInstance)).toBe(true);
     });
@@ -102,9 +101,8 @@ describe('OverlayScrollbarsComponent', () => {
           className: 'overlay scrollbars',
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(realContainer.firstElementChild).toHaveClass('overlay', 'scrollbars');
+      expect(container.firstElementChild).toHaveClass('overlay', 'scrollbars');
 
       await fireEvent(
         screen.getByText('props'),
@@ -113,7 +111,7 @@ describe('OverlayScrollbarsComponent', () => {
         })
       );
 
-      expect(realContainer.firstElementChild).toHaveClass('overlay', 'scrollbars', 'svelte');
+      expect(container.firstElementChild).toHaveClass('overlay', 'scrollbars', 'svelte');
     });
 
     test('style', async () => {
@@ -122,9 +120,8 @@ describe('OverlayScrollbarsComponent', () => {
           style: 'width: 22px',
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(realContainer.firstElementChild).toHaveStyle({ width: '22px' });
+      expect(container.firstElementChild).toHaveStyle({ width: '22px' });
 
       await fireEvent(
         screen.getByText('props'),
@@ -133,7 +130,7 @@ describe('OverlayScrollbarsComponent', () => {
         })
       );
 
-      expect(realContainer.firstElementChild).toHaveStyle({ height: '33px' });
+      expect(container.firstElementChild).toHaveStyle({ height: '33px' });
     });
   });
 
@@ -144,13 +141,12 @@ describe('OverlayScrollbarsComponent', () => {
           defer: true,
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeUndefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
 
       vi.advanceTimersByTime(2000);
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeDefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
     });
 
     test('options defer', () => {
@@ -159,13 +155,12 @@ describe('OverlayScrollbarsComponent', () => {
           defer: { timeout: 0 },
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeUndefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
 
       vi.advanceTimersByTime(2000);
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeDefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
     });
 
     test('defer with unsupported Idle', () => {
@@ -178,13 +173,12 @@ describe('OverlayScrollbarsComponent', () => {
           defer: true,
         },
       });
-      const realContainer = container.firstElementChild!;
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeUndefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeUndefined();
 
       vi.advanceTimersByTime(2000);
 
-      expect(OverlayScrollbars(realContainer.firstElementChild! as HTMLElement)).toBeDefined();
+      expect(OverlayScrollbars(container.firstElementChild! as HTMLElement)).toBeDefined();
 
       window.requestIdleCallback = original;
     });
@@ -199,7 +193,6 @@ describe('OverlayScrollbarsComponent', () => {
         },
       },
     });
-    const realContainer = container.firstElementChild!;
 
     expect(osRef).toBeTruthy();
 
@@ -207,7 +200,7 @@ describe('OverlayScrollbarsComponent', () => {
     expect(osInstance).toBeTypeOf('function');
     expect(getElement).toBeTypeOf('function');
     expect(OverlayScrollbars.valid(osInstance())).toBe(true);
-    expect(getElement()).toBe(realContainer.firstElementChild);
+    expect(getElement()).toBe(container.firstElementChild);
   });
 
   test('options', async () => {
@@ -279,12 +272,13 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   test('events', async () => {
-    const onUpdatedInitial = vitest.fn();
+    const onInitialized = vitest.fn();
     const onUpdated = vitest.fn();
+    const onUpdated2 = vitest.fn();
     let osRef: Ref | undefined;
     render(Test, {
       props: {
-        events: { updated: onUpdatedInitial },
+        events: { initialized: onInitialized },
         getRef: (ref: any) => {
           osRef = ref;
         },
@@ -293,7 +287,7 @@ describe('OverlayScrollbarsComponent', () => {
 
     const instance = osRef!.osInstance()!;
 
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
 
     await fireEvent(
       screen.getByText('props'),
@@ -306,21 +300,21 @@ describe('OverlayScrollbarsComponent', () => {
     expect(onUpdated).not.toHaveBeenCalled();
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(1);
+    expect(onUpdated2).toHaveBeenCalledTimes(0);
 
     await fireEvent(
       screen.getByText('props'),
       new CustomEvent('osProps', {
         detail: {
-          events: { updated: [onUpdated, onUpdatedInitial] },
+          events: { updated: [onUpdated, onUpdated2] },
         },
       })
     );
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
     // unregister with `[]`, `null` or `undefined`
     await fireEvent(
@@ -333,8 +327,8 @@ describe('OverlayScrollbarsComponent', () => {
     );
 
     instance.update(true);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(2);
     expect(onUpdated).toHaveBeenCalledTimes(2);
+    expect(onUpdated2).toHaveBeenCalledTimes(1);
 
     // instance didn't change
     expect(instance).toBe(osRef!.osInstance());
@@ -342,14 +336,14 @@ describe('OverlayScrollbarsComponent', () => {
     await fireEvent(
       screen.getByText('props'),
       new CustomEvent('osProps', {
-        detail: { element: 'span', events: { updated: [onUpdated, onUpdatedInitial] } },
+        detail: { element: 'span', events: { updated: [onUpdated, onUpdated2] } },
       })
     );
 
     const newElementInstance = osRef!.osInstance()!;
     expect(newElementInstance).not.toBe(instance);
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
 
     // reset events with `undefined`, `null`, `false` or `{}`
     await fireEvent(
@@ -361,8 +355,9 @@ describe('OverlayScrollbarsComponent', () => {
 
     newElementInstance.update(true);
     expect(newElementInstance).toBe(osRef!.osInstance());
-    expect(onUpdatedInitial).toHaveBeenCalledTimes(3);
+    expect(onInitialized).toHaveBeenCalledTimes(1);
     expect(onUpdated).toHaveBeenCalledTimes(3);
+    expect(onUpdated2).toHaveBeenCalledTimes(2);
   });
 
   test('destroy', () => {

@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const { execSync } = require('child_process');
-const { join } = require('path');
-const { coverageDirectory, tmpCoverageDirectory } = require('@~local/config/playwright.coverage');
+import fs from 'node:fs';
+import { execSync } from 'node:child_process';
+import { join } from 'node:path';
+import coverageConfig from '@~local/config/playwright.coverage';
+
+const { coverageDirectory, tmpCoverageDirectory } = coverageConfig;
 
 const mergeCoverage = async () => {
   if (fs.existsSync(tmpCoverageDirectory)) {

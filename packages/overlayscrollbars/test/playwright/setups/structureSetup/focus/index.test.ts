@@ -3,7 +3,7 @@ import { test } from '@playwright/test';
 
 playwrightRollup();
 
-test.describe('StructureSetup.body', () => {
+test.describe('StructureSetup.focus', () => {
   test.describe('with native scrollbar styling', () => {
     test('default', async ({ page }) => {
       await expectSuccess(page);

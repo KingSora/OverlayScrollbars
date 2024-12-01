@@ -1,8 +1,6 @@
 import '~/index.scss';
 import './index.scss';
 import './handleEnvironment';
-import { OverlayScrollbars } from '~/overlayscrollbars';
-import { dataAttributeViewport } from '~/classnames';
 import should from 'should';
 import {
   generateClassChangeSelectCallback,
@@ -12,6 +10,8 @@ import {
   setTestResult,
   waitForOrFailTest,
 } from '@~local/browser-testing';
+import { OverlayScrollbars } from '~/overlayscrollbars';
+import { dataAttributeViewport } from '~/classnames';
 import {
   assignDeep,
   getClientSize,
@@ -851,24 +851,36 @@ const overflowTest = async (osOptions?: DeepPartial<Options>) => {
     }
 
     await iterateBoxSizing(async () => {
-      await iterateHeight(async () => {
-        await iterateWidth(async () => {
-          await iterateBorder(async () => {
-            // assume this part isn't critical
-            // await iterateFloat(async () => {
-            //   await iterateMargin();
-            // });
-            await iteratePadding(async () => {
-              await iterateOverflow();
-            }, withSkippedItems && ['paddingLarge']);
+      await iterateHeight(
+        async () => {
+          await iterateWidth(
+            async () => {
+              await iterateBorder(
+                async () => {
+                  // assume this part isn't critical
+                  // await iterateFloat(async () => {
+                  //   await iterateMargin();
+                  // });
+                  await iteratePadding(
+                    async () => {
+                      await iterateOverflow();
+                    },
+                    withSkippedItems && ['paddingLarge']
+                  );
 
-            // assume this part isn't critical for special options
-            if (!osOptions) {
-              await iterateDirection();
-            }
-          }, withSkippedItems && ['borderSmall']);
-        }, withSkippedItems && ['widthHundred']);
-      }, withSkippedItems && ['heightHundred']);
+                  // assume this part isn't critical for special options
+                  if (!osOptions) {
+                    await iterateDirection();
+                  }
+                },
+                withSkippedItems && ['borderSmall']
+              );
+            },
+            withSkippedItems && ['widthHundred']
+          );
+        },
+        withSkippedItems && ['heightHundred']
+      );
     });
   });
 };

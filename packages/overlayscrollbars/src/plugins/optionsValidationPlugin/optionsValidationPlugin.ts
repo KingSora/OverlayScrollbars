@@ -4,9 +4,10 @@ import type {
   OverflowBehavior,
   ScrollbarsVisibilityBehavior,
   ScrollbarsAutoHideBehavior,
-} from '~/options';
+  ScrollbarsClickScrollBehavior,
+} from '../../options';
 import type { OptionsTemplate, OptionsTemplateValue } from './validation';
-import type { StaticPlugin } from '~/plugins';
+import type { StaticPlugin } from '../plugins';
 import { validateOptions, optionsTemplateTypes as oTypes } from './validation';
 
 export const optionsValidationPluginModuleName = '__osOptionsValidationPlugin';
@@ -26,9 +27,10 @@ export const OptionsValidationPlugin = /* @__PURE__ */ (() => ({
         'visible hidden auto';
       const scrollbarsAutoHideAllowedValues: OptionsTemplateValue<ScrollbarsAutoHideBehavior> =
         'never scroll leavemove';
+      const scrollbarsClickScrollAllowedValues: OptionsTemplateValue<ScrollbarsClickScrollBehavior> =
+        [booleanAllowedValues, oTypes.string];
 
       const optionsTemplate: OptionsTemplate<Options> = {
-        // resize: resizeAllowedValues, // none || both  || horizontal || vertical || n || b ||
         paddingAbsolute: booleanAllowedValues, // true || false
         showNativeOverlaidScrollbars: booleanAllowedValues, // true || false
         update: {
@@ -38,17 +40,17 @@ export const OptionsValidationPlugin = /* @__PURE__ */ (() => ({
           ignoreMutation: [oTypes.function, oTypes.null], // function || null
         },
         overflow: {
-          x: overflowAllowedValues, // visible-hidden  || visible-scroll || hidden || scrol
-          y: overflowAllowedValues, // visible-hidden  || visible-scroll || hidden || scrol
+          x: overflowAllowedValues, // visible-hidden  || visible-scroll || hidden || scroll
+          y: overflowAllowedValues, // visible-hidden  || visible-scroll || hidden || scroll
         },
         scrollbars: {
           theme: [oTypes.string, oTypes.null], // string || null
-          visibility: scrollbarsVisibilityAllowedValues, // visible || hidden || auto || v ||
+          visibility: scrollbarsVisibilityAllowedValues, // visible || hidden || auto
           autoHide: scrollbarsAutoHideAllowedValues, // never || scroll || leave || move ||
           autoHideDelay: numberAllowedValues, // number
           autoHideSuspend: booleanAllowedValues, // true || false
           dragScroll: booleanAllowedValues, // true || false
-          clickScroll: booleanAllowedValues, // true || false
+          clickScroll: scrollbarsClickScrollAllowedValues, // true || false || instant
           pointers: [oTypes.array, oTypes.null], // string array
         },
         /*

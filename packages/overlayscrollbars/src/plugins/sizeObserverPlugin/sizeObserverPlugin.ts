@@ -1,3 +1,4 @@
+import type { StaticPlugin } from '../plugins';
 import {
   createDOM,
   appendChildren,
@@ -13,13 +14,12 @@ import {
   strWidth,
   strHeight,
   setStyles,
-} from '~/support';
+} from '../../support';
 import {
   classNameSizeObserverListenerScroll,
   classNameSizeObserverListenerItem,
   classNameSizeObserverListenerItemFinal,
-} from '~/classnames';
-import type { StaticPlugin } from '../plugins';
+} from '../../classnames';
 
 export const sizeObserverPluginName = '__osSizeObserverPlugin';
 

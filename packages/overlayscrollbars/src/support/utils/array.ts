@@ -1,4 +1,4 @@
-import type { PlainObject } from '~/typings';
+import type { PlainObject } from '../../typings';
 import { isArray, isArrayLike, isString } from './types';
 
 type RunEachItem = ((...args: any) => any | any[]) | false | null | undefined;
@@ -77,10 +77,16 @@ export const from = <T = any>(arr?: ArrayLike<T> | Set<T>) => Array.from(arr || 
 
 /**
  * Creates an array if the passed value is not an array, or returns the value if it is.
+ * If the passed value is an array like structure and not a string it will be converted into an array.
  * @param value The value.
  * @returns An array which represents the passed value(s).
  */
-export const createOrKeepArray = <T>(value: T | T[]): T[] => (isArray(value) ? value : [value]);
+export const createOrKeepArray = <T>(value: T | T[] | ArrayLike<T>): T[] => {
+  if (isArray(value)) {
+    return value;
+  }
+  return !isString(value) && isArrayLike(value) ? from(value) : [value];
+};
 
 /**
  * Check whether the passed array is empty.
@@ -103,7 +109,7 @@ export const deduplicateArray = <T extends any[]>(array: T): T => from(new Set(a
  */
 export const runEachAndClear = (arr: RunEachItem[], args?: any[], keep?: boolean): void => {
   // eslint-disable-next-line prefer-spread
-  const runFn = (fn: RunEachItem) => fn && fn.apply(undefined, args || []);
+  const runFn = (fn: RunEachItem) => (fn ? fn.apply(undefined, args || []) : true); // return true when fn is falsy to not break the loop
   each(arr, runFn);
   !keep && ((arr as any[]).length = 0);
 };

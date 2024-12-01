@@ -1,3 +1,4 @@
+import type { SizeObserverPlugin } from '../plugins';
 import {
   createCache,
   createDOM,
@@ -12,14 +13,13 @@ import {
   noop,
   domRectAppeared,
   concat,
-} from '~/support';
+} from '../support';
 import {
   classNameSizeObserver,
   classNameSizeObserverAppear,
   classNameSizeObserverListener,
-} from '~/classnames';
-import { getStaticPluginModuleInstance, sizeObserverPluginName } from '~/plugins';
-import type { SizeObserverPlugin } from '~/plugins';
+} from '../classnames';
+import { getStaticPluginModuleInstance, sizeObserverPluginName } from '../plugins';
 
 export interface SizeObserverOptions {
   /** Whether appearing should be observed. */

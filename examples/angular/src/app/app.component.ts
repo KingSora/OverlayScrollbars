@@ -16,6 +16,7 @@ const initBodyOverlayScrollbars = (force?: boolean) =>
     {
       scrollbars: {
         theme: 'os-theme-light',
+        clickScroll: true,
       },
     }
   ).state().destroyed;
@@ -29,7 +30,7 @@ const initBodyOverlayScrollbars = (force?: boolean) =>
           OverlayScrollbars Ngx
         </a>
       </h1>
-      <section class="slot">
+      <section>
         <div
           overlay-scrollbars
           #osRef
@@ -77,7 +78,7 @@ const initBodyOverlayScrollbars = (force?: boolean) =>
         <p class="title">Events:</p>
         <div class="items">
           <div
-            *ngFor="let observedEvent of observedEvents$ | async | keyvalue: originalOrder"
+            *ngFor="let observedEvent of observedEvents$ | async | keyvalue : originalOrder"
             [ngClass]="{ event: true, active: observedEvent.value.active }"
           >
             {{ observedEvent.key }}

@@ -1,0 +1,44 @@
+* {
+  scroll-behavior: smooth;
+}
+body {
+  display: flex;
+  flex-direction: column;
+}
+#controls {
+  flex: none;
+}
+#stage {
+  flex: auto;
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: lightgoldenrodyellow;
+  }
+}
+
+#target,
+body.vps #viewport {
+  overflow: auto;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#element {
+  margin-top: 200vh;
+  margin-left: 200vw;
+}
+
+#hi {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}

@@ -1,4 +1,4 @@
-import type { PlainObject } from '~/typings';
+import type { PlainObject } from '../../typings';
 import { isArray, isFunction, isPlainObject, isNull } from './types';
 import { each } from './array';
 
@@ -21,12 +21,14 @@ type AssignDeep = {
   <T, U, V>(target: T, object1: U, object2: V): T & U & V;
   <T, U, V, W>(target: T, object1: U, object2: V, object3: W): T & U & V & W;
   <T, U, V, W, X>(target: T, object1: U, object2: V, object3: W, object4: X): T & U & V & W & X;
-  <T, U, V, W, X, Y>(target: T, object1: U, object2: V, object3: W, object4: X, object5: Y): T &
-    U &
-    V &
-    W &
-    X &
-    Y;
+  <T, U, V, W, X, Y>(
+    target: T,
+    object1: U,
+    object2: V,
+    object3: W,
+    object4: X,
+    object5: Y
+  ): T & U & V & W & X & Y;
   <T, U, V, W, X, Y, Z>(
     target: T,
     object1?: U,
@@ -105,9 +107,4 @@ export const removeUndefinedProperties = <T extends PlainObject>(target: T, deep
  * Returns true if the given object is empty, false otherwise.
  * @param obj The Object.
  */
-export const isEmptyObject = (obj: any): boolean => {
-  // eslint-disable-next-line no-restricted-syntax, no-unreachable-loop, guard-for-in
-  for (const name in obj) return false;
-  return true;
-  /* eslint-enable */
-};
+export const isEmptyObject = (obj: any): boolean => !keys(obj).length;

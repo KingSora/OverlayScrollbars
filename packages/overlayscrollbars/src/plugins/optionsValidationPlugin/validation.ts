@@ -1,3 +1,5 @@
+import type { PlainObject, DeepPartial } from '../../typings';
+import type { OptionsObject } from '../../options';
 import {
   each,
   hasOwnProperty,
@@ -9,9 +11,7 @@ import {
   isPlainObject,
   isString,
   createOrKeepArray,
-} from '~/support';
-import type { PlainObject, DeepPartial } from '~/typings';
-import type { OptionsObject } from '~/options';
+} from '../../support';
 
 export type OptionsFunctionType = (this: any, ...args: any[]) => any;
 export type OptionsTemplateType<T extends OptionsTemplateNativeTypes> = ExtractPropsKey<
@@ -31,13 +31,13 @@ export type OptionsTemplate<T> = {
   [P in keyof T]: T[P] extends OptionsObject
     ? OptionsTemplate<T[P]>
     : T[P] extends OptionsTemplateNativeTypes
-    ? OptionsTemplateValue<T[P]>
-    : never;
+      ? OptionsTemplateValue<T[P]>
+      : never;
 };
 
 export type OptionsValidationResult<T> = [
   validated: DeepPartial<T>,
-  foreign: Record<string, unknown>
+  foreign: Record<string, unknown>,
 ];
 
 type OptionsTemplateTypeMap = {
@@ -113,7 +113,7 @@ const validateRecursive = <T extends PlainObject>(
     const templateIsComplex = isPlainObject(templateValue);
     const propPrefix = propPath ? `${propPath}.` : '';
 
-    // if the template has a object as value, it means that the options are complex (verschachtelt)
+    // if the template has a object as value, it means that the options are complex (nested)
     if (templateIsComplex && isPlainObject(optionsValue)) {
       const [validated, foreign] = validateRecursive(
         templateValue as T,

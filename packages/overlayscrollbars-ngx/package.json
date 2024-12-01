@@ -1,7 +1,7 @@
 {
   "name": "overlayscrollbars-ngx",
   "private": true,
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "OverlayScrollbars for Angular.",
   "author": "Rene Haas | KingSora",
   "license": "MIT",

@@ -3,8 +3,8 @@ import { describe, test, afterEach, expect, vitest } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { useOverlayScrollbars } from '~/overlayscrollbars-vue';
 import type { PartialOptions, EventListeners } from 'overlayscrollbars';
+import { useOverlayScrollbars } from '../src/overlayscrollbars-vue';
 
 describe('useOverlayScrollbars', () => {
   afterEach(() => {

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   tmpCoverageDirectory: './.coverage/.nycFull',
   coverageDirectory: './.coverage/full',
 };

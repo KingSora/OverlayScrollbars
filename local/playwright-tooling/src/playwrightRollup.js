@@ -1,11 +1,11 @@
-const { dirname } = require('path');
-const { watch: rollupWatch } = require('rollup');
-const { test } = require('@playwright/test');
-const createPlaywrightRollupConfig = require('@~local/rollup/playwright');
-const collectCoverage = require('./collectCoverage');
+import { dirname } from 'node:path';
+import { watch as rollupWatch } from 'rollup';
+import { test } from '@playwright/test';
+import { rollupPlaywrightConfig } from './rollup/rollupPlaywrightConfig.js';
+import collectCoverage from './collectCoverage.js';
 
 const createRollupBundle = async (testDir, useEsbuild, dev) => {
-  const [config, getServer] = await createPlaywrightRollupConfig(testDir, useEsbuild, dev);
+  const [config, getServer] = rollupPlaywrightConfig(testDir, useEsbuild, dev);
   const watcher = rollupWatch(config);
 
   const outputPath = await new Promise((resolve) => {
@@ -44,7 +44,7 @@ const createRollupBundle = async (testDir, useEsbuild, dev) => {
 
   const { address, port } = getServer().address();
   return {
-    url: `${address}:${port}`,
+    url: `http://${address}:${port}`,
     output: outputPath,
     close: () => {
       getServer().close();
@@ -53,7 +53,8 @@ const createRollupBundle = async (testDir, useEsbuild, dev) => {
   };
 };
 
-module.exports = (useEsbuild = true) => {
+export default (options) => {
+  const { useEsbuild = true, adaptUrl = (originalUrl) => originalUrl } = options || {};
   let url;
   let close;
 
@@ -70,8 +71,8 @@ module.exports = (useEsbuild = true) => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(500);
+    await page.goto(adaptUrl(url), { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(100);
   });
 
   test.afterEach(async ({ page, browserName }, { file, config, timeout }) => {

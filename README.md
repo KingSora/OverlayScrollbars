@@ -21,36 +21,36 @@
 
 # OverlayScrollbars
 
-> OverlayScrollbars is a javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.
+> A javascript scrollbar plugin that hides the native scrollbars, provides custom styleable overlay scrollbars, and preserves the native functionality and feel.
 
-## Why
+## Why?
 
-I created this plugin because I hate ugly and space consuming scrollbars. Similar plugins haven't met my requirements in terms of features, quality, simplicity, license or browser support.
+I created this plugin because I hate ugly and space-consuming scrollbars. Similar plugins didn't meet my requirements in terms of features, quality, simplicity, license or browser support.
 
 ## Goals & Features
 
- - Simple, powerful and well documented API
- - High browser compatibility - **Firefox 59+**, **Chrome 55+**, **Opera 42+**, **Edge 15+** and **Safari 10+**
- - **Fully Accessible** - Native scroll behavior is completely preserved
- - Can be run on the server (`Node`, `Deno` and `Bun`) - **SSR**, **SSG** and **ISR** support
- - Tested on various devices - **Mobile**, **Desktop** and **Tablet**
- - Tested with various (and mixed) inputs - **Mouse**, **Touch** and **Pen**
- - **Treeshaking** - bundle only what you really need 
- - Automatic update detection - **no polling**
- - Usage of latest browser features - best **performance** in new browsers
- - Flow independent - supports all values for `direction`, `flex-direction` and `writing-mode`
- - Supports Scroll Snapping
- - Supports all **virtual scrolling** libraries
- - Supports the `body` element
- - Simple and effective scrollbar styling
- - Highly customizable
- - TypeScript support - fully written in TypeScript
- - Dependency free - 100% self written to ensure small size and best functionality
+ - Simple, powerful and well-documented API.
+ - High browser compatibility - **Firefox 59+**, **Chrome 55+**, **Opera 42+**, **Edge 15+** and **Safari 10+**.
+ - **Fully Accessible** - Native scrolling behavior is fully preserved.
+ - Can run on the server (`Node`, `Deno` and `Bun`) - **SSR**, **SSG** and **ISR** support.
+ - Tested on various devices - **Mobile**, **Desktop** and **Tablet**.
+ - Tested with various (and mixed) inputs - **Mouse**, **Touch** and **Pen**.
+ - **Treeshaking** - bundle only what you really need.
+ - Automatic update detection - **no polling required**.
+ - Leverage latest browser features - best performance in new browsers.
+ - Flow independent - supports all values for `direction`, `flex-direction` and `writing-mode`.
+ - Supports scroll snapping.
+ - Supports all **virtual scrolling** libraries.
+ - Supports the `body` element.
+ - Easy and effective scrollbar styling.
+ - Highly customizable.
+ - TypeScript support - completely written in TypeScript.
+ - Dependency-free - 100% self-written to ensure small size and best functionality.
  - High quality and fully typed framework versions for [`react`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react), [`vue`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue), [`angular`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-ngx), [`svelte`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-svelte) and [`solid`](https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-solid).
 
 ## Choose your framework
 
-Additionally to the vanilla JavaScript version you can use the official framework components & utilities:
+In addition to the vanilla JavaScript version, you can use the official framework components & utilities:
 
 <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-react"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-react/logo.svg" width="80" height="80" alt="React"></a>
 <a href="https://github.com/KingSora/OverlayScrollbars/tree/master/packages/overlayscrollbars-vue"><img src="https://raw.githubusercontent.com/KingSora/OverlayScrollbars/master/packages/overlayscrollbars-vue/logo.svg" width="80" height="80" alt="Vue"></a>
@@ -66,7 +66,7 @@ OverlayScrollbars can be downloaded from [npm](https://www.npmjs.com/package/ove
 ```sh
 npm install overlayscrollbars
 ```
-After installation it can be imported:
+Once installed, it can be imported:
 ```js
 import 'overlayscrollbars/overlayscrollbars.css';
 import { 
@@ -81,16 +81,16 @@ import {
 
 You can use this [Node Example](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/node) as an reference / starting point.
 
-### Manual download & embedding
+### Manual Download & Embedding
 
 You can use OverlayScrollbars without any bundler or package manager.  
-Simply download it from the [Releases](https://github.com/KingSora/OverlayScrollbars/releases) or use a [CDN](https://cdnjs.com/libraries/overlayscrollbars).
+Simply download one of the [Releases](https://github.com/KingSora/OverlayScrollbars/releases) or use a [CDN](https://cdnjs.com/libraries/overlayscrollbars).
 
 - Use the javascript files with the `.browser` extension.
 - Use the javascript files with the `.es5` extension if you need to support older browsers, otherwise use the `.es6` files.
 - For production use the javascript / stylesheet files with the `.min` extension. 
 
-Embedd OverlayScrollbars manually in your HTML:
+Embed OverlayScrollbars manually in your HTML:
 ```html
 <link type="text/css" href="path/to/overlayscrollbars.css" rel="stylesheet" />
 <script type="text/javascript" src="path/to/overlayscrollbars.browser.es.js" defer></script>
@@ -106,25 +106,26 @@ var {
 } = OverlayScrollbarsGlobal;
 ```
 
-You can use this [Browser Example](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/browser) as an reference / starting point.
+You can use this [Browser Example](https://github.com/KingSora/OverlayScrollbars/tree/master/examples/browser) as an reference or a starting point.
 
-The examples in this documentation will use the `import` syntax instead of the `OverlayScrollbarsGlobal` object. Both versions are equivalent though.
+The examples in this documentation use the `import` syntax instead of the `OverlayScrollbarsGlobal` object. However, both versions are equivalent.
 
 ## Initialization
 
-You can initialize either directly with an `Element` or with an `Object` where you have more control over the initialization process. 
+The initialization of `OverlayScrollbars` is explicit _per element_. Only the scrollbars of the element on which the plugin is initialized will be changed. Scrollbars of child elements will remain unchanged unless the plugin is initialized on them as well.
+
+You can either initialize a new instance directly with an `Element` or with an `Object` where you have more control over the initialization process. 
 
 ```js
-// simple initialization with an element
+// Simple initialization with an element
 const osInstance = OverlayScrollbars(document.querySelector('#myElement'), {});
 ```
 
 ### Bridging initialization flickering
 
-If you initialize OverlayScrollbars it needs a few milliseconds to create and append all the elements to the DOM.
-While this period the native scrollbars are still visible and are switched out after the initialization is finished. This is perceived as flickering. 
+When you initialize OverlayScrollbars, it takes a few milliseconds to create and append all the elements to the DOM. During this time, the native scrollbars are still visible and will be switched out after the initialization is finished. This is seen as flickering. 
 
-To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (and `html` element if the target element is `body`).
+To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to the target element (and the `html` element as well when initializing a scrollbar for the `body` element).
 
 ```html
 <!-- for the body element -->
@@ -142,12 +143,12 @@ To fix this behavior apply the `data-overlayscrollbars-initialize` attribute to 
 ### Initialization with an Object
 <details>
   <summary>
-    This is a in depth topic. Click here to read it.
+    This is an in depth topic. Click here to read it.
   </summary>
   <br />
   
-The only required field is the `target` field. This is the field to which the plugin is applied to.  
-If you use the object initialization only with the `target` field, the outcome is equivalent to the element initialization:
+The only required field is the `target` field. This is the field to which the plugin will be applied.  
+If you use the object initialization with only the `target` field, the result is equivalent to the element initialization:
 ```js
 // Both initializations have the same outcome
 
@@ -155,8 +156,8 @@ OverlayScrollbars(document.querySelector('#myElement'), {});
 OverlayScrollbars({ target: document.querySelector('#myElement') }, {});
 ```
 
-In the initialization object you can specify how the library is handling generated elements.
-For example you can appoint an existing element as the `viewport` element. Like this the library won't generate it but take the specified element instead:
+When initializing with an object you can specify how the library handles generated elements.
+For example, you can specify an existing element as the `viewport' element. Then the library won't generate it, but use the specified element instead:
 
  ```js
 OverlayScrollbars({ 
@@ -167,7 +168,7 @@ OverlayScrollbars({
 }, {});
 ```
 
-This is very useful if you have a fixed DOM structure and don't want OverlayScrollbars to generate its own elements. Those cases arise very often when you want an other library to work together with OverlayScrollbars.
+This is very useful if you have a fixed DOM structure and don't want OverlayScrollbars to create its own elements. These cases are very common when you want another library to work with OverlayScrollbars.
 
 ---
 
@@ -184,7 +185,8 @@ OverlayScrollbars({
 
 ---
 
-And last but not least you can decide when the initialization should be canceled:
+Last but not least, you can decide when to cancel the initialization:
+
  ```js
 OverlayScrollbars({ 
   target: document.querySelector('#target'),
@@ -195,7 +197,7 @@ OverlayScrollbars({
 }, {});
 ```
 
-In the above example the initialization is canceled when the native scrollbars are overlaid or when your target is a `body` element and the plugin determined that a initialization to the `body` element would affect native functionality like `window.scrollTo`.
+In the above example, the initialization will be aborted if the native scrollbars are overlaid, or if your target is a `body` element and the plugin has determined that initializing to the `body` element would interfere with native functionality such as `window.scrollTo`.
 
 </details>
 
@@ -213,7 +215,7 @@ OverlayScrollbars(document.querySelector('#myElement'), {
 ### Options in depth
 <details>
   <summary>
-    This is a in depth topic. Click here to read it.
+    This is an in depth topic. Click here to read it.
   </summary>
   <br />
 
@@ -251,7 +253,7 @@ const defaultOptions = {
 | :--- | :--- |
 | `boolean` | `false` |
 
-Indicates whether the padding for the content shall be absolute.
+Indicates whether the padding for the content should be absolute.
 
 ### `showNativeOverlaidScrollbars`
 
@@ -259,7 +261,7 @@ Indicates whether the padding for the content shall be absolute.
 | :--- | :--- |
 | `boolean` | `false` |
 
-Indicates whether the native overlaid scrollbars shall be visible.
+Indicates whether the native overlaid scrollbars should be visible.
 
 ### `update.elementEvents`
 
@@ -267,7 +269,7 @@ Indicates whether the native overlaid scrollbars shall be visible.
 | :--- | :--- |
 | `Array<[string, string]> \| null` | `[['img', 'load']]` |
 
-An array of tuples. The first value in the tuple is an `selector` and the second value are `event names`. The plugin will update itself if any of the elements with the specified selector will emit any specified event. The default value can be interpreted as "The plugin will update itself if any `img` element emits an `load` event."
+An array of tuples. The first value in the tuple is an `selector` and the second value are `event names`. The plugin will update itself if any of the elements with the specified selector emits any of the specified events. The default value can be interpreted as "The plugin will update itself if any `img` element emits a `load` event."
 
 ### `update.debounce`
 
@@ -275,9 +277,9 @@ An array of tuples. The first value in the tuple is an `selector` and the second
 | :--- | :--- |
 | `[number, number] \| number \| null` | `[0, 33]` |
 
-> __Note__: If 0 is used for the timeout, `requestAnimationFrame` instead of `setTimeout` is used for the debounce.
+> __Note__: If 0 is used for the timeout, `requestAnimationFrame` will be used instead of `setTimeout` for the debounce.
 
-Debounces the `MutationObserver` which tracks changes to the content. If a **tuple** is passed, the first value is the timeout and second is the max wait. If only a **number** is passed you specify only the timeout and there is no max wait. With **null** there is no debounce. **Usefull to fine-tune performance.**
+Debounces the `MutationObserver` which tracks changes to the content. If a **tuple** is passed, the first value is the timeout and second is the max wait. If only a **number** it is treated as the timeout and there is no max wait. With **null** there is no debounce. **Useful to fine-tune performance.**
 
 ### `update.attributes`
 
@@ -287,7 +289,7 @@ Debounces the `MutationObserver` which tracks changes to the content. If a **tup
 
 > __Note__: There is a base array of attributes that the `MutationObserver` always observes, even if this option is `null`.
 
-An array of additional attributes that the `MutationObserver` should observe for the content. 
+An array of additional attributes that the `MutationObserver` should observe the content for. 
 
 ### `update.ignoreMutation`
 
@@ -295,7 +297,7 @@ An array of additional attributes that the `MutationObserver` should observe for
 | :--- | :--- |
 | `((mutation) => any) \| null` | `null` |
 
-A function which receives a [`MutationRecord`](https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord) as an argument. If the function returns a truthy value the mutation will be ignored and the plugin won't update. **Usefull to fine-tune performance.**
+A function which receives a [`MutationRecord`](https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord) as an argument. If the function returns a truthy value the mutation will be ignored and the plugin won't update. **Useful to fine-tune performance.**
 
 ### `overflow.x`
 
@@ -333,7 +335,7 @@ Applies the specified theme (classname) to the scrollbars.
 
 > __Note__: Valid values are: `'visible'`, `'hidden'`, and `'auto'`.
 
-The visibility of a scrollbar if its scroll axis is able to have a scrollable overflow. (Scrollable overflow for an axis is only possible with the overflow behavior `'scroll'` or `'visible-scroll'`).
+The visibility of a scrollbar if its scroll axis is able to have a scrollable overflow. (Scrollable overflow for an axis is only possible with the overflow behavior set to `'scroll'` or `'visible-scroll'`).
 
 ### `scrollbars.autoHide`
 
@@ -343,7 +345,7 @@ The visibility of a scrollbar if its scroll axis is able to have a scrollable ov
 
 > __Note__: Valid values are: `'never'`, `'scroll'`, `'leave'` and `'move'`.
 
-The possibility to hide visible scrollbars automatically after a certain user action.
+Dictates whether to hide visible scrollbars automatically after a certain user action.
 
 ### `scrollbars.autoHideDelay`
 
@@ -351,15 +353,15 @@ The possibility to hide visible scrollbars automatically after a certain user ac
 | :--- | :--- |
 | `number` | `1300` |
 
-The delay in milliseconds before the scrollbars are hidden automatically.
+The delay in milliseconds before the scrollbars are automatically hidden.
 
 ### `scrollbars.autoHideSuspend`
 
-| type  | default |
+| type  | default | 
 | :--- | :--- |
 | `boolean` | `false` |
 
-Suspend the autoHide functionality until the first scroll interaction was performed.  
+Suspend the autoHide functionality until the first scroll interaction is performed.  
 The default value for this option is `false` for backwards compatibility reasons but is recommended to be `true` for better accessibility.
 
 ### `scrollbars.dragScroll`
@@ -374,9 +376,9 @@ Indicates whether you can drag the scrollbar handles for scrolling.
 
 | type  | default |
 | :--- | :--- |
-| `boolean` | `false` |
+| `boolean \| 'instant'` | `false` |
 
-> __Note__: This options requires the **ClickScrollPlugin** to work.
+> __Note__: If set to `true` the **ClickScrollPlugin** is required.
 
 Indicates whether you can click on the scrollbar track for scrolling.
 
@@ -393,16 +395,16 @@ The [`PointerTypes`](https://developer.mozilla.org/en-US/docs/Web/API/PointerEve
 ```ts
 // The options of a OverlayScrollbars instance.
 type Options = {
-  // Whether the padding shall be absolute.
+  // Whether the padding should be absolute.
   paddingAbsolute: boolean;
-  // Whether to show the native scrollbars. Has only an effect it the native scrollbars are overlaid.
+  // Whether to show the native scrollbars. Has effect only if the native scrollbars are overlaid.
   showNativeOverlaidScrollbars: boolean;
   // Customizes the automatic update behavior.
   update: {
     /**
      * The given Event(s) from the elements with the given selector(s) will trigger an update.
      * Useful for everything the MutationObserver and ResizeObserver can't detect
-     * e.g.: and Images `load` event or the `transitionend` / `animationend` events.
+     * e.g.: An image's `load` event or the `transitionend` / `animationend` events.
      */
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
     /**
@@ -410,15 +412,15 @@ type Options = {
      * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds.
      * If a single number customizes only the `timeout`.
      *
-     * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
+     * If the `timeout` is `0`, a debounce still exists (and is done via `requestAnimationFrame` instead of `setTimeout`).
      */
     debounce: [timeout: number, maxWait: number] | number | null;
     /**
      * HTML attributes which will trigger an update if they're changed.
-     * Basic attributes like `id`, `class`, `style` etc. are always observed and doesn't have to be added explicitly.
+     * Basic attributes like `id`, `class`, `style` etc. are always observed and don't have to be added explicitly.
      */
     attributes: string[] | null;
-    // A function which makes it possible to ignore a content mutation or null if nothing shall be ignored.
+    // A function which makes it possible to ignore a content mutation or null if nothing should be ignored.
     ignoreMutation: ((mutation: MutationRecord) => any) | null;
   };
   // Customizes the overflow behavior per axis.
@@ -430,24 +432,66 @@ type Options = {
   };
   // Customizes appearance of the scrollbars.
   scrollbars: {
-    // The scrollbars theme. The theme value will be added as `class` to all `scrollbar` elements of the instance.
+    // The scrollbar's theme. The theme value will be added as `class` to all `scrollbar` elements of the instance.
     theme: string | null;
-    // The scrollbars visibility behavior.
+    // The scrollbar's visibility behavior.
     visibility: ScrollbarsVisibilityBehavior;
-    // The scrollbars auto hide behavior.
+    // The scrollbar's auto hide behavior.
     autoHide: ScrollbarsAutoHideBehavior;
-    // The scrollbars auto hide delay in milliseconds.
+    // The scrollbar's auto hide delay in milliseconds.
     autoHideDelay: number;
-    // Whether the scrollbars auto hide behavior is suspended until a scroll happened.
+    // Whether the scrollbar's auto hide behavior is suspended until a scroll happened.
     autoHideSuspend: boolean;
-    // Whether its possible to drag the handle of a scrollbar to scroll the viewport.
+    // Whether it is possible to drag the handle of a scrollbar to scroll the viewport.
     dragScroll: boolean;
-    // Whether its possible to click the track of a scrollbar to scroll the viewport.
-    clickScroll: boolean;
-    // An array of pointer types which shall be supported.
+    // Whether it is possible to click the track of a scrollbar to scroll the viewport.
+    clickScroll: ScrollbarsClickScrollBehavior;
+    // An array of pointer types that shall be supported.
     pointers: string[] | null;
   };
 };
+
+// The overflow behavior of an axis.
+type OverflowBehavior =
+  // No scrolling is possible and the content is clipped.
+  | 'hidden'
+  // No scrolling is possible and the content isn't clipped.
+  | 'visible'
+  // Scrolling is possible if there is an overflow.
+  | 'scroll'
+  /**
+   * If the other axis has no overflow the behavior is similar to `visible`.
+   * If the other axis has overflow the behavior is similar to `hidden`.
+   */
+  | 'visible-hidden'
+  /**
+   * If the other axis has no overflow the behavior is similar to `visible`.
+   * If the other axis has overflow the behavior is similar to `scroll`.
+   */
+  | 'visible-scroll';
+
+// The scrollbars visibility behavior.
+type ScrollbarsVisibilityBehavior =
+  // The scrollbars are always visible.
+  | 'visible'
+  // The scrollbars are always hidden.
+  | 'hidden'
+  // The scrollbars are only visibile if there is overflow.
+  | 'auto';
+
+// The scrollbars auto hide behavior
+type ScrollbarsAutoHideBehavior =
+  // The scrollbars are never hidden automatically.
+  | 'never'
+  // The scrollbars are hidden unless the user scrolls.
+  | 'scroll'
+  // The scrollbars are hidden unless the pointer moves in the host element or the user scrolls.
+  | 'move'
+  // The scrollbars are hidden if the pointer leaves the host element or unless the user scrolls.
+  | 'leave';
+
+// The scrollbar click scroll behavior.
+type ScrollbarsClickScrollBehavior = boolean | 'instant';
 ```
 
 </details>
@@ -467,7 +511,7 @@ OverlayScrollbars(document.querySelector('#myElement'), {}, {
 
 <details>
   <summary>
-    This is a in depth topic. Click here to read it.
+    This is an in depth topic. Click here to read it.
   </summary>
   <br />
 
@@ -479,7 +523,7 @@ OverlayScrollbars(document.querySelector('#myElement'), {}, {
 | :--- | :--- |
 | `instance` | The instance which dispatched the event. |
 
-Is dispatched after all generated elements, observers and events were appended to the DOM.
+Dispatched after all generated elements, observers and events were appended to the DOM.
 
 ### `updated`
 
@@ -490,16 +534,16 @@ Is dispatched after all generated elements, observers and events were appended t
 
 > __Note__: If an update was triggered but nothing changed, the event won't be dispatched.
 
-Is dispatched after the instace was updated. 
+Dispatched after the instance was updated. 
 
 ### `destroyed`
 
 | arguments  | description |
 | :--- | :--- |
 | `instance` | The instance which dispatched the event. |
-| `canceled` | An `boolean` which indicates whether the initialization was canceled and thus destroyed. |
+| `canceled` | A `boolean` which indicates whether the initialization was canceled and thus destroyed. |
 
-Is dispatched after all generated elements, observers and events were removed from the DOM.
+Dispatched after all generated elements, observers and events were removed from the DOM.
 
 ### `scroll`
 
@@ -508,7 +552,7 @@ Is dispatched after all generated elements, observers and events were removed fr
 | `instance` | The instance which dispatched the event. |
 | `event` | The original `event` argument of the DOM event. |
 
-Is dispatched by scrolling the viewport.
+Dispatched by scrolling the viewport.
 
 #### TypeScript 
 
@@ -549,7 +593,7 @@ interface OnUpdatedEventListenerArgs {
   };
   // The changed options.
   changedOptions: PartialOptions;
-  // Whether the update happened with an force invalidated cache.
+  // Whether the update happened with force-invalidated cache.
   force: boolean;
 }
 ```
@@ -558,7 +602,7 @@ interface OnUpdatedEventListenerArgs {
 
 ## Instance
 
-The OverlayScrollbars instance is created by calling the `OverlayScrollbars` function with an element and options object.
+The OverlayScrollbars instance can be created by calling the `OverlayScrollbars` function with an element and options object.
 
 ```js
 const osInstance = OverlayScrollbars(document.body, {});
@@ -568,7 +612,7 @@ const osInstance = OverlayScrollbars(document.body, {});
 
 <details>
   <summary>
-    This is a in depth topic. Click here to read it.
+    This is an in depth topic. Click here to read it.
   </summary>
 
   ### `options(): Options`
@@ -586,7 +630,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | newOptions | `PartialOptions` | The new (partial) options which should be applied. |
-  | pure | `boolean / undefined` | Whether the options should be reset before the new options are added. |
+  | pure | `boolean \| undefined` | Whether the options should be reset before the new options are added. |
 
   | returns | description |
   | :--- | :--- |
@@ -598,8 +642,8 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   | parameter | type | description |
   | :--- | :--- | :--- |
-  | eventListeners | `EventListeners` | An object which contains the added listeners. The fields are the event names and the values the listeners. |
-  | pure | `boolean / undefined` | Whether all already added event listeners should be removed before the new listeners are added. |
+  | eventListeners | `EventListeners` | An object which contains the added listeners. The fields are the event names and the listeners. |
+  | pure | `boolean \| undefined` | Whether all already added event listeners should be removed before the new listeners are added. |
 
   | returns | description |
   | :--- | :--- |
@@ -612,7 +656,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | name | `string` | The event name. |
-  | listener | `Function` | The function which is invoked when the event is dispatched. |
+  | listener | `Function` | The function invoked when the event is dispatched. |
 
   | returns | description |
   | :--- | :--- |
@@ -625,7 +669,7 @@ const osInstance = OverlayScrollbars(document.body, {});
   | parameter | type | description |
   | :--- | :--- | :--- |
   | name | `string` | The event name. |
-  | listeners | `Function[]` | The functions which are invoked when the event is dispatched. |
+  | listeners | `Function[]` | The functions invoked when the event is dispatched. |
 
   | returns | description |
   | :--- | :--- |
@@ -655,7 +699,7 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   | parameter | type | description |
   | :--- | :--- | :--- |
-  | force | `boolean / undefined` |  Whether the update should force the cache to be invalidated. |
+  | force | `boolean \| undefined` |  Whether the update should force the cache to be invalidated. |
 
   | returns | description |
   | :--- | :--- |
@@ -663,19 +707,19 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   ### `state(): State`
 
-  Gets the instances state.
+  Gets the instance's state.
 
   | returns | description |
   | :--- | :--- |
-  | `State` | An object which describes the state of the instance. |
+  | `State` | An object describing the state of the instance. |
 
   ### `elements(): Elements`
 
-  Gets the instances elments.
+  Gets the instances elements.
 
   | returns | description |
   | :--- | :--- |
-  | `Elements` | An object which describes the elements of the instance. |
+  | `Elements` | An object describing the elements of the instance. |
 
   ### `destroy(): void`
 
@@ -687,7 +731,7 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   | returns | description |
   | :--- | :--- |
-  | `object / undefined` | An object which describes the plugins instance modules instance or `undefined` if no instance was found. |
+  | `object \| undefined` | An object which describes the plugins instance modules instance or `undefined` if no instance was found. |
 
   #### TypeScript 
 
@@ -714,10 +758,10 @@ const osInstance = OverlayScrollbars(document.body, {});
     // Updates the instance.
     update(force?: boolean): boolean;
 
-    // Gets the instances state.
+    // Gets the instance's state.
     state(): State;
 
-    // Gets the instances elements.
+    // Gets the instance's elements.
     elements(): Elements;
 
     // Destroys the instance and removes all added elements.
@@ -729,13 +773,13 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   // Describes a OverlayScrollbars instances state.
   interface State {
-    // Describes the current padding in pixel.
+    // Describes the current padding in pixels.
     padding: TRBL;
     // Whether the current padding is absolute.
     paddingAbsolute: boolean;
-    // The client width (x) & height (y) of the viewport in pixel.
+    // The client width (x) & height (y) of the viewport in pixels.
     overflowEdge: XY<number>;
-    // The overflow amount in pixel.
+    // The overflow amount in pixels.
     overflowAmount: XY<number>;
     // The css overflow style of the viewport.
     overflowStyle: XY<OverflowStyle>;
@@ -758,18 +802,18 @@ const osInstance = OverlayScrollbars(document.body, {});
   interface Elements {
     // The element the instance was applied to.
     target: HTMLElement;
-    // The host element. Its the root of all other elements.
+    // The host element. It's the root of all other elements.
     host: HTMLElement;
     /**
-     * The element which is responsible to apply correct paddings.
-     * Depending on the Initialization it can be the same as the viewport element.
+     * The element responsible for the correct padding.
+     * Depending on initialization it can be the same as the viewport element.
      */
     padding: HTMLElement;
-    // The element which is responsible to do any scrolling.
+    // The element responsible of the scrolling.
     viewport: HTMLElement;
     /**
-     * The element which is responsible to hold the content.
-     * Depending on the Initialization it can be the same as the viewport element.
+     * The element responsible for holding the actual content.
+     * Depending on initialization it can be the same as the viewport element.
      */
     content: HTMLElement;
     /**
@@ -782,9 +826,9 @@ const osInstance = OverlayScrollbars(document.body, {});
      * Depending on the target element it can be the same as the viewport element.
      */
     scrollEventElement: HTMLElement | Document;
-    // The horizontal scrollbar elements.
+    // The horizontal scrollbar's elements.
     scrollbarHorizontal: CloneableScrollbarElements;
-    // The vertical scrollbar elements.
+    // The vertical scrollbar's elements.
     scrollbarVertical: CloneableScrollbarElements;
   }
   ```
@@ -803,32 +847,8 @@ OverlayScrollbars.plugin(SomePlugin);
 
 <details>
   <summary>
-    This is a in depth topic. Click here to read it.
+    This is an in depth topic. Click here to read it.
   </summary>
-
-  ### `plugin(plugin): object | undefined`
-
-  Adds a single plugin.
-
-  | parameter | type | description |
-  | :--- | :--- | :--- |
-  | plugin | `object` | The plugin to be added. |
-
-  | returns | description |
-  | :--- | :--- |
-  | `object / void` | An object which describes the plugins static modules instance or `void` if no instance was found. |
-
-  ### `plugin(plugins): (object | void)[]`
-
-  Adds multiple plugins.
-
-  | parameter | type | description |
-  | :--- | :--- | :--- |
-  | plugins | `object[]` | The plugins to be added. |
-
-  | returns | description |
-  | :--- | :--- |
-  | `(object / void)[]` | An array which describes the plugins static modules instances or `undefined` if no instance was found. |
 
   ### `valid(osInstance): boolean`
 
@@ -848,7 +868,39 @@ OverlayScrollbars.plugin(SomePlugin);
 
   | returns | description |
   | :--- | :--- |
-  | `Environment` | An object which described the environment. |
+  | `Environment` | An object describing the environment. |
+
+  ### `nonce(newNonce): void`
+
+  Sets the nonce attribute for inline styles.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | newNonce | `string \| undefined` | The nonce attribute for inline styles. |
+
+  ### `plugin(plugin): object | undefined`
+
+  Adds a single plugin.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | plugin | `object` | The plugin to be added. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `object \| void` | An object describing the plugin's static module instance or `void` if no instance was found. |
+
+  ### `plugin(plugins): (object | void)[]`
+
+  Adds multiple plugins.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | plugins | `object[]` | The plugins to be added. |
+
+  | returns | description |
+  | :--- | :--- |
+  | `(object \| void)[]` | An array describing the plugins static modules instances or `undefined` if no instance was found. |
 
   #### TypeScript
 
@@ -860,16 +912,19 @@ OverlayScrollbars.plugin(SomePlugin);
     // Initializes OverlayScrollbars to the passed target with passed options and event listeners.
     (target: InitializationTarget, options: PartialOptions, eventListeners?: EventListeners): OverlayScrollbars;
 
-    // Adds a single plugin.
-    plugin(plugin: Plugin): InferStaticPluginModuleInstance<Plugin>
-    // Adds multiple plugins.
-    plugin(plugins: Plugin[]): InferStaticPluginModuleInstance<Plugin>[];
-
     // Checks whether the passed value is a valid and not destroyed overlayscrollbars instance.
     valid(osInstance: any): osInstance is OverlayScrollbars;
 
     // Gets the environment.
     env(): Environment;
+
+    // Sets the nonce attribute for inline styles.
+    nonce(newNonce: string | undefined): void;
+
+    // Adds a single plugin.
+    plugin(plugin: Plugin): InferStaticPluginModuleInstance<Plugin>
+    // Adds multiple plugins.
+    plugin(plugins: Plugin[]): InferStaticPluginModuleInstance<Plugin>[];
   }
 
   // Describes the OverlayScrollbars environment.
@@ -878,7 +933,7 @@ OverlayScrollbars.plugin(SomePlugin);
     scrollbarsSize: XY<number>;
     // Whether the native scrollbars are overlaid.
     scrollbarsOverlaid: XY<boolean>;
-    // Whether the browser supports native scrollbars hiding.
+    // Whether the browser supports native scrollbar hiding.
     scrollbarsHiding: boolean;
     // Whether the browser supports the ScrollTimeline API.
     scrollTimeline: boolean;
@@ -914,13 +969,13 @@ OverlayScrollbars.plugin(SomePlugin);
 
 OverlayScrollbars comes with two themes called `os-theme-dark` and `os-theme-light`. You can use the `scrollbars.theme` option to change the theme.
 
-Custom themes can be done in multiple ways. The easiest and fastest is to use the predefined set of `CSS Custom Properties` aka. CSS variables. In case those aren't enought you can add custom class names or add custom styling to the existing class names.  
+Custom themes can be done in several ways. The easiest and fastest way is to use the predefined set of `CSS Custom Properties` aka CSS variables. If that's not enough, you can add custom class names or add custom styling to the existing class names.  
 
 ### Styling in depth
 
 <details>
   <summary>
-    This is a in depth topic. Click here to read it.
+    This is an in depth topic. Click here to read it.
   </summary>
 
   ### CSS Custom properties
@@ -930,7 +985,7 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
   .os-scrollbar {
     // The size of the scrollbar
     --os-size: 0;
-    // The axis-perpedicular padding of the scrollbar (horizontal: padding-y, vertical: padding-x)
+    // The axis-perpendicular padding of the scrollbar (horizontal: padding-y, vertical: padding-x)
     --os-padding-perpendicular: 0;
     // The axis padding of the scrollbar (horizontal: padding-x, vertical: padding-y)
     --os-padding-axis: 0;
@@ -966,30 +1021,30 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
     --os-handle-min-size: 33px;
     // The max size of the scrollbar handle
     --os-handle-max-size: none;
-    // The axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+    // The axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
     --os-handle-perpendicular-size: 100%;
-    // The :hover axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+    // The :hover axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
     --os-handle-perpendicular-size-hover: 100%;
-    // The :active axis-perpedicular size of the scrollbar handle (horizontal: height, vertical: width)
+    // The :active axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
     --os-handle-perpendicular-size-active: 100%;
     // Increases the interactive area of the scrollbar handle.
     --os-handle-interactive-area-offset: 0;
   }
   ```
 
-  You can alter the properties either for both scrollbars at once or per scrollbar axis. In the example below I've chosen `os-theme-custom` as the theme name:
+  You can change the properties for both scrollbars at once, or for each scrollbar axis. In the example below, I've chosen `os-theme-custom` as the theme name:
 
   ```scss
-  // horizontal and vertical scrollbar are 10px 
+  // Horizontal and vertical scrollbar are 10px 
   .os-theme-custom {
     --os-size: 10px;
   }
 
-  // horizontal scrollbar is 10px
+  // Horizontal scrollbar is 10px
   .os-theme-custom.os-scrollbar-horizontal {
     --os-size: 10px;
   }
-  // vertical scrollbar is 20px
+  // Vertical scrollbar is 20px
   .os-theme-custom.os-scrollbar-vertical {
     --os-size: 20px;
   }
@@ -1005,8 +1060,8 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
   });
   ```
 
-  Since scrollbar styles are usually simple, this set of options should be enough to get your desired styling.
-  In case you need more freedom you can create your own styles by adding styling to the base class names described in the next section.
+  Since scrollbar styles are usually simple, this set of options should be enough to get the styling you want.
+  If you need more freedom, you can create your own styles by adding styling to the base class names described in the next section.
 
   ### Scrollbars structure and CSS class names
 
@@ -1037,28 +1092,28 @@ Custom themes can be done in multiple ways. The easiest and fastest is to use th
 | `.os-scrollbar-rtl` | Indicates a `RTL` direction of the host element the scrollbar belongs to. |
 | `.os-scrollbar-horizontal` | The root element of a horizontal scrollbar. |
 | `.os-scrollbar-vertical` | The root element of a vertical scrollbar. |
-| `.os-scrollbar-handle-interactive` | Indicates that the handle inside the scrollbar is interactive (`scrollbars.dragScroll` is `true`). |
-| `.os-scrollbar-track-interactive` | Indicates that the track inside the scrollbar is interactive (`scrollbars.clickScroll` is `true`). |
-| `.os-scrollbar-track` | The track element. This is the track of the nested handle element. If `scrollbars.clickScroll` is `true` this is the element users can click to change the scroll offset. |
-| `.os-scrollbar-handle` | The handle element. If `scrollbars.dragScroll` is `true` this is the handle users can drag to change the scroll offset. |
+| `.os-scrollbar-handle-interactive` | Indicates that the handle inside the scrollbar is interactive (`scrollbars.dragScroll` is not `false`). |
+| `.os-scrollbar-track-interactive` | Indicates that the track inside the scrollbar is interactive (`scrollbars.clickScroll` is not `false`). |
+| `.os-scrollbar-track` | The track element. This is the track of the nested handle element. If `scrollbars.clickScroll` is not `false` this is the element users can click to change the scroll offset. |
+| `.os-scrollbar-handle` | The handle element. If `scrollbars.dragScroll` is not `false` this is the handle users can drag to change the scroll offset. |
 
   If you create your own theme, please only use the classes listed above. All other classes are modifier classes used to change visibility, alignment and pointer-events of the scrollbars.
 
   ### Gotchas
 
-  Its important that the chosen theme class name in your CSS file matches the assigned theme name in the options. If the CSS class name is `.my-theme` the `scrollbars.theme` has to be `'my-theme'`.  
+  It is important that the chosen theme class name in your CSS file matches the assigned theme name in the options. If the CSS class name is `.my-theme`, the `scrollbars.theme` must be `'my-theme'`.  
     
     
-  Please be aware of your stack. `css-modules` for example will alter your class names to prevent naming collisions. Always double check if your CSS is really what you expect it to be.
+  Please be aware of your stack. For example, `css-modules` will change your class names to avoid naming collisions. Always check that your CSS is what you expect it to be.
 
 </details>
 
 ## Plugins
 
-Everything thats considered not core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are treeshaken and thus won't end up in your final bundle. OverlayScrollbars comes with the following plugins:
+Anything that is not considered core functionality or old browser compatibility is exposed via a plugin. This is done because all unused plugins are omitted during treeshaking and won't end up in your final bundle. OverlayScrollbars ships with the following plugins:
 
-- **ScrollbarsHidingPlugin**: Is needed for old browsers which aren't supporting native scrollbar styling features. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=scrollbar%20styling) (note that even though `iOS Safari >= 14` is marked as unsupported you only need this plugin for `iOS < 7.1`).
-- **SizeObserverPlugin**: Is needed for old browsers which aren't supporting the `ResizeObserver` api. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=ResizeObserver)
+- **ScrollbarsHidingPlugin**: Needed for old browsers that don't support native scrollbar styling. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=scrollbar%20styling) (note that even though `iOS Safari >= 14` is marked as unsupported, you only need this plugin for `iOS < 7.1`).
+- **SizeObserverPlugin**: Needed for old browsers that don't support the `ResizeObserver` api. [You can find the list of browsers that need this plugin here](https://caniuse.com/?search=ResizeObserver)
 - **ClickScrollPlugin**: If you want to use the option `scrollbars: { clickScroll: true }`.
 
 ### Consuming Plugins
@@ -1072,10 +1127,10 @@ import {
   ClickScrollPlugin 
 } from 'overlayscrollbars';
 
-// single plugin
+// Single plugin
 OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 
-// multiple plugins
+// Multiple plugins
 OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
 ```
 
@@ -1083,15 +1138,15 @@ OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
 
 <details>
   <summary>
-    This is a in depth topic. Click here to read it.
+    This is an in depth topic. Click here to read it.
   </summary>
   <br />
 
-Plugins are plain objects with a **single field**, the name of the field is the name of the plugin. This name is the plugins identifier and _must_ be unique across all plugin. In case multiple plugins have the same name, the last added plugin overwrites  previously added plugins.
+Plugins are plain objects with a **single field**, the name of the field is the name of the plugin. This name is the plugin's identifier and _must_ be unique across all plugins. In case multiple plugins have the same name, the last added plugin overwrites the plugin added previously under the same name.
 
 ### Plugin Modules
 
-A Plugin module is the constructor of a plugin modules instance. There are two kinds of plugin modules: `static` and `instance`. A single plugin must have one or more modules. Plugin modules can return an instance, but doesnt have to.
+A Plugin module is the constructor of a plugin module's instance. There are two kinds of plugin modules: `static` and `instance`. A single plugin must have one or more modules. A plugin module can return an instance, but doesn't have to.
 
 #### Static Plugin Module
 
@@ -1100,10 +1155,10 @@ The `static` plugin module is invoked when the plugin is added with the `Overlay
 Example plugin with a `static` module:
 ```js
 const staticPlugin = {
-  // plugin has the name `examplePlugin`
+  // Plugin has the name `examplePlugin`.
   examplePlugin: {
-    // static function describes a static module and returns the module instance or void / undefined if no instance is needed
-    // the `osStatic` parameter is the global `OverlayScrollbars` object
+    // The `static` function describes a static module and returns the module instance or void / undefined if no instance is needed.
+    // The `osStatic` parameter is the global `OverlayScrollbars` object.
     static: (osStatic) => {
       let count = 0;
       const staticPluginModuleInstance = {
@@ -1118,7 +1173,7 @@ const staticPlugin = {
 
 When the plugin is added with the `OverlayScrollbars.plugin` function, the static module instance is returned:
 ```js
-const staticModuleInstance = OverlayScrollbars.plugin(staticPlugin); // plugins static module is invoked
+const staticModuleInstance = OverlayScrollbars.plugin(staticPlugin); // Plugins static module is invoked
 staticModuleInstance.count; // 0
 staticModuleInstance.increment();
 staticModuleInstance.count; // 1
@@ -1131,12 +1186,12 @@ The `instance` plugin module is invoked when a new `OverlayScrollbars` instance 
 Example plugin with a `instance` module:
 ```js
 const instancePlugin = {
-  // plugin has the name `examplePlugin`
+  // Plugin has the name `examplePlugin`.
   examplePlugin: {
-    // instance function describes a instance module and returns the module instance or void / undefined if no instance is needed
-    // the `osInstance` parameter is the OverlayScrollbar instance the plugin is bound to
-    // the `event` parameter is a function which adds events to the instance which can't be removed from outside the plugin
-    // the `osStatic` parameter is the gobal OverlayScrollbar object
+    // Instance function describes na instance module and returns the module instance or void / undefined if no instance is needed.
+    // The `osInstance` parameter is the OverlayScrollbar instance the plugin is bound to.
+    // The `event` parameter is a function which adds events to the instance which can't be removed from outside the plugin.
+    // The `osStatic` parameter is the global OverlayScrollbar object.
     instance: (osInstance, event, osStatic) => {
       let count = 0;
 
@@ -1145,15 +1200,15 @@ const instancePlugin = {
         increment: () => { count++ },
       }
 
-      // event which fires when the instance was initialized
+      // Event which fires when the instance was initialized.
       event('initialized', () => {
         console.log("instance initialized");
       });
 
-      // event which fires when the viewport was scrolled
+      // Event which fires when the viewport was scrolled.
       const removeScrollEvent = event('scroll', () => {
         console.log("viewport scrolled");
-        removeScrollEvent(); // removes the event after the first scroll
+        removeScrollEvent(); // Removes the event after the first scroll.
       });
       
       return instancePluginModuleInstance;
@@ -1162,11 +1217,11 @@ const instancePlugin = {
 }
 ```
 
-When the plugin is added with the `OverlayScrollbars.plugin` function all OverlayScrollbar instances will add the plugin automatically from that point on. Already created instances will not have the plugin. The instance modules instance is returned with the `osInstance.plugin` function:
+When the plugin is added with the `OverlayScrollbars.plugin` function, all OverlayScrollbar instances will automatically add the plugin from that point on. Previously created instances will not have the plugin. The instance module instance is returned with the `osInstance.plugin` function:
 ```js
-OverlayScrollbars.plugin(instancePlugin); // plugin is added
+OverlayScrollbars.plugin(instancePlugin); // Plugin is added
 
-const osInstance = OverlayScrollbars(document.body, {}); // plugins instance module is invoked
+const osInstance = OverlayScrollbars(document.body, {}); // Plugin's instance module is invoked
 const instancePluginInstance = osInstance.plugin(instancePlugin);
 
 instancePluginInstance.count; // 0
@@ -1179,11 +1234,11 @@ instancePluginInstance.count; // 1
 ```ts
 // Describes a OverlayScrollbar plugin.
 type Plugin<
-  // the name of the plugin
+  // The name of the plugin.
   Name extends string = string,
-  // the module instance type of the static module
+  // The module instance type of the static module.
   S extends PluginModuleInstance | void = PluginModuleInstance | void, 
-  // the module instance type of the instance module
+  // The module instance type of the instance module.
   I extends PluginModuleInstance | void = PluginModuleInstance | void 
 > = {
   [pluginName in Name]: PluginModule<S, I>;
@@ -1201,7 +1256,7 @@ type InstancePlugin<
   T extends PluginModuleInstance = PluginModuleInstance
 > = Plugin<Name, void, T>;
 
-// Infers the type of the static modules instance of the passed plugin.
+// Infers the type of the static module's instance of the passed plugin.
 type InferStaticPluginModuleInstance<T extends StaticPlugin>;
 
 // Infers the type of the instance modules instance of the passed plugin.
@@ -1225,8 +1280,8 @@ If the plugin was applied to any other element you have to get the `viewport` el
 
 ```js
 const { viewport } = osInstance.elements();
-const { scrollLeft, scrollTop } = viewport; // get scroll offset
-viewport.scrollTo({ top: 0 }); // set scroll offset
+const { scrollLeft, scrollTop } = viewport; // Get scroll offset
+viewport.scrollTo({ top: 0 }); // Set scroll offset
 ```
 </details>
 
@@ -1236,7 +1291,7 @@ viewport.scrollTo({ top: 0 }); // set scroll offset
   </summary>
   <br />
 
- You can adjust a scrollbars handle length by setting a `min-width / min-height` and `max-width / max-height` style:
+ You can adjust a scrollbar's handle length by setting a `min-width / min-height` and `max-width / max-height` style:
 
 ```css
 /* horizontal boundaries */

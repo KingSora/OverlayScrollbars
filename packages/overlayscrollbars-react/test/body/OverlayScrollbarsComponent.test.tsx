@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect, vi } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
-import { OverlayScrollbarsComponent } from '~/overlayscrollbars-react';
+import { OverlayScrollbarsComponent } from '../../src/overlayscrollbars-react';
 
 const getComputedStyleOriginal = window.getComputedStyle;
 vi.stubGlobal(

@@ -41,6 +41,13 @@ let OverlayScrollbars = originalOverlayScrollbars;
 describe('overlayscrollbars', () => {
   beforeEach(async () => {
     jest.resetModules();
+    jest.doMock('~/support/dom/dimensions', () => {
+      const originalModule = jest.requireActual('~/support/dom/dimensions');
+      return {
+        ...originalModule,
+        hasDimensions: jest.fn().mockImplementation(() => true),
+      };
+    });
     ({ OverlayScrollbars } = await import('~/overlayscrollbars'));
   });
 
@@ -675,6 +682,34 @@ describe('overlayscrollbars', () => {
       expect(env).not.toBe(OverlayScrollbars.env());
       expect(env).toEqual(OverlayScrollbars.env());
       expect(env).toEqual(envObj);
+    });
+
+    describe('nonce', () => {
+      beforeEach(async () => {
+        document.body.innerHTML = '';
+
+        jest.resetModules();
+        jest.doMock('~/support', () => {
+          const originalModule = jest.requireActual('~/support');
+          return {
+            ...originalModule,
+            removeElements: jest.fn().mockImplementation(),
+          };
+        });
+      });
+
+      test('without nonce', () => {
+        OverlayScrollbars.env();
+
+        expect(document.body.querySelector('style')?.nonce).toBeFalsy();
+      });
+
+      test('with nonce', () => {
+        OverlayScrollbars.nonce('abc');
+        OverlayScrollbars.env();
+
+        expect(document.body.querySelector('style')?.nonce).toBe('abc');
+      });
     });
 
     test('valid', () => {

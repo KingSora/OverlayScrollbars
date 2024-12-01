@@ -1,15 +1,13 @@
 /* eslint-disable no-console */
 /* eslint-disable import/no-dynamic-require */
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const glob = require('glob');
-const resolve = require('@~local/config/resolve');
-const defaultOptions = require('./defaultOptions');
-const pipelineDefault = require('./pipeline.default');
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import resolve from '@~local/config/resolve' with { type: 'json' };
+import defaultOptions from './defaultOptions.js';
+import pipelineDefault from './pipeline.default.js';
 
 const workspaceRoot = path.dirname(execSync('npm root').toString());
-const pkg = require(`${workspaceRoot}/package.json`);
 
 const appendExtension = (file) =>
   path.extname(file) === ''
@@ -35,7 +33,6 @@ const mergeAndResolveOptions = (userOptions) => {
     outDir: defaultOutDir,
     paths: defaultPaths,
     versions: defaultVersions,
-    alias: defaultAlias,
     rollup: defaultRollup,
     extractStyles: defaultExtractStyles,
     extractTypes: defaultExtractTypes,
@@ -50,7 +47,6 @@ const mergeAndResolveOptions = (userOptions) => {
     copy: rawCopy,
     outDir: rawOutDir,
     paths: rawPaths = {},
-    alias: rawAlias = {},
     rollup: rawRollup = {},
     versions: rawVersions,
     extractStyles: rawExtractStyles,
@@ -61,9 +57,6 @@ const mergeAndResolveOptions = (userOptions) => {
     useEsbuild: rawUseEsbuild,
   } = userOptions;
   const projectDir = process.cwd();
-  const workspaces = pkg.workspaces
-    .map((pattern) => glob.sync(pattern, { cwd: workspaceRoot }))
-    .flat();
   const mergedOptions = {
     project: project || path.basename(projectDir),
     projectDir,
@@ -81,12 +74,6 @@ const mergeAndResolveOptions = (userOptions) => {
       ...defaultPaths,
       ...rawPaths,
     },
-    alias: {
-      ...defaultAlias,
-      ...(typeof rawAlias === 'function'
-        ? rawAlias(workspaceRoot, workspaces, resolvePath)
-        : rawAlias),
-    },
     rollup: {
       ...defaultRollup,
       ...rawRollup,
@@ -99,7 +86,7 @@ const mergeAndResolveOptions = (userOptions) => {
   const { outDir, paths } = mergedOptions;
   const { js, types, styles } = paths;
   const pluginFromFn = (plugin) =>
-    typeof plugin === 'function' ? plugin(mergedOptions, workspaceRoot, workspaces) : plugin;
+    typeof plugin === 'function' ? plugin(mergedOptions, workspaceRoot) : plugin;
 
   paths.js = resolvePath(projectDir, path.join(outDir, js));
   paths.types = resolvePath(projectDir, path.join(outDir, types));
@@ -129,4 +116,4 @@ const createConfig = (userOptions = {}) => {
   return resultArr;
 };
 
-module.exports = createConfig;
+export default createConfig;
