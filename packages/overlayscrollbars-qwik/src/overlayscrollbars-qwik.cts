@@ -1,1 +1,1 @@
-export * from "./overlayscrollbars-qwik.js";
+export * from './overlayscrollbars-qwik.js';

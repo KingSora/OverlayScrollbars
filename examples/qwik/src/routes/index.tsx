@@ -1,11 +1,12 @@
-import { $, component$, noSerialize, useSignal, useVisibleTask$ } from '@builder.io/qwik';
+import { $, component$, noSerialize, useSignal, useStyles$, useTask$, useVisibleTask$ } from '@qwik.dev/core';
 import {
   OverlayScrollbarsComponent,
   type OverlayScrollbarsComponentRef,
 } from '~/components/OverlayScrollbarsComponent';
 import { useOverlayScrollbars } from '~/components/useOverlayScrollbars';
 import type { UseOverlayScrollbarsParams } from '~/components/useOverlayScrollbars';
-import type { DocumentHead } from '@builder.io/qwik-city';
+import type { DocumentHead } from '@qwik.dev/router';
+import { PartialOptions } from 'overlayscrollbars';
 
 const content = (
   <div class="logo">
@@ -18,12 +19,25 @@ export default component$(() => {
   const elementHidden = useSignal(false);
   const overlayScrollbarsApplied = useSignal(true);
   const bodyOverlayScrollbarsApplied = useSignal<boolean | null>(null);
-  const osRef = useSignal<OverlayScrollbarsComponentRef | null>(null);
-  const bodyOverlayScrollbarsParams = useSignal<UseOverlayScrollbarsParams>();
+  const osRef = useSignal<OverlayScrollbarsComponentRef>();
+  
   // const [activeEvents, activateEvent] = useEventObserver();
-  const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = useOverlayScrollbars(
-    bodyOverlayScrollbarsParams
-  );
+  const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = useOverlayScrollbars({
+    defer: true,
+    events: $(() => ({
+      initialized: () => {
+        bodyOverlayScrollbarsApplied.value = true;
+      },
+      destroyed: () => {
+        bodyOverlayScrollbarsApplied.value = false;
+      },
+    })),
+    options: {
+      scrollbars: {
+        theme: 'os-theme-light',
+      },
+    },
+  });
 
   const scrollContent = $(() => {
     const { value } = osRef;
@@ -64,26 +78,20 @@ export default component$(() => {
     }
   });
 
-  useVisibleTask$(() => {
-    bodyOverlayScrollbarsParams.value = {
-      defer: true,
-      events: noSerialize({
-        initialized: () => {
-          bodyOverlayScrollbarsApplied.value = true;
-        },
-        destroyed: () => {
-          bodyOverlayScrollbarsApplied.value = false;
-        },
-      }),
-      options: {
-        scrollbars: {
-          theme: 'os-theme-light',
-        },
-      },
-    };
-
-    initBodyOverlayScrollbars.value?.(document.body);
+  useVisibleTask$(async ({ track }) => {
+    track(initBodyOverlayScrollbars)?.(document.body);
   });
+
+  useTask$(({ track }) => {
+    console.log("ref", track(osRef));
+  })
+
+  const events = $(() => ({
+    initialized: () => console.log('initialized'),
+    destroyed: () => console.log('destroyed'),
+    updated: () => console.log('updated'),
+    scroll: () => console.log('scroll'),
+  }));
 
   return (
     <>
@@ -102,17 +110,9 @@ export default component$(() => {
             <OverlayScrollbarsComponent
               class="overlayscrollbars-qwik"
               style={elementHidden.value ? 'display: none' : undefined}
-              // ref={$((ref) => {
-              //   console.log('ref', ref);
-              //   osRef.value = ref;
-              // })}
-              options={noSerialize({ scrollbars: { theme: 'os-theme-light' } })}
-              // events={{
-              //   initialized: () => activateEvent('initialized'),
-              //   destroyed: () => activateEvent('destroyed'),
-              //   updated: () => activateEvent('updated'),
-              //   scroll: () => activateEvent('scroll'),
-              // }}
+              ref={osRef}
+              options={{ scrollbars: { theme: 'os-theme-light' } }}
+              events={events}
               defer
             >
               {!contentHidden.value && content}

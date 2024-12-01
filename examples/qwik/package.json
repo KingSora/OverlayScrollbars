@@ -10,8 +10,8 @@
   ],
   "trustedDependencies-annotation": "Needed for bun to allow running install scripts",
   "devDependencies": {
-    "@builder.io/qwik": "^1.5.5",
-    "@builder.io/qwik-city": "^1.5.5",
+    "@qwik.dev/core": "2.0.0-alpha.0",
+    "@qwik.dev/router": "2.0.0-alpha.0",
     "@types/eslint": "^8.56.10",
     "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^7.7.1",

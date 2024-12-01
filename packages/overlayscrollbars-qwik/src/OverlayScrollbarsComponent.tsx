@@ -1,42 +1,38 @@
-import {
-  Slot,
-  component$,
-  noSerialize,
-  useSignal,
-  useVisibleTask$,
-  type QwikIntrinsicElements,
-} from '@builder.io/qwik';
-import type { NoSerialize } from '@builder.io/qwik';
+import { Slot, component$, useSignal, useVisibleTask$ } from '@qwik.dev/core';
+import type { FunctionComponent, PropsOf, Signal } from '@qwik.dev/core';
 import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlayscrollbars';
+import type { PossibleQRL } from './types';
 import { useOverlayScrollbars } from './useOverlayScrollbars';
 
 type InferGenericElement<T> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]
   : HTMLElement;
 
-export type OverlayScrollbarsComponentProps<T extends keyof QwikIntrinsicElements = 'div'> =
-  QwikIntrinsicElements[T] & {
-    /** Tag of the root element. */
-    element?: T;
-    /** OverlayScrollbars options. */
-    options?: PartialOptions | false | null;
-    /** OverlayScrollbars events. */
-    events?: EventListeners | false | null;
-    /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
-    defer?: boolean | IdleRequestOptions;
-    /** OverlayScrollbarsComponent ref. */
-    ref?: (ref: NoSerialize<OverlayScrollbarsComponentRef<T>>) => void;
-  };
+export type OverlayScrollbarsComponentProps<T extends string | FunctionComponent = 'div'> = Omit<
+  PropsOf<string extends T ? 'div' : T>,
+  'ref'
+> & {
+  /** Tag of the root element. */
+  element?: T;
+  /** OverlayScrollbars options. */
+  options?: PossibleQRL<PartialOptions | false | null>;
+  /** OverlayScrollbars events. */
+  events?: PossibleQRL<EventListeners | false | null>;
+  /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
+  defer?: PossibleQRL<boolean | IdleRequestOptions>;
+  /** OverlayScrollbarsComponent ref. */
+  ref?: Signal<OverlayScrollbarsComponentRef<T> | undefined>;
+};
 
-export interface OverlayScrollbarsComponentRef<T extends keyof QwikIntrinsicElements = 'div'> {
+export interface OverlayScrollbarsComponentRef<T extends string | FunctionComponent = 'div'> {
   /** Returns the OverlayScrollbars instance or null if not initialized. */
-  osInstance(): NoSerialize<OverlayScrollbars> | null;
+  osInstance(): OverlayScrollbars | null;
   /** Returns the root element. */
   getElement(): InferGenericElement<T> | null;
 }
 
 export const OverlayScrollbarsComponent = component$(
-  <T extends keyof QwikIntrinsicElements = 'div'>({
+  <T extends string | FunctionComponent = 'div'>({
     element,
     options,
     events,
@@ -44,62 +40,61 @@ export const OverlayScrollbarsComponent = component$(
     ref,
     ...other
   }: OverlayScrollbarsComponentProps<T>) => {
-    const Tag = (element || 'div') as string;
-    const [initialize, osInstance] = useOverlayScrollbars({ options, events, defer }) || [];
+    const Tag = element || 'div';
+    const [osInitialize, osInstance] = useOverlayScrollbars({ options, events, defer });
     const elementRef = useSignal<InferGenericElement<T>>();
     const slotRef = useSignal<HTMLElement>();
 
-    // useVisibleTask$(({ track }) => {
-    //   if (ref) {
-    //     track(() =>
-    //       ref(
-    //         noSerialize({
-    //           osInstance: () => osInstance.value?.() || null,
-    //           getElement: () =>
-    //             /* c8 ignore next */
-    //             elementRef.value || null,
-    //         })
-    //       )
-    //     );
-    //   }
-    // });
+    useVisibleTask$(
+      async ({ track, cleanup }) => {
+        const elm = track(elementRef);
+        const slotElm = track(slotRef);
+        const initialize = track(osInitialize);
+        const instance = track(osInstance);
 
-    useVisibleTask$(({ track, cleanup }) => {
-      const elm = elementRef.value;
-      const slotElm = slotRef.value;
+        /* c8 ignore start */
+        if (!initialize || !instance || !elm) {
+          return;
+        }
+        /* c8 ignore end */
 
-      /* c8 ignore start */
-      if (!elm) {
-        return;
-      }
-      /* c8 ignore end */
+        if (ref) {
+          ref.value = {
+            osInstance: instance,
+            getElement: () => elm,
+          };
+        }
 
-      const target = elm as unknown as HTMLElement;
+        const target = elm as unknown as HTMLElement;
+        initialize(
+          element === 'body'
+            ? {
+                target,
+                cancel: {
+                  body: null,
+                },
+              }
+            : {
+                target,
+                elements: {
+                  viewport: slotElm,
+                  content: slotElm,
+                },
+              }
+        );
 
-      initialize.value?.(
-        element === 'body'
-          ? {
-              target,
-              cancel: {
-                body: null,
-              },
-            }
-          : {
-              target,
-              elements: {
-                viewport: slotElm,
-                content: slotElm,
-              },
-            }
-      );
-
-      // cleanup(() => {
-      //   osInstance.value?.()?.destroy();
-      // });
-    });
+        cleanup(async () => {
+          if (ref) {
+            ref.value = undefined;
+          }
+          instance()?.destroy();
+        });
+      },
+      { strategy: 'intersection-observer' }
+    );
 
     return (
-      <div data-overlayscrollbars-initialize="" ref={elementRef} {...other}>
+      <Tag data-overlayscrollbars-initialize="" ref={elementRef} {...other}>
         {element === 'body' ? (
           <Slot />
         ) : (
@@ -107,7 +102,7 @@ export const OverlayScrollbarsComponent = component$(
             <Slot />
           </div>
         )}
-      </div>
+      </Tag>
     );
   }
 );

@@ -1,30 +1,27 @@
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { isSignal, noSerialize, useSignal, useTask$, useVisibleTask$ } from '@builder.io/qwik';
-import type { Signal, NoSerialize } from '@builder.io/qwik';
+import {
+  isSignal,
+  noSerialize,
+  useSignal,
+  useTask$,
+  useVisibleTask$,
+  useComputed$,
+} from '@qwik.dev/core';
+import type { Signal, NoSerialize, QRL, ReadonlySignal } from '@qwik.dev/core';
 import type { InitializationTarget } from 'overlayscrollbars';
 import type {
   OverlayScrollbarsComponentProps,
   OverlayScrollbarsComponentRef,
 } from './OverlayScrollbarsComponent';
+import type { PossibleQRL, PossibleSignal } from './types';
 
-type Defer = [
-  requestDefer: (callback: () => any, options?: OverlayScrollbarsComponentProps['defer']) => void,
-  cancelDefer: () => void
-];
-
-export interface CreateOverlayScrollbarsParams {
+export interface UseOverlayScrollbarsParams {
   /** OverlayScrollbars options. */
-  options?:
-    | OverlayScrollbarsComponentProps['options']
-    | Signal<OverlayScrollbarsComponentProps['options']>;
+  options?: PossibleSignal<OverlayScrollbarsComponentProps['options']>;
   /** OverlayScrollbars events. */
-  events?:
-    | OverlayScrollbarsComponentProps['events']
-    | Signal<OverlayScrollbarsComponentProps['events']>;
+  events?: PossibleSignal<OverlayScrollbarsComponentProps['events']>;
   /** Whether to defer the initialization to a point in time when the browser is idle. (or to the next frame if `window.requestIdleCallback` is not supported) */
-  defer?:
-    | OverlayScrollbarsComponentProps['defer']
-    | Signal<OverlayScrollbarsComponentProps['defer']>;
+  defer?: PossibleSignal<OverlayScrollbarsComponentProps['defer']>;
 }
 
 export type UseOverlayScrollbarsInitialization = (target: InitializationTarget) => void;
@@ -33,7 +30,21 @@ export type UseOverlayScrollbarsInstance = () => ReturnType<
   OverlayScrollbarsComponentRef['osInstance']
 >;
 
+type Defer = [
+  requestDefer: (callback: () => any, options?: boolean | IdleRequestOptions) => void,
+  cancelDefer: () => void
+];
+
 const createDefer = (): Defer => {
+  /* c8 ignore start */
+  if (typeof window === 'undefined') {
+    // mock ssr calls with "noop"
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const noop = () => {};
+    return [noop, noop];
+  }
+  /* c8 ignore end */
+
   let idleId: number;
   let rafId: number;
   const wnd = window;
@@ -67,68 +78,85 @@ const createDefer = (): Defer => {
 
 const unwrapSignal = <T>(obj: Signal<T> | T): T => (isSignal(obj) ? obj.value : obj);
 
+const unwrapQRL = async <T>(obj: QRL<() => T> | T): Promise<T> =>
+  typeof obj === 'function' ? await (obj as QRL<() => T>)() : obj;
+
+const unwrapPossibleSignalPossibleQrl = async <T>(
+  possibleSignalPossibleQrl: PossibleSignal<PossibleQRL<T>>
+): Promise<T> => unwrapQRL(unwrapSignal(possibleSignalPossibleQrl));
+
+const unwrapParams = async (
+  params?: PossibleSignal<PossibleQRL<UseOverlayScrollbarsParams | undefined>>
+): Promise<UseOverlayScrollbarsParams> => (await unwrapPossibleSignalPossibleQrl(params)) || {};
+
 export const useOverlayScrollbars = (
-  params?: CreateOverlayScrollbarsParams | Signal<CreateOverlayScrollbarsParams | undefined>
+  params?: PossibleSignal<PossibleQRL<UseOverlayScrollbarsParams | undefined>>
 ): [
-  Signal<NoSerialize<UseOverlayScrollbarsInitialization>>,
-  Signal<NoSerialize<UseOverlayScrollbarsInstance>>
+  ReadonlySignal<NoSerialize<UseOverlayScrollbarsInitialization>>,
+  ReadonlySignal<NoSerialize<UseOverlayScrollbarsInstance>>
 ] => {
   const instance = useSignal<NoSerialize<OverlayScrollbars> | null>(null);
-  const options = useSignal<OverlayScrollbarsComponentProps['options']>();
-  const events = useSignal<OverlayScrollbarsComponentProps['events']>();
-  const defer = useSignal<OverlayScrollbarsComponentProps['defer']>();
   const deferInstance = useSignal<NoSerialize<Defer>>();
   const osInitialize = useSignal<NoSerialize<UseOverlayScrollbarsInitialization>>();
-  const getInstance = useSignal<NoSerialize<UseOverlayScrollbarsInstance>>();
+  const osInstance = useSignal<NoSerialize<UseOverlayScrollbarsInstance>>();
 
-  useTask$(({ track }) => {
-    defer.value = track(() => unwrapSignal(unwrapSignal(params)?.defer));
-  });
+  useTask$(async ({ track }) => {
+    const { options } = await track(() => unwrapParams(params));
+    const unwrappedOptions = await track(() => unwrapPossibleSignalPossibleQrl(options));
+    const unwrappedInstance = unwrapSignal(instance);
 
-  useTask$(({ track }) => {
-    options.value = track(() => unwrapSignal(unwrapSignal(params)?.options));
-
-    if (OverlayScrollbars.valid(instance)) {
-      instance.options(options.value || {}, true);
+    if (OverlayScrollbars.valid(unwrappedInstance)) {
+      unwrappedInstance.options(unwrappedOptions || {}, true);
     }
   });
 
-  useTask$(({ track }) => {
-    events.value = track(() => unwrapSignal(unwrapSignal(params)?.events));
+  useTask$(async ({ track }) => {
+    const { events } = await track(() => unwrapParams(params));
+    const unwrappedEvents = await track(() => unwrapPossibleSignalPossibleQrl(events));
+    const unwrappedInstance = unwrapSignal(instance);
 
-    if (OverlayScrollbars.valid(instance)) {
-      instance.on(events.value || {}, true);
+    if (OverlayScrollbars.valid(unwrappedInstance)) {
+      unwrappedInstance.on(unwrappedEvents || {}, true);
     }
   });
 
-  useVisibleTask$(({ cleanup }) => {
-    deferInstance.value = noSerialize(createDefer());
-    osInitialize.value = noSerialize((target: InitializationTarget) => {
-      // if already initialized do nothing
-      if (OverlayScrollbars.valid(instance)) {
-        return;
-      }
-      const currDefer = defer.value;
-      const currOptions = options.value || {};
-      const currEvents = events.value || {};
-      const [requestDefer] = deferInstance.value || [];
-      const init = () =>
-        (instance.value = noSerialize(OverlayScrollbars(target, currOptions, currEvents)));
+  useVisibleTask$(
+    async ({ cleanup }) => {
+      deferInstance.value = noSerialize(createDefer());
+      osInitialize.value = noSerialize(async (target: InitializationTarget) => {
+        // if already initialized do nothing
+        if (OverlayScrollbars.valid(instance.value)) {
+          return;
+        }
 
-      if (defer && requestDefer) {
-        requestDefer(init, currDefer);
-      } else {
-        init();
-      }
-    });
-    getInstance.value = noSerialize(() => instance.value || null);
+        const [requestDefer] = unwrapSignal(deferInstance) || [];
+        const { options, events, defer } = await unwrapParams(params);
+        const currOptions = await unwrapPossibleSignalPossibleQrl(options);
+        const currEvents = await unwrapPossibleSignalPossibleQrl(events);
+        const currDefer = await unwrapPossibleSignalPossibleQrl(defer);
 
-    cleanup(() => {
-      const [, clearDefer] = deferInstance.value || [];
-      clearDefer?.();
-      instance.value?.destroy();
-    });
-  });
+        const init = () => {
+          instance.value = noSerialize(
+            OverlayScrollbars(target, currOptions || {}, currEvents || {})
+          );
+        };
 
-  return [osInitialize, getInstance];
+        if (currDefer && requestDefer) {
+          requestDefer(init, currDefer);
+        } else {
+          init();
+        }
+      });
+      osInstance.value = noSerialize(() => instance.value || null);
+
+      cleanup(() => {
+        const [, cancelDefer] = deferInstance.value || [];
+        cancelDefer?.();
+        instance.value?.destroy();
+      });
+    },
+    { strategy: 'document-ready' }
+  );
+
+  return [useComputed$(() => osInitialize.value), useComputed$(() => osInstance.value)];
 };

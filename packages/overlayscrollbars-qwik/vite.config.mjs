@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
-import { qwikVite } from '@builder.io/qwik/optimizer';
+import { qwikVite } from '@qwik.dev/core/optimizer';
 import rollupPluginPackageJson from '@~local/rollup/plugin/packageJson';
 import rollupPluginCopy from '@~local/rollup/plugin/copy';
 import { esbuildResolve } from 'rollup-plugin-esbuild-resolve';
@@ -18,7 +18,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/overlayscrollbars-qwik.ts'),
     },
     rollupOptions: {
-      external: ['overlayscrollbars', /^node:.*/, ...excludeAll(['@builder.io/qwik'])],
+      external: ['overlayscrollbars', /^node:.*/, ...excludeAll(['@qwik.dev/core'])],
       plugins: [
         rollupPluginCopy({ paths: ['README.md', 'CHANGELOG.md'] }),
         rollupPluginPackageJson({

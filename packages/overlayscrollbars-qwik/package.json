@@ -26,11 +26,11 @@
   ],
   "type": "module",
   "peerDependencies": {
-    "@builder.io/qwik": "^1.5.5",
+    "@qwik.dev/core": "^2.0.0-alpha.0",
     "overlayscrollbars": "^2.0.0"
   },
   "devDependencies": {
-    "@builder.io/qwik": "1.5.5",
+    "@qwik.dev/core": "2.0.0-alpha.0",
     "@types/node": "^20.12.7",
     "overlayscrollbars": "file:./../overlayscrollbars/dist",
     "vite": "^5.2.10"
