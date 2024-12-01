@@ -1,12 +1,11 @@
-import { $, component$, noSerialize, useSignal, useStyles$, useTask$, useVisibleTask$ } from '@qwik.dev/core';
+import { $, component$, useSignal, useVisibleTask$ } from '@qwik.dev/core';
+import type { DocumentHead } from '@qwik.dev/router';
 import {
   OverlayScrollbarsComponent,
   type OverlayScrollbarsComponentRef,
-} from '~/components/OverlayScrollbarsComponent';
-import { useOverlayScrollbars } from '~/components/useOverlayScrollbars';
-import type { UseOverlayScrollbarsParams } from '~/components/useOverlayScrollbars';
-import type { DocumentHead } from '@qwik.dev/router';
-import { PartialOptions } from 'overlayscrollbars';
+} from '../components/OverlayScrollbarsComponent';
+import { useOverlayScrollbars } from '../components/useOverlayScrollbars';
+import { useEventObserver } from '../components/useEventObserver';
 
 const content = (
   <div class="logo">
@@ -20,8 +19,7 @@ export default component$(() => {
   const overlayScrollbarsApplied = useSignal(true);
   const bodyOverlayScrollbarsApplied = useSignal<boolean | null>(null);
   const osRef = useSignal<OverlayScrollbarsComponentRef>();
-  
-  // const [activeEvents, activateEvent] = useEventObserver();
+  const [activeEvents, activateEvent] = useEventObserver();
   const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = useOverlayScrollbars({
     defer: true,
     events: $(() => ({
@@ -82,17 +80,6 @@ export default component$(() => {
     track(initBodyOverlayScrollbars)?.(document.body);
   });
 
-  useTask$(({ track }) => {
-    console.log("ref", track(osRef));
-  })
-
-  const events = $(() => ({
-    initialized: () => console.log('initialized'),
-    destroyed: () => console.log('destroyed'),
-    updated: () => console.log('updated'),
-    scroll: () => console.log('scroll'),
-  }));
-
   return (
     <>
       <main>
@@ -112,7 +99,12 @@ export default component$(() => {
               style={elementHidden.value ? 'display: none' : undefined}
               ref={osRef}
               options={{ scrollbars: { theme: 'os-theme-light' } }}
-              events={events}
+              events={$(() => ({
+                initialized: () => activateEvent('initialized'),
+                destroyed: () => activateEvent('destroyed'),
+                updated: () => activateEvent('updated'),
+                scroll: () => activateEvent('scroll'),
+              }))}
               defer
             >
               {!contentHidden.value && content}
@@ -144,18 +136,16 @@ export default component$(() => {
             </button>
           </div>
         </section>
-        {/*
         <section>
           <p class="title">Events:</p>
           <div class="items">
-            {Object.entries(activeEvents).map(([eventName, event]) => (
+            {Object.entries(activeEvents.value).map(([eventName, event]) => (
               <div key={eventName} class={`event ${event.active ? 'active' : ''}`}>
                 {eventName} ({event.count})
               </div>
             ))}
           </div>
         </section>
-          */}
       </main>
       <footer>
         {bodyOverlayScrollbarsApplied.value !== null && (
