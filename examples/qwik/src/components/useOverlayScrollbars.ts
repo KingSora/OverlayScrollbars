@@ -32,7 +32,7 @@ export type UseOverlayScrollbarsInstance = () => ReturnType<
 
 type Defer = [
   requestDefer: (callback: () => any, options?: boolean | IdleRequestOptions) => void,
-  cancelDefer: () => void
+  cancelDefer: () => void,
 ];
 
 const createDefer = (): Defer => {
@@ -93,10 +93,9 @@ export const useOverlayScrollbars = (
   params?: PossibleSignal<PossibleQRL<UseOverlayScrollbarsParams | undefined>>
 ): [
   ReadonlySignal<NoSerialize<UseOverlayScrollbarsInitialization>>,
-  ReadonlySignal<NoSerialize<UseOverlayScrollbarsInstance>>
+  ReadonlySignal<NoSerialize<UseOverlayScrollbarsInstance>>,
 ] => {
   const instance = useSignal<NoSerialize<OverlayScrollbars> | null>(null);
-  const deferInstance = useSignal<NoSerialize<Defer>>();
   const osInitialize = useSignal<NoSerialize<UseOverlayScrollbarsInitialization>>();
   const osInstance = useSignal<NoSerialize<UseOverlayScrollbarsInstance>>();
 
@@ -122,14 +121,13 @@ export const useOverlayScrollbars = (
 
   useVisibleTask$(
     async ({ cleanup }) => {
-      deferInstance.value = noSerialize(createDefer());
+      const [requestDefer, cancelDefer] = createDefer();
       osInitialize.value = noSerialize(async (target: InitializationTarget) => {
         // if already initialized do nothing
         if (OverlayScrollbars.valid(instance.value)) {
           return;
         }
 
-        const [requestDefer] = unwrapSignal(deferInstance) || [];
         const { options, events, defer } = await unwrapParams(params);
         const currOptions = await unwrapPossibleSignalPossibleQrl(options);
         const currEvents = await unwrapPossibleSignalPossibleQrl(events);
@@ -150,12 +148,11 @@ export const useOverlayScrollbars = (
       osInstance.value = noSerialize(() => instance.value || null);
 
       cleanup(() => {
-        const [, cancelDefer] = deferInstance.value || [];
-        cancelDefer?.();
+        cancelDefer();
         instance.value?.destroy();
       });
     },
-    { strategy: 'document-ready' }
+    { strategy: 'document-idle' }
   );
 
   return [useComputed$(() => osInitialize.value), useComputed$(() => osInstance.value)];

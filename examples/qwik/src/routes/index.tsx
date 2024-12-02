@@ -33,6 +33,7 @@ export default component$(() => {
     options: {
       scrollbars: {
         theme: 'os-theme-light',
+        clickScroll: true,
       },
     },
   });
