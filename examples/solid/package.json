@@ -4,7 +4,7 @@
   "dependencies": {
     "overlayscrollbars": "file:../../packages/overlayscrollbars/dist",
     "overlayscrollbars-solid": "file:../../packages/overlayscrollbars-solid/dist",
-    "solid-js": "^1.8.15"
+    "solid-js": "^1.9.3"
   },
   "devDependencies": {
     "typescript": "^5.0.2",

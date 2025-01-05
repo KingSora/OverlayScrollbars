@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.6
+
+### Bug Fixes
+
+- Use the `children` helper function outside of jsx scope so components aren't re-rendered in conditional rendering. [#700](https://github.com/KingSora/OverlayScrollbars/issues/700)
+
 ## 0.5.5
 
 ### Improvements

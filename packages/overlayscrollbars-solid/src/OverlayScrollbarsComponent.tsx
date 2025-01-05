@@ -48,6 +48,9 @@ export const OverlayScrollbarsComponent = <T extends ValidComponent = 'div'>(
   const [elementRef, setElementRef] = createSignal<HTMLDivElement | undefined>();
   const [childrenRef, setChildrenRef] = createSignal<HTMLDivElement | undefined>();
   const [initialize, instance] = createOverlayScrollbars(finalProps);
+  // https://github.com/KingSora/OverlayScrollbars/issues/700
+  // use the children helper outside of jsx: https://docs.solidjs.com/reference/component-apis/children
+  const resolvedChildren = children(() => finalProps.children);
 
   createEffect(() => {
     const target = elementRef();
@@ -104,10 +107,10 @@ export const OverlayScrollbarsComponent = <T extends ValidComponent = 'div'>(
       {...other}
     >
       {finalProps.element === 'body' ? (
-        children(() => finalProps.children)()
+        resolvedChildren()
       ) : (
         <div data-overlayscrollbars-contents="" ref={setChildrenRef}>
-          {children(() => finalProps.children)()}
+          {resolvedChildren()}
         </div>
       )}
     </Dynamic>

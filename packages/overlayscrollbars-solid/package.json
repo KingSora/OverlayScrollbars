@@ -2,7 +2,7 @@
   "name": "overlayscrollbars-solid",
   "private": true,
   "type": "module",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "OverlayScrollbars for Solid.",
   "author": "Rene Haas | KingSora",
   "license": "MIT",
