@@ -116,27 +116,55 @@ export const createScrollbarsSetupElements = (
 
   const initScrollTimeline = (axis: keyof XY<unknown>) => {
     if (scrollT) {
+      let currAnimation: Animation | null = null;
+      let currAnimationTransform: string[] = [];
       const timeline = new scrollT({
         source: _scrollOffsetElement,
         axis,
       });
+      const cancelAnimation = () => {
+        currAnimation && currAnimation.cancel();
+        currAnimation = null;
+      };
+      const _setScrollPercentAnimation = (structure: ScrollbarStructure) => {
+        const { _scrollCoordinates } = structureSetupState;
+        const defaultDirectionScroll =
+          isDefaultDirectionScrollCoordinates(_scrollCoordinates)[axis];
+        const isHorizontal = axis === 'x';
+        const transformArray = [
+          getTrasformTranslateValue(0, isHorizontal),
+          getTrasformTranslateValue(`calc(100cq${isHorizontal ? 'w' : 'h'} + -100%)`, isHorizontal),
+        ];
+        const transform = defaultDirectionScroll ? transformArray : transformArray.reverse();
 
-      const _addScrollPercentAnimation = (structure: ScrollbarStructure) => {
-        const scrollPercentAnimation = structure._scrollbar.animate(
+        if (
+          currAnimationTransform[0] === transform[0] &&
+          currAnimationTransform[1] === transform[1]
+        ) {
+          return cancelAnimation;
+        }
+
+        cancelAnimation();
+        currAnimationTransform = transform;
+        currAnimation = structure._handle.animate(
           {
             // dummy keyframe which fixes bug where the scrollbar handle is reverted to origin position when it should be at its max position
             clear: ['left'],
-            [cssCustomPropScrollPercent]: [0, 1],
+            // transform is a temporary fix for: https://github.com/KingSora/OverlayScrollbars/issues/705
+            // can be reverted to just animate "cssCustomPropScrollPercent" when browsers implement an optimization possibility
+            transform,
+            // [cssCustomPropScrollPercent]: [0, 1],
           },
           {
             timeline,
           }
         );
-        return () => scrollPercentAnimation.cancel();
+
+        return cancelAnimation;
       };
 
       return {
-        _addScrollPercentAnimation,
+        _setScrollPercentAnimation,
       };
     }
   };
@@ -232,6 +260,12 @@ export const createScrollbarsSetupElements = (
 
     scrollbarStyle(horizontalScrollbars, createScrollbarStyleFn(defaultDirectionScroll.x));
     scrollbarStyle(verticalScrollbars, createScrollbarStyleFn(defaultDirectionScroll.y));
+
+    // temporary fix for: https://github.com/KingSora/OverlayScrollbars/issues/705
+    if (scrollT) {
+      horizontalScrollbars.forEach(scrollTimeline.x!._setScrollPercentAnimation);
+      verticalScrollbars.forEach(scrollTimeline.y!._setScrollPercentAnimation);
+    }
   };
   const refreshScrollbarsScrollbarOffset = () => {
     if (_viewportIsTarget && !_isBody) {
@@ -288,7 +322,7 @@ export const createScrollbarsSetupElements = (
       appendChildren(scrollbar, track),
       appendChildren(track, handle),
       bind(removeElements, scrollbar),
-      timeline && timeline._addScrollPercentAnimation(result),
+      timeline && timeline._setScrollPercentAnimation(result),
       scrollbarsSetupEvents(result, scrollbarsAddRemoveClass, isHorizontal),
     ]);
 
