@@ -90,6 +90,9 @@ if (deployExamples) {
         await Promise.all([
           fsPromises.rm(sourceBuildDir, { recursive: true, force: true }),
           fsPromises.mkdir(targetBuildDir, { recursive: true }),
+          run('npm', ['install'], {
+            cwd,
+          }),
         ]);
         await Promise.all([
           run('npm', ['run build'], {
