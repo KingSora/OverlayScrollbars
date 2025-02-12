@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.11.0
+
+### Features
+
+- Add the possibility to define a [`trusted type policy`](https://developer.mozilla.org/en-US/docs/Web/API/Trusted_Types_API) for websites with a CSP. [#697](https://github.com/KingSora/OverlayScrollbars/issues/697)
+
+### Improvements
+
+- Change `ScrollAnimationTimeline` keyframes to not animate css-custom-properties to improve scroll performance. [#705](https://github.com/KingSora/OverlayScrollbars/issues/705) 
+
 ## 2.10.1
 
 ### Improvements
