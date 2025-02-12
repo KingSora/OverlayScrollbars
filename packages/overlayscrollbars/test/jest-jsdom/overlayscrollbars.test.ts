@@ -712,6 +712,34 @@ describe('overlayscrollbars', () => {
       });
     });
 
+    describe('trustedTypePolicy', () => {
+      beforeEach(async () => {
+        document.body.innerHTML = '';
+
+        jest.resetModules();
+        jest.doMock('~/support', () => {
+          const originalModule = jest.requireActual('~/support');
+          return {
+            ...originalModule,
+            removeElements: jest.fn().mockImplementation(),
+          };
+        });
+      });
+
+      test('with trustedTypePolicy', () => {
+        const trustedTypeCreateHtmlFn = jest.fn();
+        OverlayScrollbars.trustedTypePolicy({
+          createHTML: (html: string) => {
+            trustedTypeCreateHtmlFn();
+            return html;
+          },
+        });
+        OverlayScrollbars.env();
+
+        expect(trustedTypeCreateHtmlFn).toBeCalled();
+      });
+    });
+
     test('valid', () => {
       expect(OverlayScrollbars.valid(true)).toBe(false);
       expect(OverlayScrollbars.valid(false)).toBe(false);

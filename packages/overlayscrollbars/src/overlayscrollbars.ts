@@ -43,6 +43,7 @@ import {
   removeUndefinedProperties,
 } from './support';
 import { setNonce } from './nonce';
+import { setTrustedTypePolicy } from './trustedTypePolicy';
 
 // Notes:
 // Height intrinsic detection use "content: true" init strategy - or open ticket for custom height intrinsic observer
@@ -120,6 +121,10 @@ export interface OverlayScrollbarsStatic {
    * Sets the nonce attribute for inline styles.
    */
   nonce(newNonce: string | undefined): void;
+  /**
+   * Sets the trusted type policy used for DOM operations.
+   */
+  trustedTypePolicy(newTrustedTypePolicy: unknown | undefined): void;
   /**
    * Adds a single plugin.
    * @param plugin The plugin to be added.
@@ -586,3 +591,4 @@ OverlayScrollbars.env = () => {
   );
 };
 OverlayScrollbars.nonce = setNonce;
+OverlayScrollbars.trustedTypePolicy = setTrustedTypePolicy;

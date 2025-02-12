@@ -2,6 +2,7 @@ import { each } from '../utils/array';
 import { setAttrs } from './attribute';
 import { contents } from './traversal';
 import { removeElements } from './manipulation';
+import { getTrustedTypePolicy } from '../../trustedTypePolicy';
 
 /**
  * Creates a div DOM node.
@@ -18,7 +19,11 @@ export const createDiv = (classNames?: string): HTMLDivElement => {
  */
 export const createDOM = (html: string): ReadonlyArray<Node> => {
   const createdDiv = createDiv();
-  createdDiv.innerHTML = html.trim();
+  const trustedTypesPolicy = getTrustedTypePolicy();
+  const trimmedHtml = html.trim();
+  createdDiv.innerHTML = trustedTypesPolicy
+    ? (trustedTypesPolicy as any).createHTML(trimmedHtml)
+    : trimmedHtml;
 
   return each(contents(createdDiv), (elm) => removeElements(elm));
 };
