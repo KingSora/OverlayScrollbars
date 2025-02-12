@@ -876,7 +876,15 @@ OverlayScrollbars.plugin(SomePlugin);
 
   | parameter | type | description |
   | :--- | :--- | :--- |
-  | newNonce | `string \| undefined` | The nonce attribute for inline styles. |
+  | newNonce | `string \| undefined` | The new nonce attribute for inline styles. |
+
+  ### `trustedTypePolicy(newTrustedTypePolicy): void`
+
+  Sets the trusted type policy.
+
+  | parameter | type | description |
+  | :--- | :--- | :--- |
+  | newTrustedTypePolicy | `TrustedTypePolicy \| undefined` | The new trusted type policy. |
 
   ### `plugin(plugin): object | undefined`
 
