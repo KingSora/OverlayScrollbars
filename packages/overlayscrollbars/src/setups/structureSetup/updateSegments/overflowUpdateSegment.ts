@@ -276,8 +276,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const overflowYVisible = overflowIsVisible(overflow.y);
 
     const viewportChanged =
-      // eslint-disable-next-line no-constant-binary-expression
-      true ||
       _sizeChanged ||
       _paddingStyleChanged ||
       _contentMutation ||
