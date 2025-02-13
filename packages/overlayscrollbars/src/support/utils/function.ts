@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { isNumber, isFunction } from './types';
 import { from } from './array';
 import { rAF, cAF, setT, clearT } from './alias';
@@ -50,6 +51,7 @@ export const selfClearTimeout = (timeout?: number | (() => number)) => {
   return [
     (callback: () => any) => {
       clearTFn(id);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       id = setTFn(() => callback(), isFunction(timeout) ? timeout() : timeout);
     },
@@ -119,9 +121,11 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
       if (_leading && !leadingInvoked) {
         boundInvoke();
         leadingInvoked = true;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         timeoutId = setTimeoutFn(() => (leadingInvoked = undefined), finalTimeout);
       } else {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
 

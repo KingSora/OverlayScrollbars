@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { isBoolean, isFunction, isString } from './utils/types';
 import { keys } from './utils/object';
 import { each, push, from, isEmptyArray, runEachAndClear, createOrKeepArray } from './utils/array';
@@ -37,7 +38,7 @@ export type TriggerEvent<EventArgs extends Record<string, any[]>> = {
 export type EventListenerHub<EventArgs extends Record<string, any[]>> = [
   AddEvent<EventArgs>,
   RemoveEvent<EventArgs>,
-  TriggerEvent<EventArgs>
+  TriggerEvent<EventArgs>,
 ];
 
 const manageListener = <EventArgs extends Record<string, any[]>, N extends keyof EventArgs>(
@@ -79,9 +80,14 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
       const eventSet = events.get(nameOrEventListeners) || new Set();
       events.set(nameOrEventListeners, eventSet);
 
-      manageListener((currListener) => {
-        isFunction(currListener) && eventSet.add(currListener);
-      }, listenerOrPure as Exclude<typeof listenerOrPure, boolean>);
+      manageListener(
+        (currListener) => {
+          if (isFunction(currListener)) {
+            eventSet.add(currListener);
+          }
+        },
+        listenerOrPure as Exclude<typeof listenerOrPure, boolean>
+      );
 
       return bind(
         removeEvent,
@@ -97,7 +103,9 @@ export const createEventListenerHub = <EventArgs extends Record<string, any[]>>(
     const offFns: (() => void)[] = [];
     each(eventListenerKeys, (key) => {
       const eventListener = (nameOrEventListeners as EventListeners<EventArgs>)[key];
-      eventListener && push(offFns, addEvent(key, eventListener));
+      if (eventListener) {
+        push(offFns, addEvent(key, eventListener));
+      }
     });
 
     return bind(runEachAndClear, offFns);

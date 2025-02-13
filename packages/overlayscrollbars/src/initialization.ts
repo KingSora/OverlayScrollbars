@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DeepPartial } from './typings';
 import { isFunction, isHTMLElement, isNull, isUndefined } from './support';
 import { getEnvironment } from './environment';

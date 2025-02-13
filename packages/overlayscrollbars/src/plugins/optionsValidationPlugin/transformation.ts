@@ -34,6 +34,7 @@ export type OptionsWithOptionsTemplate<T> = {
 export const transformOptions = <T>(
   optionsWithOptionsTemplate: OptionsWithOptionsTemplate<T>
 ): OptionsWithOptionsTemplateTransformation<T> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: any = {
     _template: {},
     _options: {},

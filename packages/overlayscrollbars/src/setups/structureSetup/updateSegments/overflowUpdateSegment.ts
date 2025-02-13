@@ -276,6 +276,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const overflowYVisible = overflowIsVisible(overflow.y);
 
     const viewportChanged =
+      // eslint-disable-next-line no-constant-binary-expression
       true ||
       _sizeChanged ||
       _paddingStyleChanged ||
@@ -325,7 +326,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         ),
       };
 
-      redoViewportArrange && redoViewportArrange();
+      if (redoViewportArrange) {
+        redoViewportArrange();
+      }
 
       overflowEdgeCache = updateOverflowEdge(overflowAmountClientSize);
       overflowAmuntCache = updateOverflowAmountCache(
@@ -370,7 +373,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       : getCurrentMeasuredScrollCoordinates();
 
     if (adjustViewportStyle) {
-      overflowStyleChanged && setViewportOverflowStyle(viewportOverflowState._overflowStyle);
+      if (overflowStyleChanged) {
+        setViewportOverflowStyle(viewportOverflowState._overflowStyle);
+      }
 
       if (_hideNativeScrollbars && _arrangeViewport) {
         setStyles(

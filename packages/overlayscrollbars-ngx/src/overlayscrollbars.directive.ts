@@ -1,19 +1,19 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 import { Directive, Input, OnChanges, SimpleChanges, NgZone } from '@angular/core';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import type { InitializationTarget } from 'overlayscrollbars';
 import type { OverlayScrollbarsComponent } from './overlayscrollbars.component';
 
 type Defer = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestDefer: (callback: () => any, options?: OverlayScrollbarsComponent['defer']) => void,
-  cancelDefer: () => void
+  cancelDefer: () => void,
 ];
 
 const createDefer = (): Defer => {
   /* istanbul ignore next */
   if (typeof window === 'undefined') {
     // mock ssr calls with "noop"
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     const noop = () => {};
     return [noop, noop];
   }
@@ -42,6 +42,7 @@ const createDefer = (): Defer => {
               rafId = rAF(callback);
             }
           : callback,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         typeof options === 'object' ? options : { timeout: 2233 }
       );

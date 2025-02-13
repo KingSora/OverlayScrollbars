@@ -29,6 +29,7 @@ export type SetupUpdateInfo = {
 
 export type Setup<
   U extends SetupUpdateInfo,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   S extends Readonly<Record<string, any>>,
   H extends SetupUpdateHints | void,
 > = [
@@ -95,7 +96,6 @@ export const createSetups = (
     structureSetupState,
     getCurrentOption,
     (observersUpdateHints) => {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       update({}, observersUpdateHints);
     }
   );
@@ -169,11 +169,12 @@ export const createSetups = (
 
     cacheAndOptionsInitialized = true;
 
-    changed &&
+    if (changed) {
       onUpdated(updateInfo, {
         _observersUpdateHints: observersHints,
         _structureUpdateHints: structureHints,
       });
+    }
 
     return changed;
   };

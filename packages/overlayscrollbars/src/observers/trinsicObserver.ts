@@ -12,6 +12,7 @@ import {
   bind,
 } from '../support';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TrinsicObserverCallback = (heightIntrinsic: CacheValues<boolean>) => any;
 export type TrinsicObserver = [
   construct: () => () => void,

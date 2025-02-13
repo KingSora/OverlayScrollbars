@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 import {
   Component,
   Input,
@@ -70,7 +69,10 @@ export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
   @ViewChild('content', { read: OverlayScrollbarsDirective })
   private osDirective?: OverlayScrollbarsDirective;
 
-  constructor(private ngZone: NgZone, private targetRef: ElementRef<HTMLElement>) {}
+  constructor(
+    private ngZone: NgZone,
+    private targetRef: ElementRef<HTMLElement>
+  ) {}
 
   osInstance(): OverlayScrollbars | null {
     return this.osDirective!.osInstance();
@@ -114,6 +116,7 @@ export class OverlayScrollbarsComponent implements OnDestroy, AfterViewInit {
 
   private dispatchEventIfHasObservers<T>(eventEmitter: EventEmitter<T>, args: T): void {
     // `observed` is available since RxJS@7.2 because `observers` is being deprecated.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((eventEmitter as any).observed || eventEmitter.observers.length > 0) {
       // This is required to re-enter the Angular zone to call the event handler in the Angular
       // zone too. This will not re-enter the Angular zone if emitter doesn't have any observers,

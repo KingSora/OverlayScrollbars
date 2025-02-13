@@ -19,7 +19,9 @@ export const scrollElementTo = (
   position: Partial<XY<number | false | null | undefined>> | number | false | null | undefined
 ): void => {
   const { x, y } = isNumber(position) ? { x: position, y: position } : position || {};
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   isNumber(x) && (elm.scrollLeft = x);
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   isNumber(y) && (elm.scrollTop = y);
 };
 

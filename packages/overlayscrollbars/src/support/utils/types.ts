@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PlainObject } from '../../typings';
 
 export const isUndefined = (obj: any): obj is undefined => obj === undefined;
@@ -31,7 +32,7 @@ export const isObject = (obj: any): obj is object =>
  */
 export const isArrayLike = <T extends PlainObject = any>(obj: any): obj is ArrayLike<T> => {
   const length = !!obj && obj.length;
-  const lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0; // eslint-disable-line eqeqeq
+  const lengthCorrectFormat = isNumber(length) && length > -1 && length % 1 == 0;
 
   return isArray(obj) || (!isFunction(obj) && lengthCorrectFormat)
     ? length > 0 && isObject(obj)

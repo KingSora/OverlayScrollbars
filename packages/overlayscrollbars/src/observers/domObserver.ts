@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   each,
   noop,
@@ -252,7 +253,9 @@ export const createDOMObserver = <ContentObserver extends boolean>(
       );
 
       if (isContentObserver) {
-        !fromRecords && contentChanged && (callback as DOMContentObserverCallback)(false);
+        if (!fromRecords && contentChanged) {
+          (callback as DOMContentObserverCallback)(false);
+        }
         return [false] satisfies Parameters<DOMObserverCallback<true>> as Parameters<
           DOMObserverCallback<ContentObserver>
         >;
@@ -263,7 +266,10 @@ export const createDOMObserver = <ContentObserver extends boolean>(
           deduplicateArray(targetChangedAttrs),
           targetStyleChanged,
         ] satisfies Parameters<DOMTargetObserverCallback> & Parameters<DOMObserverCallback<false>>;
-        !fromRecords && (callback as DOMTargetObserverCallback).apply(0, args);
+
+        if (!fromRecords) {
+          (callback as DOMTargetObserverCallback).apply(0, args);
+        }
 
         return args as Parameters<DOMObserverCallback<ContentObserver>>;
       }

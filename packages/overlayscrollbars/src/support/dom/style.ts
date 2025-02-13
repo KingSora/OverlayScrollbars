@@ -13,6 +13,7 @@ export interface TRBL {
 }
 
 const getCSSVal = (computedStyle: CSSStyleDeclaration, prop: StyleObjectKey): string =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   computedStyle.getPropertyValue(prop) || computedStyle[prop as any] || '';
 
 const validFiniteNumber = (number: number) => {
@@ -33,6 +34,7 @@ export function setStyles(
   elm: HTMLElementTarget,
   styles: StyleObject | false | null | undefined
 ): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   elm &&
     styles &&
     each(styles, (rawValue: StyleObjectValue, name) => {
@@ -48,8 +50,10 @@ export function setStyles(
         if (name.indexOf('--') === 0) {
           elmStyle.setProperty(name, value);
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           elmStyle[name as any] = value;
         }
+        // eslint-disable-next-line no-empty
       } catch {}
     });
 }

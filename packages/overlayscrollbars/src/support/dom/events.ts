@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DomTokens } from './attribute';
 import { each, runEachAndClear } from '../utils/array';
 import { bind } from '../utils/function';
@@ -30,7 +31,9 @@ export const removeEventListener = <T extends Event = Event>(
   capture?: boolean
 ): void => {
   each(getDomTokensArray(eventNames), (eventName) => {
-    target && target.removeEventListener(eventName, listener as EventListener, capture);
+    if (target) {
+      target.removeEventListener(eventName, listener as EventListener, capture);
+    }
   });
 };
 
@@ -62,12 +65,17 @@ export const addEventListener = <T extends Event = Event>(
         once
           ? (evt: T) => {
               removeEventListener(target, eventName, finalListener, capture);
-              listener && listener(evt);
+              if (listener) {
+                listener(evt);
+              }
             }
           : listener
       ) as EventListener;
 
-      target && target.addEventListener(eventName, finalListener, nativeOptions);
+      if (target) {
+        target.addEventListener(eventName, finalListener, nativeOptions);
+      }
+
       return bind(removeEventListener, target, eventName, finalListener, capture);
     })
   );

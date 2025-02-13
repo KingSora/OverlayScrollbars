@@ -42,6 +42,7 @@ export type SizeObserver = () => () => void;
  */
 export const createSizeObserver = (
   target: HTMLElement,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSizeChangedCallback: (params: SizeObserverCallbackParams) => any,
   options?: SizeObserverOptions
 ): SizeObserver => {

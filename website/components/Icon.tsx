@@ -10,6 +10,7 @@ export interface IconProps extends ComponentPropsWithoutRef<'span'> {
 }
 
 export const Icon = forwardRef<HTMLSpanElement, IconProps>(function Icon(props, ref) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { children: ___, className, monochrome = true, url, ...others } = props;
   return (
     <span

@@ -177,7 +177,7 @@ export const createStructureSetupElements = (
       ),
   };
   const { _target, _host, _padding, _viewport, _content } = evaluatedTargetObj;
-  const destroyFns: (() => any)[] = [
+  const destroyFns: (() => void)[] = [
     () => {
       // always remove dataAttributeHost & dataAttributeInitialize from host and from <html> element if target is body
       removeAttrs(_host, [dataAttributeHost, dataAttributeInitialize]);
@@ -215,7 +215,9 @@ export const createStructureSetupElements = (
 
     if (!viewportIsTarget) {
       setAttrs(_viewport, tabIndexStr, originalViewportTabIndex || '-1');
-      isBody && setAttrs(docElement, dataAttributeHtmlBody, '');
+      if (isBody) {
+        setAttrs(docElement, dataAttributeHtmlBody, '');
+      }
     }
 
     appendChildren(contentSlot, targetContents);
@@ -236,14 +238,25 @@ export const createStructureSetupElements = (
         removeAttrs(_padding, dataAttributePadding);
         removeAttrs(_content, dataAttributeContent);
         removeAttrs(_viewport, dataAttributeViewport);
-        isBody && removeAttrs(docElement, dataAttributeHtmlBody);
-        originalViewportTabIndex
-          ? setAttrs(_viewport, tabIndexStr, originalViewportTabIndex)
-          : removeAttrs(_viewport, tabIndexStr);
+        if (isBody) {
+          removeAttrs(docElement, dataAttributeHtmlBody);
+        }
+        if (originalViewportTabIndex) {
+          setAttrs(_viewport, tabIndexStr, originalViewportTabIndex);
+        } else {
+          removeAttrs(_viewport, tabIndexStr);
+        }
 
-        elementIsGenerated(_content) && unwrap(_content);
-        viewportIsGenerated && unwrap(_viewport);
-        elementIsGenerated(_padding) && unwrap(_padding);
+        if (elementIsGenerated(_content)) {
+          unwrap(_content);
+        }
+        if (viewportIsGenerated) {
+          unwrap(_viewport);
+        }
+        if (elementIsGenerated(_padding)) {
+          unwrap(_padding);
+        }
+
         focusElement(destroyFocusElement);
         undoDestroyWrapUndwrapFocus();
       },
@@ -263,6 +276,7 @@ export const createStructureSetupElements = (
     );
     undoInitWrapUndwrapFocus();
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     targetContents = 0;
 

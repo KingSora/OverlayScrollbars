@@ -1,5 +1,5 @@
 import './styles.css';
-import 'overlayscrollbars/overlayscrollbars.css';
+import 'overlayscrollbars/styles/overlayscrollbars.css';
 import { Html } from '~/components/Html';
 import type { ReactNode } from 'react';
 import type { Metadata, Viewport } from 'next';

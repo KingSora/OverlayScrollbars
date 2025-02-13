@@ -63,12 +63,13 @@ export const createScrollbarsSetupEvents = (
     const [scrollSnapScrollTransitionTimeout, clearScrollSnapScrollTransitionTimeout] =
       selfClearTimeout(444);
     const scrollOffsetElementScrollBy = (coordinates: XY<number>) => {
-      isFunction(_scrollOffsetElement.scrollBy) &&
+      if (isFunction(_scrollOffsetElement.scrollBy)) {
         _scrollOffsetElement.scrollBy({
           behavior: 'smooth',
           left: coordinates.x,
           top: coordinates.y,
         });
+      }
     };
 
     const createInteractiveScrollEvents = () => {
@@ -133,7 +134,6 @@ export const createScrollbarsSetupEvents = (
           const relativeTrackPointerOffset = pointerDownOffset - trackRect[leftTopKey];
           const startOffset = isDragScroll ? 0 : relativeTrackPointerOffset - handleCenter;
           const releasePointerCapture = (pointerUpEvent: PointerEvent) => {
-            // eslint-disable-next-line @typescript-eslint/no-use-before-define
             runEachAndClear(pointerupCleanupFns);
             pointerCaptureElement.releasePointerCapture(pointerUpEvent.pointerId);
           };

@@ -123,7 +123,9 @@ export const createScrollbarsSetupElements = (
         axis,
       });
       const cancelAnimation = () => {
-        currAnimation && currAnimation.cancel();
+        if (currAnimation) {
+          currAnimation.cancel();
+        }
         currAnimation = null;
       };
       const _setScrollPercentAnimation = (structure: ScrollbarStructure) => {
@@ -209,8 +211,12 @@ export const createScrollbarsSetupElements = (
     const singleAxis = isBoolean(onlyHorizontal);
     const runHorizontal = singleAxis ? onlyHorizontal : true;
     const runVertical = singleAxis ? !onlyHorizontal : true;
-    runHorizontal && scrollbarStructureAddRemoveClass(horizontalScrollbars, className, add);
-    runVertical && scrollbarStructureAddRemoveClass(verticalScrollbars, className, add);
+    if (runHorizontal) {
+      scrollbarStructureAddRemoveClass(horizontalScrollbars, className, add);
+    }
+    if (runVertical) {
+      scrollbarStructureAddRemoveClass(verticalScrollbars, className, add);
+    }
   };
   const refreshScrollbarsHandleLength = () => {
     const viewportPercent = getViewportPercent();

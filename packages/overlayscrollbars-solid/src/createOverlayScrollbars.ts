@@ -9,8 +9,9 @@ import type {
 } from './OverlayScrollbarsComponent';
 
 type Defer = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestDefer: (callback: () => any, options?: OverlayScrollbarsComponentProps['defer']) => void,
-  cancelDefer: () => void
+  cancelDefer: () => void,
 ];
 
 export interface CreateOverlayScrollbarsParams {
@@ -38,7 +39,7 @@ const createDefer = (): Defer => {
   /* c8 ignore start */
   if (typeof window === 'undefined') {
     // mock ssr calls with "noop"
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     const noop = () => {};
     return [noop, noop];
   }
@@ -75,6 +76,7 @@ const createDefer = (): Defer => {
   ];
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isAccessor = (obj: any): obj is Accessor<any> => typeof obj === 'function';
 const unwrapAccessor = <T>(obj: Accessor<T> | T): T => (isAccessor(obj) ? obj() : obj);
 

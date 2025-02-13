@@ -61,7 +61,9 @@ const createEnvironment = (): Env => {
     const oSize = getOffsetSize(measureElm);
     const fSize = getFractionalSize(measureElmChild);
 
-    clear && removeElements(measureElm);
+    if (clear) {
+      removeElements(measureElm);
+    }
 
     return {
       x: oSize.h - cSize.h + fSize.h,
@@ -76,6 +78,7 @@ const createEnvironment = (): Env => {
       result =
         getStyles(testElm, 'scrollbar-width' as StyleObjectKey) === 'none' ||
         getStyles(testElm, 'display', '::-webkit-scrollbar') === 'none';
+      // eslint-disable-next-line no-empty
     } catch {}
     revertClass();
     return result;

@@ -22,7 +22,9 @@ const getElmWidthHeightProperty = <E extends HTMLElement | Window>(
 ): Readonly<WH> =>
   elm
     ? {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         w: (elm as any)[`${property}Width`],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         h: (elm as any)[`${property}Height`],
       }
     : zeroObj;

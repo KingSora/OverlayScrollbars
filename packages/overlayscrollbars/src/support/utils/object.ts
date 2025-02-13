@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PlainObject } from '../../typings';
 import { isArray, isFunction, isPlainObject, isNull } from './types';
 import { each } from './array';

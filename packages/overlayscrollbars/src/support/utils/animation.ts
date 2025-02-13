@@ -22,6 +22,7 @@ export const animateNumber = (
   from: number,
   to: number,
   duration: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onFrame: (progress: number, percent: number, completed: boolean) => any,
   easing?: EasingFn | false
 ): ((complete?: boolean) => void) => {
@@ -43,13 +44,17 @@ export const animateNumber = (
       from;
     const animationCompleted = stopAnimation || percent === 1;
 
-    onFrame && onFrame(progress, percent, animationCompleted);
+    if (onFrame) {
+      onFrame(progress, percent, animationCompleted);
+    }
 
     animationFrameId = animationCompleted ? 0 : rAF!(() => frame());
   };
   frame();
   return (complete) => {
     cAF!(animationFrameId);
-    complete && frame(complete);
+    if (complete) {
+      frame(complete);
+    }
   };
 };

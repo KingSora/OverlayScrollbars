@@ -129,8 +129,12 @@ export const createStructureSetup = (target: InitializationTarget): StructureSet
       });
 
       scrollElementTo(_scrollOffsetElement, scrollOffset);
-      revertScrollObscuringStyles && revertScrollObscuringStyles();
-      !_viewportIsTarget && scrollElementTo(_target, 0);
+      if (revertScrollObscuringStyles) {
+        revertScrollObscuringStyles();
+      }
+      if (!_viewportIsTarget) {
+        scrollElementTo(_target, 0);
+      }
 
       return updateHints;
     },

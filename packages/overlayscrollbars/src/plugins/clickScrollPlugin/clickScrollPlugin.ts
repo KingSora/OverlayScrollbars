@@ -61,7 +61,7 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
                   Math.sign(remainingScrollDistance - handleLengthWithTargetSignHalf) ===
                   targetOffsetSign;
 
-                continueWithPress &&
+                if (continueWithPress) {
                   setPressAnimationTimeout(() => {
                     const remainingLinearScrollDistance =
                       remainingScrollDistance - handleLengthWithTargetSign;
@@ -75,6 +75,7 @@ export const ClickScrollPlugin = /* @__PURE__ */ (() => ({
                         )
                       : easedEndPressAnimation(clickAnimationProgress, targetOffset);
                   });
+                }
               }
             }
           },

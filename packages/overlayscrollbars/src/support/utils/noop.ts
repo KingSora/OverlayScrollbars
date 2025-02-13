@@ -1,1 +1,1 @@
-export const noop = () => {}; // eslint-disable-line
+export const noop = () => {};

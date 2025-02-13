@@ -133,11 +133,17 @@ export const createObserversSetup = (
       const viewportScroll = getScrollSize(_viewport);
       const fractional = getFractionalSize(_viewport);
 
-      redoViewportArrange && redoViewportArrange();
+      if (redoViewportArrange) {
+        redoViewportArrange();
+      }
 
       scrollElementTo(_scrollOffsetElement, scrollOffset);
-      revertScrollObscuringStyles && revertScrollObscuringStyles();
-      noClipping && revertMeasuring();
+      if (revertScrollObscuringStyles) {
+        revertScrollObscuringStyles();
+      }
+      if (noClipping) {
+        revertMeasuring();
+      }
 
       return {
         w: viewportScroll.w + fractional.w,
@@ -178,7 +184,10 @@ export const createObserversSetup = (
     };
 
     assignDeep(state, { _heightIntrinsic: heightIntrinsic });
-    !fromRecords && onObserversUpdated(updateHints);
+
+    if (!fromRecords) {
+      onObserversUpdated(updateHints);
+    }
 
     return updateHints;
   };
@@ -217,7 +226,9 @@ export const createObserversSetup = (
     // if contentChangedThroughEvent is true its already debounced
     const updateFn = contentChangedThroughEvent ? onObserversUpdated : onObserversUpdatedDebounced;
 
-    _contentMutation && !fromRecords && updateFn(updateHints);
+    if (_contentMutation && !fromRecords) {
+      updateFn(updateHints);
+    }
 
     return updateHints;
   };
@@ -291,7 +302,9 @@ export const createObserversSetup = (
     () => {
       // order is matter!
       // updateViewportAttrsFromHost();
-      viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.observe(_host);
+      if (viewportIsTargetResizeObserver) {
+        viewportIsTargetResizeObserver.observe(_host);
+      }
       const destroySizeObserver = constructSizeObserver && constructSizeObserver();
       const destroyTrinsicObserver = constructTrinsicObserver && constructTrinsicObserver();
       const destroyHostMutationObserver = constructHostMutationObserver();
@@ -304,10 +317,18 @@ export const createObserversSetup = (
       });
 
       return () => {
-        viewportIsTargetResizeObserver && viewportIsTargetResizeObserver.disconnect();
-        destroySizeObserver && destroySizeObserver();
-        destroyTrinsicObserver && destroyTrinsicObserver();
-        destroyContentMutationObserver && destroyContentMutationObserver();
+        if (viewportIsTargetResizeObserver) {
+          viewportIsTargetResizeObserver.disconnect();
+        }
+        if (destroySizeObserver) {
+          destroySizeObserver();
+        }
+        if (destroyTrinsicObserver) {
+          destroyTrinsicObserver();
+        }
+        if (destroyContentMutationObserver) {
+          destroyContentMutationObserver();
+        }
         destroyHostMutationObserver();
         removeResizeListener();
       };
@@ -325,8 +346,12 @@ export const createObserversSetup = (
         isFunction(ignoreMutation) && ignoreMutation(mutation);
 
       if (contentMutationObserverChanged) {
-        updateContentMutationObserver && updateContentMutationObserver();
-        destroyContentMutationObserver && destroyContentMutationObserver();
+        if (updateContentMutationObserver) {
+          updateContentMutationObserver();
+        }
+        if (destroyContentMutationObserver) {
+          destroyContentMutationObserver();
+        }
 
         const [construct, update] = createDOMObserver(
           _content || _viewport,
@@ -377,17 +402,20 @@ export const createObserversSetup = (
         const contentUpdateResult =
           updateContentMutationObserver && updateContentMutationObserver();
 
-        hostUpdateResult &&
+        if (hostUpdateResult) {
           assignDeep(
             updateHints,
             onHostMutation(hostUpdateResult[0], hostUpdateResult[1], takeRecords)
           );
+        }
 
-        trinsicUpdateResult &&
+        if (trinsicUpdateResult) {
           assignDeep(updateHints, onTrinsicChanged(trinsicUpdateResult[0], takeRecords));
+        }
 
-        contentUpdateResult &&
+        if (contentUpdateResult) {
           assignDeep(updateHints, onContentMutation(contentUpdateResult[0], takeRecords));
+        }
       }
 
       setDirection(updateHints);

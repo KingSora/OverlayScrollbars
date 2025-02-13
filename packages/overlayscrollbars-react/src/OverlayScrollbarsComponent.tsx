@@ -1,7 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React, { forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
-import type { OverlayScrollbars } from 'overlayscrollbars';
-import type { PartialOptions, EventListeners } from 'overlayscrollbars';
+import { forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
+import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlayscrollbars';
+
 import type {
   ComponentPropsWithoutRef,
   ElementRef,
@@ -75,20 +74,17 @@ const OverlayScrollbarsComponent = <T extends ElementType = 'div'>(
     );
 
     return () => osInstance()?.destroy();
-  }, [initialize, element]);
+  }, [initialize, osInstance, element]);
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        osInstance,
-        getElement: () => elementRef.current,
-      };
-    },
-    []
-  );
+  useImperativeHandle(ref, () => {
+    return {
+      osInstance,
+      getElement: () => elementRef.current,
+    };
+  }, [osInstance]);
 
   return (
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     <Tag data-overlayscrollbars-initialize="" ref={elementRef} {...other}>
       {element === 'body' ? (
@@ -103,7 +99,7 @@ const OverlayScrollbarsComponent = <T extends ElementType = 'div'>(
 };
 
 const OverlayScrollbarsComponentForwardedRef = forwardRef(OverlayScrollbarsComponent) as <
-  T extends ElementType = 'div'
+  T extends ElementType = 'div',
 >(
   props: OverlayScrollbarsComponentProps<T>
 ) => ReturnType<typeof OverlayScrollbarsComponent>;

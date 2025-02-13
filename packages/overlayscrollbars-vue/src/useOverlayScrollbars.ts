@@ -8,8 +8,9 @@ import type {
 } from './OverlayScrollbarsComponent.types';
 
 type Defer = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestDefer: (callback: () => any, options?: OverlayScrollbarsComponentProps['defer']) => void,
-  cancelDefer: () => void
+  cancelDefer: () => void,
 ];
 
 export interface UseOverlayScrollbarsParams {
@@ -35,7 +36,7 @@ const createDefer = (): Defer => {
   /* c8 ignore start */
   if (typeof window === 'undefined') {
     // mock ssr calls with "noop"
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     const noop = () => {};
     return [noop, noop];
   }

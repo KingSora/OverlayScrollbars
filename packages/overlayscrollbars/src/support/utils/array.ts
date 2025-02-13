@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PlainObject } from '../../typings';
 import { isArray, isArrayLike, isString } from './types';
 
@@ -63,9 +64,11 @@ export const concat = <T>(a: T[] | ReadonlyArray<T>, b: T[] | ReadonlyArray<T>):
  * @param items The items which shall be pushed into the array.
  */
 export const push = <T>(array: T[], items: T | ArrayLike<T>, arrayIsSingleItem?: boolean): T[] => {
-  !arrayIsSingleItem && !isString(items) && isArrayLike(items)
-    ? Array.prototype.push.apply(array, items as T[])
-    : array.push(items as T);
+  if (!arrayIsSingleItem && !isString(items) && isArrayLike(items)) {
+    Array.prototype.push.apply(array, items as T[]);
+  } else {
+    array.push(items as T);
+  }
   return array;
 };
 
@@ -111,5 +114,7 @@ export const runEachAndClear = (arr: RunEachItem[], args?: any[], keep?: boolean
   // eslint-disable-next-line prefer-spread
   const runFn = (fn: RunEachItem) => (fn ? fn.apply(undefined, args || []) : true); // return true when fn is falsy to not break the loop
   each(arr, runFn);
-  !keep && ((arr as any[]).length = 0);
+  if (!keep) {
+    (arr as any[]).length = 0;
+  }
 };

@@ -26,9 +26,10 @@ export type CacheContextual<Value> = [UpdateCacheContextual<Value>, GetCurrentCa
 type CreateCache = {
   <Value>(options: CacheOptions<Value>): CacheContextual<Value>;
   <Value>(options: CacheOptions<Value>, update: CacheUpdater<Value>): Cache<Value>;
-  <Value>(options: CacheOptions<Value>, update?: CacheUpdater<Value>):
-    | CacheContextual<Value>
-    | Cache<Value>;
+  <Value>(
+    options: CacheOptions<Value>,
+    update?: CacheUpdater<Value>
+  ): CacheContextual<Value> | Cache<Value>;
 };
 
 export const createCache: CreateCache = <Value>(

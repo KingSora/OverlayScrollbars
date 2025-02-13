@@ -26,6 +26,7 @@ const renderUsageEntry = (
     className={classnames('h-11 flex-none rounded-sm px-3 group', className)}
     target="_blank"
     href={href}
+    rel="noreferrer"
   >
     <img
       className={classnames(
@@ -117,7 +118,12 @@ const IndexPage = () => {
         </div>
       </OverlayScrollbarsClientComponent>
       {separator(
-        <a href={githubLink} target="_blank" className="inline-block leading-[0] rounded-full">
+        <a
+          href={githubLink}
+          target="_blank"
+          className="inline-block leading-[0] rounded-full"
+          rel="noreferrer"
+        >
           <Icon
             className="inline-block w-11 h-11 hover:scale-110 text-primary-dark hover:text-primary-blue1 active:text-primary-blue2 transition-transformColor ease-in-out duration-300"
             url="/OverlayScrollbars/icon/github.svg"

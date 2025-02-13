@@ -10,7 +10,9 @@ import { bind } from '../utils';
 export const removeElements = (nodes: NodeElementTargetCollection): void => {
   each(createOrKeepArray(nodes), (node) => {
     const parentElm = parent(node);
-    node && parentElm && parentElm.removeChild(node);
+    if (node && parentElm) {
+      parentElm.removeChild(node);
+    }
   });
 };
 
@@ -26,6 +28,8 @@ export const appendChildren = (node: NodeElementTarget, children: NodeElementTar
     node &&
       children &&
       each(createOrKeepArray(children), (child) => {
-        child && node.appendChild(child);
+        if (child) {
+          node.appendChild(child);
+        }
       })
   );

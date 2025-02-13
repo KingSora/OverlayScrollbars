@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DeepPartial, DeepReadonly } from './typings';
 import {
   assignDeep,
@@ -270,10 +271,12 @@ export const getOptionsDiff = <T>(currOptions: T, newOptions: DeepPartial<T>): D
           if (opsStringify(currOptionValue) === opsStringify(newOptionValue)) {
             isDiff = false;
           }
+          // eslint-disable-next-line no-empty
         } catch {}
       }
 
       if (isDiff) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         diff[optionKey] = newOptionValue;
       }

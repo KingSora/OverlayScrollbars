@@ -36,7 +36,7 @@ import {
 import { createScrollbarsSetupElements } from './scrollbarsSetup.elements';
 import { createScrollbarsSetupEvents } from './scrollbarsSetup.events';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ScrollbarsSetupState {}
 
 export interface ScrollbarsSetupUpdateInfo extends SetupUpdateInfo {
@@ -84,10 +84,7 @@ export const createScrollbarsSetup = (
       options,
       structureSetupElements,
       structureSetupState,
-      (event) =>
-        isHoverablePointerType(event) &&
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        manageScrollbarsAutoHideInstantInteraction()
+      (event) => isHoverablePointerType(event) && manageScrollbarsAutoHideInstantInteraction()
     )
   );
   const { _host, _scrollEventElement, _isBody } = structureSetupElements;
@@ -126,7 +123,9 @@ export const createScrollbarsSetup = (
   const onHostMouseEnter = (event: PointerEvent) => {
     if (isHoverablePointerType(event)) {
       mouseInHost = autoHideIsLeave;
-      autoHideIsLeave && manageScrollbarsAutoHide(true);
+      if (autoHideIsLeave) {
+        manageScrollbarsAutoHide(true);
+      }
     }
   };
   const destroyFns: (() => void)[] = [
@@ -141,13 +140,15 @@ export const createScrollbarsSetup = (
     addEventListener(_host, 'pointerleave', (event: PointerEvent) => {
       if (isHoverablePointerType(event)) {
         mouseInHost = false;
-        autoHideIsLeave && manageScrollbarsAutoHide(false);
+        if (autoHideIsLeave) {
+          manageScrollbarsAutoHide(false);
+        }
       }
     }),
     addEventListener(_host, 'pointermove', (event: PointerEvent) => {
-      isHoverablePointerType(event) &&
-        autoHideIsMove &&
+      if (isHoverablePointerType(event) && autoHideIsMove) {
         manageScrollbarsAutoHideInstantInteraction();
+      }
     }),
     addEventListener(_scrollEventElement, 'scroll', (event) => {
       requestScrollAnimationFrame(() => {
@@ -278,7 +279,9 @@ export const createScrollbarsSetup = (
         _refreshScrollbarsHandleOffset();
         _refreshScrollbarsHandleLength();
         _refreshScrollbarsScrollbarOffset();
-        _scrollCoordinatesChanged && _refreshScrollbarsScrollCoordinates();
+        if (_scrollCoordinatesChanged) {
+          _refreshScrollbarsScrollCoordinates();
+        }
 
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_hasOverflow.x, true);
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_hasOverflow.y, false);

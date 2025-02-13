@@ -22,7 +22,8 @@ export const createDOM = (html: string): ReadonlyArray<Node> => {
   const trustedTypesPolicy = getTrustedTypePolicy();
   const trimmedHtml = html.trim();
   createdDiv.innerHTML = trustedTypesPolicy
-    ? (trustedTypesPolicy as any).createHTML(trimmedHtml)
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (trustedTypesPolicy as any).createHTML(trimmedHtml)
     : trimmedHtml;
 
   return each(contents(createdDiv), (elm) => removeElements(elm));

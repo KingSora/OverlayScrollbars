@@ -45,7 +45,7 @@ export const diffClass = (
   const set = new Set<string>(classNameA ? classNameA.split(' ') : []);
 
   each(classNameB ? classNameB.split(' ') : [], (className) => {
-    set.has(className) ? set.delete(className) : set.add(className);
+    set[set.has(className) ? 'delete' : 'add'](className);
   });
 
   return from(set);

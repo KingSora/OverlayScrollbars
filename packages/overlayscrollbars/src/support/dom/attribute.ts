@@ -37,7 +37,9 @@ export const setAttrs = (
   value: string | number | false | null | undefined
 ) => {
   each(getDomTokensArray(attrNames), (attrName) => {
-    elm && elm.setAttribute(attrName, String(value || ''));
+    if (elm) {
+      elm.setAttribute(attrName, String(value || ''));
+    }
   });
 };
 
@@ -86,7 +88,6 @@ export const removeAttrClass = (
   value: DomTokens
 ): (() => void) => {
   domTokenListAttr(elm, attrName)._remove(value);
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   return bind(addAttrClass, elm, attrName, value);
 };
 

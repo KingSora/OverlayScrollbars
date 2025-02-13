@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { XY, TRBL } from './support';
 import type { Options, PartialOptions, ReadonlyOptions } from './options';
 import type {
@@ -310,7 +311,6 @@ export interface OverlayScrollbars {
   plugin<P extends InstancePlugin>(osPlugin: P): InferInstancePluginModuleInstance<P> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target: InitializationTarget,
   options?: PartialOptions,
@@ -369,7 +369,6 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           } = _structureUpdateHints;
 
           triggerEvent('updated', [
-            // eslint-disable-next-line @typescript-eslint/no-use-before-define
             instance,
             {
               updateHints: {
@@ -389,7 +388,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
             },
           ]);
         },
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+
         (scrollEvent) => triggerEvent('scroll', [instance, scrollEvent])
       );
 
@@ -399,7 +398,6 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
 
       destroyed = true;
 
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       triggerEvent('destroyed', [instance, canceled]);
       removePluginEvents();
       removeInstanceEvents();
@@ -422,7 +420,9 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       },
       on: addInstanceEvent,
       off: (name, listener) => {
-        name && listener && removeInstanceEvents(name, listener);
+        if (name && listener) {
+          removeInstanceEvents(name, listener);
+        }
       },
       state() {
         const { _observersSetupState, _structureSetupState } = setupsState();

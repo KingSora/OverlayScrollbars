@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { OverlayScrollbars, OverlayScrollbarsStatic } from '../overlayscrollbars';
 import type { EventListener, EventListenerArgs, EventListeners } from '../eventListeners';
 import { each, keys } from '../support';

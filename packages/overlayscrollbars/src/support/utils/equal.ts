@@ -16,6 +16,7 @@ export const equal = <T extends PlainObject>(
   a: T | undefined,
   b: T | undefined,
   props: Array<keyof T> | ReadonlyArray<keyof T>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propMutation?: ((value: any) => any) | null | false
 ): boolean => {
   if (a && b) {

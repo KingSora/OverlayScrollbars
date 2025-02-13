@@ -10,12 +10,12 @@ export const Heading = ({ id, tag: Tag, ...rest }: HeadingProps) => {
     return (
       <>
         {/* <Link href={`/#${id}`} scroll={false}> */}
-        {/* eslint-disable-next-line */}
+        {}
         <Tag {...rest} />
         {/* </Link> */}
       </>
     );
   }
-  /* eslint-disable-next-line */
+
   return <Tag {...rest} />;
 };

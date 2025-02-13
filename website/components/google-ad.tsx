@@ -62,6 +62,7 @@ export const GoogleAd = ({
     const obj = {};
     try {
       getAdsByGoogleArr().push(obj);
+      // eslint-disable-next-line no-empty
     } catch {}
 
     return () => {
@@ -71,6 +72,7 @@ export const GoogleAd = ({
         if (idx > -1) {
           arr.splice(idx, 1);
         }
+        // eslint-disable-next-line no-empty
       } catch {}
     };
   }, [mounted]);

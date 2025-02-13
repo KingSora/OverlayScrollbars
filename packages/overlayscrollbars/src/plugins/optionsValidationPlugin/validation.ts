@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PlainObject, DeepPartial } from '../../typings';
 import type { OptionsObject } from '../../options';
 import {
