@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-import playwrightCoverageConfig from '@~local/config/playwright-coverage';
+import { playwrightCoverage } from '@~local/config/playwright-coverage';
 
-const { tmpCoverageDirectory } = playwrightCoverageConfig;
+const { tmpCoverageDirectory } = playwrightCoverage;
 
 export default async (coverageOutputDir, coverage, testfile) => {
   if (coverage) {
