@@ -1,6 +1,3 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.json",
-  "compilerOptions": {
-    "types": ["@testing-library/jest-dom"]
-  }
+  "extends": "@vue/tsconfig/tsconfig.json"
 }
