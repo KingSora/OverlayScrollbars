@@ -53,12 +53,12 @@
   "scripts": {
     "build": "rollup -c",
     "types": "tsc --emitDeclarationOnly -p tsconfig.types.json",
-    "test": "jest --coverage",
+    "test": "vitest run --coverage",
+    "test:dev": "vitest --coverage",
     "e2e": "playwright test",
     "e2e:dev": "playwright test --workers 1 --timeout 0 --global-timeout 0",
-    "jest": "jest --coverage --testPathPattern",
-    "jest:node": "jest --coverage --selectProjects node --testPathPattern",
-    "jest:jsdom": "jest --selectProjects jsdom --testPathPattern",
+    "vitest:node": "vitest run --coverage --project node",
+    "vitest:dom": "vitest run --coverage --project dom",
     "posttest": "playwright-merge-coverage && full-coverage",
     "postjest": "full-coverage",
     "poste2e": "playwright-merge-coverage && full-coverage"

@@ -1,6 +1,5 @@
-import { fileURLToPath } from 'url';
 import { mergeConfig } from 'vite';
-import vitestConfig from '@~local/config/vitest';
+import { vitestDomProjectConfig, vitestConfig } from '@~local/config/vitest';
 import viteConfig from './vite.config.js';
 
 export default mergeConfig(
@@ -11,11 +10,12 @@ export default mergeConfig(
     },
   },
   {
+    ...vitestConfig,
     test: {
       ...vitestConfig.test,
-      environmentMatchGlobs: [
-        ['test/body/*', fileURLToPath(import.meta.resolve('@~local/config/vitest.new-jsdom.env'))],
-      ],
+      ...vitestDomProjectConfig.test,
+      // workspaces don't work well with vite-plugin-solid
+      workspace: undefined,
     },
   }
 );

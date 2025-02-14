@@ -39,7 +39,7 @@
     "overlayscrollbars": "file:./../overlayscrollbars/dist",
     "solid-js": "^1.7.0",
     "typescript": "^5.0.0",
-    "vite-plugin-solid": "^2.8.0"
+    "vite-plugin-solid": "^2.11.1"
   },
   "scripts": {
     "build": "vite build",

@@ -10,6 +10,6 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "isolatedModules": true,
-    "types": ["vite/client", "jest", "@testing-library/jest-dom"]
+    "types": ["vite/client", "@testing-library/jest-dom"]
   }
 }

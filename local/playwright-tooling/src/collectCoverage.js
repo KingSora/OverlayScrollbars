@@ -1,12 +1,11 @@
 import fs from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-import playwrightCoverageConfig from '@~local/config/playwright.coverage';
+import playwrightCoverageConfig from '@~local/config/playwright-coverage';
 
 const { tmpCoverageDirectory } = playwrightCoverageConfig;
 
 export default async (coverageOutputDir, coverage, testfile) => {
   if (coverage) {
-    // eslint-disable-next-line no-restricted-syntax
     const coveragePath = join(
       coverageOutputDir,
       `${tmpCoverageDirectory}/${basename(dirname(testfile))}_${Date.now()}.json`

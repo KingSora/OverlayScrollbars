@@ -3,11 +3,6 @@
   "styleExtensions": [".css", ".scss", ".sass"],
   "directories": ["node_modules"],
   "paths": {
-    "jest": {
-      "moduleNameMapper": {
-        "^~/(.*)": "<rootDir>/src/$1"
-      }
-    },
     "rollupTypes": {
       "~/*": ["<typesDir>/*"]
     }

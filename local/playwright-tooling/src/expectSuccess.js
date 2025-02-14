@@ -4,7 +4,7 @@ const startSelector = '#start';
 const resultSelector = '#testResult';
 const logError = async (page, ...args) => {
   const title = await page.title();
-  // eslint-disable-next-line no-console
+
   console.log(title, ...args);
 };
 

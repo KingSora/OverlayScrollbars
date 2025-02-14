@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = function () {};
 
 export const mockAnimationApi = () => {
@@ -46,6 +45,7 @@ export const mockComputedStyles = () => {
   try {
     const cmptdStyle = window.getComputedStyle;
     window.getComputedStyle = (a) => cmptdStyle(a);
+    // eslint-disable-next-line no-empty
   } catch {}
 };
 

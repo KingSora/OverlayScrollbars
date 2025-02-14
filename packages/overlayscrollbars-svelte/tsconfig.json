@@ -12,5 +12,5 @@
     "noEmit": true,
     "types": ["@testing-library/jest-dom"]
   },
-  "include": ["**/*.ts", "**/*.d.ts"]
+  "include": ["**/*.ts", "**/*.mts", "**/*.cts", "**/*.d.ts"]
 }

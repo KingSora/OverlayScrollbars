@@ -11,16 +11,15 @@ const createRollupBundle = async (testDir, useEsbuild, dev) => {
   const outputPath = await new Promise((resolve) => {
     let bundleOutput;
     if (dev) {
-      console.log(`Using: ${useEsbuild ? 'esbuild' : 'rollup'}`); // eslint-disable-line
+      console.log(`Using: ${useEsbuild ? 'esbuild' : 'rollup'}`);
     }
     watcher.on('event', (event) => {
       const { code, error, result, output } = event;
       if (code === 'ERROR') {
-        console.log('Error:', error); // eslint-disable-line
+        console.log('Error:', error);
       }
       if (code === 'START') {
         if (dev) {
-          // eslint-disable-next-line
           console.log(`Building...`);
         }
       }
@@ -32,9 +31,8 @@ const createRollupBundle = async (testDir, useEsbuild, dev) => {
       }
       if (code === 'END') {
         if (dev) {
-          // eslint-disable-next-line
           console.log(`Watching for changes...`);
-          console.log(''); // eslint-disable-line
+          console.log('');
         } else {
           resolve(bundleOutput);
         }

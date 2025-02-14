@@ -5,12 +5,10 @@
   "exports": {
     "./resolve": "./src/resolve.json",
     "./playwright": "./src/playwright.js",
-    "./playwright.coverage": "./src/playwright.coverage.js",
-    "./jest": "./src/jest.js",
-    "./jest-babel": "./src/jest.babel.cjs",
+    "./playwright-coverage": "./src/playwright-coverage.js",
     "./full-coverage": "./src/full-coverage.js",
     "./vitest": "./src/vitest.js",
-    "./vitest.new-jsdom.env": "./src/vitest.new-jsdom.env.js"
+    "./vitest-coverage": "./src/vitest-coverage.js"
   },
   "version": "0.0.0"
 }

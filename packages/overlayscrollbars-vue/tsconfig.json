@@ -1,7 +1,6 @@
 {
   "extends": "@vue/tsconfig/tsconfig.json",
   "compilerOptions": {
-    "jsx": "preserve",
-    "types": ["jest", "@testing-library/jest-dom"]
+    "types": ["@testing-library/jest-dom"]
   }
 }

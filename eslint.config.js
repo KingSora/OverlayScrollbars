@@ -5,6 +5,7 @@ import typescriptParser from '@typescript-eslint/parser';
 import prettierPluginRecommended from 'eslint-plugin-prettier/recommended';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import globals from 'globals';
 
 export default [
   // global
@@ -18,6 +19,22 @@ export default [
     importPlugin.flatConfigs.recommended,
     prettierPluginRecommended,
     {
+      rules: {
+        'import/order': [
+          'error',
+          {
+            groups: ['builtin', 'external', 'index', 'internal', 'unknown', 'type'],
+            pathGroups: [
+              {
+                pattern: '*.{css,scss,sass}',
+                group: 'unknown',
+                patternOptions: { matchBase: true },
+                position: 'after',
+              },
+            ],
+          },
+        ],
+      },
       settings: {
         'import/resolver': {
           typescript: {
@@ -37,6 +54,11 @@ export default [
       languageOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
+        globals: {
+          ...globals.browser,
+          ...globals.node,
+          ...globals.nodeBuiltin,
+        },
       },
     },
   ].map((configObj) => ({
@@ -52,6 +74,11 @@ export default [
       languageOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
+        globals: {
+          browser: true,
+          node: true,
+          es6: true,
+        },
         parser: typescriptParser,
         parserOptions: {
           tsconfigRootDir: import.meta.dirname,
@@ -83,4 +110,37 @@ export default [
       },
     },
   })),
+
+  // test
+  {
+    files: ['**/test/**/*'],
+    rules: {
+      'no-empty': 'off',
+      'no-shadow': 'off',
+      'no-use-before-define': 'off',
+      'no-restricted-syntax': 'off',
+      'no-console': 'off',
+      'consistent-return': 'off',
+      'symbol-description': 'off',
+      'no-new-wrappers': 'off',
+      'no-prototype-builtins': 'off',
+      'no-void': 'off',
+      'no-empty-function': 'off',
+      'no-new-func': 'off',
+
+      // typescript
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/ban-types': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+
+      // react
+      'react-hooks/rules-of-hooks': 'off',
+      'react/no-unescaped-entities': 'off',
+      'react/display-name': 'off',
+      'react/prop-types': 'off',
+    },
+  },
 ];

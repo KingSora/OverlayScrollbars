@@ -2,9 +2,9 @@
 import fs from 'node:fs';
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
-import coverageConfig from '@~local/config/playwright.coverage';
+import { playwrightCoverage } from '@~local/config/playwright-coverage';
 
-const { coverageDirectory, tmpCoverageDirectory } = coverageConfig;
+const { coverageDirectory, tmpCoverageDirectory } = playwrightCoverage;
 
 const mergeCoverage = async () => {
   if (fs.existsSync(tmpCoverageDirectory)) {
@@ -30,7 +30,8 @@ const mergeCoverage = async () => {
   try {
     await mergeCoverage();
   } catch (e) {
-    // console.error(`Playwright coverage couldn't be merged.`, e);
+    console.error(`Playwright coverage couldn't be merged.`, e);
+
     if (fs.existsSync(tmpCoverageDirectory)) {
       fs.rmSync(tmpCoverageDirectory, { recursive: true });
     }

@@ -2,13 +2,13 @@
 import fs from 'node:fs';
 import { execSync } from 'node:child_process';
 import { join, dirname, basename } from 'node:path';
-import fullCoverageConfig from '@~local/config/full-coverage';
-import playwrightCoverageConfig from '@~local/config/playwright.coverage';
-import jestCoverageConfig from '@~local/config/jest';
+import { fullCoverage } from '@~local/config/full-coverage';
+import { playwrightCoverage } from '@~local/config/playwright-coverage';
+import { vitestCoverage } from '@~local/config/vitest-coverage';
 
-const { coverageDirectory, tmpCoverageDirectory } = fullCoverageConfig;
-const { coverageDirectory: playwrightCoverage } = playwrightCoverageConfig;
-const { coverageDirectory: jestCoverage } = jestCoverageConfig;
+const { coverageDirectory, tmpCoverageDirectory } = fullCoverage;
+const { coverageDirectory: playwrightCoverageDirectory } = playwrightCoverage;
+const { coverageDirectory: vitestCoverageDirectory } = vitestCoverage;
 
 const reportFileName = 'coverage-final.json';
 
@@ -27,10 +27,10 @@ const copyReportFile = (path) => {
 };
 
 const generateFullCoverage = async () => {
-  const copiedPlaywright = copyReportFile(join(playwrightCoverage, reportFileName));
-  const copiedJest = copyReportFile(join(jestCoverage, reportFileName));
+  const copiedPlaywright = copyReportFile(join(playwrightCoverageDirectory, reportFileName));
+  const copiedUnit = copyReportFile(join(vitestCoverageDirectory, reportFileName));
 
-  if (copiedPlaywright || copiedJest) {
+  if (copiedPlaywright || copiedUnit) {
     const mergeDestination = join(tmpCoverageDirectory, `full_${Date.now()}.json`);
     execSync(`nyc merge ${tmpCoverageDirectory} ${mergeDestination}`);
 
@@ -55,7 +55,8 @@ const generateFullCoverage = async () => {
   try {
     await generateFullCoverage();
   } catch (e) {
-    // console.error(`Full coverage couldn't be generated.`, e);
+    console.error(`Full coverage couldn't be generated.`, e);
+
     if (fs.existsSync(tmpCoverageDirectory)) {
       fs.rmSync(tmpCoverageDirectory, { recursive: true });
     }
