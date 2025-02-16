@@ -1,4 +1,4 @@
-import { createRenderEffect, onCleanup } from 'solid-js';
+import { createMemo, createRenderEffect, onCleanup, untrack } from 'solid-js';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import type { Accessor } from 'solid-js';
 import type { Store } from 'solid-js/store';
@@ -87,28 +87,31 @@ export const createOverlayScrollbars = (
     | Store<CreateOverlayScrollbarsParams | undefined>
 ): [CreateOverlayScrollbarsInitialization, CreateOverlayScrollbarsInstance] => {
   let instance: OverlayScrollbars | null = null;
-  let options: OverlayScrollbarsComponentProps['options'];
-  let events: OverlayScrollbarsComponentProps['events'];
-  let defer: OverlayScrollbarsComponentProps['defer'];
   const [requestDefer, clearDefer] = createDefer();
+  const unwrappedParams = createMemo(() => unwrapAccessor(params) || {});
+  const options: Accessor<OverlayScrollbarsComponentProps['options']> = createMemo(() =>
+    unwrapAccessor(unwrappedParams().options)
+  );
+  const events: Accessor<OverlayScrollbarsComponentProps['events']> = createMemo(() =>
+    unwrapAccessor(unwrappedParams().events)
+  );
+  const defer: Accessor<OverlayScrollbarsComponentProps['defer']> = createMemo(() =>
+    unwrapAccessor(unwrappedParams().defer)
+  );
 
   createRenderEffect(() => {
-    defer = unwrapAccessor(unwrapAccessor(params)?.defer);
-  });
-
-  createRenderEffect(() => {
-    options = unwrapAccessor(unwrapAccessor(params)?.options);
+    const currOptions = options();
 
     if (OverlayScrollbars.valid(instance)) {
-      instance.options(options || {}, true);
+      instance.options(currOptions || {}, true);
     }
   });
 
   createRenderEffect(() => {
-    events = unwrapAccessor(unwrapAccessor(params)?.events);
+    const currEvents = events();
 
     if (OverlayScrollbars.valid(instance)) {
-      instance.on(events || {}, true);
+      instance.on(currEvents || {}, true);
     }
   });
 
@@ -124,10 +127,14 @@ export const createOverlayScrollbars = (
         return instance;
       }
 
-      const init = () => (instance = OverlayScrollbars(target, options || {}, events || {}));
+      const currOptions = untrack(options);
+      const currEvents = untrack(events);
+      const currDefer = untrack(defer);
+      const init = () =>
+        (instance = OverlayScrollbars(target, currOptions || {}, currEvents || {}));
 
-      if (defer) {
-        requestDefer(init, defer);
+      if (currDefer) {
+        requestDefer(init, currDefer);
       } else {
         init();
       }
