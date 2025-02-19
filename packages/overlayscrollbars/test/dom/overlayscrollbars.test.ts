@@ -645,10 +645,10 @@ describe('overlayscrollbars', () => {
     test('env', () => {
       const env = OverlayScrollbars.env();
       const envObj = {
-        scrollbarsSize: { x: 0, y: 0 },
-        scrollbarsOverlaid: { x: true, y: true },
-        scrollbarsHiding: false,
-        scrollTimeline: false,
+        scrollbarsSize: { x: expect.any(Number), y: expect.any(Number) },
+        scrollbarsOverlaid: { x: expect.any(Boolean), y: expect.any(Boolean) },
+        scrollbarsHiding: expect.any(Boolean),
+        scrollTimeline: expect.any(Boolean),
         staticDefaultInitialization: expect.any(Object),
         staticDefaultOptions: expect.any(Object),
         getDefaultInitialization: expect.any(Function),

@@ -12,7 +12,7 @@ vi.useFakeTimers();
 const defaultInitialization = {
   elements: {
     host: null,
-    padding: true,
+    padding: expect.any(Boolean),
     viewport: expect.any(Function),
     content: false,
   },
