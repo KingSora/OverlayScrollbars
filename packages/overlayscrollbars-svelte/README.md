@@ -82,7 +82,7 @@ Additionally it has custom optional properties:
 > __Note__: Its **highly recommended** to use the `defer` option whenever possible to defer the initialization to a browser's idle period.
 
 ```svelte
-// example usage
+<!-- example usage -->
 <OverlayScrollbarsComponent
   element="span"
   options={{ scrollbars: { autoHide: 'scroll' } }}
@@ -98,7 +98,7 @@ Additionally to the `events` property the `OverlayScrollbarsComponent` emits "na
 > __Note__: This feature is [deprecated](https://svelte.dev/docs/svelte/v5-migration-guide#Event-changes) since `Svelte5`. The `OverlayScrollbarsComponent` still supports it to ease migration. It doesn't matter whether you use the `events` property or the Svelte events or both.
 
 ```svelte
-// example usage
+<!-- example usage -->
 <OverlayScrollbarsComponent
   on:osInitialized={onInitialized}
   on:osUpdated={onUpdated}
