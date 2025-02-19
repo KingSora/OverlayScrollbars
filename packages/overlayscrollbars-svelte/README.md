@@ -145,7 +145,7 @@ In case the `OverlayScrollbarsComponent` is not enough, you can also use the `us
    * let options = $state$();
    * let events = $state();
    * let defer = $state();
-   * const [initialize, instance] = createOverlayScrollbars({
+   * const [initialize, instance] = useOverlayScrollbars({
    *   options: () => options,
    *   events: () => events,
    *   defer: () => defer,
