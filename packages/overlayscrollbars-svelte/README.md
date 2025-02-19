@@ -154,7 +154,7 @@ In case the `OverlayScrollbarsComponent` is not enough, you can also use the `us
    */
 
   onMount(() => {
-    initBodyOverlayScrollbars({ target: div });
+    initialize({ target: div });
   });
 </script>
 
