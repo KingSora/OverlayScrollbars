@@ -38,7 +38,11 @@ export default {
         ? rollupPluginScss({
             output,
             sourceMap,
-            sass,
+            sass: {
+              renderSync: (options) => {
+                return sass.renderSync({ ...options, silenceDeprecations: ['legacy-js-api'] });
+              },
+            },
             prefix: banner
               ? `/*! \r\n${banner
                   .replace(/\r\n/g, '\r')
