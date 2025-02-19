@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable import/no-dynamic-require */
 import fs from 'node:fs';
 import path from 'node:path';
 import rollupPluginStyles from 'rollup-plugin-styles';
@@ -58,7 +56,11 @@ export const rollupPlaywrightConfig = (testDir, useEsbuild, dev) => {
         sourcemap: !isDev,
       },
       plugins: [
-        rollupPluginStyles(),
+        rollupPluginStyles({
+          sass: {
+            silenceDeprecations: ['legacy-js-api'],
+          },
+        }),
         rollupPlaywrightHtmlPlugin(`Playwright: ${name}`, htmlName, () =>
           fs.existsSync(htmlPath) ? fs.readFileSync(htmlPath, 'utf8') : null
         ),

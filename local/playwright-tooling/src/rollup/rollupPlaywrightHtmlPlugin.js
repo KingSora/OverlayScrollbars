@@ -6,8 +6,6 @@ const makeHtmlAttributes = (attributes) => {
   }
 
   const keys = Object.keys(attributes);
-  // eslint-disable-next-line no-param-reassign
-  // eslint-disable-next-line no-return-assign
   return keys.reduce((result, key) => (result += ` ${key}="${attributes[key]}"`), '');
 };
 
