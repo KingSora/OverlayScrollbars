@@ -1,14 +1,5 @@
 <script setup lang="ts">
-import {
-  ref,
-  unref,
-  shallowRef,
-  toRefs,
-  watch,
-  watchPostEffect,
-  onMounted,
-  type PropType,
-} from 'vue';
+import { ref, unref, shallowRef, toRefs, watch, watchPostEffect, type PropType } from 'vue';
 import { useOverlayScrollbars } from './useOverlayScrollbars';
 import type {
   OverlayScrollbarsComponentProps,

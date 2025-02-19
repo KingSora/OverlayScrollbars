@@ -1,65 +1,45 @@
-<script lang="ts">
-  import { afterUpdate, createEventDispatcher, onDestroy } from 'svelte';
-  import { OverlayScrollbars } from 'overlayscrollbars';
-  import { createDefer } from './createDefer';
+<script lang="ts" generics="T extends ValidSvelteElement = 'div'">
+  import { createEventDispatcher } from 'svelte';
   import type { EventListeners, EventListenerArgs } from 'overlayscrollbars';
-  import type { Props, Ref } from './OverlayScrollbarsComponent.types';
+  import type {
+    OverlayScrollbarsComponentProps,
+    OverlayScrollbarsComponentRef,
+    ValidSvelteHTMLElement,
+    ValidSvelteElement,
+    ValidSvelteComponent,
+  } from './OverlayScrollbarsComponent.types';
+  import { useOverlayScrollbars } from './useOverlayScrollbars.svelte';
 
-  type EmitEventsMap = {
-    [N in keyof EventListenerArgs]: `os${Capitalize<N>}`;
-  };
+  const {
+    // @ts-ignore
+    element = 'div',
+    options,
+    events,
+    defer,
+    children,
+    ...other
+  }: OverlayScrollbarsComponentProps<T> = $props();
 
-  export let element: Props['element'] = 'div';
-  export let options: Props['options'] = undefined;
-  export let events: Props['events'] = undefined;
-  export let defer: Props['defer'] = undefined;
+  let elementRef:
+    | (T extends ValidSvelteComponent ? ReturnType<ValidSvelteComponent> : HTMLElement)
+    | undefined = $state();
+  let slotRef: HTMLElement | undefined = $state();
 
-  let instance: OverlayScrollbars | null = null;
-  let elementRef: HTMLElement | null = null;
-  let slotRef: HTMLElement | null = null;
-  let combinedEvents: Props['events'] = undefined;
-  let prevElement: string | undefined;
-
-  const [requestDefer, cancelDefer] = createDefer();
-
-  const initialize = () => {
-    const init = () => {
-      const target = elementRef;
-
-      if (!target) {
-        return;
-      }
-
-      instance?.destroy();
-      instance = OverlayScrollbars(
-        element === 'body'
-          ? {
-              target,
-              cancel: {
-                body: null,
-              },
-            }
-          : {
-              target,
-              elements: {
-                viewport: slotRef,
-                content: slotRef,
-              },
-            },
-        options || {},
-        combinedEvents || {}
-      );
-    };
-
-    if (defer) {
-      requestDefer(init, defer);
-    } else {
-      init();
+  const elementRefHtmlElement = $derived.by(() => {
+    if (!elementRef) {
+      return;
     }
-
-    prevElement = element;
-  };
-  const dispatchEvents: EmitEventsMap = {
+    if (elementRef instanceof HTMLElement) {
+      return elementRef;
+    }
+    try {
+      // if component doesn't export `getElement` function an error is thrown
+      return elementRef.getElement() as HTMLElement | undefined;
+    } catch {}
+  });
+  const dispatchEvents: {
+    [N in keyof EventListenerArgs]: `os${Capitalize<N>}`;
+  } = {
     initialized: 'osInitialized',
     updated: 'osUpdated',
     destroyed: 'osDestroyed',
@@ -71,69 +51,88 @@
     osDestroyed: EventListenerArgs['destroyed'];
     osScroll: EventListenerArgs['scroll'];
   }>();
+  const eventsWithDispatch = $derived(
+    (Object.keys(dispatchEvents) as (keyof EventListeners)[]).reduce<EventListeners>(
+      <N extends keyof EventListeners>(obj: EventListeners, name: N) => {
+        const eventListener = (events || {})[name];
+        obj[name] = [
+          (...args: EventListenerArgs[N]) =>
+            dispatchEvent(
+              // @ts-ignore
+              dispatchEvents[name],
+              // @ts-ignore
+              args
+            ),
+          ...(Array.isArray(eventListener) ? eventListener : [eventListener]).filter(Boolean),
+        ];
+        return obj;
+      },
+      {}
+    )
+  );
 
-  export const osInstance: Ref['osInstance'] = () => instance;
-  export const getElement: Ref['getElement'] = () => elementRef;
-
-  onDestroy(() => {
-    cancelDefer();
-    instance?.destroy();
+  const [initialize, instance] = useOverlayScrollbars({
+    options: () => options,
+    events: () => eventsWithDispatch,
+    defer: () => defer,
   });
 
-  afterUpdate(() => {
-    if (prevElement !== element) {
-      initialize();
+  $effect(() => {
+    /* c8 ignore start */
+    if (!elementRefHtmlElement) {
+      return;
     }
+    /* c8 ignore end */
+
+    initialize(
+      element === 'body'
+        ? {
+            target: elementRefHtmlElement,
+            cancel: {
+              body: null,
+            },
+          }
+        : {
+            target: elementRefHtmlElement,
+            elements: {
+              viewport: slotRef,
+              content: slotRef,
+            },
+          }
+    );
+
+    return () => {
+      instance()?.destroy();
+    };
   });
 
-  $: {
-    const currEvents = events || {};
-    combinedEvents = (
-      Object.keys(dispatchEvents) as (keyof EventListeners)[]
-    ).reduce<EventListeners>(<N extends keyof EventListeners>(obj: EventListeners, name: N) => {
-      const eventListener = currEvents[name];
-      obj[name] = [
-        (...args: EventListenerArgs[N]) =>
-          dispatchEvent(
-            // @ts-ignore
-            dispatchEvents[name],
-            // @ts-ignore
-            args
-          ),
-        ...(Array.isArray(eventListener) ? eventListener : [eventListener]).filter(Boolean),
-      ];
-      return obj;
-    }, {});
-  }
-
-  $: {
-    if (OverlayScrollbars.valid(instance)) {
-      instance.options(options || {}, true);
-    }
-  }
-
-  $: {
-    if (OverlayScrollbars.valid(instance)) {
-      instance.on(
-        /* c8 ignore next */
-        combinedEvents || {},
-        true
-      );
-    }
-  }
+  export const osInstance: OverlayScrollbarsComponentRef<T>['osInstance'] = instance;
+  export const getElement: OverlayScrollbarsComponentRef<T>['getElement'] = () =>
+    (elementRefHtmlElement as ValidSvelteHTMLElement<T> | undefined) || null;
 </script>
 
-<svelte:element
-  this={element}
-  data-overlayscrollbars-initialize=""
-  bind:this={elementRef}
-  {...$$restProps}
->
+{#snippet content()}
   {#if element === 'body'}
-    <slot />
+    {@render children?.()}
   {:else}
     <div data-overlayscrollbars-contents="" bind:this={slotRef}>
-      <slot />
+      {@render children?.()}
     </div>
   {/if}
-</svelte:element>
+{/snippet}
+
+{#if typeof element === 'string'}
+  <svelte:element
+    this={element}
+    data-overlayscrollbars-initialize=""
+    bind:this={elementRef}
+    {...other}
+  >
+    {@render content()}
+  </svelte:element>
+{:else}
+  {@const Tag = element as ValidSvelteComponent}
+  <Tag data-overlayscrollbars-initialize="" bind:this={elementRef as any} {...other}>
+    {@render content()}
+  </Tag>
+{/if}

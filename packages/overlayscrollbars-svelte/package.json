@@ -2,7 +2,7 @@
   "name": "overlayscrollbars-svelte",
   "private": true,
   "type": "module",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "OverlayScrollbars for Svelte.",
   "author": "Rene Haas | KingSora",
   "license": "MIT",
@@ -35,7 +35,7 @@
   },
   "peerDependencies": {
     "overlayscrollbars": "^2.0.0",
-    "svelte": ">=3.54.0"
+    "svelte": "^5.0.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^4.0.0",

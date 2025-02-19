@@ -1,6 +1,7 @@
 <script lang="ts">
   import { OverlayScrollbarsComponent } from '../../src/overlayscrollbars-svelte';
-  export let element: any = 'div';
+
+  let { element }: { element: any } = $props();
 </script>
 
 <OverlayScrollbarsComponent {element}>

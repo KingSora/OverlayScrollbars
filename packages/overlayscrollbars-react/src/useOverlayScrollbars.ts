@@ -6,12 +6,6 @@ import type {
   OverlayScrollbarsComponentRef,
 } from './OverlayScrollbarsComponent';
 
-type Defer = [
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  requestDefer: (callback: () => any, options?: OverlayScrollbarsComponentProps['defer']) => void,
-  cancelDefer: () => void,
-];
-
 export interface UseOverlayScrollbarsParams {
   /** OverlayScrollbars options. */
   options?: OverlayScrollbarsComponentProps['options'];
@@ -26,6 +20,12 @@ export type UseOverlayScrollbarsInitialization = (target: InitializationTarget) 
 export type UseOverlayScrollbarsInstance = () => ReturnType<
   OverlayScrollbarsComponentRef['osInstance']
 >;
+
+type Defer = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  requestDefer: (callback: () => any, options?: OverlayScrollbarsComponentProps['defer']) => void,
+  cancelDefer: () => void,
+];
 
 const createDefer = (): Defer => {
   /* c8 ignore start */
@@ -126,11 +126,11 @@ export const useOverlayScrollbars = (
           return;
         }
 
+        const currOptions = optionsRef.current;
+        const currEvents = eventsRef.current;
         const currDefer = deferRef.current;
-        const currOptions = optionsRef.current || {};
-        const currEvents = eventsRef.current || {};
         const init = () =>
-          (instanceRef.current = OverlayScrollbars(target, currOptions, currEvents));
+          (instanceRef.current = OverlayScrollbars(target, currOptions || {}, currEvents || {}));
 
         if (currDefer) {
           requestDefer(init, currDefer);

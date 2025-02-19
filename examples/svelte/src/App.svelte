@@ -1,70 +1,31 @@
 <script lang="ts">
-  import { OverlayScrollbars, type EventListenerArgs } from 'overlayscrollbars';
-  import { OverlayScrollbarsComponent } from 'overlayscrollbars-svelte';
+  import { OverlayScrollbarsComponent, useOverlayScrollbars } from 'overlayscrollbars-svelte';
   import { onMount } from 'svelte';
+  import { useEventObserver } from './useEventObserver.svelte';
 
-  type OverlayScrollbarsEvents = keyof EventListenerArgs;
-
-  interface EventObserverEvent {
-    active: boolean;
-    count: number;
-  }
-
-  let osRef: OverlayScrollbarsComponent | undefined;
-  let contentHidden = false;
-  let elementHidden = false;
-  let useOverlayScrollbars = true;
-  let useBodyOverlayScrollbars: boolean | null = null;
-
-  let activeEventsArray: OverlayScrollbarsEvents[] = [];
-  const eventCount: Partial<Record<OverlayScrollbarsEvents, number>> = {};
-  const timeoutIds: Partial<Record<OverlayScrollbarsEvents, ReturnType<typeof setTimeout>>> = {};
-
-  const activateEvent = (event: OverlayScrollbarsEvents) => {
-    const currAmount = eventCount[event];
-    eventCount[event] = typeof currAmount === 'number' ? currAmount + 1 : 1;
-
-    activeEventsArray = Array.from(new Set([...activeEventsArray, event]));
-
-    clearTimeout(timeoutIds[event]);
-    timeoutIds[event] = setTimeout(() => {
-      const currActiveEventsSet = new Set(activeEventsArray);
-      currActiveEventsSet.delete(event);
-
-      activeEventsArray = Array.from(currActiveEventsSet);
-    }, 500);
-  };
-
-  const getEventObj = (
-    activeEventsArr: OverlayScrollbarsEvents[],
-    event: OverlayScrollbarsEvents
-  ): EventObserverEvent => ({
-    active: activeEventsArr.includes(event),
-    count: eventCount[event] || 0,
-  });
-
-  $: activeEvents = {
-    initialized: getEventObj(activeEventsArray, 'initialized'),
-    destroyed: getEventObj(activeEventsArray, 'destroyed'),
-    updated: getEventObj(activeEventsArray, 'updated'),
-    scroll: getEventObj(activeEventsArray, 'scroll'),
-  };
-
-  const initBodyOverlayScrollbars = (force?: boolean) =>
-    OverlayScrollbars(
-      {
-        target: document.body,
-        cancel: {
-          body: force ? false : null,
-        },
+  let osRef: OverlayScrollbarsComponent | undefined = $state();
+  let contentHidden = $state(false);
+  let elementHidden = $state(false);
+  let overlayScrollbarsApplied = $state(true);
+  let bodyOverlayScrollbarsApplied: boolean | null = $state(null);
+  const [activeEvents, activateEvent] = useEventObserver();
+  const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = useOverlayScrollbars({
+    defer: true,
+    events: {
+      initialized: () => {
+        bodyOverlayScrollbarsApplied = true;
       },
-      {
-        scrollbars: {
-          theme: 'os-theme-light',
-          clickScroll: true,
-        },
-      }
-    ).state().destroyed;
+      destroyed: () => {
+        bodyOverlayScrollbarsApplied = false;
+      },
+    },
+    options: {
+      scrollbars: {
+        theme: 'os-theme-light',
+        clickScroll: true,
+      },
+    },
+  });
 
   const scrollContent = () => {
     const osInstance = osRef?.osInstance();
@@ -90,17 +51,22 @@
     elementHidden = !elementHidden;
   };
   const toggleBodyOverlayScrollbars = () => {
-    const bodyOsInstance = OverlayScrollbars(document.body);
-    if (bodyOsInstance) {
+    const bodyOsInstance = getBodyOverlayScrollbarsInstance();
+
+    if (bodyOsInstance && !bodyOsInstance.state().destroyed) {
       bodyOsInstance.destroy();
-      useBodyOverlayScrollbars = false;
     } else {
-      useBodyOverlayScrollbars = !initBodyOverlayScrollbars(true);
+      initBodyOverlayScrollbars({
+        target: document.body,
+        cancel: {
+          body: false,
+        },
+      });
     }
   };
 
-  onMount(async () => {
-    useBodyOverlayScrollbars = !initBodyOverlayScrollbars();
+  onMount(() => {
+    initBodyOverlayScrollbars(document.body);
   });
 </script>
 
@@ -111,7 +77,7 @@
     </a>
   </h1>
   <section>
-    {#if useOverlayScrollbars}
+    {#if overlayScrollbarsApplied}
       <OverlayScrollbarsComponent
         bind:this={osRef}
         class="overlayscrollbars-svelte"
@@ -142,24 +108,24 @@
   <section>
     <p class="title">Actions:</p>
     <div class="items">
-      {#if useOverlayScrollbars}
-        <button on:click={scrollContent}>Scroll</button>
-        <button on:click={toggleContent}>{contentHidden ? 'Show' : 'Hide'} Content</button>
-        <button on:click={toggleElement}>{elementHidden ? 'Show' : 'Hide'} Element</button>
+      {#if overlayScrollbarsApplied}
+        <button onclick={scrollContent}>Scroll</button>
+        <button onclick={toggleContent}>{contentHidden ? 'Show' : 'Hide'} Content</button>
+        <button onclick={toggleElement}>{elementHidden ? 'Show' : 'Hide'} Element</button>
       {/if}
       <button
-        on:click={() => {
-          useOverlayScrollbars = !useOverlayScrollbars;
+        onclick={() => {
+          overlayScrollbarsApplied = !overlayScrollbarsApplied;
         }}
       >
-        {useOverlayScrollbars ? 'Destroy' : 'Initialize'} OverlayScrollbars
+        {overlayScrollbarsApplied ? 'Destroy' : 'Initialize'} OverlayScrollbars
       </button>
     </div>
   </section>
   <section>
     <p class="title">Events:</p>
     <div class="items">
-      {#each Object.entries(activeEvents) as [eventName, event]}
+      {#each Object.entries(activeEvents()) as [eventName, event]}
         <div class={`event ${event.active ? 'active' : ''}`}>
           {eventName} ({event.count})
         </div>
@@ -168,11 +134,11 @@
   </section>
 </main>
 <footer>
-  {#if useBodyOverlayScrollbars !== null}
+  {#if bodyOverlayScrollbarsApplied !== null}
     <section>
       <div class="items">
-        <button on:click={toggleBodyOverlayScrollbars}>
-          {useBodyOverlayScrollbars ? 'Destroy' : 'Initialize'} Body OverlayScrollbars
+        <button onclick={toggleBodyOverlayScrollbars}>
+          {bodyOverlayScrollbarsApplied ? 'Destroy' : 'Initialize'} Body OverlayScrollbars
         </button>
       </div>
     </section>

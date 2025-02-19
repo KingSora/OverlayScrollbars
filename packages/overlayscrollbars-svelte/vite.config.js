@@ -1,6 +1,7 @@
 import { resolve } from 'path';
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { svelteTesting } from '@testing-library/svelte/vite';
 import { rollupPackageJsonPlugin } from '@~local/rollup/plugin/rollupPackageJsonPlugin';
 import { rollupCopyPlugin } from '@~local/rollup/plugin/rollupCopyPlugin';
 
@@ -92,5 +93,5 @@ export default defineConfig({
       ],
     },
   },
-  plugins: [svelte(process.env.VITEST ? { hot: false } : {})],
+  plugins: [svelte(process.env.VITEST ? { hot: false } : {}), svelteTesting()],
 });

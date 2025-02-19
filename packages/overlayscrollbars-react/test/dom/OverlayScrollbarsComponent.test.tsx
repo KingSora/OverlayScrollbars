@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 import { describe, test, beforeEach, afterEach, expect, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -48,6 +48,11 @@ describe('OverlayScrollbarsComponent', () => {
     test('correct root element with instance', () => {
       const elementA = 'code';
       const elementB = 'span';
+      const elementC = forwardRef((props, ref) => (
+        // @ts-ignore
+        <section {...props} ref={ref} />
+      ));
+
       let osInstance;
       const { container, rerender } = render(<OverlayScrollbarsComponent />);
 
@@ -69,6 +74,14 @@ describe('OverlayScrollbarsComponent', () => {
 
       rerender(<OverlayScrollbarsComponent element={elementB} />);
       expect(container.querySelector(elementB)).toBe(container.firstElementChild);
+
+      expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
+      osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);
+      expect(osInstance).toBeDefined();
+      expect(OverlayScrollbars.valid(osInstance)).toBe(true);
+
+      rerender(<OverlayScrollbarsComponent element={elementC} />);
+      expect(container.querySelector('section')).toBe(container.firstElementChild);
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
       osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);

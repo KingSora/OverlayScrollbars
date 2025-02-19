@@ -35,7 +35,7 @@ export interface OverlayScrollbarsComponentRef<T extends ElementType = 'div'> {
 }
 
 const OverlayScrollbarsComponent = <T extends ElementType = 'div'>(
-  props: OverlayScrollbarsComponentBaseProps<T>,
+  props: T extends ElementType ? OverlayScrollbarsComponentBaseProps<T> : never,
   ref: ForwardedRef<OverlayScrollbarsComponentRef<T>>
 ): ReactElement | null => {
   const { element = 'div', options, events, defer, children, ...other } = props;
@@ -84,8 +84,6 @@ const OverlayScrollbarsComponent = <T extends ElementType = 'div'>(
   }, [osInstance]);
 
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     <Tag data-overlayscrollbars-initialize="" ref={elementRef} {...other}>
       {element === 'body' ? (
         children

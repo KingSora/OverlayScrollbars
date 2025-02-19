@@ -74,7 +74,7 @@ const createTestComponent =
               setEvents(e.detail.events);
             }
             if (elementChanged) {
-              setElement(e.detail.element);
+              setElement(() => e.detail.element);
             }
             if (classChanged) {
               setClassName(e.detail.className);
@@ -103,6 +103,9 @@ describe('OverlayScrollbarsComponent', () => {
     test('correct root element with instance', () => {
       const elementA = 'code';
       const elementB = 'span';
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+      const elementC = (props: {}) => <section {...props} />;
+
       let osInstance;
       const { container } = render(createTestComponent());
 
@@ -136,6 +139,19 @@ describe('OverlayScrollbarsComponent', () => {
       );
 
       expect(container.querySelector(elementB)).toBe(container.firstElementChild);
+
+      expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
+      osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);
+      expect(osInstance).toBeDefined();
+      expect(OverlayScrollbars.valid(osInstance)).toBe(true);
+
+      fireEvent(
+        screen.getByText('props'),
+        new CustomEvent('osProps', {
+          detail: { element: elementC },
+        })
+      );
+      expect(container.querySelector('section')).toBe(container.firstElementChild);
 
       expect(OverlayScrollbars.valid(osInstance)).toBe(false); // prev instance is destroyed
       osInstance = OverlayScrollbars(container.firstElementChild as HTMLElement);

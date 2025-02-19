@@ -6,7 +6,7 @@
 <div align="center">
 
   [![OverlayScrollbars](https://img.shields.io/badge/OverlayScrollbars-%5E2.0.0-338EFF?style=flat-square)](https://github.com/KingSora/OverlayScrollbars)
-  [![Svelte](https://img.shields.io/badge/Svelte-%3E=3.54.0-FF3E00?style=flat-square&logo=svelte)](https://github.com/sveltejs/svelte)
+  [![Svelte](https://img.shields.io/badge/Svelte-%5E5.0.0-FF3E00?style=flat-square&logo=svelte)](https://github.com/sveltejs/svelte)
   [![Downloads](https://img.shields.io/npm/dt/overlayscrollbars-svelte.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-svelte)
   [![Version](https://img.shields.io/npm/v/overlayscrollbars-svelte.svg?style=flat-square)](https://www.npmjs.com/package/overlayscrollbars-svelte)
   [![License](https://img.shields.io/github/license/kingsora/overlayscrollbars.svg?style=flat-square)](#)
@@ -93,7 +93,7 @@ Additionally it has custom optional properties:
 
 Additionally to the `events` property the `OverlayScrollbarsComponent` emits "native" Svelte events. To prevent name collisions with DOM events the events have a `os` prefix. 
 
-> __Note__: It doesn't matter whether you use the `events` property or the Svelte events or both.
+> __Note__: This feature is [deprecated](https://svelte.dev/docs/svelte/v5-migration-guide#Event-changes) since `Svelte5`. The `OverlayScrollbarsComponent` still supports it to ease migration. It doesn't matter whether you use the `events` property or the Svelte events or both.
 
 ```jsx
 // example usage
@@ -123,6 +123,61 @@ The ref object has two properties:
 
 - `osInstance`: a function which returns the OverlayScrollbars instance.
 - `getElement`: a function which returns the root element.
+
+## Primitive
+
+In case the `OverlayScrollbarsComponent` is not enough, you can also use the `useOverlayScrollbars` primitive:
+
+```svelte
+<script>
+  import { useOverlayScrollbars } from 'overlayscrollbars-svelte';
+  import { onMount } from 'svelte';
+
+  let div = $state();
+  let params = $state$({ options, events, defer });
+  const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = useOverlayScrollbars(() => params);
+
+  /** 
+   * or:
+   * 
+   * const options = $state$();
+   * const events = $state();
+   * const defer = $state();
+   * const [initialize, instance] = createOverlayScrollbars({
+   *   options: () => options,
+   *   events: () => events,
+   *   defer: () => defer,
+   * });
+   * 
+   */
+
+  onMount(() => {
+    initBodyOverlayScrollbars({ target: div });
+  });
+</script>
+
+<div bind:this={div}></div>
+```
+
+The primitive is for advanced usage and lets you control the whole initialization process. This is useful if you want to integrate it with other plugins.
+
+### Parameters
+
+Parameters are optional and similar to the `OverlayScrollbarsComponent`.
+Its an `object` with optional properties:
+
+- `options`: accepts an `object` which represents the OverlayScrollbars options.
+- `events`: accepts an `object` which represents the OverlayScrollbars events.
+- `defer`: accepts an `boolean` or `object`. Defers the initialization to a point in time when the browser is idle.
+
+> __Note__: You can also pass a `function` as parameter which returns the object in case the object itself is reactive. This also applies to all fields.
+
+### Return
+
+The `useOverlayScrollbars` primitive returns a `tuple` with two values:
+
+- The first value is the `initialization` function, it takes one argument which is the `InitializationTarget`.
+- The second value is a function which returns the current OverlayScrollbars instance or `null` if not initialized.
 
 ## License
 
