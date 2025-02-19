@@ -57,10 +57,12 @@ import 'overlayscrollbars/overlayscrollbars.css';
 
 The main entry point is the `OverlayScrollbarsComponent` which can be used in your application as a component:
 
-```jsx
+```svelte
+<script>
 import { OverlayScrollbarsComponent } from "overlayscrollbars-svelte";
 
 // ...
+</script>
 
 <OverlayScrollbarsComponent defer>
   example content
@@ -79,7 +81,7 @@ Additionally it has custom optional properties:
 
 > __Note__: Its **highly recommended** to use the `defer` option whenever possible to defer the initialization to a browser's idle period.
 
-```jsx
+```svelte
 // example usage
 <OverlayScrollbarsComponent
   element="span"
@@ -95,7 +97,7 @@ Additionally to the `events` property the `OverlayScrollbarsComponent` emits "na
 
 > __Note__: This feature is [deprecated](https://svelte.dev/docs/svelte/v5-migration-guide#Event-changes) since `Svelte5`. The `OverlayScrollbarsComponent` still supports it to ease migration. It doesn't matter whether you use the `events` property or the Svelte events or both.
 
-```jsx
+```svelte
 // example usage
 <OverlayScrollbarsComponent
   on:osInitialized={onInitialized}
@@ -135,7 +137,7 @@ In case the `OverlayScrollbarsComponent` is not enough, you can also use the `us
 
   let div = $state();
   let params = $state$({ options, events, defer });
-  const [initBodyOverlayScrollbars, getBodyOverlayScrollbarsInstance] = useOverlayScrollbars(() => params);
+  const [initialize, instance] = useOverlayScrollbars(() => params);
 
   /** 
    * or:
