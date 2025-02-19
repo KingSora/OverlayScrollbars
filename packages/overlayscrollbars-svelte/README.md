@@ -95,7 +95,7 @@ Additionally it has custom optional properties:
 
 Additionally to the `events` property the `OverlayScrollbarsComponent` emits "native" Svelte events. To prevent name collisions with DOM events the events have a `os` prefix. 
 
-> __Note__: This feature is [deprecated](https://svelte.dev/docs/svelte/v5-migration-guide#Event-changes) since `Svelte5`. The `OverlayScrollbarsComponent` still supports it to ease migration. It doesn't matter whether you use the `events` property or the Svelte events or both.
+> __Note__: Events are still supported even though they are are [deprecated](https://svelte.dev/docs/svelte/v5-migration-guide#Event-changes). This was done to ease migration and will be removed in a future release. Please use the `events` option instead.
 
 ```svelte
 <!-- example usage -->
