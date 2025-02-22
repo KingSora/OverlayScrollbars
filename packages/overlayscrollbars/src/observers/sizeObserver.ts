@@ -13,6 +13,8 @@ import {
   noop,
   domRectAppeared,
   concat,
+  debounce,
+  isBoolean,
 } from '../support';
 import {
   classNameSizeObserver,
@@ -32,6 +34,8 @@ export interface SizeObserverCallbackParams {
 }
 
 export type SizeObserver = () => () => void;
+
+let resizeObserverBoxSupport: boolean | null = null;
 
 /**
  * Creates a size observer which observes any size, padding, border, margin and box-sizing changes of the target element. Depending on the options also direction and appear can be observed.
@@ -56,11 +60,12 @@ export const createSizeObserver = (
 
   return () => {
     const destroyFns: (() => void)[] = [];
-    const baseElements = createDOM(
+    const polyfillElements = createDOM(
       `<div class="${classNameSizeObserver}"><div class="${classNameSizeObserverListener}"></div></div>`
     );
-    const sizeObserver = baseElements[0] as HTMLElement;
-    const listenerElement = sizeObserver.firstChild as HTMLElement;
+    const polyfillRootElement = polyfillElements[0] as HTMLElement;
+    const polyfillTargetElement = polyfillRootElement.firstChild as HTMLElement;
+
     const onSizeChangedCallbackProxy = (sizeChangedContext?: ResizeObserverEntry | boolean) => {
       const isResizeObserverCall = sizeChangedContext instanceof ResizeObserverEntry;
 
@@ -69,11 +74,11 @@ export const createSizeObserver = (
 
       // if triggered from RO.
       if (isResizeObserverCall) {
-        const [currRContentRect, , prevContentRect] = updateResizeObserverContentRectCache(
+        const [currContentRect, , prevContentRect] = updateResizeObserverContentRectCache(
           sizeChangedContext.contentRect
         );
-        const hasDimensions = domRectHasDimensions(currRContentRect);
-        appear = domRectAppeared(currRContentRect, prevContentRect);
+        const hasDimensions = domRectHasDimensions(currContentRect);
+        appear = domRectAppeared(currContentRect, prevContentRect);
         skip = !appear && !hasDimensions; // skip if display is none or when window resize
       }
       // else if it triggered with appear from polyfill
@@ -90,16 +95,42 @@ export const createSizeObserver = (
     };
 
     if (ResizeObserverConstructor) {
-      const resizeObserverInstance = new ResizeObserverConstructor((entries) =>
-        onSizeChangedCallbackProxy(entries.pop())
-      );
-      resizeObserverInstance.observe(listenerElement);
-      push(destroyFns, () => {
-        resizeObserverInstance.disconnect();
+      if (!isBoolean(resizeObserverBoxSupport)) {
+        const dummyObserver = new ResizeObserverConstructor(noop);
+        dummyObserver.observe(target, {
+          get box() {
+            resizeObserverBoxSupport = true;
+            return undefined;
+          },
+        });
+        resizeObserverBoxSupport = resizeObserverBoxSupport || false;
+        dummyObserver.disconnect();
+      }
+
+      const debouncedOnSizeChangedCallbackProxy = debounce(onSizeChangedCallbackProxy, {
+        _timeout: 0,
+        _maxDelay: 0,
       });
+      const resizeObserverCallback = (entries: ResizeObserverEntry[]) =>
+        debouncedOnSizeChangedCallbackProxy(entries.pop());
+      const contentBoxResizeObserver = new ResizeObserverConstructor(resizeObserverCallback);
+      contentBoxResizeObserver.observe(resizeObserverBoxSupport ? target : polyfillTargetElement);
+
+      push(destroyFns, [
+        () => contentBoxResizeObserver.disconnect(),
+        !resizeObserverBoxSupport && appendChildren(target, polyfillRootElement),
+      ]);
+
+      if (resizeObserverBoxSupport) {
+        const borderBoxResizeObserver = new ResizeObserverConstructor(resizeObserverCallback);
+        borderBoxResizeObserver.observe(target, {
+          box: 'border-box',
+        });
+        push(destroyFns, () => borderBoxResizeObserver.disconnect());
+      }
     } else if (sizeObserverPlugin) {
       const [pluginAppearCallback, pluginDestroyFns] = sizeObserverPlugin(
-        listenerElement,
+        polyfillTargetElement,
         onSizeChangedCallbackProxy,
         observeAppearChange
       );
@@ -107,8 +138,9 @@ export const createSizeObserver = (
         destroyFns,
         concat(
           [
-            addClass(sizeObserver, classNameSizeObserverAppear),
-            addEventListener(sizeObserver, 'animationstart', pluginAppearCallback),
+            addClass(polyfillRootElement, classNameSizeObserverAppear),
+            addEventListener(polyfillRootElement, 'animationstart', pluginAppearCallback),
+            appendChildren(target, polyfillRootElement),
           ],
           pluginDestroyFns
         )
@@ -117,6 +149,6 @@ export const createSizeObserver = (
       return noop;
     }
 
-    return bind(runEachAndClear, push(destroyFns, appendChildren(target, sizeObserver)));
+    return bind(runEachAndClear, destroyFns);
   };
 };

@@ -8,6 +8,12 @@ test.describe('SizeObserver', () => {
     await expectSuccess(page);
   });
 
+  test('with ResizeOserver without options.box', async ({ page }) => {
+    await page.click('#roNoBox');
+
+    await expectSuccess(page);
+  });
+
   test('with ResizeOserver polyfill', async ({ page }) => {
     await page.click('#roPolyfill');
 

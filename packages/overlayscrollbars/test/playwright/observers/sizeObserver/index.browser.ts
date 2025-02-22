@@ -10,18 +10,37 @@ import {
   setTestResult,
   waitForOrFailTest,
 } from '@~local/browser-testing';
-import { getStyles, hasDimensions, getOffsetSize } from '~/support';
+import { getStyles, hasDimensions, getOffsetSize, hasClass } from '~/support';
 import { SizeObserverPlugin } from '~/plugins';
 import { createSizeObserver } from '~/observers';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import type { WH } from '~/support';
 
+const isResizeObserverPolyfill = hasClass(document.body, 'roPolyfill');
+const isResizeObserverWithoutBox = hasClass(document.body, 'roNoBox');
+
 if (!window.ResizeObserver) {
   OverlayScrollbars.plugin(SizeObserverPlugin);
 }
+
+if (isResizeObserverPolyfill) {
+  // @ts-ignore
+  window.ResizeObserver = undefined;
+}
+
+if (isResizeObserverWithoutBox) {
+  const originalProtoType = window.ResizeObserver.prototype;
+  const originalObserve = originalProtoType.observe;
+
+  originalProtoType.observe = function (target) {
+    originalObserve.apply(this, [target]);
+  };
+}
+
 let updates = 0;
 let sizeIterations = 0;
 let appearIterations = 0;
+
 const contentBox = (elm: HTMLElement | null): WH<number> => {
   if (elm) {
     const computedStyle = window.getComputedStyle(elm);
@@ -118,7 +137,14 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
         currContentSize.w !== newContentSize.w || currContentSize.h !== newContentSize.h;
       const boxSizingChanged = currBoxSizing !== newBoxSizing;
       const dimensions = hasDimensions(targetElm as HTMLElement);
-      const observerElm = targetElm?.firstElementChild as HTMLElement;
+      const observerElm = (
+        isResizeObserverPolyfill || isResizeObserverWithoutBox
+          ? targetElm?.firstElementChild
+          : targetElm
+      ) as HTMLElement;
+
+      const canDetectBoxChangeWithoutPaddingOrBorder =
+        isResizeObserverPolyfill || isResizeObserverWithoutBox;
 
       // no overflow if not needed
 
@@ -135,7 +161,12 @@ const iterate = async (select: HTMLSelectElement | null, afterEach?: () => any) 
         );
       }
 
-      if (boxSizingChanged) {
+      if (
+        boxSizingChanged &&
+        (canDetectBoxChangeWithoutPaddingOrBorder
+          ? true
+          : paddingSelect?.value !== 'padding0' && borderSelect?.value !== 'border0')
+      ) {
         await waitForOrFailTest(() => {
           should.equal(
             sizeIterations,
@@ -235,6 +266,15 @@ const start = async () => {
   console.log('init size changes:', sizeIterations);
   should.ok(sizeIterations > 0, 'Initial size observations are fired.');
   should.ok(appearIterations > 0, 'Initial appear observations are fired.');
+
+  if (isResizeObserverPolyfill || isResizeObserverWithoutBox) {
+    should.ok(!!targetElm?.firstElementChild, `Polyfills use polyfill DOM.`);
+  } else {
+    should.ok(
+      !targetElm?.firstElementChild,
+      `Full support ResizeObserver doesn't use any additional DOM.`
+    );
+  }
 
   targetElm?.removeAttribute('style');
   await iterateDisplay();

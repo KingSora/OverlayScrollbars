@@ -1,15 +1,24 @@
+import { addClass } from '~/support';
+
 {
+  const { body } = document;
   const url = new URL(window.location.toString());
   const params = url.searchParams;
-  const useResizeObserverPolyfill = Boolean(params.get('roPolyfill'));
 
-  if (useResizeObserverPolyfill) {
-    // @ts-ignore
-    window.ResizeObserver = undefined;
-  } else {
-    document.getElementById('roPolyfill')?.addEventListener('click', () => {
-      params.set('roPolyfill', 'true');
-      window.location.assign(url.toString());
-    });
-  }
+  /**
+   * roPolyfill: no ResizeObserver supported, use polyfill
+   * roNoBox: ResizeObserver supported but no options.box support in the `observe` function
+   */
+  ['roPolyfill', 'roNoBox'].forEach((param) => {
+    const paramValue = Boolean(params.get(param));
+
+    if (paramValue) {
+      addClass(body, param);
+    } else {
+      document.getElementById(param)?.addEventListener('click', () => {
+        params.set(param, 'true');
+        window.location.assign(url.toString());
+      });
+    }
+  });
 }

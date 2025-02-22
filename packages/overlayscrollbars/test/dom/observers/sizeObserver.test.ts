@@ -23,18 +23,20 @@ describe('createSizeObserver', () => {
   });
 
   describe('with ResizeObserver', () => {
-    const ResizeObserverConstructorMock = vi.fn(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
+    test('size observer with full resize observer', async () => {
+      const ResizeObserverConstructorMock = vi.fn(() => ({
+        observe: vi.fn((target, options) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const readTarget = target;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const readOptionsBox = options?.box;
+        }),
+        unobserve: vi.fn(),
+        disconnect: vi.fn(),
+      }));
 
-    beforeEach(async () => {
-      ResizeObserverConstructorMock.mockClear();
       await mockResizeObserverConstructor(ResizeObserverConstructorMock);
-    });
 
-    test('size observer', () => {
       const callback = vi.fn();
       const construct = createSizeObserver(document.body, callback);
 
@@ -45,12 +47,49 @@ describe('createSizeObserver', () => {
       const destroy = construct();
 
       expect(destroy).toEqual(expect.any(Function));
-      expect(ResizeObserverConstructorMock).toHaveBeenCalledTimes(1);
+      expect(ResizeObserverConstructorMock).toHaveBeenCalledTimes(3); // 1. detect options.box support, 2. content-box observer, 3. border-box observer
+      expect(document.body.innerHTML).toBe('');
+
+      destroy();
+
+      expect(document.body.innerHTML).toBe('');
+
+      // check if detection runs a second time
+      ResizeObserverConstructorMock.mockReset();
+      construct();
+      expect(ResizeObserverConstructorMock).toHaveBeenCalledTimes(2); // 1. content-box observer, 2. border-box observer
+    });
+
+    test('size observer with resize observer without options.box', async () => {
+      const ResizeObserverConstructorMock = vi.fn(() => ({
+        observe: vi.fn(),
+        unobserve: vi.fn(),
+        disconnect: vi.fn(),
+      }));
+
+      await mockResizeObserverConstructor(ResizeObserverConstructorMock);
+
+      const callback = vi.fn();
+      const construct = createSizeObserver(document.body, callback);
+
+      expect(construct).toEqual(expect.any(Function));
+      expect(document.body.innerHTML).toBe('');
+      expect(ResizeObserverConstructorMock).not.toHaveBeenCalled();
+
+      const destroy = construct();
+
+      expect(destroy).toEqual(expect.any(Function));
+      expect(ResizeObserverConstructorMock).toHaveBeenCalledTimes(2); // 1. detect options.box support, 2. content-box observer
       expect(document.body.innerHTML).not.toBe('');
 
       destroy();
 
       expect(document.body.innerHTML).toBe('');
+
+      // check if detection runs a second time
+      ResizeObserverConstructorMock.mockReset();
+      construct();
+      expect(ResizeObserverConstructorMock).toHaveBeenCalledTimes(1); // now only for content-box observer
     });
   });
 
