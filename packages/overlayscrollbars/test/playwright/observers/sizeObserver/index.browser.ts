@@ -19,22 +19,8 @@ import type { WH } from '~/support';
 const isResizeObserverPolyfill = hasClass(document.body, 'roPolyfill');
 const isResizeObserverWithoutBox = hasClass(document.body, 'roNoBox');
 
-if (!window.ResizeObserver) {
-  OverlayScrollbars.plugin(SizeObserverPlugin);
-}
-
 if (isResizeObserverPolyfill) {
-  // @ts-ignore
-  window.ResizeObserver = undefined;
-}
-
-if (isResizeObserverWithoutBox) {
-  const originalProtoType = window.ResizeObserver.prototype;
-  const originalObserve = originalProtoType.observe;
-
-  originalProtoType.observe = function (target) {
-    originalObserve.apply(this, [target]);
-  };
+  OverlayScrollbars.plugin(SizeObserverPlugin);
 }
 
 let updates = 0;

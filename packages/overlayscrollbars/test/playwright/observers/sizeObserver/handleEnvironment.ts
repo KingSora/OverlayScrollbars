@@ -1,5 +1,3 @@
-import { addClass } from '~/support';
-
 {
   const { body } = document;
   const url = new URL(window.location.toString());
@@ -13,7 +11,24 @@ import { addClass } from '~/support';
     const paramValue = Boolean(params.get(param));
 
     if (paramValue) {
-      addClass(body, param);
+      body.classList.add(param);
+
+      switch (param) {
+        case 'roPolyfill': {
+          // @ts-ignore
+          window.ResizeObserver = undefined;
+          break;
+        }
+        case 'roNoBox': {
+          const originalProtoType = window.ResizeObserver.prototype;
+          const originalObserve = originalProtoType.observe;
+
+          originalProtoType.observe = function (target) {
+            originalObserve.apply(this, [target]);
+          };
+          break;
+        }
+      }
     } else {
       document.getElementById(param)?.addEventListener('click', () => {
         params.set(param, 'true');
