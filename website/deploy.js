@@ -35,6 +35,7 @@ if (deployDocs && !deployExamples) {
 }
 
 if (deployDocs) {
+  await run('npm', ['install']);
   await run('npm', ['run build']);
 
   const nextJsDistDir = resolve(fileDir, 'dist');

@@ -6,6 +6,6 @@
     "strict": true,
     "module": "ES2015",
     "moduleResolution": "node",
-    "jsx": "react-jsx"
+    "jsx": "preserve"
   }
 }

@@ -1,4 +1,6 @@
-import { forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
+// keep React in the scope to not break users which aren't using react-jsx runtime (react pre v17)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React, { forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
 import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlayscrollbars';
 
 import type {
