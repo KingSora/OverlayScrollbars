@@ -41,7 +41,7 @@ const calculateMean = (samples: number[]) => {
 
   return total / samples.length;
 };
-const createTimingTest = (testCase: (onCompleted: () => void) => void, maxSamples = 13) => {
+const createTimingTest = (testCase: (onCompleted: () => void) => void, maxSamples: number) => {
   let _times: number[] = [];
 
   const runTest = (): Promise<TimingResult> => {
@@ -77,32 +77,54 @@ startBtn.addEventListener('click', async () => {
   setTestResult(null);
   await timeout(1000);
   try {
-    const noForceUpdateTest = createTimingTest((completed) => {
+    const noForceUpdateTest5k = createTimingTest((completed) => {
+      osInstance.update();
+      completed();
+    }, 5000);
+    const noForceUpdateTest5kResult = await noForceUpdateTest5k.run();
+
+    const forceUpdateTest5k = createTimingTest((completed) => {
+      osInstance.update(true);
+      completed();
+    }, 5000);
+    const forceUpdateTest5kResult = await forceUpdateTest5k.run();
+
+    const noForceUpdate10kIterationsTest = createTimingTest((completed) => {
       for (let i = 0; i < 10000; i++) {
         osInstance.update();
       }
       completed();
-    });
-    const noForceUpdateTestResult = await noForceUpdateTest.run();
+    }, 10);
+    const noForceUpdateTest10kPerSampleResult = await noForceUpdate10kIterationsTest.run();
 
-    const forceUpdateTest = createTimingTest((completed) => {
+    const forceUpdate1kPerSampleTest = createTimingTest((completed) => {
       for (let i = 0; i < 1000; i++) {
         osInstance.update(true);
       }
       completed();
-    });
-    const forceUpdateTestResult = await forceUpdateTest.run();
+    }, 10);
+    const forceUpdate1kPerSampleTestResult = await forceUpdate1kPerSampleTest.run();
     const scrollDirectionStr = nonDefaultScrollDirection ? 'non-default' : 'default';
 
     console.error(
-      `[ScrollDirection: ${scrollDirectionStr}] [force: false]: (10k runs / sample): { samples: ${
-        noForceUpdateTestResult.samples
-      }, timeMs: ${noForceUpdateTestResult.timeMs.toFixed(3)} }`
+      `[ScrollDirection: ${scrollDirectionStr}] [force: false]: { samples: ${
+        noForceUpdateTest5kResult.samples
+      }, Avg. exec. time: ${noForceUpdateTest5kResult.timeMs.toFixed(3)} }`
     );
     console.error(
-      `[ScrollDirection: ${scrollDirectionStr}] [force: true]:  (1k runs / sample):  { samples: ${
-        forceUpdateTestResult.samples
-      }, timeMs: ${forceUpdateTestResult.timeMs.toFixed(3)} }`
+      `[ScrollDirection: ${scrollDirectionStr}] [force: true]: { samples: ${
+        forceUpdateTest5kResult.samples
+      }, Avg. exec. time: ${forceUpdateTest5kResult.timeMs.toFixed(3)} }`
+    );
+    console.error(
+      `[ScrollDirection: ${scrollDirectionStr}] [force: false]: (10k runs / sample): { samples: ${
+        noForceUpdateTest10kPerSampleResult.samples
+      }, Avg. exec. time: ${noForceUpdateTest10kPerSampleResult.timeMs.toFixed(3)} }`
+    );
+    console.error(
+      `[ScrollDirection: ${scrollDirectionStr}] [force: true]: (1k runs / sample): { samples: ${
+        forceUpdate1kPerSampleTestResult.samples
+      }, Avg. exec. time: ${forceUpdate1kPerSampleTestResult.timeMs.toFixed(3)} }`
     );
 
     setTestResult(true);
