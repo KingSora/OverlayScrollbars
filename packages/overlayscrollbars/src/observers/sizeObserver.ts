@@ -98,9 +98,10 @@ export const createSizeObserver = (
       if (!isBoolean(resizeObserverBoxSupport)) {
         const dummyObserver = new ResizeObserverConstructor(noop);
         dummyObserver.observe(target, {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore -> void === undefined
           get box() {
             resizeObserverBoxSupport = true;
-            return undefined;
           },
         });
         resizeObserverBoxSupport = resizeObserverBoxSupport || false;
