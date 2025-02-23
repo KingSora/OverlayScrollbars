@@ -96,8 +96,8 @@ export const createSizeObserver = (
 
     if (ResizeObserverConstructor) {
       if (!isBoolean(resizeObserverBoxSupport)) {
-        const dummyObserver = new ResizeObserverConstructor(noop);
-        dummyObserver.observe(target, {
+        const detectSupportResizeObserver = new ResizeObserverConstructor(noop);
+        detectSupportResizeObserver.observe(target, {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore -> void === undefined
           get box() {
@@ -105,7 +105,7 @@ export const createSizeObserver = (
           },
         });
         resizeObserverBoxSupport = resizeObserverBoxSupport || false;
-        dummyObserver.disconnect();
+        detectSupportResizeObserver.disconnect();
       }
 
       const debouncedOnSizeChangedCallbackProxy = debounce(onSizeChangedCallbackProxy, {
