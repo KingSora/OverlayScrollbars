@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.11.1
+
+### Improvements
+
+- Use the ResizeObservers `options.box` option to remove the need for additional DOM elements in supported browsers.
+- Significant performance improvements in the `update` logic. 
+
 ## 2.11.0
 
 ### Features
