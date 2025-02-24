@@ -25,8 +25,8 @@ describe('function', () => {
 
   describe('debounce', () => {
     describe('trailing', () => {
-      describe('timeout', () => {
-        test('without timeout', () => {
+      describe('debounce timing', () => {
+        test('without debounce timing', () => {
           let i = 0;
           const debouncedFn = debounce(() => {
             i += 1;
@@ -39,13 +39,13 @@ describe('function', () => {
           expect(i).toBe(1);
         });
 
-        test('with timeout 0', async () => {
+        test('with debounce timing 0', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 0 }
+            { _debounceTiming: 0 }
           );
 
           expect(rAF).not.toHaveBeenCalled();
@@ -60,13 +60,39 @@ describe('function', () => {
           expect(i).toBe(1);
         });
 
-        test('with timeout > 0', async () => {
+        test('with debounce timing 0 and multiple calls', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 100 }
+            { _debounceTiming: 0 }
+          );
+
+          debouncedFn();
+          expect(i).toBe(0);
+
+          debouncedFn();
+          expect(i).toBe(0);
+
+          debouncedFn();
+          expect(i).toBe(0);
+
+          debouncedFn();
+          expect(i).toBe(0);
+
+          debouncedFn();
+          vi.advanceTimersByTime(0);
+          expect(i).toBe(1);
+        });
+
+        test('with debounce timing > 0', async () => {
+          let i = 0;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _debounceTiming: 100 }
           );
 
           expect(rAF).not.toHaveBeenCalled();
@@ -82,13 +108,13 @@ describe('function', () => {
           expect(i).toBe(1);
         });
 
-        test('with timeout > 0 and multiple calls', async () => {
+        test('with debounce timing > 0 and multiple calls', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 200 }
+            { _debounceTiming: 200 }
           );
 
           debouncedFn();
@@ -112,14 +138,14 @@ describe('function', () => {
           expect(i).toBe(1);
         });
 
-        test('with timeout function', async () => {
+        test('with debounce timing function', async () => {
           let i = 0;
           let timeoutMs = 200;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: () => timeoutMs }
+            { _debounceTiming: () => timeoutMs }
           );
 
           debouncedFn();
@@ -137,14 +163,14 @@ describe('function', () => {
         });
       });
 
-      describe('maxDelay', () => {
-        test('without maxDelay', async () => {
+      describe('max debounce timing', () => {
+        test('without max debounce timing', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 100 }
+            { _debounceTiming: 100 }
           );
           debouncedFn();
           expect(i).toBe(0);
@@ -156,13 +182,13 @@ describe('function', () => {
           expect(i).toBe(1);
         });
 
-        test('with maxDelay and longer timeout', async () => {
+        test('with max debounce timing and longer debounce timing', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 10000, _maxDelay: 100 }
+            { _debounceTiming: 10000, _maxDebounceTiming: 100 }
           );
           debouncedFn();
           expect(i).toBe(0);
@@ -177,13 +203,13 @@ describe('function', () => {
           expect(i).toBe(1);
         });
 
-        test('with maxDelay and shorter timeout with multiple calls', async () => {
+        test('with max debounce timing and shorter debounce timing with multiple calls', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 200, _maxDelay: 500 }
+            { _debounceTiming: 200, _maxDebounceTiming: 500 }
           );
           debouncedFn();
           vi.advanceTimersByTime(150); // 150
@@ -204,14 +230,14 @@ describe('function', () => {
           expect(i).toBe(1);
         });
 
-        test('with maxDelay function', async () => {
+        test('with max debounce timing function', async () => {
           let i = 0;
           let maxDelayMs = 300;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 400, _maxDelay: () => maxDelayMs }
+            { _debounceTiming: 400, _maxDebounceTiming: () => maxDelayMs }
           );
           debouncedFn();
           expect(i).toBe(0);
@@ -268,7 +294,7 @@ describe('function', () => {
             (a: number, b: number) => {
               i += a * b;
             },
-            { _timeout: 200, _mergeParams }
+            { _debounceTiming: 200, _mergeParams }
           );
           debouncedFn(1, 1);
           expect(i).toBe(0);
@@ -298,7 +324,7 @@ describe('function', () => {
             (a, b) => {
               i += a * b;
             },
-            { _timeout: 200, _mergeParams }
+            { _debounceTiming: 200, _mergeParams }
           );
           debouncedFn(1, 1);
           expect(i).toBe(0);
@@ -324,8 +350,8 @@ describe('function', () => {
     });
 
     describe('leading', () => {
-      describe('timeout', () => {
-        test('without timeout', () => {
+      describe('debounce timing', () => {
+        test('without debounce timing', () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
@@ -343,13 +369,13 @@ describe('function', () => {
           expect(i).toBe(1);
         });
 
-        test('with timeout 0', async () => {
+        test('with debounce timing 0', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 0, _leading: true }
+            { _debounceTiming: 0, _leading: true }
           );
 
           expect(rAF).not.toHaveBeenCalled();
@@ -367,13 +393,56 @@ describe('function', () => {
           expect(setT).not.toHaveBeenCalled();
         });
 
-        test('with timeout > 0', async () => {
+        test('with debounce timing 0 and multiple calls', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 100, _leading: true }
+            { _debounceTiming: 0, _leading: true }
+          );
+
+          debouncedFn();
+          expect(i).toBe(1);
+
+          debouncedFn();
+          expect(i).toBe(1);
+
+          debouncedFn();
+          expect(i).toBe(1);
+
+          debouncedFn();
+          expect(i).toBe(1);
+
+          debouncedFn();
+          expect(i).toBe(1);
+
+          vi.advanceTimersByTime(0);
+          expect(i).toBe(2);
+
+          debouncedFn();
+          expect(i).toBe(3);
+
+          debouncedFn();
+          expect(i).toBe(3);
+
+          vi.advanceTimersByTime(0);
+          expect(i).toBe(4);
+
+          debouncedFn();
+          expect(i).toBe(5);
+
+          vi.advanceTimersByTime(0);
+          expect(i).toBe(5);
+        });
+
+        test('with debounce timing > 0', async () => {
+          let i = 0;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _debounceTiming: 100, _leading: true }
           );
 
           expect(rAF).not.toHaveBeenCalled();
@@ -391,13 +460,13 @@ describe('function', () => {
           expect(setT).toHaveBeenCalledTimes(1);
         });
 
-        test('with timeout > 0 and multiple calls', async () => {
+        test('with debounce timing > 0 and multiple calls', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 200, _leading: true }
+            { _debounceTiming: 200, _leading: true }
           );
 
           debouncedFn();
@@ -440,14 +509,14 @@ describe('function', () => {
           expect(i).toBe(4);
         });
 
-        test('with timeout function', async () => {
+        test('with debounce timing function', async () => {
           let i = 0;
           let timeoutMs = 200;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: () => timeoutMs, _leading: true }
+            { _debounceTiming: () => timeoutMs, _leading: true }
           );
 
           debouncedFn();
@@ -468,14 +537,14 @@ describe('function', () => {
         });
       });
 
-      describe('maxDelay', () => {
-        test('without maxDelay', async () => {
+      describe('max debounce timing', () => {
+        test('without max debounce timing', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 100, _leading: true }
+            { _debounceTiming: 100, _leading: true }
           );
           debouncedFn();
           expect(i).toBe(1);
@@ -503,7 +572,7 @@ describe('function', () => {
             () => {
               i += 1;
             },
-            { _timeout: 10000, _maxDelay: 100, _leading: true }
+            { _debounceTiming: 10000, _maxDebounceTiming: 100, _leading: true }
           );
           debouncedFn();
           expect(i).toBe(1);
@@ -524,13 +593,13 @@ describe('function', () => {
           expect(i).toBe(3);
         });
 
-        test('with maxDelay and shorter timeout with multiple calls', async () => {
+        test('with max debounce timing and shorter debounce timing with multiple calls', async () => {
           let i = 0;
           const debouncedFn = debounce(
             () => {
               i += 1;
             },
-            { _timeout: 200, _maxDelay: 500, _leading: true }
+            { _debounceTiming: 200, _maxDebounceTiming: 500, _leading: true }
           );
           debouncedFn();
           expect(i).toBe(1);
@@ -573,7 +642,7 @@ describe('function', () => {
             (a: number, b: number) => {
               i += a * b;
             },
-            { _timeout: 200, _mergeParams, _leading: true }
+            { _debounceTiming: 200, _mergeParams, _leading: true }
           );
           debouncedFn(1, 1);
           expect(i).toBe(1);
@@ -603,7 +672,7 @@ describe('function', () => {
             (a, b) => {
               i += a * b;
             },
-            { _timeout: 200, _mergeParams, _leading: true }
+            { _debounceTiming: 200, _mergeParams, _leading: true }
           );
           debouncedFn(1, 1);
           expect(i).toBe(1);

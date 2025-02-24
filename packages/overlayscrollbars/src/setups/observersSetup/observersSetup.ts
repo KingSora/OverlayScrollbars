@@ -153,8 +153,8 @@ export const createObserversSetup = (
   );
 
   const onObserversUpdatedDebounced = debounce(onObserversUpdated, {
-    _timeout: () => debounceTimeout,
-    _maxDelay: () => debounceMaxDelay,
+    _debounceTiming: () => debounceTimeout,
+    _maxDebounceTiming: () => debounceMaxDelay,
     _mergeParams(prev, curr) {
       const [prevObj] = prev;
       const [currObj] = curr;
@@ -293,7 +293,7 @@ export const createObserversSetup = (
       onObserversUpdated({ _contentMutation });
     },
     {
-      _timeout: 222,
+      _debounceTiming: 222,
       _leading: true,
     }
   );

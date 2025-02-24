@@ -2,19 +2,20 @@
 import { isNumber, isFunction } from './types';
 import { from } from './array';
 import { rAF, cAF, setT, clearT } from './alias';
-import { noop } from './noop';
 
-type DebounceTiming = number | false | null | undefined;
+type DebouncerFn = (task: () => void) => () => void;
+
+export type DebounceTiming = { _debouncer: DebouncerFn } | number | false | null | undefined;
 
 export interface DebounceOptions<FunctionToDebounce extends (...args: any) => any> {
   /**
-   * The timeout for debouncing. If null, no debounce is applied.
+   * The timing for debouncing. If false, null or undefined, no debounce is applied.
    */
-  _timeout?: DebounceTiming | (() => DebounceTiming);
+  _debounceTiming?: DebounceTiming | (() => DebounceTiming);
   /**
-   * A maximum amount of ms. before the function will be called even with debounce.
+   * The timing which determines when the debounced will be called even when the debounce timing did not call it yet.
    */
-  _maxDelay?: DebounceTiming | (() => DebounceTiming);
+  _maxDebounceTiming?: DebounceTiming | (() => DebounceTiming);
   /**
    * Defines the calling on the leading edge of the timeout.
    */
@@ -59,6 +60,29 @@ export const selfClearTimeout = (timeout?: number | (() => number)) => {
   ] as [timeout: (callback: () => any) => void, clear: () => void];
 };
 
+const getDebouncer = (
+  debounceTiming: DebounceTiming | (() => DebounceTiming)
+): DebouncerFn | false | null | undefined | void => {
+  const debounceTimingResult = isFunction(debounceTiming) ? debounceTiming() : debounceTiming;
+  if (isNumber(debounceTimingResult)) {
+    const schedule = debounceTimingResult ? setT! : rAF!;
+    const clear = debounceTimingResult ? clearT : cAF;
+    return (task) => {
+      const timeoutId = schedule!(
+        () => task(),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        debounceTimingResult
+      );
+      return () => {
+        clear!(timeoutId);
+      };
+    };
+  }
+
+  return debounceTimingResult && debounceTimingResult._debouncer;
+};
+
 /**
  * Debounces the given function either with a timeout or a animation frame.
  * @param functionToDebounce The function which shall be debounced.
@@ -68,18 +92,27 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
   functionToDebounce: FunctionToDebounce,
   options?: DebounceOptions<FunctionToDebounce>
 ): Debounced<FunctionToDebounce> => {
-  const { _timeout, _maxDelay, _leading, _mergeParams } = options || {};
-  let maxTimeoutId: number | undefined;
+  const {
+    _debounceTiming: _timeout,
+    _maxDebounceTiming: _maxDelay,
+    _leading,
+    _mergeParams,
+  } = options || {};
+  let cancelMaxTimeoutDebouncer: (() => void) | undefined;
+  let cancelTimeoutDebounder: (() => void) | undefined;
   let prevArguments: Parameters<FunctionToDebounce> | null | undefined;
   let latestArguments: Parameters<FunctionToDebounce> | null | undefined;
   let leadingInvoked: boolean | undefined;
-  let clear = noop;
 
   const invokeFunctionToDebounce = function (args: Parameters<FunctionToDebounce>) {
-    clear();
-    clearT(maxTimeoutId);
-    leadingInvoked = maxTimeoutId = prevArguments = undefined;
-    clear = noop;
+    if (cancelTimeoutDebounder) {
+      cancelTimeoutDebounder();
+    }
+    if (cancelMaxTimeoutDebouncer) {
+      cancelMaxTimeoutDebouncer();
+    }
+
+    leadingInvoked = cancelTimeoutDebounder = cancelMaxTimeoutDebouncer = prevArguments = undefined;
     // eslint-disable-next-line
     // @ts-ignore
     functionToDebounce.apply(this, args);
@@ -92,7 +125,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
 
   const flush = () => {
     /* istanbul ignore next */
-    if (clear !== noop) {
+    if (cancelTimeoutDebounder) {
       invokeFunctionToDebounce(mergeParms(latestArguments!) || latestArguments!);
     }
   };
@@ -100,41 +133,29 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
   const debouncedFn = function () {
     // eslint-disable-next-line prefer-rest-params
     const args: Parameters<FunctionToDebounce> = from(arguments) as Parameters<FunctionToDebounce>;
-    const finalTimeout = isFunction(_timeout) ? _timeout() : _timeout;
-    const hasTimeout = isNumber(finalTimeout) && finalTimeout >= 0;
+    const timeoutDebouncer = getDebouncer(_timeout);
 
-    if (hasTimeout) {
-      const finalMaxWait = isFunction(_maxDelay) ? _maxDelay() : _maxDelay;
-      const hasMaxWait = isNumber(finalMaxWait) && finalMaxWait >= 0;
-      const setTimeoutFn = finalTimeout > 0 ? setT : rAF!;
-      const clearTimeoutFn = finalTimeout > 0 ? clearT : cAF!;
+    if (timeoutDebouncer) {
+      const maxDelayDebouncer = getDebouncer(_maxDelay);
       const mergeParamsResult = mergeParms(args);
       const invokedArgs = mergeParamsResult || args;
       const boundInvoke = invokeFunctionToDebounce.bind(0, invokedArgs);
-      let timeoutId: number | undefined;
 
-      // if (!mergeParamsResult) {
-      //   invokeFunctionToDebounce(prevArguments || args);
-      // }
+      if (cancelTimeoutDebounder) {
+        cancelTimeoutDebounder();
+      }
 
-      clear();
       if (_leading && !leadingInvoked) {
         boundInvoke();
         leadingInvoked = true;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        timeoutId = setTimeoutFn(() => (leadingInvoked = undefined), finalTimeout);
+        cancelTimeoutDebounder = timeoutDebouncer(() => (leadingInvoked = undefined));
       } else {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        timeoutId = setTimeoutFn(boundInvoke, finalTimeout);
+        cancelTimeoutDebounder = timeoutDebouncer(boundInvoke);
 
-        if (hasMaxWait && !maxTimeoutId) {
-          maxTimeoutId = setT(flush, finalMaxWait as number);
+        if (maxDelayDebouncer && !cancelMaxTimeoutDebouncer) {
+          cancelMaxTimeoutDebouncer = maxDelayDebouncer(flush);
         }
       }
-
-      clear = () => clearTimeoutFn(timeoutId as number);
 
       prevArguments = latestArguments = invokedArgs;
     } else {

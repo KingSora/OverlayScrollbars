@@ -15,6 +15,8 @@ import {
   concat,
   debounce,
   isBoolean,
+  isArray,
+  isEmptyArray,
 } from '../support';
 import {
   classNameSizeObserver,
@@ -66,16 +68,17 @@ export const createSizeObserver = (
     const polyfillRootElement = polyfillElements[0] as HTMLElement;
     const polyfillTargetElement = polyfillRootElement.firstChild as HTMLElement;
 
-    const onSizeChangedCallbackProxy = (sizeChangedContext?: ResizeObserverEntry | boolean) => {
-      const isResizeObserverCall = sizeChangedContext instanceof ResizeObserverEntry;
+    const onSizeChangedCallbackProxy = (sizeChangedContext?: ResizeObserverEntry[] | boolean) => {
+      const isResizeObserverCall = isArray(sizeChangedContext) && !isEmptyArray(sizeChangedContext);
 
       let skip = false;
       let appear = false;
 
       // if triggered from RO.
       if (isResizeObserverCall) {
+        const resizeObserverEntry = sizeChangedContext[0];
         const [currContentRect, , prevContentRect] = updateResizeObserverContentRectCache(
-          sizeChangedContext.contentRect
+          resizeObserverEntry.contentRect
         );
         const hasDimensions = domRectHasDimensions(currContentRect);
         appear = domRectAppeared(currContentRect, prevContentRect);
@@ -108,17 +111,40 @@ export const createSizeObserver = (
         detectSupportResizeObserver.disconnect();
       }
 
+      /*
+      const { port1, port2 } = new MessageChannel();
+      const tasks: Set<() => void> = new Set();
+      const debounceTiming: DebounceTiming = {
+        _debouncer: (task) => {
+          tasks.add(task);
+          port2.postMessage(0);
+          return () => {
+            tasks.delete(task);
+          };
+        },
+      };
+      port1.onmessage = () => {
+        tasks.forEach((task) => task());
+      };
+      */
       const debouncedOnSizeChangedCallbackProxy = debounce(onSizeChangedCallbackProxy, {
-        _timeout: 0,
-        _maxDelay: 0,
+        _debounceTiming: 0,
+        _maxDebounceTiming: 0,
       });
       const resizeObserverCallback = (entries: ResizeObserverEntry[]) =>
-        debouncedOnSizeChangedCallbackProxy(entries.pop());
+        debouncedOnSizeChangedCallbackProxy(entries);
       const contentBoxResizeObserver = new ResizeObserverConstructor(resizeObserverCallback);
       contentBoxResizeObserver.observe(resizeObserverBoxSupport ? target : polyfillTargetElement);
 
       push(destroyFns, [
-        () => contentBoxResizeObserver.disconnect(),
+        () => {
+          contentBoxResizeObserver.disconnect();
+          /*
+          port1.close();
+          port2.close();
+          tasks.clear();
+          */
+        },
         !resizeObserverBoxSupport && appendChildren(target, polyfillRootElement),
       ]);
 
