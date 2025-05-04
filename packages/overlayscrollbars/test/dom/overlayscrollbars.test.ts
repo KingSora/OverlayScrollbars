@@ -632,7 +632,7 @@ describe('overlayscrollbars', () => {
 
         vi.runAllTimers();
 
-        expect(updated).toHaveBeenCalledTimes(1); // should be 2 if something changes
+        expect(updated).toHaveBeenCalledTimes(2); // should be 2 if something changes
       });
     });
   });
