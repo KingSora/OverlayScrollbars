@@ -5,6 +5,7 @@ import { OverlayScrollbars } from '~/overlayscrollbars';
 import { ScrollbarsHidingPlugin } from '~/plugins';
 import { setTestResult, timeout } from '@~local/browser-testing';
 import should from 'should';
+import { getStyles } from '~/support';
 
 console.log(OverlayScrollbars.env());
 
@@ -120,7 +121,7 @@ const start = async () => {
     should.ok(OverlayScrollbars.valid(osInstance));
 
     const { target, host, viewport } = osInstance.elements();
-    const { scrollbarsHiding } = OverlayScrollbars.env();
+    const { scrollbarsHiding, scrollbarsOverlaid } = OverlayScrollbars.env();
 
     should.equal(target, document.body, 'Target is <BODY />.');
     if (scrollbarsHiding) {
@@ -128,6 +129,26 @@ const start = async () => {
       should.equal(viewport, document.documentElement, 'Viewport is <HTML />.');
     } else {
       should.equal(host, document.body, 'Host is <BODY />.');
+    }
+
+    // test native scrollbars visibility (https://github.com/KingSora/OverlayScrollbars/issues/713)
+    if (scrollbarsHiding && scrollbarsOverlaid.x && scrollbarsOverlaid.y) {
+      should.ok(
+        getStyles(viewport, 'scrollbarWidth') === 'none',
+        'Scrollbars width is none when native scrollbars should be hidden'
+      );
+      osInstance.options({ showNativeOverlaidScrollbars: true });
+      await timeout(500);
+      should.ok(
+        getStyles(viewport, 'scrollbarWidth') === 'auto',
+        'Scrollbars width is auto when native overlaid scrollbars should not be hidden'
+      );
+      osInstance.options({ showNativeOverlaidScrollbars: false });
+      await timeout(500);
+      should.ok(
+        getStyles(viewport, 'scrollbarWidth') === 'none',
+        'Scrollbars width is none when native scrollbars should be hidden2'
+      );
     }
 
     await runMeasureTest();

@@ -46,10 +46,12 @@ import {
 } from '../../../classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '../../../plugins';
 import {
-  createViewportOverflowState,
   getShowNativeOverlaidScrollbars,
+  overflowBehaviorToOverflowStyle,
+  overflowCssValueToOverflowStyle,
   overflowIsVisible,
 } from '../structureSetup.utils';
+import { OverflowBehavior } from '../../../options';
 
 interface FlowDirectionStyles {
   display?: string;
@@ -190,6 +192,78 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       h: amount.h > tollerance ? amount.h : 0,
     };
   };
+  const getViewportOverflowStyle = (
+    hasOverflow: Partial<XY<boolean>>,
+    overflowBehavior: XY<OverflowBehavior>
+  ): XY<OverflowStyle> => {
+    const getAxisOverflowStyle = (
+      axisBehavior: OverflowBehavior,
+      axisHasOverflow: boolean | undefined,
+      perpendicularBehavior: OverflowBehavior,
+      perpendicularOverflow: boolean | undefined
+    ): OverflowStyle => {
+      // convert behavior to style:
+      // 'visible'        -> 'hidden'
+      // 'hidden'         -> 'hidden'
+      // 'scroll'         -> 'scroll'
+      // 'visible-hidden' -> 'hidden'
+      // 'visible-scroll' -> 'scroll'
+      const behaviorStyle =
+        axisBehavior === strVisible ? strHidden : overflowBehaviorToOverflowStyle(axisBehavior);
+      const axisOverflowVisible = overflowIsVisible(axisBehavior);
+      const perpendicularOverflowVisible = overflowIsVisible(perpendicularBehavior);
+
+      // if no axis has overflow set 'hidden'
+      if (!axisHasOverflow && !perpendicularOverflow) {
+        return strHidden;
+      }
+
+      // if both axis have a visible behavior ('visible', 'visible-hidden', 'visible-scroll') set 'visible'
+      if (axisOverflowVisible && perpendicularOverflowVisible) {
+        return strVisible;
+      }
+
+      // this this axis has a visible behavior
+      if (axisOverflowVisible) {
+        const nonPerpendicularOverflow = axisHasOverflow ? strVisible : strHidden;
+        return axisHasOverflow && perpendicularOverflow
+          ? behaviorStyle // if both axis have an overflow set ('hidden' or 'scroll')
+          : nonPerpendicularOverflow; // if only this axis has an overflow set 'visible', if no axis has an overflow set 'hidden'
+      }
+
+      const nonOverflow =
+        perpendicularOverflowVisible && perpendicularOverflow ? strVisible : strHidden;
+      return axisHasOverflow
+        ? behaviorStyle // if this axis has an overflow
+        : nonOverflow; // if the perp. axis has a visible behavior and has an overflow set 'visible', otherwise set 'hidden'
+    };
+
+    return {
+      x: getAxisOverflowStyle(overflowBehavior.x, hasOverflow.x, overflowBehavior.y, hasOverflow.y),
+      y: getAxisOverflowStyle(overflowBehavior.y, hasOverflow.y, overflowBehavior.x, hasOverflow.x),
+    };
+  };
+  const setViewportOverflowStyle = (viewportOverflowStyle: XY<OverflowStyle>) => {
+    // `createAllOverflowStyleClassNames` and `allOverflowStyleClassNames` could be one scope further up but would increase bundle size
+    const createAllOverflowStyleClassNames = (isHorizontal?: boolean) =>
+      [strVisible, strHidden, strScroll].map((style) =>
+        createViewportOverflowStyleClassName(overflowCssValueToOverflowStyle(style), isHorizontal)
+      );
+    const allOverflowStyleClassNames = createAllOverflowStyleClassNames(true)
+      .concat(createAllOverflowStyleClassNames())
+      .join(' ');
+
+    _viewportAddRemoveClass(allOverflowStyleClassNames);
+    _viewportAddRemoveClass(
+      (keys(viewportOverflowStyle) as Array<keyof typeof viewportOverflowStyle>)
+        .map((axis) =>
+          createViewportOverflowStyleClassName(viewportOverflowStyle[axis], axis === 'x')
+        )
+        .join(' '),
+      true
+    );
+  };
+
   const [updateSizeFraction, getCurrentSizeFraction] = createCache<WH<number>>(
     whCacheOptions,
     bind(getFractionalSize, _viewport)
@@ -228,26 +302,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       ? dataValueViewportOverflowXPrefix
       : dataValueViewportOverflowYPrefix;
     return `${prefix}${capitalizeFirstLetter(overflowStyle)}`;
-  };
-  const setViewportOverflowStyle = (viewportOverflowStyle: XY<OverflowStyle>) => {
-    // `createAllOverflowStyleClassNames` and `allOverflowStyleClassNames` could be one scope further up but would increase bundle size
-    const createAllOverflowStyleClassNames = (isHorizontal?: boolean) =>
-      ([strVisible, strHidden, strScroll] as OverflowStyle[]).map((style) =>
-        createViewportOverflowStyleClassName(style, isHorizontal)
-      );
-    const allOverflowStyleClassNames = createAllOverflowStyleClassNames(true)
-      .concat(createAllOverflowStyleClassNames())
-      .join(' ');
-
-    _viewportAddRemoveClass(allOverflowStyleClassNames);
-    _viewportAddRemoveClass(
-      (keys(viewportOverflowStyle) as Array<keyof typeof viewportOverflowStyle>)
-        .map((axis) =>
-          createViewportOverflowStyleClassName(viewportOverflowStyle[axis], axis === 'x')
-        )
-        .join(' '),
-      true
-    );
   };
 
   return (
@@ -358,30 +412,28 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       overflowChanged ||
       showNativeOverlaidScrollbarsChanged ||
       viewportChanged;
-    const viewportOverflowState = createViewportOverflowState(hasOverflow, overflow);
-    const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(
-      viewportOverflowState._overflowStyle
-    );
     const [flowDirectionStyles, flowDirectionStylesChanged] = updateFlowDirectionStyles(_force);
-
     const adjustMeasuredScrollCoordinates =
       _directionChanged || _appear || flowDirectionStylesChanged || hasOverflowChanged || _force;
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
       ? updateMeasuredScrollCoordinates(getMeasuredScrollCoordinates(flowDirectionStyles), _force)
       : getCurrentMeasuredScrollCoordinates();
 
+    const viewportOverflowStyle = getViewportOverflowStyle(hasOverflow, overflow);
+    const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(viewportOverflowStyle);
+
     if (adjustViewportStyle) {
       if (overflowStyleChanged) {
-        setViewportOverflowStyle(viewportOverflowState._overflowStyle);
+        setViewportOverflowStyle(viewportOverflowStyle);
       }
 
       if (_hideNativeScrollbars && _arrangeViewport) {
         setStyles(
           _viewport,
           _hideNativeScrollbars(
-            viewportOverflowState,
+            viewportOverflowStyle,
             _observersState,
-            _arrangeViewport(viewportOverflowState, viewportScrollSize, sizeFraction)
+            _arrangeViewport(viewportOverflowStyle, viewportScrollSize, sizeFraction)
           )
         );
       }

@@ -2,13 +2,14 @@
  * hide native scrollbars
  * changes to this styles need to be reflected in the environment styles to correctly detect scrollbar hiding
  */
-
-[data-overlayscrollbars-initialize],
+[data-overlayscrollbars-initialize]:not([data-overlayscrollbars-viewport]),
 [data-overlayscrollbars-viewport~='scrollbarHidden'] {
   scrollbar-width: none !important;
 }
-[data-overlayscrollbars-initialize]::-webkit-scrollbar,
-[data-overlayscrollbars-initialize]::-webkit-scrollbar-corner,
+[data-overlayscrollbars-initialize]:not([data-overlayscrollbars-viewport])::-webkit-scrollbar,
+[data-overlayscrollbars-initialize]:not(
+    [data-overlayscrollbars-viewport]
+  )::-webkit-scrollbar-corner,
 [data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar,
 [data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar-corner {
   appearance: none !important;
@@ -16,17 +17,13 @@
   width: 0 !important;
   height: 0 !important;
 }
-
-/**
- * elements wont suddenly clip after initialization is done
- */
-
+// elements won't suddenly clip after initialization is done
 [data-overlayscrollbars-initialize]:not([data-overlayscrollbars]):not(html):not(body) {
   overflow: auto;
 }
 
 /**
- * applied to body 
+ * body element
  */
 html[data-overlayscrollbars-body] {
   overflow: hidden;
@@ -48,7 +45,6 @@ html[data-overlayscrollbars-body] > body {
 [data-overlayscrollbars] {
   position: relative;
 }
-
 [data-overlayscrollbars~='host'], // `~="host"` is only needed because `[data-overlayscrollbars]:not([data-overlayscrollbars-viewport])` specificity is too high
 [data-overlayscrollbars-padding] {
   display: flex;
@@ -57,12 +53,11 @@ html[data-overlayscrollbars-body] > body {
   flex-wrap: nowrap !important;
   scroll-behavior: auto !important;
 }
-
 [data-overlayscrollbars-padding],
 [data-overlayscrollbars-viewport]:not([data-overlayscrollbars]) {
   box-sizing: inherit;
   position: relative; // needed for correct padding styles
-  flex: auto !important;
+  flex: auto;
   height: auto;
   width: 100%;
   min-width: 0;
@@ -71,7 +66,6 @@ html[data-overlayscrollbars-body] > body {
   border: none;
   z-index: 0;
 }
-
 [data-overlayscrollbars-viewport] {
   &:not([data-overlayscrollbars]) {
     --os-vaw: 0;
@@ -95,46 +89,47 @@ html[data-overlayscrollbars-body] > body {
   }
 }
 
-[data-overlayscrollbars],
-[data-overlayscrollbars-padding],
-[data-overlayscrollbars-viewport] {
+/**
+ * wrapper elements overflow:
+ */
+[data-overlayscrollbars~='host'],
+[data-overlayscrollbars-padding] {
   overflow: hidden !important;
 }
-
-[data-overlayscrollbars~='noClipping'],
+[data-overlayscrollbars~='host'][data-overlayscrollbars~='noClipping'],
 [data-overlayscrollbars-padding~='noClipping'] {
   overflow: visible !important;
 }
 
-[data-overlayscrollbars-viewport~='measuring'] {
-  overflow: hidden !important;
-  scroll-behavior: auto !important;
-  scroll-snap-type: none !important;
+/**
+ * viewport overflow:
+ */
+[data-overlayscrollbars-viewport] {
+  overflow-x: var(--os-viewport-scroll-x, hidden);
+  overflow-y: var(--os-viewport-scroll-y, hidden);
 }
-
-[data-overlayscrollbars-viewport~='overflowXVisible']:not(
-    [data-overlayscrollbars-viewport~='measuring']
-  ) {
-  overflow-x: visible !important;
+[data-overlayscrollbars-viewport~='overflowXVisible'] {
+  --os-viewport-scroll-x: visible;
 }
 [data-overlayscrollbars-viewport~='overflowXHidden'] {
-  overflow-x: hidden !important;
+  --os-viewport-scroll-x: hidden;
 }
 [data-overlayscrollbars-viewport~='overflowXScroll'] {
-  overflow-x: scroll !important;
+  --os-viewport-scroll-x: scroll;
 }
-[data-overlayscrollbars-viewport~='overflowYVisible']:not(
-    [data-overlayscrollbars-viewport~='measuring']
-  ) {
-  overflow-y: visible !important;
+[data-overlayscrollbars-viewport~='overflowYVisible'] {
+  --os-viewport-scroll-y: visible;
 }
 [data-overlayscrollbars-viewport~='overflowYHidden'] {
-  overflow-y: hidden !important;
+  --os-viewport-scroll-y: hidden;
 }
 [data-overlayscrollbars-viewport~='overflowYScroll'] {
-  overflow-y: scroll !important;
+  --os-viewport-scroll-y: scroll;
 }
 
+/**
+ * viewport state modifiers:
+ */
 // use `:not(#osFakeId)` to increase specificity
 [data-overlayscrollbars-viewport~='noContent']:not(#osFakeId) {
   font-size: 0 !important;
@@ -154,12 +149,23 @@ html[data-overlayscrollbars-body] > body {
   white-space: nowrap !important;
   border-width: 0 !important;
 }
-
+// measuring mode does ensure no scroll snap and a clipped overflow (no overflow-visible) on any axis
+// scrolling mode ensure no scroll snap
+[data-overlayscrollbars-viewport~='measuring'],
 [data-overlayscrollbars-viewport~='scrolling'] {
   scroll-behavior: auto !important;
   scroll-snap-type: none !important;
 }
+[data-overlayscrollbars-viewport~='measuring'][data-overlayscrollbars-viewport~='overflowXVisible'] {
+  overflow-x: hidden !important;
+}
+[data-overlayscrollbars-viewport~='measuring'][data-overlayscrollbars-viewport~='overflowYVisible'] {
+  overflow-y: hidden !important;
+}
 
+/**
+ * content element:
+ */
 [data-overlayscrollbars-content] {
   box-sizing: inherit;
 }
@@ -176,7 +182,6 @@ html[data-overlayscrollbars-body] > body {
 /**
  * optional & experimental grid mode
  */
-
 [data-overlayscrollbars-grid],
 [data-overlayscrollbars-grid] [data-overlayscrollbars-padding] {
   display: grid;

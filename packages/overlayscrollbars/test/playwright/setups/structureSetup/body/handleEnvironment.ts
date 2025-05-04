@@ -20,4 +20,7 @@ import { addClass } from '~/support';
       });
     }
   });
+
+  body.setAttribute('data-overlayscrollbars-initialize', '');
+  body.parentElement?.setAttribute('data-overlayscrollbars-initialize', '');
 }

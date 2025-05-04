@@ -83,6 +83,6 @@ export default (options) => {
   });
 
   test.afterAll(() => {
-    close();
+    close?.();
   });
 };
