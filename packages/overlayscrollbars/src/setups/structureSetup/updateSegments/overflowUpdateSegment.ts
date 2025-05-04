@@ -32,6 +32,8 @@ import {
   stopPropagation,
   rAF,
   hasAttrClass,
+  strOverflowX,
+  strOverflowY,
 } from '../../../support';
 import { getEnvironment } from '../../../environment';
 import {
@@ -308,8 +310,14 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     { _checkOption, _observersUpdateHints, _observersState, _force },
     { _paddingStyleChanged }
   ) => {
-    const { _sizeChanged, _contentMutation, _directionChanged, _appear, _scrollbarSizeChanged } =
-      _observersUpdateHints || {};
+    const {
+      _sizeChanged,
+      _hostMutation,
+      _contentMutation,
+      _directionChanged,
+      _appear,
+      _scrollbarSizeChanged,
+    } = _observersUpdateHints || {};
     const scrollbarsHidingPluginViewportArrangement =
       scrollbarsHidingPlugin &&
       scrollbarsHidingPlugin._viewportArrangement(
@@ -411,7 +419,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       overflowAmountChanged ||
       overflowChanged ||
       showNativeOverlaidScrollbarsChanged ||
-      viewportChanged;
+      viewportChanged ||
+      (_hostMutation && viewportIsTargetBody);
     const [flowDirectionStyles, flowDirectionStylesChanged] = updateFlowDirectionStyles(_force);
     const adjustMeasuredScrollCoordinates =
       _directionChanged || _appear || flowDirectionStylesChanged || hasOverflowChanged || _force;
@@ -419,13 +428,18 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       ? updateMeasuredScrollCoordinates(getMeasuredScrollCoordinates(flowDirectionStyles), _force)
       : getCurrentMeasuredScrollCoordinates();
 
-    const viewportOverflowStyle = getViewportOverflowStyle(hasOverflow, overflow);
-    const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(viewportOverflowStyle);
+    let viewportOverflowStyle = getViewportOverflowStyle(hasOverflow, overflow);
+
+    setMeasuringMode(false);
 
     if (adjustViewportStyle) {
-      if (overflowStyleChanged) {
-        setViewportOverflowStyle(viewportOverflowStyle);
-      }
+      setViewportOverflowStyle(viewportOverflowStyle);
+
+      const { overflowX, overflowY } = getStyles(_viewport, [strOverflowX, strOverflowY]);
+      viewportOverflowStyle = {
+        x: overflowCssValueToOverflowStyle(overflowX),
+        y: overflowCssValueToOverflowStyle(overflowY),
+      };
 
       if (_hideNativeScrollbars && _arrangeViewport) {
         setStyles(
@@ -439,7 +453,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       }
     }
 
-    setMeasuringMode(false);
+    const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(viewportOverflowStyle);
 
     addRemoveAttrClass(_host, dataAttributeHost, dataValueNoClipping, removeClipping);
     addRemoveAttrClass(_padding, dataAttributePadding, dataValueNoClipping, removeClipping);

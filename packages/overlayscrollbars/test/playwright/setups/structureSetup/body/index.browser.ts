@@ -5,7 +5,7 @@ import { OverlayScrollbars } from '~/overlayscrollbars';
 import { ScrollbarsHidingPlugin } from '~/plugins';
 import { setTestResult, timeout } from '@~local/browser-testing';
 import should from 'should';
-import { getStyles } from '~/support';
+import { getStyles, setStyles } from '~/support';
 
 console.log(OverlayScrollbars.env());
 
@@ -120,7 +120,8 @@ const start = async () => {
   try {
     should.ok(OverlayScrollbars.valid(osInstance));
 
-    const { target, host, viewport } = osInstance.elements();
+    const { target, host, viewport, scrollbarHorizontal, scrollbarVertical } =
+      osInstance.elements();
     const { scrollbarsHiding, scrollbarsOverlaid } = OverlayScrollbars.env();
 
     should.equal(target, document.body, 'Target is <BODY />.');
@@ -148,6 +149,39 @@ const start = async () => {
       should.ok(
         getStyles(viewport, 'scrollbarWidth') === 'none',
         'Scrollbars width is none when native scrollbars should be hidden2'
+      );
+    }
+
+    // test overwritable overflow on body target (its common practice to hide scrollbars when modal is visible)
+    if (scrollbarsHiding) {
+      setStyles(viewport, {
+        overflow: 'hidden',
+      });
+
+      await timeout(1000);
+
+      should.ok(
+        getStyles(scrollbarHorizontal.scrollbar, 'visibility') === 'hidden',
+        'Overwritten overflow hides horizontal scrollbar.'
+      );
+      should.ok(
+        getStyles(scrollbarVertical.scrollbar, 'visibility') === 'hidden',
+        'Overwritten overflow hides vertical scrollbar.'
+      );
+
+      setStyles(viewport, {
+        overflow: '',
+      });
+
+      await timeout(1000);
+
+      should.ok(
+        getStyles(scrollbarHorizontal.scrollbar, 'visibility') === 'visible',
+        'Reverted overwritten overflow shows horizontal scrollbar.'
+      );
+      should.ok(
+        getStyles(scrollbarVertical.scrollbar, 'visibility') === 'visible',
+        'Reverted overwritten overflow shows vertical scrollbar.'
       );
     }
 
