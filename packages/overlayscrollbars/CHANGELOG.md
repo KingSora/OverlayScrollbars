@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.11.2
+
+### Improvements
+
+- Streamline css styles for the viewport and wrapper elements to allow overwrites of the `overflow` property. [#718](https://github.com/KingSora/OverlayScrollbars/issues/718)
+
+### Bug Fixes
+
+- Initialization bridging via `data-overlayscrollbars-initialize` conflicted with the `showNativeOverlaidScrollbars: true` option when initialized to the body element. [#713](https://github.com/KingSora/OverlayScrollbars/issues/713)
+
 ## 2.11.1
 
 ### Improvements
