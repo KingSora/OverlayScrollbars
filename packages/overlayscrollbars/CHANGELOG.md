@@ -8,7 +8,7 @@
 
 ### Bug Fixes
 
-- Initialization bridging via `data-overlayscrollbars-initialize` conflicted with the `showNativeOverlaidScrollbars: true` option when initialized to the body element. [#713](https://github.com/KingSora/OverlayScrollbars/issues/713)
+- Initialization bridging via `data-overlayscrollbars-initialize` attribute conflicted with the `showNativeOverlaidScrollbars: true` option when initialized to the body element. [#713](https://github.com/KingSora/OverlayScrollbars/issues/713)
 
 ## 2.11.1
 
