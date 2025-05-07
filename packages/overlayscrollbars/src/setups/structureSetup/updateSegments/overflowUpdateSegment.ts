@@ -437,8 +437,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
       const { overflowX, overflowY } = getStyles(_viewport, [strOverflowX, strOverflowY]);
       viewportOverflowStyle = {
-        x: overflowCssValueToOverflowStyle(overflowX),
-        y: overflowCssValueToOverflowStyle(overflowY),
+        x: overflowCssValueToOverflowStyle(overflowX, hasOverflow.x),
+        y: overflowCssValueToOverflowStyle(overflowY, hasOverflow.y),
       };
 
       if (_hideNativeScrollbars && _arrangeViewport) {

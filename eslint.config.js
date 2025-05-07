@@ -35,22 +35,22 @@ export default [
           },
         ],
       },
-      settings: {
-        'import/resolver': {
-          typescript: {
-            alwaysTryTypes: true,
-            project: [
-              './packages/**/tsconfig.json',
-              './examples/**/tsconfig.json',
-              './website/**/tsconfig.json',
-              './local/**/tsconfig.json',
-            ],
-          },
-          node: {
-            extensions: ['.js', '.jsx', '.mjs', '.cjs', '.ts', '.cts', '.mts', '.tsx'],
-          },
-        },
-      },
+      // settings: {
+      //   'import/resolver': {
+      //     typescript: {
+      //       alwaysTryTypes: true,
+      //       project: [
+      //         './packages/**/tsconfig.json',
+      //         './examples/**/tsconfig.json',
+      //         './website/**/tsconfig.json',
+      //         './local/**/tsconfig.json',
+      //       ],
+      //     },
+      //     node: {
+      //       extensions: ['.js', '.jsx', '.mjs', '.cjs', '.ts', '.cts', '.mts', '.tsx'],
+      //     },
+      //   },
+      // },
       languageOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',

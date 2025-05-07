@@ -23,9 +23,16 @@ export const overflowBehaviorToOverflowStyle = (
   overflowBehavior: OverflowBehavior
 ): OverflowStyle => overflowBehavior.replace(`${strVisible}-`, '') as OverflowStyle;
 
-export const overflowCssValueToOverflowStyle = (cssValue: string | undefined): OverflowStyle =>
-  cssValue
-    ? [strHidden, strScroll, strVisible].includes(cssValue)
-      ? (cssValue as OverflowStyle)
-      : strHidden
+export const overflowCssValueToOverflowStyle = (
+  cssValue: string | undefined,
+  hasOverflow?: boolean
+): OverflowStyle => {
+  if (cssValue === 'auto') {
+    return hasOverflow ? strScroll : strHidden;
+  }
+
+  const finalCssValue = cssValue || strHidden;
+  return [strHidden, strScroll, strVisible].includes(finalCssValue)
+    ? (finalCssValue as OverflowStyle)
     : strHidden;
+};

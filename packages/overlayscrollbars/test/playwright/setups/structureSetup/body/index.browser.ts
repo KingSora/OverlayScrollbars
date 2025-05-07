@@ -37,8 +37,6 @@ const runMeasureTest = async () => {
   const checkingElement = scrollbarsHiding ? document.documentElement : document.body;
   const { overflowEdge, overflowAmount } = osInstance.state();
 
-  console.log(overflowEdge, checkingElement.clientWidth);
-
   should.ok(
     plusMinusSame(overflowEdge.x, checkingElement.clientWidth),
     'OverflowEdgeX is ClientWidth.'
@@ -154,27 +152,53 @@ const start = async () => {
 
     // test overwritable overflow on body target (its common practice to hide scrollbars when modal is visible)
     if (scrollbarsHiding) {
+      // hidden
       setStyles(viewport, {
         overflow: 'hidden',
       });
-
       await timeout(1000);
-
       should.ok(
         getStyles(scrollbarHorizontal.scrollbar, 'visibility') === 'hidden',
-        'Overwritten overflow hides horizontal scrollbar.'
+        'Overwritten overflow (hidden) hides horizontal scrollbar.'
       );
       should.ok(
         getStyles(scrollbarVertical.scrollbar, 'visibility') === 'hidden',
-        'Overwritten overflow hides vertical scrollbar.'
+        'Overwritten overflow (hidden)hides vertical scrollbar.'
       );
 
+      // auto
+      setStyles(viewport, {
+        overflow: 'auto',
+      });
+      await timeout(1000);
+      should.ok(
+        getStyles(scrollbarHorizontal.scrollbar, 'visibility') === 'visible',
+        'Overwritten overflow (auto) shows horizontal scrollbar.'
+      );
+      should.ok(
+        getStyles(scrollbarVertical.scrollbar, 'visibility') === 'visible',
+        'Overwritten overflow (auto) shows vertical scrollbar.'
+      );
+
+      // visible
+      setStyles(viewport, {
+        overflow: 'visible',
+      });
+      await timeout(1000);
+      should.ok(
+        getStyles(scrollbarHorizontal.scrollbar, 'visibility') === 'hidden',
+        'Overwritten overflow (visible) hides horizontal scrollbar.'
+      );
+      should.ok(
+        getStyles(scrollbarVertical.scrollbar, 'visibility') === 'hidden',
+        'Overwritten overflow (visible)hides vertical scrollbar.'
+      );
+
+      // revert
       setStyles(viewport, {
         overflow: '',
       });
-
       await timeout(1000);
-
       should.ok(
         getStyles(scrollbarHorizontal.scrollbar, 'visibility') === 'visible',
         'Reverted overwritten overflow shows horizontal scrollbar.'
