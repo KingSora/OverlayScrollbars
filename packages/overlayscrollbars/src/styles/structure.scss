@@ -105,12 +105,11 @@ html[data-overlayscrollbars-body] > body {
  * viewport overflow:
  */
 [data-overlayscrollbars-viewport] {
-  overflow-x: var(--os-viewport-scroll-x, hidden);
-  overflow-y: var(--os-viewport-scroll-y, hidden);
-}
-[data-overlayscrollbars-viewport~='overflowImportant'] {
-  overflow-x: var(--os-viewport-scroll-x, hidden) !important;
-  overflow-y: var(--os-viewport-scroll-y, hidden) !important;
+  --os-viewport-scroll-x: hidden;
+  --os-viewport-scroll-y: hidden;
+
+  overflow-x: var(--os-viewport-scroll-x);
+  overflow-y: var(--os-viewport-scroll-y);
 }
 [data-overlayscrollbars-viewport~='overflowXVisible'] {
   --os-viewport-scroll-x: visible;
@@ -129,6 +128,11 @@ html[data-overlayscrollbars-body] > body {
 }
 [data-overlayscrollbars-viewport~='overflowYScroll'] {
   --os-viewport-scroll-y: scroll;
+}
+// helper selector for consumers
+[data-overlayscrollbars-viewport~='overflowImportant'] {
+  overflow-x: var(--os-viewport-scroll-x) !important;
+  overflow-y: var(--os-viewport-scroll-y) !important;
 }
 
 /**
