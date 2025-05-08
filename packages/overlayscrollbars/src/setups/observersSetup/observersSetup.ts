@@ -111,7 +111,7 @@ export const createObserversSetup = (
       _initialValue: { w: 0, h: 0 },
     },
     () => {
-      const _undoViewportArrange =
+      const undoViewportArrange =
         scrollbarsHidingPlugin &&
         scrollbarsHidingPlugin._viewportArrangement(
           structureSetupElements,
@@ -129,7 +129,7 @@ export const createObserversSetup = (
       const revertScrollObscuringStyles = scrollOffset && _removeScrollObscuringStyles();
 
       const revertMeasuring = _viewportAddRemoveClass(dataValueViewportMeasuring, noClipping);
-      const redoViewportArrange = isArranged && _undoViewportArrange && _undoViewportArrange()[0];
+      const redoViewportArrange = isArranged && undoViewportArrange && undoViewportArrange();
       const viewportScroll = getScrollSize(_viewport);
       const fractional = getFractionalSize(_viewport);
 

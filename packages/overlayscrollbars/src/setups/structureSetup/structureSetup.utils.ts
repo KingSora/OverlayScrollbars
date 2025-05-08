@@ -1,7 +1,15 @@
 import type { Env } from '../../environment';
 import type { Options, OptionsCheckFn, OverflowBehavior } from '../../options';
 import type { OverflowStyle } from '../../typings';
-import { strHidden, strScroll, strVisible } from '../../support';
+import {
+  getStyles,
+  strHidden,
+  strOverflowX,
+  strOverflowY,
+  strScroll,
+  strVisible,
+  XY,
+} from '../../support';
 
 export const getShowNativeOverlaidScrollbars = (checkOption: OptionsCheckFn<Options>, env: Env) => {
   const { _nativeScrollbarsOverlaid } = env;
@@ -35,4 +43,16 @@ export const overflowCssValueToOverflowStyle = (
   return [strHidden, strScroll, strVisible].includes(finalCssValue)
     ? (finalCssValue as OverflowStyle)
     : strHidden;
+};
+
+export const getElementOverflowStyle = (
+  element: HTMLElement,
+  hasOverflow: Partial<XY<boolean>>
+): XY<OverflowStyle> => {
+  const { overflowX, overflowY } = getStyles(element, [strOverflowX, strOverflowY]);
+
+  return {
+    x: overflowCssValueToOverflowStyle(overflowX, hasOverflow.x),
+    y: overflowCssValueToOverflowStyle(overflowY, hasOverflow.y),
+  };
 };

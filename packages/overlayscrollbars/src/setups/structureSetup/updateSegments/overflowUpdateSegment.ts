@@ -32,8 +32,6 @@ import {
   stopPropagation,
   rAF,
   hasAttrClass,
-  strOverflowX,
-  strOverflowY,
 } from '../../../support';
 import { getEnvironment } from '../../../environment';
 import {
@@ -49,6 +47,7 @@ import {
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '../../../plugins';
 import {
   getShowNativeOverlaidScrollbars,
+  getElementOverflowStyle,
   overflowBehaviorToOverflowStyle,
   overflowCssValueToOverflowStyle,
   overflowIsVisible,
@@ -359,7 +358,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         setMeasuringMode(true);
       }
 
-      const [redoViewportArrange] = _undoViewportArrange ? _undoViewportArrange() : [];
+      const redoViewportArrange = _undoViewportArrange && _undoViewportArrange();
 
       const [sizeFraction] = (sizeFractionCache = updateSizeFraction(_force));
       const [viewportScrollSize] = (viewportScrollSizeCache =
@@ -435,21 +434,12 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     if (adjustViewportStyle) {
       setViewportOverflowStyle(viewportOverflowStyle);
 
-      const { overflowX, overflowY } = getStyles(_viewport, [strOverflowX, strOverflowY]);
-      viewportOverflowStyle = {
-        x: overflowCssValueToOverflowStyle(overflowX, hasOverflow.x),
-        y: overflowCssValueToOverflowStyle(overflowY, hasOverflow.y),
-      };
+      viewportOverflowStyle = getElementOverflowStyle(_viewport, hasOverflow);
 
       if (_hideNativeScrollbars && _arrangeViewport) {
-        setStyles(
-          _viewport,
-          _hideNativeScrollbars(
-            viewportOverflowStyle,
-            _observersState,
-            _arrangeViewport(viewportOverflowStyle, viewportScrollSize, sizeFraction)
-          )
-        );
+        _arrangeViewport(viewportOverflowStyle, viewportScrollSize, sizeFraction);
+
+        setStyles(_viewport, _hideNativeScrollbars(viewportOverflowStyle));
       }
     }
 

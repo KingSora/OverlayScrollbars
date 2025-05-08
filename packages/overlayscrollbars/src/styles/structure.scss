@@ -108,6 +108,10 @@ html[data-overlayscrollbars-body] > body {
   overflow-x: var(--os-viewport-scroll-x, hidden);
   overflow-y: var(--os-viewport-scroll-y, hidden);
 }
+[data-overlayscrollbars-viewport~='overflowImportant'] {
+  overflow-x: var(--os-viewport-scroll-x, hidden) !important;
+  overflow-y: var(--os-viewport-scroll-y, hidden) !important;
+}
 [data-overlayscrollbars-viewport~='overflowXVisible'] {
   --os-viewport-scroll-x: visible;
 }
