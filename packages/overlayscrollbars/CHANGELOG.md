@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.11.3
+
+### Improvements
+
+- Introduce and document the new `CSS Custom Properties`: `--os-viewport-overflow-x` and `--os-viewport-overflow-y` which can be used to better control the `overflow` style of the `viewport` element.
+- Support for the `auto` value for overwrites of the `overflow` style of the `viewport`.
+
 ## 2.11.2
 
 ### Improvements

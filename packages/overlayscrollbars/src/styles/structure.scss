@@ -105,34 +105,34 @@ html[data-overlayscrollbars-body] > body {
  * viewport overflow:
  */
 [data-overlayscrollbars-viewport] {
-  --os-viewport-scroll-x: hidden;
-  --os-viewport-scroll-y: hidden;
+  --os-viewport-overflow-x: hidden;
+  --os-viewport-overflow-y: hidden;
 
-  overflow-x: var(--os-viewport-scroll-x);
-  overflow-y: var(--os-viewport-scroll-y);
+  overflow-x: var(--os-viewport-overflow-x);
+  overflow-y: var(--os-viewport-overflow-y);
 }
 [data-overlayscrollbars-viewport~='overflowXVisible'] {
-  --os-viewport-scroll-x: visible;
+  --os-viewport-overflow-x: visible;
 }
 [data-overlayscrollbars-viewport~='overflowXHidden'] {
-  --os-viewport-scroll-x: hidden;
+  --os-viewport-overflow-x: hidden;
 }
 [data-overlayscrollbars-viewport~='overflowXScroll'] {
-  --os-viewport-scroll-x: scroll;
+  --os-viewport-overflow-x: scroll;
 }
 [data-overlayscrollbars-viewport~='overflowYVisible'] {
-  --os-viewport-scroll-y: visible;
+  --os-viewport-overflow-y: visible;
 }
 [data-overlayscrollbars-viewport~='overflowYHidden'] {
-  --os-viewport-scroll-y: hidden;
+  --os-viewport-overflow-y: hidden;
 }
 [data-overlayscrollbars-viewport~='overflowYScroll'] {
-  --os-viewport-scroll-y: scroll;
+  --os-viewport-overflow-y: scroll;
 }
 // helper selector for consumers
 [data-overlayscrollbars-viewport~='overflowImportant'] {
-  overflow-x: var(--os-viewport-scroll-x) !important;
-  overflow-y: var(--os-viewport-scroll-y) !important;
+  overflow-x: var(--os-viewport-overflow-x) !important;
+  overflow-y: var(--os-viewport-overflow-y) !important;
 }
 
 /**

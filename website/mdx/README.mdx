@@ -178,6 +178,165 @@ In the above example, the initialization will be aborted if the native scrollbar
 
 </details>
 
+## Styling
+
+OverlayScrollbars provides a set of `CSS Custom Properties` which makes styling easy and fast.
+
+Out of the box you can choose between two scrollbar themes called `os-theme-dark` and `os-theme-light`. You can use the `scrollbars.theme` option to change the theme.
+
+Custom scrollbar themes can be done in several ways. The easiest and fastest way is to use the predefined set of `CSS Custom Properties` aka CSS variables. If that's not enough, you can add custom class names or add custom styling to the existing class names.  
+
+### Styling in depth
+
+<details>
+  <summary>
+    This is an in depth topic. Click here to read it.
+  </summary>
+
+  ### CSS Custom properties
+
+  OverlayScrollbars provides the following `CSS Custom Properties`:
+
+  **Viewport styling:**
+
+  ```scss
+  [data-overlayscrollbars-viewport] {
+    overflow-x: var(--os-viewport-overflow-x);
+    overflow-y: var(--os-viewport-overflow-y);
+  }
+  ```
+
+  You can use the `--os-viewport-overflow-x` and `--os-viewport-overflow-y` properties to re-apply the correct `overflow` styles in case other styling rules (e.g. from 3rd party libraries) are overwriting them.
+
+  **Scrollbar styling:**
+
+  ```scss
+  .os-scrollbar {
+    // The size of the scrollbar
+    --os-size: 0;
+    // The axis-perpendicular padding of the scrollbar (horizontal: padding-y, vertical: padding-x)
+    --os-padding-perpendicular: 0;
+    // The axis padding of the scrollbar (horizontal: padding-x, vertical: padding-y)
+    --os-padding-axis: 0;
+    // The border radius of the scrollbar track
+    --os-track-border-radius: 0;
+    // The background of the scrollbar track
+    --os-track-bg: none;
+    // The :hover background of the scrollbar track
+    --os-track-bg-hover: none;
+    // The :active background of the scrollbar track
+    --os-track-bg-active: none;
+    // The border of the scrollbar track
+    --os-track-border: none;
+    // The :hover background of the scrollbar track
+    --os-track-border-hover: none;
+    // The :active background of the scrollbar track
+    --os-track-border-active: none;
+    // The border radius of the scrollbar handle
+    --os-handle-border-radius: 0;
+    // The background of the scrollbar handle
+    --os-handle-bg: none;
+    // The :hover background of the scrollbar handle
+    --os-handle-bg-hover: none;
+    // The :active background of the scrollbar handle
+    --os-handle-bg-active: none;
+    // The border of the scrollbar handle
+    --os-handle-border: none;
+    // The :hover border of the scrollbar handle
+    --os-handle-border-hover: none;
+    // The :active border of the scrollbar handle
+    --os-handle-border-active: none;
+    // The min size of the scrollbar handle
+    --os-handle-min-size: 33px;
+    // The max size of the scrollbar handle
+    --os-handle-max-size: none;
+    // The axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
+    --os-handle-perpendicular-size: 100%;
+    // The :hover axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
+    --os-handle-perpendicular-size-hover: 100%;
+    // The :active axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
+    --os-handle-perpendicular-size-active: 100%;
+    // Increases the interactive area of the scrollbar handle.
+    --os-handle-interactive-area-offset: 0;
+  }
+  ```
+
+  You can change the properties for both scrollbars at once, or for each scrollbar axis. In the example below, I've chosen `os-theme-custom` as the theme name:
+
+  ```scss
+  // Horizontal and vertical scrollbar are 10px 
+  .os-theme-custom {
+    --os-size: 10px;
+  }
+
+  // Horizontal scrollbar is 10px
+  .os-theme-custom.os-scrollbar-horizontal {
+    --os-size: 10px;
+  }
+  // Vertical scrollbar is 20px
+  .os-theme-custom.os-scrollbar-vertical {
+    --os-size: 20px;
+  }
+  ```
+
+  You can then use your theme by assigning it via the `scrollbars.theme` option:
+
+  ```js
+  OverlayScrollbars(document.body, {
+    scrollbars: {
+      theme: 'os-theme-custom'
+    }
+  });
+  ```
+
+  Since scrollbar styles are usually simple, this set of options should be enough to get the styling you want.
+  If you need more freedom, you can create your own styles by adding styling to the base class names described in the next section.
+
+  ### Scrollbars structure and CSS class names
+
+  The scrollbars HTML markup looks like:
+
+  ```html
+  <div class="os-scrollbar os-scrollbar-horizontal">
+      <div class="os-scrollbar-track">
+          <div class="os-scrollbar-handle">
+          </div>
+      </div>
+  </div>
+  <div class="os-scrollbar os-scrollbar-vertical">
+      <div class="os-scrollbar-track">
+          <div class="os-scrollbar-handle">
+          </div>
+      </div>
+  </div>
+  ```
+
+  The class names are simplified, in a real application the `.os-scrollbar` element can have additional class names which modify the appearance (mostly visibility and alignment).  
+
+  Below is a list of the most important class names you will encounter:
+
+  | CSS class name | description |
+| :--- | :--- |
+| `.os-scrollbar` | The root element of a scrollbar. |
+| `.os-scrollbar-rtl` | Indicates a `RTL` direction of the host element the scrollbar belongs to. |
+| `.os-scrollbar-horizontal` | The root element of a horizontal scrollbar. |
+| `.os-scrollbar-vertical` | The root element of a vertical scrollbar. |
+| `.os-scrollbar-handle-interactive` | Indicates that the handle inside the scrollbar is interactive (`scrollbars.dragScroll` is not `false`). |
+| `.os-scrollbar-track-interactive` | Indicates that the track inside the scrollbar is interactive (`scrollbars.clickScroll` is not `false`). |
+| `.os-scrollbar-track` | The track element. This is the track of the nested handle element. If `scrollbars.clickScroll` is not `false` this is the element users can click to change the scroll offset. |
+| `.os-scrollbar-handle` | The handle element. If `scrollbars.dragScroll` is not `false` this is the handle users can drag to change the scroll offset. |
+
+  If you create your own theme, please only use the classes listed above. All other classes are modifier classes used to change visibility, alignment and pointer-events of the scrollbars.
+
+  ### Gotchas
+
+  It is important that the chosen theme class name in your CSS file matches the assigned theme name in the options. If the CSS class name is `.my-theme`, the `scrollbars.theme` must be `'my-theme'`.  
+    
+    
+  Please be aware of your stack. For example, `css-modules` will change your class names to avoid naming collisions. Always check that your CSS is what you expect it to be.
+
+</details>
+
 ## Options
 
 You can initialize OverlayScrollbars with an initial set of options, which can be changed at any time with the `options` method:
@@ -948,149 +1107,6 @@ OverlayScrollbars.plugin(SomePlugin);
     setDefaultOptions(newDefaultOptions: PartialOptions): Options;
   }
   ```
-</details>
-
-## Styling
-
-OverlayScrollbars comes with two themes called `os-theme-dark` and `os-theme-light`. You can use the `scrollbars.theme` option to change the theme.
-
-Custom themes can be done in several ways. The easiest and fastest way is to use the predefined set of `CSS Custom Properties` aka CSS variables. If that's not enough, you can add custom class names or add custom styling to the existing class names.  
-
-### Styling in depth
-
-<details>
-  <summary>
-    This is an in depth topic. Click here to read it.
-  </summary>
-
-  ### CSS Custom properties
-
-  OverlayScrollbars provides a set of `CSS Custom Properties` which makes scrollbar styling easy and fast:
-  ```scss
-  .os-scrollbar {
-    // The size of the scrollbar
-    --os-size: 0;
-    // The axis-perpendicular padding of the scrollbar (horizontal: padding-y, vertical: padding-x)
-    --os-padding-perpendicular: 0;
-    // The axis padding of the scrollbar (horizontal: padding-x, vertical: padding-y)
-    --os-padding-axis: 0;
-    // The border radius of the scrollbar track
-    --os-track-border-radius: 0;
-    // The background of the scrollbar track
-    --os-track-bg: none;
-    // The :hover background of the scrollbar track
-    --os-track-bg-hover: none;
-    // The :active background of the scrollbar track
-    --os-track-bg-active: none;
-    // The border of the scrollbar track
-    --os-track-border: none;
-    // The :hover background of the scrollbar track
-    --os-track-border-hover: none;
-    // The :active background of the scrollbar track
-    --os-track-border-active: none;
-    // The border radius of the scrollbar handle
-    --os-handle-border-radius: 0;
-    // The background of the scrollbar handle
-    --os-handle-bg: none;
-    // The :hover background of the scrollbar handle
-    --os-handle-bg-hover: none;
-    // The :active background of the scrollbar handle
-    --os-handle-bg-active: none;
-    // The border of the scrollbar handle
-    --os-handle-border: none;
-    // The :hover border of the scrollbar handle
-    --os-handle-border-hover: none;
-    // The :active border of the scrollbar handle
-    --os-handle-border-active: none;
-    // The min size of the scrollbar handle
-    --os-handle-min-size: 33px;
-    // The max size of the scrollbar handle
-    --os-handle-max-size: none;
-    // The axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
-    --os-handle-perpendicular-size: 100%;
-    // The :hover axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
-    --os-handle-perpendicular-size-hover: 100%;
-    // The :active axis-perpendicular size of the scrollbar handle (horizontal: height, vertical: width)
-    --os-handle-perpendicular-size-active: 100%;
-    // Increases the interactive area of the scrollbar handle.
-    --os-handle-interactive-area-offset: 0;
-  }
-  ```
-
-  You can change the properties for both scrollbars at once, or for each scrollbar axis. In the example below, I've chosen `os-theme-custom` as the theme name:
-
-  ```scss
-  // Horizontal and vertical scrollbar are 10px 
-  .os-theme-custom {
-    --os-size: 10px;
-  }
-
-  // Horizontal scrollbar is 10px
-  .os-theme-custom.os-scrollbar-horizontal {
-    --os-size: 10px;
-  }
-  // Vertical scrollbar is 20px
-  .os-theme-custom.os-scrollbar-vertical {
-    --os-size: 20px;
-  }
-  ```
-
-  You can then use your theme by assigning it via the `scrollbars.theme` option:
-
-  ```js
-  OverlayScrollbars(document.body, {
-    scrollbars: {
-      theme: 'os-theme-custom'
-    }
-  });
-  ```
-
-  Since scrollbar styles are usually simple, this set of options should be enough to get the styling you want.
-  If you need more freedom, you can create your own styles by adding styling to the base class names described in the next section.
-
-  ### Scrollbars structure and CSS class names
-
-  The scrollbars HTML markup looks like:
-
-  ```html
-  <div class="os-scrollbar os-scrollbar-horizontal">
-      <div class="os-scrollbar-track">
-          <div class="os-scrollbar-handle">
-          </div>
-      </div>
-  </div>
-  <div class="os-scrollbar os-scrollbar-vertical">
-      <div class="os-scrollbar-track">
-          <div class="os-scrollbar-handle">
-          </div>
-      </div>
-  </div>
-  ```
-
-  The class names are simplified, in a real application the `.os-scrollbar` element can have additional class names which modify the appearance (mostly visibility and alignment).  
-
-  Below is a list of the most important class names you will encounter:
-
-  | CSS class name | description |
-| :--- | :--- |
-| `.os-scrollbar` | The root element of a scrollbar. |
-| `.os-scrollbar-rtl` | Indicates a `RTL` direction of the host element the scrollbar belongs to. |
-| `.os-scrollbar-horizontal` | The root element of a horizontal scrollbar. |
-| `.os-scrollbar-vertical` | The root element of a vertical scrollbar. |
-| `.os-scrollbar-handle-interactive` | Indicates that the handle inside the scrollbar is interactive (`scrollbars.dragScroll` is not `false`). |
-| `.os-scrollbar-track-interactive` | Indicates that the track inside the scrollbar is interactive (`scrollbars.clickScroll` is not `false`). |
-| `.os-scrollbar-track` | The track element. This is the track of the nested handle element. If `scrollbars.clickScroll` is not `false` this is the element users can click to change the scroll offset. |
-| `.os-scrollbar-handle` | The handle element. If `scrollbars.dragScroll` is not `false` this is the handle users can drag to change the scroll offset. |
-
-  If you create your own theme, please only use the classes listed above. All other classes are modifier classes used to change visibility, alignment and pointer-events of the scrollbars.
-
-  ### Gotchas
-
-  It is important that the chosen theme class name in your CSS file matches the assigned theme name in the options. If the CSS class name is `.my-theme`, the `scrollbars.theme` must be `'my-theme'`.  
-    
-    
-  Please be aware of your stack. For example, `css-modules` will change your class names to avoid naming collisions. Always check that your CSS is what you expect it to be.
-
 </details>
 
 ## Plugins
