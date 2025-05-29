@@ -250,18 +250,40 @@ export const createScrollbarsSetupEvents = (
         },
         { _passive: false, _capture: true }
       ),
-      // solve problem of interaction causing click events
+      // solve problem of interaction causing `click` events (https://github.com/KingSora/OverlayScrollbars/issues/251)
+      // 1. on `scrollbar` pointer down register a `document` click event which gets prevented and propagation is stopped
+      // 2. on `document` pointerup / pointercancel remove that click event after a timeout (in case the click is never triggered)
       addEventListener(
         _scrollbar,
         'pointerdown',
-        // stopPropagation for stopping event propagation (causing click listeners to be invoked)
-        // preventDefault to prevent the pointer to cause any actions (e.g. releasing mouse button over an <a> tag causes an navigation)
-        bind(addEventListener, _documentElm, 'click', stopAndPrevent, {
-          _once: true,
-          _capture: true,
-          _passive: false,
-        }),
-        { _capture: true }
+        () => {
+          const removeClickEvent = addEventListener(
+            _documentElm,
+            'click',
+            (clickEvent: Event) => {
+              removePointerEvents();
+              stopAndPrevent(clickEvent);
+            },
+            {
+              _once: true,
+              _capture: true,
+              _passive: false,
+            }
+          );
+          const removePointerEvents = addEventListener(
+            _documentElm,
+            'pointerup pointercancel',
+            () => {
+              removePointerEvents();
+              setTimeout(removeClickEvent, 150);
+            },
+            {
+              _capture: true,
+              _passive: true,
+            }
+          );
+        },
+        { _capture: true, _passive: true }
       ),
       createInteractiveScrollEvents(),
       clearWheelTimeout,
