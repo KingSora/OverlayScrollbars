@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-- Remove scrollbars `click` event which prevents triggering unwanted `click` events when the prevention is no longer required. [#720](https://github.com/KingSora/OverlayScrollbars/issues/720)
+- Remove scrollbars `click` event when its no longer required. [#720](https://github.com/KingSora/OverlayScrollbars/issues/720)
 
 ## 2.11.3
 
