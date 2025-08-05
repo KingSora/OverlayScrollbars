@@ -290,7 +290,7 @@ export const createObserversSetup = (
   const onWindowResizeDebounced = debounce(
     () => {
       const [, _contentMutation] = updateContentSizeCache();
-      onObserversUpdated({ _contentMutation });
+      onObserversUpdated({ _contentMutation, _sizeChanged: _isBody });
     },
     {
       _debounceTiming: 222,
