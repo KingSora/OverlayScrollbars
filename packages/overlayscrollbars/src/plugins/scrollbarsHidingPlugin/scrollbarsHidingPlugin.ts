@@ -28,7 +28,6 @@ import {
   removeAttrClass,
   strWidth,
   strScroll,
-  addAttrClass,
 } from '../../support';
 
 export const scrollbarsHidingPluginName = '__osScrollbarsHidingPlugin';

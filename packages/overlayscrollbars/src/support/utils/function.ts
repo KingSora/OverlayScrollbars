@@ -101,7 +101,6 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
   let cancelMaxTimeoutDebouncer: (() => void) | undefined;
   let cancelTimeoutDebounder: (() => void) | undefined;
   let prevArguments: Parameters<FunctionToDebounce> | null | undefined;
-  let latestArguments: Parameters<FunctionToDebounce> | null | undefined;
   let leadingInvoked: boolean | undefined;
 
   const invokeFunctionToDebounce = function (args: Parameters<FunctionToDebounce>) {
@@ -125,8 +124,8 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
 
   const flush = () => {
     /* istanbul ignore next */
-    if (cancelTimeoutDebounder) {
-      invokeFunctionToDebounce(mergeParms(latestArguments!) || latestArguments!);
+    if (cancelTimeoutDebounder && prevArguments) {
+      invokeFunctionToDebounce(mergeParms(prevArguments) || prevArguments);
     }
   };
 
@@ -157,7 +156,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
         }
       }
 
-      prevArguments = latestArguments = invokedArgs;
+      prevArguments = invokedArgs;
     } else {
       invokeFunctionToDebounce(args);
     }
