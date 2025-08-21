@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.11.5
+
+### Bug Fixes
+
+- Sometimes when resizing the window, scrollbars applied to the body element werent updated aoccrdingly.
+
+## 2.11.4
+
+### Bug Fixes
+
+- Remove scrollbars `click` event when its no longer required. [#720](https://github.com/KingSora/OverlayScrollbars/issues/720)
+
 ## 2.11.3
 
 ### Improvements
