@@ -35,6 +35,11 @@ import {
 } from '../../support';
 import { createScrollbarsSetupElements } from './scrollbarsSetup.elements';
 import { createScrollbarsSetupEvents } from './scrollbarsSetup.events';
+import {
+  getStaticPluginModuleInstance,
+  ScrollbarsHidingPlugin,
+  scrollbarsHidingPluginName,
+} from '../../plugins';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ScrollbarsSetupState {}
@@ -161,6 +166,9 @@ export const createScrollbarsSetup = (
       _refreshScrollbarsScrollbarOffset();
     }),
   ];
+  const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
+    scrollbarsHidingPluginName
+  );
 
   return [
     () => bind(runEachAndClear, push(destroyFns, appendElements())),
@@ -173,7 +181,7 @@ export const createScrollbarsSetup = (
       } = _structureUpdateHints || {};
       const { _directionChanged, _appear } = _observersUpdateHints || {};
       const { _directionIsRTL } = observersSetupState;
-      const { _nativeScrollbarsOverlaid } = getEnvironment();
+      const { _nativeScrollbarsOverlaid, _nativeScrollbarsHiding } = getEnvironment();
       const { _overflowStyle, _hasOverflow } = structureSetupState;
       const [showNativeOverlaidScrollbarsOption, showNativeOverlaidScrollbarsChanged] =
         _checkOption('showNativeOverlaidScrollbars');
@@ -198,6 +206,8 @@ export const createScrollbarsSetup = (
         showNativeOverlaidScrollbarsOption &&
         _nativeScrollbarsOverlaid.x &&
         _nativeScrollbarsOverlaid.y;
+      const cantHideScrollbars = !_nativeScrollbarsHiding && !scrollbarsHidingPlugin;
+      const showNativeScrollbars = showNativeOverlaidScrollbars || cantHideScrollbars;
 
       const setScrollbarVisibility = (
         overflowBehavior: OverflowBehavior,
@@ -234,8 +244,8 @@ export const createScrollbarsSetup = (
         }
       }
 
-      if (showNativeOverlaidScrollbarsChanged) {
-        _scrollbarsAddRemoveClass(classNameScrollbarThemeNone, showNativeOverlaidScrollbars);
+      if (showNativeOverlaidScrollbarsChanged || cantHideScrollbars) {
+        _scrollbarsAddRemoveClass(classNameScrollbarThemeNone, showNativeScrollbars);
       }
 
       if (themeChanged) {

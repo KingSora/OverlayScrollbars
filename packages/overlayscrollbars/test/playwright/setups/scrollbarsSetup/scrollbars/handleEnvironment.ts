@@ -6,7 +6,7 @@
   /**
    * scrollT: disable scrollTimeline
    */
-  ['scrollT'].forEach((param) => {
+  ['scrollT', 'nsh'].forEach((param) => {
     const paramValue = Boolean(params.get(param));
 
     if (paramValue) {

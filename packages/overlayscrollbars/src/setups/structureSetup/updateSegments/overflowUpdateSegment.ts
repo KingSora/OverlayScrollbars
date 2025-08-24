@@ -467,7 +467,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _overflowEdgeChanged: overflowEdgeChanged,
       _overflowAmountChanged: overflowAmountChanged,
       _scrollCoordinatesChanged: scrollCoordinatesChanged || overflowAmountChanged,
-      _scrolled: adjustMeasuredScrollCoordinates,
     };
   };
 };

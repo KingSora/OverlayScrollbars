@@ -98,8 +98,7 @@ test.describe('scrollbarsSetup.scrollbars', () => {
 
     await timeout(100);
   };
-
-  test.beforeEach(async ({ page }) => {
+  const testScrollbarClicks = async (page: Page) => {
     // test scrollbar click event propagation stop
     await clickScrollbar(page, 'body');
     await clickScrollbar(page, '#targetA');
@@ -125,14 +124,25 @@ test.describe('scrollbarsSetup.scrollbars', () => {
     await page.click('#flexReverse', { timeout: 1000 });
 
     await timeout(500);
-  });
+  };
 
   test('scrollbars', async ({ page }) => {
+    await testScrollbarClicks(page);
     await expectSuccess(page);
   });
 
   test('scrollbars without ScrollTimeline', async ({ page }) => {
     await page.click('#scrollT');
+
+    await testScrollbarClicks(page);
+
+    await expectSuccess(page);
+  });
+
+  test('scrollbars without native scrollbar hiding and without native scrollbar hiding plugin', async ({
+    page,
+  }) => {
+    await page.click('#nsh');
 
     await expectSuccess(page);
   });

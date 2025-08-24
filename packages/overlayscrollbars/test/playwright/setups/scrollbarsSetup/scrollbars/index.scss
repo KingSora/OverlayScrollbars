@@ -1,11 +1,13 @@
-body {
-  display: flex;
-  flex-direction: column;
-  overflow: scroll;
-}
 html,
 body {
   padding: 0;
+}
+#wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 #controls {
   flex: none;
@@ -142,4 +144,14 @@ body {
   inset-block-end: 0;
   inset-block-start: auto;
   inset-inline-start: 50%;
+}
+
+body.nsh {
+  .os-environment-scrollbar-hidden {
+    scrollbar-width: auto !important;
+  }
+  .os-environment-scrollbar-hidden::-webkit-scrollbar,
+  .os-environment-scrollbar-hidden::-webkit-scrollbar-corner {
+    display: block !important;
+  }
 }

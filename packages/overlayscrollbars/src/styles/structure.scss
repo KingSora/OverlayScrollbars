@@ -3,7 +3,8 @@
  * changes to this styles need to be reflected in the environment styles to correctly detect scrollbar hiding
  */
 [data-overlayscrollbars-initialize]:not([data-overlayscrollbars-viewport]),
-[data-overlayscrollbars-viewport~='scrollbarHidden'] {
+[data-overlayscrollbars-viewport~='scrollbarHidden'],
+html[data-overlayscrollbars-viewport~='scrollbarHidden'] > body {
   scrollbar-width: none !important;
 }
 [data-overlayscrollbars-initialize]:not([data-overlayscrollbars-viewport])::-webkit-scrollbar,
@@ -11,7 +12,9 @@
     [data-overlayscrollbars-viewport]
   )::-webkit-scrollbar-corner,
 [data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar,
-[data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar-corner {
+[data-overlayscrollbars-viewport~='scrollbarHidden']::-webkit-scrollbar-corner,
+html[data-overlayscrollbars-viewport~='scrollbarHidden'] > body::-webkit-scrollbar,
+html[data-overlayscrollbars-viewport~='scrollbarHidden'] > body::-webkit-scrollbar-corner {
   appearance: none !important;
   display: none !important;
   width: 0 !important;

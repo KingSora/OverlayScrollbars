@@ -11,6 +11,7 @@ import {
   getScrollCoordinatesPercent,
   getScrollCoordinatesPosition,
   getStyles,
+  hasClass,
 } from '~/support';
 import should from 'should';
 import type { InstancePlugin } from '~/plugins';
@@ -20,10 +21,16 @@ import type { CloneableScrollbarElements } from '~/overlayscrollbars';
 if (!window.ResizeObserver) {
   OverlayScrollbars.plugin(SizeObserverPlugin);
 }
+/*
 if (!OverlayScrollbars.env().scrollbarsHiding) {
   OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 }
+*/
 
+OverlayScrollbars.env().setDefaultInitialization({
+  cancel: { nativeScrollbarsOverlaid: false, body: false },
+});
+const noScrollbarHiding = hasClass(document.body, 'nsh');
 const scrollPointsPlugin: InstancePlugin = {
   ['scrollPoints']: {
     instance(osInstance) {
@@ -86,6 +93,7 @@ const scrollInstance = (osInstance: OverlayScrollbars, percent = 0.5) => {
       y: percent,
     }
   );
+
   scrollOffsetElement.scrollTo({
     behavior: 'instant',
     left: x,
@@ -146,19 +154,17 @@ const scrollInstances = async () => {
     const { target } = osInstance.elements();
     const isBody = target === document.body;
     const hostId = isBody ? 'body' : target.getAttribute('id')!;
-    const tollerance = isBody ? 0.1 : 0.001;
+    const tollerance = noScrollbarHiding ? 1 : isBody ? 0.1 : 0.001;
 
     // body has to small overflow for accurate measuring...
-    if (!isBody) {
-      should.ok(
-        Math.abs(0.5 - x) < tollerance,
-        `ScrollX didnt result in correct scroll coordinates. ${x} "${hostId}"`
-      );
-      should.ok(
-        Math.abs(0.5 - y) < tollerance,
-        `ScrollY didnt result in correct scroll coordinates. ${y} "${hostId}"`
-      );
-    }
+    should.ok(
+      Math.abs(0.5 - x) < tollerance,
+      `ScrollX didnt result in correct scroll coordinates. ${x} "${hostId}"`
+    );
+    should.ok(
+      Math.abs(0.5 - y) < tollerance,
+      `ScrollY didnt result in correct scroll coordinates. ${y} "${hostId}"`
+    );
   });
 };
 
@@ -242,6 +248,9 @@ const resizeStageResizer = async () => {
   };
 
   try {
+    if (noScrollbarHiding) {
+      return;
+    }
     await Promise.all([createMeasurePromise('width'), createMeasurePromise('height')]);
   } catch (error: unknown) {
     setTestResult(false);
@@ -250,6 +259,10 @@ const resizeStageResizer = async () => {
 };
 
 const assertScrollbarDirection = async (osInstance: OverlayScrollbars, directionIsRTL: boolean) => {
+  if (noScrollbarHiding) {
+    return;
+  }
+
   const { directionRTL: instanceDirectionRTL } = osInstance.state();
   const { scrollbarHorizontal, scrollbarVertical, target, host } = osInstance.elements();
   const isBody = target === document.body;
@@ -289,7 +302,7 @@ const assertScrollbarDirection = async (osInstance: OverlayScrollbars, direction
   }
 };
 
-const assetScrollbarClickStopsPropagation = (osInstance: OverlayScrollbars) => {
+const assertScrollbarClickStopsPropagation = (osInstance: OverlayScrollbars) => {
   const { host, scrollbarHorizontal, scrollbarVertical } = osInstance.elements();
   const hostId = host === document.body ? 'body' : host.getAttribute('id');
   const isScrollbarElement = (
@@ -335,6 +348,21 @@ const assetScrollbarClickStopsPropagation = (osInstance: OverlayScrollbars) => {
   });
 };
 
+const assertScrollbarTheme = async (osInstance: OverlayScrollbars) => {
+  const { scrollbarHorizontal, scrollbarVertical } = osInstance.elements();
+  if (noScrollbarHiding) {
+    should.ok(
+      scrollbarHorizontal.scrollbar.classList.contains('os-theme-none'),
+      'No scrollbar hiding should result in theme none. (horizontal)'
+    );
+    should.ok(
+      scrollbarVertical.scrollbar.classList.contains('os-theme-none'),
+      'No scrollbar hiding should result in theme none. (vertical)'
+    );
+    return;
+  }
+};
+
 const assertScrollCoordinates = (osInstance: OverlayScrollbars) => {
   const { target } = osInstance.elements();
   const hostId = target === document.body ? 'body' : target.getAttribute('id');
@@ -364,6 +392,12 @@ const runBlock = async () => {
   await assertScrollbarDirection(osInstanceBody, directionRTL);
 
   await resizeStageResizer();
+
+  await assertScrollbarTheme(osInstanceBody);
+  await assertScrollbarTheme(osInstanceA);
+  await assertScrollbarTheme(osInstanceB);
+  await assertScrollbarTheme(osInstanceC);
+  await assertScrollbarTheme(osInstanceD);
 
   stageResizer!.removeAttribute('style');
 };
@@ -476,9 +510,10 @@ startButton?.addEventListener('click', async () => {
   }
 });
 
-assetScrollbarClickStopsPropagation(osInstanceA);
-assetScrollbarClickStopsPropagation(osInstanceB);
-assetScrollbarClickStopsPropagation(osInstanceC);
-assetScrollbarClickStopsPropagation(osInstanceD);
-assetScrollbarClickStopsPropagation(osInstanceBody);
+assertScrollbarClickStopsPropagation(osInstanceA);
+assertScrollbarClickStopsPropagation(osInstanceB);
+assertScrollbarClickStopsPropagation(osInstanceC);
+assertScrollbarClickStopsPropagation(osInstanceD);
+assertScrollbarClickStopsPropagation(osInstanceBody);
+
 scrollInstances();
