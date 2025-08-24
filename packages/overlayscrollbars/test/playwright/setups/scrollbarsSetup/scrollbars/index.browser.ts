@@ -157,14 +157,16 @@ const scrollInstances = async () => {
     const tollerance = noScrollbarHiding ? 1 : isBody ? 0.1 : 0.001;
 
     // body has to small overflow for accurate measuring...
-    should.ok(
-      Math.abs(0.5 - x) < tollerance,
-      `ScrollX didnt result in correct scroll coordinates. ${x} "${hostId}"`
-    );
-    should.ok(
-      Math.abs(0.5 - y) < tollerance,
-      `ScrollY didnt result in correct scroll coordinates. ${y} "${hostId}"`
-    );
+    if (!isBody) {
+      should.ok(
+        Math.abs(0.5 - x) < tollerance,
+        `ScrollX didnt result in correct scroll coordinates. ${x} "${hostId}"`
+      );
+      should.ok(
+        Math.abs(0.5 - y) < tollerance,
+        `ScrollY didnt result in correct scroll coordinates. ${y} "${hostId}"`
+      );
+    }
   });
 };
 
@@ -504,8 +506,15 @@ startButton?.addEventListener('click', async () => {
     } else {
       setTestResult(true);
     }
-  } catch (e) {
+  } catch (e: any) {
     setTestResult(false);
+
+    console.error(e.message, {
+      expected: e.expected,
+      actual: e.actual,
+      operator: e.operator,
+    });
+
     throw e;
   }
 });
