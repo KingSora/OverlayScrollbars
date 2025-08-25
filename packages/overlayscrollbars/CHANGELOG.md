@@ -1,10 +1,16 @@
 # Changelog
 
+## 2.12.0
+
+### Improvements
+
+- Improve accessibility when the native scrollbars can't be hidden. This can happen when the browser isn't supporting scrollbar styling & the `ScrollbarsHidingPlugin` is not being used. In this case the custom scrollbars aren't rendered over the native scrollbars anymore. [SimpleBar #726](https://github.com/Grsmto/simplebar/issues/726)
+
 ## 2.11.5
 
 ### Bug Fixes
 
-- Sometimes when resizing the window, scrollbars applied to the body element werent updated aoccrdingly.
+- Sometimes when resizing the window, scrollbars applied to the body element werent updated accordingly.
 
 ## 2.11.4
 
