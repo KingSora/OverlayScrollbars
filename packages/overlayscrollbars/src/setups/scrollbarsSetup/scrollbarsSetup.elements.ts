@@ -38,6 +38,7 @@ import {
   getScrollCoordinatesPercent,
   isDefaultDirectionScrollCoordinates,
   roundCssNumber,
+  selfClearTimeout,
 } from '../../support';
 
 export interface ScrollbarStructure {
@@ -118,11 +119,13 @@ export const createScrollbarsSetupElements = (
     if (scrollT) {
       let currAnimation: Animation | null = null;
       let currAnimationTransform: string[] = [];
+      const [setAnimationTimeout, clearAnimationTimeout] = selfClearTimeout();
       const timeline = new scrollT({
         source: _scrollOffsetElement,
         axis,
       });
       const cancelAnimation = () => {
+        clearAnimationTimeout();
         if (currAnimation) {
           currAnimation.cancel();
         }
@@ -135,10 +138,11 @@ export const createScrollbarsSetupElements = (
         const isHorizontal = axis === 'x';
         const transformArray = [
           getTrasformTranslateValue(0, isHorizontal),
-          getTrasformTranslateValue(`calc(100cq${isHorizontal ? 'w' : 'h'} + -100%)`, isHorizontal),
+          getTrasformTranslateValue(`calc(-100% + 100cq${isHorizontal ? 'w' : 'h'})`, isHorizontal),
         ];
         const transform = defaultDirectionScroll ? transformArray : transformArray.reverse();
 
+        // if the animation keyframes are identical, do nothing and keep current animation
         if (
           currAnimationTransform[0] === transform[0] &&
           currAnimationTransform[1] === transform[1]
@@ -146,21 +150,26 @@ export const createScrollbarsSetupElements = (
           return cancelAnimation;
         }
 
-        cancelAnimation();
         currAnimationTransform = transform;
-        currAnimation = structure._handle.animate(
-          {
-            // dummy keyframe which fixes bug where the scrollbar handle is reverted to origin position when it should be at its max position
-            clear: ['left'],
-            // transform is a temporary fix for: https://github.com/KingSora/OverlayScrollbars/issues/705
-            // can be reverted to just animate "cssCustomPropScrollPercent" when browsers implement an optimization possibility
-            transform,
-            // [cssCustomPropScrollPercent]: [0, 1],
-          },
-          {
-            timeline,
-          }
-        );
+
+        // timeout is just a workaround for incorrect safari implementation
+        // more info: https://github.com/KingSora/OverlayScrollbars/issues/735
+        setAnimationTimeout(() => {
+          cancelAnimation();
+          currAnimation = structure._handle.animate(
+            {
+              // dummy keyframe which fixes bug where the scrollbar handle is reverted to origin position when it should be at its max position
+              clear: ['left'],
+              // transform is a temporary fix for: https://github.com/KingSora/OverlayScrollbars/issues/705
+              // can be reverted to just animate "cssCustomPropScrollPercent" when browsers implement an optimization possibility
+              transform,
+              // [cssCustomPropScrollPercent]: [0, 1],
+            },
+            {
+              timeline,
+            }
+          );
+        });
 
         return cancelAnimation;
       };
