@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.12.1
+
+### Improvements
+
+- Workaround a bug in Safari 26 where `element.animate()` animations won't update when `container-query` units are used. [#735](https://github.com/KingSora/OverlayScrollbars/issues/735)
+
 ## 2.12.0
 
 ### Improvements
