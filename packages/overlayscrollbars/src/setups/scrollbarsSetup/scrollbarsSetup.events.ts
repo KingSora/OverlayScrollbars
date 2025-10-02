@@ -216,6 +216,7 @@ export const createScrollbarsSetupEvents = (
       !_viewportIsTarget &&
         addEventListener(_scrollbar, 'mousedown', () => {
           const focusedElement = getFocusedElement();
+          // dont steal focus from buttons or other interactive elements
           if (
             hasAttr(focusedElement, dataAttributeViewport) ||
             hasAttr(focusedElement, dataAttributeHost) ||
