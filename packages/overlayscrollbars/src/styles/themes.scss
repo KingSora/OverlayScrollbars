@@ -51,7 +51,10 @@
   border: var(--os-track-border);
   border-radius: var(--os-track-border-radius);
   background: var(--os-track-bg);
-  transition: opacity 0.15s, background-color 0.15s, border-color 0.15s;
+  transition:
+    opacity 0.15s,
+    background-color 0.15s,
+    border-color 0.15s;
 
   &:hover {
     border: var(--os-track-border-hover);
@@ -112,7 +115,11 @@
     min-width: var(--os-handle-min-size);
     max-width: var(--os-handle-max-size);
     height: var(--os-handle-perpendicular-size);
-    transition: opacity 0.15s, background-color 0.15s, border-color 0.15s, height 0.15s;
+    transition:
+      opacity 0.15s,
+      background-color 0.15s,
+      border-color 0.15s,
+      height 0.15s;
 
     &:before {
       top: calc((var(--os-padding-perpendicular) + var(--os-handle-interactive-area-offset)) * -1);
@@ -149,7 +156,11 @@
     min-height: var(--os-handle-min-size);
     max-height: var(--os-handle-max-size);
     width: var(--os-handle-perpendicular-size);
-    transition: opacity 0.15s, background-color 0.15s, border-color 0.15s, width 0.15s;
+    transition:
+      opacity 0.15s,
+      background-color 0.15s,
+      border-color 0.15s,
+      width 0.15s;
 
     &:before {
       left: calc((var(--os-padding-perpendicular) + var(--os-handle-interactive-area-offset)) * -1);
@@ -187,8 +198,6 @@ $os-theme-dark-light-padding-perpendicular: 2px;
 $os-theme-dark-light-padding-axis: 2px;
 $os-theme-dark-light-track-border-radius: 10px;
 $os-theme-dark-light-handle-border-radius: 10px;
-$os-theme-dark-light-handle-min-size: 33px;
-$os-theme-dark-light-handle-max-size: none;
 $os-theme-dark-light-handle-interactive-area-offset: 4px;
 
 $os-theme-dark-handle-bg: rgba(0, 0, 0, 0.44);
