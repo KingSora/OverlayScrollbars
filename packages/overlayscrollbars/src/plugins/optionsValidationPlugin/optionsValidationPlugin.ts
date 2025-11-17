@@ -38,6 +38,7 @@ export const OptionsValidationPlugin = /* @__PURE__ */ (() => ({
           attributes: arrayNullValues,
           debounce: [oTypes.number, oTypes.array, oTypes.null], // number || number array || null
           ignoreMutation: [oTypes.function, oTypes.null], // function || null
+          alwaysDebounceResize: booleanAllowedValues, // true || false
         },
         overflow: {
           x: overflowAllowedValues, // visible-hidden  || visible-scroll || hidden || scroll

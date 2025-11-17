@@ -193,12 +193,14 @@ export const createObserversSetup = (
   };
 
   const onSizeChanged = ({ _sizeChanged, _appear }: SizeObserverCallbackParams) => {
+    const [alwaysDebounceResize] = getCurrentOption('update.alwaysDebounceResize');
     const exclusiveSizeChange = _sizeChanged && !_appear;
     const updateFn =
-      // use debounceed update:
-      // if native scrollbars hiding is supported
-      // and if the update is more than just a exclusive sizeChange (e.g. size change + appear, or size change + direction)
-      !exclusiveSizeChange && env._nativeScrollbarsHiding
+      // use debounced update:
+      // if alwaysDebounceResize option is enabled
+      // or if both native scrollbars hiding is supported
+      // and the update is more than just a exclusive sizeChange (e.g. size change + appear, or size change + direction)
+      alwaysDebounceResize || (!exclusiveSizeChange && env._nativeScrollbarsHiding)
         ? onObserversUpdatedDebounced
         : onObserversUpdated;
 

@@ -178,6 +178,15 @@ export type Options = {
      * @returns A Truthy value if the mutation shall be ignored, a falsy value otherwise.
      */
     ignoreMutation: ((mutation: MutationRecord) => any) | null;
+    /**
+     * Forces the `ResizeObserver` to be debounced, using the same timing as `update.debounce`.
+     * By default (`false`), the plugin responds *immediately* to resize events to keep the scrollbar in sync.
+     * Set this to `true` to prevent performance issues (like jank and layout thrashing) during CSS `height` or `width` animations.
+     *
+     * **Note:** This option requires `update.debounce` to be set to a valid number or tuple to have any effect.
+     * @see update.debounce
+     */
+    alwaysDebounceResize: boolean;
   };
   /** Customizes the overflow behavior per axis. */
   overflow: {
@@ -230,6 +239,7 @@ export const defaultOptions: ReadonlyOptions = {
     debounce: [0, 33],
     attributes: null,
     ignoreMutation: null,
+    alwaysDebounceResize: false,
   },
   overflow: {
     x: 'scroll',

@@ -388,6 +388,7 @@ const defaultOptions = {
     debounce: [0, 33],
     attributes: null,
     ignoreMutation: null,
+    alwaysDebounceResize: false,
   },
   overflow: {
     x: 'scroll',
@@ -457,6 +458,20 @@ An array of additional attributes that the `MutationObserver` should observe the
 | `((mutation) => any) \| null` | `null` |
 
 A function which receives a [`MutationRecord`](https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord) as an argument. If the function returns a truthy value the mutation will be ignored and the plugin won't update. **Useful to fine-tune performance.**
+
+### `update.alwaysDebounceResize`
+
+| type  | default |
+| :--- | :--- |
+| `boolean` | `false` |
+
+Forces the `ResizeObserver` to be debounced, using the same timing as `update.debounce`.
+By default (`false`), the plugin responds _immediately_ to simple resize events (like CSS height/width transitions) to keep the scrollbar in sync.
+Set this to `true` to prevent performance issues (like jank and layout thrashing) during CSS `height` or `width` animations.
+
+**Note:** This option requires `update.debounce` to be set to a valid number or tuple to have any effect.
+
+**Useful to fine-tune performance.**
 
 ### `overflow.x`
 
@@ -581,6 +596,15 @@ type Options = {
     attributes: string[] | null;
     // A function which makes it possible to ignore a content mutation or null if nothing should be ignored.
     ignoreMutation: ((mutation: MutationRecord) => any) | null;
+    /**
+     * Forces the `ResizeObserver` to be debounced, using the same timing as `update.debounce`.
+     * By default (`false`), the plugin responds *immediately* to resize events to keep the scrollbar in sync.
+     * Set this to `true` to prevent performance issues (like jank and layout thrashing) during CSS `height` or `width` animations.
+     *
+     * **Note:** This option requires `update.debounce` to be set to a valid number or tuple to have any effect.
+     * @see update.debounce
+     */
+    alwaysDebounceResize: boolean;
   };
   // Customizes the overflow behavior per axis.
   overflow: {
