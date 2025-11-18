@@ -144,6 +144,19 @@ export type ScrollbarsAutoHideBehavior =
 export type ScrollbarsClickScrollBehavior = boolean | 'instant';
 
 /**
+ * A debounce value:
+ * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds.
+ * If a single number customizes only the `timeout`.
+ * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
+ */
+export type OptionsDebounceValue = [timeout: number, maxWait: number] | number | null;
+
+/**
+ * @deprecated Use the object structure `{ mutation: ... }` instead to allow for a more fine-tuned control.
+ */
+export type OptionsDebounceLegacy = OptionsDebounceValue;
+
+/**
  * The options of a OverlayScrollbars instance.
  */
 export type Options = {
@@ -161,12 +174,25 @@ export type Options = {
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
     /**
      * The debounce which is used to detect content changes.
-     * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds.
-     * If a single number customizes only the `timeout`.
+     *
+     * It is possible to fine-tune performance of resizes, events and mutations.
+     * If a number or tuple is directly passed, it is treated as the debounce for `mutation`.
+     *
+     * By using a tuple you can customize the `timeout` and the `maxWait` in milliseconds.
+     * A single number only customizes the `timeout`.
      *
      * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
      */
-    debounce: [timeout: number, maxWait: number] | number | null;
+    debounce:
+      | {
+          /** Debounce any updates performed because of resizes */
+          resize?: OptionsDebounceValue;
+          /** Debounce any updates performed because of events */
+          event?: OptionsDebounceValue;
+          /** Debounce any updates performed because of mutations */
+          mutation?: OptionsDebounceValue;
+        }
+      | OptionsDebounceLegacy;
     /**
      * HTML attributes which will trigger an update if they're changed.
      * Basic attributes like `id`, `class`, `style` etc. are always observed and doesn't have to be added explicitly.

@@ -36,7 +36,7 @@ export const OptionsValidationPlugin = /* @__PURE__ */ (() => ({
         update: {
           elementEvents: arrayNullValues, // array of tuples || null
           attributes: arrayNullValues,
-          debounce: [oTypes.number, oTypes.array, oTypes.null], // number || number array || null
+          debounce: [oTypes.number, oTypes.array, oTypes.object, oTypes.null], // number || number array || object || null
           ignoreMutation: [oTypes.function, oTypes.null], // function || null
         },
         overflow: {
