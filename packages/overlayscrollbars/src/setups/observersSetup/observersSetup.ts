@@ -3,8 +3,9 @@ import type { ScrollbarsHidingPlugin } from '../../plugins';
 import type { SizeObserverCallbackParams } from '../../observers';
 import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
 import type { Setup, SetupUpdateInfo, StructureSetupState } from '../../setups';
-import type { CacheValues, WH } from '../../support';
+import type { CacheValues, DebounceLeading, DebounceTiming, WH } from '../../support';
 import type { PlainObject } from '../../typings';
+import { defaultOptionsUpdateDebounceEnv, defaultOptionsUpdateDebounceEvent } from '../../options';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '../../plugins';
 import {
   classNameScrollbar,
@@ -70,14 +71,11 @@ export const createObserversSetup = (
   getCurrentOption: OptionsCheckFn<Options>,
   onObserversUpdated: (updateHints: ObserversSetupUpdateHints) => void
 ): ObserversSetup => {
-  // Debounce values for each category
-  let debounceMutation: OptionsDebounceValue | false | undefined;
-  let debounceResize: OptionsDebounceValue | false | undefined;
-  let debounceEvent: OptionsDebounceValue | false | undefined;
-
-  // The active debounce timing for the next call
-  let activeDebounceTimeout: number | false | undefined;
-  let activeDebounceMaxDelay: number | false | undefined;
+  // latest debounce options
+  let debounceMutation: OptionsDebounceValue | undefined;
+  let debounceResize: OptionsDebounceValue | undefined;
+  let debounceEvent: OptionsDebounceValue | undefined;
+  let debounceEnv: OptionsDebounceValue | undefined;
 
   let updateContentMutationObserver: (() => void) | undefined;
   let destroyContentMutationObserver: (() => void) | undefined;
@@ -101,8 +99,51 @@ export const createObserversSetup = (
     _viewportAddRemoveClass,
     _removeScrollObscuringStyles,
   } = structureSetupElements;
-
   const getDirectionIsRTL = (elm: HTMLElement): boolean => getStyles(elm, 'direction') === 'rtl';
+  const createDebouncedObservesUpdate = () => {
+    let currDebounceTiming: DebounceTiming;
+    let currMaxDebounceTiming: DebounceTiming;
+    let currDebounceLeading: DebounceLeading;
+    const debouncedFn = debounce(onObserversUpdated, {
+      _debounceTiming: () => currDebounceTiming,
+      _maxDebounceTiming: () => currMaxDebounceTiming,
+      _leading: () => currDebounceLeading,
+      _mergeParams(prev, curr) {
+        const [prevObj] = prev;
+        const [currObj] = curr;
+        return [
+          concat(keys(prevObj), keys(currObj)).reduce((obj, key) => {
+            obj[key] = prevObj[key as keyof typeof prevObj] || currObj[key as keyof typeof currObj];
+            return obj;
+          }, {} as PlainObject),
+        ] as [Partial<ObserversSetupUpdateHints>];
+      },
+    });
+    const fn = (
+      updateHints: ObserversSetupUpdateHints,
+      debounceOption: OptionsDebounceValue | false | undefined
+    ) => {
+      if (isArray(debounceOption)) {
+        const [timing, maxTiming, leading] = debounceOption;
+        currDebounceTiming = timing;
+        currMaxDebounceTiming = maxTiming;
+        currDebounceLeading = leading;
+      } else if (isNumber(debounceOption)) {
+        currDebounceTiming = debounceOption;
+        currMaxDebounceTiming = false;
+        currDebounceLeading = false;
+      } else {
+        currDebounceTiming = false;
+        currMaxDebounceTiming = false;
+        currDebounceLeading = false;
+      }
+
+      debouncedFn(updateHints);
+    };
+    fn._flush = debouncedFn._flush;
+
+    return fn;
+  };
 
   const state: ObserversSetupState = {
     _heightIntrinsic: false,
@@ -112,7 +153,6 @@ export const createObserversSetup = (
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
   );
-
   const [updateContentSizeCache] = createCache<WH<number>>(
     {
       _equal: equalWH,
@@ -159,45 +199,13 @@ export const createObserversSetup = (
       };
     }
   );
-
-  // Sets the active debounce timing variables based on a specific option
-  const setActiveDebounce = (debounceOption: OptionsDebounceValue | false | undefined) => {
-    if (isArray(debounceOption)) {
-      const [timeout, maxWait] = debounceOption;
-      activeDebounceTimeout = timeout;
-      activeDebounceMaxDelay = maxWait;
-    } else if (isNumber(debounceOption)) {
-      activeDebounceTimeout = debounceOption;
-      activeDebounceMaxDelay = false;
-    } else {
-      activeDebounceTimeout = false;
-      activeDebounceMaxDelay = false;
-    }
-  };
-
-  const onObserversUpdatedDebounced = debounce(onObserversUpdated, {
-    // Dynamically return the active timeout/maxWait
-    _debounceTiming: () => activeDebounceTimeout,
-    _maxDebounceTiming: () => activeDebounceMaxDelay,
-    _mergeParams(prev, curr) {
-      const [prevObj] = prev;
-      const [currObj] = curr;
-      return [
-        concat(keys(prevObj), keys(currObj)).reduce((obj, key) => {
-          obj[key] = prevObj[key as keyof typeof prevObj] || currObj[key as keyof typeof currObj];
-          return obj;
-        }, {} as PlainObject),
-      ] as [Partial<ObserversSetupUpdateHints>];
-    },
-  });
-
+  const onObserversUpdatedDebounced = createDebouncedObservesUpdate();
   const setDirection = (updateHints: ObserversSetupUpdateHints) => {
     const newDirectionIsRTL = getDirectionIsRTL(_target);
     assignDeep(updateHints, { _directionChanged: prevDirectionIsRTL !== newDirectionIsRTL });
     assignDeep(state, { _directionIsRTL: newDirectionIsRTL });
     prevDirectionIsRTL = newDirectionIsRTL;
   };
-
   const onTrinsicChanged = (
     heightIntrinsicCache: CacheValues<boolean>,
     fromRecords?: true
@@ -215,33 +223,17 @@ export const createObserversSetup = (
 
     return updateHints;
   };
-
   const onSizeChanged = ({ _sizeChanged, _appear }: SizeObserverCallbackParams) => {
-    const exclusiveSizeChange = _sizeChanged && !_appear;
-    let updateFn = onObserversUpdated;
-
-    // If we have a specific resize debounce setting, use it
-    if (debounceResize) {
-      setActiveDebounce(debounceResize);
-      updateFn = onObserversUpdatedDebounced;
-    } else if (!exclusiveSizeChange && env._nativeScrollbarsHiding) {
-      // Otherwist fallback to old behavior:
-      // if native scrollbars hiding is supported
-      // and if the update is more than just a exclusive sizeChange (e.g. size change + appear, or size change + direction)
-      setActiveDebounce(debounceMutation);
-      updateFn = onObserversUpdatedDebounced;
-    }
-
+    // only don't debounce appear since it shouldn't happen that frequently
+    const updateFn = _appear ? onObserversUpdated : onObserversUpdatedDebounced;
     const updateHints: ObserversSetupUpdateHints = {
       _sizeChanged: _sizeChanged || _appear,
       _appear,
     };
 
     setDirection(updateHints);
-
-    updateFn(updateHints);
+    updateFn(updateHints, debounceResize);
   };
-
   const onContentMutation = (
     contentChangedThroughEvent: boolean,
     fromRecords?: true
@@ -253,27 +245,15 @@ export const createObserversSetup = (
 
     setDirection(updateHints);
 
-    let updateFn = onObserversUpdated;
-
-    // If content changed through an event (e.g. img load), check for event debounce
-    if (contentChangedThroughEvent) {
-      if (debounceEvent) {
-        setActiveDebounce(debounceEvent);
-        updateFn = onObserversUpdatedDebounced;
-      }
-    } else if (debounceMutation) {
-      // Otherwise use mutation debounce
-      setActiveDebounce(debounceMutation);
-      updateFn = onObserversUpdatedDebounced;
-    }
-
     if (_contentMutation && !fromRecords) {
-      updateFn(updateHints);
+      onObserversUpdatedDebounced(
+        updateHints,
+        contentChangedThroughEvent ? debounceEvent : debounceMutation
+      );
     }
 
     return updateHints;
   };
-
   const onHostMutation = (
     targetChangedAttrs: string[],
     targetStyleChanged: boolean,
@@ -286,12 +266,7 @@ export const createObserversSetup = (
     setDirection(updateHints);
 
     if (targetStyleChanged && !fromRecords) {
-      if (debounceMutation) {
-        setActiveDebounce(debounceMutation);
-        onObserversUpdatedDebounced(updateHints);
-      } else {
-        onObserversUpdated(updateHints);
-      }
+      onObserversUpdatedDebounced(updateHints, debounceMutation);
     }
     /*
     else if (!_viewportIsTarget) {
@@ -301,17 +276,14 @@ export const createObserversSetup = (
 
     return updateHints;
   };
-
   const [constructTrinsicObserver, updateTrinsicObserver] = _content
     ? createTrinsicObserver(_host, onTrinsicChanged)
     : [];
-
   const constructSizeObserver =
     !_viewportIsTarget &&
     createSizeObserver(_host, onSizeChanged, {
       _appear: true,
     });
-
   const [constructHostMutationObserver, updateHostMutationObserver] = createDOMObserver(
     _host,
     false,
@@ -321,7 +293,6 @@ export const createObserversSetup = (
       _attributes: baseStyleChangingAttrs,
     }
   );
-
   const viewportIsTargetResizeObserver =
     _viewportIsTarget &&
     ResizeObserverConstructor &&
@@ -333,16 +304,6 @@ export const createObserversSetup = (
       });
       prevContentRect = currContentRect;
     });
-  const onWindowResizeDebounced = debounce(
-    () => {
-      const [, _contentMutation] = updateContentSizeCache();
-      onObserversUpdated({ _contentMutation, _sizeChanged: _isBody });
-    },
-    {
-      _debounceTiming: 222,
-      _leading: true,
-    }
-  );
 
   return [
     () => {
@@ -355,12 +316,11 @@ export const createObserversSetup = (
       const destroyTrinsicObserver = constructTrinsicObserver && constructTrinsicObserver();
       const destroyHostMutationObserver = constructHostMutationObserver();
       const removeResizeListener = env._addResizeListener((_scrollbarSizeChanged) => {
-        if (_scrollbarSizeChanged) {
-          setActiveDebounce(debounceMutation);
-          onObserversUpdatedDebounced({ _scrollbarSizeChanged });
-        } else {
-          onWindowResizeDebounced();
-        }
+        const [, _contentMutation] = updateContentSizeCache();
+        onObserversUpdatedDebounced(
+          { _scrollbarSizeChanged, _contentMutation, _sizeChanged: _isBody },
+          debounceEnv
+        );
       });
 
       return () => {
@@ -429,20 +389,23 @@ export const createObserversSetup = (
 
       if (debounceChanged) {
         onObserversUpdatedDebounced._flush();
-        // Parse and distribute the debounce option
+        // parse and distribute the debounce option
         if (isArray(debounceValue) || isNumber(debounceValue)) {
-          // Deprecated behavior: Value applies to Mutation. Resize and Event are null.
+          // deprecated behavior: Value applies to mutation. resize and event are undefined
           debounceMutation = debounceValue;
-          debounceResize = undefined;
-          debounceEvent = undefined;
+          debounceResize = false;
+          debounceEvent = defaultOptionsUpdateDebounceEvent;
+          debounceEnv = defaultOptionsUpdateDebounceEnv;
         } else if (isPlainObject(debounceValue)) {
           debounceMutation = debounceValue.mutation;
           debounceResize = debounceValue.resize;
           debounceEvent = debounceValue.event;
+          debounceEnv = debounceValue.env;
         } else {
-          debounceMutation = undefined;
-          debounceResize = undefined;
-          debounceEvent = undefined;
+          debounceMutation = false;
+          debounceResize = false;
+          debounceEvent = false;
+          debounceEnv = false;
         }
       }
 

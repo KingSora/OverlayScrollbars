@@ -2,7 +2,6 @@
 import {
   each,
   noop,
-  debounce,
   MutationObserverConstructor,
   addEventListener,
   is,
@@ -165,13 +164,9 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     _ignoreTargetChange,
     _ignoreContentChange,
   } = (options as DOMContentObserverOptions & DOMTargetObserverOptions) || {};
-  const debouncedEventContentChange = debounce(
-    () => isConnected && (callback as DOMContentObserverCallback)(true),
-    { _debounceTiming: 33, _maxDebounceTiming: 99 }
-  );
   const [destroyEventContentChange, updateEventContentChangeElements] = createEventContentChange(
     target,
-    debouncedEventContentChange,
+    () => isConnected && (callback as DOMContentObserverCallback)(true),
     _eventContentChange
   );
 
@@ -301,7 +296,6 @@ export const createDOMObserver = <ContentObserver extends boolean>(
     },
     () => {
       if (isConnected) {
-        debouncedEventContentChange._flush();
         return observerCallback(true, mutationObserver.takeRecords());
       }
     },

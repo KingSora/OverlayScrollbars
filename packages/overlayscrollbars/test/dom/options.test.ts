@@ -10,7 +10,12 @@ describe('options', () => {
       showNativeOverlaidScrollbars: false,
       update: {
         elementEvents: [['img', 'load']],
-        debounce: [0, 33],
+        debounce: {
+          mutation: [0, 33],
+          resize: null,
+          event: [33, 99],
+          env: [222, 666, true],
+        },
         attributes: null,
         ignoreMutation: null,
       },

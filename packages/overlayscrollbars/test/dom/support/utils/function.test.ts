@@ -535,6 +535,52 @@ describe('function', () => {
           vi.advanceTimersByTime(500);
           expect(i).toBe(2);
         });
+
+        test('with leading function', async () => {
+          let i = 0;
+          let leading = false;
+          const debouncedFn = debounce(
+            () => {
+              i += 1;
+            },
+            { _debounceTiming: 200, _leading: () => leading }
+          );
+
+          expect(i).toBe(0);
+
+          debouncedFn();
+          expect(i).toBe(0);
+
+          debouncedFn();
+          expect(i).toBe(0);
+          vi.advanceTimersByTime(250);
+          expect(i).toBe(1);
+
+          leading = true;
+
+          debouncedFn();
+          expect(i).toBe(2);
+
+          debouncedFn();
+          expect(i).toBe(2);
+          vi.advanceTimersByTime(250);
+          expect(i).toBe(3);
+
+          leading = false;
+
+          debouncedFn();
+          expect(i).toBe(3);
+
+          leading = true;
+
+          debouncedFn();
+          expect(i).toBe(4);
+          vi.advanceTimersByTime(250);
+          expect(i).toBe(4);
+
+          vi.runAllTimers();
+          expect(i).toBe(4);
+        });
       });
 
       describe('max debounce timing', () => {

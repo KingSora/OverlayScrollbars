@@ -6,6 +6,7 @@ import { rAF, cAF, setT, clearT } from './alias';
 type DebouncerFn = (task: () => void) => () => void;
 
 export type DebounceTiming = { _debouncer: DebouncerFn } | number | false | null | undefined;
+export type DebounceLeading = boolean | null | undefined;
 
 export interface DebounceOptions<FunctionToDebounce extends (...args: any) => any> {
   /**
@@ -19,7 +20,7 @@ export interface DebounceOptions<FunctionToDebounce extends (...args: any) => an
   /**
    * Defines the calling on the leading edge of the timeout.
    */
-  _leading?: boolean;
+  _leading?: DebounceLeading | (() => DebounceLeading);
   /**
    * Function which merges parameters for each canceled debounce.
    * If parameters can't be merged the function will return null, otherwise it returns the merged parameters.
@@ -135,6 +136,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
     const timeoutDebouncer = getDebouncer(_timeout);
 
     if (timeoutDebouncer) {
+      const leading = typeof _leading === 'function' ? _leading() : _leading;
       const maxDelayDebouncer = getDebouncer(_maxDelay);
       const mergeParamsResult = mergeParms(args);
       const invokedArgs = mergeParamsResult || args;
@@ -144,7 +146,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
         cancelTimeoutDebounder();
       }
 
-      if (_leading && !leadingInvoked) {
+      if (leading && !leadingInvoked) {
         boundInvoke();
         leadingInvoked = true;
         cancelTimeoutDebounder = timeoutDebouncer(() => (leadingInvoked = undefined));
