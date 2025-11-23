@@ -385,7 +385,12 @@ const defaultOptions = {
   showNativeOverlaidScrollbars: false,
   update: {
     elementEvents: [['img', 'load']],
-    debounce: [0, 33],
+    debounce: {
+      mutation: [0, 33],
+      resize: null,
+      event: [33, 99],
+      env: [222, 666, true],
+    },
     attributes: null,
     ignoreMutation: null,
   },
@@ -434,7 +439,7 @@ An array of tuples. The first value in the tuple is an `selector` and the second
 
 Options to debounce updates to fine-tune performance.
 
-Each field in this object has the following type:
+Each **field** in this object has the following type:
 | type  | default |
 | :--- | :--- |
 | `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `null` |
@@ -448,7 +453,7 @@ If a `number` is specified it is treated as the timeout in milliseconds.
 
 If `null` is specified no debounce will take place.
 
-> __Note__: If 0 is used for the timeout, `requestAnimationFrame` will be used instead of `setTimeout` for the debounce.
+> __Note__: If 0 is used as the timeout, `requestAnimationFrame` will be used instead of `setTimeout` for the debounce.
 
 ### `update.debounce.mutation`
 
