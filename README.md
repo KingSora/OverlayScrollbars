@@ -434,11 +434,22 @@ An array of tuples. The first value in the tuple is an `selector` and the second
 
 | type  | default |
 | :--- | :--- |
-| `[number, number] \| number \| null` | `[0, 33]` |
+| `object \| [number, number] \| number \| null` | `[0, 33]` |
 
 > __Note__: If 0 is used for the timeout, `requestAnimationFrame` will be used instead of `setTimeout` for the debounce.
 
-Debounces the `MutationObserver` which tracks changes to the content. If a **tuple** is passed, the first value is the timeout and second is the max wait. If only a **number** it is treated as the timeout and there is no max wait. With **null** there is no debounce. **Useful to fine-tune performance.**
+Debounces the internal observers to fine-tune performance.
+
+**Recommended (Object):**
+Pass an object to configure specific events. Each value can be a **number** (timeout), a **tuple** `[timeout, maxWait]`, or **null** (no debounce).
+
+* `mutation`: Debounce for content mutations.
+* `resize`: Debounce for resize events.
+* `event`: Debounce for events triggered by `update.elementEvents`.
+
+**Legacy (Deprecated):**
+
+Passing a **tuple** or **number** directly is deprecated and will be treated as the debounce for `mutation` only.
 
 ### `update.attributes`
 
@@ -568,12 +579,27 @@ type Options = {
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
     /**
      * The debounce which is used to detect content changes.
-     * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds.
-     * If a single number customizes only the `timeout`.
      *
-     * If the `timeout` is `0`, a debounce still exists (and is done via `requestAnimationFrame` instead of `setTimeout`).
+     * It is possible to fine-tune performance of resizes, events and mutations.
+     * If a number or tuple is directly passed, it is treated as the debounce for `mutation`.
+     *
+     * By using a tuple you can customize the `timeout` and the `maxWait` in milliseconds.
+     * A single number only customizes the `timeout`.
+     *
+     * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
      */
-    debounce: [timeout: number, maxWait: number] | number | null;
+    debounce:
+      | {
+          /** Debounce any updates performed because of resizes */
+          resize?: [timeout: number, maxWait: number] | number | null;
+          /** Debounce any updates performed because of events */
+          event?: [timeout: number, maxWait: number] | number | null;
+          /** Debounce any updates performed because of mutations */
+          mutation?: [timeout: number, maxWait: number] | number | null;
+        }
+      | [timeout: number, maxWait: number]
+      | number
+      | null;
     /**
      * HTML attributes which will trigger an update if they're changed.
      * Basic attributes like `id`, `class`, `style` etc. are always observed and don't have to be added explicitly.

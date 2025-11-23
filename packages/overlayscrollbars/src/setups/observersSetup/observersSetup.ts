@@ -1,4 +1,4 @@
-import type { Options, OptionsCheckFn } from '../../options';
+import type { Options, OptionsCheckFn, OptionsDebounceValue } from '../../options';
 import type { ScrollbarsHidingPlugin } from '../../plugins';
 import type { SizeObserverCallbackParams } from '../../observers';
 import type { StructureSetupElementsObj } from '../structureSetup/structureSetup.elements';
@@ -27,6 +27,7 @@ import {
   isArray,
   isFunction,
   isNumber,
+  isPlainObject,
   keys,
   liesBetween,
   getScrollSize,
@@ -69,8 +70,15 @@ export const createObserversSetup = (
   getCurrentOption: OptionsCheckFn<Options>,
   onObserversUpdated: (updateHints: ObserversSetupUpdateHints) => void
 ): ObserversSetup => {
-  let debounceTimeout: number | false | undefined;
-  let debounceMaxDelay: number | false | undefined;
+  // Debounce values for each category
+  let debounceMutation: OptionsDebounceValue | false | undefined;
+  let debounceResize: OptionsDebounceValue | false | undefined;
+  let debounceEvent: OptionsDebounceValue | false | undefined;
+
+  // The active debounce timing for the next call
+  let activeDebounceTimeout: number | false | undefined;
+  let activeDebounceMaxDelay: number | false | undefined;
+
   let updateContentMutationObserver: (() => void) | undefined;
   let destroyContentMutationObserver: (() => void) | undefined;
   let prevContentRect: DOMRectReadOnly | undefined;
@@ -152,9 +160,25 @@ export const createObserversSetup = (
     }
   );
 
+  // Sets the active debounce timing variables based on a specific option
+  const setActiveDebounce = (debounceOption: OptionsDebounceValue | false | undefined) => {
+    if (isArray(debounceOption)) {
+      const [timeout, maxWait] = debounceOption;
+      activeDebounceTimeout = timeout;
+      activeDebounceMaxDelay = maxWait;
+    } else if (isNumber(debounceOption)) {
+      activeDebounceTimeout = debounceOption;
+      activeDebounceMaxDelay = false;
+    } else {
+      activeDebounceTimeout = false;
+      activeDebounceMaxDelay = false;
+    }
+  };
+
   const onObserversUpdatedDebounced = debounce(onObserversUpdated, {
-    _debounceTiming: () => debounceTimeout,
-    _maxDebounceTiming: () => debounceMaxDelay,
+    // Dynamically return the active timeout/maxWait
+    _debounceTiming: () => activeDebounceTimeout,
+    _maxDebounceTiming: () => activeDebounceMaxDelay,
     _mergeParams(prev, curr) {
       const [prevObj] = prev;
       const [currObj] = curr;
@@ -194,13 +218,19 @@ export const createObserversSetup = (
 
   const onSizeChanged = ({ _sizeChanged, _appear }: SizeObserverCallbackParams) => {
     const exclusiveSizeChange = _sizeChanged && !_appear;
-    const updateFn =
-      // use debounceed update:
+    let updateFn = onObserversUpdated;
+
+    // If we have a specific resize debounce setting, use it
+    if (debounceResize) {
+      setActiveDebounce(debounceResize);
+      updateFn = onObserversUpdatedDebounced;
+    } else if (!exclusiveSizeChange && env._nativeScrollbarsHiding) {
+      // Otherwist fallback to old behavior:
       // if native scrollbars hiding is supported
       // and if the update is more than just a exclusive sizeChange (e.g. size change + appear, or size change + direction)
-      !exclusiveSizeChange && env._nativeScrollbarsHiding
-        ? onObserversUpdatedDebounced
-        : onObserversUpdated;
+      setActiveDebounce(debounceMutation);
+      updateFn = onObserversUpdatedDebounced;
+    }
 
     const updateHints: ObserversSetupUpdateHints = {
       _sizeChanged: _sizeChanged || _appear,
@@ -223,8 +253,19 @@ export const createObserversSetup = (
 
     setDirection(updateHints);
 
-    // if contentChangedThroughEvent is true its already debounced
-    const updateFn = contentChangedThroughEvent ? onObserversUpdated : onObserversUpdatedDebounced;
+    let updateFn = onObserversUpdated;
+
+    // If content changed through an event (e.g. img load), check for event debounce
+    if (contentChangedThroughEvent) {
+      if (debounceEvent) {
+        setActiveDebounce(debounceEvent);
+        updateFn = onObserversUpdatedDebounced;
+      }
+    } else if (debounceMutation) {
+      // Otherwise use mutation debounce
+      setActiveDebounce(debounceMutation);
+      updateFn = onObserversUpdatedDebounced;
+    }
 
     if (_contentMutation && !fromRecords) {
       updateFn(updateHints);
@@ -245,7 +286,12 @@ export const createObserversSetup = (
     setDirection(updateHints);
 
     if (targetStyleChanged && !fromRecords) {
-      onObserversUpdatedDebounced(updateHints);
+      if (debounceMutation) {
+        setActiveDebounce(debounceMutation);
+        onObserversUpdatedDebounced(updateHints);
+      } else {
+        onObserversUpdated(updateHints);
+      }
     }
     /*
     else if (!_viewportIsTarget) {
@@ -310,6 +356,7 @@ export const createObserversSetup = (
       const destroyHostMutationObserver = constructHostMutationObserver();
       const removeResizeListener = env._addResizeListener((_scrollbarSizeChanged) => {
         if (_scrollbarSizeChanged) {
+          setActiveDebounce(debounceMutation);
           onObserversUpdatedDebounced({ _scrollbarSizeChanged });
         } else {
           onWindowResizeDebounced();
@@ -382,17 +429,20 @@ export const createObserversSetup = (
 
       if (debounceChanged) {
         onObserversUpdatedDebounced._flush();
-        if (isArray(debounceValue)) {
-          const timeout = debounceValue[0];
-          const maxWait = debounceValue[1];
-          debounceTimeout = isNumber(timeout) && timeout;
-          debounceMaxDelay = isNumber(maxWait) && maxWait;
-        } else if (isNumber(debounceValue)) {
-          debounceTimeout = debounceValue;
-          debounceMaxDelay = false;
+        // Parse and distribute the debounce option
+        if (isArray(debounceValue) || isNumber(debounceValue)) {
+          // Deprecated behavior: Value applies to Mutation. Resize and Event are null.
+          debounceMutation = debounceValue;
+          debounceResize = undefined;
+          debounceEvent = undefined;
+        } else if (isPlainObject(debounceValue)) {
+          debounceMutation = debounceValue.mutation;
+          debounceResize = debounceValue.resize;
+          debounceEvent = debounceValue.event;
         } else {
-          debounceTimeout = false;
-          debounceMaxDelay = false;
+          debounceMutation = undefined;
+          debounceResize = undefined;
+          debounceEvent = undefined;
         }
       }
 
