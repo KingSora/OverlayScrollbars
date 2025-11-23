@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import '~/index.scss';
 import './index.scss';
 import should from 'should';
@@ -176,8 +177,8 @@ const createContentDomOserver = (
         return isNestedTarget
           ? false
           : attributeName
-          ? liesBetween(target as Element, hostSelector, '.content')
-          : false;
+            ? liesBetween(target as Element, hostSelector, '.content')
+            : false;
       },
       _ignoreTargetChange: (_target, attrName, oldValue, newValue) => {
         if (attrName === 'class' && oldValue && newValue) {
@@ -196,7 +197,7 @@ let updateContentDomObserver: (() => void) | undefined;
 const createNewContentDomOserver = (
   eventContentChange: Array<[string?, string?] | null | undefined>
 ) => {
-  destroyContentDomObserver && destroyContentDomObserver();
+  destroyContentDomObserver?.();
   const [construct, update] = createContentDomOserver(eventContentChange);
   destroyContentDomObserver = construct();
   updateContentDomObserver = update;
@@ -278,7 +279,7 @@ const attrChangeListener = (attrChangeTarget: HTMLElement | null) =>
     !isClass && target.setAttribute(selectedValue, 'something');
   });
 const iterateAttrChange = async <
-  ChangeThrough extends DOMContentObserverResult | DOMTargetObserverResult
+  ChangeThrough extends DOMContentObserverResult | DOMTargetObserverResult,
 >(
   select: HTMLSelectElement | null,
   changeThrough?: ChangeThrough[],
@@ -455,6 +456,8 @@ const addRemoveImgElmsFn = async (changeless = false) => {
   await add();
   await add();
 
+  // debouncing is happening outside now!
+  /*
   // test event content change debounce
   const addMultiple = async () => {
     const { before, after, compare } = changedThrough(domContentObserverObservations);
@@ -501,6 +504,7 @@ const addRemoveImgElmsFn = async (changeless = false) => {
   };
 
   await addMultiple();
+  */
 
   // remove load event from image test
   const addChanged = async (

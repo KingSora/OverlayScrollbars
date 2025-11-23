@@ -145,14 +145,22 @@ export type ScrollbarsClickScrollBehavior = boolean | 'instant';
 
 /**
  * A debounce value:
- * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds.
- * If a single number customizes only the `timeout`.
+ * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds. The third value indicates whether the debounce is executed also on the leading edge.
+ * If a single number customizes only the `timeout` in milliseconds.
  * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
  */
-export type OptionsDebounceValue = [timeout: number, maxWait: number] | number | null;
+export type OptionsDebounceValue =
+  | [
+      timeout?: number | false | null | undefined,
+      maxWait?: number | false | null | undefined,
+      leading?: boolean | null | undefined,
+    ]
+  | number
+  | false
+  | null;
 
 /**
- * @deprecated Use the object structure `{ mutation: ... }` instead to allow for a more fine-tuned control.
+ * @deprecated Use the debounce object instead..
  */
 export type OptionsDebounceLegacy = OptionsDebounceValue;
 
@@ -185,12 +193,14 @@ export type Options = {
      */
     debounce:
       | {
-          /** Debounce any updates performed because of resizes */
-          resize?: OptionsDebounceValue;
-          /** Debounce any updates performed because of events */
-          event?: OptionsDebounceValue;
-          /** Debounce any updates performed because of mutations */
+          /** Debounce updates which were triggered by a MutationObserver. */
           mutation?: OptionsDebounceValue;
+          /** Debounce updates which were triggered by a ResizeObserver. */
+          resize?: OptionsDebounceValue;
+          /** Debounce updates which were triggered by a Event. */
+          event?: OptionsDebounceValue;
+          /** Debounce updates which were triggered by environmental changes. (e.g. zooming & window resize) */
+          env?: OptionsDebounceValue;
         }
       | OptionsDebounceLegacy;
     /**
@@ -248,12 +258,20 @@ export type OptionsCheckFn<O extends OptionsObject> = <P extends OptionsObjectFi
   path: P
 ) => [value: OptionsObjectFieldPathType<O, P>, changed: boolean];
 
+export const defaultOptionsUpdateDebounceMutation = [0, 33] satisfies OptionsDebounceValue;
+export const defaultOptionsUpdateDebounceEvent = [33, 99] satisfies OptionsDebounceValue;
+export const defaultOptionsUpdateDebounceEnv = [222, 666, true] satisfies OptionsDebounceValue;
 export const defaultOptions: ReadonlyOptions = {
   paddingAbsolute: false,
   showNativeOverlaidScrollbars: false,
   update: {
     elementEvents: [['img', 'load']],
-    debounce: [0, 33],
+    debounce: {
+      mutation: defaultOptionsUpdateDebounceMutation,
+      resize: null,
+      event: defaultOptionsUpdateDebounceEvent,
+      env: defaultOptionsUpdateDebounceEnv,
+    },
     attributes: null,
     ignoreMutation: null,
   },

@@ -432,24 +432,55 @@ An array of tuples. The first value in the tuple is an `selector` and the second
 
 ### `update.debounce`
 
+Options to debounce updates to fine-tune performance.
+
+Each field in this object has the following type:
 | type  | default |
 | :--- | :--- |
-| `object \| [number, number] \| number \| null` | `[0, 33]` |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `null` |
+
+The tuple type of `[timeout?: number, maxWait?: number, leading?: boolean]` has three values:
+- timeout: The timeout of the debounce in milliseconds.
+- maxWait: The max wait of the debounce in milliseconds.
+- leading: Indicates whether the debounce is executed also on the leading edge.
+
+If a `number` is specified it is treated as the timeout in milliseconds.
+
+If `null` is specified no debounce will take place.
 
 > __Note__: If 0 is used for the timeout, `requestAnimationFrame` will be used instead of `setTimeout` for the debounce.
 
-Debounces the internal observers to fine-tune performance.
+### `update.debounce.mutation`
 
-**Recommended (Object):**
-Pass an object to configure specific events. Each value can be a **number** (timeout), a **tuple** `[timeout, maxWait]`, or **null** (no debounce).
+| type  | default |
+| :--- | :--- |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `[0, 33]` |
 
-* `mutation`: Debounce for content mutations.
-* `resize`: Debounce for resize events.
-* `event`: Debounce for events triggered by `update.elementEvents`.
+Debounce updates which were triggered by a MutationObserver.
 
-**Legacy (Deprecated):**
+### `update.debounce.resize`
 
-Passing a **tuple** or **number** directly is deprecated and will be treated as the debounce for `mutation` only.
+| type  | default |
+| :--- | :--- |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `null` |
+
+Debounce updates which were triggered by a ResizeObserver.
+
+### `update.debounce.event`
+
+| type  | default |
+| :--- | :--- |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `[33, 99]` |
+
+Debounce updates which were triggered by a Event registered in the `update.elementEvents` option.
+
+### `update.debounce.env`
+
+| type  | default |
+| :--- | :--- |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `[222, 666, true]` |
+
+Debounce updates which were triggered by environmental changes. (e.g. zooming & window resize)
 
 ### `update.attributes`
 

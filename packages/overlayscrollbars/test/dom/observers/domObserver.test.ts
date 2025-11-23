@@ -328,63 +328,56 @@ describe('createDOMObserver', () => {
       expect(callback).toHaveBeenCalledTimes(5);
       expect(callback).toHaveBeenLastCalledWith(true);
 
-      // debounced to one update
       div.dispatchEvent(new Event('click'));
       div.dispatchEvent(new Event('keydown'));
       paragraph.dispatchEvent(new Event('click'));
       paragraph.dispatchEvent(new Event('keydown'));
       vi.runAllTimers();
 
-      expect(callback).toHaveBeenCalledTimes(6);
-      expect(callback).toHaveBeenLastCalledWith(true);
-
-      span.dispatchEvent(new Event('click'));
-      vi.runAllTimers();
-
-      expect(callback).toHaveBeenCalledTimes(7);
-      expect(callback).toHaveBeenLastCalledWith(true);
-
-      span.dispatchEvent(new Event('transitionend'));
-      vi.runAllTimers();
-
-      expect(callback).toHaveBeenCalledTimes(8);
-      expect(callback).toHaveBeenLastCalledWith(true);
-
-      span.dispatchEvent(new Event('animationend'));
-      vi.runAllTimers();
-
       expect(callback).toHaveBeenCalledTimes(9);
       expect(callback).toHaveBeenLastCalledWith(true);
 
       span.dispatchEvent(new Event('transitionend'));
-      span.dispatchEvent(new Event('animationend'));
       vi.runAllTimers();
 
       expect(callback).toHaveBeenCalledTimes(10);
       expect(callback).toHaveBeenLastCalledWith(true);
 
-      appendedDiv.dispatchEvent(new Event('click'));
+      span.dispatchEvent(new Event('animationend'));
       vi.runAllTimers();
 
       expect(callback).toHaveBeenCalledTimes(11);
+      expect(callback).toHaveBeenLastCalledWith(true);
+
+      span.dispatchEvent(new Event('transitionend'));
+      span.dispatchEvent(new Event('animationend'));
+      vi.runAllTimers();
+
+      expect(callback).toHaveBeenCalledTimes(13);
+      expect(callback).toHaveBeenLastCalledWith(true);
+
+      appendedDiv.dispatchEvent(new Event('click'));
+      vi.runAllTimers();
+
+      expect(callback).toHaveBeenCalledTimes(14);
       expect(callback).toHaveBeenLastCalledWith(true);
 
       // remove from target and trigger events from new location
       document.body.parentElement!.append(appendedDiv);
       await Promise.resolve();
 
-      expect(callback).toHaveBeenCalledTimes(12);
+      expect(callback).toHaveBeenCalledTimes(15);
       expect(callback).toHaveBeenLastCalledWith(false);
 
       span.dispatchEvent(new Event('transitionend'));
       vi.runAllTimers();
 
-      expect(callback).toHaveBeenCalledTimes(12);
+      expect(callback).toHaveBeenCalledTimes(15);
 
       appendedDiv.dispatchEvent(new Event('click'));
       vi.runAllTimers();
 
-      expect(callback).toHaveBeenCalledTimes(12);
+      expect(callback).toHaveBeenCalledTimes(15);
 
       destroy();
     });
@@ -431,11 +424,11 @@ describe('createDOMObserver', () => {
       div.dispatchEvent(new Event('click'));
       div.dispatchEvent(new Event('keydown'));
 
-      expect(callback).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledTimes(2);
 
       const change = update();
       expect(change).toBeFalsy();
-      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenCalledTimes(2);
 
       destroy();
     });
