@@ -160,7 +160,7 @@ export type OptionsDebounceValue =
   | null;
 
 /**
- * @deprecated Use the debounce object instead..
+ * @deprecated Use the debounce object instead.
  */
 export type OptionsDebounceLegacy = OptionsDebounceValue;
 
