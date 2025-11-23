@@ -447,7 +447,7 @@ Each **field** in this object has the following type:
 The tuple type of `[timeout?: number, maxWait?: number, leading?: boolean]` has three values:
 - timeout: The timeout of the debounce in milliseconds.
 - maxWait: The max wait of the debounce in milliseconds.
-- leading: Indicates whether the debounce is executed also on the leading edge.
+- leading: Indicates whether the debounce is also executed on the leading edge.
 
 If a `number` is specified it is treated as the timeout in milliseconds.
 
@@ -477,7 +477,7 @@ Debounce updates which were triggered by a ResizeObserver.
 | :--- | :--- |
 | `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `[33, 99]` |
 
-Debounce updates which were triggered by a Event registered in the `update.elementEvents` option.
+Debounce updates which were triggered by an event registered in the `update.elementEvents` option.
 
 ### `update.debounce.env`
 

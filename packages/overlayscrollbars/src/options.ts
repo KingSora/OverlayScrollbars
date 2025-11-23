@@ -145,8 +145,8 @@ export type ScrollbarsClickScrollBehavior = boolean | 'instant';
 
 /**
  * A debounce value:
- * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds. The third value indicates whether the debounce is executed also on the leading edge.
- * If a single number customizes only the `timeout` in milliseconds.
+ * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds. The third value `leading` indicates whether the debounce is also executed on the leading edge
+ * Only a number customizes the `timeout` in milliseconds.
  * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
  */
 export type OptionsDebounceValue =
