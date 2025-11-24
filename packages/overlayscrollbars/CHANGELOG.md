@@ -1,10 +1,10 @@
 # Changelog
 
-## 2.12.1
+## 2.13.0
 
-### Improvements
+### Features
 
-- Workaround a bug in Safari 26 where `element.animate()` animations won't update when `container-query` units are used. [#735](https://github.com/KingSora/OverlayScrollbars/issues/735)
+- Add fine grained debounce options via `options.debounce`. The option is now an object which results in more freedom / fine grained debounce options. A debounce can now be specified for `mutations`, `resizes`, `events` and `environmental changes` independently. The old `options.debounce` option syntax is still supported and works but its deprecated in favor of the new syntax. [#744](https://github.com/KingSora/OverlayScrollbars/issues/744) [#729](https://github.com/KingSora/OverlayScrollbars/issues/729)
 
 ## 2.12.0
 

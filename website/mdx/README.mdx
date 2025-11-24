@@ -362,7 +362,12 @@ const defaultOptions = {
   showNativeOverlaidScrollbars: false,
   update: {
     elementEvents: [['img', 'load']],
-    debounce: [0, 33],
+    debounce: {
+      mutation: [0, 33],
+      resize: null,
+      event: [33, 99],
+      env: [222, 666, true],
+    },
     attributes: null,
     ignoreMutation: null,
   },
@@ -409,13 +414,55 @@ An array of tuples. The first value in the tuple is an `selector` and the second
 
 ### `update.debounce`
 
+Options to debounce updates to fine-tune performance.
+
+Each **field** in this object has the following type:
 | type  | default |
 | :--- | :--- |
-| `[number, number] \| number \| null` | `[0, 33]` |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `null` |
 
-> __Note__: If 0 is used for the timeout, `requestAnimationFrame` will be used instead of `setTimeout` for the debounce.
+The tuple type of `[timeout?: number, maxWait?: number, leading?: boolean]` has three values:
+- timeout: The timeout of the debounce in milliseconds.
+- maxWait: The max wait of the debounce in milliseconds.
+- leading: Indicates whether the debounce is also executed on the leading edge.
 
-Debounces the `MutationObserver` which tracks changes to the content. If a **tuple** is passed, the first value is the timeout and second is the max wait. If only a **number** it is treated as the timeout and there is no max wait. With **null** there is no debounce. **Useful to fine-tune performance.**
+If a `number` is specified it is treated as the timeout in milliseconds.
+
+If `null` is specified no debounce will take place.
+
+> __Note__: If 0 is used as the timeout, `requestAnimationFrame` will be used instead of `setTimeout` for the debounce.
+
+### `update.debounce.mutation`
+
+| type  | default |
+| :--- | :--- |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `[0, 33]` |
+
+Debounce updates which were triggered by a MutationObserver.
+
+### `update.debounce.resize`
+
+| type  | default |
+| :--- | :--- |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `null` |
+
+Debounce updates which were triggered by a ResizeObserver.
+
+### `update.debounce.event`
+
+| type  | default |
+| :--- | :--- |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `[33, 99]` |
+
+Debounce updates which were triggered by an event registered in the `update.elementEvents` option.
+
+### `update.debounce.env`
+
+| type  | default |
+| :--- | :--- |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `[222, 666, true]` |
+
+Debounce updates which were triggered by environmental changes. (e.g. zooming & window resize)
 
 ### `update.attributes`
 
@@ -544,13 +591,19 @@ type Options = {
      */
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
     /**
-     * The debounce which is used to detect content changes.
-     * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds.
-     * If a single number customizes only the `timeout`.
-     *
-     * If the `timeout` is `0`, a debounce still exists (and is done via `requestAnimationFrame` instead of `setTimeout`).
+     * Options to debounce updates to fine-tune performance.
+     * It is possible to debounce updates caused by mutations, resizes, events and environmental changes.
      */
-    debounce: [timeout: number, maxWait: number] | number | null;
+    debounce: {
+      /** Debounce updates which were triggered by a MutationObserver. */
+      mutation: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
+      /** Debounce updates which were triggered by a ResizeObserver. */
+      resize: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
+      /** Debounce updates which were triggered by a Event. */
+      event: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
+      /** Debounce updates which were triggered by environmental changes. (e.g. zooming & window resize) */
+      env: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
+    };
     /**
      * HTML attributes which will trigger an update if they're changed.
      * Basic attributes like `id`, `class`, `style` etc. are always observed and don't have to be added explicitly.

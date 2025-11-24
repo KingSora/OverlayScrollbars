@@ -614,28 +614,19 @@ type Options = {
      */
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
     /**
-     * The debounce which is used to detect content changes.
-     *
-     * It is possible to fine-tune performance of resizes, events and mutations.
-     * If a number or tuple is directly passed, it is treated as the debounce for `mutation`.
-     *
-     * By using a tuple you can customize the `timeout` and the `maxWait` in milliseconds.
-     * A single number only customizes the `timeout`.
-     *
-     * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
+     * Options to debounce updates to fine-tune performance.
+     * It is possible to debounce updates caused by mutations, resizes, events and environmental changes.
      */
-    debounce:
-      | {
-          /** Debounce any updates performed because of resizes */
-          resize?: [timeout: number, maxWait: number] | number | null;
-          /** Debounce any updates performed because of events */
-          event?: [timeout: number, maxWait: number] | number | null;
-          /** Debounce any updates performed because of mutations */
-          mutation?: [timeout: number, maxWait: number] | number | null;
-        }
-      | [timeout: number, maxWait: number]
-      | number
-      | null;
+    debounce: {
+      /** Debounce updates which were triggered by a MutationObserver. */
+      mutation: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
+      /** Debounce updates which were triggered by a ResizeObserver. */
+      resize: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
+      /** Debounce updates which were triggered by a Event. */
+      event: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
+      /** Debounce updates which were triggered by environmental changes. (e.g. zooming & window resize) */
+      env: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
+    };
     /**
      * HTML attributes which will trigger an update if they're changed.
      * Basic attributes like `id`, `class`, `style` etc. are always observed and don't have to be added explicitly.

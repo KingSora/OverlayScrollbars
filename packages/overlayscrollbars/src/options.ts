@@ -91,7 +91,7 @@ const getPropByPath = <T>(obj: any, path: string): T =>
     ? `${path}`
         .split('.')
         .reduce((o, prop) => (o && hasOwnProperty(o, prop) ? o[prop] : undefined), obj)
-    : undefined;
+    : (undefined as T);
 
 /**
  * The overflow behavior of an axis.
@@ -181,26 +181,19 @@ export type Options = {
      */
     elementEvents: Array<[elementSelector: string, eventNames: string]> | null;
     /**
-     * The debounce which is used to detect content changes.
-     *
-     * It is possible to fine-tune performance of resizes, events and mutations.
-     * If a number or tuple is directly passed, it is treated as the debounce for `mutation`.
-     *
-     * By using a tuple you can customize the `timeout` and the `maxWait` in milliseconds.
-     * A single number only customizes the `timeout`.
-     *
-     * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
+     * Options to debounce updates to fine-tune performance.
+     * It is possible to debounce updates caused by mutations, resizes, events and environmental changes.
      */
     debounce:
       | {
           /** Debounce updates which were triggered by a MutationObserver. */
-          mutation?: OptionsDebounceValue;
+          mutation: OptionsDebounceValue;
           /** Debounce updates which were triggered by a ResizeObserver. */
-          resize?: OptionsDebounceValue;
+          resize: OptionsDebounceValue;
           /** Debounce updates which were triggered by a Event. */
-          event?: OptionsDebounceValue;
+          event: OptionsDebounceValue;
           /** Debounce updates which were triggered by environmental changes. (e.g. zooming & window resize) */
-          env?: OptionsDebounceValue;
+          env: OptionsDebounceValue;
         }
       | OptionsDebounceLegacy;
     /**
