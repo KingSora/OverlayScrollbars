@@ -440,9 +440,9 @@ An array of tuples. The first value in the tuple is an `selector` and the second
 Options to debounce updates to fine-tune performance.
 
 Each **field** in this object has the following type:
-| type  | default |
-| :--- | :--- |
-| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` | `null` |
+| type |
+| :--- |
+| `[timeout?: number, maxWait?: number, leading?: boolean] \| number \| null` |
 
 The tuple type of `[timeout?: number, maxWait?: number, leading?: boolean]` has three values:
 - timeout: The timeout of the debounce in milliseconds.
