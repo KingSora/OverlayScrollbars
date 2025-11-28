@@ -50,6 +50,8 @@ export interface SetupsUpdateInfo {
   _takeRecords?: boolean;
   /** Whether one or more scrollbars has been cloned. */
   _cloneScrollbar?: boolean;
+  /** Whether only overflow measurements should be refreshed. */
+  _measureOverflow?: boolean;
 }
 
 export interface SetupsUpdateHints {
@@ -69,7 +71,7 @@ export interface SetupsElements {
 
 export type Setups = [
   construct: () => () => void,
-  update: (updateInfo: SetupsUpdateInfo) => boolean,
+  update: (updateInfo: SetupsUpdateInfo, observerUpdateHints?: ObserversSetupUpdateHints) => boolean,
   getState: () => SetupsState,
   elements: SetupsElements,
   canceled: () => void,
@@ -125,10 +127,12 @@ export const createSetups = (
       _force: rawForce,
       _takeRecords,
       _cloneScrollbar,
+      _measureOverflow: rawMeasureOverflow,
     } = updateInfo;
 
     const _changedOptions = rawChangedOptions || {};
     const _force = !!rawForce || !cacheAndOptionsInitialized;
+    const _measureOverflow = !!rawMeasureOverflow;
     const baseUpdateInfoObj: SetupUpdateInfo = {
       _checkOption: createOptionCheck(options, _changedOptions, _force),
       _changedOptions,
@@ -152,6 +156,7 @@ export const createSetups = (
       assignDeep({}, baseUpdateInfoObj, {
         _observersState: observersSetupState,
         _observersUpdateHints: observersHints,
+        _measureOverflow,
       })
     );
 
@@ -159,13 +164,14 @@ export const createSetups = (
       assignDeep({}, baseUpdateInfoObj, {
         _observersUpdateHints: observersHints,
         _structureUpdateHints: structureHints,
+        _measureOverflow,
       })
     );
 
     const truthyObserversHints = updateHintsAreTruthy(observersHints);
     const truthyStructureHints = updateHintsAreTruthy(structureHints);
     const changed =
-      truthyObserversHints || truthyStructureHints || !isEmptyObject(_changedOptions) || _force;
+      truthyObserversHints || truthyStructureHints || !isEmptyObject(_changedOptions) || _force || _measureOverflow;
 
     cacheAndOptionsInitialized = true;
 
