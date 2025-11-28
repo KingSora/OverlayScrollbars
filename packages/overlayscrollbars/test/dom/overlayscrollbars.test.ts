@@ -542,6 +542,7 @@ describe('overlayscrollbars', () => {
       expect(osInstance.update()).toBe(false);
       expect(osInstance.update(false)).toBe(false);
       expect(osInstance.update(true)).toBe(true);
+      expect(osInstance.update({ measureOverflow: true })).toBe(true);
 
       // host mutation
       div.style.cursor = 'pointer';

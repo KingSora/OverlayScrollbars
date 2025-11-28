@@ -45,6 +45,7 @@ export interface StructureSetupState {
 export interface StructureSetupUpdateInfo extends SetupUpdateInfo {
   _observersState: ObserversSetupState;
   _observersUpdateHints?: ObserversSetupUpdateHints;
+  _measureOverflow?: boolean;
 }
 
 export type StructureSetupUpdateHints = {

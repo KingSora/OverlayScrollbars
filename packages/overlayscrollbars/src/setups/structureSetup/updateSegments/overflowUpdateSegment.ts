@@ -277,7 +277,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const [updateHasOverflowCache] = createCache<Partial<XY<boolean>>>(partialXYOptions);
   const [updateOverflowEdge, getCurrentOverflowEdgeCache] = createCache<WH<number>>(whCacheOptions);
   const [updateOverflowStyleCache] = createCache<Partial<XY<OverflowStyle>>>(partialXYOptions);
-  const [updateFlowDirectionStyles] = createCache<FlowDirectionStyles>(
+  const [updateFlowDirectionStyles, getCurrentFlowDirectionStyles] = createCache<FlowDirectionStyles>(
     {
       _equal: (currVal, newValu) => equal(currVal, newValu, flowDirectionStyleArr),
       _initialValue: {},
@@ -306,7 +306,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   };
 
   return (
-    { _checkOption, _observersUpdateHints, _observersState, _force },
+    { _checkOption, _observersUpdateHints, _observersState, _force, _measureOverflow },
     { _paddingStyleChanged }
   ) => {
     const {
@@ -343,6 +343,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _directionChanged ||
       _scrollbarSizeChanged ||
       showNativeOverlaidScrollbarsChanged;
+    const measureOverflowOnly = !!_measureOverflow && !viewportChanged;
 
     let sizeFractionCache = getCurrentSizeFraction(_force);
     let viewportScrollSizeCache = getCurrentViewportScrollSizeCache(_force);
@@ -353,16 +354,16 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _viewportAddRemoveClass(dataValueViewportScrollbarHidden, !showNativeOverlaidScrollbars);
     }
 
-    if (viewportChanged) {
-      if (hasAttrClass(_host, dataAttributeHost, dataValueNoClipping)) {
+    if (viewportChanged || _measureOverflow) {
+      if (!measureOverflowOnly && hasAttrClass(_host, dataAttributeHost, dataValueNoClipping)) {
         setMeasuringMode(true);
       }
 
-      const redoViewportArrange = _undoViewportArrange && _undoViewportArrange();
+      const redoViewportArrange = _undoViewportArrange && _undoViewportArrange() && !measureOverflowOnly;
 
-      const [sizeFraction] = (sizeFractionCache = updateSizeFraction(_force));
+      const [sizeFraction] = (sizeFractionCache = updateSizeFraction(_force || _measureOverflow));
       const [viewportScrollSize] = (viewportScrollSizeCache =
-        updateViewportScrollSizeCache(_force));
+        updateViewportScrollSizeCache(_force || _measureOverflow));
       const viewportClientSize = getClientSize(_viewport);
       const windowInnerSize = viewportIsTargetBody && getWindowSize(_windowElm());
       const overflowAmountScrollSize = {
@@ -392,7 +393,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       overflowEdgeCache = updateOverflowEdge(overflowAmountClientSize);
       overflowAmuntCache = updateOverflowAmountCache(
         getOverflowAmount(overflowAmountScrollSize, overflowAmountClientSize),
-        _force
+        _force || _measureOverflow
       );
     }
 
@@ -420,9 +421,12 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       showNativeOverlaidScrollbarsChanged ||
       viewportChanged ||
       (_hostMutation && viewportIsTargetBody);
-    const [flowDirectionStyles, flowDirectionStylesChanged] = updateFlowDirectionStyles(_force);
+    const [flowDirectionStyles, flowDirectionStylesChanged] = measureOverflowOnly
+      ? getCurrentFlowDirectionStyles()
+      : updateFlowDirectionStyles(_force);
     const adjustMeasuredScrollCoordinates =
-      _directionChanged || _appear || flowDirectionStylesChanged || hasOverflowChanged || _force;
+      !measureOverflowOnly &&
+      (_directionChanged || _appear || flowDirectionStylesChanged || hasOverflowChanged || _force);
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
       ? updateMeasuredScrollCoordinates(getMeasuredScrollCoordinates(flowDirectionStyles), _force)
       : getCurrentMeasuredScrollCoordinates();
@@ -431,7 +435,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     setMeasuringMode(false);
 
-    if (adjustViewportStyle) {
+    if (adjustViewportStyle && !measureOverflowOnly) {
       setViewportOverflowStyle(viewportOverflowStyle);
 
       viewportOverflowStyle = getElementOverflowStyle(_viewport, hasOverflow);
@@ -441,6 +445,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
         setStyles(_viewport, _hideNativeScrollbars(viewportOverflowStyle));
       }
+    } else if (measureOverflowOnly) {
+      viewportOverflowStyle = structureSetupState._overflowStyle;
     }
 
     const [overflowStyle, overflowStyleChanged] = updateOverflowStyleCache(viewportOverflowStyle);

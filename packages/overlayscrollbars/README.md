@@ -905,13 +905,20 @@ const osInstance = OverlayScrollbars(document.body, {});
   | name | `string` | The event name. |
   | listeners | `Function[]` | The functions to be removed. |
 
-  ### `update(force?): boolean`
+  ### `update(forceOrRequest?): boolean`
 
   Updates the instance.
 
   | parameter | type | description |
   | :--- | :--- | :--- |
+  | forceOrRequest | `boolean \| UpdateRequest \| undefined` |  Either a boolean indicating the `force` option below or an object below. |
+
+  When an object is passed you can use the following properties:
+
+  | property | type | description |
+  | :--- | :--- | :--- |
   | force | `boolean \| undefined` |  Whether the update should force the cache to be invalidated. |
+  | measureOverflow | `boolean \| undefined` |  Whether only overflow measurements should be force-updated, skipping expensive operations. |
 
   | returns | description |
   | :--- | :--- |
@@ -949,6 +956,11 @@ const osInstance = OverlayScrollbars(document.body, {});
 
   ```ts
   // A simplified version of the OverlayScrollbars TypeScript interface.
+  interface UpdateRequest {
+    force?: boolean;
+    measureOverflow?: boolean;
+  }
+
   interface OverlayScrollbars {
     // Get the current options of the instance.
     options(): Options;
@@ -968,7 +980,7 @@ const osInstance = OverlayScrollbars(document.body, {});
     off<N extends keyof EventListenerArgs>(name: N, listener: EventListener<N>[]): void;
 
     // Updates the instance.
-    update(force?: boolean): boolean;
+    update(forceOrRequest?: boolean | UpdateRequest): boolean;
 
     // Gets the instance's state.
     state(): State;
