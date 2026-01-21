@@ -164,9 +164,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
 
     const tmp = getElementScroll(_scrollOffsetElement);
     scrollElementTo(_scrollOffsetElement, {
-      // if tmp is very close start there porbably wasn't any scroll happening so scroll again in different direction
-      x: tmp.x - _start.x < 1 && -scrollSize.w,
-      y: tmp.y - _start.y < 1 && -scrollSize.h,
+      // use "<= 1" and not "< 1" because of precision issues: https://github.com/KingSora/OverlayScrollbars/issues/625#issuecomment-3778048936
+      // if tmp is very close to start there porbably wasn't any scroll happening so scroll again in different direction
+      x: tmp.x - _start.x <= 1 && -scrollSize.w,
+      y: tmp.y - _start.y <= 1 && -scrollSize.h,
     });
 
     const _end = getElementScroll(_scrollOffsetElement);
