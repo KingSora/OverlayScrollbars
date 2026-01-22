@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   test:
+    timeout-minutes: 40
     name: OverlayScrollbars Tests
     runs-on: ubuntu-latest
     steps:

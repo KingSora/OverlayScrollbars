@@ -6,7 +6,7 @@ export default {
   navigationTimeout: 1000,
   retries: 1,
   maxFailures: 0,
-  workers: 4,
+  workers: process.env.CI ? 1 : 4,
   fullyParallel: true,
   reporter: 'list',
   outputDir: '.playwright',
