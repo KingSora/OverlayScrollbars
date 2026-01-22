@@ -6,8 +6,8 @@ export default {
   navigationTimeout: 1000,
   retries: 1,
   maxFailures: 0,
-  workers: process.env.CI ? 1 : 4,
-  fullyParallel: true,
+  workers: 1,
+  fullyParallel: false,
   reporter: 'list',
   outputDir: '.playwright',
   projects: [
