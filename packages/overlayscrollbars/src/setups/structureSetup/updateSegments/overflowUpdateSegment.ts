@@ -32,6 +32,7 @@ import {
   stopPropagation,
   rAF,
   hasAttrClass,
+  mathAbs,
 } from '../../../support';
 import { getEnvironment } from '../../../environment';
 import {
@@ -161,16 +162,37 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       x: scrollSize.w,
       y: scrollSize.h,
     });
+    const positiveScroll = getElementScroll(_scrollOffsetElement);
+    const positiveDistance = {
+      x: positiveScroll.x - _start.x,
+      y: positiveScroll.y - _start.y,
+    };
 
-    const tmp = getElementScroll(_scrollOffsetElement);
     scrollElementTo(_scrollOffsetElement, {
-      // use "<= 1" and not "< 1" because of precision issues: https://github.com/KingSora/OverlayScrollbars/issues/625#issuecomment-3778048936
-      // if tmp is very close to start there porbably wasn't any scroll happening so scroll again in different direction
-      x: tmp.x - _start.x <= 1 && -scrollSize.w,
-      y: tmp.y - _start.y <= 1 && -scrollSize.h,
+      x: -scrollSize.w,
+      y: -scrollSize.h,
     });
+    const negativeScroll = getElementScroll(_scrollOffsetElement);
+    const negativeDistance = {
+      x: negativeScroll.x - _start.x,
+      y: negativeScroll.y - _start.y,
+    };
 
-    const _end = getElementScroll(_scrollOffsetElement);
+    // take the scroll positions which scrolled the greatest distance
+    // because of: https://github.com/KingSora/OverlayScrollbars/issues/625#issuecomment-3778048936
+    // this logic is in place due to rounding issues of the `scrollTop` / `scrollLeft` properties
+    // its possible that even if the scroll coordinates are effectively 0..-100 the scroll value is 1 which is outside of the coordinate system
+    // this happens because the browser rounds the value to 1 even if it should be 0
+    const _end = {
+      x:
+        mathAbs(positiveDistance.x) >= mathAbs(negativeDistance.x)
+          ? positiveScroll.x
+          : negativeScroll.x,
+      y:
+        mathAbs(positiveDistance.y) >= mathAbs(negativeDistance.y)
+          ? positiveScroll.y
+          : negativeScroll.y,
+    };
     scrollElementTo(_scrollOffsetElement, originalScrollOffset);
     rAF(() => removeScrollBlock());
 
