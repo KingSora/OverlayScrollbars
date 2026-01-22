@@ -24,14 +24,12 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
-
+      - name: Run Unit Tests
+        run: npm run ci:test
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run e2e Tests
         run: xvfb-run npm run ci:e2e  
-      - name: Run Unit Tests
-        run: npm run ci:test
-
       - name: Upload Unit Tests Coverage
         uses: codecov/codecov-action@v5
         with:
