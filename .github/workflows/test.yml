@@ -14,26 +14,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v5
         with:
-          node-version: '>=20.6.0'
+          node-version: lts/*
       - name: Install dependencies
         run: npm ci
       - name: Build
         run: npm run build
       - name: Run Unit Tests
         run: npm run ci:test
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
       - name: Run e2e Tests
         run: xvfb-run npm run ci:e2e
       - name: Upload Unit Tests Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           flags: unit
           files: "packages/**/.coverage/unit/coverage*.json"
       - name: Upload e2e Tests Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           flags: e2e
           files: "packages/**/.coverage/e2e/coverage*.json"
