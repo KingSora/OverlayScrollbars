@@ -1,5 +1,7 @@
 import { devices } from '@playwright/test';
 
+console.log('================== CONFIG ================');
+
 export default {
   testMatch: /.*\/test\/playwright\/.*\.test\.[jt]sx?/,
   timeout: 10 * 60 * 1500,
