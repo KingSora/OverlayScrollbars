@@ -296,11 +296,11 @@ export interface OverlayScrollbars {
 
   /**
    * Updates the instance.
-   * @param force Whether the update should force the cache to be invalidated.
+   * @param forceOrRequest Pass a boolean to force the caches to be invalidated, or an options object.
    * @returns A boolean which indicates whether the `update` event was triggered through this update.
    * The update event is only triggered if something changed because of this update.
    */
-  update(force?: boolean): boolean;
+  update(forceOrRequest?: boolean | UpdateRequest): boolean;
   /** Returns the state of the instance. */
   state(): State;
   /** Returns the elements of the instance. */
@@ -310,6 +310,13 @@ export interface OverlayScrollbars {
   /** Returns the instance of the passed plugin or `undefined` if no instance was found. */
   plugin<P extends InstancePlugin>(osPlugin: P): InferInstancePluginModuleInstance<P> | undefined;
 }
+
+export type UpdateRequest = {
+  /** Force the caches to be invalidated. */
+  force?: boolean;
+  /** Only overflow measurements should be refreshed. */
+  measureOverflow?: boolean;
+};
 
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
   target: InitializationTarget,
@@ -504,7 +511,11 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
           }
         );
       },
-      update: (_force?: boolean) => setupsUpdate({ _force, _takeRecords: true }),
+      update: (forceOrRequest?: boolean | UpdateRequest) => setupsUpdate({
+        _force: typeof forceOrRequest === 'object' ? forceOrRequest?.force : forceOrRequest,
+        _measureOverflow: typeof forceOrRequest === 'object' ? forceOrRequest.measureOverflow : false,
+        _takeRecords: true
+      }),
       destroy: bind(destroy, false),
       plugin: <P extends InstancePlugin>(plugin: P) =>
         instancePluginModuleInstances[keys(plugin)[0]] as
