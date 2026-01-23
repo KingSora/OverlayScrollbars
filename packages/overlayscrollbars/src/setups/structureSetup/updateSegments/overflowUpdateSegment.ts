@@ -25,7 +25,6 @@ import {
   getElementScroll,
   sanitizeScrollCoordinates,
   getStyles,
-  equal,
   getZeroScrollCoordinates,
   hasDimensions,
   addEventListener,
@@ -33,6 +32,10 @@ import {
   rAF,
   hasAttrClass,
   mathAbs,
+  equal,
+  concat,
+  deduplicateArray,
+  isString,
 } from '../../../support';
 import { getEnvironment } from '../../../environment';
 import {
@@ -112,14 +115,24 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     _viewportAddRemoveClass(dataValueViewportMeasuring, !viewportIsTargetBody && active);
   };
 
-  const getMeasuredScrollCoordinates = (flowDirectionStyles: FlowDirectionStyles) => {
-    const flowDirectionCanBeNonDefault = flowDirectionStyleArr.some((styleName) => {
-      const styleValue = flowDirectionStyles[styleName];
-      return styleValue && flowDirectionCanBeNonDefaultMap[styleName](styleValue);
-    });
+  const getFlowDirectionStyles = (): Record<string, unknown> =>
+    getStyles(_viewport, flowDirectionStyleArr);
+  const getMeasuredScrollCoordinates = (
+    flowDirectionStyles: Record<string, unknown>,
+    flowDirectionStylesIsForeign: boolean
+  ) => {
+    const skipNonDefaultScrollCoordinatesCheck = !keys(flowDirectionStyles).length;
+    const flowDirectionStylesIndicateNonDefaultFlowDirection =
+      !flowDirectionStylesIsForeign &&
+      flowDirectionStyleArr.some((styleName) => {
+        const styleValue = flowDirectionStyles[styleName];
+        return isString(styleValue) && flowDirectionCanBeNonDefaultMap[styleName](styleValue);
+      });
+    const flowDirectionIsDefault =
+      skipNonDefaultScrollCoordinatesCheck && !flowDirectionStylesIndicateNonDefaultFlowDirection;
 
-    // if the direction can not be non-default return default scroll coordinates (only the sign of the numbers matters)
-    if (!flowDirectionCanBeNonDefault) {
+    // if the direction is default or the element has no dimensions return default scroll coordinates (only the sign of the numbers matters)
+    if (flowDirectionIsDefault || !hasDimensions(_viewport)) {
       return {
         _start: { x: 0, y: 0 },
         _end: { x: 1, y: 1 },
@@ -300,13 +313,11 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const [updateHasOverflowCache] = createCache<Partial<XY<boolean>>>(partialXYOptions);
   const [updateOverflowEdge, getCurrentOverflowEdgeCache] = createCache<WH<number>>(whCacheOptions);
   const [updateOverflowStyleCache] = createCache<Partial<XY<OverflowStyle>>>(partialXYOptions);
-  const [updateFlowDirectionStyles] = createCache<FlowDirectionStyles>(
-    {
-      _equal: (currVal, newValu) => equal(currVal, newValu, flowDirectionStyleArr),
-      _initialValue: {},
-    },
-    () => (hasDimensions(_viewport) ? getStyles(_viewport, flowDirectionStyleArr) : {})
-  );
+  const [updateNonDefaultFlowDirectionStyles] = createCache<Record<string, unknown>>({
+    _equal: (currVal, newVal) =>
+      equal(currVal, newVal, deduplicateArray(concat(keys(currVal), keys(newVal)))),
+    _initialValue: {},
+  });
   const [updateMeasuredScrollCoordinates, getCurrentMeasuredScrollCoordinates] =
     createCache<ScrollCoordinates>({
       _equal: (currVal, newVal) =>
@@ -443,11 +454,18 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       showNativeOverlaidScrollbarsChanged ||
       viewportChanged ||
       (_hostMutation && viewportIsTargetBody);
-    const [flowDirectionStyles, flowDirectionStylesChanged] = updateFlowDirectionStyles(_force);
+    const [flowDirectionStylesOption] = _checkOption('update.flowDirectionStyles');
+    const [flowDirectionStyles, flowDirectionStylesChanged] = updateNonDefaultFlowDirectionStyles(
+      flowDirectionStylesOption ? flowDirectionStylesOption(_viewport) : getFlowDirectionStyles(),
+      _force
+    );
     const adjustMeasuredScrollCoordinates =
       _directionChanged || _appear || flowDirectionStylesChanged || hasOverflowChanged || _force;
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
-      ? updateMeasuredScrollCoordinates(getMeasuredScrollCoordinates(flowDirectionStyles), _force)
+      ? updateMeasuredScrollCoordinates(
+          getMeasuredScrollCoordinates(flowDirectionStyles, !!flowDirectionStylesOption),
+          _force
+        )
       : getCurrentMeasuredScrollCoordinates();
 
     let viewportOverflowStyle = getViewportOverflowStyle(hasOverflow, overflow);

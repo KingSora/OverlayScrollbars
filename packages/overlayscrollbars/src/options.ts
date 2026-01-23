@@ -144,9 +144,8 @@ export type ScrollbarsAutoHideBehavior =
 export type ScrollbarsClickScrollBehavior = boolean | 'instant';
 
 /**
- * A debounce value:
- * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds. The third value `leading` indicates whether the debounce is also executed on the leading edge
- * Only a number customizes the `timeout` in milliseconds.
+ * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds. The third value `leading` indicates whether the debounce is also executed on the leading edge.
+ * A single number customizes the `timeout` in milliseconds.
  * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
  */
 export type OptionsDebounceValue =
@@ -202,11 +201,27 @@ export type Options = {
      */
     attributes: string[] | null;
     /**
-     * A function which makes it possible to ignore a content mutation or null if nothing shall be ignored.
+     * A function which makes it possible to ignore a content mutation or `null` if nothing shall be ignored.
      * @param mutation The MutationRecord from the MutationObserver.
      * @returns A Truthy value if the mutation shall be ignored, a falsy value otherwise.
      */
-    ignoreMutation: ((mutation: MutationRecord) => any) | null;
+    ignoreMutation: ((mutation: MutationRecord) => boolean) | null;
+    /**
+     * A function which returns a map of styles which influence the viewports flow direction or `null` if the default behavior shall be used.
+     * The default behavior reads the computed `display`, `flexDirection`, `direction` and `writingMode` styles of the viewport element.
+     *
+     * This function can be used to skip or customize the expensive "non default flow direction" check:
+     * Use an empty style object to skip the check.
+     * Non-empty style objects will lead to a check when they change compared to the previously returned value.
+     *
+     * Examples of styles which influence the flow direction:
+     * - `direction: rtl`
+     * - `flexDirection: column-reverse`
+     * - `writingMode: vertical-rl`
+     * @param viewport The viewport element.
+     * @returns A map of styles which influence the viewports flow direction.
+     */
+    flowDirectionStyles: ((viewport: HTMLElement) => Record<string, unknown>) | null;
   };
   /** Customizes the overflow behavior per axis. */
   overflow: {
@@ -267,6 +282,7 @@ export const defaultOptions: ReadonlyOptions = {
     },
     attributes: null,
     ignoreMutation: null,
+    flowDirectionStyles: null,
   },
   overflow: {
     x: 'scroll',

@@ -5,8 +5,9 @@
 
   /**
    * ndsd: non default scroll direction = true
+   * ifd: ignore flow direction = true
    */
-  ['ndsd'].forEach((param) => {
+  ['ndsd', 'ifd'].forEach((param) => {
     const paramValue = Boolean(params.get(param));
 
     if (paramValue) {

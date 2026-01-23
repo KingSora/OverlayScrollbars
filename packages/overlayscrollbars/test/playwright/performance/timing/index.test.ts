@@ -12,4 +12,10 @@ test.describe('performance.timing', () => {
     await page.click('#ndsd');
     await expectSuccess(page);
   });
+
+  test('ignore flow direction', async ({ page }) => {
+    await page.click('#ndsd');
+    await page.click('#ifd');
+    await expectSuccess(page);
+  });
 });

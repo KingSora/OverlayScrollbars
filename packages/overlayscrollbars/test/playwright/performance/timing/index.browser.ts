@@ -17,6 +17,7 @@ if (!OverlayScrollbars.env().scrollbarsHiding) {
 }
 
 const nonDefaultScrollDirection = document.body.classList.contains('ndsd');
+const ignoreFlowDirection = document.body.classList.contains('ifd');
 const startBtn = document.querySelector<HTMLButtonElement>('#start')!;
 const wrapper = document.querySelector<HTMLElement>('#wrapper')!;
 const content = document.querySelector<HTMLElement>('#content')!;
@@ -25,7 +26,11 @@ const resizeInstance = resize(wrapper!);
 let updatesCount = 0;
 const osInstance = OverlayScrollbars(
   target,
-  {},
+  {
+    update: {
+      flowDirectionStyles: ignoreFlowDirection ? () => ({}) : null,
+    },
+  },
   {
     updated() {
       updatesCount++;
@@ -73,6 +78,9 @@ const createTimingTest = (testCase: (onCompleted: () => void) => void, maxSample
   };
 };
 
+// @ts-ignore
+window.os = osInstance;
+
 startBtn.addEventListener('click', async () => {
   setTestResult(null);
   await timeout(1000);
@@ -105,24 +113,26 @@ startBtn.addEventListener('click', async () => {
     }, 10);
     const forceUpdate1kPerSampleTestResult = await forceUpdate1kPerSampleTest.run();
     const scrollDirectionStr = nonDefaultScrollDirection ? 'non-default' : 'default';
+    const ignoreFlowDirectionStr = ignoreFlowDirection ? 'Ignore' : 'Detect';
 
     console.error(
-      `[ScrollDirection: ${scrollDirectionStr}] [force: false]: { samples: ${
+      `[${ignoreFlowDirectionStr} ScrollDirection: ${scrollDirectionStr}] [force: false]: { samples: ${
         noForceUpdateTest5kResult.samples
       }, Avg. exec. time: ${noForceUpdateTest5kResult.timeMs.toFixed(3)} }`
     );
     console.error(
-      `[ScrollDirection: ${scrollDirectionStr}] [force: true]: { samples: ${
+      `[${ignoreFlowDirectionStr} ScrollDirection: ${scrollDirectionStr}] [force: false]: (10k runs / sample): { samples: ${
+        noForceUpdateTest10kPerSampleResult.samples
+      }, Avg. exec. time: ${noForceUpdateTest10kPerSampleResult.timeMs.toFixed(3)} }`
+    );
+
+    console.error(
+      `[${ignoreFlowDirectionStr} ScrollDirection: ${scrollDirectionStr}] [force: true]: { samples: ${
         forceUpdateTest5kResult.samples
       }, Avg. exec. time: ${forceUpdateTest5kResult.timeMs.toFixed(3)} }`
     );
     console.error(
-      `[ScrollDirection: ${scrollDirectionStr}] [force: false]: (10k runs / sample): { samples: ${
-        noForceUpdateTest10kPerSampleResult.samples
-      }, Avg. exec. time: ${noForceUpdateTest10kPerSampleResult.timeMs.toFixed(3)} }`
-    );
-    console.error(
-      `[ScrollDirection: ${scrollDirectionStr}] [force: true]: (1k runs / sample): { samples: ${
+      `[${ignoreFlowDirectionStr} ScrollDirection: ${scrollDirectionStr}] [force: true]: (1k runs / sample): { samples: ${
         forceUpdate1kPerSampleTestResult.samples
       }, Avg. exec. time: ${forceUpdate1kPerSampleTestResult.timeMs.toFixed(3)} }`
     );

@@ -340,17 +340,22 @@ describe('options', () => {
       );
       const [updateIgnoreMutation, updateIgnoreMutationChanged] =
         checkOptions('update.ignoreMutation');
+      const [updateFlowDirectionStyles, updateFlowDirectionStylesChanged] = checkOptions(
+        'update.flowDirectionStyles'
+      );
       const [scrollbarsPointers, scrollbarsPointersChanged] = checkOptions('scrollbars.pointers');
       const [scrollbarsAutoHide, scrollbarsAutoHideChanged] = checkOptions('scrollbars.autoHide');
 
       expect(overflowX).toBe(defaultOptions.overflow.x);
       expect(showNativeOverlaidScrollbars).toBe(defaultOptions.showNativeOverlaidScrollbars);
       expect(updateIgnoreMutation).toBe(defaultOptions.update.ignoreMutation);
+      expect(updateFlowDirectionStyles).toBe(defaultOptions.update.flowDirectionStyles);
       expect(scrollbarsPointers).toBe(defaultOptions.scrollbars.pointers);
       expect(scrollbarsAutoHide).toBe(defaultOptions.scrollbars.autoHide);
       expect(overflowXChanged).toBe(false);
       expect(showNativeOverlaidScrollbarsChanged).toBe(false);
       expect(updateIgnoreMutationChanged).toBe(false);
+      expect(updateFlowDirectionStylesChanged).toBe(false);
       expect(scrollbarsPointersChanged).toBe(true);
       expect(scrollbarsAutoHideChanged).toBe(true);
     });
@@ -364,15 +369,20 @@ describe('options', () => {
       const [update, updateChanged] = checkOptions('update');
       const [updateIgnoreMutation, updateIgnoreMutationChanged] =
         checkOptions('update.ignoreMutation');
+      const [updateFlowDirectionStyles, updateFlowDirectionStylesChanged] = checkOptions(
+        'update.flowDirectionStyles'
+      );
       const [scrollbars, scrollbarsChanged] = checkOptions('scrollbars');
 
       expect(overflow).toBe(defaultOptions.overflow);
       expect(update).toBe(defaultOptions.update);
       expect(updateIgnoreMutation).toBe(defaultOptions.update.ignoreMutation);
+      expect(updateFlowDirectionStyles).toBe(defaultOptions.update.flowDirectionStyles);
       expect(scrollbars).toBe(defaultOptions.scrollbars);
       expect(overflowChanged).toBe(false);
       expect(updateChanged).toBe(true);
       expect(updateIgnoreMutationChanged).toBe(true);
+      expect(updateFlowDirectionStylesChanged).toBe(true);
       expect(scrollbarsChanged).toBe(false);
     });
 

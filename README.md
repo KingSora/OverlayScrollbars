@@ -393,6 +393,7 @@ const defaultOptions = {
     },
     attributes: null,
     ignoreMutation: null,
+    flowDirectionStyles: null,
   },
   overflow: {
     x: 'scroll',
@@ -501,9 +502,27 @@ An array of additional attributes that the `MutationObserver` should observe the
 
 | type  | default |
 | :--- | :--- |
-| `((mutation) => any) \| null` | `null` |
+| `((mutation) => boolean) \| null` | `null` |
 
 A function which receives a [`MutationRecord`](https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord) as an argument. If the function returns a truthy value the mutation will be ignored and the plugin won't update. **Useful to fine-tune performance.**
+
+### `update.flowDirectionStyles`
+
+| type  | default |
+| :--- | :--- |
+| `((viewport) => Record<string, unknown>) \| null` | `null` |
+
+A function which returns a map of styles which influence the viewports flow direction or `null` if the default behavior shall be used.
+The default behavior reads the computed `display`, `flexDirection`, `direction` and `writingMode` styles of the viewport element.
+
+This function can be used to skip or customize the expensive "non default flow direction" check:
+Use an empty style object to skip the check.
+Non-empty style objects will lead to a check when they change compared to the previously returned value.
+
+Examples of styles which influence the flow direction:
+- `direction: rtl`
+- `flexDirection: column-reverse`
+- `writingMode: vertical-rl`
 
 ### `overflow.x`
 
@@ -618,22 +637,29 @@ type Options = {
      * It is possible to debounce updates caused by mutations, resizes, events and environmental changes.
      */
     debounce: {
-      /** Debounce updates which were triggered by a MutationObserver. */
-      mutation: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
-      /** Debounce updates which were triggered by a ResizeObserver. */
-      resize: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
-      /** Debounce updates which were triggered by a Event. */
-      event: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
-      /** Debounce updates which were triggered by environmental changes. (e.g. zooming & window resize) */
-      env: [timeout?: number, maxWait?: number, leading?: boolean] | number | null;
+      // Debounce updates which were triggered by a MutationObserver.
+      mutation: OptionsDebounceValue;
+      // Debounce updates which were triggered by a ResizeObserver.
+      resize: OptionsDebounceValue;
+      // Debounce updates which were triggered by a Event.
+      event: OptionsDebounceValue;
+      // Debounce updates which were triggered by environmental changes. (e.g. zooming & window resize)
+      env: OptionsDebounceValue;
     };
     /**
      * HTML attributes which will trigger an update if they're changed.
      * Basic attributes like `id`, `class`, `style` etc. are always observed and don't have to be added explicitly.
      */
     attributes: string[] | null;
-    // A function which makes it possible to ignore a content mutation or null if nothing should be ignored.
-    ignoreMutation: ((mutation: MutationRecord) => any) | null;
+    // A function which makes it possible to ignore a content mutation or `null` if nothing should be ignored.
+    ignoreMutation: ((mutation: MutationRecord) => boolean) | null;
+    /**
+     * A function which returns a map of styles which influence the viewports flow direction or `null` if the default behavior shall be used.
+     * This function can be used to skip or customize the expensive "non default flow direction" check.
+     */
+    flowDirectionStyles:
+      | ((viewport: HTMLElement) => Record<string, unknown>)
+      | null;
   };
   // Customizes the overflow behavior per axis.
   overflow: {
@@ -662,6 +688,21 @@ type Options = {
     pointers: string[] | null;
   };
 };
+
+/**
+ * If a tuple is provided you can customize the `timeout` and the `maxWait` in milliseconds. The third value `leading` indicates whether the debounce is also executed on the leading edge.
+ * A single number customizes the `timeout` in milliseconds.
+ * If the `timeout` is `0`, a debounce still exists. (its executed via `requestAnimationFrame`).
+ */
+type OptionsDebounceValue =
+  | [
+      timeout?: number | false | null | undefined,
+      maxWait?: number | false | null | undefined,
+      leading?: boolean | null | undefined,
+    ]
+  | number
+  | false
+  | null;
 
 // The overflow behavior of an axis.
 type OverflowBehavior =

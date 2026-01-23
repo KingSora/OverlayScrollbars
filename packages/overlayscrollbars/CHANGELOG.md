@@ -1,10 +1,20 @@
 # Changelog
 
+## 2.14.0
+
+### Features
+
+- Add the option `options.update.flowDirectionStyles` which allow to opt-out or customize when the expensive "non default flow direction" check is being performed. [#729](https://github.com/KingSora/OverlayScrollbars/issues/729) [#748](https://github.com/KingSora/OverlayScrollbars/pull/748)
+
+### Bug Fixes
+
+- Work around browser rounding inaccuracies which prevented a proper detection of a "non default flow direction" for normal density screens. [#625](https://github.com/KingSora/OverlayScrollbars/issues/625#issuecomment-3778048936) 
+
 ## 2.13.0
 
 ### Features
 
-- Add fine grained debounce options via `options.debounce`. The option is now an object which results in more freedom / fine grained debounce options. A debounce can now be specified for `mutations`, `resizes`, `events` and `environmental changes` independently. The old `options.debounce` option syntax is still supported and works but its deprecated in favor of the new syntax. [#744](https://github.com/KingSora/OverlayScrollbars/issues/744) [#729](https://github.com/KingSora/OverlayScrollbars/issues/729)
+- Add fine grained debounce options via `options.update.debounce`. The option is now an object which results in more freedom / fine grained debounce options. A debounce can now be specified for `mutations`, `resizes`, `events` and `environmental changes` independently. The old `options.update.debounce` option syntax is still supported and works but its deprecated in favor of the new syntax. [#744](https://github.com/KingSora/OverlayScrollbars/issues/744) [#729](https://github.com/KingSora/OverlayScrollbars/issues/729)
 
 ## 2.12.0
 
