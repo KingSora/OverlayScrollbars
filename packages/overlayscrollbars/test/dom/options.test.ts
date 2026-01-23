@@ -18,6 +18,7 @@ describe('options', () => {
         },
         attributes: null,
         ignoreMutation: null,
+        flowDirectionStyles: null,
       },
       overflow: {
         x: 'scroll',
