@@ -5,13 +5,13 @@ import bundleTypes from './bundle/types.js';
 import preBuild from './bundle/pre.js';
 
 export default (resolve, options, esbuild) => {
-  const { extractTypes, extractStyles } = options;
+  const { extractTypes, extractStyles, extractScript } = options;
   const bundleScript = esbuild ? bundleScriptEsbuild : bundleScriptDefault;
 
   const pre = preBuild(resolve, options);
   const styles = extractStyles && bundleStyles(resolve, options);
   const types = extractTypes && bundleTypes(resolve, options);
-  const js = bundleScript(resolve, options);
+  const js = extractScript && bundleScript(resolve, options);
 
   return [pre, styles, types, js].flat().filter((build) => !!build);
 };

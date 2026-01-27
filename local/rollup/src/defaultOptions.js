@@ -27,6 +27,7 @@ export default {
   ],
   extractStyles: false,
   extractTypes: false,
+  extractScript: false,
   extractPackageJson: false,
   alias: {},
   rollup: {

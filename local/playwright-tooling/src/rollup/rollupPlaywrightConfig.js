@@ -40,6 +40,7 @@ export const rollupPlaywrightConfig = (testDir, useEsbuild, dev) => {
     banner: testDir,
     extractStyle: false,
     extractTypes: false,
+    extractScript: true,
     outDir,
     versions: [
       {
