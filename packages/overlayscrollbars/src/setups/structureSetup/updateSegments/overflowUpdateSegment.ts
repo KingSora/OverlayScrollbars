@@ -142,6 +142,12 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     setMeasuringMode(true);
 
     const originalScrollOffset = getElementScroll(_scrollOffsetElement);
+    // set scroll offset to 0 before applying `dataValueViewportNoContent` styles
+    // so when the styles are removed again the scroll offset stays at 0
+    scrollElementTo(_scrollOffsetElement, {
+      x: 0,
+      y: 0,
+    });
     const removeNoContent = _viewportAddRemoveClass(dataValueViewportNoContent, true);
     const removeScrollBlock = addEventListener(
       _scrollEventElement,
@@ -163,10 +169,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       }
     );
 
-    scrollElementTo(_scrollOffsetElement, {
-      x: 0,
-      y: 0,
-    });
     removeNoContent();
 
     const _start = getElementScroll(_scrollOffsetElement);
@@ -206,6 +208,12 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
           ? positiveScroll.y
           : negativeScroll.y,
     };
+    if (
+      _viewport?.id === 'targetC' //&&
+      //Math.abs(negativeDistance.y) > Math.abs(positiveDistance.y)
+    ) {
+      console.log(_viewport?.id, { _start, positiveDistance, negativeDistance });
+    }
     scrollElementTo(_scrollOffsetElement, originalScrollOffset);
     rAF(() => removeScrollBlock());
 
