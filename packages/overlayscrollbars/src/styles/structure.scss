@@ -145,7 +145,6 @@ html[data-overlayscrollbars-body] > body {
 [data-overlayscrollbars-viewport~='noContent']:not(#osFakeId) {
   font-size: 0 !important;
   line-height: 0 !important;
-  content-visibility: hidden !important;
 }
 [data-overlayscrollbars-viewport~='noContent']:not(#osFakeId)::before,
 [data-overlayscrollbars-viewport~='noContent']:not(#osFakeId)::after,
