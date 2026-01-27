@@ -65,6 +65,8 @@ export default [
             './package.json': './package.json',
             './overlayscrollbars.css': './styles/overlayscrollbars.css',
             './styles/overlayscrollbars.css': './styles/overlayscrollbars.css',
+            // './noscript.css': './styles/noscript.css',
+            // './styles/noscript.css': './styles/noscript.css',
           },
           sideEffects: ['*.css', '*.scss', '*.sass'],
         };
@@ -151,6 +153,7 @@ export default [
       },
     },
   }),
+  /*
   ...createRollupConfig({
     project: 'noscript',
     extractStyles: true,
@@ -159,4 +162,5 @@ export default [
       input: './src/noscript.scss',
     },
   }),
+  */
 ];
