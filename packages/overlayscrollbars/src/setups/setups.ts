@@ -73,6 +73,7 @@ export type Setups = [
   getState: () => SetupsState,
   elements: SetupsElements,
   canceled: () => void,
+  forceScrollbarsHidden: (hidden: boolean) => void,
 ];
 
 export const createSetups = (
@@ -99,7 +100,7 @@ export const createSetups = (
       update({}, observersUpdateHints);
     }
   );
-  const [scrollbarsSetupCreate, scrollbarsSetupUpdate, , scrollbarsSetupElements] =
+  const [scrollbarsSetupCreate, scrollbarsSetupUpdate, , scrollbarsSetupElements, scrollbarsForceHidden] =
     createScrollbarsSetup(
       target,
       options,
@@ -202,5 +203,6 @@ export const createSetups = (
       _scrollbarsSetupElements: scrollbarsSetupElements,
     },
     structureSetupCanceled,
+    scrollbarsForceHidden,
   ];
 };

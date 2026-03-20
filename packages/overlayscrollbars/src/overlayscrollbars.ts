@@ -309,6 +309,12 @@ export interface OverlayScrollbars {
   destroy(): void;
   /** Returns the instance of the passed plugin or `undefined` if no instance was found. */
   plugin<P extends InstancePlugin>(osPlugin: P): InferInstancePluginModuleInstance<P> | undefined;
+  /**
+   * Force-hides or un-hides all scrollbars, bypassing auto-show logic
+   * (pointer events, scroll events, etc.) while hidden.
+   * @param hidden Whether scrollbars should be force-hidden.
+   */
+  scrollbarsHidden(hidden: boolean): void;
 }
 
 export const OverlayScrollbars: OverlayScrollbarsStatic = (
@@ -346,7 +352,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
       triggerInstanceEvent(name, args);
       triggerPluginEvent(name, args);
     };
-    const [setupsConstruct, setupsUpdate, setupsState, setupsElements, setupsCanceled] =
+    const [setupsConstruct, setupsUpdate, setupsState, setupsElements, setupsCanceled, setupsForceScrollbarsHidden] =
       createSetups(
         target,
         currentOptions,
@@ -510,6 +516,7 @@ export const OverlayScrollbars: OverlayScrollbarsStatic = (
         instancePluginModuleInstances[keys(plugin)[0]] as
           | InferInstancePluginModuleInstance<P>
           | undefined,
+      scrollbarsHidden: setupsForceScrollbarsHidden,
     };
 
     push(destroyFns, [setupsCanceled]);

@@ -21,6 +21,7 @@ import {
   classNameScrollbarTrackInteractive,
   classNameScrollbarRtl,
   classNameScrollbarAutoHide,
+  classNameScrollbarTransitionless,
 } from '../../classnames';
 import { getEnvironment } from '../../environment';
 import {
@@ -53,6 +54,8 @@ export type ScrollbarsSetup = [
   ...Setup<ScrollbarsSetupUpdateInfo, ScrollbarsSetupState, void>,
   /** The elements created by the scrollbars setup. */
   ScrollbarsSetupElementsObj,
+  /** Force-hide or un-hide scrollbars, bypassing all auto-show logic. */
+  (hidden: boolean) => void,
 ];
 
 export const createScrollbarsSetup = (
@@ -70,6 +73,7 @@ export const createScrollbarsSetup = (
   let prevTheme: string | null | undefined;
   let instanceAutoHideSuspendScrollDestroyFn = noop;
   let instanceAutoHideDelay = 0;
+  let forcedHidden = false;
   const hoverablePointerTypes = ['mouse', 'pen'];
 
   // needed to not fire unnecessary operations for pointer events on ios safari which will cause side effects: https://github.com/KingSora/OverlayScrollbars/issues/560
@@ -102,6 +106,7 @@ export const createScrollbarsSetup = (
   } = elements;
   const manageScrollbarsAutoHide = (removeAutoHide: boolean, delayless?: boolean) => {
     clearAutoHideTimeout();
+    if (forcedHidden) return;
     if (removeAutoHide) {
       _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden);
     } else {
@@ -114,6 +119,7 @@ export const createScrollbarsSetup = (
     }
   };
   const manageScrollbarsAutoHideInstantInteraction = () => {
+    if (forcedHidden) return;
     if (autoHideIsLeave ? !mouseInHost : !autoHideIsNever) {
       manageScrollbarsAutoHide(true);
       autoHideInstantInteractionTimeout(() => {
@@ -122,6 +128,7 @@ export const createScrollbarsSetup = (
     }
   };
   const manageAutoHideSuspension = (add: boolean) => {
+    if (forcedHidden && !add) return;
     _scrollbarsAddRemoveClass(classNameScrollbarAutoHide, add, true);
     _scrollbarsAddRemoveClass(classNameScrollbarAutoHide, add, false);
   };
@@ -169,6 +176,20 @@ export const createScrollbarsSetup = (
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
   );
+
+  const _forceScrollbarsHidden = (hidden: boolean) => {
+    forcedHidden = hidden;
+    if (hidden) {
+      clearAutoHideTimeout();
+      clearAutoHideInstantInteractionTimeout();
+      _scrollbarsAddRemoveClass(classNameScrollbarAutoHide, true);
+      _scrollbarsAddRemoveClass(classNameScrollbarTransitionless, true);
+      _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden, true);
+    } else {
+      _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden, !autoHideIsNever);
+      _scrollbarsAddRemoveClass(classNameScrollbarTransitionless, false);
+    }
+  };
 
   return [
     () => bind(runEachAndClear, push(destroyFns, appendElements())),
@@ -297,8 +318,15 @@ export const createScrollbarsSetup = (
         _scrollbarsAddRemoveClass(classNameScrollbarUnusable, !_hasOverflow.y, false);
         _scrollbarsAddRemoveClass(classNameScrollbarRtl, _directionIsRTL && !_isBody);
       }
+
+      if (forcedHidden) {
+        _scrollbarsAddRemoveClass(classNameScrollbarAutoHide, true);
+        _scrollbarsAddRemoveClass(classNameScrollbarTransitionless, true);
+        _scrollbarsAddRemoveClass(classNameScrollbarAutoHideHidden, true);
+      }
     },
     {},
     elements,
+    _forceScrollbarsHidden,
   ];
 };
