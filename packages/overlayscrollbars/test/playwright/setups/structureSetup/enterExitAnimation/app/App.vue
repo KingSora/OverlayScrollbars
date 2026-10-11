@@ -2,6 +2,8 @@
 import { OverlayScrollbarsComponent } from './../../../../../../../overlayscrollbars-vue/src/overlayscrollbars-vue';
 import { ref } from 'vue';
 
+const nonDefaultScrollDirection = document.body.classList.contains('ndsd');
+const ignoreFlowDirection = document.body.classList.contains('ifd');
 const getInitialItems = () => [1, 2, 3, 4, 5];
 const items = ref(getInitialItems());
 let id = items.value.length + 1;
@@ -39,8 +41,27 @@ function remove() {
     <button id="shuffle" @click="shuffle">Shuffle</button>
   </div>
 
-  <OverlayScrollbarsComponent id="target" class="app-scroll-bar">
-    <TransitionGroup tag="ul" name="app-fade" class="app-container">
+  <OverlayScrollbarsComponent
+    id="target"
+    class="app-scroll-bar"
+    :style="{
+      direction: nonDefaultScrollDirection ? 'rtl' : 'ltr',
+    }"
+    :options="{
+      update: {
+        flowDirectionStyles: ignoreFlowDirection ? () => ({}) : null,
+      },
+    }"
+  >
+    <TransitionGroup
+      tag="ul"
+      name="app-fade"
+      class="app-container"
+      :style="{
+        display: nonDefaultScrollDirection ? 'flex' : 'block',
+        flexDirection: nonDefaultScrollDirection ? 'column-reverse' : '',
+      }"
+    >
       <li v-for="item in items" class="app-item" :key="item">
         {{ item }}
       </li>

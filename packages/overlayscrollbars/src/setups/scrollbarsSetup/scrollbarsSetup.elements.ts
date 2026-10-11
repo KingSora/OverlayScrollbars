@@ -150,19 +150,27 @@ export const createScrollbarsSetupElements = (
         currAnimationTransform = transform;
 
         cancelAnimation();
+        // temporary fix for: https://github.com/KingSora/OverlayScrollbars/issues/705
         currAnimation = structure._handle.animate(
           {
-            // dummy keyframe which fixes bug where the scrollbar handle is reverted to origin position when it should be at its max position
-            clear: ['left'],
-            // transform is a temporary fix for: https://github.com/KingSora/OverlayScrollbars/issues/705
-            // can be reverted to just animate "cssCustomPropScrollPercent" when browsers implement an optimization possibility
             transform,
-            // [cssCustomPropScrollPercent]: [0, 1],
           },
           {
             timeline,
+            fill: 'both',
           }
         );
+        /* notice how `structure._scrollbar` is animated and not `structure._handle` like in the temp. fix above
+        currAnimation = structure._scrollbar.animate(
+          {
+            [cssCustomPropScrollPercent]: [0, 1],
+          },
+          {
+            timeline,
+            fill: 'both',
+          }
+        );
+        */
 
         return cancelAnimation;
       };

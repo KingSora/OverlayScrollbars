@@ -124,7 +124,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const skipFlowDirectionCheck = !keys(flowDirectionStyles).length;
     const flowDirectionStylesIndicateNonDefaultFlowDirection = flowDirectionStylesComingFromOptions
       ? true
-      : flowDirectionStyleArr.some((styleName) => {
+      : // fixes: https://github.com/KingSora/OverlayScrollbars/issues/756
+        flowDirectionStyleArr.some((styleName) => {
           const styleValue = flowDirectionStyles[styleName];
           return isString(styleValue) && flowDirectionCanBeNonDefaultMap[styleName](styleValue);
         });
@@ -436,7 +437,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
     const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
     const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
-    const [hasOverflow /*, hasOverflowChanged */] = updateHasOverflowCache({
+    const [hasOverflow, hasOverflowChanged] = updateHasOverflowCache({
       x: overflowAmount.w > 0,
       y: overflowAmount.h > 0,
     });
@@ -464,20 +465,13 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _force
     );
     const adjustMeasuredScrollCoordinates =
-      _directionChanged ||
-      _appear ||
-      flowDirectionStylesChanged ||
-      // Lets try to omit hasOverflowChanged here in favor of performance and:
-      // https://github.com/KingSora/OverlayScrollbars/issues/756
-      // hasOverflowChanged ||
-      _force;
+      _directionChanged || _appear || flowDirectionStylesChanged || hasOverflowChanged || _force;
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
       ? updateMeasuredScrollCoordinates(
           getMeasuredScrollCoordinates(flowDirectionStyles, !!flowDirectionStylesOption),
           _force
         )
       : getCurrentMeasuredScrollCoordinates();
-
     let viewportOverflowStyle = getViewportOverflowStyle(hasOverflow, overflow);
 
     setMeasuringMode(false);

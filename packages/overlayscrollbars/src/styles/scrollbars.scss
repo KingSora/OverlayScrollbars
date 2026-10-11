@@ -8,6 +8,16 @@
   inherits: true;
   initial-value: 0;
 }
+@property --os-scroll-direction {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@property --os-scroll-percent-directional {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
 .os-scrollbar {
   // The viewport size percentage of the scrollbar axis in the range 0..1
   --os-viewport-percent: 0;
@@ -24,7 +34,13 @@
 .os-scrollbar {
   contain: size layout;
   contain: size layout style;
-  transition: opacity 0.15s, visibility 0.15s, top 0.15s, right 0.15s, bottom 0.15s, left 0.15s;
+  transition:
+    opacity 0.15s,
+    visibility 0.15s,
+    top 0.15s,
+    right 0.15s,
+    bottom 0.15s,
+    left 0.15s;
   pointer-events: none;
   position: absolute;
   opacity: 0;

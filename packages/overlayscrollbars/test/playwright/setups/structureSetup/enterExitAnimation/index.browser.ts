@@ -1,5 +1,6 @@
 import '~/index.scss';
 import './index.scss';
+import './handleEnvironment';
 import { OverlayScrollbars } from '~/overlayscrollbars';
 import { dataAttributeViewport, dataValueViewportNoContent } from '~/classnames';
 import { ScrollbarsHidingPlugin } from '~/plugins';
@@ -12,6 +13,8 @@ import { mountApp } from './app/.build/app';
 if (!OverlayScrollbars.env().scrollbarsHiding) {
   OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 }
+
+window.OverlayScrollbars = OverlayScrollbars;
 
 mountApp(document.querySelector('#app'));
 
