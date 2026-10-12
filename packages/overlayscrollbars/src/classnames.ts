@@ -28,6 +28,8 @@ export const dataValueViewportMeasuring = 'measuring';
 export const dataValueViewportScrolling = 'scrolling';
 export const dataValueViewportScrollbarHidden = 'scrollbarHidden';
 export const dataValueViewportNoContent = 'noContent';
+export const dataValueViewportNoScrollbars = 'noScrollbars';
+export const dataValueViewportContentOverflow = 'contentOverflow';
 
 // padding
 export const dataAttributePadding = `${dataAttributePrefix}-padding`;

@@ -99,6 +99,17 @@ startBtn.addEventListener('click', async () => {
       );
     }
 
+    insertBtn.click();
+    await timeout(300);
+
+    const scrollCoordinates = OverlayScrollbars(target)!.state().scrollCoordinates;
+    const scrollCoordinatesSum =
+      scrollCoordinates.start.x +
+      scrollCoordinates.start.y +
+      scrollCoordinates.end.x +
+      scrollCoordinates.end.y;
+    should.ok(scrollCoordinatesSum !== 0, 'ScrollCoordinates are not correct');
+
     setTestResult(true);
   } catch (exception) {
     setTestResult(false);

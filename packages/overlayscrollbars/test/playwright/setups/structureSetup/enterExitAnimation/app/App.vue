@@ -53,15 +53,7 @@ function remove() {
       },
     }"
   >
-    <TransitionGroup
-      tag="ul"
-      name="app-fade"
-      class="app-container"
-      :style="{
-        display: nonDefaultScrollDirection ? 'flex' : 'block',
-        flexDirection: nonDefaultScrollDirection ? 'column-reverse' : '',
-      }"
-    >
+    <TransitionGroup tag="ul" name="app-fade" class="app-container">
       <li v-for="item in items" class="app-item" :key="item">
         {{ item }}
       </li>

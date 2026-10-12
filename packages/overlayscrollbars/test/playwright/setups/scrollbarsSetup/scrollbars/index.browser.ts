@@ -87,6 +87,7 @@ const createClickScrollOptions = (
 const startButton: HTMLElement | null = document.querySelector('#start');
 const directionRTLButton: HTMLElement | null = document.querySelector('#directionRTL');
 const flexReverseButton: HTMLElement | null = document.querySelector('#flexReverse');
+const toggleContentButton: HTMLElement | null = document.querySelector('#toggleContent');
 const stageResizer: HTMLElement | null = document.querySelector('#stageResizer');
 const targetA: HTMLElement | null = document.querySelector('#targetA');
 const targetB: HTMLElement | null = document.querySelector('#targetB');
@@ -190,6 +191,27 @@ const osInstanceD = (window.osD = OverlayScrollbars(
     },
   }
 ));
+
+const hideContent = () => {
+  document.querySelectorAll('.content').forEach((elm) => {
+    elm.classList.add('noContent');
+  });
+};
+
+const showContent = () => {
+  document.querySelectorAll('.content').forEach((elm) => {
+    elm.classList.remove('noContent');
+  });
+};
+
+const toggleContent = () => {
+  const hasContent = !document.querySelectorAll('.noContent').length;
+  if (hasContent) {
+    hideContent();
+  } else {
+    showContent();
+  }
+};
 
 const scrollInstances = async () => {
   scrollInstance(osInstanceBody);
@@ -445,6 +467,8 @@ const assertScrollCoordinates = (osInstance: OverlayScrollbars) => {
 };
 
 const runBlock = async () => {
+  await runScrollInstancesAfterHiddenContentScrollDirectionChange();
+
   await assertScrollbarDirection(osInstanceA, directionRTL);
   await assertScrollbarDirection(osInstanceB, true); // instanceB has direction:rtl style
 
@@ -479,6 +503,32 @@ const runScrollCoordinatesAfterHidden = async () => {
   await timeout(100);
 
   runScrollCoordinates();
+};
+
+const runScrollInstancesAfterHiddenContentScrollDirectionChange = async () => {
+  const wasFlexReverse = document.body.classList.contains('flexReverse');
+
+  hideContent();
+  if (wasFlexReverse) {
+    document.body.classList.remove('flexReverse');
+  } else {
+    document.body.classList.add('flexReverse');
+  }
+  await timeout(100);
+
+  showContent();
+
+  await timeout(100);
+  runScrollCoordinates();
+
+  if (wasFlexReverse) {
+    document.body.classList.add('flexReverse');
+  } else {
+    document.body.classList.remove('flexReverse');
+  }
+
+  updateInstances();
+  await scrollInstances();
 };
 
 const runUpdateAndScrollInstances = async () => {
@@ -534,6 +584,10 @@ flexReverseButton?.addEventListener('click', () => {
 
   updateInstances();
   scrollInstances();
+});
+
+toggleContentButton?.addEventListener('click', () => {
+  toggleContent();
 });
 
 startButton?.addEventListener('click', async () => {

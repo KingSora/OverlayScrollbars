@@ -133,6 +133,17 @@ html[data-overlayscrollbars-body] > body {
   white-space: nowrap !important;
   border-width: 0 !important;
 }
+[data-overlayscrollbars-viewport~='noContent'][data-overlayscrollbars-viewport~='contentOverflow']:not(
+    #osFakeId
+  )::after {
+  // use ::after over ::before because "arrange mode" already uses ::before
+  content: '';
+  display: block !important;
+  min-width: 200% !important;
+  min-height: 200% !important;
+  margin: 0 !important;
+  clip: auto !important;
+}
 // measuring mode does ensure no scroll snap and a clipped overflow (no overflow-visible) on any axis
 // scrolling mode ensure no scroll snap
 [data-overlayscrollbars-viewport~='measuring'],
@@ -145,6 +156,10 @@ html[data-overlayscrollbars-body] > body {
 }
 [data-overlayscrollbars-viewport~='measuring'][data-overlayscrollbars-viewport~='overflowYVisible'] {
   overflow-y: hidden !important;
+}
+[data-overlayscrollbars-viewport~='noScrollbars']:not(#osFakeId) > .os-scrollbar,
+[data-overlayscrollbars-viewport~='measuring']:not(#osFakeId) > .os-scrollbar {
+  display: none !important;
 }
 
 /**

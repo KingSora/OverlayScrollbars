@@ -47,6 +47,8 @@ import {
   dataValueViewportOverflowYPrefix,
   dataValueViewportNoContent,
   dataValueViewportMeasuring,
+  dataValueViewportContentOverflow,
+  dataValueViewportNoScrollbars,
 } from '../../../classnames';
 import { getStaticPluginModuleInstance, scrollbarsHidingPluginName } from '../../../plugins';
 import {
@@ -170,7 +172,8 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       x: 0,
       y: 0,
     });
-    removeNoContent();
+
+    const removeContentOverflow = _viewportAddRemoveClass(dataValueViewportContentOverflow, true);
 
     const _start = getElementScroll(_scrollOffsetElement);
     const scrollSize = getScrollSize(_scrollOffsetElement);
@@ -209,6 +212,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
           ? positiveScroll.y
           : negativeScroll.y,
     };
+
+    removeNoContent();
+    removeContentOverflow();
+
     scrollElementTo(_scrollOffsetElement, originalScrollOffset);
     rAF(() => removeScrollBlock());
 
@@ -395,6 +402,10 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         setMeasuringMode(true);
       }
 
+      const removeViewportNoScrollbars = _viewportAddRemoveClass(
+        dataValueViewportNoScrollbars,
+        _viewportIsTarget
+      );
       const redoViewportArrange = _undoViewportArrange && _undoViewportArrange();
 
       const [sizeFraction] = (sizeFractionCache = updateSizeFraction(_force));
@@ -422,6 +433,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         ),
       };
 
+      removeViewportNoScrollbars();
       if (redoViewportArrange) {
         redoViewportArrange();
       }
@@ -437,7 +449,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
     const [overflowAmount, overflowAmountChanged] = overflowAmuntCache;
     const [viewportScrollSize, viewportScrollSizeChanged] = viewportScrollSizeCache;
     const [sizeFraction, sizeFractionChanged] = sizeFractionCache;
-    const [hasOverflow, hasOverflowChanged] = updateHasOverflowCache({
+    const [hasOverflow] = updateHasOverflowCache({
       x: overflowAmount.w > 0,
       y: overflowAmount.h > 0,
     });
@@ -465,7 +477,7 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
       _force
     );
     const adjustMeasuredScrollCoordinates =
-      _directionChanged || _appear || flowDirectionStylesChanged || hasOverflowChanged || _force;
+      _directionChanged || _appear || flowDirectionStylesChanged || _force;
     const [scrollCoordinates, scrollCoordinatesChanged] = adjustMeasuredScrollCoordinates
       ? updateMeasuredScrollCoordinates(
           getMeasuredScrollCoordinates(flowDirectionStyles, !!flowDirectionStylesOption),
