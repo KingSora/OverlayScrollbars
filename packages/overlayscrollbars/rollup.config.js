@@ -79,13 +79,13 @@ export default [
         format: 'cjs',
         generatedCode: 'es2015',
         extension: '.cjs.js',
-        minifiedVersion: false,
+        minifiedVersion: true,
       },
       {
         format: 'esm',
         generatedCode: 'es2015',
         extension: '.esm.js',
-        minifiedVersion: false,
+        minifiedVersion: true,
       },
       {
         format: 'cjs',
