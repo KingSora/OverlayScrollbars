@@ -15,7 +15,6 @@ import {
   mathMax,
   getWindowSize,
   addRemoveAttrClass,
-  capitalizeFirstLetter,
   setStyles,
   strVisible,
   strHidden,
@@ -43,8 +42,6 @@ import {
   dataValueNoClipping,
   dataValueViewportScrollbarHidden,
   dataAttributePadding,
-  dataValueViewportOverflowXPrefix,
-  dataValueViewportOverflowYPrefix,
   dataValueViewportNoContent,
   dataValueViewportMeasuring,
   dataValueViewportContentOverflow,
@@ -57,6 +54,7 @@ import {
   overflowBehaviorToOverflowStyle,
   overflowCssValueToOverflowStyle,
   overflowIsVisible,
+  createViewportOverflowStyleClassName,
 } from '../structureSetup.utils';
 import { OverflowBehavior } from '../../../options';
 
@@ -338,16 +336,6 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
   const scrollbarsHidingPlugin = getStaticPluginModuleInstance<typeof ScrollbarsHidingPlugin>(
     scrollbarsHidingPluginName
   );
-
-  const createViewportOverflowStyleClassName = (
-    overflowStyle: OverflowStyle,
-    isHorizontal?: boolean
-  ) => {
-    const prefix = isHorizontal
-      ? dataValueViewportOverflowXPrefix
-      : dataValueViewportOverflowYPrefix;
-    return `${prefix}${capitalizeFirstLetter(overflowStyle)}`;
-  };
 
   return (
     { _checkOption, _observersUpdateHints, _observersState, _force },

@@ -2,6 +2,7 @@ import type { Env } from '../../environment';
 import type { Options, OptionsCheckFn, OverflowBehavior } from '../../options';
 import type { OverflowStyle } from '../../typings';
 import {
+  capitalizeFirstLetter,
   getStyles,
   strHidden,
   strOverflowX,
@@ -10,6 +11,10 @@ import {
   strVisible,
   XY,
 } from '../../support';
+import {
+  dataValueViewportOverflowXPrefix,
+  dataValueViewportOverflowYPrefix,
+} from '../../classnames';
 
 export const getShowNativeOverlaidScrollbars = (checkOption: OptionsCheckFn<Options>, env: Env) => {
   const { _nativeScrollbarsOverlaid } = env;
@@ -55,4 +60,12 @@ export const getElementOverflowStyle = (
     x: overflowCssValueToOverflowStyle(overflowX, hasOverflow.x),
     y: overflowCssValueToOverflowStyle(overflowY, hasOverflow.y),
   };
+};
+
+export const createViewportOverflowStyleClassName = (
+  overflowStyle: OverflowStyle,
+  isHorizontal?: boolean
+) => {
+  const prefix = isHorizontal ? dataValueViewportOverflowXPrefix : dataValueViewportOverflowYPrefix;
+  return `${prefix}${capitalizeFirstLetter(overflowStyle)}`;
 };

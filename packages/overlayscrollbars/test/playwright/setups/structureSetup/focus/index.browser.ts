@@ -108,14 +108,20 @@ const testBodyFocus = async () => {
 
   const bodyInstance = OverlayScrollbars(body, {});
   const { viewport } = bodyInstance.elements();
+  const { hasOverflow } = bodyInstance.state();
   const bodyViewportIsTarget = viewport === document.documentElement;
+  const checkCondition = OverlayScrollbars.env().focusableScrollers
+    ? hasOverflow.x || hasOverflow.y
+    : true;
+  if (checkCondition) {
+    should.ok(
+      bodyViewportIsTarget
+        ? document.activeElement === document.body
+        : document.activeElement === viewport,
+      'Body Viewport element is focused after init.'
+    );
+  }
 
-  should.ok(
-    bodyViewportIsTarget
-      ? document.activeElement === document.body
-      : document.activeElement === viewport,
-    'Body Viewport element is focused after init.'
-  );
   should.equal(beforeInitFocusEvents, focusEvents, '0 additional Focus events after init.');
   should.equal(beforeInitBlurEvents, blurEvents, '0 additional Blur events after init.');
 
@@ -169,11 +175,11 @@ const testElementViewportFocus = async () => {
   );
   should.ok(
     beforeInitFocusEvents === afterInitFocusEvents,
-    `0 Additional Focus events after explicit viewport init.`
+    `0 Additional Focus events after explicit viewport init. ${beforeInitFocusEvents} / ${afterInitFocusEvents}`
   );
   should.ok(
     beforeInitBlurEvents === afterInitBlurEvents,
-    `0 Additional Blur events after explicit viewport init.`
+    `0 Additional Blur events after explicit viewport init. ${beforeInitBlurEvents} / ${afterInitBlurEvents}`
   );
 
   await timeout(100);
@@ -194,11 +200,11 @@ const testElementViewportFocus = async () => {
   should.ok(document.activeElement === viewportElm, `Explicit viewport holds focus after destroy.`);
   should.ok(
     beforeDestroyFocusEvents === afterDestroyFocusEvents,
-    `0 Additional Focus events after explicit viewport destroy.`
+    `0 Additional Focus events after explicit viewport destroy. ${beforeDestroyFocusEvents} / ${afterDestroyFocusEvents}`
   );
   should.ok(
     beforeDestroyBlurEvents === afterDestroyBlurEvents,
-    `0 Additional Blur events after explicit viewport destroy.`
+    `0 Additional Blur events after explicit viewport destroy. ${beforeDestroyBlurEvents} / ${afterDestroyBlurEvents}`
   );
   should.equal(
     viewportElm.getAttribute('tabindex'),
@@ -239,11 +245,11 @@ const testElementTargetFocus = async (withTargetFocus?: boolean) => {
   should.ok(document.activeElement === originalFocusElement, `Target after init correct focus.`);
   should.ok(
     beforeInitFocusEvents === afterInitFocusEvents,
-    `0 Additional Focus events after target init.`
+    `0 Additional Focus events after target init. ${beforeInitFocusEvents} / ${afterInitFocusEvents}`
   );
   should.ok(
     beforeInitBlurEvents === afterInitBlurEvents,
-    `0 Additional Blur events after target init.`
+    `0 Additional Blur events after target init. ${beforeInitBlurEvents} / ${afterInitBlurEvents}`
   );
 
   await timeout(100);
@@ -252,9 +258,10 @@ const testElementTargetFocus = async (withTargetFocus?: boolean) => {
     withTargetFocus ? '456' : null,
     'Target tabindex is correct after init.'
   );
+  const expectedInitTabIndex = OverlayScrollbars.env().focusableScrollers ? null : '-1';
   should.equal(
     targetInstance.elements().viewport.getAttribute('tabindex'),
-    viewportIsTarget ? (withTargetFocus ? '456' : null) : '-1',
+    viewportIsTarget ? (withTargetFocus ? '456' : null) : expectedInitTabIndex,
     'Target init viewport tabindex is correct after init.'
   );
 

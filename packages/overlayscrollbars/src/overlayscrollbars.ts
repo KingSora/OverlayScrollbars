@@ -61,6 +61,8 @@ export interface Environment {
   scrollbarsHiding: boolean;
   /** Whether the browser supports the ScrollTimeline API. */
   scrollTimeline: boolean;
+  /** Whether the browser supports focusing scrollers without any set tabIndex. */
+  focusableScrollers: boolean;
   /** The default Initialization to use if nothing else is specified. */
   staticDefaultInitialization: Initialization;
   /** The default Options to use if nothing else is specified. */
@@ -588,6 +590,7 @@ OverlayScrollbars.env = () => {
     _nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding,
     _scrollTimeline,
+    _focusableScrollers,
     _staticDefaultInitialization,
     _staticDefaultOptions,
     _getDefaultInitialization,
@@ -602,6 +605,7 @@ OverlayScrollbars.env = () => {
       scrollbarsOverlaid: _nativeScrollbarsOverlaid,
       scrollbarsHiding: _nativeScrollbarsHiding,
       scrollTimeline: _scrollTimeline,
+      focusableScrollers: _focusableScrollers,
       staticDefaultInitialization: _staticDefaultInitialization,
       staticDefaultOptions: _staticDefaultOptions,
 

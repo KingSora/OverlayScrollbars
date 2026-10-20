@@ -14,7 +14,6 @@ import {
   runEachAndClear,
   removeAttrs,
   hasAttrClass,
-  addEventListener,
   bind,
   inArray,
   addAttrClass,
@@ -25,12 +24,14 @@ import {
   getFocusedElement,
   wnd,
   focusElement,
-  stopAndPrevent,
   getOffsetSize,
   getScrollSize,
   getStyles,
   strOverflowX,
   strOverflowY,
+  swallowFocusEvents,
+  concat,
+  EventListenerTarget,
 } from '../../support';
 import {
   dataAttributeHost,
@@ -80,7 +81,7 @@ export const createStructureSetupElements = (
   target: InitializationTarget
 ): StructureSetupElements => {
   const env = getEnvironment();
-  const { _getDefaultInitialization, _nativeScrollbarsHiding } = env;
+  const { _getDefaultInitialization, _focusableScrollers, _nativeScrollbarsHiding } = env;
   const { elements: defaultInitElements } = _getDefaultInitialization();
   const {
     padding: defaultPaddingInitialization,
@@ -177,6 +178,7 @@ export const createStructureSetupElements = (
       ),
   };
   const { _target, _host, _padding, _viewport, _content } = evaluatedTargetObj;
+  const structureElements = [_content, _viewport, _padding, _host, _target];
   const destroyFns: (() => void)[] = [
     () => {
       // always remove dataAttributeHost & dataAttributeInitialize from host and from <html> element if target is body
@@ -187,9 +189,8 @@ export const createStructureSetupElements = (
       }
     },
   ];
-  let targetContents = contents(
-    [_content, _viewport, _padding, _host, _target].find((elm) => elm && !elementIsGenerated(elm))
-  );
+
+  let targetContents = contents(structureElements.find((elm) => elm && !elementIsGenerated(elm)));
   const contentSlot = viewportIsTargetBody ? _target : _content || _viewport;
   const destroy = bind(runEachAndClear, destroyFns);
   const appendElements = () => {
@@ -199,22 +200,21 @@ export const createStructureSetupElements = (
       appendChildren(parent(elm), contents(elm));
       removeElements(elm);
     };
-    // wrapping / unwrapping will cause the focused element to blur, this should prevent those events to surface
-    const prepareWrapUnwrapFocus = (activeElement: Element | false | null | undefined) =>
-      addEventListener(activeElement, 'focusin focusout focus blur', stopAndPrevent, {
-        _capture: true,
-        _passive: false,
-      });
     const tabIndexStr = 'tabindex';
     const originalViewportTabIndex = getAttr(_viewport, tabIndexStr);
-    const undoInitWrapUndwrapFocus = prepareWrapUnwrapFocus(initActiveElm);
+    // wrapping / unwrapping will cause the focused element to blur, this should prevent those events to surface
+    const undoInitSwallowFocusEvents = swallowFocusEvents(
+      concat<EventListenerTarget>(structureElements, [initActiveElm])
+    );
     setAttrs(_host, dataAttributeHost, viewportIsTarget ? '' : dataValueHostIsHost);
     setAttrs(_padding, dataAttributePadding, '');
     setAttrs(_viewport, dataAttributeViewport, '');
     setAttrs(_content, dataAttributeContent, '');
 
     if (!viewportIsTarget) {
-      setAttrs(_viewport, tabIndexStr, originalViewportTabIndex || '-1');
+      if (originalViewportTabIndex || !_focusableScrollers) {
+        setAttrs(_viewport, tabIndexStr, originalViewportTabIndex || '-1');
+      }
       if (isBody) {
         setAttrs(docElement, dataAttributeHtmlBody, '');
       }
@@ -226,7 +226,7 @@ export const createStructureSetupElements = (
     appendChildren(_viewport, _content);
 
     push(destroyFns, [
-      undoInitWrapUndwrapFocus,
+      undoInitSwallowFocusEvents,
       () => {
         const destroyActiveElm = getFocusedElement();
         const viewportIsGenerated = elementIsGenerated(_viewport);
@@ -234,7 +234,9 @@ export const createStructureSetupElements = (
         // otherwise keep the focused element
         const destroyFocusElement =
           viewportIsGenerated && destroyActiveElm === _viewport ? _target : destroyActiveElm;
-        const undoDestroyWrapUndwrapFocus = prepareWrapUnwrapFocus(destroyFocusElement);
+        const undoDestroySwallowFocusEvents = swallowFocusEvents(
+          concat<EventListenerTarget>(structureElements, [destroyFocusElement])
+        );
         removeAttrs(_padding, dataAttributePadding);
         removeAttrs(_content, dataAttributeContent);
         removeAttrs(_viewport, dataAttributeViewport);
@@ -258,7 +260,7 @@ export const createStructureSetupElements = (
         }
 
         focusElement(destroyFocusElement);
-        undoDestroyWrapUndwrapFocus();
+        undoDestroySwallowFocusEvents();
       },
     ]);
 
@@ -274,7 +276,7 @@ export const createStructureSetupElements = (
         ? _viewport
         : initActiveElm
     );
-    undoInitWrapUndwrapFocus();
+    undoInitSwallowFocusEvents();
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

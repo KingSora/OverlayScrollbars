@@ -1204,157 +1204,194 @@ describe('structureSetup.elements', () => {
   });
 
   describe('focus & tabindex', () => {
-    test('body focused', () => {
-      const { elements } = createStructureSetupElementsProxy({
-        target: document.body,
-        elements: {
-          viewport: false,
-        },
-        cancel: {
-          body: false,
-        },
+    beforeEach(async () => {
+      const actualModule = await vi.importActual<typeof import('../../../../src/environment')>(
+        '../../../../src/environment'
+      );
+      vi.mocked({ getEnvironment }).getEnvironment.mockImplementation(actualModule.getEnvironment);
+    });
+
+    [
+      envDefault,
+      {
+        name: 'focusable scrollers',
+        env: {
+          ...env,
+          _focusableScrollers: true,
+        } satisfies Env,
+      },
+    ].forEach((envWithName) => {
+      const { env: currEnv, name } = envWithName;
+      describe(`Environment: ${name}`, () => {
+        beforeEach(() => {
+          vi.mocked({ getEnvironment }).getEnvironment.mockImplementation(() => currEnv);
+        });
+
+        test('body focused', () => {
+          const { elements } = createStructureSetupElementsProxy({
+            target: document.body,
+            elements: {
+              viewport: false,
+            },
+            cancel: {
+              body: false,
+            },
+          });
+          expect(elements._target.getAttribute('tabindex')).toBe(null);
+          expect(elements._viewport.getAttribute('tabindex')).toBe(
+            currEnv._focusableScrollers ? null : '-1'
+          );
+          expect(document.activeElement).toBe(
+            currEnv._focusableScrollers ? document.body : elements._viewport
+          );
+        });
+
+        test('body not focused', () => {
+          document.body.innerHTML = '<button></button>';
+          document.querySelector('button')!.focus();
+          const originalFocus = document.activeElement;
+          const { elements } = createStructureSetupElementsProxy({
+            target: document.body,
+            elements: {
+              viewport: false,
+            },
+            cancel: {
+              body: false,
+            },
+          });
+          expect(elements._target.getAttribute('tabindex')).toBe(null);
+          expect(elements._viewport.getAttribute('tabindex')).toBe(
+            currEnv._focusableScrollers ? null : '-1'
+          );
+          expect(document.activeElement).toBe(originalFocus);
+        });
+
+        test('body viewportIsTarget focused', () => {
+          const { elements } = createStructureSetupElementsProxy({
+            target: document.body,
+            elements: {
+              viewport: document.body,
+            },
+            cancel: {
+              body: false,
+            },
+          });
+          expect(elements._target.getAttribute('tabindex')).toBe(null);
+          expect(elements._viewport.getAttribute('tabindex')).toBe(null);
+          expect(document.activeElement).toBe(elements._target);
+        });
+
+        test('body viewportIsTarget not focused', () => {
+          document.body.innerHTML = '<button></button>';
+          document.querySelector('button')!.focus();
+          const originalFocus = document.activeElement;
+          const { elements } = createStructureSetupElementsProxy({
+            target: document.body,
+            elements: {
+              viewport: document.body,
+            },
+            cancel: {
+              body: false,
+            },
+          });
+          expect(elements._target.getAttribute('tabindex')).toBe(null);
+          expect(elements._viewport.getAttribute('tabindex')).toBe(null);
+          expect(document.activeElement).toBe(originalFocus);
+        });
+
+        test('element focused', () => {
+          document.body.innerHTML = '<div tabindex="123"></div>';
+          const target = document.body.firstElementChild as HTMLElement;
+          target.focus();
+
+          const { elements } = createStructureSetupElementsProxy(target);
+          expect(elements._viewport.getAttribute('tabindex')).toBe(
+            currEnv._focusableScrollers ? null : '-1'
+          );
+          expect(elements._host.getAttribute('tabindex')).toBe('123');
+          // dont move the focus from previously focused target
+          expect(document.activeElement).toBe(elements._target);
+        });
+
+        test('element not focused', () => {
+          document.body.innerHTML = '<div></div>';
+          const target = document.body.firstElementChild as HTMLElement;
+          const originalFocus = document.activeElement;
+          const { elements } = createStructureSetupElementsProxy(target);
+          expect(elements._viewport.getAttribute('tabindex')).toBe(
+            currEnv._focusableScrollers ? null : '-1'
+          );
+          expect(elements._host.getAttribute('tabindex')).toBe(null);
+          expect(document.activeElement).toBe(originalFocus);
+        });
+
+        test('element with explicit viewport focused', () => {
+          document.body.innerHTML = '<div tabindex="123"><div tabindex="456"></div></div>';
+          const target = document.body.firstElementChild as HTMLElement;
+          const viewport = target.firstElementChild as HTMLElement;
+          viewport.focus();
+
+          const { elements } = createStructureSetupElementsProxy({
+            target,
+            elements: {
+              viewport,
+            },
+          });
+          expect(elements._viewport.getAttribute('tabindex')).toBe('456');
+          expect(elements._host.getAttribute('tabindex')).toBe('123');
+          expect(document.activeElement).toBe(elements._viewport);
+        });
+
+        test('element with explicit viewport not focused', () => {
+          document.body.innerHTML = '<div><div></div></div>';
+          const target = document.body.firstElementChild as HTMLElement;
+          const viewport = target.firstElementChild as HTMLElement;
+          const originalFocus = document.activeElement;
+          const { elements } = createStructureSetupElementsProxy({
+            target,
+            elements: {
+              viewport,
+            },
+          });
+          expect(elements._viewport.getAttribute('tabindex')).toBe(
+            currEnv._focusableScrollers ? null : '-1'
+          );
+          expect(elements._host.getAttribute('tabindex')).toBe(null);
+          expect(document.activeElement).toBe(originalFocus);
+        });
+
+        test('element viewportIsTarget focused', () => {
+          document.body.innerHTML = '<div tabindex="123"></div>';
+          const target = document.body.firstElementChild as HTMLElement;
+          target.focus();
+
+          const { elements } = createStructureSetupElementsProxy({
+            target,
+            elements: {
+              viewport: target,
+            },
+          });
+          expect(elements._viewport.getAttribute('tabindex')).toBe('123');
+          expect(elements._host.getAttribute('tabindex')).toBe('123');
+          expect(document.activeElement).toBe(elements._viewport);
+        });
+
+        test('element viewportIsTarget not focused', () => {
+          document.body.innerHTML = '<div></div>';
+          const target = document.body.firstElementChild as HTMLElement;
+          const originalFocus = document.activeElement;
+
+          const { elements } = createStructureSetupElementsProxy({
+            target,
+            elements: {
+              viewport: target,
+            },
+          });
+          expect(elements._viewport.getAttribute('tabindex')).toBe(null);
+          expect(elements._host.getAttribute('tabindex')).toBe(null);
+          expect(document.activeElement).toBe(originalFocus);
+        });
       });
-      expect(elements._target.getAttribute('tabindex')).toBe(null);
-      expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
-      expect(document.activeElement).toBe(elements._viewport);
-    });
-
-    test('body not focused', () => {
-      document.body.innerHTML = '<button></button>';
-      document.querySelector('button')!.focus();
-      const originalFocus = document.activeElement;
-      const { elements } = createStructureSetupElementsProxy({
-        target: document.body,
-        elements: {
-          viewport: false,
-        },
-        cancel: {
-          body: false,
-        },
-      });
-      expect(elements._target.getAttribute('tabindex')).toBe(null);
-      expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
-      expect(document.activeElement).toBe(originalFocus);
-    });
-
-    test('body viewportIsTarget focused', () => {
-      const { elements } = createStructureSetupElementsProxy({
-        target: document.body,
-        elements: {
-          viewport: document.body,
-        },
-        cancel: {
-          body: false,
-        },
-      });
-      expect(elements._target.getAttribute('tabindex')).toBe(null);
-      expect(elements._viewport.getAttribute('tabindex')).toBe(null);
-      expect(document.activeElement).toBe(elements._target);
-    });
-
-    test('body viewportIsTarget not focused', () => {
-      document.body.innerHTML = '<button></button>';
-      document.querySelector('button')!.focus();
-      const originalFocus = document.activeElement;
-      const { elements } = createStructureSetupElementsProxy({
-        target: document.body,
-        elements: {
-          viewport: document.body,
-        },
-        cancel: {
-          body: false,
-        },
-      });
-      expect(elements._target.getAttribute('tabindex')).toBe(null);
-      expect(elements._viewport.getAttribute('tabindex')).toBe(null);
-      expect(document.activeElement).toBe(originalFocus);
-    });
-
-    test('element focused', () => {
-      document.body.innerHTML = '<div tabindex="123"></div>';
-      const target = document.body.firstElementChild as HTMLElement;
-      target.focus();
-
-      const { elements } = createStructureSetupElementsProxy(target);
-      expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
-      expect(elements._host.getAttribute('tabindex')).toBe('123');
-      // dont move the focus from previously focused target
-      expect(document.activeElement).toBe(elements._target);
-    });
-
-    test('element not focused', () => {
-      document.body.innerHTML = '<div></div>';
-      const target = document.body.firstElementChild as HTMLElement;
-      const originalFocus = document.activeElement;
-      const { elements } = createStructureSetupElementsProxy(target);
-      expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
-      expect(elements._host.getAttribute('tabindex')).toBe(null);
-      expect(document.activeElement).toBe(originalFocus);
-    });
-
-    test('element with explicit viewport focused', () => {
-      document.body.innerHTML = '<div tabindex="123"><div tabindex="456"></div></div>';
-      const target = document.body.firstElementChild as HTMLElement;
-      const viewport = target.firstElementChild as HTMLElement;
-      viewport.focus();
-
-      const { elements } = createStructureSetupElementsProxy({
-        target,
-        elements: {
-          viewport,
-        },
-      });
-      expect(elements._viewport.getAttribute('tabindex')).toBe('456');
-      expect(elements._host.getAttribute('tabindex')).toBe('123');
-      expect(document.activeElement).toBe(elements._viewport);
-    });
-
-    test('element with explicit viewport not focused', () => {
-      document.body.innerHTML = '<div><div></div></div>';
-      const target = document.body.firstElementChild as HTMLElement;
-      const viewport = target.firstElementChild as HTMLElement;
-      const originalFocus = document.activeElement;
-      const { elements } = createStructureSetupElementsProxy({
-        target,
-        elements: {
-          viewport,
-        },
-      });
-      expect(elements._viewport.getAttribute('tabindex')).toBe('-1');
-      expect(elements._host.getAttribute('tabindex')).toBe(null);
-      expect(document.activeElement).toBe(originalFocus);
-    });
-
-    test('element viewportIsTarget focused', () => {
-      document.body.innerHTML = '<div tabindex="123"></div>';
-      const target = document.body.firstElementChild as HTMLElement;
-      target.focus();
-
-      const { elements } = createStructureSetupElementsProxy({
-        target,
-        elements: {
-          viewport: target,
-        },
-      });
-      expect(elements._viewport.getAttribute('tabindex')).toBe('123');
-      expect(elements._host.getAttribute('tabindex')).toBe('123');
-      expect(document.activeElement).toBe(elements._viewport);
-    });
-
-    test('element viewportIsTarget not focused', () => {
-      document.body.innerHTML = '<div></div>';
-      const target = document.body.firstElementChild as HTMLElement;
-      const originalFocus = document.activeElement;
-
-      const { elements } = createStructureSetupElementsProxy({
-        target,
-        elements: {
-          viewport: target,
-        },
-      });
-      expect(elements._viewport.getAttribute('tabindex')).toBe(null);
-      expect(elements._host.getAttribute('tabindex')).toBe(null);
-      expect(document.activeElement).toBe(originalFocus);
     });
   });
 

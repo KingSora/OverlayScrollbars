@@ -19,8 +19,8 @@ export default async (page, timeout = 10 * 60 * 1500) => {
     }
   });
 
-  await page.waitForLoadState('domcontentloaded', { timeout: 5000 });
-  await page.click(startSelector, { timeout: 1000 });
+  await page.waitForLoadState('domcontentloaded', { timeout: 10000 });
+  await page.click(startSelector, { timeout: 5000 });
   await page.mouse.move(0, 0);
 
   await page.locator(resultSelector).waitFor({ state: 'visible', timeout });

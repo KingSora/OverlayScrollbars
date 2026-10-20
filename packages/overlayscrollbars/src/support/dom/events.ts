@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DomTokens } from './attribute';
-import { each, runEachAndClear } from '../utils/array';
+import { createOrKeepArray, each, runEachAndClear } from '../utils/array';
 import { bind } from '../utils/function';
 import { keys } from '../utils';
 import { getDomTokensArray } from './attribute';
@@ -117,3 +117,19 @@ export const preventDefault = (evt: Event): void => evt.preventDefault();
  */
 export const stopAndPrevent = (evt: Event): void =>
   (stopPropagation(evt) as undefined) || (preventDefault(evt) as undefined);
+
+/**
+ * Swallows any focus events of the passed element(s).
+ * @param target The target element.
+ * @returns A function to revert the swallowing.
+ */
+export const swallowFocusEvents = (target: EventListenerTarget | EventListenerTarget[]) =>
+  bind(
+    runEachAndClear,
+    createOrKeepArray(target).map((elm) =>
+      addEventListener(elm, 'focusin focusout focus blur', (evt) => stopAndPrevent(evt), {
+        _capture: true,
+        _passive: false,
+      })
+    )
+  );

@@ -24,6 +24,10 @@ import {
   isBodyElement,
   isFunction,
   addEventListener,
+  setStyles,
+  isHTMLElement,
+  swallowFocusEvents,
+  focusElement,
 } from './support';
 import { getNonce } from './nonce';
 
@@ -36,6 +40,7 @@ export interface Env {
   readonly _nativeScrollbarsOverlaid: XY<boolean>;
   readonly _nativeScrollbarsHiding: boolean;
   readonly _scrollTimeline: boolean;
+  readonly _focusableScrollers: boolean;
   readonly _staticDefaultInitialization: Initialization;
   readonly _staticDefaultOptions: Options;
   _addResizeListener(listener: EventListener<EnvironmentEventArgs, 'r'>): () => void;
@@ -84,6 +89,27 @@ const createEnvironment = (): Env => {
     return result;
   };
 
+  const getFocusableScrollers = (testElm: HTMLElement): boolean => {
+    const getActiveElement = () => testElm.ownerDocument.activeElement;
+    const originalActiveElement = getActiveElement();
+    const undoElmSwallowFocusEvents = swallowFocusEvents([testElm, originalActiveElement]);
+
+    setStyles(testElm, { visibility: 'visible' });
+    focusElement(testElm);
+
+    const focusable = getActiveElement() === testElm;
+    setStyles(testElm, { visibility: '' });
+
+    testElm.blur();
+    if (isHTMLElement(originalActiveElement)) {
+      originalActiveElement.focus();
+    }
+
+    undoElmSwallowFocusEvents();
+
+    return focusable;
+  };
+
   // changes to this styles need to be reflected in the "hide native scrollbars" section of the structure styles
   const envStyle = `.${classNameEnvironment}{scroll-behavior:auto!important;position:fixed;opacity:0;visibility:hidden;overflow:scroll;height:200px;width:200px;z-index:-1}.${classNameEnvironment} div{width:200%;height:200%;margin:10px 0}.${classNameEnvironmentScrollbarHidden}{scrollbar-width:none!important}@supports not (scrollbar-width:none){.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar,.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar-corner{appearance:none!important;display:none!important;width:0!important;height:0!important}}`;
   const envDOM = createDOM(
@@ -108,6 +134,7 @@ const createEnvironment = (): Env => {
   );
   const [nativeScrollbarsSize] = getNativeScrollbarSizeCache();
   const nativeScrollbarsHiding = getNativeScrollbarsHiding(envElm);
+  const focusableScrollers = getFocusableScrollers(envElm);
   const nativeScrollbarsOverlaid = {
     x: nativeScrollbarsSize.x === 0,
     y: nativeScrollbarsSize.y === 0,
@@ -143,6 +170,7 @@ const createEnvironment = (): Env => {
     _nativeScrollbarsSize: nativeScrollbarsSize,
     _nativeScrollbarsOverlaid: nativeScrollbarsOverlaid,
     _nativeScrollbarsHiding: nativeScrollbarsHiding,
+    _focusableScrollers: focusableScrollers,
     _scrollTimeline: !!scrollT,
     _addResizeListener: bind(addEvent, 'r'),
     _getDefaultInitialization: getDefaultInitialization,
