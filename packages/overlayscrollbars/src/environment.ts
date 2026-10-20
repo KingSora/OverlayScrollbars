@@ -85,7 +85,7 @@ const createEnvironment = (): Env => {
   };
 
   // changes to this styles need to be reflected in the "hide native scrollbars" section of the structure styles
-  const envStyle = `.${classNameEnvironment}{scroll-behavior:auto!important;position:fixed;opacity:0;visibility:hidden;overflow:scroll;height:200px;width:200px;z-index:-1}.${classNameEnvironment} div{width:200%;height:200%;margin:10px 0}.${classNameEnvironmentScrollbarHidden}{scrollbar-width:none!important}.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar,.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar-corner{appearance:none!important;display:none!important;width:0!important;height:0!important}`;
+  const envStyle = `.${classNameEnvironment}{scroll-behavior:auto!important;position:fixed;opacity:0;visibility:hidden;overflow:scroll;height:200px;width:200px;z-index:-1}.${classNameEnvironment} div{width:200%;height:200%;margin:10px 0}.${classNameEnvironmentScrollbarHidden}{scrollbar-width:none!important}@supports not (scrollbar-width:none){.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar,.${classNameEnvironmentScrollbarHidden}::-webkit-scrollbar-corner{appearance:none!important;display:none!important;width:0!important;height:0!important}}`;
   const envDOM = createDOM(
     `<div class="${classNameEnvironment}"><div></div><style>${envStyle}</style></div>`
   );
