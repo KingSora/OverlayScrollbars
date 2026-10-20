@@ -35,6 +35,7 @@ import {
   concat,
   deduplicateArray,
   isString,
+  noop,
 } from '../../../support';
 import { getEnvironment } from '../../../environment';
 import {
@@ -390,10 +391,9 @@ export const createOverflowUpdateSegment: CreateStructureUpdateSegment = (
         setMeasuringMode(true);
       }
 
-      const removeViewportNoScrollbars = _viewportAddRemoveClass(
-        dataValueViewportNoScrollbars,
-        _viewportIsTarget
-      );
+      const removeViewportNoScrollbars = _viewportIsTarget
+        ? _viewportAddRemoveClass(dataValueViewportNoScrollbars, true)
+        : noop;
       const redoViewportArrange = _undoViewportArrange && _undoViewportArrange();
 
       const [sizeFraction] = (sizeFractionCache = updateSizeFraction(_force));

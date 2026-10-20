@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.17.0
+
+### Features
+
+- Instead of adding `tabindex` blindly to the viewport element to make it accessable, detect whether the browser supports [focusable scrollers](https://developer.chrome.com/blog/keyboard-focusable-scrollers). Support is reflect in `OverlayScrollbars.env().focusableScrollers`. [#732](https://github.com/KingSora/OverlayScrollbars/issues/732)
+
+### Improvements
+
+- Provide `.min.js` versions for `esm` and `cjs` outputs for consumers without bundlers. [#758](https://github.com/KingSora/OverlayScrollbars/issues/758)
+
+### Bug Fixes
+
+- Remove any "dummy" animation keyframes for `ScrollTimeline` animations. [#761](https://github.com/KingSora/OverlayScrollbars/issues/761)
+- Fix an issue in Safari where "smooth" `scrollIntoView` stopped early because of `::-webkit-scrollbar` styling. [#762](https://github.com/KingSora/OverlayScrollbars/issues/762)
+
 ## 2.16.0
 
 ### Features

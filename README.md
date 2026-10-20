@@ -1232,6 +1232,8 @@ OverlayScrollbars.plugin(SomePlugin);
     scrollbarsHiding: boolean;
     // Whether the browser supports the ScrollTimeline API.
     scrollTimeline: boolean;
+    // Whether the browser supports focusing scrollers without any tabindex.
+    focusableScrollers: boolean;
     // The default Initialization to use if nothing else is specified.
     staticDefaultInitialization: Initialization;
     // The default Options to use if nothing else is specified.
