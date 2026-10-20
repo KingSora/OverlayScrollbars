@@ -126,11 +126,13 @@ export const useOverlayScrollbars = (
           return;
         }
 
-        const currOptions = optionsRef.current;
-        const currEvents = eventsRef.current;
         const currDefer = deferRef.current;
         const init = () =>
-          (instanceRef.current = OverlayScrollbars(target, currOptions || {}, currEvents || {}));
+          (instanceRef.current = OverlayScrollbars(
+            target,
+            optionsRef.current || {},
+            eventsRef.current || {}
+          ));
 
         if (currDefer) {
           requestDefer(init, currDefer);
