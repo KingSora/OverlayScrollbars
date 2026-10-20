@@ -696,6 +696,7 @@ describe('overlayscrollbars', () => {
         scrollbarsOverlaid: { x: expect.any(Boolean), y: expect.any(Boolean) },
         scrollbarsHiding: expect.any(Boolean),
         scrollTimeline: expect.any(Boolean),
+        focusableScrollers: expect.any(Boolean),
         staticDefaultInitialization: expect.any(Object),
         staticDefaultOptions: expect.any(Object),
         getDefaultInitialization: expect.any(Function),
