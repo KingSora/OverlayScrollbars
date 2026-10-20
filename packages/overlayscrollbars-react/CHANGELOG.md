@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.7
+
+### Bug Fixes
+
+- Use `ComponentRef<T>` instead of `ElementRef<T>`. ([#760](https://github.com/KingSora/OverlayScrollbars/issues/760))
+
 ## 0.5.6
 
 ### Improvements

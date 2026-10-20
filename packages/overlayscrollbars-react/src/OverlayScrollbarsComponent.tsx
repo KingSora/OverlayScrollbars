@@ -5,7 +5,7 @@ import type { OverlayScrollbars, PartialOptions, EventListeners } from 'overlays
 
 import type {
   ComponentPropsWithoutRef,
-  ElementRef,
+  ComponentRef,
   ElementType,
   ForwardedRef,
   ReactElement,
@@ -33,7 +33,7 @@ export interface OverlayScrollbarsComponentRef<T extends ElementType = 'div'> {
   /** Returns the OverlayScrollbars instance or null if not initialized. */
   osInstance(): OverlayScrollbars | null;
   /** Returns the root element. */
-  getElement(): ElementRef<T> | null;
+  getElement(): ComponentRef<T> | null;
 }
 
 const OverlayScrollbarsComponent = <T extends ElementType = 'div'>(
@@ -42,7 +42,7 @@ const OverlayScrollbarsComponent = <T extends ElementType = 'div'>(
 ): ReactElement | null => {
   const { element = 'div', options, events, defer, children, ...other } = props;
   const Tag = element;
-  const elementRef = useRef<ElementRef<T>>(null);
+  const elementRef = useRef<ComponentRef<T>>(null);
   const childrenRef = useRef<HTMLDivElement>(null);
   const [initialize, osInstance] = useOverlayScrollbars({ options, events, defer });
 
