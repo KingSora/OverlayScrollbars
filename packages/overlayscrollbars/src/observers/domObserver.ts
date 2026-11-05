@@ -114,7 +114,7 @@ const createEventContentChange = (
       each(eventElmList, (item) =>
         each(item[0], (elm) => {
           const eventNames = item[1];
-          const entries = map.get(elm) || {};
+          const entries = map.get(elm) || Object.create(null);
           const isTargetChild = target.contains(elm);
 
           if (isTargetChild && eventNames && entries[eventNames]) {
