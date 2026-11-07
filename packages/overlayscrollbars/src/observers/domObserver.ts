@@ -99,7 +99,7 @@ const createEventContentChange = (
   eventContentChange?: DOMObserverEventContentChange
 ): EventContentChange => {
   let destroyed = false;
-  const map = eventContentChange ? new WeakMap<Node, (() => any)[]>() : false; // weak map to prevent memory leak for detached elements
+  const map = eventContentChange ? new WeakMap<Node, Record<string, () => any>>() : false; // weak map to prevent memory leak for detached elements
   const destroy = () => {
     destroyed = true;
   };
@@ -114,8 +114,12 @@ const createEventContentChange = (
       each(eventElmList, (item) =>
         each(item[0], (elm) => {
           const eventNames = item[1];
-          const entries = map.get(elm) || [];
+          const entries = map.get(elm) || Object.create(null);
           const isTargetChild = target.contains(elm);
+
+          if (isTargetChild && eventNames && entries[eventNames]) {
+            return;
+          }
 
           if (isTargetChild && eventNames) {
             const removeListener = addEventListener(elm, eventNames, (event: Event) => {
@@ -126,9 +130,10 @@ const createEventContentChange = (
                 callback(event);
               }
             });
-            map.set(elm, push(entries, removeListener));
+            entries[eventNames] = removeListener;
+            map.set(elm, entries);
           } else {
-            runEachAndClear(entries);
+            runEachAndClear(Object.values(entries));
             map.delete(elm);
           }
         })

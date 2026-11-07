@@ -382,6 +382,57 @@ describe('createDOMObserver', () => {
       destroy();
     });
 
+    test('eventContentChange doesnt add listeners again to moved elements', async () => {
+      document.body.innerHTML = '<div><img /></div><p></p>';
+      const callback = vi.fn();
+      const img = document.querySelector('img') as HTMLImageElement;
+      const addListener = vi.spyOn(img, 'addEventListener');
+      const removeListener = vi.spyOn(img, 'removeEventListener');
+      const liveListeners = (eventName: string) =>
+        addListener.mock.calls.filter(([name]) => name === eventName).length -
+        removeListener.mock.calls.filter(([name]) => name === eventName).length;
+      const [construct] = createDOMObserver(document.body, true, callback, {
+        _eventContentChange: [
+          ['img', 'load'],
+          ['img', 'error'],
+        ],
+      });
+
+      const destroy = construct();
+
+      expect(liveListeners('load')).toBe(1);
+      expect(liveListeners('error')).toBe(1);
+
+      for (let i = 0; i < 5; i++) {
+        document.body.append(document.body.firstElementChild!);
+        await Promise.resolve();
+      }
+
+      expect(liveListeners('load')).toBe(1);
+      expect(liveListeners('error')).toBe(1);
+
+      callback.mockClear();
+      img.dispatchEvent(new Event('load'));
+      vi.runAllTimers();
+
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenLastCalledWith(true);
+
+      document.body.parentElement!.append(img);
+      await Promise.resolve();
+
+      expect(liveListeners('load')).toBe(0);
+      expect(liveListeners('error')).toBe(0);
+
+      document.body.append(img);
+      await Promise.resolve();
+
+      expect(liveListeners('load')).toBe(1);
+      expect(liveListeners('error')).toBe(1);
+
+      destroy();
+    });
+
     test('update', async () => {
       document.body.innerHTML = '<div></div>';
       const callback = vi.fn();
