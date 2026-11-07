@@ -12,7 +12,7 @@ jobs:
   test:
     timeout-minutes: 25
     name: OverlayScrollbars Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6
