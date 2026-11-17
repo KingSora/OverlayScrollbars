@@ -127,11 +127,9 @@ export const createOverlayScrollbars = (
         return instance;
       }
 
-      const currOptions = untrack(options);
-      const currEvents = untrack(events);
       const currDefer = untrack(defer);
       const init = () =>
-        (instance = OverlayScrollbars(target, currOptions || {}, currEvents || {}));
+        (instance = OverlayScrollbars(target, untrack(options) || {}, untrack(events) || {}));
 
       if (currDefer) {
         requestDefer(init, currDefer);

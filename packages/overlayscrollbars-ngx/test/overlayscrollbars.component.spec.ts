@@ -209,6 +209,87 @@ describe('OverlayscrollbarsNgxComponent', () => {
   });
 
   describe('deferred initialization', () => {
+    [true, false].forEach((idleSupported) => {
+      describe(`latest inputs with idle support: ${idleSupported}`, () => {
+        const originalRequestIdleCallback = window.requestIdleCallback;
+        let requestIdleCallbackSpy: jasmine.Spy | undefined;
+
+        beforeEach(() => {
+          if (idleSupported) {
+            requestIdleCallbackSpy = spyOn(window, 'requestIdleCallback').and.callThrough();
+          } else {
+            // @ts-ignore
+            window.requestIdleCallback = undefined;
+          }
+        });
+
+        afterEach(() => {
+          window.requestIdleCallback = originalRequestIdleCallback;
+          requestIdleCallbackSpy = undefined;
+        });
+
+        const waitForInstance = async (osElement: HTMLElement) => {
+          for (let i = 0; i < 100 && !OverlayScrollbars(osElement); i++) {
+            await new Promise((r) => setTimeout(r, 20));
+          }
+          return OverlayScrollbars(osElement)!;
+        };
+
+        ['update', 'remove'].forEach((change) => {
+          it(`${change} options before initialization`, async () => {
+            const testFixture = TestBed.createComponent(Test);
+            const testInstance = testFixture.componentInstance;
+
+            testInstance.defer = true;
+            testInstance.options = { paddingAbsolute: true };
+            testFixture.detectChanges();
+
+            testInstance.options = change === 'update' ? { overflow: { x: 'hidden' } } : undefined;
+            testFixture.detectChanges();
+
+            const osElement = (testFixture.nativeElement as HTMLElement)
+              .firstElementChild as HTMLElement;
+            expect(OverlayScrollbars(osElement)).toBeUndefined();
+            if (requestIdleCallbackSpy) {
+              expect(requestIdleCallbackSpy).toHaveBeenCalledTimes(1);
+            }
+
+            const options = (await waitForInstance(osElement)).options();
+            expect(options.paddingAbsolute).toBe(false);
+            expect(options.overflow.x).toBe(change === 'update' ? 'hidden' : 'scroll');
+          });
+
+          it(`${change} events before initialization`, async () => {
+            const originalInitialized = jasmine.createSpy('originalInitialized');
+            const latestInitialized = jasmine.createSpy('latestInitialized');
+            const testFixture = TestBed.createComponent(Test);
+            const testInstance = testFixture.componentInstance;
+
+            testInstance.defer = true;
+            testInstance.events = { initialized: originalInitialized };
+            testFixture.detectChanges();
+
+            testInstance.events =
+              change === 'update' ? { initialized: latestInitialized } : undefined;
+            testFixture.detectChanges();
+
+            const osElement = (testFixture.nativeElement as HTMLElement)
+              .firstElementChild as HTMLElement;
+            expect(OverlayScrollbars(osElement)).toBeUndefined();
+            if (requestIdleCallbackSpy) {
+              expect(requestIdleCallbackSpy).toHaveBeenCalledTimes(1);
+            }
+            expect(originalInitialized).not.toHaveBeenCalled();
+            expect(latestInitialized).not.toHaveBeenCalled();
+
+            expect(OverlayScrollbars.valid(await waitForInstance(osElement))).toBe(true);
+            expect(originalInitialized).not.toHaveBeenCalled();
+            expect(latestInitialized).toHaveBeenCalledTimes(change === 'update' ? 1 : 0);
+          });
+        });
+      });
+    });
+
     it('basic defer', async () => {
       const testFixture = TestBed.createComponent(Test);
       const testInstance = testFixture.componentInstance;

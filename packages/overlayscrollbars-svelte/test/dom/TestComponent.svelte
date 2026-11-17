@@ -51,7 +51,7 @@
       events = e.detail.events;
     }
     if (deferChanged) {
-      events = e.detail.events;
+      defer = e.detail.defer;
     }
     if (elementChanged) {
       element = e.detail.element;

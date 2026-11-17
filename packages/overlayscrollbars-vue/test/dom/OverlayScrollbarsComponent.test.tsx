@@ -157,6 +157,73 @@ describe('OverlayScrollbarsComponent', () => {
   });
 
   describe('deferred initialization', () => {
+    describe.each([true, false])('latest props with idle support: %s', (idleSupported) => {
+      const originalRequestIdleCallback = window.requestIdleCallback;
+      const originalCancelIdleCallback = window.cancelIdleCallback;
+      const requestIdleCallback = vi.fn((callback: IdleRequestCallback) =>
+        window.requestAnimationFrame(() => callback({ didTimeout: false, timeRemaining: () => 50 }))
+      );
+
+      beforeEach(() => {
+        requestIdleCallback.mockClear();
+        if (idleSupported) {
+          window.requestIdleCallback = requestIdleCallback;
+          window.cancelIdleCallback = window.cancelAnimationFrame;
+        } else {
+          Reflect.set(window, 'requestIdleCallback', undefined);
+        }
+      });
+
+      afterEach(() => {
+        window.requestIdleCallback = originalRequestIdleCallback;
+        window.cancelIdleCallback = originalCancelIdleCallback;
+      });
+
+      test.each(['update', 'remove'])('%s options before initialization', async (change) => {
+        const { container, rerender } = render(OverlayScrollbarsComponent, {
+          props: { defer: true, options: { paddingAbsolute: true } },
+        });
+        await nextTick();
+
+        await rerender({
+          options: change === 'update' ? { overflow: { x: 'hidden' } } : undefined,
+        });
+        const target = container.firstElementChild as HTMLElement;
+        expect(OverlayScrollbars(target)).toBeUndefined();
+        expect(requestIdleCallback).toHaveBeenCalledTimes(idleSupported ? 1 : 0);
+
+        vi.advanceTimersByTime(2000);
+
+        const options = OverlayScrollbars(target)!.options();
+        expect(options.paddingAbsolute).toBe(false);
+        expect(options.overflow.x).toBe(change === 'update' ? 'hidden' : 'scroll');
+      });
+
+      test.each(['update', 'remove'])('%s events before initialization', async (change) => {
+        const originalInitialized = vi.fn();
+        const latestInitialized = vi.fn();
+        const { container, rerender } = render(OverlayScrollbarsComponent, {
+          props: { defer: true, events: { initialized: originalInitialized } },
+        });
+        await nextTick();
+
+        await rerender({
+          events: change === 'update' ? { initialized: latestInitialized } : undefined,
+        });
+        const target = container.firstElementChild as HTMLElement;
+        expect(OverlayScrollbars(target)).toBeUndefined();
+        expect(requestIdleCallback).toHaveBeenCalledTimes(idleSupported ? 1 : 0);
+        expect(originalInitialized).not.toHaveBeenCalled();
+        expect(latestInitialized).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(2000);
+
+        expect(OverlayScrollbars.valid(OverlayScrollbars(target))).toBe(true);
+        expect(originalInitialized).not.toHaveBeenCalled();
+        expect(latestInitialized).toHaveBeenCalledTimes(change === 'update' ? 1 : 0);
+      });
+    });
+
     test('basic defer', async () => {
       const { container } = render(<OverlayScrollbarsComponent defer />);
       await nextTick();
