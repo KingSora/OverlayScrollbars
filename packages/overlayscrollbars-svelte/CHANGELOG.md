@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.6
+
+### Bug Fixes
+
+- A deferred initialization now uses the latest `options` and `events` instead of the ones from the time the initialization was requested.
+
 ## 0.5.5
 
 The whole package was rewritten to support `Svelte 5`.

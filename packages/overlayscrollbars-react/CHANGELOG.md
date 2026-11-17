@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.8
+
+### Bug Fixes
+
+- A deferred initialization now uses the latest `options` and `events` instead of the ones from the time the initialization was requested. ([#764](https://github.com/KingSora/OverlayScrollbars/pull/764))
+
 ## 0.5.7
 
 ### Bug Fixes
