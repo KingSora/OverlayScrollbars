@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.17.1
+
+### Bug Fixes
+
+- Always remove all added event listeners from all elements on `osInstance.destroy()`. [#767](https://github.com/KingSora/OverlayScrollbars/issues/767)
+- Fix a bug with `update.elementEvents` where elements which already had an update listener would receive another listener if they moved in the DOM. [#765](https://github.com/KingSora/OverlayScrollbars/issues/765)
+
 ## 2.17.0
 
 ### Features
