@@ -110,23 +110,6 @@ export const createSizeObserver = (
         resizeObserverBoxSupport = resizeObserverBoxSupport || false;
         detectSupportResizeObserver.disconnect();
       }
-
-      /*
-      const { port1, port2 } = new MessageChannel();
-      const tasks: Set<() => void> = new Set();
-      const debounceTiming: DebounceTiming = {
-        _debouncer: (task) => {
-          tasks.add(task);
-          port2.postMessage(0);
-          return () => {
-            tasks.delete(task);
-          };
-        },
-      };
-      port1.onmessage = () => {
-        tasks.forEach((task) => task());
-      };
-      */
       const debouncedOnSizeChangedCallbackProxy = debounce(onSizeChangedCallbackProxy, {
         _debounceTiming: 0,
         _maxDebounceTiming: 0,
@@ -139,11 +122,7 @@ export const createSizeObserver = (
       push(destroyFns, [
         () => {
           contentBoxResizeObserver.disconnect();
-          /*
-          port1.close();
-          port2.close();
-          tasks.clear();
-          */
+          debouncedOnSizeChangedCallbackProxy._clear();
         },
         !resizeObserverBoxSupport && appendChildren(target, polyfillRootElement),
       ]);

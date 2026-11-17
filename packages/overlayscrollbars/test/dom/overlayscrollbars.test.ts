@@ -35,6 +35,85 @@ describe('overlayscrollbars', () => {
     }
   });
 
+  describe('destroy during a scrollbar interaction', () => {
+    const createPointerEvent = (type: string) => {
+      const event = new MouseEvent(type, { bubbles: true, cancelable: true, button: 0 });
+      Object.defineProperties(event, {
+        pointerId: { value: 1 },
+        pointerType: { value: 'mouse' },
+        isPrimary: { value: true },
+      });
+      return event;
+    };
+    const trackDocumentListeners = () => {
+      const counts: Record<string, number> = {};
+      const add = vi.spyOn(document, 'addEventListener').mockImplementation(function (
+        this: Document,
+        ...args: Parameters<Document['addEventListener']>
+      ) {
+        counts[args[0]] = (counts[args[0]] || 0) + 1;
+        return EventTarget.prototype.addEventListener.apply(this, args);
+      });
+      const remove = vi.spyOn(document, 'removeEventListener').mockImplementation(function (
+        this: Document,
+        ...args: Parameters<Document['removeEventListener']>
+      ) {
+        counts[args[0]] = (counts[args[0]] || 0) - 1;
+        return EventTarget.prototype.removeEventListener.apply(this, args);
+      });
+      return [
+        (eventName: string) => counts[eventName] || 0,
+        () => {
+          add.mockRestore();
+          remove.mockRestore();
+        },
+      ] as const;
+    };
+
+    test.each([
+      ['drag scroll', true],
+      ['click scroll', false],
+    ])('removes the document listeners of a %s', (_, isDragScroll) => {
+      const target = document.createElement('div');
+      bodyElm.append(target);
+      const instance = OverlayScrollbars(target, {
+        scrollbars: { clickScroll: true, dragScroll: true },
+      });
+      const { track, handle, scrollbar } = instance.elements().scrollbarVertical;
+      const pointerTarget = isDragScroll ? handle : track;
+      pointerTarget.setPointerCapture = vi.fn();
+      pointerTarget.releasePointerCapture = vi.fn();
+      const [liveDocumentListeners, restore] = trackDocumentListeners();
+
+      try {
+        pointerTarget.dispatchEvent(createPointerEvent('pointerdown'));
+
+        expect(pointerTarget.setPointerCapture).toHaveBeenCalledTimes(1);
+        expect(liveDocumentListeners('selectstart')).toBe(1);
+        expect(liveDocumentListeners('pointerup')).toBe(2); // interaction + click prevention
+        expect(liveDocumentListeners('click')).toBe(1);
+
+        // the instance is destroyed before the pointer is released
+        instance.destroy();
+
+        expect(liveDocumentListeners('selectstart')).toBe(0);
+        expect(liveDocumentListeners('pointerup')).toBe(0);
+        expect(liveDocumentListeners('pointercancel')).toBe(0);
+        expect(liveDocumentListeners('lostpointercapture')).toBe(0);
+        expect(liveDocumentListeners('click')).toBe(0);
+
+        // a click after destroy is not prevented
+        const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+        scrollbar.dispatchEvent(click);
+        expect(click.defaultPrevented).toBe(false);
+        vi.runAllTimers();
+      } finally {
+        restore();
+        target.remove();
+      }
+    });
+  });
+
   describe('instance', () => {
     describe('initialization', () => {
       describe('initialization completed', () => {

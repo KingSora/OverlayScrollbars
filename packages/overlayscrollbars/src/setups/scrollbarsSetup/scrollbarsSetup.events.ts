@@ -32,7 +32,6 @@ import {
   getElementScroll,
   scrollElementTo,
   getFocusedElement,
-  setT,
   hasAttr,
   stopAndPrevent,
   isFunction,
@@ -67,6 +66,14 @@ export const createScrollbarsSetupEvents = (
     const [wheelTimeout, clearWheelTimeout] = selfClearTimeout(333);
     const [scrollSnapScrollTransitionTimeout, clearScrollSnapScrollTransitionTimeout] =
       selfClearTimeout(444);
+    const [clickPreventionTimeout, clearClickPreventionTimeout] = selfClearTimeout(150);
+    const [focusViewportTimeout, clearFocusViewportTimeout] = selfClearTimeout(25);
+    // the document listeners which prevent the click after an interaction with the scrollbar
+    const clickPreventionCleanupFns: Array<() => void> = [];
+    const removeClickPrevention = () => {
+      clearClickPreventionTimeout();
+      runEachAndClear(clickPreventionCleanupFns);
+    };
     const scrollOffsetElementScrollBy = (coordinates: XY<number>) => {
       if (isFunction(_scrollOffsetElement.scrollBy)) {
         _scrollOffsetElement.scrollBy({
@@ -85,8 +92,7 @@ export const createScrollbarsSetupEvents = (
       const whKey = isHorizontal ? 'w' : 'h';
       const xyKey = isHorizontal ? 'x' : 'y';
       const pointerdownCleanupFns: Array<() => void> = [];
-
-      return addEventListener(
+      const removePointerdownListener = addEventListener(
         _track,
         'pointerdown',
         skipEventIfSleeping((pointerDownEvent: PointerEvent) => {
@@ -148,7 +154,7 @@ export const createScrollbarsSetupEvents = (
             const nonAnimatedScroll = isDragScroll || instantClickScroll;
             const revertScrollObscuringStyles = _removeScrollObscuringStyles();
 
-            const pointerupCleanupFns = [
+            const removeInteractionListeners = bind(runEachAndClear, [
               addEventListener(_documentElm, releasePointerCaptureEvents, releasePointerCapture),
               addEventListener(
                 _documentElm,
@@ -165,6 +171,9 @@ export const createScrollbarsSetupEvents = (
                     dragScrollStartOffset + pointerMoveEvent[clientXYKey] - pointerDownClientOffset
                   )
                 ),
+            ]);
+            const pointerupCleanupFns: Array<false | (() => void)> = [
+              removeInteractionListeners,
               nonAnimatedScroll &&
                 (() => {
                   const withoutSnapScrollOffset = getElementScroll(_scrollOffsetElement);
@@ -184,6 +193,7 @@ export const createScrollbarsSetupEvents = (
                 }),
             ];
 
+            push(pointerdownCleanupFns, removeInteractionListeners);
             pointerCaptureElement.setPointerCapture(pointerDownEvent.pointerId);
 
             if (instantClickScroll) {
@@ -219,6 +229,11 @@ export const createScrollbarsSetupEvents = (
           }
         })
       );
+
+      return bind(runEachAndClear, [
+        removePointerdownListener,
+        bind(runEachAndClear, pointerdownCleanupFns),
+      ]);
     };
 
     let wheelScrollBy = true;
@@ -282,7 +297,7 @@ export const createScrollbarsSetupEvents = (
               hasAttr(focusedElement, dataAttributeHost) ||
               focusedElement === document.body
             ) {
-              setT(bind(focusElement, _viewport), 25);
+              focusViewportTimeout(bind(focusElement, _viewport));
             }
           })
         ),
@@ -293,11 +308,13 @@ export const createScrollbarsSetupEvents = (
         _scrollbar,
         'pointerdown',
         () => {
+          removeClickPrevention();
+
           const removeClickEvent = addEventListener(
             _documentElm,
             'click',
             (clickEvent: Event) => {
-              removePointerEvents();
+              removeClickPrevention();
               stopAndPrevent(clickEvent);
             },
             {
@@ -311,19 +328,23 @@ export const createScrollbarsSetupEvents = (
             'pointerup pointercancel',
             () => {
               removePointerEvents();
-              setTimeout(removeClickEvent, 150);
+              clickPreventionTimeout(removeClickPrevention);
             },
             {
               _capture: true,
               _passive: true,
             }
           );
+
+          push(clickPreventionCleanupFns, [removeClickEvent, removePointerEvents]);
         },
         { _capture: true, _passive: true }
       ),
+      removeClickPrevention,
       createInteractiveScrollEvents(),
       clearWheelTimeout,
       clearScrollSnapScrollTransitionTimeout,
+      clearFocusViewportTimeout,
     ]);
   };
 };

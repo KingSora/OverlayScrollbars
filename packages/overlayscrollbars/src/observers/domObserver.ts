@@ -3,6 +3,7 @@ import {
   each,
   noop,
   MutationObserverConstructor,
+  WeakRefConstructor,
   addEventListener,
   is,
   find,
@@ -85,6 +86,29 @@ type EventContentChangeUpdateElement = (
   removed?: boolean
 ) => void;
 type EventContentChange = [destroy: () => void, updateElements: EventContentChangeUpdateElement];
+type EventContentChangeElementRef = { deref: () => Node | undefined };
+type EventContentChangeElementEntry = [
+  ref: EventContentChangeElementRef,
+  removeListeners: Record<string, () => void>,
+];
+
+const createElementRef = (elm: Node): EventContentChangeElementRef =>
+  WeakRefConstructor ? new WeakRefConstructor(elm) : { deref: () => elm };
+
+/**
+ * Adds the event listener for the passed element and event names.
+ * This is intentionally a separate function so the listener closure only captures the element, the event names and the callback.
+ * (a closure created inside the element loop would also keep the whole list of found elements alive, including detached ones)
+ * @param elm The element to which the listener shall be added.
+ * @param eventNames The event names divided by whitespaces.
+ * @param callback The callback which is called when one of the events is emitted.
+ * @returns A function which removes the listener.
+ */
+const addEventContentChangeListener = (
+  elm: Node,
+  eventNames: string,
+  callback: (...args: any) => any
+) => addEventListener(elm, eventNames, (event: Event) => callback(event));
 
 /**
  * Creates a set of helper functions to observe events of elements inside the target element.
@@ -98,46 +122,65 @@ const createEventContentChange = (
   callback: (...args: any) => any,
   eventContentChange?: DOMObserverEventContentChange
 ): EventContentChange => {
-  let destroyed = false;
-  const map = eventContentChange ? new WeakMap<Node, Record<string, () => any>>() : false; // weak map to prevent memory leak for detached elements
+  const map = new WeakMap<Node, EventContentChangeElementEntry>();
+  // weak references to all elements with listeners so destroy can remove every listener
+  // elements which leave the target are removed as soon as the mutation observer reports their removal
+  const refs = new Set<EventContentChangeElementRef>();
+  const removeElementListeners = (elm: Node) => {
+    const entry = map.get(elm);
+    if (entry) {
+      map.delete(elm);
+      refs.delete(entry[0]);
+      runEachAndClear(Object.values(entry[1]));
+    }
+  };
   const destroy = () => {
-    destroyed = true;
+    refs.forEach((ref) => {
+      const elm = ref.deref();
+      if (elm) {
+        removeElementListeners(elm);
+      }
+    });
+    refs.clear();
   };
   const updateElements: EventContentChangeUpdateElement = (getElements) => {
-    if (map && eventContentChange) {
-      const eventElmList = eventContentChange.map((item) => {
-        const [selector, eventNames] = item || [];
-        const elements = eventNames && selector ? (getElements || find)(selector, target) : [];
-        return [elements, eventNames] as const;
+    if (eventContentChange) {
+      // remove the references of already gc'd elements
+      refs.forEach((ref) => {
+        if (!ref.deref()) {
+          refs.delete(ref);
+        }
       });
 
-      each(eventElmList, (item) =>
-        each(item[0], (elm) => {
-          const eventNames = item[1];
-          const entries = map.get(elm) || Object.create(null);
-          const isTargetChild = target.contains(elm);
+      each(eventContentChange, (item) => {
+        const [selector, eventNames] = item || [];
+        const elements = eventNames && selector ? (getElements || find)(selector, target) : [];
 
-          if (isTargetChild && eventNames && entries[eventNames]) {
+        each(elements, (elm) => {
+          if (!target.contains(elm)) {
+            removeElementListeners(elm);
             return;
           }
 
-          if (isTargetChild && eventNames) {
-            const removeListener = addEventListener(elm, eventNames, (event: Event) => {
-              if (destroyed) {
-                removeListener();
-                map.delete(elm);
-              } else {
-                callback(event);
-              }
-            });
-            entries[eventNames] = removeListener;
-            map.set(elm, entries);
-          } else {
-            runEachAndClear(Object.values(entries));
-            map.delete(elm);
+          let entry = map.get(elm);
+
+          if (!entry) {
+            entry = [createElementRef(elm), Object.create(null)];
+            map.set(elm, entry);
+            refs.add(entry[0]);
           }
-        })
-      );
+
+          const removeListeners = entry[1];
+
+          if (!removeListeners[eventNames!]) {
+            removeListeners[eventNames!] = addEventContentChangeListener(
+              elm,
+              eventNames!,
+              callback
+            );
+          }
+        });
+      });
     }
   };
 

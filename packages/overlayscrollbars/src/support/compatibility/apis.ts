@@ -9,4 +9,5 @@ export const MutationObserverConstructor = getApi<typeof MutationObserver>('Muta
 export const IntersectionObserverConstructor =
   getApi<typeof IntersectionObserver>('IntersectionObserver');
 export const ResizeObserverConstructor = getApi<typeof ResizeObserver>('ResizeObserver');
+export const WeakRefConstructor = getApi<typeof WeakRef>('WeakRef');
 export const scrollT = getApi<new (constructor: unknown) => AnimationTimeline>('ScrollTimeline');

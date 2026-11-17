@@ -742,6 +742,30 @@ describe('function', () => {
         });
       });
     });
+
+    test('_clear cancels a pending invocation', () => {
+      let i = 0;
+      const debouncedFn = debounce(
+        () => {
+          i += 1;
+        },
+        { _debounceTiming: 100, _maxDebounceTiming: 200 }
+      );
+
+      debouncedFn();
+      debouncedFn._clear();
+      vi.runAllTimers();
+      expect(i).toBe(0);
+
+      // flush has nothing to invoke after clear
+      debouncedFn._flush();
+      expect(i).toBe(0);
+
+      // the debounced function works normally after clear
+      debouncedFn();
+      vi.advanceTimersByTime(100);
+      expect(i).toBe(1);
+    });
   });
 
   test('bind', () => {

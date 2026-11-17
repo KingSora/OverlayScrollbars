@@ -433,6 +433,106 @@ describe('createDOMObserver', () => {
       destroy();
     });
 
+    test('eventContentChange removes all listeners on destroy', async () => {
+      document.body.innerHTML = '<div><img id="a" /></div><div><img id="b" /></div>';
+      const callback = vi.fn();
+      const imgs = Array.from(document.querySelectorAll('img'));
+      const spies = imgs.map((img) => [
+        vi.spyOn(img, 'addEventListener'),
+        vi.spyOn(img, 'removeEventListener'),
+      ]);
+      const liveListeners = (index: number, eventName: string) => {
+        const [add, remove] = spies[index];
+        return (
+          add.mock.calls.filter(([name]) => name === eventName).length -
+          remove.mock.calls.filter(([name]) => name === eventName).length
+        );
+      };
+
+      for (let round = 0; round < 3; round++) {
+        const [construct] = createDOMObserver(document.body, true, callback, {
+          _eventContentChange: [['img', 'load error']],
+        });
+        const destroy = construct();
+
+        // an image added after initialization
+        const added = document.createElement('img');
+        document.body.append(added);
+        await Promise.resolve();
+
+        expect(liveListeners(0, 'load')).toBe(1);
+        expect(liveListeners(1, 'error')).toBe(1);
+
+        // no event is fired again before destroy
+        destroy();
+
+        expect(liveListeners(0, 'load')).toBe(0);
+        expect(liveListeners(0, 'error')).toBe(0);
+        expect(liveListeners(1, 'load')).toBe(0);
+        expect(liveListeners(1, 'error')).toBe(0);
+
+        callback.mockClear();
+        imgs[0].dispatchEvent(new Event('load'));
+        added.dispatchEvent(new Event('load'));
+        expect(callback).not.toHaveBeenCalled();
+
+        added.remove();
+      }
+    });
+
+    describe.each([
+      ['with WeakRef', 'WeakRef'],
+      ['without WeakRef', undefined],
+    ])('eventContentChange %s', (_, weakRefName) => {
+      const importCreateDOMObserver = async () => {
+        vi.resetModules();
+        vi.doMock(import('../../../src/support/compatibility/apis'), async (importActual) => ({
+          ...(await importActual()),
+          WeakRefConstructor: weakRefName ? WeakRef : undefined,
+        }));
+        const module = await import('../../../src/observers');
+        vi.doUnmock('../../../src/support/compatibility/apis');
+        return module.createDOMObserver;
+      };
+
+      test('destroy removes listeners of elements whose removal was not processed yet', async () => {
+        const createDOMObserverFn = await importCreateDOMObserver();
+        document.body.innerHTML = '<div><img id="a" /><img id="b" /></div>';
+        const callback = vi.fn();
+        const [imgA, imgB] = Array.from(document.querySelectorAll('img'));
+        const spies = [imgA, imgB].map((img) => [
+          vi.spyOn(img, 'addEventListener'),
+          vi.spyOn(img, 'removeEventListener'),
+        ]);
+        const liveListeners = (index: number) =>
+          spies[index][0].mock.calls.length - spies[index][1].mock.calls.length;
+        const [construct] = createDOMObserverFn(document.body, true, callback, {
+          _eventContentChange: [['img', 'load']],
+        });
+        const destroy = construct();
+
+        expect(liveListeners(0)).toBe(1);
+        expect(liveListeners(1)).toBe(1);
+
+        // removal of imgB is processed by the mutation observer
+        imgB.remove();
+        await Promise.resolve();
+        expect(liveListeners(1)).toBe(0);
+
+        // removal of imgA is still pending when destroy is called
+        imgA.remove();
+        destroy();
+
+        expect(liveListeners(0)).toBe(0);
+        expect(liveListeners(1)).toBe(0);
+
+        callback.mockClear();
+        imgA.dispatchEvent(new Event('load'));
+        imgB.dispatchEvent(new Event('load'));
+        expect(callback).not.toHaveBeenCalled();
+      });
+    });
+
     test('update', async () => {
       document.body.innerHTML = '<div></div>';
       const callback = vi.fn();

@@ -141,6 +141,7 @@ export const createObserversSetup = (
       debouncedFn(updateHints);
     };
     fn._flush = debouncedFn._flush;
+    fn._clear = debouncedFn._clear;
 
     return fn;
   };
@@ -338,6 +339,8 @@ export const createObserversSetup = (
         }
         destroyHostMutationObserver();
         removeResizeListener();
+        // a pending debounced update shall not run after destroy
+        onObserversUpdatedDebounced._clear();
       };
     },
     ({ _checkOption, _takeRecords, _force }) => {

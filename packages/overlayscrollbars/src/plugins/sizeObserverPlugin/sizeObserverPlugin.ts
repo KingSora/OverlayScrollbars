@@ -15,6 +15,8 @@ import {
   strWidth,
   strHeight,
   setStyles,
+  push,
+  isNumber,
 } from '../../support';
 import {
   classNameSizeObserverListenerScroll,
@@ -46,14 +48,14 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
         let cacheSize = getOffsetSize(observerElementChildrenRoot);
         let currSize = cacheSize;
         let isDirty = false;
-        let rAFId: number;
+        let rAFId: number | null = null;
 
         const reset = () => {
           scrollElementTo(expandElement, scrollAmount);
           scrollElementTo(shrinkElement, scrollAmount);
         };
         const onResized = (appear?: unknown) => {
-          rAFId = 0;
+          rAFId = null;
           if (isDirty) {
             cacheSize = currSize;
             onSizeChangedCallback(appear === true);
@@ -66,8 +68,7 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
           if (scrollEvent) {
             stopPropagation(scrollEvent);
 
-            if (isDirty && !rAFId) {
-              cAF!(rAFId);
+            if (isDirty && !isNumber(rAFId)) {
               rAFId = rAF!(onResized);
             }
           } else {
@@ -90,7 +91,15 @@ export const SizeObserverPlugin = /* @__PURE__ */ (() => ({
           [strHeight]: scrollAmount,
         });
 
-        rAF!(reset);
+        const resetRAFId = rAF!(reset);
+
+        // pending animation frames shall not run after destroy
+        push(destroyFns, () => {
+          if (isNumber(rAFId)) {
+            cAF!(rAFId);
+          }
+          cAF!(resetRAFId);
+        });
 
         return [observeAppearChange ? bind(onScroll, false) : reset, destroyFns];
       },

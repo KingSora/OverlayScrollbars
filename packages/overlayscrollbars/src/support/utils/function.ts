@@ -34,6 +34,7 @@ export interface DebounceOptions<FunctionToDebounce extends (...args: any) => an
 export interface Debounced<FunctionToDebounce extends (...args: any) => any> {
   (...args: Parameters<FunctionToDebounce>): ReturnType<FunctionToDebounce>;
   _flush(): void;
+  _clear(): void;
 }
 
 export const bind = <A extends any[], B extends any[], R>(
@@ -104,7 +105,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
   let prevArguments: Parameters<FunctionToDebounce> | null | undefined;
   let leadingInvoked: boolean | undefined;
 
-  const invokeFunctionToDebounce = function (args: Parameters<FunctionToDebounce>) {
+  const clear = () => {
     if (cancelTimeoutDebounder) {
       cancelTimeoutDebounder();
     }
@@ -113,6 +114,10 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
     }
 
     leadingInvoked = cancelTimeoutDebounder = cancelMaxTimeoutDebouncer = prevArguments = undefined;
+  };
+
+  const invokeFunctionToDebounce = function (args: Parameters<FunctionToDebounce>) {
+    clear();
     // eslint-disable-next-line
     // @ts-ignore
     functionToDebounce.apply(this, args);
@@ -164,6 +169,7 @@ export const debounce = <FunctionToDebounce extends (...args: any) => any>(
     }
   };
   debouncedFn._flush = flush;
+  debouncedFn._clear = clear;
 
   return debouncedFn as Debounced<FunctionToDebounce>;
 };
