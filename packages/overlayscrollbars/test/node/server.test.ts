@@ -13,13 +13,16 @@ describe('usage on server', () => {
   test('static functions', async () => {
     await expect(
       (async () => {
-        const { OverlayScrollbars } = await import('../../src/index');
+        const { OverlayScrollbars, ScrollPersistencePlugin, createScrollPersistencePlugin } =
+          await import('../../src/index');
 
         expect(() => {
           OverlayScrollbars.valid(false);
         }).not.toThrow();
         expect(() => {
           OverlayScrollbars.plugin({});
+          OverlayScrollbars.plugin(ScrollPersistencePlugin);
+          OverlayScrollbars.plugin(createScrollPersistencePlugin({ storage: 'local' }));
         }).not.toThrow();
       })()
     ).resolves.not.toThrow();

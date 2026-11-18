@@ -8,7 +8,13 @@ export {
   CloneableScrollbarElements,
   ScrollbarElements,
 } from './overlayscrollbars';
-export { ScrollbarsHidingPlugin, SizeObserverPlugin, ClickScrollPlugin } from './plugins';
+export {
+  ScrollbarsHidingPlugin,
+  SizeObserverPlugin,
+  ClickScrollPlugin,
+  ScrollPersistencePlugin,
+  createScrollPersistencePlugin,
+} from './plugins';
 
 export type {
   Options,
@@ -47,4 +53,11 @@ export type {
   InstancePluginEvent,
   InferStaticPluginModuleInstance,
   InferInstancePluginModuleInstance,
+  ScrollPersistenceStorageAdapter,
+  ScrollPersistenceStorage,
+  ScrollPersistencePosition,
+  ScrollPersistenceAxis,
+  ScrollPersistenceKeyResolver,
+  ScrollPersistencePluginOptions,
+  ScrollPersistencePluginInstance,
 } from './plugins';

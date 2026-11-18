@@ -8,6 +8,7 @@ export const classNameEnvironmentScrollbarHidden = `${classNameEnvironment}-scro
 
 // initialize
 export const dataAttributeInitialize = `${dataAttributePrefix}-initialize`;
+export const dataAttributeScrollKey = 'data-overlayscrollbars-scroll-key';
 
 // shared
 export const dataValueNoClipping = 'noClipping';
