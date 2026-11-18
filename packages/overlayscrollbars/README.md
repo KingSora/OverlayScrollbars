@@ -73,7 +73,8 @@ import {
   OverlayScrollbars, 
   ScrollbarsHidingPlugin, 
   SizeObserverPlugin, 
-  ClickScrollPlugin 
+  ClickScrollPlugin,
+  ScrollPersistencePlugin
 } from 'overlayscrollbars';
 ```
 
@@ -102,7 +103,8 @@ var {
   OverlayScrollbars, 
   ScrollbarsHidingPlugin, 
   SizeObserverPlugin, 
-  ClickScrollPlugin  
+  ClickScrollPlugin,
+  ScrollPersistencePlugin
 } = OverlayScrollbarsGlobal;
 ```
 
@@ -1269,6 +1271,7 @@ Anything that is not considered core functionality or old browser compatibility 
 - **ScrollbarsHidingPlugin**: Needed for old browsers that don't support native scrollbar styling. [You can find the list of browsers where you need this plugin here](https://caniuse.com/?search=scrollbar%20styling) (note that even though `iOS Safari >= 14` is marked as unsupported, you only need this plugin for `iOS < 7.1`).
 - **SizeObserverPlugin**: Needed for old browsers that don't support the `ResizeObserver` api. [You can find the list of browsers that need this plugin here](https://caniuse.com/?search=ResizeObserver)
 - **ClickScrollPlugin**: If you want to use the option `scrollbars: { clickScroll: true }`.
+- **ScrollPersistencePlugin**: Persists and restores the scroll position of OverlayScrollbars instances across page reloads using `sessionStorage`, `localStorage`, or a custom storage adapter.
 
 ### Consuming Plugins
 
@@ -1278,15 +1281,67 @@ import {
   OverlayScrollbars, 
   ScrollbarsHidingPlugin, 
   SizeObserverPlugin, 
-  ClickScrollPlugin 
+  ClickScrollPlugin,
+  ScrollPersistencePlugin
 } from 'overlayscrollbars';
 
 // Single plugin
 OverlayScrollbars.plugin(ScrollbarsHidingPlugin);
 
 // Multiple plugins
-OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin]);
+OverlayScrollbars.plugin([SizeObserverPlugin, ClickScrollPlugin, ScrollPersistencePlugin]);
 ```
+
+### ScrollPersistencePlugin
+
+<details>
+  <summary>
+    This is an in depth topic. Click here to read it.
+  </summary>
+  <br />
+
+`ScrollPersistencePlugin` automatically saves the scroll offset of each OverlayScrollbars instance and restores it when the element is initialized again (such as after a page reload).
+
+By default, positions are stored in `sessionStorage` under a key derived from the current URL (`pathname + search`) and either the target element's `data-overlayscrollbars-scroll-key` attribute, `id`, `body`, or structural DOM path. Set `data-overlayscrollbars-scroll-key="false"` on a target element to exclude it from persistence.
+
+Use `createScrollPersistencePlugin` to customize behavior:
+
+```ts
+import { OverlayScrollbars, createScrollPersistencePlugin } from 'overlayscrollbars';
+
+OverlayScrollbars.plugin(
+  createScrollPersistencePlugin({
+    storage: 'local',
+    prefix: 'os-scroll:',
+    axes: 'xy',
+    debounce: 100,
+    restoreOnUpdate: true,
+    key: (instance) => instance.elements().target.id || null,
+  })
+);
+```
+
+| option | type | default | description |
+| :--- | :--- | :--- | :--- |
+| `storage` | `'session' \| 'local' \| ScrollPersistenceStorageAdapter` | `'session'` | The storage backend (`sessionStorage`, `localStorage`, or a custom object with `getItem`, `setItem`, and `removeItem`). |
+| `prefix` | `string` | `'os-scroll:'` | Prefix prepended to resolved storage keys. |
+| `key` | `string \| ((instance: OverlayScrollbars) => string \| false \| null \| undefined) \| null` | `null` | Custom storage key or resolver function. Returning a falsy value skips persistence for that instance. |
+| `axes` | `'x' \| 'y' \| 'xy'` | `'xy'` | Scroll axes to persist and restore. |
+| `debounce` | `number \| false \| null` | `100` | Debounce duration in milliseconds for saving on scroll (`false` or `null` writes synchronously; pending saves are flushed on `pagehide`, `beforeunload`, and `destroy`). |
+| `restoreOnUpdate` | `boolean` | `true` | Retries restoration on subsequent updates until the saved scroll offset is reached (for asynchronously loaded content) or the user interacts with the container. |
+
+Each instance exposes imperative helpers via `osInstance.plugin(ScrollPersistencePlugin)`:
+
+```ts
+const persistence = osInstance.plugin(ScrollPersistencePlugin);
+persistence?.save();
+persistence?.restore();
+persistence?.get();
+persistence?.clear();
+persistence?.key();
+```
+
+</details>
 
 ### Plugins in depth
 

@@ -7,6 +7,7 @@ import {
   ClickScrollPlugin,
   OptionsValidationPlugin,
   ScrollbarsHidingPlugin,
+  ScrollPersistencePlugin,
   SizeObserverPlugin,
 } from '../../src/plugins';
 
@@ -1031,12 +1032,13 @@ describe('overlayscrollbars', () => {
   });
 
   test('build in plugins', () => {
-    const [clickScroll, scrollbarHiding, sizeObserver, optionsValidation] =
+    const [clickScroll, scrollbarHiding, sizeObserver, optionsValidation, scrollPersistence] =
       OverlayScrollbars.plugin([
         ClickScrollPlugin,
         ScrollbarsHidingPlugin,
         SizeObserverPlugin,
         OptionsValidationPlugin,
+        ScrollPersistencePlugin,
       ]);
 
     expect(typeof clickScroll).toBe('function');
@@ -1044,7 +1046,16 @@ describe('overlayscrollbars', () => {
     expect(typeof scrollbarHiding._viewportArrangement).toBe('function');
     expect(typeof sizeObserver).toBe('function');
     expect(typeof optionsValidation).toBe('function');
+    expect(scrollPersistence).toBeUndefined();
 
-    expect(OverlayScrollbars(div, {})).toBeDefined();
+    const instance = OverlayScrollbars(div, {});
+    expect(instance).toBeDefined();
+    expect(instance.plugin(ScrollPersistencePlugin)).toEqual({
+      save: expect.any(Function),
+      restore: expect.any(Function),
+      clear: expect.any(Function),
+      get: expect.any(Function),
+      key: expect.any(Function),
+    });
   });
 });
